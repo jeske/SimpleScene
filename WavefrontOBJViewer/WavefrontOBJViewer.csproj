@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E028B740-9EBB-491B-8080-CDED0AAD2F92}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OpenTKTest</RootNamespace>
+    <AssemblyName>OpenTKTest</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <Externalconsole>True</Externalconsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <Externalconsole>True</Externalconsole>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="OpenTK">
+      <HintPath>..\..\OpenTK\opentk.git\Binaries\OpenTK\Debug\OpenTK.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="WavefrontObjLoader.cs" />
+    <Compile Include="SimpleScene\SSObject.cs" />
+    <Compile Include="SimpleScene\SSMesh.cs" />
+    <Compile Include="SimpleScene\SSMeshMulti.cs" />
+    <Compile Include="SimpleScene\SSMaterial.cs" />
+    <Compile Include="SimpleScene\SSTexture.cs" />
+    <Compile Include="SimpleScene\SSScene.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectTriangle.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectCube.cs" />
+    <Compile Include="SimpleScene\Objects\SSCameraThirdPerson.cs" />
+    <Compile Include="SimpleScene\SSCamera.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="SimpleScene\" />
+    <Folder Include="SimpleScene\Objects\" />
+  </ItemGroup>
+</Project>
