@@ -1,0 +1,11 @@
+newmtl blinn8SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd drone2_color.png
+map_Ka drone2_glow.png
+bump drone2_bump.png -bm 0.2
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks drone2_spec.png

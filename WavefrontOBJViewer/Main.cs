@@ -18,6 +18,17 @@ namespace WavefrontOBJViewer
 
 		bool mouseButtonDown = false;
 
+		public void setupScene() {
+		    SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./"));
+
+			// scene.addObject (new SSObjectCube ());
+			scene.addObject (new SSObjectTriangle () );
+			scene.addObject (scene.activeCamera = new SSCamera ());
+			
+            SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
+			scene.addObject (new SSObjectMesh(new SSMesh_FromOBJ(ctx, "drone2.obj", true)));
+		}
+
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public Game()
 			: base(800, 600, GraphicsMode.Default, "OpenTK Quick Start Sample")
@@ -26,10 +37,8 @@ namespace WavefrontOBJViewer
 
 			// setup the scene
 			scene = new SSScene ();
-			// scene.addObject (new SSObjectCube ());
-			scene.addObject(new SSObjectTriangle () );
-			scene.addObject (scene.activeCamera = new SSCamera ());
-
+			this.setupScene();
+		
 			// hook mouse drag input...
 			this.Mouse.ButtonDown += (object sender, MouseButtonEventArgs e) => {
 				this.mouseButtonDown = true;

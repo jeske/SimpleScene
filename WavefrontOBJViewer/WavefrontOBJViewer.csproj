@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E028B740-9EBB-491B-8080-CDED0AAD2F92}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>OpenTKTest</RootNamespace>
+    <RootNamespace>WavefrontOBJViewer</RootNamespace>
     <AssemblyName>OpenTKTest</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -34,16 +34,12 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="OpenTK">
-      <HintPath>..\..\OpenTK\opentk.git\Binaries\OpenTK\Debug\OpenTK.dll</HintPath>
+      <HintPath>bin\Debug\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="WavefrontObjLoader.cs" />
-    <Compile Include="SimpleScene\SSObject.cs" />
-    <Compile Include="SimpleScene\SSMesh.cs" />
-    <Compile Include="SimpleScene\SSMeshMulti.cs" />
     <Compile Include="SimpleScene\SSMaterial.cs" />
     <Compile Include="SimpleScene\SSTexture.cs" />
     <Compile Include="SimpleScene\SSScene.cs" />
@@ -51,10 +47,20 @@
     <Compile Include="SimpleScene\Objects\SSObjectCube.cs" />
     <Compile Include="SimpleScene\Objects\SSCameraThirdPerson.cs" />
     <Compile Include="SimpleScene\SSCamera.cs" />
+    <Compile Include="SimpleScene\SSAssetManager.cs" />
+    <Compile Include="SimpleScene\SSVertexFormats.cs" />
+    <Compile Include="SimpleScene\Meshes\SSMesh.cs" />
+    <Compile Include="SimpleScene\Util\VertexSoup.cs" />
+    <Compile Include="SimpleScene\Util\WavefrontObjLoader.cs" />
+    <Compile Include="SimpleScene\Meshes\SSMesh_FromOBJ.cs" />
+    <Compile Include="SimpleScene\Objects\SSObject.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectMesh.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="SimpleScene\" />
     <Folder Include="SimpleScene\Objects\" />
+    <Folder Include="SimpleScene\Meshes\" />
+    <Folder Include="SimpleScene\Util\" />
   </ItemGroup>
 </Project>
