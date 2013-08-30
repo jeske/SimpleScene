@@ -59,11 +59,11 @@ namespace WavefrontOBJViewer
                 PixelInternalFormat.Three,
                 TextureBitmap.Width, TextureBitmap.Height,
                 0, // border
-                PixelFormat.Bgra,
+                PixelFormat.Rgb,
                 PixelType.UnsignedByte,
                 TextureData.Scan0
                 );
-                
+
 		 
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver
 		    TextureBitmap.UnlockBits(TextureData);
