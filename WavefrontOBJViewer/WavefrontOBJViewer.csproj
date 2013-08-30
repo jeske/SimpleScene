@@ -33,9 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
-    <Reference Include="OpenTK.Compatibility">
-      <HintPath>bin\Debug\OpenTK.Compatibility.dll</HintPath>
-    </Reference>
     <Reference Include="OpenTK">
       <HintPath>bin\Debug\OpenTK.dll</HintPath>
     </Reference>

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using OpenTK;
-using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 using Util3d;
 
@@ -46,12 +46,23 @@ namespace WavefrontOBJViewer
         
 		public override void Render(){			
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
+				// setup texture rendering (should only do this if it's not already done)
+				// GL.Disable(EnableCap.CullFace);
+                GL.Enable(EnableCap.Texture2D);
+                GL.Enable(EnableCap.Blend);
+                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+				
 				// set material
+				GL.BindTexture(TextureTarget.Texture2D, subset.texture.TextureID);
+
+				
 				// draw faces
 				GL.Begin(BeginMode.Triangles);
 				foreach(var idx in subset.indicies) {
 					var vertex = subset.vertices[idx];
 					GL.Color3(ref vertex.DiffuseColor);
+					GL.TexCoord2(vertex.Tu,vertex.Tv);
 					// GL.MultiTexCoord2(
 					GL.Normal3(vertex.Normal);
 					GL.Vertex3(vertex.Position);
