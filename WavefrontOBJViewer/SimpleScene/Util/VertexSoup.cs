@@ -1,13 +1,27 @@
-﻿using System;
+﻿// Copyright(C) David W. Jeske, 2012
+// Released to the public domain. Use, modify and relicense at will.
+
+using System;
 using System.Collections.Generic;
-// using System.Linq;
 using System.Text;
 
 using System.Drawing;
 
 namespace Util3d {
 
-    public class VertexSoup<VERTEX_STRUCT> where VERTEX_STRUCT : struct {
+	// VertexSoup
+	//
+	// This class is used to accumulate a uniquefied set of fully-configured-3d verticies
+	// for 3d rendering. Each VERTEX_STRUCT passed to digestVerticies() is either mapped
+	// to an existing matching vertex, or issued a new vertex index. 
+	//
+	// default structure hashcode is bitwise XOR if it contains no gaps and no references
+	// default structure equality is bitwise equality
+	// 
+	// if you define your own GetHashCode() or Equals() 
+	// -or- your struct contains referneces, be careful
+	
+    public class VertexSoup<VERTEX_STRUCT> {
         
         Dictionary<VERTEX_STRUCT,Int16> vertexToIndexMap = new Dictionary<VERTEX_STRUCT,Int16>();
         public List<VERTEX_STRUCT> verticies = new List<VERTEX_STRUCT>();
@@ -31,7 +45,6 @@ namespace Util3d {
         
         public VertexSoup() {
         }
-
     }
 }
 

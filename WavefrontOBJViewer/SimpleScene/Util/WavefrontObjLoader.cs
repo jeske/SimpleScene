@@ -11,7 +11,7 @@ using System.IO;
 //
 // Copyright (C) 2012 David Jeske, and given to the public domain
 //
-// Originally Copied from DXGfx code by Guillaume Randon, Copyright (C) 2005, BSD License (See below notice)
+// Originally Based on DXGfx code by Guillaume Randon, Copyright (C) 2005, BSD License (See below notice)
 //
 // BSD License  
 // DXGfx® - http://www.eteractions.com
