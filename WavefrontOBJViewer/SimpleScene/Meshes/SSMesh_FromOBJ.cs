@@ -98,6 +98,7 @@ namespace WavefrontOBJViewer
             generateDrawIndexBuffer(wff, out subsetData.indicies, out subsetData.vertices);           
 
 			// TODO: setup VBO/IBO buffers
+			// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
 
             return subsetData;
         }
