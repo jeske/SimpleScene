@@ -12,7 +12,7 @@ using Util3d;
 
 namespace WavefrontOBJViewer
 {
-	public class SSMesh_FromOBJ_GLSL : SSMesh {
+	public class SSMesh_wfOBJ_GLSL : SSMesh {
 
 		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
 		SSAssetManagerContext ctx;
@@ -36,7 +36,7 @@ namespace WavefrontOBJViewer
 		}
 
 		#region Constructor
-		public SSMesh_FromOBJ_GLSL(SSAssetManagerContext ctx, string filename, bool mipmapped) {
+		public SSMesh_wfOBJ_GLSL(SSAssetManagerContext ctx, string filename, bool mipmapped) {
 			this.srcFilename = filename;
 			// this.mipmapped = mipmapped;
 			this.ctx = ctx;

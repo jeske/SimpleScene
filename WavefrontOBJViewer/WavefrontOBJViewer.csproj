@@ -54,9 +54,9 @@
     <Compile Include="SimpleScene\Util\WavefrontObjLoader.cs" />
     <Compile Include="SimpleScene\Objects\SSObject.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectMesh.cs" />
-    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_FromOBJ.cs" />
-    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_FromOBJ_GLSL.cs" />
     <Compile Include="SimpleScene\Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
+    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
+    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_wfOBJ_GLSL.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

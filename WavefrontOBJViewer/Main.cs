@@ -27,7 +27,7 @@ namespace WavefrontOBJViewer
 			scene.addObject (scene.activeCamera = new SSCamera ());
 			
             SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
-			scene.addObject (new SSObjectMesh(new SSMesh_FromOBJ(ctx, "drone2.obj", true)));
+			scene.addObject (new SSObjectMesh(new SSMesh_wfOBJ(ctx, "drone2.obj", true)));
 		}
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
