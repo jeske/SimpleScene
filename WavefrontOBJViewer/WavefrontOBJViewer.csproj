@@ -52,9 +52,11 @@
     <Compile Include="SimpleScene\Meshes\SSMesh.cs" />
     <Compile Include="SimpleScene\Util\VertexSoup.cs" />
     <Compile Include="SimpleScene\Util\WavefrontObjLoader.cs" />
-    <Compile Include="SimpleScene\Meshes\SSMesh_FromOBJ.cs" />
     <Compile Include="SimpleScene\Objects\SSObject.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectMesh.cs" />
+    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_FromOBJ.cs" />
+    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_FromOBJ_GLSL.cs" />
+    <Compile Include="SimpleScene\Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -62,5 +64,9 @@
     <Folder Include="SimpleScene\Objects\" />
     <Folder Include="SimpleScene\Meshes\" />
     <Folder Include="SimpleScene\Util\" />
+    <Folder Include="SimpleScene\Meshes\wfOBJ\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TODO.txt" />
   </ItemGroup>
 </Project>
