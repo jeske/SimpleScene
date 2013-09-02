@@ -1,1 +1,16 @@
+# git ignore file
+
+# global ignores for files in any directory
+
 *.userprefs
+
+# output directories
+
+WavefrontOBJViewer/bin
+WavefrontOBJViewer/obj
+
+
+
+
+
+
