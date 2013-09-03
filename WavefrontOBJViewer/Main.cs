@@ -72,9 +72,6 @@ namespace WavefrontOBJViewer
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			
-			GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
-			GL.Enable(EnableCap.DepthTest);
 		}
 		
 		/// <summary>
@@ -114,6 +111,10 @@ namespace WavefrontOBJViewer
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
+
+			// GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);  // black
+			GL.ClearColor(System.Drawing.Color.White);
+			GL.Enable(EnableCap.DepthTest);
 
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 

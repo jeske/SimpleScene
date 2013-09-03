@@ -56,7 +56,11 @@ namespace WavefrontOBJViewer
 							}
 						}
 
-						vertex_list[facevertex].DiffuseColor = WavefrontObjLoader.CIEXYZtoRGB(mtl.vDiffuse);
+						// this is how you do directX...
+						vertex_list[facevertex].DiffuseColor = WavefrontObjLoader.CIEXYZtoColor(mtl.vDiffuse);
+						
+						// openGL
+						// vertex_list[facevertex].DiffuseColor = CV(mtl.vDiffuse);
 					}
 
 					// turn them into indicies in the vertex soup..

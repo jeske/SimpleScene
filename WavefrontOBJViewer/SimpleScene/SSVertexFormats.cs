@@ -13,7 +13,10 @@ namespace WavefrontOBJViewer
 	public struct SSVertex_PosNormDiffTex1 {
 		public Vector3 Position;
         public Vector3 Normal;
-        public int DiffuseColor;
+        
+        public System.Drawing.Color DiffuseColor;
+
+        // public int DiffuseColor;
         public float Tu, Tv;
 	}
 }

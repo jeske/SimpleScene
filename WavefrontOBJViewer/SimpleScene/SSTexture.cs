@@ -59,10 +59,10 @@ namespace WavefrontOBJViewer
 		    GL.TexImage2D(
                 TextureTarget.Texture2D,
                 0, // level
-                PixelInternalFormat.Three,
+                PixelInternalFormat.CompressedRgb,
                 TextureBitmap.Width, TextureBitmap.Height,
                 0, // border
-                PixelFormat.Rgb,
+                PixelFormat.Bgr,     // why is this Bgr when the lockbits is rgb!?
                 PixelType.UnsignedByte,
                 TextureData.Scan0
                 );
