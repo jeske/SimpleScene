@@ -13,10 +13,13 @@ namespace WavefrontOBJViewer
     {
         public override void Render() {
             base.Render ();
-            
-            GL.Disable(EnableCap.CullFace);
-            GL.Disable(EnableCap.Texture2D);
-            GL.Disable(EnableCap.Blend);
+
+			// mode setup
+			GL.Disable(EnableCap.CullFace);
+			GL.Disable(EnableCap.Texture2D);
+			GL.Disable(EnableCap.Blend);
+
+			// triangle draw...
             GL.Begin(BeginMode.Triangles);
 
             GL.Color3(1.0f, 1.0f, 0.0f); GL.Vertex3(-1.0f, -1.0f, 4.0f);
