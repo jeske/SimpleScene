@@ -32,14 +32,9 @@ namespace WavefrontOBJViewer
 		}
 
 		public void Render() {
-
+			GL.MatrixMode(MatrixMode.Modelview);
 			foreach (var obj in objects) {
-				// should load this objects projection matrix instead..
-				Matrix4 modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
-				GL.MatrixMode(MatrixMode.Modelview);
-				GL.LoadMatrix(ref modelview);
-
-
+				GL.LoadMatrix(ref obj.localMat);
 				obj.Render ();
 			}
 		}

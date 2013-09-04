@@ -17,13 +17,13 @@ namespace WavefrontOBJViewer
 			this.FollowTarget = followTarget;			
 		}
 		public override void Update() {
+			Vector3 pos = this.Pos;
 			// FPS follow the target
 			if (this.FollowTarget != null) {
-				this.Pos = this.FollowTarget.Pos;
+				pos = this.FollowTarget.Pos;
 			} 
 			
-			Vector3 _derivedPos = this.Pos + (this.Dir * -followDistance);
-			
+			Vector3 _derivedPos = pos + (this.Dir * -followDistance);
 			this.updateMat (ref this._dir, ref this._up, ref this._right, ref _derivedPos);
 
 		}

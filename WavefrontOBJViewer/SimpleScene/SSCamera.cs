@@ -15,8 +15,8 @@ namespace WavefrontOBJViewer
 			return (float)Math.PI * angleInDegrees / 180.0f;
 		}
 		public void MouseDeltaOrient(float XDelta, float YDelta) {	
-			Quaternion pitch_Rotation = Quaternion.FromAxisAngle(Vector3.UnitX,DegreeToRadian(YDelta));
-			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(this.Up,DegreeToRadian(XDelta));
+			Quaternion pitch_Rotation = Quaternion.FromAxisAngle(this._right,DegreeToRadian(YDelta));
+			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(XDelta));
 			
 			Quaternion qObjectRotation = this.localMat.ExtractRotation();
 			

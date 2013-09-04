@@ -19,7 +19,7 @@ namespace WavefrontOBJViewer
 		protected Vector3 _pos;
 		public Vector3 Pos {  
 			get { return _pos; } 
-			set { _pos = value; updateMat (); }
+			set { _pos = value; }
 		}
 		protected Vector3 _dir;
 		public Vector3 Dir { get { return _dir; } }
@@ -42,7 +42,7 @@ namespace WavefrontOBJViewer
 			this._right = Vector3.Cross(this._up, this._dir);
 			this._right.Normalize();
 			
-			this.updateMat();
+			// this.updateMat();
 		}
 		protected void updateMat() {
 			this.updateMat (ref this._dir, ref this._up, ref this._right, ref this._pos);

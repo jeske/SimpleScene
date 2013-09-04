@@ -51,11 +51,11 @@ namespace WavefrontOBJViewer
 				Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 				SSObject camera = scene.activeCamera;
 				if (camera != null) {
-					camera.Pos += camera.Dir * e.DeltaPrecise;
-					
 					SSCameraThirdPerson ctp = camera as SSCameraThirdPerson;
 					if (ctp != null) {
 						ctp.followDistance -= e.DeltaPrecise;
+					} else {
+						camera.Pos += camera.Dir * e.DeltaPrecise;
 					}
 				}
 			};
@@ -111,13 +111,16 @@ namespace WavefrontOBJViewer
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
+			
+			scene.Update();
+			
 			GL.Enable(EnableCap.DepthTest);
 			GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
 			// GL.ClearColor (System.Drawing.Color.Blue);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			// setup the view projection, including the active camera matrix
-			Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, Width / (float)Height, 1.0f, 64.0f);
+			Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, Width / (float)Height, 1.0f, 500.0f);
 			scene.adjustProjectionMatrixForActiveCamera (ref projection);
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadMatrix(ref projection);
