@@ -472,7 +472,16 @@ namespace Util3d {
             this.parseOBJ(new StreamReader(fs));
         }
         
-         public static Int32 CIEXYZtoRGB(Vector_XYZW xyzColor) {
+        public static System.Drawing.Color CIEXYZtoColor(Vector_XYZW xyzColor) {
+            if (xyzColor.X + xyzColor.Y + xyzColor.Z < 0.01f) {
+                return System.Drawing.Color.FromArgb(150, 150, 150);
+            } else {
+                // this is not a proper color conversion.. just a hack approximation..
+                return System.Drawing.Color.FromArgb((int)(xyzColor.X * 255), (int)(xyzColor.Y * 255), (int)(xyzColor.Z * 255));
+            }
+        }
+
+        public static Int32 CIEXYZtoRGB(Vector_XYZW xyzColor) {
             if (xyzColor.X + xyzColor.Y + xyzColor.Z < 0.01f) {
                 return System.Drawing.Color.FromArgb(150, 150, 150).ToArgb();
             } else {

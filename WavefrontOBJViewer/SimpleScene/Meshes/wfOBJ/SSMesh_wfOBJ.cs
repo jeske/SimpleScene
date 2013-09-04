@@ -22,7 +22,11 @@ namespace WavefrontOBJViewer
         // private bool mipmapped = false;
 
 	    public struct SSMeshOBJSubsetData {
-	   		public SSTexture texture;
+	   		public SSTexture diffuseTexture;
+	   		public SSTexture specularTexture;
+	   		public SSTexture ambientTexture;
+	   		public SSTexture bumpTexture;
+
 			public SSMaterial material;
 	
 			// face geometry
@@ -55,21 +59,21 @@ namespace WavefrontOBJViewer
 
 				GL.Enable(EnableCap.CullFace);
                 GL.Enable(EnableCap.Texture2D);
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                // GL.Enable(EnableCap.Blend);
+                // GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 				
 				// set material
-				GL.BindTexture(TextureTarget.Texture2D, subset.texture.TextureID);
+				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+				GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 
 				
 				// draw faces
 				GL.Begin(BeginMode.Triangles);
 				foreach(var idx in subset.indicies) {
 					var vertex = subset.vertices[idx];
-					GL.Color3(ref vertex.DiffuseColor);
+					GL.Color3(vertex.DiffuseColor);
 					GL.TexCoord2(vertex.Tu,vertex.Tv);
-					// GL.MultiTexCoord2(
 					GL.Normal3(vertex.Normal);
 					GL.Vertex3(vertex.Position);
                 }
@@ -95,9 +99,13 @@ namespace WavefrontOBJViewer
             // assign diffuse, ambient, etc...
             // load-link the texture...
             if (objMatSubset.diffuseTextureResourceName != null) {
-                subsetData.texture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.diffuseTextureResourceName));
+                subsetData.diffuseTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.diffuseTextureResourceName));
             } else if (objMatSubset.ambientTextureResourceName != null) {
-                subsetData.texture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.ambientTextureResourceName));
+                subsetData.ambientTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.ambientTextureResourceName));
+            } else if (objMatSubset.bumpTextureResourceName != null) {
+                subsetData.bumpTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.bumpTextureResourceName));
+            } else if (objMatSubset.specularTextureResourceName != null) {
+                subsetData.specularTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.specularTextureResourceName));
             }
 
             // generate renderable geometry data...
