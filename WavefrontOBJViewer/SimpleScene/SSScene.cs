@@ -14,7 +14,7 @@ namespace WavefrontOBJViewer
 	{
 		public ICollection<SSObject> objects = new List<SSObject>();
 
-		public SSObject activeCamera;
+		public SSCamera activeCamera;
 
 		public void Update() {
 			// update all objects.. TODO: add elapsed time since last update..

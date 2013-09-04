@@ -32,14 +32,24 @@ namespace WavefrontOBJViewer
 		public Matrix4 localMat;
 		public Matrix4 worldMat;
 
-		SSObject parent;
-		ICollection<SSObject> children;
+		// TODO: use these!
+		private SSObject parent;
+		private ICollection<SSObject> children;
+
+		public void Orient(Matrix4 newOrientation) {
+			this._dir = new Vector3(newOrientation.M31, newOrientation.M32, newOrientation.M33);
+			this._up = new Vector3(newOrientation.M21, newOrientation.M22, newOrientation.M23);
+			this._right = Vector3.Cross(this._up, this._dir);
+			this._right.Normalize();
+			
+			this.updateMat();
+		}
 
 		public void updateMat() {
 			Matrix4 newLocalMat = Matrix4.Identity;
 
 			// rotation..
-			newLocalMat.M11 = Right.X;
+			newLocalMat.M11 = _right.X;
 			newLocalMat.M12 = _right.Y;
 			newLocalMat.M13 = _right.Z;
 
@@ -75,10 +85,14 @@ namespace WavefrontOBJViewer
 
 		// constructor
 		public SSObject() { 
+			// position at the origin...
 			this._pos = new Vector3(0.0f,0.0f,0.0f);
+			
+			// rotation
 			this._dir = new Vector3(0.0f,0.0f,1.0f);    // face Z+
 			this._up = new Vector3(0.0f,1.0f,0.0f);     // Y+ up
 			this._right = new Vector3(1.0f,0.0f,0.0f);  // X+ right
+			
 			this.updateMat ();
 		}
 	}

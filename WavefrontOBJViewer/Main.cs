@@ -50,6 +50,7 @@ namespace WavefrontOBJViewer
 			this.Mouse.Move += (object sender, MouseMoveEventArgs e) => {
 				if (this.mouseButtonDown) {
 					Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
+					scene.activeCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}
 			};
 			this.Mouse.WheelChanged += (object sender, MouseWheelEventArgs e) => { 
