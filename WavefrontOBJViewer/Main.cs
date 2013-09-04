@@ -52,6 +52,11 @@ namespace WavefrontOBJViewer
 				SSObject camera = scene.activeCamera;
 				if (camera != null) {
 					camera.Pos += camera.Dir * e.DeltaPrecise;
+					
+					SSCameraThirdPerson ctp = camera as SSCameraThirdPerson;
+					if (ctp != null) {
+						ctp.followDistance -= e.DeltaPrecise;
+					}
 				}
 			};
 		}
