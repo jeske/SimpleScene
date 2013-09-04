@@ -41,14 +41,12 @@ namespace WavefrontOBJViewer
 			this._up = new Vector3(newOrientation.M21, newOrientation.M22, newOrientation.M23);
 			this._right = Vector3.Cross(this._up, this._dir);
 			this._right.Normalize();
-			
-			// this.updateMat();
 		}
 		protected void updateMat() {
 			this.updateMat (ref this._dir, ref this._up, ref this._right, ref this._pos);
 		}
 
-		protected void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
+		private void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
 			Matrix4 newLocalMat = Matrix4.Identity;
 
 			// rotation..

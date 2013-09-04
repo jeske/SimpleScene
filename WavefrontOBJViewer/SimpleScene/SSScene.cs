@@ -32,8 +32,8 @@ namespace WavefrontOBJViewer
 		}
 
 		public void Render() {
-			GL.MatrixMode(MatrixMode.Modelview);
 			foreach (var obj in objects) {
+				GL.MatrixMode(MatrixMode.Modelview);
 				GL.LoadMatrix(ref obj.localMat);
 				obj.Render ();
 			}

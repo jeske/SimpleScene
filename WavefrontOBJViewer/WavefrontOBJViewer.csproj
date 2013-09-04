@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
+    <None Include="TODO_BUG_hid_removal.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\OpenTK\opentk.git\Source\OpenTK\OpenTK.csproj">

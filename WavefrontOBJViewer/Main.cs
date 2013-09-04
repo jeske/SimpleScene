@@ -49,15 +49,10 @@ namespace WavefrontOBJViewer
 			};
 			this.Mouse.WheelChanged += (object sender, MouseWheelEventArgs e) => { 
 				Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
-				SSObject camera = scene.activeCamera;
-				if (camera != null) {
-					SSCameraThirdPerson ctp = camera as SSCameraThirdPerson;
-					if (ctp != null) {
-						ctp.followDistance -= e.DeltaPrecise;
-					} else {
-						camera.Pos += camera.Dir * e.DeltaPrecise;
-					}
-				}
+				SSCameraThirdPerson ctp = scene.activeCamera as SSCameraThirdPerson;
+				if (ctp != null) {
+					ctp.followDistance -= e.DeltaPrecise;
+				} 
 			};
 		}
 
