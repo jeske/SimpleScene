@@ -10,25 +10,19 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Input;
 
+
 namespace WavefrontOBJViewer
 {
-	class Game : GameWindow
+
+	// here we setup a basic "game window" and hook some input functions
+
+
+	partial class Game : OpenTK.GameWindow
 	{
 
 		SSScene scene;
 
 		bool mouseButtonDown = false;
-
-		public void setupScene() {
-		    SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./"));
-
-			// scene.addObject (new SSObjectCube ());
-			scene.addObject (new SSObjectTriangle () );
-			scene.addObject (scene.activeCamera = new SSCamera ());
-			
-            SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
-			scene.addObject (new SSObjectMesh(new SSMesh_wfOBJ(ctx, "drone2.obj", true)));
-		}
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public Game()
@@ -71,10 +65,7 @@ namespace WavefrontOBJViewer
 		/// <param name="e">Not used.</param>
 		protected override void OnLoad(EventArgs e)
 		{
-			base.OnLoad(e);
-			
-			GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
-			GL.Enable(EnableCap.DepthTest);
+			base.OnLoad(e);			
 		}
 		
 		/// <summary>
@@ -114,7 +105,9 @@ namespace WavefrontOBJViewer
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
-
+			GL.Enable(EnableCap.DepthTest);
+			GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
+			// GL.ClearColor (System.Drawing.Color.Blue);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			// setup the view projection, including the active camera matrix

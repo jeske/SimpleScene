@@ -50,8 +50,10 @@ namespace WavefrontOBJViewer
         
 		public override void Render(){			
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
-				// setup texture rendering (should only do this if it's not already done)
-				// GL.Disable(EnableCap.CullFace);
+
+				// TODO: make a GL caps abstraction to only make these calls when the caps change
+
+				GL.Enable(EnableCap.CullFace);
                 GL.Enable(EnableCap.Texture2D);
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
