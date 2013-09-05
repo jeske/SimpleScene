@@ -63,7 +63,7 @@ namespace WavefrontOBJViewer
 				Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 				SSCameraThirdPerson ctp = scene.activeCamera as SSCameraThirdPerson;
 				if (ctp != null) {
-					ctp.followDistance -= e.DeltaPrecise;
+					ctp.followDistance += e.DeltaPrecise;
 				} 
 			};
 		}
@@ -128,12 +128,15 @@ namespace WavefrontOBJViewer
 
 			// setup the view projection, including the active camera matrix
 			Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, Width / (float)Height, 1.0f, 500.0f);
-			scene.adjustProjectionMatrixForActiveCamera (ref projection);
+			// scene.adjustProjectionMatrixForActiveCamera (ref projection);
+			projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadMatrix(ref projection);
 
 			// render
-			scene.Render ();
+			Matrix4 viewMat = scene.activeCamera.worldMat;
+			viewMat.Invert();
+			scene.Render (viewMat);
 
 			SwapBuffers();
 		}

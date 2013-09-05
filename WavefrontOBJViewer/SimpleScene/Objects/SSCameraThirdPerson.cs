@@ -11,7 +11,7 @@ namespace WavefrontOBJViewer
 	public class SSCameraThirdPerson : SSCamera
 	{
 		SSObject FollowTarget;
-		public float followDistance = 10.0f;
+		public float followDistance = -10.0f;
 		public Vector3 basePos;
 		Vector3 xaxis = Vector3.UnitX;
 		Vector3 yaxis = Vector3.UnitY;

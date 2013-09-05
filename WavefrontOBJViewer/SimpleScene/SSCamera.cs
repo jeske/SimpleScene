@@ -19,16 +19,16 @@ namespace WavefrontOBJViewer
 		private float DegreeToRadian(float angleInDegrees) {
 			return (float)Math.PI * angleInDegrees / 180.0f;
 		}
-		public void MouseDeltaOrient(float XDelta, float YDelta) {	
-			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(XDelta));
-    		Quaternion pitch_Rotation = Quaternion.FromAxisAngle(this.Right,DegreeToRadian(YDelta));
+		public void MouseDeltaOrient(float XDelta, float YDelta) {
+			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(-XDelta));
+    		Quaternion pitch_Rotation = Quaternion.FromAxisAngle(this.Right,DegreeToRadian(-YDelta));
 
-			Quaternion qObjectRotation = this.localMat.ExtractRotation();
-			
-			qObjectRotation *= pitch_Rotation;
-			qObjectRotation *= yaw_Rotation;
+			this.updateMat(); // make sure our local matrix is current
+
+			// openGL requires pre-multiplation of these matricies...
+			Quaternion qResult = yaw_Rotation * pitch_Rotation * this.localMat.ExtractRotation();
 						
-			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(qObjectRotation);
+			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(qResult);
 			this.Orient(newOrientation);
 		}
 	}

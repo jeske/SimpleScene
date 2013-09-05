@@ -23,19 +23,16 @@ namespace WavefrontOBJViewer
 			}
 		}
 
-		public void adjustProjectionMatrixForActiveCamera(ref Matrix4 projectionMatrix) {
-			if (activeCamera != null) {
-				Matrix4 cameraMatrix = Matrix4.LookAt(activeCamera.Pos,Vector3.UnitZ,Vector3.UnitY);
-				projectionMatrix = cameraMatrix * projectionMatrix;
-			} else {
-				projectionMatrix = Matrix4.CreateTranslation (0, 0, -5) * projectionMatrix;
-			}
-		}
-
-		public void Render() {
+		public void Render(Matrix4 cameraViewMat) {
 			foreach (var obj in objects) {
+				// compute and set the modelView matrix, by combining the cameraViewMat
+				// with the object's world matrix
+				//    ... see http://www.songho.ca/opengl/gl_transform.html
 				GL.MatrixMode(MatrixMode.Modelview);
-				GL.LoadMatrix(ref obj.localMat);
+				Matrix4 modelViewMat = cameraViewMat * obj.worldMat;
+				GL.LoadMatrix(ref modelViewMat);
+				
+				// now render the object
 				obj.Render ();
 			}
 		}
