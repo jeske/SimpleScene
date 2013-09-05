@@ -1,15 +1,12 @@
 
 
-
-- fix green ship (why is it green?!?)
-  - fix/add basic lighting
-
-
-
-- add GLSL multi-texture shading
-
 - add mouse camera rotation
 
+- add basic lighting
+
+- add GLSL 1.2 multi-texture shading
+  - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
+ 
 - extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
 
 - add texture finalizer/dispose
@@ -19,3 +16,10 @@ Cleanup
 
 - Make a GL caps enable/disable abstraction, which only changes things when render caps actually change
 - switch to 
+
+
+DONE
+-------
+
+
+- (done) fix green ship (why is it green?!?)

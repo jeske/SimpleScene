@@ -11,6 +11,8 @@ using OpenTK.Audio.OpenAL;
 using OpenTK.Input;
 
 
+// http://www.opentk.com/book/export/html/1039
+
 namespace WavefrontOBJViewer
 {
 
@@ -26,9 +28,19 @@ namespace WavefrontOBJViewer
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public Game()
-			: base(800, 600, GraphicsMode.Default, "OpenTK Quick Start Sample")
+			: base(
+				800, 600, 
+				GraphicsMode.Default, // color format
+				"WavefrontOBJLoader",
+				GameWindowFlags.Default,  // windowed mode 
+				DisplayDevice.Default,    // primary monitor
+				3, 2,  // opengl version
+				GraphicsContextFlags.Debug
+				)
 		{
 			VSync = VSyncMode.On;
+
+			// setupShaders();
 
 			// setup the scene
 			scene = new SSScene ();
@@ -137,6 +149,8 @@ namespace WavefrontOBJViewer
 			// RenderFrame events (as fast as the computer can handle).
 			using (Game game = new Game())
 			{
+				Console.WriteLine("GL Version = {0}",GL.GetString(StringName.Version));
+				Console.WriteLine("GL Shader Version = {0}", GL.GetString(StringName.ShadingLanguageVersion));
 				game.Run(30.0);
 			}
 		}

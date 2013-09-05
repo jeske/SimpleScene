@@ -24,7 +24,7 @@ namespace WavefrontOBJViewer
 				pos = this.FollowTarget.Pos;
 			} 
 			
-			this.Pos = pos + (Vector3.UnitZ * -followDistance);
+			this.Pos = pos + (this.Dir * -followDistance);
 			this.updateMat ();
 
 		}
