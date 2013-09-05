@@ -27,8 +27,10 @@ namespace WavefrontOBJViewer
 				pos = this.FollowTarget.Pos;
 			} 
 			
+			// one way to have a third person camera, is to position ourselves
+			// relative to our target object, and our current camera-direction
+			
 			this.Pos = pos + (this.Dir * -followDistance);
-			Console.WriteLine("new Camera DIR: {0}   POS: {1}",this.Dir,this.Pos);
 			base.Update();
 		}
 	}

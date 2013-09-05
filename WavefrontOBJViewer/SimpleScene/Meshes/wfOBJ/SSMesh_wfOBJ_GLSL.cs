@@ -27,7 +27,7 @@ namespace WavefrontOBJViewer
 
 			// face geometry
 			public SSVertex_PosNormDiffTex1[] vertices;
-			public Int16[] indicies;
+			public UInt16[] indicies;
 		}
 
 		public override string ToString ()

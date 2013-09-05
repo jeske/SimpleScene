@@ -26,11 +26,11 @@ namespace WavefrontOBJViewer
 
 		public static void generateDrawIndexBuffer(
 			WavefrontObjLoader wff, 
-			out Int16[] indicies_return, 
+			out UInt16[] indicies_return, 
 			out SSVertex_PosNormDiffTex1[] verticies_return) 
 		{
-			var soup = new VertexSoup<SSVertex_PosNormDiffTex1>();
-			List<Int16> indicies = new List<Int16>();
+			var soup = new VertexSoup<SSVertex_PosNormDiffTex1>(deDup:false);
+			List<UInt16> indicies = new List<UInt16>();
 
 			// (0) go throu`gh the materials and faces
 
@@ -57,14 +57,14 @@ namespace WavefrontOBJViewer
 						}
 
 						// this is how you do directX...
-						vertex_list[facevertex].DiffuseColor = WavefrontObjLoader.CIEXYZtoColor(mtl.vDiffuse);
+						vertex_list[facevertex].DiffuseColor = WavefrontObjLoader.CIEXYZtoColor(mtl.vDiffuse).ToArgb();
 						
 						// openGL
 						// vertex_list[facevertex].DiffuseColor = CV(mtl.vDiffuse);
 					}
 
 					// turn them into indicies in the vertex soup..
-					Int16[] newindicies = soup.digestVerticies(vertex_list);
+					UInt16[] newindicies = soup.digestVerticies(vertex_list);
 					if (newindicies.Length == 3) { // triangle
 						indicies.Add(newindicies[0]);
 						indicies.Add(newindicies[1]);
@@ -78,10 +78,13 @@ namespace WavefrontOBJViewer
 						indicies.Add(newindicies[2]);
 						indicies.Add(newindicies[3]);
 					} else {
-						// this is a pretty bad ngon algorithm, because it's going to make thin
-						// fanstrips. It would be better to consume from both sides of the index 
-						// list to generate triangles.
-						for (int x = 1; x < (newindicies.Length - 2); x++) {
+						// This n-gon algorithm only works if the n-gon is coplanar and convex,
+						// which Wavefront OBJ says they must be. 
+						//  .. to tesselate concave ngons, one must tesselate using a more complex method, see
+						//    http://en.wikipedia.org/wiki/Polygon_triangulation#Ear_clipping_method
+						
+						// manually generate a triangle-fan
+						for (int x = 1; x < (newindicies.Length-1); x++) {
 							indicies.Add(newindicies[0]);
 							indicies.Add(newindicies[x]);
 							indicies.Add(newindicies[x+1]);
@@ -93,6 +96,9 @@ namespace WavefrontOBJViewer
 			indicies_return = indicies.ToArray();
 			verticies_return = soup.verticies.ToArray();
 		}
+		
+		
+		
 	}
 }
 

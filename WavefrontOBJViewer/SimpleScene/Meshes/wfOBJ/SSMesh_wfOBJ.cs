@@ -31,7 +31,7 @@ namespace WavefrontOBJViewer
 	
 			// face geometry
 			public SSVertex_PosNormDiffTex1[] vertices;
-	        public Int16[] indicies;
+	        public UInt16[] indicies;
 		}
 
 		public override string ToString ()
@@ -47,6 +47,9 @@ namespace WavefrontOBJViewer
 
             WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
                delegate(string resource_name) { return ctx.openResource(resource_name); });
+
+			Console.WriteLine("wff vertex count = {0}",wff_data.positions.Count);
+			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
 
             _makeData(wff_data);
         }    
@@ -66,13 +69,12 @@ namespace WavefrontOBJViewer
 				// set material
 				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 				GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
-
 				
 				// draw faces
 				GL.Begin(BeginMode.Triangles);
 				foreach(var idx in subset.indicies) {
 					var vertex = subset.vertices[idx];
-					GL.Color3(vertex.DiffuseColor);
+					GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
 					GL.TexCoord2(vertex.Tu,vertex.Tv);
 					GL.Normal3(vertex.Normal);
 					GL.Vertex3(vertex.Position);

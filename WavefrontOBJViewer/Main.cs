@@ -122,8 +122,8 @@ namespace WavefrontOBJViewer
 			scene.Update();
 			
 			GL.Enable(EnableCap.DepthTest);
-			GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
-			// GL.ClearColor (System.Drawing.Color.Blue);
+			// GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
+			GL.ClearColor (System.Drawing.Color.White);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			// setup the view projection, including the active camera matrix

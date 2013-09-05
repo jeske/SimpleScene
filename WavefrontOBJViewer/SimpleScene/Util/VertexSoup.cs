@@ -23,17 +23,18 @@ namespace Util3d {
 	
     public class VertexSoup<VERTEX_STRUCT> {
         
-        Dictionary<VERTEX_STRUCT,Int16> vertexToIndexMap = new Dictionary<VERTEX_STRUCT,Int16>();
+        Dictionary<VERTEX_STRUCT,UInt16> vertexToIndexMap = new Dictionary<VERTEX_STRUCT,UInt16>();
         public List<VERTEX_STRUCT> verticies = new List<VERTEX_STRUCT>();
+        private readonly bool deDup;
 
-        public Int16[] digestVerticies(VERTEX_STRUCT[] vertex_list) {
-            Int16[] retval = new Int16[vertex_list.Length];
+        public UInt16[] digestVerticies(VERTEX_STRUCT[] vertex_list) {
+            UInt16[] retval = new UInt16[vertex_list.Length];
 
             for(int x=0;x<vertex_list.Length;x++) {            
                 if (vertexToIndexMap.ContainsKey(vertex_list[x])) {
                     retval[x] = vertexToIndexMap[vertex_list[x]];
                 } else {
-                    Int16 nextIndex = (Int16)verticies.Count;
+                    UInt16 nextIndex = (UInt16)verticies.Count;
                     vertexToIndexMap[vertex_list[x]] = nextIndex;
                     verticies.Add(vertex_list[x]);
                     retval[x] = nextIndex;
@@ -43,7 +44,8 @@ namespace Util3d {
             return retval;
         }
         
-        public VertexSoup() {
+        public VertexSoup(bool deDup = true) {
+            this.deDup = deDup;
         }
     }
 }
