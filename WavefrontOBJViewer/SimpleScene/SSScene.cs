@@ -25,7 +25,8 @@ namespace WavefrontOBJViewer
 
 		public void adjustProjectionMatrixForActiveCamera(ref Matrix4 projectionMatrix) {
 			if (activeCamera != null) {
-				projectionMatrix = activeCamera.worldMat * projectionMatrix;
+				Matrix4 cameraMatrix = Matrix4.LookAt(activeCamera.Pos,Vector3.UnitZ,Vector3.UnitY);
+				projectionMatrix = cameraMatrix * projectionMatrix;
 			} else {
 				projectionMatrix = Matrix4.CreateTranslation (0, 0, -5) * projectionMatrix;
 			}

@@ -46,7 +46,7 @@ namespace WavefrontOBJViewer
 			this.updateMat (ref this._dir, ref this._up, ref this._right, ref this._pos);
 		}
 
-		private void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
+		protected void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
 			Matrix4 newLocalMat = Matrix4.Identity;
 
 			// rotation..
@@ -89,12 +89,14 @@ namespace WavefrontOBJViewer
 			// position at the origin...
 			this._pos = new Vector3(0.0f,0.0f,0.0f);
 			
-			// rotation
-			this._dir = new Vector3(0.0f,0.0f,1.0f);    // face Z+
-			this._up = new Vector3(0.0f,1.0f,0.0f);     // Y+ up
-			this._right = new Vector3(1.0f,0.0f,0.0f);  // X+ right
+			// base-scale
+			this._dir = new Vector3(0.0f,0.0f,1.0f);    // Z+  front
+			this._up = new Vector3(0.0f,1.0f,0.0f);     // Y+  up
+			this._right = new Vector3(1.0f,0.0f,0.0f);  // X+  right
 			
 			this.updateMat();
+			
+			// rotate here if we want to.
 		}
 	}
 }
