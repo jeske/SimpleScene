@@ -8,6 +8,8 @@ namespace WavefrontOBJViewer
 	partial class Game : OpenTK.GameWindow
 	{
 		public void setupScene() {
+			scene = new SSScene ();
+
 			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./"));
 
 			// scene.addObject (new SSObjectCube ());
