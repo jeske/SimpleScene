@@ -2,13 +2,21 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
+using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
 {
 	partial class Game : OpenTK.GameWindow
 	{
 		public void setupScene() {
+			scene = new SSScene ();
+
 			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./"));
+
+			// 0. Add Lights
+			scene.addLight(new SSLight(LightName.Light0));
+
+			// 1. Add Objects
 
 			// scene.addObject (new SSObjectCube ());
 			
@@ -17,8 +25,8 @@ namespace WavefrontOBJViewer
 			SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
 			scene.addObject (droneObj = new SSObjectMesh(new SSMesh_wfOBJ(ctx, "drone2.obj", true)));
 			
-			
-			// add camera
+			// 2. Add Camera
+
 			scene.addObject (scene.activeCamera = new SSCameraThirdPerson (droneObj));
 		}
 	}

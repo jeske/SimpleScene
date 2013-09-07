@@ -1,7 +1,6 @@
 // Copyright(C) David W. Jeske, 2013
 // Released to the public domain. Use, modify and relicense at will.
 
-
 using System;
 using System.Collections.Generic;
 
@@ -62,6 +61,8 @@ namespace WavefrontOBJViewer
 
 				GL.Enable(EnableCap.CullFace);
                 GL.Enable(EnableCap.Texture2D);
+				GL.Enable(EnableCap.Lighting);
+
                 // GL.Enable(EnableCap.Blend);
                 // GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);

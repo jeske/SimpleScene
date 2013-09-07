@@ -34,18 +34,14 @@ namespace WavefrontOBJViewer
 				"WavefrontOBJLoader",
 				GameWindowFlags.Default,  // windowed mode 
 				DisplayDevice.Default,    // primary monitor
-				3, 2,  // opengl version
+				2, 2,  // opengl version
 				GraphicsContextFlags.Debug
 				)
 		{
 			VSync = VSyncMode.On;
+		}
 
-			// setupShaders();
-
-			// setup the scene
-			scene = new SSScene ();
-			this.setupScene();
-		
+		public void setupInput() {
 			// hook mouse drag input...
 			this.Mouse.ButtonDown += (object sender, MouseButtonEventArgs e) => {
 				this.mouseButtonDown = true;
@@ -122,6 +118,7 @@ namespace WavefrontOBJViewer
 			scene.Update();
 			
 			GL.Enable(EnableCap.DepthTest);
+			// GL.Enable(IndexedEnableCap.Blend,0);
 			// GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
 			GL.ClearColor (System.Drawing.Color.White);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -136,6 +133,9 @@ namespace WavefrontOBJViewer
 			// render
 			Matrix4 viewMat = scene.activeCamera.worldMat;
 			viewMat.Invert();
+
+			scene.SetupLights (viewMat);
+
 			scene.Render (viewMat);
 
 			SwapBuffers();
@@ -154,6 +154,12 @@ namespace WavefrontOBJViewer
 			{
 				Console.WriteLine("GL Version = {0}",GL.GetString(StringName.Version));
 				Console.WriteLine("GL Shader Version = {0}", GL.GetString(StringName.ShadingLanguageVersion));
+				game.setupInput ();
+
+				game.setupScene ();
+
+				// setupShaders();
+
 				game.Run(30.0);
 			}
 		}
