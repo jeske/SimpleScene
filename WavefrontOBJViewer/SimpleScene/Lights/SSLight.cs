@@ -17,6 +17,8 @@ namespace WavefrontOBJViewer
 	{
 		LightName glLightName;
 
+		// TODO: should decouple the light-name from this class and auto-assign it based on the renderer
+
 		public SSLight (LightName glLightName) : base() {
 			this.glLightName = glLightName;
 			this._pos = new Vector3 (0, 0, 1);
