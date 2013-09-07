@@ -1,22 +1,54 @@
 
+
+=======
 TODO V1
 -------
 
 - mouse camera dolly/pan (shift drag)
 
-- GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
+- GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 - diffuse, specular, bump)
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
   - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
+
+- add triangle fans
+- add VertexBuffer / IndexBuffer management
  
 - texture finalizer/dispose
 
 - HUD projection, simple text display (or integrate GUI toolkit?)
+  - add stats text (verts/polys drawn, fps)
 
 - face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
 
+- do the wavefront OBJ todos! 
+
+- move screen projection computation to somewhere sensible
+
+- mouse object/face picking
+
+- code/ui to toggle draw modes (lines, flat/gourad, textured)
+
+--------------------------------------
+
+   WRITE ARTICLE : Cross-Platform 3d app in C# OpenTK
+
+--------------------------------------
+
 - do something with materials ??
 
-- ARTICLE : Cross-Platform 3d app in C# OpenTK
+- ? support open-gl non-robust mode (for unretained assets)
+
+- projected texture at mouse-target
+
+- extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+
+- review OpenGL extensions
+  - http://www.opengl.org/registry/
+
+- add OpenTK Mac OpenGL 3.3 (cocoa window support)
+  - multi-window
+  - live resize
+  - GLSL 330, 2-pass ( glow-bloom, shadow maps, deferred lighting, ambient occlusion )
 
 Cleanup
 -------
