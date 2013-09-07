@@ -2,12 +2,9 @@
 TODO V1
 -------
 
+- mouse camera dolly/pan (shift drag)
 
-- mouse camera pan (shift drag)
-
-
-
-- GLSL 1.2 multi-texture shading
+- GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
   - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
  
@@ -15,18 +12,43 @@ TODO V1
 
 - HUD projection, simple text display (or integrate GUI toolkit?)
 
+- face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
+
+- do something with materials ??
+
 - ARTICLE : Cross-Platform 3d app in C# OpenTK
 
 Cleanup
 -------
 
-- why is windows mouse-wheel direction the opposite of mac trackpad two-finger? 
+- OpenTK: why is windows mouse-wheel direction the opposite of mac trackpad two-finger? 
   - do we need to read the natural config paramater? did we get the direction wrong?
+  
+- OpenTK: Mac Cocoa, GL 3.3 support. GL 4.x support.
+  
+- APP: switch to non-console app (put text-output in GUI?)
 
-- ?? switch to non-console app (put text-output in GUI?)
-- ?? compute object bounding-sphere and center 
-- ?? GL caps enable/disable abstraction, which only changes things when render caps actually change
-- ?? extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+- ?? SimpleScene: compute object bounding-sphere and center ThirdPersonCamera?
+- ?? SimpleScene: GL caps enable/disable abstraction, which only changes things when render caps actually change
+- ?? OpenTK: extend to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+
+
+IDEAS for V2
+-------
+
+- OBJ: complete TODOs in the Wavefront Loader
+
+- OBJ: new "streaming loader", so the model is not buffered in the loader
+
+- write CR2 loader
+
+- simple b-rep editing (Radial Edge, or X-Maps)
+
+- add Cycles offline rendering! (needs material editing)
+
+- GLSL Rendering: multi-pass techniques
+  - deferred lighting
+  - bloom
 
 DONE
 -----
