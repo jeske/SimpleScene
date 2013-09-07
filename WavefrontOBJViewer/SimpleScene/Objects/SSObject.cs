@@ -1,7 +1,6 @@
 // Copyright(C) David W. Jeske, 2013
 // Released to the public domain. Use, modify and relicense at will.
 
-
 using System;
 
 using System.Collections.Generic;
@@ -13,8 +12,16 @@ using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
 {
-	
-	public abstract class SSObject {
+
+	// abstract base class for "tangible" Renderable objects
+	public abstract class SSObject : SSObjectBase {
+		public SSObject() : base() {}
+		public virtual void Render () {}
+
+	}
+
+	// abstract base class for all transformable objects (objects, lights, ...)
+	public abstract class SSObjectBase {
 		// object orientation
 		protected Vector3 _pos;
 		public Vector3 Pos {  
@@ -81,11 +88,10 @@ namespace WavefrontOBJViewer
 			this.worldMat = newWorldMat;
 		}
 
-		public virtual void Render () {}
 		public virtual void Update () {}
 
 		// constructor
-		public SSObject() { 
+		public SSObjectBase() { 
 			// position at the origin...
 			this._pos = new Vector3(0.0f,0.0f,0.0f);
 			

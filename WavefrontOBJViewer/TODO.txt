@@ -1,25 +1,36 @@
 
+TODO V1
+-------
 
-- add mouse camera rotation
 
-- add basic lighting
+- mouse camera pan (shift drag)
 
-- add GLSL 1.2 multi-texture shading
+
+
+- GLSL 1.2 multi-texture shading
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
+  - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
  
-- extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+- texture finalizer/dispose
 
-- add texture finalizer/dispose
+- HUD projection, simple text display (or integrate GUI toolkit?)
+
+- ARTICLE : Cross-Platform 3d app in C# OpenTK
 
 Cleanup
 -------
 
-- Make a GL caps enable/disable abstraction, which only changes things when render caps actually change
-- switch to 
+- why is windows mouse-wheel direction the opposite of mac trackpad two-finger? 
+  - do we need to read the natural config paramater? did we get the direction wrong?
 
+- ?? switch to non-console app (put text-output in GUI?)
+- ?? compute object bounding-sphere and center 
+- ?? GL caps enable/disable abstraction, which only changes things when render caps actually change
+- ?? extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
 
 DONE
--------
+-----
 
-
+- (done) add basic light
+- (done) mouse camera rotation
 - (done) fix green ship (why is it green?!?)
