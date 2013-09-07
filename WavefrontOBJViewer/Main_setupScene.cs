@@ -11,7 +11,7 @@ namespace WavefrontOBJViewer
 		public void setupScene() {
 			scene = new SSScene ();
 
-			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./"));
+			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
 
 			// 0. Add Lights
 			scene.addLight(new SSLight(LightName.Light0));

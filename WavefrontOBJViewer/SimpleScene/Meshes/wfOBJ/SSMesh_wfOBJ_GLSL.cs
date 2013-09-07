@@ -40,8 +40,10 @@ namespace WavefrontOBJViewer
 			// this.mipmapped = mipmapped;
 			this.ctx = ctx;
 
-			WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
-			                                                     delegate(string resource_name) { return ctx.openResource(resource_name); });
+			WavefrontObjLoader wff_data = 
+				new WavefrontObjLoader(
+					filename,
+			    	delegate(string resource_name) { return ctx.getAsset(resource_name).Open(); });
 
 			_makeData(wff_data);
 		}    
@@ -69,9 +71,9 @@ namespace WavefrontOBJViewer
 			// assign diffuse, ambient, etc...
 			// load-link the texture...
 			if (objMatSubset.diffuseTextureResourceName != null) {
-				subsetData.texture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.diffuseTextureResourceName));
+				subsetData.texture = new SSTexture(ctx.getAsset(objMatSubset.diffuseTextureResourceName));
 			} else if (objMatSubset.ambientTextureResourceName != null) {
-				subsetData.texture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.ambientTextureResourceName));
+				subsetData.texture = new SSTexture(ctx.getAsset(objMatSubset.ambientTextureResourceName));
 			}
 
 			// generate renderable geometry data...

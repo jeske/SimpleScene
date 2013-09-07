@@ -10,7 +10,6 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Input;
 
-
 // http://www.opentk.com/book/export/html/1039
 
 namespace WavefrontOBJViewer
@@ -51,6 +50,7 @@ namespace WavefrontOBJViewer
 			};
 			this.Mouse.Move += (object sender, MouseMoveEventArgs e) => {
 				if (this.mouseButtonDown) {
+
 					Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
 					scene.activeCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}

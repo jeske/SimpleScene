@@ -45,7 +45,7 @@ namespace WavefrontOBJViewer
             this.ctx = ctx;
 
             WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
-               delegate(string resource_name) { return ctx.openResource(resource_name); });
+               delegate(string resource_name) { return ctx.getAsset(resource_name).Open(); });
 
 			Console.WriteLine("wff vertex count = {0}",wff_data.positions.Count);
 			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
@@ -102,13 +102,13 @@ namespace WavefrontOBJViewer
             // assign diffuse, ambient, etc...
             // load-link the texture...
             if (objMatSubset.diffuseTextureResourceName != null) {
-                subsetData.diffuseTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.diffuseTextureResourceName));
+                subsetData.diffuseTexture = new SSTexture(ctx.getAsset(objMatSubset.diffuseTextureResourceName));
             } else if (objMatSubset.ambientTextureResourceName != null) {
-                subsetData.ambientTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.ambientTextureResourceName));
+                subsetData.ambientTexture = new SSTexture(ctx.getAsset(objMatSubset.ambientTextureResourceName));
             } else if (objMatSubset.bumpTextureResourceName != null) {
-                subsetData.bumpTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.bumpTextureResourceName));
+                subsetData.bumpTexture = new SSTexture(ctx.getAsset(objMatSubset.bumpTextureResourceName));
             } else if (objMatSubset.specularTextureResourceName != null) {
-                subsetData.specularTexture = new SSTexture(ctx.fullHandlePathForResource(objMatSubset.specularTextureResourceName));
+                subsetData.specularTexture = new SSTexture(ctx.getAsset(objMatSubset.specularTextureResourceName));
             }
 
             // generate renderable geometry data...

@@ -2,6 +2,7 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
+using System.IO;
 
 using System.Drawing;
 using OpenTK;
@@ -12,24 +13,21 @@ namespace WavefrontOBJViewer
 	// TODO: add the ability to load form a stream, to support zip-archives and other non-file textures
 	
 	public class SSTexture
-	{
-		public readonly string texFilename;
+	{	
+		public readonly SSAssetItem textureAsset;
+
 		private int Texture;
 		public int TextureID { get { return Texture; } }
-		public SSTexture (string texFilename) {
-			this.texFilename = texFilename;		
+		public SSTexture (SSAssetItem textureAsset) {
+			this.textureAsset = textureAsset;		
 			loadTexture();
 		}
 		
 		private void loadTexture() {
 			// http://www.opentk.com/node/259
-		
-			if (!System.IO.File.Exists(texFilename)) {
-				throw new Exception("SSTexture: missing texture file : " + texFilename);
-			}
-			
-		    //make a bitmap out of the file on the disk
-		    Bitmap TextureBitmap = new Bitmap(texFilename);
+
+		    //make a bitmap out of the stream data...
+			Bitmap TextureBitmap = new Bitmap (textureAsset.Open());
 		    
 		    //get the data out of the bitmap
 		    System.Drawing.Imaging.BitmapData TextureData = 

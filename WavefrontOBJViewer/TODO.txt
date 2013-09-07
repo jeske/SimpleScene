@@ -41,6 +41,9 @@ IDEAS for V2
 - OBJ: new "streaming loader", so the model is not buffered in the loader
 
 - write CR2 loader
+  - 
+  - http://dj1.willowmail.com/~jeske/Projects/PoserCR2/kuroyumes/poserfilespec/introduction.html
+  
 
 - simple b-rep editing (Radial Edge, or X-Maps)
 
