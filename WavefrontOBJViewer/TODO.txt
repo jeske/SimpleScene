@@ -1,15 +1,41 @@
 
-
-- add mouse camera rotation
-
 - add basic lighting
 
-- add GLSL 1.2 multi-texture shading
+- add stats text (verts/polys drawn, fps)
+
+- add GLSL 1.2 multi-texture shading (diffuse, specular, bump)
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
- 
-- extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+
+- add triangle fans
+- add VertexBuffer / IndexBuffer management
 
 - add texture finalizer/dispose
+
+- ? add non-robust EXT support
+
+- do the wavefront OBJ todos! 
+
+- move screen projection computation to somewhere sensible
+
+- mouse object/face picking
+
+- code/ui to toggle draw modes (lines, flat/gourad, textured)
+
+--------------------------
+  write the article !!!
+--------------------------
+
+- projected texture at mouse-target
+
+- extend OpenTK to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+
+- review OpenGL extensions
+  - http://www.opengl.org/registry/
+
+- add OpenTK Mac OpenGL 3.3 (cocoa window support)
+  - multi-window
+  - live resize
+  - GLSL 330, 2-pass ( glow-bloom, shadow maps, deferred lighting, ambient occlusion )
 
 Cleanup
 -------
@@ -21,5 +47,5 @@ Cleanup
 DONE
 -------
 
-
+- (done) add mouse camera rotation
 - (done) fix green ship (why is it green?!?)
