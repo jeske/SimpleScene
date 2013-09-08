@@ -4,6 +4,8 @@
 *  TODO V1
 *
 
+- !!!    add some basic Nunit unit tests to OpenTK    !!!
+
 - do the wavefront OBJ todos! 
   - handle multi-line faces continued with "\"
   - handle negative vertex indices in face specification
@@ -16,7 +18,6 @@
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
   - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
 
-- add triangle fans
 - add VertexBuffer / IndexBuffer management
  
 - texture finalizer/dispose
@@ -54,7 +55,6 @@
 
 - add Cycles offline rendering! (needs material editing)
 
-
 ************************
 *
 *  SimpleScene Features
@@ -63,7 +63,13 @@
 - compute mesh bounding sphere...
 - .. use it to do CPU frustrum culling
 
+- integrate my Gui2d library
+
 - support open-gl non-robust mode (for unretained assets)
+
+- add ZIP asset archive support
+
+- add triangle fans?
 
 - mouse object/face picking
 - projected texture "projected mouse cursor"
