@@ -89,6 +89,7 @@
 - extend to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
 
 - OpenTK Mac OpenGL 3.3/4.0 (cocoa window support)
+  - https://github.com/Ollhax/opentk/commit/ee70e4a276e2fbc3135ee787ce6f9860d37011b8
 
 - OpenTK window features (multi-window, live-resize)
 
