@@ -60,8 +60,10 @@
 *  SimpleScene Features
 *
 
-- compute mesh bounding sphere...
-- .. use it to do CPU frustrum culling
+- compute mesh bounding sphere/box...
+  .. use sphere, then (optionally) box to do CPU frustrum culling
+  .. http://http.developer.nvidia.com/GPUGems/gpugems_ch29.html
+
 
 - integrate my Gui2d library
 
