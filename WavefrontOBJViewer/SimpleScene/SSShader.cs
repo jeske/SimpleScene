@@ -30,8 +30,34 @@ namespace WavefrontOBJViewer
 			ShaderID = GL.CreateShader(this.type);
 			GL.ShaderSource(ShaderID, this.shaderProgramText);
 			GL.CompileShader(ShaderID);	
-			Console.WriteLine(shaderName + " - " + GL.GetShaderInfoLog(ShaderID));
+			this.PrintPrettyShaderInfoLog();
 		}
+		
+		private void PrintPrettyShaderInfoLog() {
+			string[] programLines = this.shaderProgramText.Split('\n');
+			string[] log_lines = GL.GetShaderInfoLog(ShaderID).Split('\n');
+		
+			// example line:			
+			// ERROR: 0:36: Use of undeclared identifier 'diffuseMaterial'
+
+			var regex = new System.Text.RegularExpressions.Regex(@"([0-9]+):([0-9]+):");
+			
+			if (log_lines.Length > 0) {
+				Console.WriteLine("-- {0} --",this.shaderName);
+			}
+			foreach (var line in log_lines) {
+				// print log line
+				Console.WriteLine(line);
+				
+				// try to print the source-line
+				var match = regex.Match(line);
+				if (match.Success) {
+					int lineno = int.Parse(match.Groups[2].Value);
+					Console.WriteLine("   > " + programLines[lineno-1]);	
+				}
+			}
+		}
+		
 	}
 	
 	public class SSShaderProgram {

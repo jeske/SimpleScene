@@ -27,7 +27,7 @@ namespace WavefrontOBJViewer
 		public void SetupLight() {
 			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (0.5f,0.5f,0.5f,0.5f)); // diffuse color (R,G,B,A)
 			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.5f,0.5f,0.5f,0.5f)); // ambient light color (R,G,B,A)
-			GL.Light (glLightName, LightParameter.Specular, new Vector4 (1.0f, 1.0f, 1.0f, 1.0f)); // specular light color (R,G,B,A)
+			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.5f, 0.5f, 0.5f, 0.5f)); // specular light color (R,G,B,A)
 
 			GL.Light (glLightName, LightParameter.Position, new Vector4(this._pos,0.0f));
 			GL.Light (glLightName, LightParameter.SpotDirection, new Vector4 (this._dir, 0.0f)); 
