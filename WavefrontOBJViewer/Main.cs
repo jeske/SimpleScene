@@ -24,6 +24,8 @@ namespace WavefrontOBJViewer
 		SSScene scene;
 
 		bool mouseButtonDown = false;
+		SSObject activeModel;
+		
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public Game()
@@ -52,7 +54,8 @@ namespace WavefrontOBJViewer
 				if (this.mouseButtonDown) {
 
 					Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-					scene.activeCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+					this.scene.activeCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+					// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}
 			};
 			this.Mouse.WheelChanged += (object sender, MouseWheelEventArgs e) => { 

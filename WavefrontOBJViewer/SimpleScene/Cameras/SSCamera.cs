@@ -15,10 +15,10 @@ namespace WavefrontOBJViewer
 		public override void Update() {
 			this.updateMat ();
 		}
-		
 		private float DegreeToRadian(float angleInDegrees) {
 			return (float)Math.PI * angleInDegrees / 180.0f;
 		}
+
 		public void MouseDeltaOrient(float XDelta, float YDelta) {
 			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(-XDelta));
     		Quaternion pitch_Rotation = Quaternion.FromAxisAngle(this.Right,DegreeToRadian(-YDelta));
@@ -31,6 +31,7 @@ namespace WavefrontOBJViewer
 			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(qResult);
 			this.Orient(newOrientation);
 		}
+
 	}
 }
 

@@ -105,9 +105,11 @@ vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 @"#version 120
 
 	attribute vec3 tangent;
+	
 	varying vec3 lightVec;
 	varying vec3 halfVec;
 	varying vec3 eyeVec;
+	
 	varying vec3 vertexNormal;
 
 void main()
@@ -177,9 +179,14 @@ void main()
 {
 	vec4 outputColor;
 
+	// lighting strength
+	vec4 ambientStrength = gl_FrontMaterial.ambient;
+	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
+	vec4 specularStrength = gl_FrontMaterial.specular;
+
 	// ambient color baseline
 	vec4 diffuseMaterial = texture2D (diffTex, gl_TexCoord[0].st);
-	outputColor += diffuseMaterial * (gl_FrontMaterial.ambient + gl_FrontMaterial.diffuse);
+	outputColor += diffuseMaterial * (ambientStrength + diffuseStrength);
 	
 	// ambient glow map
 	vec4 glowFactor = vec4(0.5);
@@ -194,14 +201,13 @@ void main()
 	
 	// apply bump lighting
 	if (lamberFactor > 0.0) {   
-		vec4 diffuseLight  = gl_FrontMaterial.diffuse;
-		// outputColor +=	diffuseMaterial * diffuseLight * lamberFactor;	
+		// outputColor +=	diffuseMaterial * diffuseStrength * lamberFactor;	
 	}
 
 	// compute specular lighting
     float shininess = pow (max (dot (halfVec, vertexNormal), 0.0), 2.0);
     shininess = 10.0;
-	outputColor += texture2D (specTex, gl_TexCoord[0].st) * gl_FrontMaterial.specular * shininess;
+	// outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;
 
 	gl_FragColor = outputColor;
 }			
