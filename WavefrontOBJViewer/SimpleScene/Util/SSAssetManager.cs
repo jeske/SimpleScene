@@ -1,4 +1,4 @@
-// Copyright(C) David W. Jeske, 2013
+// Copyright(C) David W. Jeske, 2012, 2013
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
@@ -9,7 +9,27 @@ using System.Text;
 
 using System.IO;
 
-// Copyright (C) 2012, David W. Jeske
+// This is an AssetManager, it's job is to abstract away the means of turning an asset
+// path into a File-Stream, so an asset can be stored in some form of archive, such as a ZIP, PACK, WAD, etc.
+// 
+// It also separates the process of finding an asset from the process of opening the assset into a stream,
+// so an opaque SSAssetItem handle can be passed around and stored, and Open()ed at any time, and repeatedly
+// whenever it is needed.
+//
+// Common usage looks something like this:
+// 
+//  // 1. register an asset archive with the manager, all registered archives are searched in
+//  //    order for any assets requested
+// 	SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
+//
+//  // 2. open an asset context. this is like a directory, except that when opening things
+//  //    in this directory, all registered asset archives will be searched (in order) for a 
+//  //    matching asset
+// 	SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
+//
+//  // 3. 
+// ctx.getAsset(resource_name).Open()
+
 
 namespace WavefrontOBJViewer
 {

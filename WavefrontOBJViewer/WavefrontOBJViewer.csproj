@@ -47,7 +47,6 @@
     <Compile Include="SimpleScene\SSScene.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectTriangle.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectCube.cs" />
-    <Compile Include="SimpleScene\SSAssetManager.cs" />
     <Compile Include="SimpleScene\SSVertexFormats.cs" />
     <Compile Include="SimpleScene\Meshes\SSMesh.cs" />
     <Compile Include="SimpleScene\Util\VertexSoup.cs" />
@@ -63,6 +62,7 @@
     <Compile Include="SimpleScene\Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="SimpleScene\SSObject.cs" />
     <Compile Include="SimpleScene\Util\WhoCalls.cs" />
+    <Compile Include="SimpleScene\Util\SSAssetManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
