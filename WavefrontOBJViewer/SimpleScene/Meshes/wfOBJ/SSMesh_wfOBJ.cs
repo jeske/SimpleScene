@@ -17,6 +17,8 @@ namespace WavefrontOBJViewer
 		SSAssetManagerContext ctx;
 		public readonly string srcFilename;
 		
+		SSShaderProgram shaderPgm;
+		
 		// private string filename = "";
         // private bool mipmapped = false;
 
@@ -39,10 +41,11 @@ namespace WavefrontOBJViewer
 		}
 		
 #region Constructor
-        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, bool mipmapped) {
+        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, bool mipmapped, SSShaderProgram shaderPgm = null) {
             this.srcFilename = filename;
             // this.mipmapped = mipmapped;
             this.ctx = ctx;
+            this.shaderPgm = shaderPgm;
 
             WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
                delegate(string resource_name) { return ctx.getAsset(resource_name).Open(); });
@@ -71,6 +74,10 @@ namespace WavefrontOBJViewer
 				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 				GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 				
+				if (shaderPgm != null) {
+					GL.UseProgram(shaderPgm.ProgramID);
+				}
+				
 				// draw faces
 				GL.Begin(BeginMode.Triangles);
 				foreach(var idx in subset.indicies) {
@@ -81,6 +88,8 @@ namespace WavefrontOBJViewer
 					GL.Vertex3(vertex.Position);
                 }
                 GL.End();
+                
+                GL.UseProgram(0); // turn off GLSL
 			}
 		}
 

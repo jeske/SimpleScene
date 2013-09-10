@@ -14,10 +14,14 @@ namespace WavefrontOBJViewer
 		ShaderType type;
 		string shaderProgramText;
 		
-		public SSShader (ShaderType type, string shaderProgramText)
+		string shaderName;
+		
+		
+		public SSShader (ShaderType type, string shaderName, string shaderProgramText)
 		{
 			this.type = type;
 			this.shaderProgramText = shaderProgramText;
+			this.shaderName = shaderName;
 
 			this.loadShader();
 		}
@@ -26,7 +30,14 @@ namespace WavefrontOBJViewer
 			ShaderID = GL.CreateShader(this.type);
 			GL.ShaderSource(ShaderID, this.shaderProgramText);
 			GL.CompileShader(ShaderID);	
-			Console.WriteLine(GL.GetShaderInfoLog(ShaderID));
+			Console.WriteLine(shaderName + " - " + GL.GetShaderInfoLog(ShaderID));
+		}
+	}
+	
+	public class SSShaderProgram {
+		public int ProgramID;
+		public SSShaderProgram(int id) {
+			this.ProgramID = id;
 		}
 	}
 }

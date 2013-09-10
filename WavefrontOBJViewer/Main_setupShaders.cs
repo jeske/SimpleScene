@@ -11,48 +11,44 @@ namespace WavefrontOBJViewer
 	{
 		SSShader vertexShader;
 		SSShader fragmentShader;
-		int ProgramID;
+		SSShaderProgram shaderPgm;
 		
 		public void setupShaders() {
-			ProgramID = GL.CreateProgram();
+			int ProgramID = GL.CreateProgram();
 			
-vertexShader = new SSShader(ShaderType.VertexShader,
+vertexShader = new SSShader(ShaderType.VertexShader, "helloVertex",
 @"#version 120
  
-in vec3 vPosition;
-in  vec3 vColor;
-out vec4 color;
-uniform mat4 modelview;
- 
-void
-main()
-{
-    gl_Position = modelview * vec4(vPosition, 1.0);
- 
-    color = vec4( vColor, 1.0);		
-		
-		}
-	}
+ void main(void) {
+    // normal MVP transform       
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;       
+    
+    vec3 N = normalize(gl_NormalMatrix * gl_Normal);       
+    vec4 V = gl_ModelViewMatrix * gl_Vertex;       
+    vec3 L = normalize(gl_LightSource[0].position - V.xyz);       
+    
+    // output the diffuse color       
+    float NdotL = dot(N, L);       
+    gl_FrontColor = gl_Color * vec4(max(0.0, NdotL)); 
 }
 ");
-			GL.AttachShader(ProgramID,vertexShader.ShaderID);
+			// GL.AttachShader(ProgramID,vertexShader.ShaderID);
 
-this.fragmentShader = new SSShader(ShaderType.FragmentShader,
+this.fragmentShader = new SSShader(ShaderType.FragmentShader, "helloFragment",
 @"#version 120
  
-in vec4 color;
-out vec4 outputColor;
+ void main(void) {       
+     //  Mix primary and secondary colors, 50/50       
+     gl_FragColor = mix(gl_Color, vec4(vec3(gl_SecondaryColor), 1.0), 0.5); 
+ }
  
-void
-main()
-{
-    outputColor = color;
-}");
+ ");
 			GL.AttachShader(ProgramID,fragmentShader.ShaderID);
 
 			GL.LinkProgram(ProgramID);
 			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
 
+			this.shaderPgm = new SSShaderProgram(ProgramID);
 		}
 	}
 }

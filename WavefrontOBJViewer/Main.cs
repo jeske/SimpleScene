@@ -154,11 +154,12 @@ namespace WavefrontOBJViewer
 			{
 				Console.WriteLine("GL Version = {0}",GL.GetString(StringName.Version));
 				Console.WriteLine("GL Shader Version = {0}", GL.GetString(StringName.ShadingLanguageVersion));
+				
+				game.setupShaders();  // before scene
+				
 				game.setupInput ();
 
 				game.setupScene ();
-
-				// setupShaders();
 
 				game.Run(30.0);
 			}

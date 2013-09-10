@@ -55,7 +55,6 @@
     <Compile Include="SimpleScene\Objects\SSObjectMesh.cs" />
     <Compile Include="SimpleScene\Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
     <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
-    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_wfOBJ_GLSL.cs" />
     <Compile Include="Main_setupScene.cs" />
     <Compile Include="Main_setupShaders.cs" />
     <Compile Include="SimpleScene\SSShader.cs" />
@@ -63,6 +62,7 @@
     <Compile Include="SimpleScene\Cameras\SSCamera.cs" />
     <Compile Include="SimpleScene\Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="SimpleScene\SSObject.cs" />
+    <Compile Include="SimpleScene\Util\WhoCalls.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
