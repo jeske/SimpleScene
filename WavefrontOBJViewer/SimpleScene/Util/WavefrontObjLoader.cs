@@ -147,6 +147,9 @@ namespace Util3d {
             public string diffuseTextureResourceName;    // map_Kd
             public string specularTextureResourceName;   // map_Ks
             public string bumpTextureResourceName;       // map_bump || bump
+            
+            // texture paramaters
+			public float bumpIntensity = 1.0f;
 
             public bool hasIlluminationMode;
             public WffObjIlluminationMode illuminationMode;  // illum
@@ -332,8 +335,18 @@ namespace Util3d {
                         parseMaterial.specularTextureResourceName = lineContent;
                         break;
                     case "bump":
-                    case "map_bump": // bump map                
-                        parseMaterial.bumpTextureResourceName = lineContent;
+                    case "map_bump": // bump map  (bump <filename> [-bm <float bump>]               
+                        string[] parts = lineContent.Split(' ');
+                        if (parts.Length >= 1) {
+                            parseMaterial.bumpTextureResourceName = parts[0];
+                        }
+                        if (parts.Length == 3) {
+                            if (parts[1].Equals("-bm")) {
+                                parseMaterial.bumpIntensity = float.Parse(parts[2]);
+                            }
+                        }
+                        
+                        
                         break;
                 }
 

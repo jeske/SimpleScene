@@ -63,19 +63,44 @@ namespace WavefrontOBJViewer
 				// TODO: make a GL caps abstraction to only make these calls when the caps change
 
 				GL.Enable(EnableCap.CullFace);
-                GL.Enable(EnableCap.Texture2D);
 				GL.Enable(EnableCap.Lighting);
 
                 // GL.Enable(EnableCap.Blend);
                 // GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 				
-				// set material
-				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 				GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 				
-				if (shaderPgm != null) {
+				if (shaderPgm == null) {
+					// fixed function single-texture
+					GL.Enable(EnableCap.Texture2D);
+					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+				} else {
+					// bind multi-texture for GLSL
+					// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
+					GL.ActiveTexture(TextureUnit.Texture0);
+					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+					GL.ActiveTexture(TextureUnit.Texture1);
+					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
+					GL.ActiveTexture(TextureUnit.Texture2);
+					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
+					GL.ActiveTexture(TextureUnit.Texture3);
+					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
+					
+					// activate GLSL shader
 					GL.UseProgram(shaderPgm.ProgramID);
+					
+					// get uniform variable handles
+					int h0 = GL.GetUniformLocation(shaderPgm.ProgramID, "diffTex");
+					int h1 = GL.GetUniformLocation(shaderPgm.ProgramID, "specTex");
+					int h2 = GL.GetUniformLocation(shaderPgm.ProgramID, "ambiTex");
+					int h3 = GL.GetUniformLocation(shaderPgm.ProgramID, "bumpTex");
+					
+					// bind uniform variable handles to texture-unit numbers
+					GL.Uniform1(h0,0);
+					GL.Uniform1(h1,1);
+					GL.Uniform1(h2,2);
+					GL.Uniform1(h3,3);					
 				}
 				
 				// draw faces
@@ -108,15 +133,18 @@ namespace WavefrontOBJViewer
 
             // setup the material...
             subsetData.material = new SSMaterial();
-            // assign diffuse, ambient, etc...
-            // load-link the texture...
+
+            // load and link every texture present 
             if (objMatSubset.diffuseTextureResourceName != null) {
                 subsetData.diffuseTexture = new SSTexture(ctx.getAsset(objMatSubset.diffuseTextureResourceName));
-            } else if (objMatSubset.ambientTextureResourceName != null) {
+            }
+            if (objMatSubset.ambientTextureResourceName != null) {
                 subsetData.ambientTexture = new SSTexture(ctx.getAsset(objMatSubset.ambientTextureResourceName));
-            } else if (objMatSubset.bumpTextureResourceName != null) {
+            } 
+            if (objMatSubset.bumpTextureResourceName != null) {
                 subsetData.bumpTexture = new SSTexture(ctx.getAsset(objMatSubset.bumpTextureResourceName));
-            } else if (objMatSubset.specularTextureResourceName != null) {
+            }
+            if (objMatSubset.specularTextureResourceName != null) {
                 subsetData.specularTexture = new SSTexture(ctx.getAsset(objMatSubset.specularTextureResourceName));
             }
 
