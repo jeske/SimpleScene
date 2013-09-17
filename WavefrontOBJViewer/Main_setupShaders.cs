@@ -195,15 +195,20 @@ void main()
 	vec4 specularStrength = gl_FrontMaterial.specular;
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - VV);
 
+	// compute the ambient color
+	vec4 ambientColor = texture2D (ambiTex, gl_TexCoord[0].st);
+	float glowFactor = length(ambientColor.rgb) * 0.5;
+
 	// diffuse color baseline
 	// http://www.clockworkcoders.com/oglsl/tutorial5.htm
-	vec4 diffuseMaterial = texture2D (diffTex, gl_TexCoord[0].st);
-	//outputColor += diffuseMaterial * (ambientStrength + diffuseStrength);
-	outputColor += diffuseMaterial * max(dot(n, lightPosition), 0.0);
+	vec4 diffuseColor = texture2D (diffTex, gl_TexCoord[0].st);
+	outputColor += diffuseColor * 
+	                 (max(dot(n, lightPosition), 0.0) +
+	                 glowFactor);  // the glow should light the diffuse color
 	
-	// ambient glow map
-	vec4 glowFactor = vec4(0.5);
-	outputColor = mix(outputColor, texture2D (ambiTex, gl_TexCoord[0].st), glowFactor);
+	// mix in the ambient glow map
+	
+	outputColor = mix(outputColor, ambientColor, glowFactor);
 	
 	// lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
 	vec3 normal = 2.0 * texture2D (bumpTex, gl_TexCoord[0].st).rgb - 1.0;

@@ -6,17 +6,22 @@
 
 - !!!    add some basic Nunit unit tests to OpenTK    !!!
 
-- do the wavefront OBJ todos! 
-  - handle multi-line faces continued with "\"
-  - handle negative vertex indices in face specification
-  - handle "s" smoothing group
-  - handle "Tr"/"d" material transparency/alpha
-        
+- FIX camera/object transform
+  - NEED: working camera rotation
+  - NEED: working object rotation
+  - NEED: working object translation
+  
 - mouse camera dolly/pan (shift drag)
 
 - GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 - diffuse, specular, bump)
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
   - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
+
+- do the wavefront OBJ todos! 
+  - handle multi-line faces continued with "\"
+  - handle negative vertex indices in face specification
+  - handle "s" smoothing group
+  - handle "Tr"/"d" material transparency/alpha
 
 - add VertexBuffer / IndexBuffer management
  
