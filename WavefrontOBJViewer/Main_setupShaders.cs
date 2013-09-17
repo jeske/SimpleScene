@@ -110,20 +110,26 @@ vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 	varying vec3 halfVec;
 	varying vec3 eyeVec;
 	
+	varying vec3 n;
+	varying vec3 VV;
+	
 	varying vec3 vertexNormal;
 
 void main()
 {
-
 	gl_TexCoord[0] =  gl_MultiTexCoord0;
 	
 	// Building the matrix Eye Space -> Tangent Space
-	vec3 n = normalize (gl_NormalMatrix * gl_Normal);
+	n = normalize (gl_NormalMatrix * gl_Normal);
 	vec3 t = normalize (gl_NormalMatrix * tangent);
 	vec3 b = cross (n, t);
 	
 	vec3 vertexPosition = vec3(gl_ModelViewMatrix *  gl_Vertex);
 	vec3 lightDir = normalize(gl_LightSource[0].position.xyz - vertexPosition);
+		
+	// transformed vertex position.
+	VV = vec3(gl_ModelViewMatrix * gl_Vertex);
+	
 		
 		
 	// transform light and half angle vectors by tangent basis
@@ -173,6 +179,10 @@ uniform sampler2D bumpTex;
 varying vec3 lightVec;
 varying vec3 halfVec;
 varying vec3 eyeVec;
+
+varying vec3 n;
+varying vec3 VV;
+
 varying vec3 vertexNormal;
 
 void main()
@@ -183,10 +193,13 @@ void main()
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
+	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - VV);
 
-	// ambient color baseline
+	// diffuse color baseline
+	// http://www.clockworkcoders.com/oglsl/tutorial5.htm
 	vec4 diffuseMaterial = texture2D (diffTex, gl_TexCoord[0].st);
-	outputColor += diffuseMaterial * (ambientStrength + diffuseStrength);
+	//outputColor += diffuseMaterial * (ambientStrength + diffuseStrength);
+	outputColor += diffuseMaterial * max(dot(n, lightPosition), 0.0);
 	
 	// ambient glow map
 	vec4 glowFactor = vec4(0.5);
