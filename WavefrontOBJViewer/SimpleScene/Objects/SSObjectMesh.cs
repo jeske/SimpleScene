@@ -13,8 +13,8 @@ namespace WavefrontOBJViewer
     {
         public readonly SSMesh mesh;
         
-        public override void Render() {
-            this.mesh.Render();
+        public override void Render(SSRenderConfig renderConfig) {
+            this.mesh.RenderMesh(renderConfig);
         }
         public SSObjectMesh (SSMesh mesh) : base() {
             this.mesh = mesh;

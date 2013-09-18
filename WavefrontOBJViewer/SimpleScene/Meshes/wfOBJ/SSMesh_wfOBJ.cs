@@ -57,73 +57,122 @@ namespace WavefrontOBJViewer
         }    
 #endregion
         
-		public override void Render(){			
+		// TODO: extend GLSL to do wireframe in a geometry shader
+		// http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/geometry-shader/
+
+		private void _renderSetupGLSL(SSMeshOBJSubsetData subset) {
+			// Step 1: setup GL rendering modes...
+
+			GL.Enable(EnableCap.CullFace);
+			GL.Enable(EnableCap.Lighting);
+
+			// GL.Enable(EnableCap.Blend);
+			// GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+
+			// Step 2: setup our material mode and paramaters...
+
+			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
+
+			if (shaderPgm == null) {
+				// fixed function single-texture
+				GL.Enable(EnableCap.Texture2D);
+				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+			} else {
+				// activate GLSL shader
+				GL.UseProgram(shaderPgm.ProgramID);
+
+				// bind our texture-images to GL texture-units 
+				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+				GL.ActiveTexture(TextureUnit.Texture1);
+				GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
+				GL.ActiveTexture(TextureUnit.Texture2);
+				GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
+				GL.ActiveTexture(TextureUnit.Texture3);
+				GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
+
+				// get shader uniform variable handles (these are named variables in the shader)
+				int h0 = GL.GetUniformLocation(shaderPgm.ProgramID, "diffTex");
+				int h1 = GL.GetUniformLocation(shaderPgm.ProgramID, "specTex");
+				int h2 = GL.GetUniformLocation(shaderPgm.ProgramID, "ambiTex");
+				int h3 = GL.GetUniformLocation(shaderPgm.ProgramID, "bumpTex");
+
+				// bind shader uniform variable handles to GL texture-unit numbers
+				GL.Uniform1(h0,0);
+				GL.Uniform1(h1,1);
+				GL.Uniform1(h2,2);
+				GL.Uniform1(h3,3);
+			}
+		}
+
+		private void _renderSetupWireframe() {
+			GL.UseProgram(0); // turn off GLSL
+			GL.Enable(EnableCap.CullFace);
+			GL.Disable(EnableCap.Texture2D);
+			GL.Disable(EnableCap.Blend);
+			GL.Disable(EnableCap.Lighting);
+		}
+
+		public void _renderSendTriangles(SSMeshOBJSubsetData subset) {
+			// Step 3: draw faces.. here we use the "old school" manual method of drawing
+
+			//         note: programs written for modern OpenGL & D3D don't do this!
+			//               instead, they hand the vertex-buffer and index-buffer to the
+			//               GPU and let it do this..
+
+			GL.Begin(BeginMode.Triangles);
+			foreach(var idx in subset.indicies) {
+				var vertex = subset.vertices[idx];  // retrieve the vertex
+
+				// draw the vertex..
+				GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
+				GL.TexCoord2(vertex.Tu,vertex.Tv);
+				GL.Normal3(vertex.Normal);
+				GL.Vertex3(vertex.Position);
+			}
+			GL.End();
+		}
+		public void _renderSendLines(SSMeshOBJSubsetData subset) {
+			// Step 3: draw faces.. here we use the "old school" manual method of drawing
+
+			//         note: programs written for modern OpenGL & D3D don't do this!
+			//               instead, they hand the vertex-buffer and index-buffer to the
+			//               GPU and let it do this..
+
+
+			for(int i=2;i<subset.indicies.Length;i+=3) {
+				var v1 = subset.vertices [subset.indicies[i - 2]];
+				var v2 = subset.vertices [subset.indicies[i - 1]];
+				var v3 = subset.vertices [subset.indicies[i]];
+
+				// draw the vertex..
+				GL.Color3(System.Drawing.Color.FromArgb(v1.DiffuseColor));
+
+				GL.Begin(BeginMode.LineLoop);
+				GL.Vertex3 (v1.Position);
+				GL.Vertex3 (v2.Position);
+				GL.Vertex3 (v3.Position);
+				GL.End();
+			}
+
+		}
+
+
+		public override void RenderMesh(SSRenderConfig renderConfig) {		
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 
-				// Step 1: setup GL rendering modes...
-
-				GL.Enable(EnableCap.CullFace);
-				GL.Enable(EnableCap.Lighting);
-
-                // GL.Enable(EnableCap.Blend);
-                // GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-                GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-
-				// Step 2: setup our material mode and paramaters...
-
-				GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
-
-				if (shaderPgm == null) {
-					// fixed function single-texture
-					GL.Enable(EnableCap.Texture2D);
-					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-				} else {
-					// activate GLSL shader
-					GL.UseProgram(shaderPgm.ProgramID);
-
-					// bind our texture-images to GL texture-units 
-					// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
-					GL.ActiveTexture(TextureUnit.Texture0);
-					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-					GL.ActiveTexture(TextureUnit.Texture1);
-					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
-					GL.ActiveTexture(TextureUnit.Texture2);
-					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
-					GL.ActiveTexture(TextureUnit.Texture3);
-					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
-					
-					// get shader uniform variable handles (these are named variables in the shader)
-					int h0 = GL.GetUniformLocation(shaderPgm.ProgramID, "diffTex");
-					int h1 = GL.GetUniformLocation(shaderPgm.ProgramID, "specTex");
-					int h2 = GL.GetUniformLocation(shaderPgm.ProgramID, "ambiTex");
-					int h3 = GL.GetUniformLocation(shaderPgm.ProgramID, "bumpTex");
-					
-					// bind shader uniform variable handles to GL texture-unit numbers
-					GL.Uniform1(h0,0);
-					GL.Uniform1(h1,1);
-					GL.Uniform1(h2,2);
-					GL.Uniform1(h3,3);
+				if (renderConfig.drawGLSL) {
+					_renderSetupGLSL (subset);
+					_renderSendTriangles (subset);
+			
 				}
-				
-				// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
-				//         note: programs written for modern OpenGL & D3D don't do this!
-				//               instead, they hand the vertex-buffer and index-buffer to the
-				//               GPU and let it do this..
-
-				GL.Begin(BeginMode.Triangles);
-				foreach(var idx in subset.indicies) {
-					var vertex = subset.vertices[idx];  // retrieve the vertex
-
-					// draw the vertex..
-					GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
-					GL.TexCoord2(vertex.Tu,vertex.Tv);
-					GL.Normal3(vertex.Normal);
-					GL.Vertex3(vertex.Position);
-                }
-                GL.End();
-                
-                GL.UseProgram(0); // turn off GLSL
+				if (renderConfig.drawWireframes) {
+					_renderSetupWireframe ();
+					_renderSendLines (subset);
+				}
 			}
 		}
 

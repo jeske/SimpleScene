@@ -10,8 +10,8 @@ namespace WavefrontOBJViewer
 {
     public class SSObjectCube : SSObject
     {
-        public override void Render() {
-            base.Render ();
+        public override void Render(SSRenderConfig renderConfig) {
+            base.Render (renderConfig);
             GL.Begin(BeginMode.Triangles);
 
             GL.Color3(0.5f, 0.5f, 0.5f); 

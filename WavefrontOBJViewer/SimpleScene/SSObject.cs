@@ -16,7 +16,7 @@ namespace WavefrontOBJViewer
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
 		public SSObject() : base() {}
-		public virtual void Render () {}
+		public virtual void Render (SSRenderConfig renderConfig) {}
 
 	}
 

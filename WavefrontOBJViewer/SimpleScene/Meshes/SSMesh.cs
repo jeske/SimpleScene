@@ -6,7 +6,7 @@ using System;
 namespace WavefrontOBJViewer 
 {
 	public abstract class SSMesh {
-		public abstract void Render ();
+		public abstract void RenderMesh (SSRenderConfig renderConfig);
 	}
 }
 

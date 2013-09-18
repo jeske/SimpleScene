@@ -10,8 +10,8 @@ namespace WavefrontOBJViewer
 {
     public class SSObjectTriangle : SSObject
     {
-        public override void Render() {
-            base.Render ();
+        public override void Render(SSRenderConfig renderConfig) {
+            base.Render (renderConfig);
 
 			// mode setup
 			GL.Disable(EnableCap.CullFace);

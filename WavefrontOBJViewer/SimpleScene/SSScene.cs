@@ -9,12 +9,19 @@ using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
 {
+	public class SSRenderConfig {
+		public bool drawGLSL = true;
+		public bool drawWireframes = true;
+	}
+
 	public sealed class SSScene
 	{
 		public ICollection<SSObject> objects = new List<SSObject>();
 		public ICollection<SSLight> lights = new List<SSLight> ();
 
 		public SSCamera activeCamera;
+
+		public readonly SSRenderConfig renderConfig = new SSRenderConfig ();
 
 		public void Update() {
 			// update all objects.. TODO: add elapsed time since last update..
@@ -46,7 +53,7 @@ namespace WavefrontOBJViewer
 				GL.LoadMatrix(ref modelViewMat);
 				
 				// now render the object
-				obj.Render ();
+				obj.Render (renderConfig);
 			}
 		}
 
