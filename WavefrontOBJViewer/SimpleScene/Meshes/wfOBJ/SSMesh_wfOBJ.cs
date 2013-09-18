@@ -53,14 +53,14 @@ namespace WavefrontOBJViewer
 			Console.WriteLine("wff vertex count = {0}",wff_data.positions.Count);
 			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
 
-            _makeData(wff_data);
+            _loadData(wff_data);
         }    
 #endregion
         
 		public override void Render(){			
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 
-				// TODO: make a GL caps abstraction to only make these calls when the caps change
+				// Step 1: setup GL rendering modes...
 
 				GL.Enable(EnableCap.CullFace);
 				GL.Enable(EnableCap.Lighting);
@@ -68,15 +68,20 @@ namespace WavefrontOBJViewer
                 // GL.Enable(EnableCap.Blend);
                 // GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-				
+
+				// Step 2: setup our material mode and paramaters...
+
 				GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
-				
+
 				if (shaderPgm == null) {
 					// fixed function single-texture
 					GL.Enable(EnableCap.Texture2D);
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 				} else {
-					// bind multi-texture for GLSL
+					// activate GLSL shader
+					GL.UseProgram(shaderPgm.ProgramID);
+
+					// bind our texture-images to GL texture-units 
 					// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
 					GL.ActiveTexture(TextureUnit.Texture0);
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
@@ -87,26 +92,30 @@ namespace WavefrontOBJViewer
 					GL.ActiveTexture(TextureUnit.Texture3);
 					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
 					
-					// activate GLSL shader
-					GL.UseProgram(shaderPgm.ProgramID);
-					
-					// get uniform variable handles
+					// get shader uniform variable handles (these are named variables in the shader)
 					int h0 = GL.GetUniformLocation(shaderPgm.ProgramID, "diffTex");
 					int h1 = GL.GetUniformLocation(shaderPgm.ProgramID, "specTex");
 					int h2 = GL.GetUniformLocation(shaderPgm.ProgramID, "ambiTex");
 					int h3 = GL.GetUniformLocation(shaderPgm.ProgramID, "bumpTex");
 					
-					// bind uniform variable handles to texture-unit numbers
+					// bind shader uniform variable handles to GL texture-unit numbers
 					GL.Uniform1(h0,0);
 					GL.Uniform1(h1,1);
 					GL.Uniform1(h2,2);
-					GL.Uniform1(h3,3);					
+					GL.Uniform1(h3,3);
 				}
 				
-				// draw faces
+				// Step 3: draw faces.. here we use the "old school" manual method of drawing
+
+				//         note: programs written for modern OpenGL & D3D don't do this!
+				//               instead, they hand the vertex-buffer and index-buffer to the
+				//               GPU and let it do this..
+
 				GL.Begin(BeginMode.Triangles);
 				foreach(var idx in subset.indicies) {
-					var vertex = subset.vertices[idx];
+					var vertex = subset.vertices[idx];  // retrieve the vertex
+
+					// draw the vertex..
 					GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
 					GL.TexCoord2(vertex.Tu,vertex.Tv);
 					GL.Normal3(vertex.Normal);
@@ -118,16 +127,16 @@ namespace WavefrontOBJViewer
 			}
 		}
 
-
-        private void _makeData(WavefrontObjLoader m) {
+#region Load Data
+        private void _loadData(WavefrontObjLoader m) {
             foreach (var srcmat in m.materials) {
                 if (srcmat.faces.Count != 0) {
-                    this.geometrySubsets.Add(_makeMaterialSubset(m, srcmat));
+                    this.geometrySubsets.Add(_loadMaterialSubset(m, srcmat));
                 }
             }
         }
         
-        private SSMeshOBJSubsetData _makeMaterialSubset(WavefrontObjLoader wff, WavefrontObjLoader.MaterialFromObj objMatSubset) {
+        private SSMeshOBJSubsetData _loadMaterialSubset(WavefrontObjLoader wff, WavefrontObjLoader.MaterialFromObj objMatSubset) {
             // create new mesh subset-data
             SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData();            
 
@@ -156,5 +165,6 @@ namespace WavefrontOBJViewer
 
             return subsetData;
         }
+#endregion
     }
 }
