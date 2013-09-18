@@ -31,7 +31,7 @@ namespace Util3d {
             UInt16[] retval = new UInt16[vertex_list.Length];
 
             for(int x=0;x<vertex_list.Length;x++) {            
-                if (vertexToIndexMap.ContainsKey(vertex_list[x])) {
+                if (deDup && vertexToIndexMap.ContainsKey(vertex_list[x])) {
                     retval[x] = vertexToIndexMap[vertex_list[x]];
                 } else {
                     UInt16 nextIndex = (UInt16)verticies.Count;

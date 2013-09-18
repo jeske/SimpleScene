@@ -29,54 +29,67 @@ namespace WavefrontOBJViewer
 			out UInt16[] indicies_return, 
 			out SSVertex_PosNormDiffTex1[] verticies_return) 
 		{
-			var soup = new VertexSoup<SSVertex_PosNormDiffTex1>(deDup:false);
-			List<UInt16> indicies = new List<UInt16>();
+			const bool shouldDedup = true; // this lets us turn on/of vertex-soup deduping
 
-			// (0) go throu`gh the materials and faces
+			var soup = new VertexSoup<SSVertex_PosNormDiffTex1>(deDup:shouldDedup);
+			List<UInt16> draw_indicies = new List<UInt16>();
+
+			// (0) go throu`gh the materials and faces, DENORMALIZE from WF-OBJ into fully-configured verticies
 
 			// load indexes
 			foreach (var mtl in wff.materials) {
+
+				// wavefrontOBJ stores color in CIE-XYZ color space. Convert this to Alpha-RGB
+				var materialDiffuseColor = WavefrontObjLoader.CIEXYZtoColor(mtl.vDiffuse).ToArgb();
+
 				foreach (var face in mtl.faces) {
 
-					// extract the unique verticies for a face...
+					// iterate over the vericies of a wave-front FACE...
+
+					// DEREFERENCE each .obj vertex paramater (position, normal, texture coordinate)
 					SSVertex_PosNormDiffTex1[] vertex_list = new SSVertex_PosNormDiffTex1[face.v_idx.Length];                    
-					for (int facevertex = 0; facevertex < face.v_idx.Length; facevertex++) {                        
+					for (int facevertex = 0; facevertex < face.v_idx.Length; facevertex++) {     
+
+						// position
 						vertex_list[facevertex].Position = CV(wff.positions[face.v_idx[facevertex]]);
-						{
-							int normal_idx = face.n_idx[facevertex];
-							if (normal_idx != -1) {
-								vertex_list[facevertex].Normal = CV(wff.normals[normal_idx]); 
-							}
-						}
-						{
-							int tex_index = face.tex_idx[facevertex];
-							if (tex_index != -1 ) {
-								vertex_list[facevertex].Tu = wff.texCoords[tex_index].U; 
-								vertex_list[facevertex].Tv = 1- wff.texCoords[tex_index].V;
-							}
+
+						// normal
+						int normal_idx = face.n_idx[facevertex];
+						if (normal_idx != -1) {
+							vertex_list[facevertex].Normal = CV(wff.normals[normal_idx]); 
 						}
 
-						// this is how you do directX...
-						vertex_list[facevertex].DiffuseColor = WavefrontObjLoader.CIEXYZtoColor(mtl.vDiffuse).ToArgb();
-						
-						// openGL
-						// vertex_list[facevertex].DiffuseColor = CV(mtl.vDiffuse);
+						// texture coordinate
+						int tex_index = face.tex_idx[facevertex];
+						if (tex_index != -1 ) {
+							vertex_list[facevertex].Tu = wff.texCoords[tex_index].U; 
+							vertex_list[facevertex].Tv = 1- wff.texCoords[tex_index].V;
+						}
+					
+						// assign our material's diffusecolor to the vertex diffuse color...
+						vertex_list [facevertex].DiffuseColor = materialDiffuseColor;
 					}
 
 					// turn them into indicies in the vertex soup..
-					UInt16[] newindicies = soup.digestVerticies(vertex_list);
-					if (newindicies.Length == 3) { // triangle
-						indicies.Add(newindicies[0]);
-						indicies.Add(newindicies[1]);
-						indicies.Add(newindicies[2]);
-					} else if (newindicies.Length == 4) { // quad
-						indicies.Add(newindicies[0]);
-						indicies.Add(newindicies[1]);
-						indicies.Add(newindicies[2]);
+					//   .. we hand the soup a set of fully configured verticies. It
+					//   .. dedups and accumulates them, and hands us back indicies
+					//   .. relative to it's growing list of deduped verticies. 
+					UInt16[] soup_indicies = soup.digestVerticies(vertex_list);
 
-						indicies.Add(newindicies[0]);
-						indicies.Add(newindicies[2]);
-						indicies.Add(newindicies[3]);
+					// now we add these indicies to the draw-list. Right now we assume
+					// draw is using GL_TRIANGLE, so we convert NGONS into triange lists
+					if (soup_indicies.Length == 3) { // triangle
+						draw_indicies.Add(soup_indicies[0]);
+						draw_indicies.Add(soup_indicies[1]);
+						draw_indicies.Add(soup_indicies[2]);
+					} else if (soup_indicies.Length == 4) { // quad
+						draw_indicies.Add(soup_indicies[0]);
+						draw_indicies.Add(soup_indicies[1]);
+						draw_indicies.Add(soup_indicies[2]);
+
+						draw_indicies.Add(soup_indicies[0]);
+						draw_indicies.Add(soup_indicies[2]);
+						draw_indicies.Add(soup_indicies[3]);
 					} else {
 						// This n-gon algorithm only works if the n-gon is coplanar and convex,
 						// which Wavefront OBJ says they must be. 
@@ -84,17 +97,24 @@ namespace WavefrontOBJViewer
 						//    http://en.wikipedia.org/wiki/Polygon_triangulation#Ear_clipping_method
 						
 						// manually generate a triangle-fan
-						for (int x = 1; x < (newindicies.Length-1); x++) {
-							indicies.Add(newindicies[0]);
-							indicies.Add(newindicies[x]);
-							indicies.Add(newindicies[x+1]);
+						for (int x = 1; x < (soup_indicies.Length-1); x++) {
+							draw_indicies.Add(soup_indicies[0]);
+							draw_indicies.Add(soup_indicies[x]);
+							draw_indicies.Add(soup_indicies[x+1]);
 						}
 						// throw new NotImplementedException("unhandled face size: " + newindicies.Length);                    
 					}
 				}
 			}
-			indicies_return = indicies.ToArray();
+
+			// convert the linked-lists into arrays and return
+			indicies_return = draw_indicies.ToArray();
 			verticies_return = soup.verticies.ToArray();
+
+			Console.WriteLine ("VertexSoup_VertexFormatBinder:generateDrawIndexBuffer : \r\n   {0} verticies, {1} indicies.  Dedup = {2}",
+			                  verticies_return.Length, indicies_return.Length,
+			                  shouldDedup ? "YES" : "NO");
+
 		}
 		
 		
