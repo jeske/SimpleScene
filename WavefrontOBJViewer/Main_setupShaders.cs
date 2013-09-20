@@ -171,7 +171,11 @@ void main()
 			
 this.fragmentShader = new SSShader(ShaderType.FragmentShader, "bumpFragment",
 @"#version 120
- 
+#extension GL_EXT_gpu_shader4 : enable
+
+// edge distance from geometry shader..
+noperspective varying vec3 f_dist;
+
 uniform sampler2D diffTex;
 uniform sampler2D specTex;
 uniform sampler2D ambiTex;
@@ -229,6 +233,14 @@ void main()
     shininess = 10.0;
 	// outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;
 
+	// single-pass wireframe calculation
+	// .. compute distance from fragment to closest edge
+	float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
+	float edgeIntensity = exp2(-1.0*nearD*nearD);
+	vec4 edgeColor = vec4(0.1,0.1,0.1,0.1);
+    outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
+    // outputColor = vec4(edgeIntensity);
+ 
 	gl_FragColor = outputColor;
 }			
 
@@ -250,7 +262,7 @@ void main()
 
 
 // not supported until GLSL 150
-// ... see GL.ProgramParameter(..) call
+// ... see GL.Ext.ProgramParameter(..) call
 // layout(triangles) in;
 // layout (triangles, max_vertices=3) out;
 
@@ -273,18 +285,25 @@ varying out vec3 f_eyeVec;
 varying out vec3 f_n;
 varying out vec3 f_VV;
 varying out vec3 f_vertexNormal;
+noperspective varying out vec3 f_dist;
 
 void main(void)
 {
 
 // taken from 'Single-Pass Wireframe Rendering'
-//vec2 p0 = WIN_SCALE * gl_PositionIn[0].xy/gl_PositionIn[0].w;
-//vec2 p1 = WIN_SCALE * gl_PositionIn[1].xy/gl_PositionIn[1].w;
-//vec2 p2 = WIN_SCALE * gl_PositionIn[2].xy/gl_PositionIn[2].w;
-//vec2 v0 = p2-p1;
-//vec2 v1 = p2-p0;
-//vec2 v2 = p1-p0;
-//float area = abs(v1.x*v2.y - v1.y * v2.x);
+vec2 p0 = WIN_SCALE * gl_PositionIn[0].xy/gl_PositionIn[0].w;
+vec2 p1 = WIN_SCALE * gl_PositionIn[1].xy/gl_PositionIn[1].w;
+vec2 p2 = WIN_SCALE * gl_PositionIn[2].xy/gl_PositionIn[2].w;
+vec2 v0 = p2-p1;
+vec2 v1 = p2-p0;
+vec2 v2 = p1-p0;
+float area = abs(v1.x*v2.y - v1.y * v2.x);
+
+vec3 vertexEdgeDistance[3];
+vertexEdgeDistance[0] = vec3(area/length(v0),0,0);
+vertexEdgeDistance[1] = vec3(0,area/length(v1),0);
+vertexEdgeDistance[2] = vec3(0,0,area/length(v2));
+
 
   // LOOP for each vertex in the primitive...
   // .. gl_verticiesIn holds the count
@@ -295,31 +314,15 @@ void main(void)
      f_n = n[i];
      f_VV = VV[i];
      f_vertexNormal = vertexNormal[i];
-     
+
+     f_dist = vertexEdgeDistance[i];
+               
      gl_TexCoord[0] = gl_TexCoordIn[i][0];
      gl_FrontColor = gl_FrontColorIn[i];
      gl_Position = gl_PositionIn[i];
      EmitVertex();
   }
-  EndPrimitive(); 
-/*
-dist = vec3(area/length(v0),0,0);
-worldPos = vertWorldPos[0];
-worldNormal = vertWorldNormal[0];
-gl_Position = gl_PositionIn[0];
-EmitVertex();
-dist = vec3(0,area/length(v1),0);
-worldPos = vertWorldPos[1];
-worldNormal = vertWorldNormal[1];
-gl_Position = gl_PositionIn[1];
-EmitVertex();
-dist = vec3(0,0,area/length(v2));
-worldPos = vertWorldPos[2];
-worldNormal = vertWorldNormal[2];
-gl_Position = gl_PositionIn[2];
-EmitVertex();
-EndPrimitive();
-*/
+  EndPrimitive(); // not necessary as we only handle triangles
 }
 ");
 

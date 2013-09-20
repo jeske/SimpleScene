@@ -133,6 +133,12 @@ namespace WavefrontOBJViewer
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadMatrix(ref projection);
 
+			GL.UseProgram(shaderPgm.ProgramID);
+			// setup WIN_SCALE			
+			GL.Uniform2(
+				GL.GetUniformLocation(this.shaderPgm.ProgramID, "WIN_SCALE"),
+				(float)ClientRectangle.Width, (float)ClientRectangle.Height);
+
 			// render
 			Matrix4 viewMat = scene.activeCamera.worldMat;
 			viewMat.Invert();
