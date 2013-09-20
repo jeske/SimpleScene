@@ -11,7 +11,7 @@ namespace WavefrontOBJViewer
 {
 	public class SSRenderConfig {
 		public bool drawGLSL = true;
-		public bool drawWireframes = true;
+		public bool drawWireframes = false;
 	}
 
 	public sealed class SSScene

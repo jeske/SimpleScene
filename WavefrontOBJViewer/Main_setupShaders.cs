@@ -178,14 +178,14 @@ uniform sampler2D ambiTex;
 uniform sampler2D bumpTex;
 		
 // New bumpmapping
-varying vec3 lightVec;
-varying vec3 halfVec;
-varying vec3 eyeVec;
+varying vec3 f_lightVec;
+varying vec3 f_halfVec;
+varying vec3 f_eyeVec;
 
-varying vec3 n;
-varying vec3 VV;
+varying vec3 f_n;
+varying vec3 f_VV;
 
-varying vec3 vertexNormal;
+varying vec3 f_vertexNormal;
 
 void main()
 {
@@ -195,7 +195,7 @@ void main()
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
-	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - VV);
+	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
 	// compute the ambient color
 	vec4 ambientColor = texture2D (ambiTex, gl_TexCoord[0].st);
@@ -205,7 +205,7 @@ void main()
 	// http://www.clockworkcoders.com/oglsl/tutorial5.htm
 	vec4 diffuseColor = texture2D (diffTex, gl_TexCoord[0].st);
 	outputColor += diffuseColor * 
-	                 (max(dot(n, lightPosition), 0.0) +
+	                 (max(dot(f_n, lightPosition), 0.0) +
 	                 glowFactor);  // the glow should light the diffuse color
 	
 	// mix in the ambient glow map
@@ -217,7 +217,7 @@ void main()
 	normal = normalize (normal);
 	
 	// compute bump lighting factor
-	float lamberFactor = max (dot (lightVec, normal), 0.0);
+	float lamberFactor = max (dot (f_lightVec, normal), 0.0);
 	
 	// apply bump lighting
 	if (lamberFactor > 0.0) {   
@@ -225,7 +225,7 @@ void main()
 	}
 
 	// compute specular lighting
-    float shininess = pow (max (dot (halfVec, vertexNormal), 0.0), 2.0);
+    float shininess = pow (max (dot (f_halfVec, f_vertexNormal), 0.0), 2.0);
     shininess = 10.0;
 	// outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;
 
@@ -247,23 +247,62 @@ void main()
 @"#version 120
 #extension GL_EXT_gpu_shader4 : enable
 #extension GL_EXT_geometry_shader4 : enable
-varying in vec3 vertWorldPos[3];
-varying in vec3 vertWorldNormal[3];
-varying out vec3 worldNormal;
-varying out vec3 worldPos;
+
+
+// not supported until GLSL 150
+// ... see GL.ProgramParameter(..) call
+// layout(triangles) in;
+// layout (triangles, max_vertices=3) out;
+
+// these are the sigle-pass wireframe variables
 uniform vec2 WIN_SCALE;
 noperspective varying vec3 dist;
+
+// these are pass-through variables
+varying in vec3 lightVec[3];
+varying in vec3 halfVec[3];
+varying in vec3 eyeVec[3];
+varying in vec3 n[3];
+varying in vec3 VV[3];
+varying in vec3 vertexNormal[3];
+
+// non-uniform blocks are not supported until GLSL 330?
+varying out vec3 f_lightVec;
+varying out vec3 f_halfVec;
+varying out vec3 f_eyeVec;
+varying out vec3 f_n;
+varying out vec3 f_VV;
+varying out vec3 f_vertexNormal;
+
 void main(void)
 {
-// taken from 'Single-Pass Wireframe Rendering'
-vec2 p0 = WIN_SCALE * gl_PositionIn[0].xy/gl_PositionIn[0].w;
-vec2 p1 = WIN_SCALE * gl_PositionIn[1].xy/gl_PositionIn[1].w;
-vec2 p2 = WIN_SCALE * gl_PositionIn[2].xy/gl_PositionIn[2].w;
-vec2 v0 = p2-p1;
-vec2 v1 = p2-p0;
-vec2 v2 = p1-p0;
-float area = abs(v1.x*v2.y - v1.y * v2.x);
 
+// taken from 'Single-Pass Wireframe Rendering'
+//vec2 p0 = WIN_SCALE * gl_PositionIn[0].xy/gl_PositionIn[0].w;
+//vec2 p1 = WIN_SCALE * gl_PositionIn[1].xy/gl_PositionIn[1].w;
+//vec2 p2 = WIN_SCALE * gl_PositionIn[2].xy/gl_PositionIn[2].w;
+//vec2 v0 = p2-p1;
+//vec2 v1 = p2-p0;
+//vec2 v2 = p1-p0;
+//float area = abs(v1.x*v2.y - v1.y * v2.x);
+
+  // LOOP for each vertex in the primitive...
+  // .. gl_verticiesIn holds the count
+  for(int i = 0; i < 3; i++) {
+     f_lightVec = lightVec[i];
+     f_halfVec = halfVec[i];
+     f_eyeVec = eyeVec[i];
+     f_n = n[i];
+     f_VV = VV[i];
+     f_vertexNormal = vertexNormal[i];
+     
+     gl_TexCoord[0] = gl_TexCoordIn[i][0];
+     gl_FrontColor = gl_FrontColorIn[i];
+     gl_Position = gl_PositionIn[i];
+     EmitVertex();
+  }
+  EndPrimitive(); 
+/*
 dist = vec3(area/length(v0),0,0);
 worldPos = vertWorldPos[0];
 worldNormal = vertWorldNormal[0];
@@ -280,12 +319,18 @@ worldNormal = vertWorldNormal[2];
 gl_Position = gl_PositionIn[2];
 EmitVertex();
 EndPrimitive();
+*/
 }
 ");
 
-			// GL.AttachShader(ProgramID,geometryShader.ShaderID);
-
+			// https://wiki.engr.illinois.edu/display/graphics/Geometry+Shader+Hello+World
 			
+			GL.Ext.ProgramParameter(ProgramID,ExtGeometryShader4.GeometryInputTypeExt,(int)All.Triangles);
+			GL.Ext.ProgramParameter(ProgramID,ExtGeometryShader4.GeometryOutputTypeExt,(int)All.TriangleStrip);
+			GL.Ext.ProgramParameter(ProgramID,ExtGeometryShader4.GeometryVerticesOutExt,3);
+			
+			GL.AttachShader(ProgramID,geometryShader.ShaderID);
+						
 			GL.LinkProgram(ProgramID);
 			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
 

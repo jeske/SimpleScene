@@ -14,11 +14,11 @@ namespace WavefrontOBJViewer
             base.Render (renderConfig);
 
 			// mode setup
+			GL.UseProgram(0); // disable GLSL
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Lighting);
-
 
 			// triangle draw...
             GL.Begin(BeginMode.Triangles);
