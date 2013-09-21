@@ -61,7 +61,6 @@
     <Compile Include="SimpleScene\Cameras\SSCamera.cs" />
     <Compile Include="SimpleScene\Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="SimpleScene\SSObject.cs" />
-    <Compile Include="SimpleScene\Util\WhoCalls.cs" />
     <Compile Include="SimpleScene\Util\SSAssetManager.cs" />
   </ItemGroup>
   <ItemGroup>

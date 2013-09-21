@@ -4,6 +4,16 @@
 *  TODO V1
 *
 
+
+- GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
+  - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
+  - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
+  - (done) diffuse
+  - (done) ambient/glow
+  - single-pass wireframe
+  - specular
+  - bump
+
 - !!!    add some basic Nunit unit tests to OpenTK    !!!
 
 - FIX camera/object transform
@@ -13,15 +23,12 @@
   
 - mouse camera dolly/pan (shift drag)
 
-- GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 - diffuse, specular, bump)
-  - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
-  - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
-
-- do the wavefront OBJ todos! 
+-  wavefront OBJ bug/todo items
   - handle multi-line faces continued with "\"
   - handle negative vertex indices in face specification
   - handle "s" smoothing group
   - handle "Tr"/"d" material transparency/alpha
+  - tests
 
 - add VertexBuffer / IndexBuffer management
  
@@ -46,8 +53,6 @@
 *
 *  WavefrontOBJLoader ideas...
 *
-
-- complete TODOs in the Wavefront Loader
 
 - switch to non-console app (put text-output in GUI?)
 

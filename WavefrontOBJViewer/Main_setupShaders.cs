@@ -193,7 +193,7 @@ varying vec3 f_vertexNormal;
 
 void main()
 {
-	vec4 outputColor;
+	vec4 outputColor = vec4(0.0);
 
 	// lighting strength
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
