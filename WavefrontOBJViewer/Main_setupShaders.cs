@@ -236,12 +236,12 @@ void main()
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
 	float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
-	float edgeIntensity = exp2(-1.0*nearD*nearD);
-	vec4 edgeColor = vec4(0.1,0.1,0.1,0.1);
+	float edgeIntensity = exp2(-1.0*nearD*nearD * 2);
+	vec4 edgeColor = vec4( clamp( (1.1-length(outputColor)) / 2,0.1,0.4) );
+	
     outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
-    // outputColor = vec4(edgeIntensity);
- 
-	gl_FragColor = outputColor;
+    gl_FragColor = outputColor;
+    
 }			
 
 ");
