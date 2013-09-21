@@ -4,23 +4,22 @@
 *  TODO V1
 *
 
+- !!!    add some basic Nunit unit tests to OpenTK    !!!
 
 - GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
   - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
   - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
   - (done) diffuse
   - (done) ambient/glow
-  - single-pass wireframe
+  - (done) single-pass wireframe
   - specular
   - bump
-
-- !!!    add some basic Nunit unit tests to OpenTK    !!!
 
 - FIX camera/object transform
   - NEED: working camera rotation
   - NEED: working object rotation
   - NEED: working object translation
-  
+
 - mouse camera dolly/pan (shift drag)
 
 -  wavefront OBJ bug/todo items
