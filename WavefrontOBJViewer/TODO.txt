@@ -22,6 +22,7 @@
 - more GLSL shading
   - specular
   - bump (compute tangent-space normals!)
+  - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
 
 -  wavefront OBJ bug/todo items
   - handle multi-line faces continued with "\"
@@ -64,6 +65,7 @@
 - simple b-rep editing (Radial Edge, or X-Maps)
 
 - add Cycles offline rendering! (needs material editing)
+
 
 ************************
 *
