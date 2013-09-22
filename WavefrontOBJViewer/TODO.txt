@@ -12,15 +12,16 @@
   - (done) diffuse
   - (done) ambient/glow
   - (done) single-pass wireframe
-  - specular
-  - bump
 
 - FIX camera/object transform
   - NEED: working camera rotation
   - NEED: working object rotation
   - NEED: working object translation
+  - NEED: mouse camera dolly/pan (shift drag)
 
-- mouse camera dolly/pan (shift drag)
+- more GLSL shading
+  - specular
+  - bump (compute tangent-space normals!)
 
 -  wavefront OBJ bug/todo items
   - handle multi-line faces continued with "\"
@@ -107,13 +108,19 @@
 *  3D research / learning
 *
 
-- do something with materials ??
+- implement editable boundary-rep
+
+- performance test on very large mesh vs Blender, Maya, 3dsmax
+
+- 3dviewport like "Xoliul's Shader" features
+  http://viewportshader.com/
+  http://blenderartists.org/forum/showthread.php?254243-Viewport-FX&p=2415138&viewfull=1#post2415138
 
 - GLSL 330, multi-pass ( glow-bloom, shadow maps, deferred lighting, ambient occlusion )
 
 - implement Bunny LOD
 
-- review OpenGL extensions ( http://www.opengl.org/registry/ )
+
 
 ************************
 *
