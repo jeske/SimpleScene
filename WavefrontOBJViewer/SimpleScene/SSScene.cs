@@ -41,7 +41,7 @@ namespace WavefrontOBJViewer
 			}
 		}
 
-		public void Render(Matrix4 cameraViewMat) {
+		public void Render(Matrix4 invCameraViewMat) {
 			foreach (var obj in objects) {
 				// compute and set the modelView matrix, by combining the cameraViewMat
 				// with the object's world matrix
@@ -49,7 +49,7 @@ namespace WavefrontOBJViewer
 				//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 				
 				GL.MatrixMode(MatrixMode.Modelview);
-				Matrix4 modelViewMat = cameraViewMat * obj.worldMat;
+				Matrix4 modelViewMat = invCameraViewMat * obj.worldMat;
 				GL.LoadMatrix(ref modelViewMat);
 				
 				// now render the object

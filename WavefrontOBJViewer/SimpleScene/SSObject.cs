@@ -26,7 +26,7 @@ namespace WavefrontOBJViewer
 		protected Vector3 _pos;
 		public Vector3 Pos {  
 			get { return _pos; } 
-			set { _pos = value; }
+			set { _pos = value; this.updateMat();}
 		}
 		protected Vector3 _dir;
 		public Vector3 Dir { get { return _dir; } }

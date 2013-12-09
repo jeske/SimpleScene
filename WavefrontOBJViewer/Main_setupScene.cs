@@ -17,17 +17,28 @@ namespace WavefrontOBJViewer
 			scene.addLight(new SSLight(LightName.Light0));
 
 			// 1. Add Objects
-
-			// scene.addObject (new SSObjectCube ());
-			
-			SSObject droneObj;
+	
 			scene.addObject (new SSObjectTriangle () );
-			SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
-			scene.addObject (this.activeModel = droneObj = new SSObjectMesh(new SSMesh_wfOBJ(ctx, "drone2.obj", true, shaderPgm)));
+						
+			// add drone
+			SSObject droneObj;			
+			scene.addObject (this.activeModel = droneObj = new SSObjectMesh(
+				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
+				));
+
+			// droneObj.MouseDeltaOrient(20,20);
+			droneObj.Pos = new OpenTK.Vector3(10,0,0);
+
+			// add second drone
 			
+			SSObject drone2Obj;
+			scene.addObject (drone2Obj = new SSObjectMesh(
+				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
+				));
+
 			// 2. Add Camera
 
 			scene.addObject (scene.activeCamera = new SSCameraThirdPerson (droneObj));
-		}
+			}
 	}
 }

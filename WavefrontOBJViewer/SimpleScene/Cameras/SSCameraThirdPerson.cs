@@ -30,6 +30,7 @@ namespace WavefrontOBJViewer
 			// relative to our target object, and our current camera-direction
 			
 			this.Pos = pos + (this.Dir * -followDistance);
+			Console.WriteLine("Camera Pos = {0}",this.Pos);
 			base.Update();
 		}
 	}
