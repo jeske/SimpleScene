@@ -19,6 +19,9 @@ namespace WavefrontOBJViewer
 		public SSCameraThirdPerson (SSObject followTarget) : base() {
 			this.FollowTarget = followTarget;			
 		}
+		public SSCameraThirdPerson (Vector3 origin) : base() {
+			this.basePos = origin;
+		}
 		public override void Update() {
 			Vector3 pos = basePos;
 			// FPS follow the target
@@ -30,7 +33,8 @@ namespace WavefrontOBJViewer
 			// relative to our target object, and our current camera-direction
 			
 			this.Pos = pos + (this.Dir * -followDistance);
-			Console.WriteLine("Camera Pos = {0}",this.Pos);
+			Console.WriteLine("Camera Up {0} / Dir {1} / Right {2}",this.Up,this.Dir,this.Right);
+			// Console.WriteLine("Camera Pos = {0}",this.Pos);
 			base.Update();
 		}
 	}

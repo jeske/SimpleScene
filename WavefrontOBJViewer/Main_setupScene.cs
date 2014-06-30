@@ -2,6 +2,7 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
@@ -17,8 +18,8 @@ namespace WavefrontOBJViewer
 			scene.addLight(new SSLight(LightName.Light0));
 
 			// 1. Add Objects
-	
-			scene.addObject (new SSObjectTriangle () );
+			SSObject triObj;
+			scene.addObject (triObj = new SSObjectTriangle () );
 						
 			// add drone
 			SSObject droneObj;			
@@ -28,6 +29,7 @@ namespace WavefrontOBJViewer
 
 			// droneObj.MouseDeltaOrient(20,20);
 			droneObj.Pos = new OpenTK.Vector3(10,0,0);
+			droneObj.MouseDeltaOrient(20.0f,0.0f);
 
 			// add second drone
 			
@@ -38,7 +40,8 @@ namespace WavefrontOBJViewer
 
 			// 2. Add Camera
 
-			scene.addObject (scene.activeCamera = new SSCameraThirdPerson (droneObj));
+			scene.addObject (scene.activeCamera = 
+					new SSCameraThirdPerson (droneObj));
 			}
 	}
 }

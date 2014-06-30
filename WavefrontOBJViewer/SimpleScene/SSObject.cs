@@ -93,7 +93,7 @@ namespace WavefrontOBJViewer
 			newLocalMat.M41 = pos.X;
 			newLocalMat.M42 = pos.Y;
 			newLocalMat.M43 = pos.Z;
-
+			
 			// compute world transformation
 			Matrix4 newWorldMat;
 
