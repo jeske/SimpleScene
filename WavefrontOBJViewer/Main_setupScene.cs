@@ -41,7 +41,7 @@ namespace WavefrontOBJViewer
 			// 2. Add Camera
 
 			scene.addObject (scene.activeCamera = 
-					new SSCameraThirdPerson (droneObj));
+					new SSCameraThirdPerson (triObj));
 			}
 	}
 }
