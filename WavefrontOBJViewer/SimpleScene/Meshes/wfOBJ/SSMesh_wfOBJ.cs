@@ -115,7 +115,7 @@ namespace WavefrontOBJViewer
 			GL.Disable(EnableCap.Lighting);
 		}
 
-		public void _renderSendTriangles(SSMeshOBJSubsetData subset) {
+		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
 			//         note: programs written for modern OpenGL & D3D don't do this!
@@ -134,7 +134,7 @@ namespace WavefrontOBJViewer
 			}
 			GL.End();
 		}
-		public void _renderSendLines(SSMeshOBJSubsetData subset) {
+		private void _renderSendLines(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
 			//         note: programs written for modern OpenGL & D3D don't do this!

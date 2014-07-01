@@ -3,57 +3,49 @@
 *
 *  TODO V1
 *
+  
+- HUD projection, simple text display (or integrate GUI toolkit?)
+- add stats text (verts/polys drawn, fps)
 
-- !!!    add some basic Nunit unit tests to OpenTK    !!!
+- move screen projection computation so it only happens on win-resize
+  - ( currently in OnRenderFrame )
 
-- GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
-  - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
-  - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
-  - (done) diffuse
-  - (done) ambient/glow
-  - (done) single-pass wireframe
+- ADD: FPS limiting (to avoid out of control CPU usage)
 
-- FIX camera/object transform
-  - NEED: working camera rotation
-  - NEED: working object rotation
-  - NEED: working object translation
-  - NEED: mouse camera dolly/pan (shift drag)
+- texture finalizer/dispose
+- add VertexBuffer / IndexBuffer management
+
+
+
+************************
+*
+*  WRITE ARTICLE : Cross-Platform 3d app in C# OpenTK
+*
+
+ - add more models ... switch out drone model?
+ - add text HUD instructions and UI...
+   - key to cycle models
+   - key to toggle draw modes (lines, flat/gourad, textured)
+
+  - wavefront OBJ file-format bug/todo items
+   - handle multi-line faces continued with "\"
+   - handle negative vertex indices in face specification
+   - handle "s" smoothing group
+   - handle "Tr"/"d" material transparency/alpha
+
+************************
+*
+*  OTHER IDEAS
+*
 
 - more GLSL shading
   - specular
   - bump (compute tangent-space normals!)
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
 
--  wavefront OBJ bug/todo items
-  - handle multi-line faces continued with "\"
-  - handle negative vertex indices in face specification
-  - handle "s" smoothing group
-  - handle "Tr"/"d" material transparency/alpha
-  - tests
-
-- add VertexBuffer / IndexBuffer management
- 
-- texture finalizer/dispose
-
-- HUD projection, simple text display (or integrate GUI toolkit?)
-  - add stats text (verts/polys drawn, fps)
-
 - face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
 
-- move screen projection computation to somewhere sensible
-
-- code/ui to toggle draw modes (lines, flat/gourad, textured)
-
-************************
-*
-*  WRITE ARTICLE : Cross-Platform 3d app in C# OpenTK
-*
-************************
-
-************************
-*
-*  WavefrontOBJLoader ideas...
-*
+- ADD: mouse camera dolly/pan (shift drag)
 
 - switch to non-console app (put text-output in GUI?)
 
@@ -66,7 +58,6 @@
 
 - add Cycles offline rendering! (needs material editing)
 
-
 ************************
 *
 *  SimpleScene Features
@@ -76,8 +67,7 @@
   .. use sphere, then (optionally) box to do CPU frustrum culling
   .. http://http.developer.nvidia.com/GPUGems/gpugems_ch29.html
 
-
-- integrate my Gui2d library
+- integrate my Gui2d library (it's GDI specific, does this work on MonoMac?)
 
 - support open-gl non-robust mode (for unretained assets)
 
@@ -103,11 +93,11 @@
 - OpenTK Mac OpenGL 3.3/4.0 (cocoa window support)
   - https://github.com/Ollhax/opentk/commit/ee70e4a276e2fbc3135ee787ce6f9860d37011b8
 
-- OpenTK window features (multi-window, live-resize)
+- OpenTK window features (multi-window, live-resize, windowed-fullscreen)
 
 ************************
 *
-*  3D research / learning
+*  3D research ideas / learning
 *
 
 - implement editable boundary-rep
@@ -123,11 +113,22 @@
 - implement Bunny LOD
 
 
-
 ************************
 *
 *  DONE
 *
+
+- (done) GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
+  - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
+  - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
+  - (done) diffuse
+  - (done) ambient/glow
+  - (done) single-pass wireframe
+
+- (done) FIX camera/object transform
+  - (done) NEED: working camera rotation
+  - (done) NEED: working object rotation
+  - (done) NEED: working object translation
 
 - (done) add basic light
 - (done) mouse camera rotation
