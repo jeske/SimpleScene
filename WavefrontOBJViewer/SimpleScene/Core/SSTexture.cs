@@ -10,25 +10,16 @@ using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
 {
-	// TODO: add the ability to load form a stream, to support zip-archives and other non-file textures
-	
+	// TODO: add delegate interface for providing the texture-surface (aka reloading)
+	// TODO: add support for OpenGL texture eviction extension (i forget the name of the ext)
+
 	public class SSTexture
 	{	
-		public readonly SSAssetItem textureAsset;
+		private int _glTextureID = -1;
+		public int TextureID { get { return _glTextureID; } }
+		public SSTexture () { }
 
-		private int Texture;
-		public int TextureID { get { return Texture; } }
-		public SSTexture (SSAssetItem textureAsset) {
-			this.textureAsset = textureAsset;		
-			loadTexture();
-		}
-		
-		private void loadTexture() {
-			// http://www.opentk.com/node/259
-
-		    //make a bitmap out of the stream data...
-			Bitmap TextureBitmap = new Bitmap (textureAsset.Open());
-		    
+		public void createFromBitmap(Bitmap TextureBitmap) {		    
 		    //get the data out of the bitmap
 		    System.Drawing.Imaging.BitmapData TextureData = 
 			TextureBitmap.LockBits(
@@ -39,10 +30,10 @@ namespace WavefrontOBJViewer
 		 
 		    //Code to get the data to the OpenGL Driver
 		  
-		    //generate one texture and put its ID number into the "Texture" variable
-		    GL.GenTextures(1,out Texture);
+		    //generate one texture and put its ID number into the "_glTextureID" variable
+		    GL.GenTextures(1,out _glTextureID);
 		    //tell OpenGL that this is a 2D texture
-		    GL.BindTexture(TextureTarget.Texture2D,Texture);
+		    GL.BindTexture(TextureTarget.Texture2D,_glTextureID);
 		 
 		    //the following code sets certian parameters for the texture
 		    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Modulate);
@@ -67,8 +58,7 @@ namespace WavefrontOBJViewer
 
 		 
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver
-		    TextureBitmap.UnlockBits(TextureData);
-		 
+		    TextureBitmap.UnlockBits(TextureData);		 
 		}
 		
 	}

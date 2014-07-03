@@ -11,7 +11,7 @@ using Util3d;
 
 namespace WavefrontOBJViewer
 {
-    public class SSMesh_wfOBJ : SSMesh {
+    public class SSMesh_wfOBJ : SSAbstractMesh {
  
 		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
 		SSAssetManagerContext ctx;
@@ -194,16 +194,16 @@ namespace WavefrontOBJViewer
 
             // load and link every texture present 
             if (objMatSubset.diffuseTextureResourceName != null) {
-                subsetData.diffuseTexture = new SSTexture(ctx.getAsset(objMatSubset.diffuseTextureResourceName));
+                subsetData.diffuseTexture = new SSTexture_FromAsset(ctx.getAsset(objMatSubset.diffuseTextureResourceName));
             }
             if (objMatSubset.ambientTextureResourceName != null) {
-                subsetData.ambientTexture = new SSTexture(ctx.getAsset(objMatSubset.ambientTextureResourceName));
+                subsetData.ambientTexture = new SSTexture_FromAsset(ctx.getAsset(objMatSubset.ambientTextureResourceName));
             } 
             if (objMatSubset.bumpTextureResourceName != null) {
-                subsetData.bumpTexture = new SSTexture(ctx.getAsset(objMatSubset.bumpTextureResourceName));
+                subsetData.bumpTexture = new SSTexture_FromAsset(ctx.getAsset(objMatSubset.bumpTextureResourceName));
             }
             if (objMatSubset.specularTextureResourceName != null) {
-                subsetData.specularTexture = new SSTexture(ctx.getAsset(objMatSubset.specularTextureResourceName));
+                subsetData.specularTexture = new SSTexture_FromAsset(ctx.getAsset(objMatSubset.specularTextureResourceName));
             }
 
             // generate renderable geometry data...

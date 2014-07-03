@@ -47,12 +47,18 @@ namespace WavefrontOBJViewer
 		public void setupHUD() {
 			hudScene = new SSScene ();
 
-			// 1. Add Objects
-			SSObject triObj;
-			hudScene.addObject (triObj = new SSObjectTriangle () );
+			// HUD Triangle...
+			SSObject triObj = new SSObjectTriangle ();
+			hudScene.addObject (triObj);
 			triObj.Pos = new Vector3 (50, 50, 0);
 			triObj.Scale = new Vector3 (50.0f);
 
+			// HUD text....
+			SSObjectGDIText textObj = new SSObjectGDIText ();
+			textObj.Label = "test Text";
+			hudScene.addObject (textObj);
+			textObj.Pos = new Vector3 (100, 100, 0);
+			textObj.Scale = new Vector3 (2.0f);
 		}
 	}
 }

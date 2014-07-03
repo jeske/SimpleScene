@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E028B740-9EBB-491B-8080-CDED0AAD2F92}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -43,12 +43,10 @@
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="SimpleScene\SSMaterial.cs" />
-    <Compile Include="SimpleScene\SSTexture.cs" />
     <Compile Include="SimpleScene\SSScene.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectTriangle.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectCube.cs" />
     <Compile Include="SimpleScene\SSVertexFormats.cs" />
-    <Compile Include="SimpleScene\Meshes\SSMesh.cs" />
     <Compile Include="SimpleScene\Util\VertexSoup.cs" />
     <Compile Include="SimpleScene\Util\WavefrontObjLoader.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectMesh.cs" />
@@ -62,6 +60,10 @@
     <Compile Include="SimpleScene\Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="SimpleScene\SSObject.cs" />
     <Compile Include="SimpleScene\Util\SSAssetManager.cs" />
+    <Compile Include="SimpleScene\Meshes\SSAbstractMesh.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectGDIText.cs" />
+    <Compile Include="SimpleScene\Core\SSTexture.cs" />
+    <Compile Include="SimpleScene\Core\SSTexture_FromAsset.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
@@ -90,5 +92,8 @@
     <CopyAsset Include="Assets\testcube.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </CopyAsset>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SimpleScene\Core\" />
   </ItemGroup>
 </Project>
