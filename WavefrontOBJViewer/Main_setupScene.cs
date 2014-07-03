@@ -28,7 +28,7 @@ namespace WavefrontOBJViewer
 				));
 
 			// droneObj.MouseDeltaOrient(20,20);
-			droneObj.Pos = new OpenTK.Vector3(10,0,0);
+			droneObj.Pos = new OpenTK.Vector3(20,0,0);
 			droneObj.MouseDeltaOrient(20.0f,0.0f);
 
 			// add second drone

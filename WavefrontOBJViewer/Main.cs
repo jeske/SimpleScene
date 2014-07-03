@@ -53,13 +53,13 @@ namespace WavefrontOBJViewer
 			this.Mouse.Move += (object sender, MouseMoveEventArgs e) => {
 				if (this.mouseButtonDown) {
 
-					Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
+					// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
 					this.scene.activeCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 					// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}
 			};
 			this.Mouse.WheelChanged += (object sender, MouseWheelEventArgs e) => { 
-				Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
+				// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 				SSCameraThirdPerson ctp = scene.activeCamera as SSCameraThirdPerson;
 				if (ctp != null) {
 					ctp.followDistance += e.DeltaPrecise;

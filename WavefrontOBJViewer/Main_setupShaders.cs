@@ -305,6 +305,9 @@ vertexEdgeDistance[1] = vec3(0,area/length(v1),0);
 vertexEdgeDistance[2] = vec3(0,0,area/length(v2));
 
 
+  // suppress warning by assigning this to something to start...
+  gl_TexCoord[0] = gl_TexCoordIn[0][0];
+
   // LOOP for each vertex in the primitive...
   // .. gl_verticiesIn holds the count
   for(int i = 0; i < 3; i++) {
