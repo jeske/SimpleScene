@@ -4,11 +4,21 @@
 *  TODO V1
 *
   
-- HUD projection, simple text display (or integrate GUI toolkit?)
+- (done) HUD projection, simple GDI text display
+
 - add stats text (verts/polys drawn, fps)
 
 - fix lighting... it should not change as camera moves! 
 
+- make sure HUD projection is always pixel-aligned
+
+- add alpha-RGB GDI textures
+
+- add cubemap environment map (and a cool background)
+
+- integrate gui2d
+
+- add "HUD sprites" in 3d view
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
@@ -44,6 +54,9 @@
   - specular
   - bump (compute tangent-space normals!)
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
+
+- experiment with valve vector-stencils (for font rendering?)
+  - http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
 
 - face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
 
