@@ -42,6 +42,17 @@ namespace WavefrontOBJViewer
 
 			scene.addObject (scene.activeCamera = 
 					new SSCameraThirdPerson (triObj));
-			}
+		}
+
+		public void setupHUD() {
+			hudScene = new SSScene ();
+
+			// 1. Add Objects
+			SSObject triObj;
+			hudScene.addObject (triObj = new SSObjectTriangle () );
+			triObj.Pos = new Vector3 (50, 50, 0);
+			triObj.Scale = new Vector3 (50.0f);
+
+		}
 	}
 }

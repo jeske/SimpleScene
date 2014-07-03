@@ -22,6 +22,7 @@ namespace WavefrontOBJViewer
 	{
 
 		SSScene scene;
+		SSScene hudScene;
 
 		bool mouseButtonDown = false;
 		SSObject activeModel;
@@ -105,6 +106,7 @@ namespace WavefrontOBJViewer
 			base.OnUpdateFrame(e);
 
 			scene.Update ();
+			hudScene.Update ();
 
 			if (Keyboard[Key.Escape])
 				Exit();
@@ -117,17 +119,22 @@ namespace WavefrontOBJViewer
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
-			
-			scene.Update();
-			
+
+			// (1) setup for rendering the 3d scene....
+
+			scene.Update();   // ?? remove this?
+
+			GL.Enable (EnableCap.CullFace);
 			GL.Enable(EnableCap.DepthTest);
+			GL.DepthMask (true);
+
 			// GL.Enable(IndexedEnableCap.Blend,0);
 			GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
 			// GL.ClearColor (System.Drawing.Color.White);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			// setup the view projection, including the active camera matrix
-			Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, Width / (float)Height, 1.0f, 500.0f);
+			Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, ClientRectangle.Width / (float)ClientRectangle.Height, 1.0f, 500.0f);
 			// scene.adjustProjectionMatrixForActiveCamera (ref projection);
 			projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
 			GL.MatrixMode(MatrixMode.Projection);
@@ -139,13 +146,25 @@ namespace WavefrontOBJViewer
 				GL.GetUniformLocation(this.shaderPgm.ProgramID, "WIN_SCALE"),
 				(float)ClientRectangle.Width, (float)ClientRectangle.Height);
 
-			// render
-			Matrix4 viewMat = scene.activeCamera.worldMat;
-			viewMat.Invert();
+			// compute the inverse matrix of the active camera...
+			Matrix4 invCameraViewMatrix = scene.activeCamera.worldMat;
+			invCameraViewMatrix.Invert();
 
-			scene.SetupLights (viewMat);
+			// render 3d content...
+			scene.SetupLights (invCameraViewMatrix);
+			scene.Render (invCameraViewMatrix);
 
-			scene.Render (viewMat);
+			// (2) setup for rendering HUD scene
+			GL.Disable (EnableCap.DepthTest);
+			GL.Disable (EnableCap.CullFace);
+			GL.DepthMask (false);
+			GL.MatrixMode (MatrixMode.Projection);
+			GL.LoadIdentity ();
+			GL.Ortho (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
+			GL.MatrixMode (MatrixMode.Modelview);
+			GL.LoadIdentity ();
+
+			hudScene.Render (Matrix4.Identity);
 
 			SwapBuffers();
 		}
@@ -169,6 +188,8 @@ namespace WavefrontOBJViewer
 				game.setupInput ();
 
 				game.setupScene ();
+
+				game.setupHUD ();
 
 				game.Run(30.0);
 			}

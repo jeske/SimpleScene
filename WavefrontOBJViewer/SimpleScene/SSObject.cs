@@ -39,6 +39,13 @@ namespace WavefrontOBJViewer
 			get { return _pos; } 
 			set { _pos = value; this.updateMat();}
 		}
+		protected Vector3 _scale = new Vector3 (1.0f);
+		public Vector3 Scale { 
+			get { return _scale; } 
+			set { _scale = value; this.updateMat (); }
+		}
+
+
 		protected Vector3 _dir;
 		public Vector3 Dir { get { return _dir; } }
 		protected Vector3 _up;
@@ -100,11 +107,15 @@ namespace WavefrontOBJViewer
 			newLocalMat.M32 = dir.Y;
 			newLocalMat.M33 = dir.Z;
 
+			newLocalMat *= Matrix4.CreateScale (this._scale);
+
 			// position
 			newLocalMat.M41 = pos.X;
 			newLocalMat.M42 = pos.Y;
 			newLocalMat.M43 = pos.Z;
-			
+
+
+
 			// compute world transformation
 			Matrix4 newWorldMat;
 
