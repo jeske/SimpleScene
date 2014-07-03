@@ -10,8 +10,10 @@
   - make sure HUD projection is always pixel-aligned
   - add alpha-RGB GDI textures
 
-- add cubemap environment map (and a cool background)
 - ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
+
+- add cubemap environment map (and a cool background)
+  - space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
 
 - check lighting... it should not change as camera moves! 
 - integrate gui2d
@@ -38,9 +40,10 @@
 *  cleanup for HZG
 *
 
+- add "HUD projection sprites" in 3d view
+- make inset sub-scene cameras
 - texture OpenGL finalizer/dispose
 - add VertexBuffer / IndexBuffer management
-- add "HUD projection sprites" in 3d view
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
