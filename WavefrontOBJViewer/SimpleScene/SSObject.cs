@@ -16,8 +16,19 @@ namespace WavefrontOBJViewer
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
 		public SSObject() : base() {}
-		public virtual void Render (SSRenderConfig renderConfig) {}
+		public virtual void Render (ref SSRenderConfig renderConfig) {
+			// compute and set the modelView matrix, by combining the cameraViewMat
+			// with the object's world matrix
+			//    ... http://www.songho.ca/opengl/gl_transform.html
+			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 
+			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+
+			GL.MatrixMode(MatrixMode.Modelview);
+			GL.LoadMatrix(ref modelViewMat);
+
+			// ... subclasses will render the object itself..
+		}
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)

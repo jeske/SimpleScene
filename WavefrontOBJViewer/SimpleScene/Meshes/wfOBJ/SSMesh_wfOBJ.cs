@@ -160,7 +160,7 @@ namespace WavefrontOBJViewer
 		}
 
 
-		public override void RenderMesh(SSRenderConfig renderConfig) {		
+		public override void RenderMesh(ref SSRenderConfig renderConfig) {		
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 
 				if (renderConfig.drawGLSL) {

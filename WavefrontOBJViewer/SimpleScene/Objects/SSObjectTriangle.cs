@@ -10,8 +10,8 @@ namespace WavefrontOBJViewer
 {
     public class SSObjectTriangle : SSObject
     {
-        public override void Render(SSRenderConfig renderConfig) {
-            base.Render (renderConfig);
+		public override void Render(ref SSRenderConfig renderConfig) {
+			base.Render (ref renderConfig);
 
 			// mode setup
 			GL.UseProgram(0); // disable GLSL
