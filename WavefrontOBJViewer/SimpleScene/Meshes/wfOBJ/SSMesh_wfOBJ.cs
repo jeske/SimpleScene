@@ -68,7 +68,7 @@ namespace WavefrontOBJViewer
 
 			// GL.Enable(EnableCap.Blend);
 			// GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+			// GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
 			// Step 2: setup our material mode and paramaters...
 
@@ -92,6 +92,9 @@ namespace WavefrontOBJViewer
 				GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
 				GL.ActiveTexture(TextureUnit.Texture3);
 				GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
+
+				// reset to texture-unit 0 to be friendly..
+				GL.ActiveTexture(TextureUnit.Texture0);
 
 				// get shader uniform variable handles (these are named variables in the shader)
 				int h0 = GL.GetUniformLocation(shaderPgm.ProgramID, "diffTex");

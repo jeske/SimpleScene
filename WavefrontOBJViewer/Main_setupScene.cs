@@ -55,9 +55,9 @@ namespace WavefrontOBJViewer
 
 			// HUD text....
 			SSObjectGDIText textObj = new SSObjectGDIText ();
-			textObj.Label = "test Text";
+			textObj.Label = "text test 1 2 3 4";
 			hudScene.addObject (textObj);
-			textObj.Pos = new Vector3 (100, 100, 0);
+			textObj.Pos = new Vector3 (100.5f, 100f, 0f);
 			textObj.Scale = new Vector3 (2.0f);
 		}
 	}

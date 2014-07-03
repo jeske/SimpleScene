@@ -25,7 +25,7 @@ namespace WavefrontOBJViewer
 			TextureBitmap.LockBits(
 		            new System.Drawing.Rectangle(0,0,TextureBitmap.Width,TextureBitmap.Height),
 		            System.Drawing.Imaging.ImageLockMode.ReadOnly,
-		            System.Drawing.Imaging.PixelFormat.Format24bppRgb
+					System.Drawing.Imaging.PixelFormat.Format24bppRgb
 		        );
 		 
 		    //Code to get the data to the OpenGL Driver
@@ -36,27 +36,33 @@ namespace WavefrontOBJViewer
 		    GL.BindTexture(TextureTarget.Texture2D,_glTextureID);
 		 
 		    //the following code sets certian parameters for the texture
-		    GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Modulate);
-		    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
-		    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+			GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Modulate);
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
 		    
 		    // tell OpenGL to build mipmaps out of the bitmap data
 		    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, (float)1.0f);
 		 
+			// tell openGL the next line begins on a word boundary...
+			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 4);
+
 		    // load the texture
 		    
 		    GL.TexImage2D(
                 TextureTarget.Texture2D,
                 0, // level
-                PixelInternalFormat.CompressedRgb,
+				PixelInternalFormat.CompressedRgb,
                 TextureBitmap.Width, TextureBitmap.Height,
                 0, // border
-                PixelFormat.Bgr,     // why is this Bgr when the lockbits is rgb!?
-                PixelType.UnsignedByte,
+				PixelFormat.Bgr,     // why is this Bgr when the lockbits is rgb!?
+				PixelType.UnsignedByte,
                 TextureData.Scan0
                 );
+			GL.GetError ();	
 
-		 
+			Console.WriteLine("loaded texture size = {0} {1}",TextureBitmap.Width,TextureBitmap.Height);
+
+
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver
 		    TextureBitmap.UnlockBits(TextureData);		 
 		}

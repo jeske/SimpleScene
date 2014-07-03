@@ -7,6 +7,8 @@
 - HUD projection, simple text display (or integrate GUI toolkit?)
 - add stats text (verts/polys drawn, fps)
 
+- fix lighting... it should not change as camera moves! 
+
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
