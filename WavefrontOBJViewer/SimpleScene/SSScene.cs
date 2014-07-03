@@ -31,14 +31,16 @@ namespace WavefrontOBJViewer
 			}
 		}
 
-		public void SetupLights(Matrix4 cameraViewMat) {
+		public void SetupLights(Matrix4 invCameraViewMat) {
+			renderConfig.invCameraViewMat = invCameraViewMat;
+
 			GL.Enable (EnableCap.Lighting);
 			foreach (var light in lights) {
-				GL.MatrixMode (MatrixMode.Modelview);
-				Matrix4 modelViewMat = cameraViewMat * light.worldMat;
-				GL.LoadMatrix (ref modelViewMat);
+				// GL.MatrixMode (MatrixMode.Modelview);
+				// Matrix4 modelViewMat = light.worldMat * invCameraViewMat;
+				// GL.LoadMatrix (ref modelViewMat);
 
-				light.SetupLight ();
+				light.SetupLight (ref renderConfig);
 			}
 		}
 			

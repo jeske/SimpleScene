@@ -3,31 +3,18 @@
 *
 *  TODO V1
 *
-  
-- (done) HUD projection, simple GDI text display
 
-- add stats text (verts/polys drawn, fps)
-
-- fix lighting... it should not change as camera moves! 
-
-- make sure HUD projection is always pixel-aligned
-
-- add alpha-RGB GDI textures
+- HUD
+  - (done) HUD projection, simple GDI text display
+  - add stats text (verts/polys drawn, fps)
+  - make sure HUD projection is always pixel-aligned
+  - add alpha-RGB GDI textures
 
 - add cubemap environment map (and a cool background)
+- ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
 
+- check lighting... it should not change as camera moves! 
 - integrate gui2d
-
-- add "HUD sprites" in 3d view
-- move screen projection computation so it only happens on win-resize
-  - ( currently in OnRenderFrame )
-
-- ADD: FPS limiting (to avoid out of control CPU usage)
-
-- texture finalizer/dispose
-- add VertexBuffer / IndexBuffer management
-
-
 
 ************************
 *
@@ -45,6 +32,18 @@
    - handle "s" smoothing group
    - handle "Tr"/"d" material transparency/alpha
 
+
+************************
+*
+*  cleanup for HZG
+*
+
+- texture OpenGL finalizer/dispose
+- add VertexBuffer / IndexBuffer management
+- add "HUD projection sprites" in 3d view
+- move screen projection computation so it only happens on win-resize
+  - ( currently in OnRenderFrame )
+
 ************************
 *
 *  OTHER IDEAS
@@ -54,6 +53,8 @@
   - specular
   - bump (compute tangent-space normals!)
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
+
+- deferred lighting pass
 
 - experiment with valve vector-stencils (for font rendering?)
   - http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
@@ -71,7 +72,7 @@
 
 - simple b-rep editing (Radial Edge, or X-Maps)
 
-- add Cycles offline rendering! (needs material editing)
+
 
 ************************
 *
