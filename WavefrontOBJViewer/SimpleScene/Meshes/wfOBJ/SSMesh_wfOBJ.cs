@@ -86,8 +86,8 @@ namespace WavefrontOBJViewer
 				// fixed function single-texture
 				GL.Disable(EnableCap.Texture2D);
 				if (subset.diffuseTexture != null) {
-					GL.Enable(EnableCap.Texture2D);
 					GL.ActiveTexture(TextureUnit.Texture0);
+					GL.Enable(EnableCap.Texture2D);
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 				}
 			} else {
@@ -97,13 +97,29 @@ namespace WavefrontOBJViewer
 				// bind our texture-images to GL texture-units 
 				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
 				GL.ActiveTexture(TextureUnit.Texture0);
-				GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+				if (subset.diffuseTexture != null) {
+					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+				} else {
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+				}
 				GL.ActiveTexture(TextureUnit.Texture1);
-				GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
+				if (subset.specularTexture != null) {
+					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
+				} else {
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+				}
 				GL.ActiveTexture(TextureUnit.Texture2);
-				GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
+				if (subset.ambientTexture != null) {
+					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
+				} else {
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+				}
 				GL.ActiveTexture(TextureUnit.Texture3);
-				GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
+				if (subset.bumpTexture != null) {
+					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
+				} else {
+					GL.BindTexture(TextureTarget.Texture2D, 0);
+				}
 
 				// reset to texture-unit 0 to be friendly..
 				GL.ActiveTexture(TextureUnit.Texture0);

@@ -15,7 +15,7 @@ namespace WavefrontOBJViewer
 
 	public class SSTexture
 	{	
-		private int _glTextureID = -1;
+		private int _glTextureID = 0;
 		public int TextureID { get { return _glTextureID; } }
 		public SSTexture () { }
 
