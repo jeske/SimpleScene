@@ -30,6 +30,8 @@ namespace WavefrontOBJViewer
 		 
 		    //Code to get the data to the OpenGL Driver
 		  
+			GL.ActiveTexture(TextureUnit.Texture0);
+
 		    //generate one texture and put its ID number into the "_glTextureID" variable
 		    GL.GenTextures(1,out _glTextureID);
 		    //tell OpenGL that this is a 2D texture
@@ -60,7 +62,7 @@ namespace WavefrontOBJViewer
                 );
 			GL.GetError ();	
 
-			Console.WriteLine("loaded texture size = {0} {1}",TextureBitmap.Width,TextureBitmap.Height);
+			Console.WriteLine("SSTexture: loaded texture size = {0} {1}",TextureBitmap.Width,TextureBitmap.Height);
 
 
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver

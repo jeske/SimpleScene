@@ -58,11 +58,14 @@ namespace WavefrontOBJViewer
 			gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 			// gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
 			gc.Clear (Color.Black);
+			gc.DrawLine(Pens.White,4,4,textureSize.Width-1,4);
+			// gc.DrawRectangle(Pens.White,0,0,textureSize.Width-1,textureSize.Height-1);
+
 			gc.DrawString (_label, font, Brushes.White, 0, 0);
 			gc.Flush ();
 
 
-			Console.WriteLine("created texture size = {0} {1}",bitmap.Width,bitmap.Height);
+			Console.WriteLine("SSObjectGDIText: created texture size = {0} {1}",bitmap.Width,bitmap.Height);
 			#if false
 			for (int i = 0; i < bitmap.Width; i++) {
 				for (int j = 0; j < bitmap.Height; j++) {

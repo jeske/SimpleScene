@@ -92,8 +92,12 @@
     <CopyAsset Include="Assets\testcube.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </CopyAsset>
+    <None Include="Assets\skybox\skybox-envmap.png" />
+    <None Include="Assets\skybox\skybox.mtl" />
+    <None Include="Assets\skybox\skybox.obj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SimpleScene\Core\" />
+    <Folder Include="Assets\skybox\" />
   </ItemGroup>
 </Project>

@@ -38,7 +38,13 @@ namespace WavefrontOBJViewer
 				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
 				));
 
-			// 2. Add Camera
+			// add skybox cube
+			SSObject skyboxCube = new SSObjectMesh(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
+			scene.addObject(skyboxCube);
+
+
+
+			// last. Add Camera
 
 			scene.addObject (scene.activeCamera = 
 					new SSCameraThirdPerson (triObj));
