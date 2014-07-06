@@ -15,6 +15,9 @@
 - add cubemap environment map (and a cool background)
   - (done) space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
   - (done) add textured-cubemesh-configured for skybox
+  - fix the UV mapping sides 
+     | -X | -Y | +X |
+     | -Z | +Z | +Y |
   - add infinite-object
 
 - check lighting... it should not change as camera moves! 
