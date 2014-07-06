@@ -27,8 +27,19 @@ namespace WavefrontOBJViewer
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
+			if (this.renderState.lighted) {
+				GL.Enable(EnableCap.Lighting);
+			} else {
+				GL.Disable(EnableCap.Lighting);
+			}
+
+
 			// ... subclasses will render the object itself..
 		}
+	}
+
+	public class SSOBRenderState {
+	    public bool lighted = false;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)
@@ -44,8 +55,6 @@ namespace WavefrontOBJViewer
 			get { return _scale; } 
 			set { _scale = value; this.updateMat (); }
 		}
-
-
 		protected Vector3 _dir;
 		public Vector3 Dir { get { return _dir; } }
 		protected Vector3 _up;
@@ -56,6 +65,8 @@ namespace WavefrontOBJViewer
 		// transform matricies
 		public Matrix4 localMat;
 		public Matrix4 worldMat;
+
+		public SSOBRenderState renderState = new SSOBRenderState();
 
 		// TODO: use these!
 		private SSObject parent;

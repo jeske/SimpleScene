@@ -64,6 +64,7 @@
     <Compile Include="SimpleScene\Objects\SSObjectGDIText.cs" />
     <Compile Include="SimpleScene\Core\SSTexture.cs" />
     <Compile Include="SimpleScene\Core\SSTexture_FromAsset.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectMeshSky.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />

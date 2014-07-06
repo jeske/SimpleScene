@@ -67,7 +67,7 @@ namespace WavefrontOBJViewer
 			// Step 1: setup GL rendering modes...
 
 			GL.Enable(EnableCap.CullFace);
-			GL.Enable(EnableCap.Lighting);
+			// GL.Enable(EnableCap.Lighting);
 
 			// GL.Enable(EnableCap.Blend);
 			// GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
@@ -79,7 +79,7 @@ namespace WavefrontOBJViewer
 
 			if (shaderPgm == null) {
 				GL.UseProgram(0);
-				GL.Disable(EnableCap.Lighting);
+				// GL.Disable(EnableCap.Lighting);
 				GL.Disable(EnableCap.CullFace);
 
 

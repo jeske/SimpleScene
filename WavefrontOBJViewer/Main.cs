@@ -23,6 +23,7 @@ namespace WavefrontOBJViewer
 
 		SSScene scene;
 		SSScene hudScene;
+		SSScene environmentScene;
 
 		bool mouseButtonDown = false;
 		SSObject activeModel;
@@ -95,6 +96,11 @@ namespace WavefrontOBJViewer
 
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
 
+			// setup WIN_SCALE for our shader...
+			GL.UseProgram(shaderPgm.ProgramID);
+			GL.Uniform2(
+				GL.GetUniformLocation(this.shaderPgm.ProgramID, "WIN_SCALE"),
+				(float)ClientRectangle.Width, (float)ClientRectangle.Height);
 		}
 		
 		/// <summary>
@@ -105,6 +111,7 @@ namespace WavefrontOBJViewer
 		{
 			base.OnUpdateFrame(e);
 
+			environmentScene.Update();
 			scene.Update ();
 			hudScene.Update ();
 
@@ -120,41 +127,66 @@ namespace WavefrontOBJViewer
 		{
 			base.OnRenderFrame(e);
 
-			// (1) setup for rendering the 3d scene....
-
-			scene.Update();   // ?? remove this?
-
-			GL.Enable (EnableCap.CullFace);
+			/////////////////////////////////////////
+			// clear the render buffer....
 			GL.Enable(EnableCap.DepthTest);
 			GL.DepthMask (true);
-
-			// GL.Enable(IndexedEnableCap.Blend,0);
 			GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f); // black
 			// GL.ClearColor (System.Drawing.Color.White);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-			// setup the view projection, including the active camera matrix
-			Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, ClientRectangle.Width / (float)ClientRectangle.Height, 1.0f, 500.0f);
-			// scene.adjustProjectionMatrixForActiveCamera (ref projection);
-			projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
-			GL.MatrixMode(MatrixMode.Projection);
-			GL.LoadMatrix(ref projection);
+			/////////////////////////////////////////
+			// render the "environment" scene
+			// 
+			// todo: should move this after the scene render, with a proper depth
+			//  test, because it's more efficient when it doesn't have to write every pixel
+			{
+				GL.Disable(EnableCap.DepthTest);
+				GL.Enable(EnableCap.CullFace);
+			    GL.CullFace (CullFaceMode.Front);
+			    GL.Disable(EnableCap.DepthClamp);
+				
+				GL.MatrixMode(MatrixMode.Projection);
+				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (
+					(float)Math.PI / 2, 
+					1.0f, 
+					0.1f, 2.0f);
+				GL.LoadMatrix(ref projMatrix);
 
-			GL.UseProgram(shaderPgm.ProgramID);
-			// setup WIN_SCALE			
-			GL.Uniform2(
-				GL.GetUniformLocation(this.shaderPgm.ProgramID, "WIN_SCALE"),
-				(float)ClientRectangle.Width, (float)ClientRectangle.Height);
+				// create a matrix of just the camera rotation only (it needs to stay at the origin)
+				Matrix4 environmentCameraMatrix = Matrix4.CreateFromQuaternion(scene.activeCamera.worldMat.ExtractRotation()).Inverted();
+				environmentScene.Render(environmentCameraMatrix);
+			}
+			/////////////////////////////////////////
+			// rendering the "main" 3d scene....
+			{
+				GL.Enable (EnableCap.CullFace);
+				GL.CullFace (CullFaceMode.Back);
+				GL.Enable(EnableCap.DepthTest);
+				GL.Enable(EnableCap.DepthClamp);
 
-			// compute the inverse matrix of the active camera...
-			Matrix4 invCameraViewMatrix = scene.activeCamera.worldMat;
-			invCameraViewMatrix.Invert();
+				GL.DepthMask (true);
 
-			// render 3d content...
-			scene.SetupLights (invCameraViewMatrix);
-			scene.Render (invCameraViewMatrix);
+				// GL.Enable(IndexedEnableCap.Blend,0);
 
-			// (2) setup for rendering HUD scene
+				// setup the view projection, including the active camera matrix
+				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, ClientRectangle.Width / (float)ClientRectangle.Height, 1.0f, 500.0f);
+				// scene.adjustProjectionMatrixForActiveCamera (ref projection);
+				projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
+				GL.MatrixMode(MatrixMode.Projection);
+				GL.LoadMatrix(ref projection);
+
+				// compute the inverse matrix of the active camera...
+				Matrix4 invCameraViewMatrix = scene.activeCamera.worldMat;
+				invCameraViewMatrix.Invert();
+
+				// render 3d content...
+				scene.SetupLights (invCameraViewMatrix);
+				scene.Render (invCameraViewMatrix);
+			}
+			////////////////////////////////////////
+			//  render HUD scene
+
 			GL.Disable (EnableCap.DepthTest);
 			GL.Disable (EnableCap.CullFace);
 			GL.DepthMask (false);
@@ -188,7 +220,7 @@ namespace WavefrontOBJViewer
 				game.setupInput ();
 
 				game.setupScene ();
-
+				game.setupEnvironment ();
 				game.setupHUD ();
 
 				game.Run(30.0);

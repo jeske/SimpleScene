@@ -33,21 +33,28 @@ namespace WavefrontOBJViewer
 
 			// add second drone
 			
-			SSObject drone2Obj;
-			scene.addObject (drone2Obj = new SSObjectMesh(
+			SSObject drone2Obj = new SSObjectMesh(
 				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
-				));
-
-			// add skybox cube
-			SSObject skyboxCube = new SSObjectMesh(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
-			scene.addObject(skyboxCube);
-
-
+				);
+			scene.addObject (drone2Obj);
 
 			// last. Add Camera
 
 			scene.addObject (scene.activeCamera = 
 					new SSCameraThirdPerson (triObj));
+		}
+
+		public void setupEnvironment() {
+		    environmentScene = new SSScene();
+
+			// add skybox cube
+			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
+			environmentScene.addObject(skyboxCube);
+			skyboxCube.Scale = new Vector3(0.7f);
+			skyboxCube.renderState.lighted = false;
+
+			// scene.addObject(skyboxCube);
+
 		}
 
 		public void setupHUD() {

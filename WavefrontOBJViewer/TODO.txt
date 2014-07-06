@@ -13,8 +13,8 @@
 - ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
 
 - add cubemap environment map (and a cool background)
-  - space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
-  - add textured-cubemesh-configured for skybox
+  - (done) space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
+  - (done) add textured-cubemesh-configured for skybox
   - add infinite-object
 
 - check lighting... it should not change as camera moves! 
@@ -60,6 +60,9 @@
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
 
 - deferred lighting pass
+
+- compressed textures
+    http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
 
 - experiment with valve vector-stencils (for font rendering?)
   - http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
