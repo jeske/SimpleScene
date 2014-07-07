@@ -23,9 +23,11 @@
 - check lighting... it should not change as camera moves! 
 - integrate gui2d
 
+- fix build to copy "Assets" entire folder structure...
+
 ************************
 *
-*  WRITE ARTICLE : Cross-Platform 3d app in C# OpenTK
+*  WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
 *
 
  - add more models ... switch out drone model?
@@ -45,24 +47,32 @@
 *  cleanup for HZG
 *
 
-- add "HUD projection sprites" in 3d view
-- make inset sub-scene cameras
-- texture OpenGL finalizer/dispose
+- add "HUD projection sprites" in 3d view (brackets)
+
+- add stars...
+
 - add VertexBuffer / IndexBuffer management
+
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
+- asset archive improvements
+  - reuse singleton instance of asset... (load mesh though asset loader?)
+  - texture OpenGL finalizer/dispose
+
 ************************
 *
-*  OTHER IDEAS
+*  NEXT IDEAS
 *
+
+- make inset sub-scene cameras
 
 - more GLSL shading
   - specular
   - bump (compute tangent-space normals!)
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
 
-- deferred lighting pass
+- deferred lighting pass, with shadows
 
 - compressed textures
     http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
