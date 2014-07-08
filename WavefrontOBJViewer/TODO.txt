@@ -28,9 +28,11 @@
 
 - add VBO/IBO support 
 
+- fix build to copy "Assets" entire folder structure...
+
 ************************
 *
-*  WRITE ARTICLE : Cross-Platform 3d app in C# OpenTK
+*  WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
 *
 
  - add more models ... switch out drone model?
@@ -54,24 +56,32 @@
 - add "HUD projection sprites" in 3d view
 - make inset sub-scene cameras
 - texture OpenGL finalizer/dispose
-- add VertexBuffer / IndexBuffer management
+
+
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
+- asset archive improvements
+  - reuse singleton instance of asset... (load mesh though asset loader?)
+  - texture OpenGL finalizer/dispose
+
 ************************
 *
-*  OTHER IDEAS
+*  NEXT IDEAS
 *
 
-- basic FBX importer (to import animations and keyframes)
+- add basic animation import (FBX?)
   http://code.blender.org/index.php/2013/08/fbx-binary-file-format-specification/
+
+- make inset sub-scene cameras
+
 
 - more GLSL shading
   - specular
   - bump (compute tangent-space normals!)
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
 
-- deferred lighting pass
+- deferred lighting pass, with shadows
 
 - compressed textures
     http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
