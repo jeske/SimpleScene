@@ -55,6 +55,10 @@ namespace WavefrontOBJViewer
 
 			// scene.addObject(skyboxCube);
 
+			SSObject skyboxStars = new SSObjectMeshSky(new SSMesh_Starfield(22000));
+			environmentScene.addObject(skyboxStars);
+			skyboxStars.renderState.lighted = false;
+
 		}
 
 		public void setupHUD() {

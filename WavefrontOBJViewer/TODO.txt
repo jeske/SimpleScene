@@ -4,24 +4,29 @@
 *  TODO V1
 *
 
-- HUD
-  - (done) HUD projection, simple GDI text display
+- FIX the skybox ! !
+  - script to CUT into individual faces - Blender environment map orientation...
+     | -X | -Y | +X |
+     | -Z | +Z | +Y |
+  - setup proper cubemap projection
+  - tricks
+    - use MIRROR UV addressing mode, to get rid of the obvious edge seams
+    - set the UV coordinates of the box 1/2 texel inside the edge of the face
+  - docs : http://www.opengl.org/wiki/Cubemap_Texture
+  - cubemap shader tutorials: 
+      http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
+      http://antongerdelan.net/opengl/cubemaps.html
+
+- make the asset loader cache/reuse multiple references to the same asset (mesh, texture, etc)
+
+- HUD  
   - add stats text (verts/polys drawn, fps)
   - make sure HUD projection is always pixel-aligned
   - add alpha-RGB GDI textures
 
-- ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
-
-- add cubemap environment map (and a cool background)
-  - (done) space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
-  - (done) add textured-cubemesh-configured for skybox
-  - fix the UV mapping sides 
-     | -X | -Y | +X |
-     | -Z | +Z | +Y |
-  - add infinite-object
-
 - check lighting... it should not change as camera moves! 
-- integrate gui2d
+
+- add VBO/IBO support 
 
 ************************
 *
@@ -45,6 +50,7 @@
 *  cleanup for HZG
 *
 
+- ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
 - add "HUD projection sprites" in 3d view
 - make inset sub-scene cameras
 - texture OpenGL finalizer/dispose
@@ -56,6 +62,9 @@
 *
 *  OTHER IDEAS
 *
+
+- basic FBX importer (to import animations and keyframes)
+  http://code.blender.org/index.php/2013/08/fbx-binary-file-format-specification/
 
 - more GLSL shading
   - specular
@@ -160,3 +169,7 @@
 - (done) add basic light
 - (done) mouse camera rotation
 - (done) fix green ship (why is it green?!?)
+- (done) space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
+- (done) add HUD projection, simple GDI text display
+
+- (done) ADD: starfield...

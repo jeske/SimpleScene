@@ -17,7 +17,6 @@ namespace WavefrontOBJViewer
         
         public int DiffuseColor;
 
-        // public int DiffuseColor;
         public float Tu, Tv;
         
         public bool Equals(SSVertex_PosNormDiffTex1 a, SSVertex_PosNormDiffTex1 b) {
@@ -44,8 +43,18 @@ namespace WavefrontOBJViewer
 		{
 			return base.GetHashCode ();
 		}
-		
-
 	}
+
+	///////////////////////////////////////////////////////
+
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	public struct SSVertex_PosNormDiff {
+		public Vector3 Position;
+        public Vector3 Normal;
+        
+        public int DiffuseColor;
+    }
+
+
 }
 
