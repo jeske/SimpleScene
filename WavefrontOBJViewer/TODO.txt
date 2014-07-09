@@ -75,6 +75,7 @@
 
 - make inset sub-scene cameras
 
+- make HDR skybox
 
 - more GLSL shading
   - specular

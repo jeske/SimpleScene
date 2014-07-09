@@ -48,7 +48,7 @@ namespace WavefrontOBJViewer
 		    environmentScene = new SSScene();
 
 			// add skybox cube
-			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox-envmap2.obj",true));
+			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
 			environmentScene.addObject(skyboxCube);
 			skyboxCube.Scale = new Vector3(0.7f);
 			skyboxCube.renderState.lighted = false;
