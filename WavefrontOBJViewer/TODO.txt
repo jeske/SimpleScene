@@ -4,38 +4,23 @@
 *  TODO V1
 *
 
-- FIX the skybox ! !
-  - script to CUT into individual faces - Blender environment map orientation...
-     | -X | -Y | +X |
-     | -Z | +Z | +Y |
-  - setup proper cubemap projection
-  - tricks
-    - use MIRROR UV addressing mode, to get rid of the obvious edge seams
-    - set the UV coordinates of the box 1/2 texel inside the edge of the face
-  - docs : http://www.opengl.org/wiki/Cubemap_Texture
-  - cubemap shader tutorials: 
-      http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
-      http://antongerdelan.net/opengl/cubemaps.html
-
-- make the asset loader cache/reuse multiple references to the same asset (mesh, texture, etc)
+- FIX lighting transform... it should not change as camera moves! 
 
 - HUD  
   - add stats text (verts/polys drawn, fps)
-  - make sure HUD projection is always pixel-aligned
+  - make sure HUD projection is properly pixel-aligned (@ odd and even window sizes)
   - add alpha-RGB GDI textures
-
-- check lighting... it should not change as camera moves! 
 
 - add VBO/IBO support 
 
-- fix build to copy "Assets" entire folder structure...
+- BUILD: change the build to avoid the need to manually copy Assets folder...
 
 ************************
 *
 *  WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
 *
 
- - add more models ... switch out drone model?
+ - add more models 
  - add text HUD instructions and UI...
    - key to cycle models
    - key to toggle draw modes (lines, flat/gourad, textured)
@@ -46,11 +31,12 @@
    - handle "s" smoothing group
    - handle "Tr"/"d" material transparency/alpha
 
-
 ************************
 *
 *  cleanup for HZG
 *
+
+- Improve skybox projection (it's a little fisheye?)
 
 - ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
 - add "HUD projection sprites" in 3d view
@@ -64,6 +50,24 @@
 - asset archive improvements
   - reuse singleton instance of asset... (load mesh though asset loader?)
   - texture OpenGL finalizer/dispose
+
+
+************************
+*
+*  RANDOM FIXES
+*
+
+- Skybox tweaks
+    - use MIRROR UV addressing mode, to get rid of the obvious edge seams
+    - (done) set the UV coordinates of the box 1/2 texel inside the edge of the face
+
+- Setup shader-based skybox cubemap
+  - docs : http://www.opengl.org/wiki/Cubemap_Texture
+  - cubemap shader tutorials: 
+      http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
+      http://antongerdelan.net/opengl/cubemaps.html
+
+- make the asset loader cache/reuse multiple references to the same asset (mesh, texture, etc)
 
 ************************
 *
@@ -184,3 +188,7 @@
 - (done) add HUD projection, simple GDI text display
 
 - (done) ADD: starfield...
+- (done) FIX the skybox ! !
+    - Blender environment map orientation...
+     | -X | -Y | +X |
+     | -Z | +Z | +Y |

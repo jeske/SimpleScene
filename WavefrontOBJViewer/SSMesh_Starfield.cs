@@ -22,13 +22,15 @@ namespace WavefrontOBJViewer
 			for (int i = 0; i < numstars; i++) {
                 // generate a random position
                 vertices[i].Position = new Vector3(
-                    (float)rgen.NextDouble() * 20.0f - 10.0f,
-                    (float)rgen.NextDouble() * 20.0f - 10.0f,
-                    (float)rgen.NextDouble() * 20.0f - 10.0f);
+                    (float)rgen.NextDouble() * 2.0f - 1.0f,
+                    (float)rgen.NextDouble() * 2.0f - 1.0f,
+                    (float)rgen.NextDouble() * 2.0f - 1.0f);
 
                 // the normals are simplified
                 vertices[i].Normal = vertices[i].Position;
-                int intensity = rgen.Next(150);
+                int intensity = rgen.Next(80);
+                if (intensity > 70) { intensity += 20 + rgen.Next(50); }
+                // TODO: add a couple dominant standout colors (red giant, yellow), maybe a star-color-palette
                 vertices[i].DiffuseColor = Color.FromArgb(255,
                     rgen.Next(40) + intensity,
                     rgen.Next(25) + intensity,

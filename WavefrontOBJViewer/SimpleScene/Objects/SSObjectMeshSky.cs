@@ -21,6 +21,10 @@ namespace WavefrontOBJViewer
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
+			GL.Disable(EnableCap.DepthTest);
+			GL.DepthMask(false);
+			GL.Disable(EnableCap.DepthClamp);
+
             this.mesh.RenderMesh(ref renderConfig);
         }
 	}
