@@ -231,17 +231,18 @@ void main()
 	// compute specular lighting
     float shininess = pow (max (dot (f_halfVec, f_vertexNormal), 0.0), 2.0);
     shininess = 10.0;
-	// outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;
+	outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
 	float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
 	float edgeIntensity = exp2(-1.0*nearD*nearD * 2);
-	vec4 edgeColor = vec4( clamp( (1.1-length(outputColor)) / 2,0.1,0.4) );
-	
+	vec4 edgeColor = vec4( clamp( (1.1-length(outputColor)) / 2,0.1,0.4) );	
     outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
-    gl_FragColor = outputColor;
-    
+
+
+	// finally, output the fragment color
+    gl_FragColor = outputColor;    
 }			
 
 ");

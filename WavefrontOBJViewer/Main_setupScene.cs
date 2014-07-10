@@ -15,21 +15,19 @@ namespace WavefrontOBJViewer
 			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
 
 			// 0. Add Lights
-			scene.addLight(new SSLight(LightName.Light0));
+			var light = new SSLight (LightName.Light0);
+			light.Pos = new Vector3 (0.0f, 0.0f, 10.0f);
+			scene.addLight(light);
 
 			// 1. Add Objects
 			SSObject triObj;
 			scene.addObject (triObj = new SSObjectTriangle () );
 						
 			// add drone
-			SSObject droneObj;			
-			scene.addObject (this.activeModel = droneObj = new SSObjectMesh(
-				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
-				));
+			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", true, shaderPgm));
+			droneObj.renderState.lighted = true;
+			scene.addObject (this.activeModel = droneObj);
 
-			// droneObj.MouseDeltaOrient(20,20);
-			droneObj.Pos = new OpenTK.Vector3(20,0,0);
-			droneObj.MouseDeltaOrient(20.0f,0.0f);
 
 			// add second drone
 			
@@ -37,6 +35,8 @@ namespace WavefrontOBJViewer
 				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
 				);
 			scene.addObject (drone2Obj);
+			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
+			drone2Obj.MouseDeltaOrient(20.0f,0.0f);
 
 			// last. Add Camera
 

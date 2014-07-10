@@ -24,19 +24,44 @@ namespace WavefrontOBJViewer
 			this._pos = new Vector3 (0, 0, 1);
 			this.updateMat ();
 		}
+
+		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
+			GL.MatrixMode (MatrixMode.Modelview);
+			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+			GL.LoadMatrix (ref modelViewMat);
+
+			GL.Enable (EnableCap.Lighting);
+			GL.ShadeModel (ShadingModel.Smooth);
+
+			GL.Light (glLightName, LightParameter.Position, new Vector4(this._pos,1.0f));
+
+			GL.Enable (EnableCap.Light0 + (glLightName - LightName.Light0));
+
+		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
+			GL.MatrixMode (MatrixMode.Modelview);
+			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+			GL.LoadMatrix (ref modelViewMat);
+
+			GL.Enable (EnableCap.Lighting);
+			GL.ShadeModel (ShadingModel.Smooth);
+
 			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (0.5f,0.5f,0.5f,0.5f)); // diffuse color (R,G,B,A)
 			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.1f,0.1f,0.1f,0.25f)); // ambient light color (R,G,B,A)
 			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.5f, 0.5f, 0.5f, 0.5f)); // specular light color (R,G,B,A)
 
+			
 			// TODO: check if this is the right way to adjust the light location...
 
-			GL.Light (glLightName, LightParameter.Position, Vector4.Transform(new Vector4(this._pos,0.0f),renderConfig.invCameraViewMat));
-			GL.Light (glLightName, LightParameter.SpotDirection, Vector4.Transform (new Vector4 (this._dir, 0.0f), renderConfig.invCameraViewMat));
-	
-			// GL.Light (glLightName, LightParameter.SpotDirection, Vector4.Transform (new Vector4 (this._dir, 0.0f), renderConfig.invCameraViewMat));
+
+			// w=1.0 is a point light
+			// w=0.0 is a directional light
+			GL.Light (glLightName, LightParameter.Position, new Vector4(this._pos,1.0f));
+			// GL.Light (glLightName, LightParameter.SpotDirection, new Vector4 (this._dir, 0.0f));
 
 			GL.Enable (EnableCap.Light0 + (glLightName - LightName.Light0));
+
+
 		}
 	}
 }

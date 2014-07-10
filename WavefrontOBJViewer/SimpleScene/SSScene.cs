@@ -36,10 +36,6 @@ namespace WavefrontOBJViewer
 
 			GL.Enable (EnableCap.Lighting);
 			foreach (var light in lights) {
-				// GL.MatrixMode (MatrixMode.Modelview);
-				// Matrix4 modelViewMat = light.worldMat * invCameraViewMat;
-				// GL.LoadMatrix (ref modelViewMat);
-
 				light.SetupLight (ref renderConfig);
 			}
 		}

@@ -79,7 +79,6 @@ namespace WavefrontOBJViewer
 
 			if (shaderPgm == null) {
 				GL.UseProgram(0);
-				// GL.Disable(EnableCap.Lighting);
 				GL.Disable(EnableCap.CullFace);
 
 
