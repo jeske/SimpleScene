@@ -130,10 +130,10 @@ namespace WavefrontOBJViewer
 				int h3 = GL.GetUniformLocation(shaderPgm.ProgramID, "bumpTex");
 
 				// bind shader uniform variable handles to GL texture-unit numbers
-				GL.Uniform1(h0,0);
-				GL.Uniform1(h1,1);
-				GL.Uniform1(h2,2);
-				GL.Uniform1(h3,3);
+				GL.Uniform1(h0,0); // Texture.Texture0
+				GL.Uniform1(h1,1); // Texture.Texture1
+				GL.Uniform1(h2,2); // Texture.Texture2
+				GL.Uniform1(h3,3); // Texture.Texture3
 			}
 		}
 

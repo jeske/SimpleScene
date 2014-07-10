@@ -5,6 +5,14 @@ using System;
 
 using OpenTK.Graphics.OpenGL;
 
+
+// shader doc references..
+//
+// http://fabiensanglard.net/bumpMapping/index.php
+// http://www.geeks3d.com/20091013/shader-library-phong-shader-with-multiple-lights-glsl/
+// http://en.wikibooks.org/wiki/GLSL_Programming/GLUT/Specular_Highlights
+
+
 namespace WavefrontOBJViewer
 {
 	partial class Game : OpenTK.GameWindow
@@ -121,19 +129,21 @@ void main()
 {
 	gl_TexCoord[0] =  gl_MultiTexCoord0;
 	
-	// Building the matrix Eye Space -> Tangent Space
+	// compute the matrix Eye Space -> Tangent Space
 	n = normalize (gl_NormalMatrix * gl_Normal);
 	vec3 t = normalize (gl_NormalMatrix * tangent);
 	vec3 b = cross (n, t);
-	
+
+	// compute transformed vertex position
 	vec3 vertexPosition = vec3(gl_ModelViewMatrix *  gl_Vertex);
+	vec3 vertexPosition_normalized = normalize(vertexPosition);
+
+	// compute light direction
 	vec3 lightDir = normalize(gl_LightSource[0].position.xyz - vertexPosition);
 		
-	// transformed vertex position.
-	VV = vec3(gl_ModelViewMatrix * gl_Vertex);
-	
-		
-		
+	// output transformed vertex position.
+	VV = vertexPosition;
+
 	// transform light and half angle vectors by tangent basis
 	vec3 v;
 	v.x = dot (lightDir, t);
@@ -141,20 +151,20 @@ void main()
 	v.z = dot (lightDir, n);
 	lightVec = normalize (v);
 	
-	  
-	v.x = dot (vertexPosition, t);
-	v.y = dot (vertexPosition, b);
-	v.z = dot (vertexPosition, n);
-	eyeVec = normalize (v);
+	// compute and output eyeVector
+
+	//v.x = dot (vertexPosition, t);
+	//v.y = dot (vertexPosition, b);
+	//v.z = dot (vertexPosition, n);
+	//eyeVec = normalize (v);
+	eyeVec = -vertexPosition_normalized.xyz;
 	
-	
-	vertexPosition = normalize(vertexPosition);
-	
+
 	/* Normalize the halfVector to pass it to the fragment shader */
 
 	// No need to divide by two, the result is normalized anyway.
-	// vec3 halfVector = normalize((vertexPosition + lightDir) / 2.0); 
-	vec3 halfVector = normalize(vertexPosition + lightDir);
+	// vec3 halfVector = normalize((vertexPosition_normalized + lightDir) / 2.0); 
+	vec3 halfVector = normalize(vertexPosition_normalized + lightDir);
 	v.x = dot (halfVector, t);
 	v.y = dot (halfVector, b);
 	v.z = dot (halfVector, n);
@@ -201,6 +211,8 @@ void main()
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
+	specularStrength = vec4(1.0,0.0,0.0,0.0); // red for debugging
+
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
 	// compute the ambient color
@@ -232,9 +244,19 @@ void main()
 	}
 
 	// compute specular lighting
-    float shininess = pow (max (dot (f_halfVec, f_vertexNormal), 0.0), 2.0);
-    shininess = 10.0;
-	outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;
+	if (dot(f_vertexNormal, -normalize(lightPosition)) < 0.0) {   // if light is front of the surface
+	  
+	  vec3 R = reflect(-normalize(lightPosition), normalize(f_vertexNormal));
+	  // gl_FrontMaterial.shininess
+	  float shininess = pow (max (dot(R, f_eyeVec), 0.0), 2.0);
+      
+      // float shininess = pow (max (dot (f_eyeVec, f_vertexNormal), 0.0), 2.0);
+
+	  // outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
+      outputColor += specularStrength * shininess;
+    } 
+
+
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge

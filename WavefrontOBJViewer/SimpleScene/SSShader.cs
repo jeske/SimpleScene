@@ -30,7 +30,13 @@ namespace WavefrontOBJViewer
 			ShaderID = GL.CreateShader(this.type);
 			GL.ShaderSource(ShaderID, this.shaderProgramText);
 			GL.CompileShader(ShaderID);	
+			int compiled;
+			GL.GetShader(ShaderID,ShaderParameter.CompileStatus,out compiled);
 			this.PrintPrettyShaderInfoLog();
+			if (compiled == (int)OpenTK.Graphics.OpenGL.All.False) {
+			    Console.WriteLine("** Shader Compile Failed **");
+			    ShaderID = 0;
+			}
 		}
 		
 		private void PrintPrettyShaderInfoLog() {
