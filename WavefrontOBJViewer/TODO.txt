@@ -6,7 +6,8 @@
 
 - Lighting
   - (done) FIX point light transform... it should not change as camera moves! 
-  - FIX specular light (where is it?)
+  - (done) FIX specular light (where is it?)
+  - FIX specular light constants
   - ADD bump map channel
   - ADD multi-texture "classic" (shader-free) mode
   - ADD shader toggle for single-pass-wireframe

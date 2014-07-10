@@ -173,7 +173,7 @@ void main()
 	//normalize (v);
 	halfVec = v ; 
 	  
-	vertexNormal = gl_Normal;
+	vertexNormal = (gl_ModelViewMatrix * vec4(gl_Normal,0)).xyz;
 	gl_Position = ftransform();
 }");
 			GL.AttachShader(ProgramID,vertexShader.ShaderID);
@@ -211,8 +211,7 @@ void main()
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
-	specularStrength = vec4(1.0,0.0,0.0,0.0); // red for debugging
-
+	specularStrength = vec4(0.7,0.4,0.4,0.0);
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
 	// compute the ambient color
@@ -247,13 +246,12 @@ void main()
 	if (dot(f_vertexNormal, -normalize(lightPosition)) < 0.0) {   // if light is front of the surface
 	  
 	  vec3 R = reflect(-normalize(lightPosition), normalize(f_vertexNormal));
-	  // gl_FrontMaterial.shininess
-	  float shininess = pow (max (dot(R, f_eyeVec), 0.0), 2.0);
-      
-      // float shininess = pow (max (dot (f_eyeVec, f_vertexNormal), 0.0), 2.0);
+	  float surfaceShininess = gl_FrontMaterial.shininess;
+	  surfaceShininess = 10.0;
+	  float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), surfaceShininess);
 
-	  // outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
-      outputColor += specularStrength * shininess;
+	  outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
+      // outputColor += specularStrength * shininess;
     } 
 
 

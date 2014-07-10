@@ -20,8 +20,9 @@ namespace WavefrontOBJViewer
 			scene.addLight(light);
 
 			// 1. Add Objects
-			//SSObject triObj;
-			//scene.addObject (triObj = new SSObjectTriangle () );
+			SSObject triObj;
+			scene.addObject (triObj = new SSObjectTriangle () );
+			triObj.Pos = new Vector3 (0.0f, 0.0f, 10.0f);
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", true, shaderPgm));
