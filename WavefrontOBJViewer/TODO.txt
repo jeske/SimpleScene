@@ -4,7 +4,14 @@
 *  TODO V1
 *
 
-- FIX lighting transform... it should not change as camera moves! 
+- Lighting
+  - (done) FIX point light transform... it should not change as camera moves! 
+  - FIX specular light (where is it?)
+  - ADD bump map channel
+  - ADD multi-texture "classic" (shader-free) mode
+  - ADD shader toggle for single-pass-wireframe
+
+- FIX: if shader fails to compile, revert to fixed-function
 
 - HUD  
   - add stats text (verts/polys drawn, fps)

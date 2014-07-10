@@ -46,17 +46,15 @@ namespace WavefrontOBJViewer
 			GL.Enable (EnableCap.Lighting);
 			GL.ShadeModel (ShadingModel.Smooth);
 
-			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (0.5f,0.5f,0.5f,0.5f)); // diffuse color (R,G,B,A)
-			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.1f,0.1f,0.1f,0.25f)); // ambient light color (R,G,B,A)
-			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.5f, 0.5f, 0.5f, 0.5f)); // specular light color (R,G,B,A)
-
-			
-			// TODO: check if this is the right way to adjust the light location...
-
+			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (0.5f)); // diffuse color (R,G,B,A)
+			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.1f)); // ambient light color (R,G,B,A)
+			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.5f)); // specular light color (R,G,B,A)
 
 			// w=1.0 is a point light
 			// w=0.0 is a directional light
 			GL.Light (glLightName, LightParameter.Position, new Vector4(this._pos,1.0f));
+
+
 			// GL.Light (glLightName, LightParameter.SpotDirection, new Vector4 (this._dir, 0.0f));
 
 			GL.Enable (EnableCap.Light0 + (glLightName - LightName.Light0));

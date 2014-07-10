@@ -191,6 +191,8 @@ varying vec3 f_VV;
 
 varying vec3 f_vertexNormal;
 
+// http://www.clockworkcoders.com/oglsl/tutorial5.htm
+
 void main()
 {
 	vec4 outputColor = vec4(0.0);
@@ -202,19 +204,20 @@ void main()
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
 	// compute the ambient color
-	vec4 ambientColor = texture2D (ambiTex, gl_TexCoord[0].st);
-	float glowFactor = length(ambientColor.rgb) * 0.5;
+	vec4 ambientColor = texture2D (diffTex, gl_TexCoord[0].st);
+	outputColor = mix(outputColor, ambientColor, ambientStrength.x);
 
-	// diffuse color baseline
-	// http://www.clockworkcoders.com/oglsl/tutorial5.htm
+	// add in the glow map..
+	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
+	float glowFactor = length(glowColor.rgb) * 0.5;
+	outputColor = mix(outputColor, glowColor, glowFactor);
+
+	// diffuse color, boosted by glow-map
 	vec4 diffuseColor = texture2D (diffTex, gl_TexCoord[0].st);
 	outputColor += diffuseColor * 
 	                 (max(dot(f_n, lightPosition), 0.0) +
 	                 glowFactor);  // the glow should light the diffuse color
-	
-	// mix in the ambient glow map
-	
-	outputColor = mix(outputColor, ambientColor, glowFactor);
+
 	
 	// lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
 	vec3 normal = 2.0 * texture2D (bumpTex, gl_TexCoord[0].st).rgb - 1.0;

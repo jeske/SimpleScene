@@ -20,8 +20,8 @@ namespace WavefrontOBJViewer
 			scene.addLight(light);
 
 			// 1. Add Objects
-			SSObject triObj;
-			scene.addObject (triObj = new SSObjectTriangle () );
+			//SSObject triObj;
+			//scene.addObject (triObj = new SSObjectTriangle () );
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", true, shaderPgm));
@@ -41,7 +41,7 @@ namespace WavefrontOBJViewer
 			// last. Add Camera
 
 			scene.addObject (scene.activeCamera = 
-					new SSCameraThirdPerson (triObj));
+					new SSCameraThirdPerson (droneObj));
 		}
 
 		public void setupEnvironment() {
@@ -65,10 +65,10 @@ namespace WavefrontOBJViewer
 			hudScene = new SSScene ();
 
 			// HUD Triangle...
-			SSObject triObj = new SSObjectTriangle ();
-			hudScene.addObject (triObj);
-			triObj.Pos = new Vector3 (50, 50, 0);
-			triObj.Scale = new Vector3 (50.0f);
+			//SSObject triObj = new SSObjectTriangle ();
+			//hudScene.addObject (triObj);
+			//triObj.Pos = new Vector3 (50, 50, 0);
+			//triObj.Scale = new Vector3 (50.0f);
 
 			// HUD text....
 			SSObjectGDIText textObj = new SSObjectGDIText ();
