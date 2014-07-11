@@ -1,40 +1,49 @@
+************
+*  NOTES
+
+- OpenGL Tutorials
+  http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
 
 ************************
 *
 *  TODO V1
 *
 
-- Lighting
-  - (done) FIX point light transform... it should not change as camera moves! 
-  - (done) FIX specular light (where is it?)
-  - FIX specular light constants
-  - ADD bump map channel
-  - ADD multi-texture "classic" (shader-free) mode
-  - ADD shader toggle for single-pass-wireframe
+- HUD  
+  - add stats text (verts/polys drawn, fps)
+  - FIX: HUD projection pixel-alignment (@ odd and even window sizes)
+  - add support for Alpha in GDI textures
+
+- mouse-to-ray picking 
+  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=21
+
+- add VBO/IBO support
+
+- FIX: camera mouse rotation bug that allows it to get "off axis"
 
 - FIX: if shader fails to compile, revert to fixed-function
 
-- FIX: camera mouse rotation but that allows it to get "off axis"
-
-- ADD: computation of missing surface normals 
-
 - TEST: world-space hierarchy (parent an object under the light?)
 
-- HUD  
-  - add stats text (verts/polys drawn, fps)
-  - make sure HUD projection is properly pixel-aligned (@ odd and even window sizes)
-  - add alpha-RGB GDI textures
-
-- add VBO/IBO support 
-
 - BUILD: change the build to avoid the need to manually copy Assets folder...
+
+- Lighting
+  - ADD bump map channel
+  - ADD multi-texture "classic" (shader-free) mode
+  - ADD shader toggle for single-pass-wireframe
+  - ADD support for all fixed-function lights
 
 ************************
 *
 *  WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
 *
 
- - add more models 
+ - face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
+
+ - ADD: mouse camera dolly/pan (shift drag)
+
+ - add more models
+
  - add text HUD instructions and UI...
    - key to cycle models
    - key to toggle draw modes (lines, flat/gourad, textured)
@@ -44,19 +53,38 @@
    - handle negative vertex indices in face specification
    - handle "s" smoothing group
    - handle "Tr"/"d" material transparency/alpha
+   - ADD: computation/constraint/warning of missing surface normals 
+
+  - doc sources
+    - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
+
 
 ************************
 *
-*  cleanup for HZG
+*  cleanup for HZG initial port
 *
 
-- Improve skybox projection (it's a little fisheye?)
+- add "HUD projection sprites" in 3d view
+- support alpha in GDI textures
+
+************************
+*
+*  HZG, desired features...
+*
 
 - ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
-- add "HUD projection sprites" in 3d view
-- make inset sub-scene cameras
-- texture OpenGL finalizer/dispose
 
+- support "3d insets" (sub-scene cameras, render to region/texture)
+  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=19
+
+- deferred lighting pass, with shadows
+
+- add basic animation import (FBX?)
+  http://code.blender.org/index.php/2013/08/fbx-binary-file-format-specification/
+   
+- Improve skybox projection (it's a little fisheye?)
+
+- texture OpenGL finalizer/dispose
 
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
@@ -65,59 +93,39 @@
   - reuse singleton instance of asset... (load mesh though asset loader?)
   - texture OpenGL finalizer/dispose
 
-
 ************************
 *
-*  RANDOM FIXES
+*  3D Visual Experiments
 *
-
-- Skybox tweaks
-    - use MIRROR UV addressing mode, to get rid of the obvious edge seams
-    - (done) set the UV coordinates of the box 1/2 texel inside the edge of the face
-
-- Setup shader-based skybox cubemap
-  - docs : http://www.opengl.org/wiki/Cubemap_Texture
-  - cubemap shader tutorials: 
-      http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
-      http://antongerdelan.net/opengl/cubemaps.html
-
-- make the asset loader cache/reuse multiple references to the same asset (mesh, texture, etc)
-
-************************
-*
-*  NEXT IDEAS
-*
-
      
-- add basic animation import (FBX?)
-  http://code.blender.org/index.php/2013/08/fbx-binary-file-format-specification/
-     
-- make inset sub-scene cameras
+- screen-space "warp" shader
 
-- Font/GDI rendering with vector textures
+- ship-effect geometry/pixel shaders
+  - impact
+  - shields
+  - particle system - thruster? weapon?
+    http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=26
+
+- "clean 3d Font rendering" with vector textures
   http://www.gamedev.net/topic/491938-signed-distance-bitmap-font-tool/
   http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
   http://stackoverflow.com/questions/5262951/what-is-state-of-the-art-for-text-rendering-in-opengl-as-of-version-4-1
 
-- make HDR skybox
+- volumetric fog
+  http://www.nothings.org/computer/vfog/
+  http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2012/10/Wenzel-Real-time_Atmospheric_Effects_in_Games.pdf
+  http://http.download.nvidia.com/developer/SDK/Individual_Samples/DEMOS/Direct3D9/src/FogPolygonVolumes3/docs/FogPolygonVolumes3.pdf
+  http://cs.gmu.edu/~jchen/cs662/fog.pdf
+
+- HDR skybox
 
 - more GLSL shading
-  - specular
   - bump (compute tangent-space normals!)
   - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
 
-- deferred lighting pass, with shadows
-
 - compressed textures
     http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
-
-- experiment with valve vector-stencils (for font rendering?)
-  - http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
-
-- face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
-
-- ADD: mouse camera dolly/pan (shift drag)
-
+  
 - switch to non-console app (put text-output in GUI?)
 
 - write "streaming loader", so the model is not buffered in the loader
@@ -129,6 +137,16 @@
  
 - experiment with 3d ui widgets
   https://www.youtube.com/watch?v=oDulGQnjsDQ
+ 
+- Skybox tweaks
+    - use MIRROR UV addressing mode, to minimize edge seams
+    - (done) set the UV coordinates of the box 1/2 texel inside the edge of the face
+
+    - Setup shader-based skybox cubemap
+       - docs : http://www.opengl.org/wiki/Cubemap_Texture
+       - cubemap shader tutorials: 
+          http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
+          http://antongerdelan.net/opengl/cubemaps.html
 
 
 ************************
@@ -148,8 +166,7 @@
 
 - add triangle fans?
 
-- mouse object/face picking
-- projected texture "projected mouse cursor"
+- projected texture support "projected AOE mouse cursor"
 
 - GL caps enable/disable abstraction, which only changes things when render caps actually change
 
@@ -183,7 +200,9 @@
 
 - GLSL 330, multi-pass ( glow-bloom, shadow maps, deferred lighting, ambient occlusion )
 
-- implement Bunny LOD
+- implement Bunny LOD (UV aware?)
+
+- 
 
 
 ************************
@@ -214,3 +233,7 @@
     - Blender environment map orientation...
      | -X | -Y | +X |
      | -Z | +Z | +Y |
+- Lighting
+  - (done) FIX point light transform... it should not change as camera moves! 
+  - (done) FIX specular light (where is it?)
+  - (done) FIX specular light constants

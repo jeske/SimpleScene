@@ -16,7 +16,7 @@ namespace WavefrontOBJViewer
 			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
 
 
-			var lightPos = new Vector3 (15.0f, 10.0f, 10.0f);
+			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
 			var light = new SSLight (LightName.Light0);
 			light.Pos = lightPos;
