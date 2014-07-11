@@ -215,7 +215,7 @@ void main()
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
-	specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
+	// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
 	// compute the ambient color
@@ -224,7 +224,7 @@ void main()
 
 	// add in the glow map..
 	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
-	float glowFactor = length(glowColor.rgb) * 0.5;
+	float glowFactor = length(glowColor.rgb) * 1.0;
 	outputColor = mix(outputColor, glowColor, glowFactor);
 
 	// diffuse color, boosted by glow-map
@@ -247,14 +247,14 @@ void main()
 	}
 
 	// compute specular lighting
-	if (true || dot(f_vertexNormal, normalize(lightPosition)) < 0.0) {   // if light is front of the surface
+	if (dot(-normalize(lightPosition), normalize(f_vertexNormal) ) < 0.0) {   // if light is front of the surface
 	  
 	  vec3 R = reflect(-normalize(lightPosition), normalize(f_vertexNormal));
 	  float surfaceShininess = gl_FrontMaterial.shininess;
 	  float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), surfaceShininess);
 
-	  outputColor += specularStrength * shininess;
-	  // outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
+	  // outputColor += specularStrength * shininess;
+	  outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
       // outputColor = mix(outputColor, texture2D (specTex, gl_TexCoord[0].st), (specularStrength * shininess));
     } 
 

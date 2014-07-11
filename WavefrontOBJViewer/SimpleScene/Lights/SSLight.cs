@@ -52,7 +52,8 @@ namespace WavefrontOBJViewer
 
 			// w=1.0 is a point light
 			// w=0.0 is a directional light
-			GL.Light (glLightName, LightParameter.Position, new Vector4(this._pos,1.0f));
+			// we put it at the origin because it is transformed by the model view matrix (which already has our position)
+			GL.Light (glLightName, LightParameter.Position, new Vector4(0,0,0,1.0f)); 
 
 
 			// GL.Light (glLightName, LightParameter.SpotDirection, new Vector4 (this._dir, 0.0f));
