@@ -335,6 +335,7 @@ namespace Util3d {
                         parseMaterial.specularTextureResourceName = lineContent;
                         break;
                     case "bump":
+					case "map_Bump":
                     case "map_bump": // bump map  (bump <filename> [-bm <float bump>]               
                         string[] parts = lineContent.Split(' ');
                         if (parts.Length >= 1) {
