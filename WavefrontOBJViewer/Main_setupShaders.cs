@@ -247,7 +247,7 @@ void main()
 	}
 
 	// compute specular lighting
-	if (dot(-normalize(lightPosition), normalize(f_vertexNormal) ) < 0.0) {   // if light is front of the surface
+	if (dot(f_n, lightPosition) > 0.0) {   // if light is front of the surface
 	  
 	  vec3 R = reflect(-normalize(lightPosition), normalize(f_vertexNormal));
 	  float surfaceShininess = gl_FrontMaterial.shininess;

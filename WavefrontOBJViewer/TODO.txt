@@ -14,6 +14,10 @@
 
 - FIX: if shader fails to compile, revert to fixed-function
 
+- FIX: camera mouse rotation but that allows it to get "off axis"
+
+- ADD: computation of missing surface normals 
+
 - TEST: world-space hierarchy (parent an object under the light?)
 
 - HUD  

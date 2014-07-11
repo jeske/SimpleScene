@@ -47,9 +47,9 @@ namespace WavefrontOBJViewer
 			drone2Obj.renderState.lighted = true;
 			drone2Obj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			drone2Obj.shininessMatColor = 3.0f;
+			drone2Obj.shininessMatColor = 10.0f;
 			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
-			drone2Obj.Scale = new Vector3(0.05f);
+			drone2Obj.Scale = new Vector3(2f);
 			drone2Obj.MouseDeltaOrient(20.0f,0.0f);
 
 			// last. Add Camera
