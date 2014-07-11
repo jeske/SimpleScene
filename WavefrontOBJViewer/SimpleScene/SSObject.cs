@@ -15,6 +15,13 @@ namespace WavefrontOBJViewer
 
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
+	    public Color4 ambientMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public Color4 diffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public Color4 specularMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public Color4 emissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public float shininessMatColor = 10.0f;
+
+
 		public SSObject() : base() {}
 		public virtual void Render (ref SSRenderConfig renderConfig) {
 			// compute and set the modelView matrix, by combining the cameraViewMat
@@ -33,13 +40,19 @@ namespace WavefrontOBJViewer
 				GL.Disable(EnableCap.Lighting);
 			}
 
+			GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
+			GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
+			GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
+			GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
+			GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
+
 
 			// ... subclasses will render the object itself..
 		}
 	}
 
 	public class SSOBRenderState {
-	    public bool lighted = false;
+	    public bool lighted = true;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)

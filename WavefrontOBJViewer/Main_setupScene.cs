@@ -4,6 +4,7 @@
 using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics;
 
 namespace WavefrontOBJViewer
 {
@@ -14,35 +15,44 @@ namespace WavefrontOBJViewer
 
 			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
 
+
+			var lightPos = new Vector3 (15.0f, 10.0f, 10.0f);
 			// 0. Add Lights
 			var light = new SSLight (LightName.Light0);
-			light.Pos = new Vector3 (0.0f, 0.0f, 10.0f);
+			light.Pos = lightPos;
 			scene.addLight(light);
 
 			// 1. Add Objects
 			SSObject triObj;
 			scene.addObject (triObj = new SSObjectTriangle () );
-			triObj.Pos = new Vector3 (0.0f, 0.0f, 10.0f);
+			triObj.Pos = lightPos;
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", true, shaderPgm));
-			droneObj.renderState.lighted = true;
 			scene.addObject (this.activeModel = droneObj);
-
+			droneObj.renderState.lighted = true;
+			droneObj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.MouseDeltaOrient(-40.0f,0.0f);
+			droneObj.Pos = new OpenTK.Vector3(-5,0,0);
 
 			// add second drone
 			
 			SSObject drone2Obj = new SSObjectMesh(
-				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
+				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./muscle_as1/"), "body.obj", true, shaderPgm)
 				);
 			scene.addObject (drone2Obj);
+			drone2Obj.renderState.lighted = true;
+			drone2Obj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
+			drone2Obj.Scale = new Vector3(0.05f);
 			drone2Obj.MouseDeltaOrient(20.0f,0.0f);
 
 			// last. Add Camera
 
 			scene.addObject (scene.activeCamera = 
-					new SSCameraThirdPerson (droneObj));
+					new SSCameraThirdPerson (drone2Obj));
 		}
 
 		public void setupEnvironment() {

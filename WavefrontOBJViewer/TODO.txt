@@ -14,6 +14,8 @@
 
 - FIX: if shader fails to compile, revert to fixed-function
 
+- TEST: world-space hierarchy (parent an object under the light?)
+
 - HUD  
   - add stats text (verts/polys drawn, fps)
   - make sure HUD projection is properly pixel-aligned (@ odd and even window sizes)

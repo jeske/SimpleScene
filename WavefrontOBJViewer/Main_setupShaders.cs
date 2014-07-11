@@ -119,7 +119,7 @@ vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 	varying vec3 lightVec;
 	varying vec3 halfVec;
 	varying vec3 eyeVec;
-	
+
 	varying vec3 n;
 	varying vec3 VV;
 	
@@ -127,19 +127,20 @@ vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 
 void main()
 {
-	gl_TexCoord[0] =  gl_MultiTexCoord0;
-	
+	gl_TexCoord[0] =  gl_MultiTexCoord0;  // output base UV coordinates
+
+	vertexNormal = n = normalize (gl_NormalMatrix * gl_Normal);
+
 	// compute the matrix Eye Space -> Tangent Space
-	n = normalize (gl_NormalMatrix * gl_Normal);
 	vec3 t = normalize (gl_NormalMatrix * tangent);
 	vec3 b = cross (n, t);
 
 	// compute transformed vertex position
-	vec3 vertexPosition = vec3(gl_ModelViewMatrix *  gl_Vertex);
+	vec3 vertexPosition = vec3(gl_ModelViewMatrix * gl_Vertex);
 	vec3 vertexPosition_normalized = normalize(vertexPosition);
 
 	// compute light direction
-	vec3 lightDir = normalize(gl_LightSource[0].position.xyz - vertexPosition);
+	vec3 lightDir = vec3(normalize(gl_LightSource[0].position - (gl_ModelViewMatrix * gl_Vertex)));
 		
 	// output transformed vertex position.
 	VV = vertexPosition;
@@ -173,7 +174,6 @@ void main()
 	//normalize (v);
 	halfVec = v ; 
 	  
-	vertexNormal = (gl_ModelViewMatrix * vec4(gl_Normal,0)).xyz;
 	gl_Position = ftransform();
 }");
 			GL.AttachShader(ProgramID,vertexShader.ShaderID);
@@ -203,6 +203,10 @@ varying vec3 f_vertexNormal;
 
 // http://www.clockworkcoders.com/oglsl/tutorial5.htm
 
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main()
 {
 	vec4 outputColor = vec4(0.0);
@@ -211,12 +215,12 @@ void main()
 	vec4 ambientStrength = gl_FrontMaterial.ambient;
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
-	specularStrength = vec4(0.7,0.4,0.4,0.0);
+	specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
 	// compute the ambient color
 	vec4 ambientColor = texture2D (diffTex, gl_TexCoord[0].st);
-	outputColor = mix(outputColor, ambientColor, ambientStrength.x);
+	outputColor = ambientColor * ambientStrength;
 
 	// add in the glow map..
 	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
@@ -243,25 +247,25 @@ void main()
 	}
 
 	// compute specular lighting
-	if (dot(f_vertexNormal, -normalize(lightPosition)) < 0.0) {   // if light is front of the surface
+	if (true || dot(f_vertexNormal, normalize(lightPosition)) < 0.0) {   // if light is front of the surface
 	  
 	  vec3 R = reflect(-normalize(lightPosition), normalize(f_vertexNormal));
 	  float surfaceShininess = gl_FrontMaterial.shininess;
-	  surfaceShininess = 10.0;
 	  float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), surfaceShininess);
 
-	  outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
-      // outputColor += specularStrength * shininess;
+	  outputColor += specularStrength * shininess;
+	  // outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
+      // outputColor = mix(outputColor, texture2D (specTex, gl_TexCoord[0].st), (specularStrength * shininess));
     } 
-
-
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
-	float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
-	float edgeIntensity = exp2(-1.0*nearD*nearD * 2);
-	vec4 edgeColor = vec4( clamp( (1.1-length(outputColor)) / 2,0.1,0.4) );	
-    outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
+	if (false) { 
+		float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
+		float edgeIntensity = exp2(-1.0*nearD*nearD * 2);
+		vec4 edgeColor = vec4( clamp( (1.1-length(outputColor)) / 2,0.1,0.4) );	
+        outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
+    }
 
 
 	// finally, output the fragment color
