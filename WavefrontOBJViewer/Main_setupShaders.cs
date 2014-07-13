@@ -113,12 +113,9 @@ void main() {
 
 vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 @"#version 120
-
-	attribute vec3 tangent;
-	
-	varying vec3 lightVec;
-	varying vec3 halfVec;
-	varying vec3 eyeVec;
+				
+	varying vec3 objLight;
+	varying vec3 objView;
 
 	varying vec3 n;
 	varying vec3 VV;
@@ -131,49 +128,20 @@ void main()
 
 	vertexNormal = n = normalize (gl_NormalMatrix * gl_Normal);
 
-	// compute the matrix Eye Space -> Tangent Space
-	vec3 t = normalize (gl_NormalMatrix * tangent);
-	vec3 b = cross (n, t);
 
 	// compute transformed vertex position
 	vec3 vertexPosition = vec3(gl_ModelViewMatrix * gl_Vertex);
 	vec3 vertexPosition_normalized = normalize(vertexPosition);
 
 	// compute light direction
-	vec3 lightDir = vec3(normalize(gl_LightSource[0].position - (gl_ModelViewMatrix * gl_Vertex)));
+	objLight = vec3(normalize(gl_LightSource[0].position - (gl_ModelViewMatrix * gl_Vertex)));
 		
 	// output transformed vertex position.
 	VV = vertexPosition;
 
-	// transform light and half angle vectors by tangent basis
-	vec3 v;
-	v.x = dot (lightDir, t);
-	v.y = dot (lightDir, b);
-	v.z = dot (lightDir, n);
-	lightVec = normalize (v);
-	
 	// compute and output eyeVector
+	objView = -vertexPosition_normalized.xyz;
 
-	//v.x = dot (vertexPosition, t);
-	//v.y = dot (vertexPosition, b);
-	//v.z = dot (vertexPosition, n);
-	//eyeVec = normalize (v);
-	eyeVec = -vertexPosition_normalized.xyz;
-	
-
-	/* Normalize the halfVector to pass it to the fragment shader */
-
-	// No need to divide by two, the result is normalized anyway.
-	// vec3 halfVector = normalize((vertexPosition_normalized + lightDir) / 2.0); 
-	vec3 halfVector = normalize(vertexPosition_normalized + lightDir);
-	v.x = dot (halfVector, t);
-	v.y = dot (halfVector, b);
-	v.z = dot (halfVector, n);
-
-	// No need to normalize, t,b,n and halfVector are normal vectors.
-	//normalize (v);
-	halfVec = v ; 
-	  
 	gl_Position = ftransform();
 }");
 			GL.AttachShader(ProgramID,vertexShader.ShaderID);
@@ -190,16 +158,18 @@ uniform sampler2D diffTex;
 uniform sampler2D specTex;
 uniform sampler2D ambiTex;
 uniform sampler2D bumpTex;
-		
-// New bumpmapping
-varying vec3 f_lightVec;
-varying vec3 f_halfVec;
-varying vec3 f_eyeVec;
 
 varying vec3 f_n;
 varying vec3 f_VV;
 
 varying vec3 f_vertexNormal;
+
+varying vec3 f_objLight;
+varying vec3 f_objView;
+
+// tangent space vectors for bump mapping
+varying vec3 surfaceLightVector;   
+varying vec3 surfaceViewVector;
 
 // http://www.clockworkcoders.com/oglsl/tutorial5.htm
 
@@ -218,6 +188,11 @@ void main()
 	// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 	vec3 lightPosition = normalize(gl_LightSource[0].position.xyz - f_VV);
 
+	// lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
+	vec3 bump = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
+	float distSqr = dot(lightPosition,lightPosition);
+	vec3 lVec = lightPosition * inversesqrt(distSqr);
+
 	// compute the ambient color
 	vec4 ambientColor = texture2D (diffTex, gl_TexCoord[0].st);
 	outputColor = ambientColor * ambientStrength;
@@ -229,29 +204,19 @@ void main()
 
 	// diffuse color
 	vec4 diffuseColor = texture2D (diffTex, gl_TexCoord[0].st);
-	float diffuseIllumination = (max(dot(f_n, lightPosition), 0.0));
+	float diffuseIllumination = max(dot(f_n, lightPosition), 0.0);
+	// float diffuseIllumination = max(dot(lVec,bump), 0.0);
 	float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
 	// boost the diffuse color by the glowmap .. poor mans bloom
 	outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
-
-	// lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
-	vec3 normal = 2.0 * texture2D (bumpTex, gl_TexCoord[0].st).rgb - 1.0;
-	normal = normalize (normal);
-	
-	// compute bump lighting factor
-	float lamberFactor = max (dot (f_lightVec, normal), 0.0);
-	
-	// apply bump lighting
-	if (lamberFactor > 0.0) {   
-		// outputColor +=	diffuseMaterial * diffuseStrength * lamberFactor;	
-	}
 
 	// compute specular lighting
 	if (dot(f_n, lightPosition) > 0.0) {   // if light is front of the surface
 	  
 	  vec3 R = reflect(-normalize(lightPosition), normalize(f_vertexNormal));
+	  // vec3 R = reflect(-lVec,bump);
 	  float surfaceShininess = gl_FrontMaterial.shininess;
-	  float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), surfaceShininess);
+	  float shininess = pow (max (dot(R, normalize(f_objView)), 0.0), surfaceShininess);
 
 	  // outputColor += specularStrength * shininess;
 	  outputColor += texture2D (specTex, gl_TexCoord[0].st) * specularStrength * shininess;      
@@ -299,61 +264,79 @@ uniform vec2 WIN_SCALE;
 noperspective varying vec3 dist;
 
 // these are pass-through variables
-varying in vec3 lightVec[3];
-varying in vec3 halfVec[3];
-varying in vec3 eyeVec[3];
+varying in vec3 objLight[3];
+varying in vec3 objView[3];
 varying in vec3 n[3];
 varying in vec3 VV[3];
 varying in vec3 vertexNormal[3];
 
 // non-uniform blocks are not supported until GLSL 330?
-varying out vec3 f_lightVec;
-varying out vec3 f_halfVec;
-varying out vec3 f_eyeVec;
+varying out vec3 f_objLight;
+varying out vec3 f_objView;
 varying out vec3 f_n;
 varying out vec3 f_VV;
 varying out vec3 f_vertexNormal;
+
+varying out vec3 surfaceLightVector;
+varying out vec3 surfaceViewVector;
+
 noperspective varying out vec3 f_dist;
+
+
+// http://www.slideshare.net/Mark_Kilgard/geometryshaderbasedbumpmappingsetup
+
 
 void main(void)
 {
+ // compute tangent
+    vec3 dXYZdU = vec3(gl_PositionIn[1] - gl_PositionIn[0]);
+    float  dSdU   = gl_TexCoord[1].s - gl_TexCoord[0].s;
+    vec3 dXYZdV = vec3(gl_Position[2] - gl_Position[0]);
+    float  dSdV   = gl_TexCoord[2].s - gl_TexCoord[0].s;
+    vec3 tangent = normalize(dSdV * dXYZdU - dSdU * dXYZdV);
 
-// taken from 'Single-Pass Wireframe Rendering'
-vec2 p0 = WIN_SCALE * gl_PositionIn[0].xy/gl_PositionIn[0].w;
-vec2 p1 = WIN_SCALE * gl_PositionIn[1].xy/gl_PositionIn[1].w;
-vec2 p2 = WIN_SCALE * gl_PositionIn[2].xy/gl_PositionIn[2].w;
-vec2 v0 = p2-p1;
-vec2 v1 = p2-p0;
-vec2 v2 = p1-p0;
-float area = abs(v1.x*v2.y - v1.y * v2.x);
+    for (int i=0;i<3;i++) {
+       vec3 normal = vertexNormal[i];
+       vec3 binormal = cross(tangent,normal);
+       mat3 basis = mat3( tangent, binormal, normal );
 
-vec3 vertexEdgeDistance[3];
-vertexEdgeDistance[0] = vec3(area/length(v0),0,0);
-vertexEdgeDistance[1] = vec3(0,area/length(v1),0);
-vertexEdgeDistance[2] = vec3(0,0,area/length(v2));
+       vec3 surfaceLightVector  = basis * objLight[i];
+       vec3 surfaceViewVector   = basis * objView[i];
+    }
+	// taken from 'Single-Pass Wireframe Rendering'
+	vec2 p0 = WIN_SCALE * gl_PositionIn[0].xy/gl_PositionIn[0].w;
+	vec2 p1 = WIN_SCALE * gl_PositionIn[1].xy/gl_PositionIn[1].w;
+	vec2 p2 = WIN_SCALE * gl_PositionIn[2].xy/gl_PositionIn[2].w;
+	vec2 v0 = p2-p1;
+	vec2 v1 = p2-p0;
+	vec2 v2 = p1-p0;
+	float area = abs(v1.x*v2.y - v1.y * v2.x);
 
+	vec3 vertexEdgeDistance[3];
+	vertexEdgeDistance[0] = vec3(area/length(v0),0,0);
+	vertexEdgeDistance[1] = vec3(0,area/length(v1),0);
+	vertexEdgeDistance[2] = vec3(0,0,area/length(v2));
 
-  // suppress warning by assigning this to something to start...
-  gl_TexCoord[0] = gl_TexCoordIn[0][0];
+	// suppress warning by assigning this to something to start...
+	gl_TexCoord[0] = gl_TexCoordIn[0][0];
 
-  // LOOP for each vertex in the primitive...
-  // .. gl_verticiesIn holds the count
-  for(int i = 0; i < 3; i++) {
-     f_lightVec = lightVec[i];
-     f_halfVec = halfVec[i];
-     f_eyeVec = eyeVec[i];
-     f_n = n[i];
-     f_VV = VV[i];
-     f_vertexNormal = vertexNormal[i];
+	// LOOP for each vertex in the primitive...
+	// .. gl_verticiesIn holds the count
+	for(int i = 0; i < 3; i++) {
+		f_objLight = objLight[i];
+		f_objView = objView[i];
+		f_n = n[i];
+		f_VV = VV[i];
+		f_vertexNormal = vertexNormal[i];
 
-     f_dist = vertexEdgeDistance[i];
-               
-     gl_TexCoord[0] = gl_TexCoordIn[i][0];
-     gl_FrontColor = gl_FrontColorIn[i];
-     gl_Position = gl_PositionIn[i];
-     EmitVertex();
-  }
-  EndPrimitive(); // not necessary as we only handle triangles
+		f_dist = vertexEdgeDistance[i];
+		       
+		gl_TexCoord[0] = gl_TexCoordIn[i][0];
+		gl_FrontColor = gl_FrontColorIn[i];
+		gl_Position = gl_PositionIn[i];
+		EmitVertex();
+	}
+	EndPrimitive(); // not necessary as we only handle triangles
 }
 ");
 
@@ -363,7 +346,9 @@ vertexEdgeDistance[2] = vec3(0,0,area/length(v2));
 			GL.Ext.ProgramParameter(ProgramID,ExtGeometryShader4.GeometryOutputTypeExt,(int)All.TriangleStrip);
 			GL.Ext.ProgramParameter(ProgramID,ExtGeometryShader4.GeometryVerticesOutExt,3);
 			
-			GL.AttachShader(ProgramID,geometryShader.ShaderID);
+
+
+									GL.AttachShader(ProgramID,geometryShader.ShaderID);
 						
 			GL.LinkProgram(ProgramID);
 			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
