@@ -57,6 +57,26 @@ namespace WavefrontOBJViewer
 			return new Vector3(vec.X,vec.Y,vec.Z);
 		}
 
+		public static float DistanceToLine_2(SSRay ray, Vector3 point) {
+            return Vector3.Cross(ray.dir, point - ray.pos).Length;
+		}
+
+		// http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+		public static float DistanceToLine(SSRay ray, Vector3 point) {
+		    Vector3 a = ray.pos;
+		    Vector3 n = ray.dir;
+		    Vector3 p = point;
+
+		    return ((a-p) - Vector3.Dot((a-p),n) * n).Length;
+        }
+
+		// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
+		public static float DistanceToLine3(SSRay ray, Vector3 point) {
+		    float t0 = Vector3.Dot(ray.dir, ( point - ray.pos) ) / Vector3.Dot(ray.dir,ray.dir);
+            float distance = (point - (ray.pos + (t0 * ray.dir))).Length;
+            return distance;
+		}
+
 
 	}
 }

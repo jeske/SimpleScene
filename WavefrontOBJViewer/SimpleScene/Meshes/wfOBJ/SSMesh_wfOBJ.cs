@@ -145,6 +145,15 @@ namespace WavefrontOBJViewer
 			GL.Disable(EnableCap.Lighting);
 		}
 
+		public override IEnumerable<Vector3> EnumeratePoints ()
+		{
+		    foreach (var subset in geometrySubsets) {
+				foreach (var vtx in subset.vertices) {
+				    yield return vtx.Position;
+				}
+			}
+		}
+
 		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 

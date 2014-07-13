@@ -15,6 +15,7 @@
   - add support for Alpha in GDI textures
 
 - mouse-to-ray picking 
+  - http://www.opentk.com/node/1276#comment-13029
   - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=21
 
 - add VBO/IBO support

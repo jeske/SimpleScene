@@ -58,8 +58,10 @@ namespace WavefrontOBJViewer
 
 				SSRay ray = OpenTKHelper.MouseToWorldRay(ref this.projection,invCameraViewMatrix, clientRect, mouseLoc);
 
-				Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
-				// scene.addObject(new SSObjectRay(ray));
+				// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
+				scene.addObject(new SSObjectRay(ray));
+
+				scene.Intersect(ref ray);
 
 			};
 			this.Mouse.ButtonUp += (object sender, MouseButtonEventArgs e) => { 

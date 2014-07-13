@@ -19,8 +19,13 @@ namespace WavefrontOBJViewer
 		    Vector3 pos = p1;
 		    Vector3 dir = (p2 - p1).Normalized();
 
-
 		    return new SSRay(pos,dir);
+		}
+
+		public SSRay Transformed(Matrix4 mat) {
+		    // a point is directly transformed
+		    // however, a ray is only rotationally transformed.
+			return new SSRay( Vector3.Transform(pos,mat) , Vector3.Transform(dir,mat.ExtractRotation()).Normalized() );
 		}
 
 		public override string ToString() {

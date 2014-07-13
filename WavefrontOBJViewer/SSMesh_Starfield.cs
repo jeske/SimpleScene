@@ -38,6 +38,11 @@ namespace WavefrontOBJViewer
             }
 		}
 
+		public override System.Collections.Generic.IEnumerable<Vector3> EnumeratePoints ()
+		{  // return no points...
+			yield break;
+		}
+
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {
 			GL.UseProgram(0);
 

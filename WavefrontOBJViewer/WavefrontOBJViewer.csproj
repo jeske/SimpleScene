@@ -69,6 +69,7 @@
     <Compile Include="SimpleScene\Util\OpenTKHelper.cs" />
     <Compile Include="SimpleScene\Core\SSRay.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectRay.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectSphere.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />

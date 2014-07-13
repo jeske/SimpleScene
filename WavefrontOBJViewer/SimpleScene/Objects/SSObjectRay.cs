@@ -32,6 +32,9 @@ namespace WavefrontOBJViewer
         public SSObjectRay (SSRay ray) : base() {
             this.ray = ray;
             this.Pos = ray.pos;
+
+            // the ray is in world-space, so we adjust our object pos, and then save the ray (so we have the world-space ray.dir)
+            // NOTE: technically the ray.pos is still the world-space pos...
         }
     }
 }
