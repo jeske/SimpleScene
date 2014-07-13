@@ -76,8 +76,6 @@ namespace WavefrontOBJViewer
             float distance = (point - (ray.pos + (t0 * ray.dir))).Length;
             return distance;
 		}
-
-
 	}
 }
 

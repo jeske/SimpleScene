@@ -70,14 +70,20 @@ namespace WavefrontOBJViewer
 
 			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(localRay,Vector3.Zero);
 
+			Console.WriteLine("_____________________________");
 			Console.WriteLine("sphere intersect test {0}   vs radius {1}",distanceToSphereOrigin,radius);
 			Console.WriteLine("worldray {0}",worldSpaceRay);
 			Console.WriteLine("localray {0}",localRay);
 			Console.WriteLine("objectPos {0}",this.Pos);
 
 			if (distanceToSphereOrigin <= this.radius) {
+				Console.WriteLine("     ----> hit <-----");
+				Console.WriteLine("----------------------------");
+
 			    return true;
 			} else {
+			    Console.WriteLine("          miss");
+				Console.WriteLine("----------------------------");
 				return false;
 			}
 		}

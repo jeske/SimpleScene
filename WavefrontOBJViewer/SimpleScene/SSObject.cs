@@ -15,10 +15,10 @@ namespace WavefrontOBJViewer
 
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
-	    public Color4 ambientMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+	    public Color4 ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 		public Color4 diffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
 		public Color4 specularMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
-		public Color4 emissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public Color4 emissionMatColor = new Color4(0.5f,0.5f,0.5f,0.5f);
 		public float shininessMatColor = 10.0f;
 
 		public SSObject() : base() {}
@@ -44,6 +44,7 @@ namespace WavefrontOBJViewer
 			GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
+			GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
 
 			// ... subclasses will render the object itself..
 		}

@@ -31,7 +31,7 @@ namespace WavefrontOBJViewer
 			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", true, shaderPgm));
 			scene.addObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
-			droneObj.ambientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.shininessMatColor = 10.0f;
@@ -49,13 +49,12 @@ namespace WavefrontOBJViewer
 			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.shininessMatColor = 10.0f;
 			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
-			drone2Obj.Scale = new Vector3(2f);
 			drone2Obj.MouseDeltaOrient(20.0f,0.0f);
 
 			// last. Add Camera
 
 			scene.addObject (scene.activeCamera = 
-					new SSCameraThirdPerson (drone2Obj));
+					new SSCameraThirdPerson (droneObj));
 		}
 
 		public void setupEnvironment() {

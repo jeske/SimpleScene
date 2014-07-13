@@ -223,17 +223,17 @@ void main()
 	outputColor = ambientColor * ambientStrength;
 
 	// add in the glow map..
+
 	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
-	float glowFactor = length(glowColor.rgb) * 1.0;
-	outputColor = mix(outputColor, glowColor, glowFactor);
+	outputColor += glowColor * gl_FrontMaterial.emission;
 
-	// diffuse color, boosted by glow-map
+	// diffuse color
 	vec4 diffuseColor = texture2D (diffTex, gl_TexCoord[0].st);
-	outputColor += diffuseColor * 
-	                 (max(dot(f_n, lightPosition), 0.0) +
-	                 glowFactor);  // the glow should light the diffuse color
+	float diffuseIllumination = (max(dot(f_n, lightPosition), 0.0));
+	float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
+	// boost the diffuse color by the glowmap .. poor mans bloom
+	outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
 
-	
 	// lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
 	vec3 normal = 2.0 * texture2D (bumpTex, gl_TexCoord[0].st).rgb - 1.0;
 	normal = normalize (normal);

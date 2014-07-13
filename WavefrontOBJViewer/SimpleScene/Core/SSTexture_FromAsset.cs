@@ -16,7 +16,7 @@ namespace WavefrontOBJViewer
 			this.textureAsset = textureAsset;	
 			Bitmap textureBitmap = new Bitmap (textureAsset.Open());
 
-			this.createFromBitmap (textureBitmap);
+			this.createFromBitmap (textureBitmap, name: textureAsset.resourceName);
 
 		}
 	}

@@ -9,18 +9,16 @@
 *  TODO V1
 *
 
-- HUD  
-  - add stats text (verts/polys drawn, fps)
+- FIX center of drone2 model, to reduce it's bounding sphere. 
+
+  - FIX: camera mouse rotation bug that allows it to get "off axis"
+
+- HUD
+  - add fps text... 
   - FIX: HUD projection pixel-alignment (@ odd and even window sizes)
   - add support for Alpha in GDI textures
 
-- mouse-to-ray picking 
-  - http://www.opentk.com/node/1276#comment-13029
-  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=21
-
 - add VBO/IBO support
-
-- FIX: camera mouse rotation bug that allows it to get "off axis"
 
 - FIX: if shader fails to compile, revert to fixed-function
 - FIX: bug where window resize mousedown is also trapped by mouse-input framework
@@ -95,11 +93,22 @@
   - reuse singleton instance of asset... (load mesh though asset loader?)
   - texture OpenGL finalizer/dispose
 
+- experiment with Artemis-like component system
+
+- Improve picking / collision precision
+  - implement per model BVH  ( or Quad or Octree ? )
+    http://www.3dmuve.com/3dmblog/?p=182
+  - implement ray-to-triangle intersection (slow)
+  - ?? implement bounding ellipsoid 
+      - http://stackoverflow.com/questions/1768197/bounding-ellipse
+  - maybe based on BunnyLOD poly reduction?
+
+
 ************************
 *
 *  3D Visual Experiments
 *
-     
+      
 - screen-space "warp" shader
 
 - ship-effect geometry/pixel shaders
@@ -239,3 +248,10 @@
   - (done) FIX point light transform... it should not change as camera moves! 
   - (done) FIX specular light (where is it?)
   - (done) FIX specular light constants
+
+- (done) mouse-to-ray picking 
+  - http://www.opentk.com/node/1276#comment-13029
+  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=21
+- read up on Duality component organization
+  - http://www.fetzenet.de/blog/?page_id=697
+  - https://github.com/AdamsLair/duality

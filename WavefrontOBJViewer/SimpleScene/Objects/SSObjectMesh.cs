@@ -18,7 +18,7 @@ namespace WavefrontOBJViewer
             this.mesh.RenderMesh(ref renderConfig);
             this.collisionShell.Pos = this.Pos;
             this.collisionShell.Scale = this.Scale;
-            this.collisionShell.Render(ref renderConfig);
+            // this.collisionShell.Render(ref renderConfig);
         }
         public SSObjectMesh (SSAbstractMesh mesh) : base() {
             this.mesh = mesh;

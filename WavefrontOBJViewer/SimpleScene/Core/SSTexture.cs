@@ -19,7 +19,7 @@ namespace WavefrontOBJViewer
 		public int TextureID { get { return _glTextureID; } }
 		public SSTexture () { }
 
-		public void createFromBitmap(Bitmap TextureBitmap) {		    
+		public void createFromBitmap(Bitmap TextureBitmap, string name="unnamed") {		    
 		    //get the data out of the bitmap
 		    System.Drawing.Imaging.BitmapData TextureData = 
 			TextureBitmap.LockBits(
@@ -62,7 +62,7 @@ namespace WavefrontOBJViewer
                 );
 			GL.GetError ();	
 
-			Console.WriteLine("SSTexture: loaded texture size = {0} {1}",TextureBitmap.Width,TextureBitmap.Height);
+			Console.WriteLine("SSTexture: loaded ({0},{1}) texture: {2}",TextureBitmap.Width,TextureBitmap.Height,name);
 
 
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver

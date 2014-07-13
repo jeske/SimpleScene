@@ -59,9 +59,6 @@ namespace WavefrontOBJViewer
 		public void Intersect(ref SSRay worldSpaceRay) {
 		    foreach (var obj in objects) {
 		        bool result = obj.Intersect(ref worldSpaceRay);
-		        if (result) {
-		            Console.WriteLine("intersection with object!! {0}",obj);
-		        }
 		    }
 		}
 
