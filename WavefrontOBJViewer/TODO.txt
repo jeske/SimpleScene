@@ -22,6 +22,7 @@
 - FIX: camera mouse rotation bug that allows it to get "off axis"
 
 - FIX: if shader fails to compile, revert to fixed-function
+- FIX: bug where window resize mousedown is also trapped by mouse-input framework
 
 - TEST: world-space hierarchy (parent an object under the light?)
 
@@ -102,7 +103,7 @@
 
 - ship-effect geometry/pixel shaders
   - impact
-  - shields
+  - shields - animated per-pixel object space highlight 
   - particle system - thruster? weapon?
     http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=26
 

@@ -21,6 +21,9 @@ namespace WavefrontOBJViewer
 	partial class Game : OpenTK.GameWindow
 	{
 
+		Matrix4 projection;
+		Matrix4 invCameraViewMatrix;
+
 		SSScene scene;
 		SSScene hudScene;
 		SSScene environmentScene;
@@ -48,6 +51,16 @@ namespace WavefrontOBJViewer
 			// hook mouse drag input...
 			this.Mouse.ButtonDown += (object sender, MouseButtonEventArgs e) => {
 				this.mouseButtonDown = true;
+
+				// cast ray for mouse click
+				var clientRect = new System.Drawing.Size(ClientRectangle.Width, ClientRectangle.Height);
+				Vector2 mouseLoc = new Vector2(e.X,e.Y);
+
+				SSRay ray = OpenTKHelper.MouseToWorldRay(ref this.projection,invCameraViewMatrix, clientRect, mouseLoc);
+
+				Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
+				// scene.addObject(new SSObjectRay(ray));
+
 			};
 			this.Mouse.ButtonUp += (object sender, MouseButtonEventArgs e) => { 
 				this.mouseButtonDown = false;
@@ -91,6 +104,7 @@ namespace WavefrontOBJViewer
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
+			this.mouseButtonDown = false; // hack to fix resize mouse issue..
 
 			// setup the viewport projection
 
@@ -170,14 +184,14 @@ namespace WavefrontOBJViewer
 				// GL.Enable(IndexedEnableCap.Blend,0);
 
 				// setup the view projection, including the active camera matrix
-				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, ClientRectangle.Width / (float)ClientRectangle.Height, 1.0f, 500.0f);
+				projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, ClientRectangle.Width / (float)ClientRectangle.Height, 1.0f, 500.0f);
 				// scene.adjustProjectionMatrixForActiveCamera (ref projection);
 				projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
 				GL.MatrixMode(MatrixMode.Projection);
 				GL.LoadMatrix(ref projection);
 
 				// compute the inverse matrix of the active camera...
-				Matrix4 invCameraViewMatrix = scene.activeCamera.worldMat;
+				invCameraViewMatrix = scene.activeCamera.worldMat;
 				invCameraViewMatrix.Invert();
 
 				// render 3d content...

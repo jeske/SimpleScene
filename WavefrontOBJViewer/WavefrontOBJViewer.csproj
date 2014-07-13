@@ -66,6 +66,9 @@
     <Compile Include="SimpleScene\Core\SSTexture_FromAsset.cs" />
     <Compile Include="SimpleScene\Objects\SSObjectMeshSky.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
+    <Compile Include="SimpleScene\Util\OpenTKHelper.cs" />
+    <Compile Include="SimpleScene\Core\SSRay.cs" />
+    <Compile Include="SimpleScene\Objects\SSObjectRay.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
