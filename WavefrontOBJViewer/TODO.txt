@@ -9,7 +9,11 @@
 *  TODO V1
 *
 
-- add VBO/IBO support
+- add VBO/IBO support (get us better framerate!!)
+
+- PORT HZG to this thing now!!! 
+  - restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
+
 
 - HUD
   - FIX: HUD projection pixel-alignment (@ odd and even window sizes)

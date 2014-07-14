@@ -179,6 +179,38 @@ float rand(vec2 co){
 
     // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
 
+vec4 linearTest(vec4 outputColor) {
+       vec4 effectColor = vec4(0.9);
+
+       float proximity = mod(f_vertexPosition_objectspace.z + (animateSecondsOffset / 3.5), 1);
+       if (proximity < 0.2) {
+         outputColor = mix(effectColor,outputColor,clamp(proximity * 7.0,0,1));
+       }
+	return outputColor;
+}
+
+vec4 spiralTest(vec4 outputColor) {
+  float time = animateSecondsOffset;
+  vec2 resolution = vec2(2,2);
+  vec2 aspect = vec2(2,2);
+  vec4 effectColor = vec4(0.2);
+  vec2 currentLocation = f_vertexPosition_objectspace.xy;
+   
+  vec2 position =  currentLocation / resolution.xy * aspect.xy;
+  float angle = 0.0 ;
+  float radius = length(position) ;
+  if (position.x != 0.0 && position.y != 0.0){
+    angle = degrees(atan(position.y,position.x)) ;
+  }
+  float amod = mod(angle+30.0*time-120.0*log(radius), 30.0) ;
+  if (amod<15.0){
+    outputColor += effectColor * clamp(log(radius), 0.0, 1.0) * clamp (amod / 30.0, 0, 1);
+  } 
+  return outputColor;
+}
+
+
+
 void main()
 {
 	vec4 outputColor = vec4(0.0);
@@ -242,16 +274,9 @@ void main()
 
     }
 
-    // object space shader effect
-    if (true) {
-       vec4 effectColor = vec4(0.9);
-
-       float proximity = mod(f_vertexPosition_objectspace.z + (animateSecondsOffset / 3.5), 1);
-       if (proximity < 0.2) {
-         outputColor = mix(effectColor,outputColor,clamp(proximity * 7.0,0,1));
-       }
-   
-    }
+    // ---- object space shader effect tests ----
+    // outputColor = linearTest(outputColor);
+    // outputColor = spiralTest(outputColor);
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
@@ -267,6 +292,9 @@ void main()
 	// finally, output the fragment color
     gl_FragColor = outputColor;    
 }			
+
+
+
 
 ");
 			GL.AttachShader(ProgramID,fragmentShader.ShaderID);
