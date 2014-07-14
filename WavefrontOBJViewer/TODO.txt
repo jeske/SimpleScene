@@ -9,11 +9,13 @@
 *  TODO V1
 *
 
-- add VBO/IBO support (get us better framerate!!)
+- (done) add VBO/IBO support (get us better framerate!!)
 
 - PORT HZG to this thing now!!! 
   - restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
 
+- add FPS graph (like Three.js)
+- add Texture/video memory consumption visual
 
 - implement triangle intersect
   - https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/Three.js#L5378

@@ -159,6 +159,11 @@ namespace WavefrontOBJViewer
 		{
 			base.OnRenderFrame(e);
 
+			// NOTE: this is a workaround for the fact that the ThirdPersonCamera is not parented to the target...
+			//   before we can remove this, we need to parent it properly, currently it's transform only follows
+			//   the target during Update() and input event processing.
+			scene.Update ();  
+
 			FPS_frames++;
 			FPS_time += e.Time;
 			if (FPS_time > 2.0) {

@@ -428,7 +428,15 @@ void main(void)
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "animateSecondsOffset"), (float)0.0f);			
 
 			this.shaderPgm = new SSShaderProgram(ProgramID);
+
+			{
+				ErrorCode glerr;
+				if ((glerr = GL.GetError ()) != ErrorCode.NoError) {
+					throw new Exception (String.Format ("GL Error: {0}", glerr));
+				}
+			}
 		}
+
 	}
 }
 

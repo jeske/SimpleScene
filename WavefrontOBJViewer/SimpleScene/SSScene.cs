@@ -17,6 +17,7 @@ namespace WavefrontOBJViewer
 
 	public class SSRenderConfig {
 		public bool drawGLSL = true;
+		public bool useVBO = true;
 		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMat;
 

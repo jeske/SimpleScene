@@ -33,6 +33,9 @@ namespace WavefrontOBJViewer
 			// face geometry
 			public SSVertex_PosNormDiffTex1[] vertices;
 	        public UInt16[] indicies;
+
+			public SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;
+			public SSIndexBuffer<UInt16> ibo;
 		}
 
 		public override string ToString ()
@@ -154,6 +157,15 @@ namespace WavefrontOBJViewer
 			}
 		}
 
+		private void _renderSendVBOTriangles(SSMeshOBJSubsetData subset) {
+			subset.vbo.bind (this.shaderPgm);
+			subset.ibo.bind ();
+
+			//GL.DrawArrays (PrimitiveType.Triangles, 0, 6);
+			GL.DrawElements (PrimitiveType.Triangles, subset.indicies.Length, DrawElementsType.UnsignedShort, IntPtr.Zero);
+			subset.ibo.unbind ();
+			subset.vbo.unbind ();
+		}
 		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
@@ -204,7 +216,11 @@ namespace WavefrontOBJViewer
 
 				if (renderConfig.drawGLSL) {
 					_renderSetupGLSL (subset);
-					_renderSendTriangles (subset);
+					if (renderConfig.useVBO && shaderPgm != null) {
+						_renderSendVBOTriangles (subset);
+					} else {
+						_renderSendTriangles (subset);
+					}
 			
 				}
 
@@ -250,6 +266,9 @@ namespace WavefrontOBJViewer
 
 			// TODO: setup VBO/IBO buffers
 			// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
+
+			subsetData.vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(subsetData.vertices);
+			subsetData.ibo = new SSIndexBuffer<UInt16> (subsetData.indicies, sizeof(UInt16));		
 
             return subsetData;
         }

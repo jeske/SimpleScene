@@ -6,18 +6,38 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
 {
 	
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	public struct SSVertex_PosNormDiffTex1 : IEqualityComparer<SSVertex_PosNormDiffTex1> {
-		public Vector3 Position;
-        public Vector3 Normal;
-        
-        public int DiffuseColor;
+	public struct SSVertex_PosNormDiffTex1 : IEqualityComparer<SSVertex_PosNormDiffTex1>, ISSVertexLayout {
+		public float Tu, Tv;
+		public Int32 DiffuseColor;
 
-        public float Tu, Tv;
+        public Vector3 Normal;
+		public Vector3 Position;
+
+		private void checkGLError() {
+			ErrorCode glERR;
+			if ((glERR = GL.GetError ()) != ErrorCode.NoError) {
+				throw new Exception (String.Format ("GL Error: {0}", glERR));
+		 	}
+		}
+		public unsafe void  bindGLAttributes(SSShaderProgram shader) {
+			// this is the "transitional" GLSL 120 way of assigning buffer contents
+			// http://www.opentk.com/node/80?page=1
+
+			GL.EnableClientState (EnableCap.VertexArray);
+			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Position"));
+
+			GL.EnableClientState (EnableCap.NormalArray);			
+			GL.NormalPointer (NormalPointerType.Float,sizeof(SSVertex_PosNormDiffTex1), Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
+
+			GL.EnableClientState (EnableCap.TextureCoordArray);
+			GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+		}
         
         public bool Equals(SSVertex_PosNormDiffTex1 a, SSVertex_PosNormDiffTex1 b) {
         		return 
@@ -42,6 +62,10 @@ namespace WavefrontOBJViewer
 		public override int GetHashCode ()
 		{
 			return base.GetHashCode ();
+		}
+
+		public unsafe int  sizeOf() {
+			return sizeof (SSVertex_PosNormDiffTex1);
 		}
 	}
 
