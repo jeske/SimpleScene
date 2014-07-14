@@ -151,8 +151,9 @@ uniform sampler2D specTex;
 uniform sampler2D ambiTex;
 uniform sampler2D bumpTex;
 
+uniform int showWireframes;
+
 // eye-space/cameraspace coordinates
-// varying vec3 f_n;
 varying vec3 f_VV;
 varying vec3 f_vertexNormal;
 varying vec3 f_lightPosition;
@@ -238,10 +239,11 @@ void main()
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
-	if (false) { 
+	if (showWireframes == 1) { 
 		float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
-		float edgeIntensity = exp2(-1.0*nearD*nearD * 2);
-		vec4 edgeColor = vec4( clamp( (1.1-length(outputColor)) / 2,0.1,0.4) );	
+		float edgeIntensity = exp2(-1.0*nearD*nearD * 2);		
+        vec4 edgeColor = vec4( (length(outputColor.rgb) < 0.5) ? 0.6 : 0.3 );
+		// vec4 edgeColor = vec4( clamp( (1.7 - length(outputColor.rgb) ),0.3,0.7) );			
         outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
     }
 
@@ -374,6 +376,9 @@ void main(void)
 						
 			GL.LinkProgram(ProgramID);
 			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
+
+			GL.UseProgram (ProgramID);
+			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)1);			
 
 			this.shaderPgm = new SSShaderProgram(ProgramID);
 		}

@@ -9,10 +9,25 @@ using OpenTK.Graphics.OpenGL;
 
 namespace WavefrontOBJViewer
 {
+	public enum WireframeMode {
+		None,
+		GLSL,
+		Lines,
+	};
+
 	public class SSRenderConfig {
 		public bool drawGLSL = true;
-		public bool drawWireframes = false;
+		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMat;
+
+		public static void toggle(ref WireframeMode val) {
+			int value = (int)val;
+			value++;
+			if (value > (int)WireframeMode.Lines) {
+				value = (int)WireframeMode.None;
+			}
+			val = (WireframeMode)value;
+		}
 	}
 
 	public sealed class SSScene

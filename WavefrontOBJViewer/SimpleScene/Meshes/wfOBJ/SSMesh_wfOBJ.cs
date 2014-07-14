@@ -208,7 +208,7 @@ namespace WavefrontOBJViewer
 			
 				}
 
-				if (renderConfig.drawWireframes) {
+				if (renderConfig.drawWireframeMode == WireframeMode.Lines) {
 					_renderSetupWireframe ();
 					_renderSendLines (subset);
 				}

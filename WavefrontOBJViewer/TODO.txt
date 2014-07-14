@@ -9,9 +9,10 @@
 *  TODO V1
 *
 
-- FIX center of drone2 model, to reduce it's bounding sphere. 
+- (done) FIX center of drone2 model, to reduce it's bounding sphere. 
 
-  - FIX: camera mouse rotation bug that allows it to get "off axis"
+- FIX: camera mouse rotation bug that allows it to get "off axis"
+
 
 - HUD
   - add fps text... 
@@ -46,6 +47,7 @@
 
  - add text HUD instructions and UI...
    - key to cycle models
+   - (done) key to cycle wireframe modes
    - key to toggle draw modes (lines, flat/gourad, textured)
 
   - wavefront OBJ file-format bug/todo items

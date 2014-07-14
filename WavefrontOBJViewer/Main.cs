@@ -82,6 +82,16 @@ namespace WavefrontOBJViewer
 					ctp.followDistance += e.DeltaPrecise;
 				} 
 			};
+
+			this.KeyPress += (object sender, KeyPressEventArgs e) => {
+				switch (e.KeyChar) {
+				case 'w':
+					SSRenderConfig.toggle(ref scene.renderConfig.drawWireframeMode);
+					GL.UseProgram (this.shaderPgm.ProgramID);
+					GL.Uniform1 (GL.GetUniformLocation (this.shaderPgm.ProgramID, "showWireframes"), (int) (scene.renderConfig.drawWireframeMode == WireframeMode.GLSL ? 1 : 0));
+					break;
+				}
+			};
 		}
 
 		protected override void OnFocusedChanged (EventArgs e)
