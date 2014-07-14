@@ -15,6 +15,10 @@
   - restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
 
 
+- implement triangle intersect
+  - https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/Three.js#L5378
+  - http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
+
 - HUD
   - FIX: HUD projection pixel-alignment (@ odd and even window sizes)
   - add support for Alpha in GDI textures
