@@ -149,7 +149,8 @@ namespace WavefrontOBJViewer
 			if (Keyboard[Key.Escape])
 				Exit();
 		}
-		
+
+		float animateSecondsOffset;
 		/// <summary>
 		/// Called when it is time to render the next frame. Add your rendering code here.
 		/// </summary>
@@ -165,6 +166,14 @@ namespace WavefrontOBJViewer
 				FPS_frames = 0;
 				FPS_time = 0.0;
 			}
+
+			animateSecondsOffset += (float)e.Time;
+			if (animateSecondsOffset > 1000.0f) {
+				animateSecondsOffset -= 1000.0f;
+			}
+			GL.UseProgram (this.shaderPgm.ProgramID);
+			GL.Uniform1 (GL.GetUniformLocation (this.shaderPgm.ProgramID, "animateSecondsOffset"), (float)animateSecondsOffset);			
+
 
 			/////////////////////////////////////////
 			// clear the render buffer....

@@ -121,9 +121,13 @@ vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 	varying vec3 lightPosition;
 	varying vec3 eyeVec;
 
+    varying vec3 vertexPosition_objectspace;
+
 void main()
 {
 	gl_TexCoord[0] =  gl_MultiTexCoord0;  // output base UV coordinates
+
+    vertexPosition_objectspace = gl_Vertex.xyz;
 
 	// transform into eye-space
 	vertexNormal = n = normalize (gl_NormalMatrix * gl_Normal);
@@ -152,12 +156,14 @@ uniform sampler2D ambiTex;
 uniform sampler2D bumpTex;
 
 uniform int showWireframes;
+uniform float animateSecondsOffset;
 
 // eye-space/cameraspace coordinates
 varying vec3 f_VV;
 varying vec3 f_vertexNormal;
 varying vec3 f_lightPosition;
 varying vec3 f_eyeVec;
+varying vec3 f_vertexPosition_objectspace;
 
 // tangent space vectors for bump mapping
 varying vec3 surfaceLightVector;   
@@ -236,6 +242,16 @@ void main()
 
     }
 
+    // object space shader effect
+    if (true) {
+       vec4 effectColor = vec4(0.9);
+
+       float proximity = mod(f_vertexPosition_objectspace.z + (animateSecondsOffset / 3.5), 1);
+       if (proximity < 0.2) {
+         outputColor = mix(effectColor,outputColor,clamp(proximity * 7.0,0,1));
+       }
+   
+    }
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
@@ -283,13 +299,14 @@ varying in vec3 VV[3];
 varying in vec3 vertexNormal[3];
 varying in vec3 lightPosition[3];
 varying in vec3 eyeVec[3];
-
+varying in vec3 vertexPosition_objectspace[3];
 
 // non-uniform blocks are not supported until GLSL 330?
 varying out vec3 f_VV;
 varying out vec3 f_vertexNormal;
 varying out vec3 f_lightPosition;
 varying out vec3 f_eyeVec;
+varying out vec3 f_vertexPosition_objectspace;
 
 varying out vec3 surfaceLightVector;
 varying out vec3 surfaceViewVector;
@@ -354,6 +371,7 @@ void main(void)
 		f_vertexNormal = vertexNormal[i];
 		f_lightPosition = lightPosition[i];
 		f_eyeVec = eyeVec[i];
+        f_vertexPosition_objectspace = vertexPosition_objectspace[i];
 		       
 		gl_TexCoord[0] = gl_TexCoordIn[i][0];
 		gl_FrontColor = gl_FrontColorIn[i];
@@ -379,6 +397,7 @@ void main(void)
 
 			GL.UseProgram (ProgramID);
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)1);			
+			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "animateSecondsOffset"), (float)0.0f);			
 
 			this.shaderPgm = new SSShaderProgram(ProgramID);
 		}

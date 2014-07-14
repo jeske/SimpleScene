@@ -47,16 +47,20 @@ namespace WavefrontOBJViewer
 			// ERROR: 0:36: Use of undeclared identifier 'diffuseMaterial'
 
 			var regex = new System.Text.RegularExpressions.Regex(@"([0-9]+):([0-9]+):");
-			
+			var regex2 = new System.Text.RegularExpressions.Regex(@"([0-9]+)\(([0-9]+)\)");
+
 			if (log_lines.Length > 0) {
 				Console.WriteLine("-- {0} --",this.shaderName);
 			}
 			foreach (var line in log_lines) {
 				// print log line
 				Console.WriteLine(line);
-				
+
 				// try to print the source-line
 				var match = regex.Match(line);
+				if (!match.Success) {
+					match = regex2.Match (line);
+				}
 				if (match.Success) {
 					int lineno = int.Parse(match.Groups[2].Value);
 					Console.WriteLine("   > " + programLines[lineno-1]);	
