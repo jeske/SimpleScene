@@ -41,7 +41,7 @@ namespace WavefrontOBJViewer
 			// add second drone
 			
 			SSObject drone2Obj = new SSObjectMesh(
-				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./muscle_as1/"), "body.obj", true, shaderPgm)
+				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
 				);
 			scene.addObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;

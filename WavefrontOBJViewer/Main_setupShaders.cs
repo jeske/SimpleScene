@@ -118,7 +118,7 @@ vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 	varying vec3 objLight;
 	varying vec3 objView;
 
-	// in eye-space
+	// in eye-space/camera space
 	varying vec3 vertexNormal;
 	varying vec3 n;  // vertex normal
 	varying vec3 VV; // vertex position
@@ -133,7 +133,7 @@ void main()
 	vertexNormal = n = normalize (gl_NormalMatrix * gl_Normal);
 	vec4 vertexPosition = gl_ModelViewMatrix * gl_Vertex;
 	VV = vec3(vertexPosition);
-	lightPosition = normalize(gl_LightSource[0].position - vertexPosition).xyz;
+	lightPosition = (gl_LightSource[0].position - vertexPosition).xyz;
 
 	// output object space light and eye(view) vectors
 	objLight = lightPosition.xyz;
@@ -159,7 +159,7 @@ uniform sampler2D specTex;
 uniform sampler2D ambiTex;
 uniform sampler2D bumpTex;
 
-// eye-space coordinates
+// eye-space/cameraspace coordinates
 // varying vec3 f_n;
 varying vec3 f_VV;
 varying vec3 f_vertexNormal;
@@ -201,12 +201,12 @@ void main()
 	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
 	vec4 specTex = texture2D (specTex, gl_TexCoord[0].st);
 
-	if (false) {
+	if (true) {
 	   // eye space shading
 	   outputColor = ambientColor * ambientStrength;
 	   outputColor += glowColor * gl_FrontMaterial.emission;
 
-	   float diffuseIllumination = max(dot(f_vertexNormal, f_objLight), 0.0);
+	   float diffuseIllumination = clamp(dot(f_vertexNormal, f_objLight), 0, 1);
 	   // boost the diffuse color by the glowmap .. poor mans bloom
 	   float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
 	   outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
@@ -224,7 +224,7 @@ void main()
 
 	} else {  // tangent space shading (with bump) 
        // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
-       vec3 bump = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
+       vec3 bump_normal = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
 	   float distSqr = dot(surfaceLightVector,surfaceLightVector);
 	   vec3 lVec = surfaceLightVector * inversesqrt(distSqr);
 
@@ -233,14 +233,17 @@ void main()
 	   outputColor += glowColor * gl_FrontMaterial.emission;
 	          
        // diffuse...       
-       float diffuseIllumination = max(dot(bump,surfaceLightVector), 0.0);
+       float diffuseIllumination = clamp(dot(bump_normal,surfaceLightVector), 0,1);
        float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
        outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
 
-       // specular...
-       vec3 R = reflect(-lVec,bump);
-       float shininess = pow (max (dot(R, normalize(surfaceViewVector)), 0.0), gl_FrontMaterial.shininess);
-       outputColor += specTex * specularStrength * shininess;      
+	   if (dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
+
+          // specular...
+          vec3 R = reflect(-lVec,bump_normal);
+          float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0,1), gl_FrontMaterial.shininess);
+          outputColor += specTex * specularStrength * shininess;      
+       }
 
     }
 
