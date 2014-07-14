@@ -114,10 +114,6 @@ void main() {
 vertexShader = new SSShader(ShaderType.VertexShader, "bumpVertex",
 @"#version 120
 				
-	// in object space
-	varying vec3 objLight;
-	varying vec3 objView;
-
 	// in eye-space/camera space
 	varying vec3 vertexNormal;
 	varying vec3 n;  // vertex normal
@@ -134,10 +130,6 @@ void main()
 	vec4 vertexPosition = gl_ModelViewMatrix * gl_Vertex;
 	VV = vec3(vertexPosition);
 	lightPosition = (gl_LightSource[0].position - vertexPosition).xyz;
-
-	// output object space light and eye(view) vectors
-	objLight = lightPosition.xyz;
-	objView = normalize( -vec4(0,0,-1,1) * gl_ModelViewMatrixInverse).xyz;
 	eyeVec = -normalize(vertexPosition).xyz;
 
 	gl_Position = ftransform();
@@ -164,10 +156,6 @@ uniform sampler2D bumpTex;
 varying vec3 f_VV;
 varying vec3 f_vertexNormal;
 varying vec3 f_lightPosition;
-
-// object space coordinates
-varying vec3 f_objLight;
-varying vec3 f_objView;
 varying vec3 f_eyeVec;
 
 // tangent space vectors for bump mapping
@@ -206,7 +194,7 @@ void main()
 	   outputColor = ambientColor * ambientStrength;
 	   outputColor += glowColor * gl_FrontMaterial.emission;
 
-	   float diffuseIllumination = clamp(dot(f_vertexNormal, f_objLight), 0, 1);
+	   float diffuseIllumination = clamp(dot(f_vertexNormal, f_lightPosition), 0, 1);
 	   // boost the diffuse color by the glowmap .. poor mans bloom
 	   float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
 	   outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
@@ -289,8 +277,6 @@ uniform vec2 WIN_SCALE;
 noperspective varying vec3 dist;
 
 // these are pass-through variables
-varying in vec3 objLight[3];
-varying in vec3 objView[3];
 varying in vec3 VV[3];
 varying in vec3 vertexNormal[3];
 varying in vec3 lightPosition[3];
@@ -298,8 +284,6 @@ varying in vec3 eyeVec[3];
 
 
 // non-uniform blocks are not supported until GLSL 330?
-varying out vec3 f_objLight;
-varying out vec3 f_objView;
 varying out vec3 f_VV;
 varying out vec3 f_vertexNormal;
 varying out vec3 f_lightPosition;
@@ -364,8 +348,6 @@ void main(void)
 		f_dist = vertexEdgeDistance[i];
         
         // pass through data
-		f_objLight = objLight[i];
-		f_objView = objView[i];
 		f_VV = VV[i];
 		f_vertexNormal = vertexNormal[i];
 		f_lightPosition = lightPosition[i];
