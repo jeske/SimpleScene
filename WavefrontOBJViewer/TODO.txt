@@ -9,21 +9,15 @@
 *  TODO V1
 *
 
-- (done) FIX center of drone2 model, to reduce it's bounding sphere. 
-
-- FIX: camera mouse rotation bug that allows it to get "off axis"
-
+- add VBO/IBO support
 
 - HUD
-  - add fps text... 
   - FIX: HUD projection pixel-alignment (@ odd and even window sizes)
   - add support for Alpha in GDI textures
 
-- add VBO/IBO support
-
 - FIX: if shader fails to compile, revert to fixed-function
 - FIX: bug where window resize mousedown is also trapped by mouse-input framework
-
+- FIX: camera mouse rotation bug that allows it to get "off axis"
 - TEST: world-space hierarchy (parent an object under the light?)
 
 - BUILD: change the build to avoid the need to manually copy Assets folder...
@@ -257,3 +251,5 @@
 - read up on Duality component organization
   - http://www.fetzenet.de/blog/?page_id=697
   - https://github.com/AdamsLair/duality
+- (done) FIX center of drone2 model, to reduce it's bounding sphere. 
+- (done) add HUD FPS text... 

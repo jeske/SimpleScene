@@ -74,6 +74,9 @@ namespace WavefrontOBJViewer
 
 		}
 
+
+		SSObjectGDIText fpsDisplay;
+
 		public void setupHUD() {
 			hudScene = new SSScene ();
 
@@ -84,11 +87,11 @@ namespace WavefrontOBJViewer
 			//triObj.Scale = new Vector3 (50.0f);
 
 			// HUD text....
-			SSObjectGDIText textObj = new SSObjectGDIText ();
-			textObj.Label = "text test 1 2 3 4";
-			hudScene.addObject (textObj);
-			textObj.Pos = new Vector3 (100.5f, 100f, 0f);
-			textObj.Scale = new Vector3 (2.0f);
+			fpsDisplay = new SSObjectGDIText ();
+			fpsDisplay.Label = "FPS: ...";
+			hudScene.addObject (fpsDisplay);
+			fpsDisplay.Pos = new Vector3 (10f, 10f, 0f);
+			fpsDisplay.Scale = new Vector3 (1.0f);
 		}
 	}
 }

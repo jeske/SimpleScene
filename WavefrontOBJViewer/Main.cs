@@ -31,6 +31,10 @@ namespace WavefrontOBJViewer
 		bool mouseButtonDown = false;
 		SSObject activeModel;
 		
+		// FPS counter
+		int FPS_frames = 0;
+		double FPS_time = 0.0;
+
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public Game()
@@ -45,6 +49,7 @@ namespace WavefrontOBJViewer
 				)
 		{
 			VSync = VSyncMode.On;
+
 		}
 
 		public void setupInput() {
@@ -152,6 +157,14 @@ namespace WavefrontOBJViewer
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
+
+			FPS_frames++;
+			FPS_time += e.Time;
+			if (FPS_time > 2.0) {
+				fpsDisplay.Label = String.Format ("FPS: {0:0.00}", ((double)FPS_frames / FPS_time));
+				FPS_frames = 0;
+				FPS_time = 0.0;
+			}
 
 			/////////////////////////////////////////
 			// clear the render buffer....

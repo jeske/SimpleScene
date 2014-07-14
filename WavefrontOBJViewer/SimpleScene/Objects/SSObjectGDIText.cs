@@ -58,7 +58,7 @@ namespace WavefrontOBJViewer
 			gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 			// gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
 			gc.Clear (Color.Black);
-			gc.DrawLine(Pens.White,4,4,textureSize.Width-1,4);
+			// gc.DrawLine(Pens.White,4,4,textureSize.Width-1,4);
 			// gc.DrawRectangle(Pens.White,0,0,textureSize.Width-1,textureSize.Height-1);
 
 			gc.DrawString (_label, font, Brushes.White, 0, 0);
