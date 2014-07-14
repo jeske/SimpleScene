@@ -201,7 +201,7 @@ void main()
 	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
 	vec4 specTex = texture2D (specTex, gl_TexCoord[0].st);
 
-	if (true) {
+	if (false) {
 	   // eye space shading
 	   outputColor = ambientColor * ambientStrength;
 	   outputColor += glowColor * gl_FrontMaterial.emission;
@@ -353,8 +353,8 @@ void main(void)
 	for(int i = 0; i < 3; i++) {
 
 	    // bump tangent-space calculations..
-        surfaceLightVector  = normalize(tangentSpaceMatrix * objLight[i]);
-        surfaceViewVector   = normalize(tangentSpaceMatrix * objView[i]);
+        surfaceLightVector  = normalize(tangentSpaceMatrix * lightPosition[i]);
+        surfaceViewVector   = normalize(tangentSpaceMatrix * eyeVec[i]);
         surfaceNormalVector = normalize(tangentSpaceMatrix * vertexNormal[i]);
 
         // single-pass wireframe information
