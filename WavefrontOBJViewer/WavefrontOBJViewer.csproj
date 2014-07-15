@@ -38,42 +38,15 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="OpenTK">
-      <HintPath>Libs\OpenTK.dll</HintPath>
+      <HintPath>..\Libs\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="SimpleScene\SSMaterial.cs" />
-    <Compile Include="SimpleScene\SSScene.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectTriangle.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectCube.cs" />
-    <Compile Include="SimpleScene\SSVertexFormats.cs" />
-    <Compile Include="SimpleScene\Util\VertexSoup.cs" />
-    <Compile Include="SimpleScene\Util\WavefrontObjLoader.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectMesh.cs" />
-    <Compile Include="SimpleScene\Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
-    <Compile Include="SimpleScene\Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
     <Compile Include="Main_setupScene.cs" />
     <Compile Include="Main_setupShaders.cs" />
-    <Compile Include="SimpleScene\SSShader.cs" />
-    <Compile Include="SimpleScene\Lights\SSLight.cs" />
-    <Compile Include="SimpleScene\Cameras\SSCamera.cs" />
-    <Compile Include="SimpleScene\Cameras\SSCameraThirdPerson.cs" />
-    <Compile Include="SimpleScene\SSObject.cs" />
-    <Compile Include="SimpleScene\Util\SSAssetManager.cs" />
-    <Compile Include="SimpleScene\Meshes\SSAbstractMesh.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectGDIText.cs" />
-    <Compile Include="SimpleScene\Core\SSTexture.cs" />
-    <Compile Include="SimpleScene\Core\SSTexture_FromAsset.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectMeshSky.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
-    <Compile Include="SimpleScene\Util\OpenTKHelper.cs" />
-    <Compile Include="SimpleScene\Core\SSRay.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectRay.cs" />
-    <Compile Include="SimpleScene\Objects\SSObjectSphere.cs" />
-    <Compile Include="SimpleScene\Meshes\SSVertexBuffer.cs" />
-    <Compile Include="SimpleScene\Meshes\SSIndexBuffer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
@@ -107,7 +80,12 @@
     <None Include="Assets\skybox\skybox.obj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SimpleScene\Core\" />
     <Folder Include="Assets\skybox\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleScene\SimpleScene.csproj">
+      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
+      <Name>SimpleScene</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

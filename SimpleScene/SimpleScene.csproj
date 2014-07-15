@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SimpleScene</RootNamespace>
+    <AssemblyName>SimpleScene</AssemblyName>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="OpenTK">
+      <HintPath>..\Libs\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SSMaterial.cs" />
+    <Compile Include="SSObject.cs" />
+    <Compile Include="SSScene.cs" />
+    <Compile Include="SSShader.cs" />
+    <Compile Include="SSVertexFormats.cs" />
+    <Compile Include="Cameras\SSCamera.cs" />
+    <Compile Include="Cameras\SSCameraThirdPerson.cs" />
+    <Compile Include="Core\SSRay.cs" />
+    <Compile Include="Core\SSTexture.cs" />
+    <Compile Include="Core\SSTexture_FromAsset.cs" />
+    <Compile Include="Lights\SSLight.cs" />
+    <Compile Include="Meshes\SSAbstractMesh.cs" />
+    <Compile Include="Meshes\SSIndexBuffer.cs" />
+    <Compile Include="Meshes\SSVertexBuffer.cs" />
+    <Compile Include="Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
+    <Compile Include="Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
+    <Compile Include="Objects\SSObjectCube.cs" />
+    <Compile Include="Objects\SSObjectGDIText.cs" />
+    <Compile Include="Objects\SSObjectMesh.cs" />
+    <Compile Include="Objects\SSObjectMeshSky.cs" />
+    <Compile Include="Objects\SSObjectRay.cs" />
+    <Compile Include="Objects\SSObjectSphere.cs" />
+    <Compile Include="Objects\SSObjectTriangle.cs" />
+    <Compile Include="Util\OpenTKHelper.cs" />
+    <Compile Include="Util\SSAssetManager.cs" />
+    <Compile Include="Util\VertexSoup.cs" />
+    <Compile Include="Util\WavefrontObjLoader.cs" />
+    <Compile Include="Util\WhoCalls.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="Meshes\.DS_Store" />
+    <None Include="Meshes\wfOBJ\.DS_Store" />
+  </ItemGroup>
+</Project>
