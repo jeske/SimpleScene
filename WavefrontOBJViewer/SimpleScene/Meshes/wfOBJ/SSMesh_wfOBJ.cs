@@ -32,10 +32,14 @@ namespace WavefrontOBJViewer
 	
 			// face geometry
 			public SSVertex_PosNormDiffTex1[] vertices;
-	        public UInt16[] indicies;
+			public UInt16[] indicies;
+			public UInt16[] wireframe_indicies;
 
-			public SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;
+			public SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;	        
 			public SSIndexBuffer<UInt16> ibo;
+			public SSIndexBuffer<UInt16> ibo_wireframe;
+
+
 		}
 
 		public override string ToString ()
@@ -171,7 +175,7 @@ namespace WavefrontOBJViewer
 
 			//         note: programs written for modern OpenGL & D3D don't do this!
 			//               instead, they hand the vertex-buffer and index-buffer to the
-			//               GPU and let it do this..
+			//               GPU and let it do this..		
 
 			GL.Begin(BeginMode.Triangles);
 			foreach(var idx in subset.indicies) {
@@ -184,6 +188,17 @@ namespace WavefrontOBJViewer
 				GL.Vertex3(vertex.Position);
 			}
 			GL.End();
+		}
+			
+		private void _renderSendVBOLines(SSMeshOBJSubsetData subset) {
+			subset.vbo.bind (null);
+			subset.ibo_wireframe.bind ();
+			GL.LineWidth (1.5f);
+			GL.Color4 (0.8f, 0.5f, 0.5f, 0.5f);		
+			GL.DrawElements (PrimitiveType.Lines, subset.wireframe_indicies.Length, DrawElementsType.UnsignedShort, IntPtr.Zero);
+			subset.ibo.unbind ();
+			subset.vbo.unbind ();
+
 		}
 		private void _renderSendLines(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
@@ -226,7 +241,11 @@ namespace WavefrontOBJViewer
 
 				if (renderConfig.drawWireframeMode == WireframeMode.Lines) {
 					_renderSetupWireframe ();
-					_renderSendLines (subset);
+					if (renderConfig.useVBO && shaderPgm != null) {
+						_renderSendVBOLines (subset);
+					} else {
+						_renderSendLines (subset);
+					}
 				}
 			}
 		}
@@ -267,8 +286,11 @@ namespace WavefrontOBJViewer
 			// TODO: setup VBO/IBO buffers
 			// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
 
+			subsetData.wireframe_indicies = OpenTKHelper.generateLineIndicies (subsetData.indicies);
+
 			subsetData.vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(subsetData.vertices);
 			subsetData.ibo = new SSIndexBuffer<UInt16> (subsetData.indicies, sizeof(UInt16));		
+			subsetData.ibo_wireframe = new SSIndexBuffer<UInt16> (subsetData.wireframe_indicies, sizeof(UInt16));		
 
             return subsetData;
         }

@@ -76,6 +76,25 @@ namespace WavefrontOBJViewer
             float distance = (point - (ray.pos + (t0 * ray.dir))).Length;
             return distance;
 		}
+
+		public static UInt16[] generateLineIndicies(UInt16[] indicies) {
+			int line_count = indicies.Length / 3;
+			UInt16[] line_indicies = new UInt16[line_count * 6];
+			int v = 0;
+			for (int i = 2; i < indicies.Length; i += 3) {
+				var v1i = indicies [i - 2];
+				var v2i = indicies [i - 1];
+				var v3i = indicies [i];
+
+				line_indicies [v++] = v1i;
+				line_indicies [v++] = v2i;
+				line_indicies [v++] = v1i;
+				line_indicies [v++] = v3i;
+				line_indicies [v++] = v2i;
+				line_indicies [v++] = v3i;
+			}
+			return line_indicies;
+		}
 	}
 }
 

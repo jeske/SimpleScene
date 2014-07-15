@@ -276,6 +276,7 @@ namespace WavefrontOBJViewer
 				game.setupEnvironment ();
 				game.setupHUD ();
 
+				// game.VSync = VSyncMode.Off;
 				game.Run(30.0);
 			}
 		}

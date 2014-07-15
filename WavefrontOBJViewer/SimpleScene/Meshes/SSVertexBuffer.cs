@@ -34,7 +34,11 @@ namespace WavefrontOBJViewer
 		}
 
 		public void bind(SSShaderProgram shaderPgm) {
-			GL.UseProgram (shaderPgm.ProgramID);
+			if (shaderPgm != null) {
+				GL.UseProgram (shaderPgm.ProgramID);
+			} else {
+				GL.UseProgram (0);
+			}
 			GL.BindBuffer (BufferTarget.ArrayBuffer, VBOid);
 			vb [0].bindGLAttributes (shaderPgm);
 		}

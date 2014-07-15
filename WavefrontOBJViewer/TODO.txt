@@ -9,10 +9,12 @@
 *  TODO V1
 *
 
-- (done) add VBO/IBO support (get us better framerate!!)
-
 - PORT HZG to this thing now!!! 
   - restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
+  - rip out Brume, stick in SimpleScene, and hack hack hack
+
+
+- come up with a better VBO abstraction, to hide the details of which VBO layout API we're using
 
 - add FPS graph (like Three.js)
 - add Texture/video memory consumption visual
@@ -263,3 +265,4 @@
   - https://github.com/AdamsLair/duality
 - (done) FIX center of drone2 model, to reduce it's bounding sphere. 
 - (done) add HUD FPS text... 
+- (done) add VBO/IBO support (get us better framerate!!)
