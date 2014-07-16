@@ -35,7 +35,7 @@ namespace SimpleScene
 	                radius = Math.Max(radius,point.Length);
                 }
 				this.collisionShell = new SSObjectSphere(radius);
-				Console.WriteLine("constructed collision shell of radius {0}",radius);
+				// Console.WriteLine("constructed collision shell of radius {0}",radius);
 			} else {
 				this.collisionShell = null;
 			}

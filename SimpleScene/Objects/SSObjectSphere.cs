@@ -69,23 +69,24 @@ namespace SimpleScene
 			SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
 
 			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(localRay,Vector3.Zero);
-
+            bool result = distanceToSphereOrigin <= this.radius;
+#if false
 			Console.WriteLine("_____________________________");
 			Console.WriteLine("sphere intersect test {0}   vs radius {1}",distanceToSphereOrigin,radius);
 			Console.WriteLine("worldray {0}",worldSpaceRay);
 			Console.WriteLine("localray {0}",localRay);
 			Console.WriteLine("objectPos {0}",this.Pos);
 
-			if (distanceToSphereOrigin <= this.radius) {
+			if (result) {
 				Console.WriteLine("     ----> hit <-----");
-				Console.WriteLine("----------------------------");
-
-			    return true;
+				Console.WriteLine("----------------------------");			    
 			} else {
 			    Console.WriteLine("          miss");
-				Console.WriteLine("----------------------------");
-				return false;
+				Console.WriteLine("----------------------------");				
 			}
+#endif
+
+            return result;
 		}
 	}
 }

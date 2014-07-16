@@ -47,6 +47,7 @@
     <Compile Include="Main_setupScene.cs" />
     <Compile Include="Main_setupShaders.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
+    <Compile Include="Main_renderScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
