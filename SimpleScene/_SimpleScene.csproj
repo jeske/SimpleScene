@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -38,6 +38,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Objects\SSObjectGDISurface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SSMaterial.cs" />
     <Compile Include="SSObject.cs" />
@@ -56,7 +57,7 @@
     <Compile Include="Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
     <Compile Include="Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
     <Compile Include="Objects\SSObjectCube.cs" />
-    <Compile Include="Objects\SSObjectGDIText.cs" />
+    <Compile Include="Objects\SSObjectGDISurface_Text.cs" />
     <Compile Include="Objects\SSObjectMesh.cs" />
     <Compile Include="Objects\SSObjectMeshSky.cs" />
     <Compile Include="Objects\SSObjectRay.cs" />

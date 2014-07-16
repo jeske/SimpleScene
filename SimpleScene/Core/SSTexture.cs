@@ -19,6 +19,11 @@ namespace SimpleScene
 		public int TextureID { get { return _glTextureID; } }
 		public SSTexture () { }
 
+        public void DeleteTexture() {
+            GL.DeleteTexture(_glTextureID);
+            _glTextureID = 0;
+        }
+
 		public void createFromBitmap(Bitmap TextureBitmap, string name="unnamed") {		    
 		    //get the data out of the bitmap
 		    System.Drawing.Imaging.BitmapData TextureData = 
