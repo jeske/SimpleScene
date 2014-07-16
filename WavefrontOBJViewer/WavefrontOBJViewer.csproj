@@ -83,9 +83,9 @@
     <Folder Include="Assets\skybox\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SimpleScene\SimpleScene.csproj">
+    <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
       <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
-      <Name>SimpleScene</Name>
+      <Name>_SimpleScene</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

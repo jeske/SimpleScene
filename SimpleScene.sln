@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavefrontOBJViewer", "WavefrontOBJViewer\WavefrontOBJViewer.csproj", "{E028B740-9EBB-491B-8080-CDED0AAD2F92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleScene", "SimpleScene\SimpleScene.csproj", "{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_SimpleScene", "SimpleScene\_SimpleScene.csproj", "{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
