@@ -26,9 +26,10 @@ namespace Bend {
             StackFrame stackFrame = stackTrace.GetFrame(2);
             MethodBase methodBase = stackFrame.GetMethod();
             
-            return String.Format("{0}:{1}:{2}", 
+            return String.Format("{0}:{1}:{2}.{3}", 
                 stackFrame.GetFileName(),
                 stackFrame.GetFileLineNumber(),
+                methodBase.ReflectedType,
                 methodBase.Name);
         }
 
@@ -37,9 +38,10 @@ namespace Bend {
             string ss = "";
 
             StackTrace stackTrace = new StackTrace();
-            for(int x=0;x<stackTrace.FrameCount;x++) {
+            for(int x=1;x<stackTrace.FrameCount;x++) {
                 StackFrame stackFrame = stackTrace.GetFrame(x);
-                ss = ss + stackFrame.GetMethod().Name + ":" + stackFrame.GetFileName() + ":" + stackFrame.GetFileLineNumber() + " ";            
+                var method = stackFrame.GetMethod();
+                ss = ss + method.ReflectedType + "." + method.Name + ":" + stackFrame.GetFileName() + ":" + stackFrame.GetFileLineNumber() + " ";            
             }
 
 

@@ -24,9 +24,13 @@ namespace SimpleScene
             _glTextureID = 0;
         }
 
-		public void createFromBitmap(Bitmap TextureBitmap, string name="unnamed", bool hasAlpha=false) {		    
+		public void createFromBitmap(Bitmap TextureBitmap, string name=null, bool hasAlpha=false) {		    
 		    //get the data out of the bitmap
             System.Drawing.Imaging.BitmapData TextureData;
+
+            if (name == null) {
+                name = Bend.WhoCalls.StackTrace();
+            }
 
             if (hasAlpha) {
                 TextureData = TextureBitmap.LockBits(
@@ -76,7 +80,7 @@ namespace SimpleScene
                     TextureData.Scan0
                     );
                 GL.GetError();
-                Console.WriteLine("SSTexture: loaded alpha ({0},{1}) texture: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+                Console.WriteLine("SSTexture: loaded alpha ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
             } else {
                 GL.TexImage2D(
                     TextureTarget.Texture2D,
@@ -89,7 +93,7 @@ namespace SimpleScene
                     TextureData.Scan0
                     );
                 GL.GetError();
-                Console.WriteLine("SSTexture: loaded ({0},{1}) texture: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+                Console.WriteLine("SSTexture: loaded ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
             }
 
 			
