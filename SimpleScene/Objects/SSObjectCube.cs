@@ -10,36 +10,38 @@ namespace SimpleScene
 {
     public class SSObjectCube : SSObject
     {
+
+        private void drawQuadFace(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+            GL.Vertex3(p0);
+            GL.Vertex3(p1);
+            GL.Vertex3(p2);
+
+            GL.Vertex3(p0);
+            GL.Vertex3(p2);
+            GL.Vertex3(p3);
+
+        }
 		public override void Render(ref SSRenderConfig renderConfig) {
             base.Render (ref renderConfig);
-            GL.Begin(BeginMode.Triangles);
 
-            GL.Color3(0.5f, 0.5f, 0.5f); 
+			var p0 = new Vector3 (-1, -1,  1);  
+			var p1 = new Vector3 ( 1, -1,  1);
+			var p2 = new Vector3 ( 1,  1,  1);  
+			var p3 = new Vector3 (-1,  1,  1);
+			var p4 = new Vector3 (-1, -1, -1);
+			var p5 = new Vector3 ( 1, -1, -1);
+			var p6 = new Vector3 ( 1,  1, -1);
+			var p7 = new Vector3 (-1,  1, -1);
 
+			GL.Begin(BeginMode.Triangles);
+            GL.Color3(0.5f, 0.5f, 0.5f);
 
-			var P0 = new Vector3 (0, 0, 0);  // 0 origin
-			var P1 = new Vector3 (0, 1, 1);  // 1 corner
-
-			var P2 = new Vector3 (0, 0, 1);  
-			var P3 = new Vector3 (0, 1, 0);
-
-			var P4 = new Vector3 (1, 1, 1);
-			var P5 = new Vector3 (1, 0, 0);
-
-			var P6 = new Vector3 (1, 0, 1);
-			var P7 = new Vector3 (1, 1, 0);
-
-			
-			// x-axis faces @ 0
-			GL.Vertex3(P0); GL.Vertex3(P2); GL.Vertex3(P1);
-			GL.Vertex3(P0); GL.Vertex3(P1); GL.Vertex3(P3);
-
-			// x-axis faces @ 1
-			GL.Vertex3(P4); GL.Vertex3(P5); GL.Vertex3(P6);
-			GL.Vertex3(P4); GL.Vertex3(P7); GL.Vertex3(P5);
-
-			// y-axis faces @ 0
-
+            drawQuadFace(p0, p1, p2, p3);
+            drawQuadFace(p7, p6, p5, p4);
+            drawQuadFace(p1, p0, p4, p5);
+            drawQuadFace(p2, p1, p5, p6);
+            drawQuadFace(p3, p2, p6, p7);
+            drawQuadFace(p0, p3, p7, p4);
 
 			GL.End();
 		}
