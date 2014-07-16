@@ -12,10 +12,13 @@ namespace SimpleScene
     {
 
         private void drawQuadFace(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+
+            GL.Normal3(Vector3.Cross(p1-p0,p2-p0).Normalized());
             GL.Vertex3(p0);
             GL.Vertex3(p1);
             GL.Vertex3(p2);
 
+            GL.Normal3(Vector3.Cross(p2-p0,p3-p0).Normalized());
             GL.Vertex3(p0);
             GL.Vertex3(p2);
             GL.Vertex3(p3);
@@ -35,8 +38,8 @@ namespace SimpleScene
 
 			GL.Begin(BeginMode.Triangles);
             GL.Color3(0.5f, 0.5f, 0.5f);
-
-            drawQuadFace(p0, p1, p2, p3);
+            
+            drawQuadFace(p0, p1, p2, p3);            
             drawQuadFace(p7, p6, p5, p4);
             drawQuadFace(p1, p0, p4, p5);
             drawQuadFace(p2, p1, p5, p6);
