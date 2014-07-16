@@ -8,7 +8,7 @@ using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	// TODO: add delegate interface for providing the texture-surface (aka reloading)
 	// TODO: add support for OpenGL texture eviction extension (i forget the name of the ext)

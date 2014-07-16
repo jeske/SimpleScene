@@ -1,7 +1,7 @@
 ﻿using System;
 
 using OpenTK.Graphics.OpenGL;
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public class SSIndexBuffer<IB> where IB : struct
 	{

@@ -2,7 +2,7 @@
 
 using OpenTK;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public struct SSRay
 	{

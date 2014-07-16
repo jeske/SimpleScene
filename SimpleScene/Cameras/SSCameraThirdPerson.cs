@@ -5,11 +5,11 @@ using System;
 
 using OpenTK;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public class SSCameraThirdPerson : SSCamera
 	{
-		SSObject FollowTarget;
+		public SSObject FollowTarget;
 		public float followDistance = -10.0f;
 		public Vector3 basePos;
 		Vector3 xaxis = Vector3.UnitX;
@@ -19,6 +19,9 @@ namespace WavefrontOBJViewer
 		public SSCameraThirdPerson (SSObject followTarget) : base() {
 			this.FollowTarget = followTarget;			
 		}
+		public SSCameraThirdPerson() : base() {
+		}
+
 		public SSCameraThirdPerson (Vector3 origin) : base() {
 			this.basePos = origin;
 		}

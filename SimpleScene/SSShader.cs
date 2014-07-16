@@ -5,7 +5,7 @@ using System;
 
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public class SSShader
 	{

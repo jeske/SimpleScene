@@ -31,7 +31,7 @@ using System.IO;
 // ctx.getAsset(resource_name).Open()
 
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 
 	#region Interfaces

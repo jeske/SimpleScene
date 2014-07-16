@@ -5,7 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public class SSObjectGDIText : SSObject
 	{

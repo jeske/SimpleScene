@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 
 

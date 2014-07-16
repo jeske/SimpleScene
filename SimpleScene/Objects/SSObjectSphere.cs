@@ -3,7 +3,7 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public class SSObjectSphere : SSObject
 	{

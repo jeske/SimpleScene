@@ -9,7 +9,7 @@ using OpenTK.Graphics.OpenGL;
 
 using Util3d;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
     public class SSMesh_wfOBJ : SSAbstractMesh {
  

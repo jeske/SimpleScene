@@ -3,7 +3,7 @@
 
 using System;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public class SSMaterial
 	{

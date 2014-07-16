@@ -3,7 +3,7 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 
 	// a Sky is an object which is projected at infinity...
@@ -25,7 +25,7 @@ namespace WavefrontOBJViewer
 			GL.DepthMask(false);
 			GL.Disable(EnableCap.DepthClamp);
 
-            this.mesh.RenderMesh(ref renderConfig);
+            this.Mesh.RenderMesh(ref renderConfig);
         }
 	}
 }

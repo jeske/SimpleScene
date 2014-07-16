@@ -10,6 +10,8 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Input;
 
+using SimpleScene;
+
 // http://www.opentk.com/book/export/html/1039
 
 namespace WavefrontOBJViewer

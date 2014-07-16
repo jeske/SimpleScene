@@ -4,6 +4,8 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 
+using SimpleScene;
+
 namespace WavefrontOBJViewer
 {
 	public class SSMesh_Starfield : SSAbstractMesh

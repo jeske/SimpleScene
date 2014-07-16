@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]

@@ -4,10 +4,21 @@
 
 *.userprefs
 
+# blender auto-save files...
+*.blend1
+*.blend2
+*.blend3
+*.blend4
+*.blend5
+
+
 # output directories
 
-WavefrontOBJViewer/bin
-WavefrontOBJViewer/obj
+WavefrontOBJViewer/bin/**
+WavefrontOBJViewer/obj/**
+SimpleScene/bin/**
+SimpleScene/obj/**
+
 
 
 

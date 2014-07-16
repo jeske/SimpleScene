@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK;
 
-namespace WavefrontOBJViewer 
+namespace SimpleScene 
 {
 	public abstract class SSAbstractMesh {
 		public abstract void RenderMesh (ref SSRenderConfig renderConfig);

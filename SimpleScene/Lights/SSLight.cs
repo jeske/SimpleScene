@@ -6,7 +6,7 @@ using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	// http://www.opentk.com/node/2142
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/dd373578(v=vs.85).aspx

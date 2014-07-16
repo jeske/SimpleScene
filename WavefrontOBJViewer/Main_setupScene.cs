@@ -6,6 +6,8 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics;
 
+using SimpleScene;
+
 namespace WavefrontOBJViewer
 {
 	partial class Game : OpenTK.GameWindow

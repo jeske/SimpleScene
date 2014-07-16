@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	public enum WireframeMode {
 		None,
@@ -66,6 +66,11 @@ namespace WavefrontOBJViewer
 
 		public void addObject(SSObject obj) {
 			objects.Add (obj);
+		}
+
+		public void removeObject(SSObject obj) {
+		    // todo threading
+		    objects.Remove(obj);
 		}
 
 		public void addLight(SSLight light) {

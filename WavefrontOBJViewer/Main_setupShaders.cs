@@ -5,6 +5,7 @@ using System;
 
 using OpenTK.Graphics.OpenGL;
 
+using SimpleScene;
 
 // shader doc references..
 //

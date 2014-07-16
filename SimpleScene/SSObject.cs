@@ -10,7 +10,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 
 	// abstract base class for "tangible" Renderable objects
@@ -61,6 +61,7 @@ namespace WavefrontOBJViewer
 
 	public class SSOBRenderState {
 	    public bool lighted = true;
+	    public bool visible = true;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)
@@ -77,6 +78,10 @@ namespace WavefrontOBJViewer
 			get { return _scale; } 
 			set { _scale = value; this.updateMat (); }
 		}
+		public float Size {
+		    set { Scale = new Vector3(value); }
+		}
+
 		protected Vector3 _dir;
 		public Vector3 Dir { get { return _dir; } }
 		protected Vector3 _up;

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Util3d;
 using OpenTK;
 
-namespace WavefrontOBJViewer
+namespace SimpleScene
 {
 	// this class is the binder between the WavefrontObjLoader types and the
 	// OpenTK SimpleScene vertex formats
