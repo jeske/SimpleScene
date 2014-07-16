@@ -57,12 +57,17 @@ namespace SimpleScene
 			return new Vector3(vec.X,vec.Y,vec.Z);
 		}
 
-		public static float DistanceToLine_2(SSRay ray, Vector3 point) {
-            return Vector3.Cross(ray.dir, point - ray.pos).Length;
-		}
-
-		// http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+        
+        /// <summary>
+        /// Distance from a ray to a point at the closest spot. The ray is assumed to be infinite length.
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
 		public static float DistanceToLine(SSRay ray, Vector3 point) {
+
+            // http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+
 		    Vector3 a = ray.pos;
 		    Vector3 n = ray.dir;
 		    Vector3 p = point;
@@ -70,12 +75,18 @@ namespace SimpleScene
 		    return ((a-p) - Vector3.Dot((a-p),n) * n).Length;
         }
 
+#if false
+        public static float DistanceToLine_2(SSRay ray, Vector3 point) {
+            return Vector3.Cross(ray.dir, point - ray.pos).Length;
+        }
+
 		// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
-		public static float DistanceToLine3(SSRay ray, Vector3 point) {
+		public static float DistanceToLine_3(SSRay ray, Vector3 point) {
 		    float t0 = Vector3.Dot(ray.dir, ( point - ray.pos) ) / Vector3.Dot(ray.dir,ray.dir);
             float distance = (point - (ray.pos + (t0 * ray.dir))).Length;
             return distance;
 		}
+#endif
 
 		public static UInt16[] generateLineIndicies(UInt16[] indicies) {
 			int line_count = indicies.Length / 3;
@@ -95,6 +106,19 @@ namespace SimpleScene
 			}
 			return line_indicies;
 		}
+
+        /// <summary>
+        /// Computes the distance between two quaternions.
+        /// </summary>
+        /// <param name="q1"></param>
+        /// <param name="q2"></param>
+        /// <returns>distance between quaternions in radians</returns>
+        public static float RadialDistanceTo(this Quaternion q1, Quaternion q2) {
+            // http://math.stackexchange.com/questions/90081/quaternion-distance
+
+            double inner_product = q1.X * q2.X + q1.Y * q2.Y + q1.Z * q2.Z + q1.W * q2.W;
+            return (float)Math.Acos(2.0 * Math.Pow(inner_product,2.0) - 1);
+        }
 	}
 }
 
