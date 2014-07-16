@@ -334,16 +334,23 @@ namespace Util3d {
                     case "map_Ks": // specular color map                
                         parseMaterial.specularTextureResourceName = lineContent;
                         break;
-                    case "bump":
+                    case "bump": 
 					case "map_Bump":
-                    case "map_bump": // bump map  (bump <filename> [-bm <float bump>]               
+                    case "map_bump": // bump map  
+                        // bump <filename> [-bm <float intensity>]             
+                        // bump -bm <float intensity> <filename>
                         string[] parts = lineContent.Split(' ');
-                        if (parts.Length >= 1) {
+                        if (parts.Length == 1) {
                             parseMaterial.bumpTextureResourceName = parts[0];
-                        }
-                        if (parts.Length == 3) {
-                            if (parts[1].Equals("-bm")) {
-                                parseMaterial.bumpIntensity = float.Parse(parts[2]);
+                        } else {
+                            if (parts.Length == 3) {
+                                if (parts[1].Equals("-bm")) {
+                                    parseMaterial.bumpTextureResourceName = parts[0];
+                                    parseMaterial.bumpIntensity = float.Parse(parts[2]);
+                                } else if (parts[0].Equals("-bm")) {
+                                    parseMaterial.bumpTextureResourceName = parts[3];
+                                    parseMaterial.bumpIntensity = float.Parse(parts[1]);
+                                }
                             }
                         }
                         
