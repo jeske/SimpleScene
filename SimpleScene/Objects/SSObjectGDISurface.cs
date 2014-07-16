@@ -12,6 +12,7 @@ namespace SimpleScene {
         public bool Dirty = true;
         Size gdiSize;
         Size textureSize;
+        public bool hasAlpha = false;
 
         public SSObjectGDISurface() { }
 
@@ -50,7 +51,7 @@ namespace SimpleScene {
             }
 
             textureSurface = new SSTexture();
-            textureSurface.createFromBitmap(bitmap);
+            textureSurface.createFromBitmap(bitmap, hasAlpha: hasAlpha);
         }
 
         public abstract Bitmap RepaintGDI(out Size gdiSize);
@@ -69,8 +70,16 @@ namespace SimpleScene {
 
             // Step 2: setup our material mode and paramaters...
             GL.Disable(EnableCap.CullFace);
-            GL.Disable(EnableCap.Blend);
+            
             GL.Disable(EnableCap.Lighting);
+            if (hasAlpha) {
+                GL.Enable(EnableCap.AlphaTest);
+                GL.Enable(EnableCap.Blend);
+                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            } else {
+                GL.Disable(EnableCap.AlphaTest);
+                GL.Disable(EnableCap.Blend);
+            }
 
             // fixed function single-texture
             GL.ActiveTexture(TextureUnit.Texture0);

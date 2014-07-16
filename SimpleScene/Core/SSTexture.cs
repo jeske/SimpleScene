@@ -24,14 +24,24 @@ namespace SimpleScene
             _glTextureID = 0;
         }
 
-		public void createFromBitmap(Bitmap TextureBitmap, string name="unnamed") {		    
+		public void createFromBitmap(Bitmap TextureBitmap, string name="unnamed", bool hasAlpha=false) {		    
 		    //get the data out of the bitmap
-		    System.Drawing.Imaging.BitmapData TextureData = 
-			TextureBitmap.LockBits(
-		            new System.Drawing.Rectangle(0,0,TextureBitmap.Width,TextureBitmap.Height),
-		            System.Drawing.Imaging.ImageLockMode.ReadOnly,
-					System.Drawing.Imaging.PixelFormat.Format24bppRgb
-		        );
+            System.Drawing.Imaging.BitmapData TextureData;
+
+            if (hasAlpha) {
+                TextureData = TextureBitmap.LockBits(
+                        new System.Drawing.Rectangle(0, 0, TextureBitmap.Width, TextureBitmap.Height),
+                        System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                        System.Drawing.Imaging.PixelFormat.Format32bppArgb
+                    );
+
+            } else {
+                TextureData = TextureBitmap.LockBits(
+                        new System.Drawing.Rectangle(0, 0, TextureBitmap.Width, TextureBitmap.Height),
+                        System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                        System.Drawing.Imaging.PixelFormat.Format24bppRgb
+                    );
+            }
 		 
 		    //Code to get the data to the OpenGL Driver
 		  
@@ -54,20 +64,35 @@ namespace SimpleScene
 			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 4);
 
 		    // load the texture
-		    
-		    GL.TexImage2D(
-                TextureTarget.Texture2D,
-                0, // level
-				PixelInternalFormat.CompressedRgb,
-                TextureBitmap.Width, TextureBitmap.Height,
-                0, // border
-				PixelFormat.Bgr,     // why is this Bgr when the lockbits is rgb!?
-				PixelType.UnsignedByte,
-                TextureData.Scan0
-                );
-			GL.GetError ();	
+            if (hasAlpha) {
+                GL.TexImage2D(
+                    TextureTarget.Texture2D,
+                    0, // level
+                    PixelInternalFormat.CompressedRgba,
+                    TextureBitmap.Width, TextureBitmap.Height,
+                    0, // border
+                    PixelFormat.Bgra,     // why is this Bgr when the lockbits is rgb!?
+                    PixelType.UnsignedByte,
+                    TextureData.Scan0
+                    );
+                GL.GetError();
+                Console.WriteLine("SSTexture: loaded alpha ({0},{1}) texture: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+            } else {
+                GL.TexImage2D(
+                    TextureTarget.Texture2D,
+                    0, // level
+                    PixelInternalFormat.CompressedRgb,
+                    TextureBitmap.Width, TextureBitmap.Height,
+                    0, // border
+                    PixelFormat.Bgr,     // why is this Bgr when the lockbits is rgb!?
+                    PixelType.UnsignedByte,
+                    TextureData.Scan0
+                    );
+                GL.GetError();
+                Console.WriteLine("SSTexture: loaded ({0},{1}) texture: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+            }
 
-			Console.WriteLine("SSTexture: loaded ({0},{1}) texture: {2}",TextureBitmap.Width,TextureBitmap.Height,name);
+			
 
 
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver
