@@ -282,9 +282,11 @@ void main()
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
 	if (showWireframes == 1) { 
+		float edgeWidth = 1.5f; // in screenspace pixels
 		float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
-		float edgeIntensity = exp2(-1.0*nearD*nearD * 2);		
-        vec4 edgeColor = vec4( (length(outputColor.rgb) < 0.5) ? 0.6 : 0.3 );
+        float curIntensity = max(max(outputColor.r,outputColor.g),outputColor.b);
+		float edgeIntensity = exp2((-1f / edgeWidth)*nearD*nearD * 2);		
+        vec4 edgeColor = vec4(vec3( (curIntensity < 0.4) ? 0.6 : 0.3 ),1.0);
 		// vec4 edgeColor = vec4( clamp( (1.7 - length(outputColor.rgb) ),0.3,0.7) );			
         outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
     }
