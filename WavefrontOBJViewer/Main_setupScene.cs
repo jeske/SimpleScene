@@ -15,7 +15,11 @@ namespace WavefrontOBJViewer
 		public void setupScene() {
 			scene = new SSScene ();
 
+			// these help the asset manager find the "Asset" directy up above the bin/obj/Debug
+			// output directories... 
 			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
+			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
+			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
 
 
 			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
@@ -77,7 +81,7 @@ namespace WavefrontOBJViewer
 		}
 
 
-		SSObjectGDIText fpsDisplay;
+		SSObjectGDISurface_Text fpsDisplay;
 
 		public void setupHUD() {
 			hudScene = new SSScene ();
@@ -89,7 +93,7 @@ namespace WavefrontOBJViewer
 			//triObj.Scale = new Vector3 (50.0f);
 
 			// HUD text....
-			fpsDisplay = new SSObjectGDIText ();
+			fpsDisplay = new SSObjectGDISurface_Text ();
 			fpsDisplay.Label = "FPS: ...";
 			hudScene.addObject (fpsDisplay);
 			fpsDisplay.Pos = new Vector3 (10f, 10f, 0f);
