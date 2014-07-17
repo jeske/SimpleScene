@@ -12,8 +12,8 @@ namespace SimpleScene
     {
 
         private void drawQuadFace(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
-
-            GL.Normal3(Vector3.Cross(p1-p0,p2-p0).Normalized());
+            
+			GL.Normal3(Vector3.Cross(p1-p0,p2-p0).Normalized());
             GL.Vertex3(p0);
             GL.Vertex3(p1);
             GL.Vertex3(p2);
@@ -22,8 +22,8 @@ namespace SimpleScene
             GL.Vertex3(p0);
             GL.Vertex3(p2);
             GL.Vertex3(p3);
-
         }
+
 		public override void Render(ref SSRenderConfig renderConfig) {
             base.Render (ref renderConfig);
 

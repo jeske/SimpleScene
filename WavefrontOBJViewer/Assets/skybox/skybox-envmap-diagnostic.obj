@@ -1,6 +1,6 @@
-# Blender v2.71 (sub 0) OBJ File: 'skybox-export2.blend'
+# Blender v2.71 (sub 0) OBJ File: 'skybox-export-diagnostic.blend'
 # www.blender.org
-mtllib skybox-envmap2.mtl
+mtllib skybox-envmap-diagnostic.mtl
 o Cube
 v 1.000000 -1.000000 -1.000000
 v 1.000000 -1.000000 1.000000

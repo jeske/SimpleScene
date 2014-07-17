@@ -1,5 +1,10 @@
 # Blender v2.71 (sub 0) OBJ File: 'skybox-export2.blend'
 # www.blender.org
+#
+# mesh and texture authored by David W. Jeske, and donated to the public domain
+# see aurora tutorial:
+#   https://www.youtube.com/watch?v=QLPYOn7RS8Y
+#
 mtllib skybox.mtl
 o Cube
 v 1.000000 -1.000000 -1.000000

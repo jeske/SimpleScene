@@ -16,7 +16,7 @@ using SimpleScene;
 
 namespace WavefrontOBJViewer
 {
-	partial class Game : OpenTK.GameWindow
+	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		SSShader vertexShader;
 		SSShader fragmentShader;
@@ -300,13 +300,17 @@ void main()
 ");
 			GL.AttachShader(ProgramID,fragmentShader.ShaderID);
 
-			// http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/geometry-shader/
-			// http://www.opengl.org/wiki/Geometry_Shader_Examples
 
-
-
-			// TODO : make this single-pass wireframe GLSL shader work..
+			// These shaders implement GLSL single-pass wireframes as described here...
 			// http://strattonbrazil.blogspot.com/2011/09/single-pass-wireframe-rendering_10.html
+
+			// another method of single-pass wireframes is this GLSL wireframe geometry shader
+			// which outputs additional GL-Line geometry for every triangle. 
+			// We don't use this method because GLSL120 is not allowed to output additional
+			// primitives, and because it still suffers from z-fighting. 
+			// http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/geometry-shader/
+
+
 			this.geometryShader = new SSShader (
 				ShaderType.GeometryShader, "bumpGeometry",
 @"#version 120
@@ -411,6 +415,8 @@ void main(void)
 }
 ");
 
+
+
 			// https://wiki.engr.illinois.edu/display/graphics/Geometry+Shader+Hello+World
 			
 			GL.Ext.ProgramParameter(ProgramID,ExtGeometryShader4.GeometryInputTypeExt,(int)All.Triangles);
@@ -425,7 +431,7 @@ void main(void)
 			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
 
 			GL.UseProgram (ProgramID);
-			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)1);			
+			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)0);			
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "animateSecondsOffset"), (float)0.0f);			
 
 			this.shaderPgm = new SSShaderProgram(ProgramID);

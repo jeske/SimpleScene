@@ -48,6 +48,7 @@
     <Compile Include="Main_setupShaders.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
     <Compile Include="Main_renderScene.cs" />
+    <Compile Include="Main_setupInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
@@ -79,6 +80,8 @@
     <None Include="Assets\skybox\skybox-envmap.png" />
     <None Include="Assets\skybox\skybox.mtl" />
     <None Include="Assets\skybox\skybox.obj" />
+    <None Include="Assets\skybox\skybox_readme.txt" />
+    <None Include="Assets\drone2\drone2_readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\skybox\" />

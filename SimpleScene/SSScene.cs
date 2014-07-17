@@ -11,8 +11,8 @@ namespace SimpleScene
 {
 	public enum WireframeMode {
 		None,
-		GLSL,
-		Lines,
+		GLSL_SinglePass,
+		GL_Lines,
 	};
 
 	public class SSRenderConfig {
@@ -24,7 +24,7 @@ namespace SimpleScene
 		public static void toggle(ref WireframeMode val) {
 			int value = (int)val;
 			value++;
-			if (value > (int)WireframeMode.Lines) {
+			if (value > (int)WireframeMode.GL_Lines) {
 				value = (int)WireframeMode.None;
 			}
 			val = (WireframeMode)value;

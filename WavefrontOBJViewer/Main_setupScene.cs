@@ -10,7 +10,7 @@ using SimpleScene;
 
 namespace WavefrontOBJViewer
 {
-	partial class Game : OpenTK.GameWindow
+	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
 			scene = new SSScene ();
@@ -83,6 +83,12 @@ namespace WavefrontOBJViewer
 
 		SSObjectGDISurface_Text fpsDisplay;
 
+		SSObjectGDISurface_Text wireframeDisplay;
+
+		public void updateWireframeDisplayText(SSRenderConfig config) {
+			wireframeDisplay.Label = String.Format ("press 'w' to toggle wireframe mode: [{0}]", config.drawWireframeMode);
+		}
+
 		public void setupHUD() {
 			hudScene = new SSScene ();
 
@@ -98,6 +104,13 @@ namespace WavefrontOBJViewer
 			hudScene.addObject (fpsDisplay);
 			fpsDisplay.Pos = new Vector3 (10f, 10f, 0f);
 			fpsDisplay.Scale = new Vector3 (1.0f);
+
+			// wireframe mode text....
+			wireframeDisplay = new SSObjectGDISurface_Text ();
+			hudScene.addObject (wireframeDisplay);
+			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
+			wireframeDisplay.Scale = new Vector3 (1.0f);
+			updateWireframeDisplayText (scene.renderConfig);
 		}
 	}
 }

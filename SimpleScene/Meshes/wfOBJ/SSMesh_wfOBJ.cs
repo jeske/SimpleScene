@@ -18,9 +18,6 @@ namespace SimpleScene
 		public readonly string srcFilename;
 		
 		SSShaderProgram shaderPgm;
-		
-		// private string filename = "";
-        // private bool mipmapped = false;
 
 	    public struct SSMeshOBJSubsetData {
 	   		public SSTexture diffuseTexture;
@@ -30,16 +27,16 @@ namespace SimpleScene
 
 			public SSMaterial material;
 	
-			// face geometry
+			// raw geometry
 			public SSVertex_PosNormDiffTex1[] vertices;
 			public UInt16[] indicies;
 			public UInt16[] wireframe_indicies;
 
+			// handles to OpenTK/OpenGL Vertex-buffer and index-buffer objects
+			// these are buffers stored on the videocard for higher performance rendering
 			public SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;	        
 			public SSIndexBuffer<UInt16> ibo;
 			public SSIndexBuffer<UInt16> ibo_wireframe;
-
-
 		}
 
 		public override string ToString ()
@@ -66,9 +63,6 @@ namespace SimpleScene
             _loadData(wff_data);
         }    
 #endregion
-        
-		// TODO: extend GLSL to do wireframe in a geometry shader
-		// http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/geometry-shader/
 
 		private void _renderSetupGLSL(SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
@@ -241,7 +235,7 @@ namespace SimpleScene
 			
 				}
 
-				if (renderConfig.drawWireframeMode == WireframeMode.Lines) {
+				if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
 					_renderSetupWireframe ();
 					if (renderConfig.useVBO && shaderPgm != null) {
 						_renderSendVBOLines (subset);

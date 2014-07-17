@@ -70,8 +70,4 @@
     <Compile Include="Util\WhoCalls.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <None Include="Meshes\.DS_Store" />
-    <None Include="Meshes\wfOBJ\.DS_Store" />
-  </ItemGroup>
 </Project>
