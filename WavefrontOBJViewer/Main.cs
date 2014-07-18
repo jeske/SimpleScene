@@ -95,8 +95,8 @@ namespace WavefrontOBJViewer
 		static void Main()
 		{
 
-            // this is a hack to work around some i18n bugs related to culture and number parsing.
-            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            // this can be used to force other culture settings for testing..
+            // System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("nl-NL");
 
 			// The 'using' idiom guarantees proper resource cleanup.
 			// We request 30 UpdateFrame events per second, and unlimited
