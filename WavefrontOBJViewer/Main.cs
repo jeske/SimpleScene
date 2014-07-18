@@ -3,6 +3,9 @@
 
 using System;
 
+using System.Threading;
+using System.Globalization;
+
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -91,6 +94,10 @@ namespace WavefrontOBJViewer
 		/// </summary>
 		static void Main()
 		{
+
+            // this is a hack to work around some i18n bugs related to culture and number parsing.
+            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
 			// The 'using' idiom guarantees proper resource cleanup.
 			// We request 30 UpdateFrame events per second, and unlimited
 			// RenderFrame events (as fast as the computer can handle).
