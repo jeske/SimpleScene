@@ -5,6 +5,8 @@ using System.Text;
 
 using System.IO;
 
+using System.Globalization;
+
 // WavefrontObjLoader.cs
 //
 // Wavefront .OBJ 3d fileformat loader in C# (csharp dot net)
@@ -161,7 +163,10 @@ namespace Util3d {
             public List<Face> faces = new List<Face>();
         }
 
-
+        private float parseFloat(string data) {
+            // we have to use InvariantCulture to get the float-format parsing we expect
+            return float.Parse(data, CultureInfo.InvariantCulture);            
+        }
         /// <summary>
         /// This method is used to split string in a list of strings based on the separator passed to hte method.
         /// </summary>
@@ -195,15 +200,15 @@ namespace Util3d {
 
             if (values.Length == 3) {       // W optional
                 return new Vector_XYZW(
-                    float.Parse(values[0]),
-                    float.Parse(values[1]),
-                    float.Parse(values[2]));
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2]));
             } else if (values.Length == 4) {
                 return new Vector_XYZW(
-                    float.Parse(values[0]),
-                    float.Parse(values[1]),
-                    float.Parse(values[2]),
-                    float.Parse(values[3]));
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2]),
+                    parseFloat(values[3]));
             } else {
                 throw new WavefrontObjParseException("readVector_XYZW found wrong number of vectors : " + strIn);
             }
@@ -213,9 +218,9 @@ namespace Util3d {
 
             if (values.Length == 3) {
                 return new Vector_XYZ(
-                    float.Parse(values[0]),
-                    float.Parse(values[1]),
-                    float.Parse(values[2]));
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2]));
             } else {
                 throw new WavefrontObjParseException("readVector_XYZ found wrong number of vectors : " + strIn);
             }
@@ -227,8 +232,8 @@ namespace Util3d {
 
             ASSERT(values.Length == 2, "readVector2 found wrong number of vectors : " + strIn);
             return new Vector2(
-                float.Parse(values[0]),
-                float.Parse(values[1]));
+                parseFloat(values[0]),
+                parseFloat(values[1]));
 
         }
 
@@ -238,13 +243,13 @@ namespace Util3d {
             
             if (values.Length == 2) {       // W optional
                 return new Vector_UVW(
-                    float.Parse(values[0]),
-                    float.Parse(values[1]));
+                    parseFloat(values[0]),
+                    parseFloat(values[1]));
             } if (values.Length == 3) {
                 return new Vector_UVW(
-                    float.Parse(values[0]),
-                    float.Parse(values[1]),
-                    float.Parse(values[2]));
+                    parseFloat(values[0]),
+                    parseFloat(values[1]),
+                    parseFloat(values[2]));
             } else {
                 throw new WavefrontObjParseException("readVector_UVW found wrong number of vectors : " + strIn);                
             }
@@ -314,11 +319,11 @@ namespace Util3d {
                         parseMaterial.hasSpecular = true;
                         break;
                     case "Ns": // specular color weight                
-                        parseMaterial.vSpecularWeight = float.Parse(lineContent);   
+                        parseMaterial.vSpecularWeight = parseFloat(lineContent);   
                         break;
                     case "d":
                     case "Tr": // transparency / dissolve (i.e. alpha)
-                        parseMaterial.fTransparency = float.Parse(lineContent);
+                        parseMaterial.fTransparency = parseFloat(lineContent);
                         parseMaterial.hasTransparency = true;
                         break;
                     case "illum": // illumination mode                           
@@ -346,10 +351,10 @@ namespace Util3d {
                             if (parts.Length == 3) {
                                 if (parts[1].Equals("-bm")) {
                                     parseMaterial.bumpTextureResourceName = parts[0];
-                                    parseMaterial.bumpIntensity = float.Parse(parts[2]);
+                                    parseMaterial.bumpIntensity = parseFloat(parts[2]);
                                 } else if (parts[0].Equals("-bm")) {
                                     parseMaterial.bumpTextureResourceName = parts[3];
-                                    parseMaterial.bumpIntensity = float.Parse(parts[1]);
+                                    parseMaterial.bumpIntensity = parseFloat(parts[1]);
                                 }
                             }
                         }
