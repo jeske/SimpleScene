@@ -33,10 +33,10 @@ namespace SimpleScene
 			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Position"));
 
 			GL.EnableClientState (EnableCap.NormalArray);			
-			GL.NormalPointer (NormalPointerType.Float,sizeof(SSVertex_PosNormDiffTex1), Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
+			GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
 			GL.EnableClientState (EnableCap.TextureCoordArray);
-			GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+			GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
 		}
         
         public bool Equals(SSVertex_PosNormDiffTex1 a, SSVertex_PosNormDiffTex1 b) {
