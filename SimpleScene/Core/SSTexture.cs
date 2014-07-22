@@ -49,6 +49,7 @@ namespace SimpleScene
 		 
 		    //Code to get the data to the OpenGL Driver
 		  
+			GL.Enable (EnableCap.Texture2D);
 			GL.ActiveTexture(TextureUnit.Texture0);
 
 		    //generate one texture and put its ID number into the "_glTextureID" variable
@@ -57,12 +58,18 @@ namespace SimpleScene
 		    GL.BindTexture(TextureTarget.Texture2D,_glTextureID);
 		 
 		    //the following code sets certian parameters for the texture
-			GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Modulate);
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+			// GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Combine);
+			// GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.CombineRgb, (float)TextureEnvMode.Modulate);
+
 			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+			// this assumes mipmaps are present...
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+
 		    
 		    // tell OpenGL to build mipmaps out of the bitmap data
-		    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, (float)1.0f);
+			// .. what a mess ... http://www.g-truc.net/post-0256.html
+			// this is the old way, must be called before texture is loaded, see below for new way...
+		    // GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, (float)1.0f);
 		 
 			// tell openGL the next line begins on a word boundary...
 			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 4);
@@ -96,8 +103,8 @@ namespace SimpleScene
                 Console.WriteLine("SSTexture: loaded ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
             }
 
-			
-
+			// this is the new way to generate mipmaps
+			GL.GenerateMipmap (GenerateMipmapTarget.Texture2D);
 
 		    //free the bitmap data (we dont need it anymore because it has been passed to the OpenGL driver
 		    TextureBitmap.UnlockBits(TextureData);		 
