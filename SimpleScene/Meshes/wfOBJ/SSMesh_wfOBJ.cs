@@ -96,6 +96,9 @@ namespace SimpleScene
 
 				// bind our texture-images to GL texture-units 
 				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
+
+				// these texture-unit assignments are hard-coded in the shader setup
+
 				GL.ActiveTexture(TextureUnit.Texture0);
 				if (subset.diffuseTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
@@ -122,19 +125,7 @@ namespace SimpleScene
 				}
 
 				// reset to texture-unit 0 to be friendly..
-				GL.ActiveTexture(TextureUnit.Texture0);
-
-				// get shader uniform variable handles (these are named variables in the shader)
-				int h0 = GL.GetUniformLocation(shaderPgm.ProgramID, "diffTex");
-				int h1 = GL.GetUniformLocation(shaderPgm.ProgramID, "specTex");
-				int h2 = GL.GetUniformLocation(shaderPgm.ProgramID, "ambiTex");
-				int h3 = GL.GetUniformLocation(shaderPgm.ProgramID, "bumpTex");
-
-				// bind shader uniform variable handles to GL texture-unit numbers
-				GL.Uniform1(h0,0); // Texture.Texture0
-				GL.Uniform1(h1,1); // Texture.Texture1
-				GL.Uniform1(h2,2); // Texture.Texture2
-				GL.Uniform1(h3,3); // Texture.Texture3
+				GL.ActiveTexture(TextureUnit.Texture0);				
 			}
 		}
 

@@ -75,6 +75,18 @@ namespace WavefrontOBJViewer
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)0);			
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "animateSecondsOffset"), (float)0.0f);			
 
+			int GLun_diffTex = GL.GetUniformLocation(ProgramID, "diffTex");
+			int GLun_specTex = GL.GetUniformLocation(ProgramID, "specTex");
+			int GLun_ambiTex = GL.GetUniformLocation(ProgramID, "ambiTex");
+			int GLun_bumpTex = GL.GetUniformLocation(ProgramID, "bumpTex");
+
+				// bind shader uniform variable handles to GL texture-unit numbers
+			GL.Uniform1(GLun_diffTex,0); // Texture.Texture0
+			GL.Uniform1(GLun_specTex,1); // Texture.Texture1
+			GL.Uniform1(GLun_ambiTex,2); // Texture.Texture2
+			GL.Uniform1(GLun_bumpTex,3); // Texture.Texture3
+
+
 			this.shaderPgm = new SSShaderProgram(ProgramID);
 
 			{
