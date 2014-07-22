@@ -44,9 +44,9 @@ namespace SimpleScene
 		}
 		public void unbind() {
 			GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
-			GL.DisableClientState (EnableCap.VertexArray);
-			GL.DisableClientState (EnableCap.NormalArray);
-			GL.DisableClientState (EnableCap.TextureCoordArray);
+			//GL.DisableClientState (EnableCap.VertexArray);
+			//GL.DisableClientState (EnableCap.NormalArray);
+			//GL.DisableClientState (EnableCap.TextureCoordArray);
 		}
 
 	}
