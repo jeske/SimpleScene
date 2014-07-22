@@ -6,102 +6,97 @@
 
 ************************
 *
-*  TODO V1
+*  TODO NEXT
 *
 
-- PORT HZG to this thing now!!! 
-  - restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
-  - rip out Brume, stick in SimpleScene, and hack hack hack
+- add CPU frustrum culling based on bounding sphere
+
+- add "HUD projection sprites" in 3d view
+- TEST: world-space hierarchy transform (parent an object under the light?)
+
+- move screen projection computation so it only happens on win-resize
+  - ( currently in OnRenderFrame )
+
+- ADD: if shader fails to compile, revert to simpler-shader or fixed-function
 
 
-- come up with a better VBO abstraction, to hide the details of which VBO layout API we're using
-
-- add FPS graph (like Three.js)
-- add Texture/video memory consumption visual
-
-- implement triangle intersect
-  - https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/Three.js#L5378
-  - http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
-
-- HUD
-  - FIX: HUD projection pixel-alignment (@ odd and even window sizes)
-  - add support for Alpha in GDI textures
-
-- FIX: if shader fails to compile, revert to fixed-function
-- FIX: bug where window resize mousedown is also trapped by mouse-input framework
-- FIX: camera mouse rotation bug that allows it to get "off axis"
-- TEST: world-space hierarchy (parent an object under the light?)
-
-- BUILD: change the build to avoid the need to manually copy Assets folder...
-
-- Lighting
-  - ADD bump map channel
-  - ADD multi-texture "classic" (shader-free) mode
-  - ADD shader toggle for single-pass-wireframe
-  - ADD support for all fixed-function lights
-
-************************
-*
-*  WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
-*
-
- - face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
-
- - ADD: mouse camera dolly/pan (shift drag)
-
- - add more models
-
- - add text HUD instructions and UI...
-   - key to cycle models
-   - (done) key to cycle wireframe modes
-   - key to toggle draw modes (lines, flat/gourad, textured)
-
-  - wavefront OBJ file-format bug/todo items
+- wavefront OBJ file-format bug/todo items
+   - handle any-case for tokens
    - handle multi-line faces continued with "\"
    - handle negative vertex indices in face specification
    - handle "s" smoothing group
    - handle "Tr"/"d" material transparency/alpha
    - ADD: computation/constraint/warning of missing surface normals 
 
-  - doc sources
+- add face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
+   - add per-model BVH?
+
+- add HAL abstraction 
+  - VBO abstraction, to hide the details of which VBO layout API we're using
+  - for GL2 / GL3 style of VBO/matrix/shader communication
+    - shaders have to be per-HAL version
+
+- add FPS graph (like Three.js) (include "render-timer simulated-fps", for when it's FPS capped)
+- add Texture/video memory consumption visual
+
+- implement triangle intersect
+  - https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/Three.js#L5378
+  - http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
+
+- FIX: bug where window resize mousedown is also trapped by mouse-input framework
+- FIX: camera mouse rotation bug that allows it to get "off axis"
+ 
+
+- doc sources
     - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
+ 
+- INVESTIGATE: skybox projection (it's a little fisheye?)
 
 
 ************************
 *
-*  cleanup for HZG initial port
+*  Structural ideas...
 *
-
-- add "HUD projection sprites" in 3d view
-- support alpha in GDI textures
-
-************************
-*
-*  HZG, desired features...
-*
-
-- ADD: FPS limiting (to avoid out of control GPU/CPU usage, especially when static/background)
-
-- support "3d insets" (sub-scene cameras, render to region/texture)
-  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=19
-
-- deferred lighting pass, with shadows
 
 - add basic animation import (FBX?)
   http://code.blender.org/index.php/2013/08/fbx-binary-file-format-specification/
-   
-- Improve skybox projection (it's a little fisheye?)
-
-- texture OpenGL finalizer/dispose
-
-- move screen projection computation so it only happens on win-resize
-  - ( currently in OnRenderFrame )
 
 - asset archive improvements
+  - zip archives
   - reuse singleton instance of asset... (load mesh though asset loader?)
-  - texture OpenGL finalizer/dispose
+  
+- implement Bunny LOD (UV aware?)
 
 - experiment with Artemis-like component system
+
+- write "streaming loader", so the model is not buffered in the loader
+
+- write CR2 loader
+  - http://dj1.willowmail.com/~jeske/Projects/PoserCR2/kuroyumes/poserfilespec/introduction.html
+
+- simple b-rep editing (Radial Edge, or X-Maps)
+
+- HUD GUI
+  - import/release Gui2d
+  - experiment with 3d ui widgets
+    - https://www.youtube.com/watch?v=oDulGQnjsDQ
+
+************************
+*
+*  Visual GL2 ideas...
+*
+
+- particle system
+
+- Lighting
+  - ADD bump map channel
+     - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
+  - ADD shader-code support for all (8?) fixed-function lights
+  - ??? ADD multi-texture "classic" (shader-free) mode
+  - shadow-map
+
+- support "3d insets" (sub-scene cameras, render to region/texture)
+  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=19
 
 - Improve picking / collision precision
   - implement per model BVH  ( or Quad or Octree ? )
@@ -111,19 +106,29 @@
       - http://stackoverflow.com/questions/1768197/bounding-ellipse
   - maybe based on BunnyLOD poly reduction?
 
+- object-space fragment shader experiments
+  - ship-impact (x,y,z,t)
+  - shields - animated per-pixel object space highlight   
+    http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=26
 
 ************************
 *
-*  3D Visual Experiments
+*  GL3/4 ideas...
 *
-      
+
+- deferred lighting pass, shadow, glow/bloom, SSAO
+
 - screen-space "warp" shader
 
-- ship-effect geometry/pixel shaders
-  - impact
-  - shields - animated per-pixel object space highlight 
-  - particle system - thruster? weapon?
-    http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=26
+- tesselation
+  - "distortion" geometry shader
+
+************************
+*
+*  other 3D Visual ideas...
+*
+
+- projected texture support "projected AOE mouse cursor"
 
 - "clean 3d Font rendering" with vector textures
   http://www.gamedev.net/topic/491938-signed-distance-bitmap-font-tool/
@@ -138,46 +143,30 @@
 
 - HDR skybox
 
-- more GLSL shading
-  - bump (compute tangent-space normals!)
-  - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
-
 - compressed textures
     http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
   
 - switch to non-console app (put text-output in GUI?)
-
-- write "streaming loader", so the model is not buffered in the loader
-
-- write CR2 loader
-  - http://dj1.willowmail.com/~jeske/Projects/PoserCR2/kuroyumes/poserfilespec/introduction.html
-
-- simple b-rep editing (Radial Edge, or X-Maps)
- 
-- experiment with 3d ui widgets
-  https://www.youtube.com/watch?v=oDulGQnjsDQ
  
 - Skybox tweaks
     - use MIRROR UV addressing mode, to minimize edge seams
     - (done) set the UV coordinates of the box 1/2 texel inside the edge of the face
 
-    - Setup shader-based skybox cubemap
-       - docs : http://www.opengl.org/wiki/Cubemap_Texture
-       - cubemap shader tutorials: 
-          http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
-          http://antongerdelan.net/opengl/cubemaps.html
+- Setup shader-based skybox cubemap
+    - docs : http://www.opengl.org/wiki/Cubemap_Texture
+    - cubemap shader tutorials: 
+       http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
+       http://antongerdelan.net/opengl/cubemaps.html
 
-
-************************
-*
-*  SimpleScene Features
-*
 
 - compute mesh bounding sphere/box...
   .. use sphere, then (optionally) box to do CPU frustrum culling
-  .. http://http.developer.nvidia.com/GPUGems/gpugems_ch29.html
 
-- integrate my Gui2d library (it's GDI specific, does this work on MonoMac?)
+
+- experiment with occlusion queries
+  - http://http.developer.nvidia.com/GPUGems/gpugems_ch29.html
+  - .. for lens flare
+  - .. for avoiding drawing occluded objects
 
 - support open-gl non-robust mode (for unretained assets)
 
@@ -185,13 +174,9 @@
 
 - add triangle fans?
 
-- projected texture support "projected AOE mouse cursor"
-
-- GL caps enable/disable abstraction, which only changes things when render caps actually change
-
 ************************
 *
-*  OpenTK improvements
+*  OpenTK investigations...
 *
 
 - BUG: OpenTK: why is windows mouse-wheel direction the opposite of mac trackpad two-finger? 
@@ -199,10 +184,13 @@
 
 - extend to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
 
+- OpenTK window features
+  - windowed-fullscreen
+  - live-resize
+  - decoupled 3d/2d/frame resolution 
+
 - OpenTK Mac OpenGL 3.3/4.0 (cocoa window support)
   - https://github.com/Ollhax/opentk/commit/ee70e4a276e2fbc3135ee787ce6f9860d37011b8
-
-- OpenTK window features (multi-window, live-resize, windowed-fullscreen)
 
 ************************
 *
@@ -216,12 +204,6 @@
 - 3dviewport like "Xoliul's Shader" features
   http://viewportshader.com/
   http://blenderartists.org/forum/showthread.php?254243-Viewport-FX&p=2415138&viewfull=1#post2415138
-
-- GLSL 330, multi-pass ( glow-bloom, shadow maps, deferred lighting, ambient occlusion )
-
-- implement Bunny LOD (UV aware?)
-
-- 
 
 
 ************************
@@ -266,3 +248,11 @@
 - (done) FIX center of drone2 model, to reduce it's bounding sphere. 
 - (done) add HUD FPS text... 
 - (done) add VBO/IBO support (get us better framerate!!)
+- (done) FIX: HUD projection pixel-alignment (@ odd and even window sizes)
+- (done) add support for Alpha in GDI textures
+  - (done) PORT HZG to this thing now!!! 
+  - (done) restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
+  - (done) rip out Brume, stick in SimpleScene, and hack hack hack
+- (done) ADD shader toggle for single-pass-wireframe
+* (done) WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
+- (done) add key to cycle wireframe modes
