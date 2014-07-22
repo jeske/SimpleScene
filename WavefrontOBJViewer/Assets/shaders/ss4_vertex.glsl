@@ -1,4 +1,7 @@
-﻿#version 120
+﻿// Copyright(C) David W. Jeske, 2013
+// Released to the public domain. Use, modify and relicense at will.
+
+#version 120
 				
 	// in eye-space/camera space
 	varying vec3 vertexNormal;

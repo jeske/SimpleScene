@@ -1,4 +1,7 @@
-﻿#version 120
+﻿// Copyright(C) David W. Jeske, 2013
+// Released to the public domain. Use, modify and relicense at will.
+
+#version 120
 #extension GL_EXT_gpu_shader4 : enable
 #extension GL_EXT_geometry_shader4 : enable
 

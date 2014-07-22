@@ -43,6 +43,7 @@ namespace WavefrontOBJViewer
 			// GLSL fragment shader and bump mapping tutorial
 			// http://fabiensanglard.net/bumpMapping/index.php
 
+			// we use this method of detecting the extension because we are in a GL2.2 context
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
 
