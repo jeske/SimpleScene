@@ -96,6 +96,18 @@ namespace SimpleScene
     }
 	#endregion
 
+	public class SSAssetItem {
+		public readonly ISSAssetArchiveHandler handler;
+		public readonly string resourceName;
+		public SSAssetItem(ISSAssetArchiveHandler handler, string resourceName) {
+			this.handler = handler;
+			this.resourceName = resourceName;
+		}
+
+		public Stream Open() {
+			return this.handler.openResource (this.resourceName);
+		}
+	}
 
 	#region Core Asset Manager
 	public class SSAssetManagerContext {
@@ -117,18 +129,7 @@ namespace SimpleScene
 
 	}
 
-	public class SSAssetItem {
-		public readonly ISSAssetArchiveHandler handler;
-		public readonly string resourceName;
-		public SSAssetItem(ISSAssetArchiveHandler handler, string resourceName) {
-			this.handler = handler;
-			this.resourceName = resourceName;
-		}
 
-		public Stream Open() {
-			return this.handler.openResource (this.resourceName);
-		}
-	}
 
     public class SSAssetManager {
         public static SSAssetManager mgr = new SSAssetManager();

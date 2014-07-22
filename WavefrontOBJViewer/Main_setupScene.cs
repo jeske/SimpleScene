@@ -15,13 +15,6 @@ namespace WavefrontOBJViewer
 		public void setupScene() {
 			scene = new SSScene ();
 
-			// these help the asset manager find the "Asset" directy up above the bin/obj/Debug
-			// output directories... 
-			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
-			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
-			SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
-
-
 			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
 			var light = new SSLight (LightName.Light0);

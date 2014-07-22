@@ -105,7 +105,14 @@ namespace WavefrontOBJViewer
 			{
 				Console.WriteLine("GL Version = {0}",GL.GetString(StringName.Version));
 				Console.WriteLine("GL Shader Version = {0}", GL.GetString(StringName.ShadingLanguageVersion));
-				
+
+				// setup asset manager contexts
+				// these help the asset manager find the "Asset" directy up above the bin/obj/Debug
+				// output directories... 
+				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
+				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
+				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
+
 				game.setupShaders();  // before scene
 				
 				game.setupInput ();

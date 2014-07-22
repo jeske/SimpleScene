@@ -15,7 +15,9 @@ namespace SimpleScene
 		string shaderProgramText;
 		
 		string shaderName;
-		
+
+		public SSShader (ShaderType type, string shaderName, SSAssetItem shaderAsset) 
+			: this (type, shaderName, shaderAsset.Open().AsString()) { }
 		
 		public SSShader (ShaderType type, string shaderName, string shaderProgramText)
 		{

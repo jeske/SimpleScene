@@ -68,6 +68,7 @@
     <Compile Include="Util\VertexSoup.cs" />
     <Compile Include="Util\WavefrontObjLoader.cs" />
     <Compile Include="Util\WhoCalls.cs" />
+    <Compile Include="Util\Extensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
