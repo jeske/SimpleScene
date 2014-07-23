@@ -46,17 +46,20 @@ namespace SimpleScene {
             gc.Flush();
 
 
-            Console.WriteLine("SSObjectGDIText: created texture size = {0} {1}", bitmap.Width, bitmap.Height);
-#if false
+            // Console.WriteLine("SSObjectGDIText: created texture size = {0} {1}", bitmap.Width, bitmap.Height);
+			// DUMP_TEX_PIXELS(bitmap);
+
+            return bitmap;
+        }
+
+		private void DUMP_TEX_PIXELS(Bitmap bitmap) {
 			for (int i = 0; i < bitmap.Width; i++) {
 				for (int j = 0; j < bitmap.Height; j++) {
 					Console.Write ("{0:X} ", bitmap.GetPixel (i, j).ToArgb ());
 				}
 				Console.WriteLine ("-");
 			}
-#endif
-            return bitmap;
-        }
+		}
 
 
     }

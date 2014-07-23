@@ -14,7 +14,9 @@ namespace SimpleScene {
         Size textureSize;
         public bool hasAlpha = false;
 
-        public SSObjectGDISurface() { }
+        public SSObjectGDISurface() { 
+			textureSurface = new SSTexture();
+		}
 
         private int nextPowerOf2(int biggerThan) {
             int powof2 = 1;
@@ -35,7 +37,7 @@ namespace SimpleScene {
         }
 
         private void _repaint() {
-            if (textureSurface != null && !Dirty) return;
+            if (!Dirty) return;
             Dirty = false;
 
             // using this method to software GDI+ render to a bitmap, and then copy to texture
@@ -44,22 +46,14 @@ namespace SimpleScene {
             Bitmap bitmap = this.RepaintGDI(out gdiSize);
             textureSize = bitmap.Size;
 
-            // allocate the texture and copy the bits...
-            
-            if (textureSurface != null) {
-                textureSurface.DeleteTexture();
-            }
-
-            textureSurface = new SSTexture();
-            textureSurface.createFromBitmap(bitmap, hasAlpha: hasAlpha);
+            // download bits into a texture...
+            textureSurface.loadFromBitmap(bitmap, hasAlpha: hasAlpha);
         }
 
         public abstract Bitmap RepaintGDI(out Size gdiSize);
 
         public override void Render(ref SSRenderConfig renderConfig) {            
-            _repaint();
-            if (textureSurface == null)
-                return;
+            _repaint();            
 
             base.Render(ref renderConfig);
 

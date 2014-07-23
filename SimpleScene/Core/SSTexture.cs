@@ -15,16 +15,21 @@ namespace SimpleScene
 
 	public class SSTexture
 	{	
-		private int _glTextureID = 0;
+		private int  _glTextureID;
 		public int TextureID { get { return _glTextureID; } }
-		public SSTexture () { }
+		public SSTexture () {
+			//generate one texture and put its ID number into the "_glTextureID" variable
+
+			// this is expensive, so we really only want to do it once...
+		    GL.GenTextures(1,out _glTextureID);
+		}
 
         public void DeleteTexture() {
             GL.DeleteTexture(_glTextureID);
             _glTextureID = 0;
         }
 
-		public void createFromBitmap(Bitmap TextureBitmap, string name=null, bool hasAlpha=false) {		    
+		public void loadFromBitmap(Bitmap TextureBitmap, string name=null, bool hasAlpha=false) {		    
 		    //get the data out of the bitmap
             System.Drawing.Imaging.BitmapData TextureData;
 
@@ -51,9 +56,7 @@ namespace SimpleScene
 		  
 			GL.Enable (EnableCap.Texture2D);
 			GL.ActiveTexture(TextureUnit.Texture0);
-
-		    //generate one texture and put its ID number into the "_glTextureID" variable
-		    GL.GenTextures(1,out _glTextureID);
+		   
 		    //tell OpenGL that this is a 2D texture
 		    GL.BindTexture(TextureTarget.Texture2D,_glTextureID);
 		 
@@ -86,8 +89,7 @@ namespace SimpleScene
                     PixelType.UnsignedByte,
                     TextureData.Scan0
                     );
-                GL.GetError();
-                Console.WriteLine("SSTexture: loaded alpha ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+                //Console.WriteLine("SSTexture: loaded alpha ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
             } else {
                 GL.TexImage2D(
                     TextureTarget.Texture2D,
@@ -99,8 +101,7 @@ namespace SimpleScene
                     PixelType.UnsignedByte,
                     TextureData.Scan0
                     );
-                GL.GetError();
-                Console.WriteLine("SSTexture: loaded ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+                //Console.WriteLine("SSTexture: loaded ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
             }
 
 			// this is the new way to generate mipmaps

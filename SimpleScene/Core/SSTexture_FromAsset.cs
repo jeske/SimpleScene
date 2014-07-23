@@ -16,7 +16,7 @@ namespace SimpleScene
 			this.textureAsset = textureAsset;	
 			Bitmap textureBitmap = new Bitmap (textureAsset.Open());
 
-			this.createFromBitmap (textureBitmap, name: textureAsset.resourceName);
+			this.loadFromBitmap (textureBitmap, name: textureAsset.resourceName);
 
 		}
 	}
