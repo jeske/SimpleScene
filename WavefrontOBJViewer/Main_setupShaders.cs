@@ -24,6 +24,10 @@ namespace WavefrontOBJViewer
 
 		SSShaderProgram shaderPgm;
 		
+		// uniform locations
+		public int u_WIN_SCALE;
+		public int u_animateSecondsOffset;
+
 		public void setupShaders() {
 			// open the shader asset context...
 			var ctx = SSAssetManager.mgr.getContext ("./shaders/");
@@ -71,6 +75,9 @@ namespace WavefrontOBJViewer
 			GL.LinkProgram(ProgramID);
 			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
 
+			// since the shader is initilized, make the shader program object
+			this.shaderPgm = new SSShaderProgram(ProgramID);
+
 			GL.UseProgram (ProgramID);
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)0);			
 			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "animateSecondsOffset"), (float)0.0f);			
@@ -86,8 +93,8 @@ namespace WavefrontOBJViewer
 			GL.Uniform1(GLun_ambiTex,2); // Texture.Texture2
 			GL.Uniform1(GLun_bumpTex,3); // Texture.Texture3
 
-
-			this.shaderPgm = new SSShaderProgram(ProgramID);
+            u_animateSecondsOffset = GL.GetUniformLocation(ProgramID, "animateSecondsOffset");
+			u_WIN_SCALE = GL.GetUniformLocation(ProgramID, "WIN_SCALE");
 
 			{
 				ErrorCode glerr;

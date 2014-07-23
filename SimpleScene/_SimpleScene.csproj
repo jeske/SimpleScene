@@ -69,6 +69,7 @@
     <Compile Include="Util\WavefrontObjLoader.cs" />
     <Compile Include="Util\WhoCalls.cs" />
     <Compile Include="Util\Extensions.cs" />
+    <Compile Include="Util\FPSCalculator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

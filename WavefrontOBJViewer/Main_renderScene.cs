@@ -18,6 +18,7 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 
+		FPSCalculator fpsCalc = new FPSCalculator();
 		float animateSecondsOffset;
 		/// <summary>
 		/// Called when it is time to render the next frame. Add your rendering code here.
@@ -31,21 +32,18 @@ namespace WavefrontOBJViewer
 			//   before we can remove this, we need to parent it properly, currently it's transform only follows
 			//   the target during Update() and input event processing.
 			scene.Update ();  
+			
+			fpsCalc.newFrame(e.Time);
+			fpsDisplay.Label = String.Format ("FPS: {0:0.00}", fpsCalc.AvgFramesPerSecond);
 
-			FPS_frames++;
-			FPS_time += e.Time;
-			if (FPS_time > 2.0) {
-				fpsDisplay.Label = String.Format ("FPS: {0:0.00}", ((double)FPS_frames / FPS_time));
-				FPS_frames = 0;
-				FPS_time = 0.0;
-			}
 
+			// setup the GLSL uniform for shader animation
 			animateSecondsOffset += (float)e.Time;
 			if (animateSecondsOffset > 1000.0f) {
 				animateSecondsOffset -= 1000.0f;
 			}
 			GL.UseProgram (this.shaderPgm.ProgramID);
-			GL.Uniform1 (GL.GetUniformLocation (this.shaderPgm.ProgramID, "animateSecondsOffset"), (float)animateSecondsOffset);			
+			GL.Uniform1 (this.u_animateSecondsOffset, (float)animateSecondsOffset);			
 
 
 			/////////////////////////////////////////
@@ -140,9 +138,7 @@ namespace WavefrontOBJViewer
 
 			// setup WIN_SCALE for our shader...
 			GL.UseProgram(shaderPgm.ProgramID);
-			GL.Uniform2(
-				GL.GetUniformLocation(this.shaderPgm.ProgramID, "WIN_SCALE"),
-				(float)ClientRectangle.Width, (float)ClientRectangle.Height);
+			GL.Uniform2(this.u_WIN_SCALE, (float)ClientRectangle.Width, (float)ClientRectangle.Height);
 		}
 
 	}
