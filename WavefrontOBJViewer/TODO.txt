@@ -12,6 +12,7 @@
 - add CPU frustrum culling based on bounding sphere
 
 - add threaded rendering (so it renders during window move/resize)
+  - https://github.com/opentk/opentk/blob/develop/Source/Examples/OpenTK/GameWindow/GameWindowThreaded.cs
 
 - add "HUD projection sprites" in 3d view
 - TEST: world-space hierarchy transform (parent an object under the light?)
