@@ -9,6 +9,11 @@
 *  TODO NEXT
 *
 
+- 2d GUI: pipeline texture uploads
+  - make refresh 2-stage (refresh textures, then paint)
+  - switch 2d GUI to Pixel Buffer Object Async texture uploads
+  - http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
+
 - TEST: world-space hierarchy transform (parent an object under the light?)
 
 - add CPU frustrum culling based on bounding sphere
@@ -16,6 +21,9 @@
   - http://mathinsight.org/distance_point_plane
 
 - add "HUD projection sprites" in 3d view
+
+- add render-to-texture to decouple 3d render resolution from window resolution
+  http://www.opentk.com/node/397
 
 - add threaded window handling (so it renders during window move/resize)
   - https://github.com/opentk/opentk/blob/develop/Source/Examples/OpenTK/GameWindow/GameWindowThreaded.cs
@@ -57,6 +65,8 @@
  
 - INVESTIGATE: skybox projection (it's a little fisheye?)
 
+- texture memory usage profiling...
+  http://stackoverflow.com/questions/4552372/determining-available-video-memory
 
 ************************
 *
