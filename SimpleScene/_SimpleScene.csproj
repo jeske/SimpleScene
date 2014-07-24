@@ -40,10 +40,8 @@
   <ItemGroup>
     <Compile Include="Objects\SSObjectGDISurface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SSMaterial.cs" />
     <Compile Include="SSObject.cs" />
     <Compile Include="SSScene.cs" />
-    <Compile Include="SSShader.cs" />
     <Compile Include="SSVertexFormats.cs" />
     <Compile Include="Cameras\SSCamera.cs" />
     <Compile Include="Cameras\SSCameraThirdPerson.cs" />
@@ -70,6 +68,8 @@
     <Compile Include="Util\WhoCalls.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\FPSCalculator.cs" />
+    <Compile Include="Util\FrustumCuller.cs" />
+    <Compile Include="Core\SSShader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

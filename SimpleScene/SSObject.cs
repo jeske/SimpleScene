@@ -28,8 +28,8 @@ namespace SimpleScene
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 
+			// Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
 			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
@@ -49,13 +49,19 @@ namespace SimpleScene
 			// ... subclasses will render the object itself..
 		}
 
+		public SSObjectSphere boundingSphere=null;
 		public SSObject collisionShell=null;
 		public virtual bool Intersect(ref SSRay worldSpaceRay) {
-		    if (collisionShell != null) {
-		        return collisionShell.Intersect(ref worldSpaceRay);
-		    } else {
-				return false;
+			if (boundingSphere != null) {
+				if (boundingSphere.Intersect(ref worldSpaceRay)) {
+			        if (collisionShell != null) {
+				        return collisionShell.Intersect(ref worldSpaceRay);
+		            } else {
+						return true;
+					}
+				}
 			}
+			return false;
 		}
 	}
 

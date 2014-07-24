@@ -23,9 +23,7 @@ namespace SimpleScene
 	   		public SSTexture diffuseTexture;
 	   		public SSTexture specularTexture;
 	   		public SSTexture ambientTexture;
-	   		public SSTexture bumpTexture;
-
-			public SSMaterial material;
+	   		public SSTexture bumpTexture;			
 	
 			// raw geometry
 			public SSVertex_PosNormDiffTex1[] vertices;
@@ -250,8 +248,7 @@ namespace SimpleScene
             // create new mesh subset-data
             SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData();            
 
-            // setup the material...
-            subsetData.material = new SSMaterial();
+            // setup the material...            
 
             // load and link every texture present 
             if (objMatSubset.diffuseTextureResourceName != null) {

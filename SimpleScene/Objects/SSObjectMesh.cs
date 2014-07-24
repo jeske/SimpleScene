@@ -17,13 +17,23 @@ namespace SimpleScene
           set { _mesh = value; _setupMesh(); }
         }
         
-        public override void Render(ref SSRenderConfig renderConfig) {
-            if (_mesh != null) {
+        public override void Render (ref SSRenderConfig renderConfig)
+		{
+			if (_mesh != null) {
 				base.Render (ref renderConfig);
-                this._mesh.RenderMesh(ref renderConfig);
-                this.collisionShell.Pos = this.Pos;
-                this.collisionShell.Scale = this.Scale;
-                // this.collisionShell.Render(ref renderConfig);
+				this._mesh.RenderMesh (ref renderConfig);
+
+				if (renderConfig.renderBoundingSpheres && this.boundingSphere != null) {
+					this.boundingSphere.Pos = this.Pos;
+					this.boundingSphere.Scale = this.Scale;
+                    // this.boundingSphere.Render(ref renderConfig);
+
+				}
+				if (renderConfig.renderCollisionShells && this.collisionShell != null) {
+                    this.collisionShell.Pos = this.Pos;
+                    this.collisionShell.Scale = this.Scale;
+                    // this.collisionShell.Render(ref renderConfig);
+				}
             }
         }
 
@@ -34,11 +44,11 @@ namespace SimpleScene
                 foreach(var point in _mesh.EnumeratePoints()) {
 	                radius = Math.Max(radius,point.Length);
                 }
-				this.collisionShell = new SSObjectSphere(radius);
+				this.boundingSphere = new SSObjectSphere(radius);
 				// Console.WriteLine("constructed collision shell of radius {0}",radius);
-			} else {
-				this.collisionShell = null;
-			}
+
+				// TODO: make a more detailed collision mesh
+			} 
         }
 
 

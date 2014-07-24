@@ -5,7 +5,6 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-
 	// a Sky is an object which is projected at infinity...
 
 	public class SSObjectMeshSky : SSObjectMesh
@@ -13,14 +12,9 @@ namespace SimpleScene
 		public SSObjectMeshSky (SSAbstractMesh mesh) : base(mesh) {  }
 
 		public override void Render(ref SSRenderConfig renderConfig) {
-			// base.Render (ref renderConfig);
-
-			// setup infinity projection
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-
-			GL.MatrixMode(MatrixMode.Modelview);
-			GL.LoadMatrix(ref modelViewMat);
-
+			base.Render (ref renderConfig);
+			
+			// setup infinity projection by turning off depth testing and masking..		
 			GL.Disable(EnableCap.DepthTest);
 			GL.DepthMask(false);
 			GL.Disable(EnableCap.DepthClamp);

@@ -18,8 +18,15 @@ namespace SimpleScene
 	public class SSRenderConfig {
 		public bool drawGLSL = true;
 		public bool useVBO = true;
+
+		public bool renderBoundingSpheres;
+		public bool renderCollisionShells;
+
+		public bool frustumCulling;
+
 		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMat;
+		public Matrix4 projectionMatrix;
 
 		public static void toggle(ref WireframeMode val) {
 			int value = (int)val;
@@ -47,8 +54,10 @@ namespace SimpleScene
 			}
 		}
 
-		public void SetupLights(Matrix4 invCameraViewMat) {
-			renderConfig.invCameraViewMat = invCameraViewMat;
+		public void SetupLights() {
+			// setup the projection matrix
+			GL.MatrixMode(MatrixMode.Projection);
+			GL.LoadMatrix(ref renderConfig.projectionMatrix);
 
 			GL.Enable (EnableCap.Lighting);
 			foreach (var light in lights) {
@@ -56,10 +65,32 @@ namespace SimpleScene
 			}
 		}
 			
-		public void Render(Matrix4 invCameraViewMat) {
-			renderConfig.invCameraViewMat = invCameraViewMat;
+		public void setProjectionMatrix (Matrix4 projectionMatrix) {
+			renderConfig.projectionMatrix = projectionMatrix;
+		}
+		
+		public void setInvCameraViewMatrix (Matrix4 invCameraViewMatrix) {
+			renderConfig.invCameraViewMat = invCameraViewMatrix;
+		}
 
-			foreach (var obj in objects) {	
+		public void Render ()
+		{			
+			// load the projection matrix .. 
+			GL.MatrixMode(MatrixMode.Projection);
+			GL.LoadMatrix(ref renderConfig.projectionMatrix);
+
+			// compute a world-space frustum matrix, so we can test against world-space object positions
+			Matrix4 frustumMatrix = renderConfig.invCameraViewMat * renderConfig.projectionMatrix;			
+			var fc = new Util3d.FrustumCuller (ref frustumMatrix); 
+			
+			foreach (var obj in objects) {					
+				// frustum test... currently still broken
+				if (renderConfig.frustumCulling &&
+					obj.boundingSphere != null && !fc.isSphereInsideFrustum(obj.Pos,obj.boundingSphere.radius)) {
+					continue; // skip the object
+				}
+
+				// finally, render object
 				obj.Render (ref renderConfig);
 			}
 		}

@@ -26,9 +26,8 @@ namespace SimpleScene
 		}
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
-			GL.MatrixMode (MatrixMode.Modelview);
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-			GL.LoadMatrix (ref modelViewMat);
+			GL.MatrixMode (MatrixMode.Modelview);			
+			GL.LoadMatrix (ref this.worldMat);
 
 			GL.Enable (EnableCap.Lighting);
 			GL.ShadeModel (ShadingModel.Smooth);
@@ -39,9 +38,9 @@ namespace SimpleScene
 
 		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
+			Matrix4 modelViewMatrix = this.worldMat * renderConfig.invCameraViewMat;
 			GL.MatrixMode (MatrixMode.Modelview);
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-			GL.LoadMatrix (ref modelViewMat);
+			GL.LoadMatrix (ref modelViewMatrix);
 
 			GL.Enable (EnableCap.Lighting);
 			GL.ShadeModel (ShadingModel.Smooth);

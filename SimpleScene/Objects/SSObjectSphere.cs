@@ -7,7 +7,7 @@ namespace SimpleScene
 {
 	public class SSObjectSphere : SSObject
 	{
-	    public float radius;
+	    public readonly float radius;
 
 
 		public SSObjectSphere (float radius) : base() {

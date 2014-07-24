@@ -12,7 +12,7 @@ namespace SimpleScene
 	    // This takes the view matricies, and a window-local mouse coordinate, and returns a ray in world space.
 
 		public static SSRay MouseToWorldRay(
-			ref Matrix4 projection, 
+			Matrix4 projection, 
 			Matrix4 view, 
 			System.Drawing.Size viewport, 
 			Vector2 mouse) 

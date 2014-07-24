@@ -8,6 +8,9 @@ using SimpleScene;
 
 namespace WavefrontOBJViewer
 {
+
+	// TODO: this would be more attractive with some varied star-textures
+
 	public class SSMesh_Starfield : SSAbstractMesh
 	{
 		SSVertex_PosNormDiff[] vertices = null;
@@ -52,7 +55,10 @@ namespace WavefrontOBJViewer
 			GL.Disable(EnableCap.Lighting);	
 
 			GL.Enable(EnableCap.PointSmooth);
-			GL.PointSize(2.0f);
+			GL.Enable(EnableCap.Blend);
+			GL.BlendFunc(BlendingFactorSrc.SrcAlpha,BlendingFactorDest.OneMinusSrcAlpha);
+			
+			GL.PointSize(1.5f);
 			GL.Begin(BeginMode.Points);
 			for (int i = 0; i < this.numstars; i++) {			   
 
@@ -61,6 +67,9 @@ namespace WavefrontOBJViewer
 			   GL.Vertex3(vertices[i].Position);
 			}
 			GL.End();
+
+			GL.Disable(EnableCap.Blend);
+
 
 
 		}	

@@ -9,6 +9,8 @@
 *  TODO NEXT
 *
 
+- TODO: make sure boundingSphere radius is adjusted for object scale changes, or frustum culling will break
+
 - 2d GUI: pipeline texture uploads
   - make refresh 2-stage (refresh textures, then paint)
   - switch 2d GUI to Pixel Buffer Object Async texture uploads
@@ -125,6 +127,9 @@
   - ship-impact (x,y,z,t)
   - shields - animated per-pixel object space highlight   
     http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=26
+
+- voxel engine example
+  - https://sites.google.com/site/letsmakeavoxelengine/home
 
 ************************
 *

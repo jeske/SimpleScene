@@ -14,6 +14,7 @@ namespace WavefrontOBJViewer
 	{
 		public void setupScene() {
 			scene = new SSScene ();
+			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 
 			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
@@ -57,7 +58,7 @@ namespace WavefrontOBJViewer
 		}
 
 		public void setupEnvironment() {
-		    environmentScene = new SSScene();
+		    environmentScene = new SSScene();		
 
 			// add skybox cube
 			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
@@ -67,7 +68,7 @@ namespace WavefrontOBJViewer
 
 			// scene.addObject(skyboxCube);
 
-			SSObject skyboxStars = new SSObjectMeshSky(new SSMesh_Starfield(800));
+			SSObject skyboxStars = new SSObjectMeshSky(new SSMesh_Starfield(1600));
 			environmentScene.addObject(skyboxStars);
 			skyboxStars.renderState.lighted = false;
 
@@ -83,7 +84,8 @@ namespace WavefrontOBJViewer
 		}
 
 		public void setupHUD() {
-			hudScene = new SSScene ();
+			hudScene = new SSScene ();			
+			hudScene.setProjectionMatrix(Matrix4.Identity);	
 
 			// HUD Triangle...
 			//SSObject triObj = new SSObjectTriangle ();

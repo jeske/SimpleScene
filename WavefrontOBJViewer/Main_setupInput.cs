@@ -25,7 +25,9 @@ namespace WavefrontOBJViewer
 				var clientRect = new System.Drawing.Size(ClientRectangle.Width, ClientRectangle.Height);
 				Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
-				SSRay ray = OpenTKHelper.MouseToWorldRay(ref this.projection,invCameraViewMatrix, clientRect, mouseLoc);
+				SSRay ray = OpenTKHelper.MouseToWorldRay(
+					this.scene.renderConfig.projectionMatrix,
+					this.scene.renderConfig.invCameraViewMat, clientRect, mouseLoc);
 
 				// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 				// scene.addObject(new SSObjectRay(ray));

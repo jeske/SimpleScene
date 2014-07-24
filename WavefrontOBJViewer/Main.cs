@@ -26,9 +26,6 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 
-		Matrix4 projection;
-		Matrix4 invCameraViewMatrix;
-
 		SSScene scene;
 		SSScene hudScene;
 		SSScene environmentScene;
@@ -36,10 +33,6 @@ namespace WavefrontOBJViewer
 		bool mouseButtonDown = false;
 		SSObject activeModel;
 		
-		// FPS counter
-		int FPS_frames = 0;
-		double FPS_time = 0.0;
-
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public WavefrontOBJViewer()
