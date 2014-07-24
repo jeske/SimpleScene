@@ -9,19 +9,21 @@
 *  TODO NEXT
 *
 
-- add CPU frustrum culling based on bounding sphere
+- TEST: world-space hierarchy transform (parent an object under the light?)
 
-- add threaded rendering (so it renders during window move/resize)
-  - https://github.com/opentk/opentk/blob/develop/Source/Examples/OpenTK/GameWindow/GameWindowThreaded.cs
+- add CPU frustrum culling based on bounding sphere
+  - http://www.lighthouse3d.com/tutorials/view-frustum-culling/
+  - http://mathinsight.org/distance_point_plane
 
 - add "HUD projection sprites" in 3d view
-- TEST: world-space hierarchy transform (parent an object under the light?)
+
+- add threaded window handling (so it renders during window move/resize)
+  - https://github.com/opentk/opentk/blob/develop/Source/Examples/OpenTK/GameWindow/GameWindowThreaded.cs
 
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
 - ADD: if shader fails to compile, revert to simpler-shader or fixed-function
-
 
 - wavefront OBJ file-format bug/todo items
    - handle any-case for tokens
@@ -259,3 +261,6 @@
 - (done) ADD shader toggle for single-pass-wireframe
 * (done) WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
 - (done) add key to cycle wireframe modes
+- (done) PORT HZG to this thing now!!! 
+  - (done) restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
+  - (done) rip out Brume, stick in SimpleScene, and hack hack hack

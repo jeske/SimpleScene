@@ -51,23 +51,23 @@ namespace WavefrontOBJViewer
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
 
-				this.vertexShader = new SSShader (ShaderType.VertexShader, "bumpVertex", ctx.getAsset ("ss4_vertex.glsl"));
+				this.vertexShader = new SSShader (ShaderType.VertexShader, "ss4 bumpVertex", ctx.getAsset ("ss4_vertex.glsl"));
 				GL.AttachShader (ProgramID, vertexShader.ShaderID);
 						
-				this.fragmentShader = new SSShader (ShaderType.FragmentShader, "bumpFragment", ctx.getAsset ("ss4_fragment.glsl"));
+				this.fragmentShader = new SSShader (ShaderType.FragmentShader, "ss4 bumpFragment", ctx.getAsset ("ss4_fragment.glsl"));
 				GL.AttachShader (ProgramID, fragmentShader.ShaderID);
 
-				this.geometryShader = new SSShader (ShaderType.GeometryShader, "bumpGeometry", ctx.getAsset ("ss4_geometry.glsl"));						
+				this.geometryShader = new SSShader (ShaderType.GeometryShader, "ss4 bumpGeometry", ctx.getAsset ("ss4_geometry.glsl"));						
 				GL.Ext.ProgramParameter (ProgramID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
 				GL.Ext.ProgramParameter (ProgramID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
 				GL.Ext.ProgramParameter (ProgramID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
 				GL.AttachShader (ProgramID, geometryShader.ShaderID);
 
 			} else {
-				this.vertexShader = new SSShader (ShaderType.VertexShader, "bumpVertex", ctx.getAsset ("ss1_vertex.glsl"));
+				this.vertexShader = new SSShader (ShaderType.VertexShader, "ss1 bumpVertex", ctx.getAsset ("ss1_vertex.glsl"));
 				GL.AttachShader (ProgramID, vertexShader.ShaderID);
 
-				this.fragmentShader = new SSShader (ShaderType.FragmentShader, "bumpFragment", ctx.getAsset ("ss1_fragment.glsl"));
+				this.fragmentShader = new SSShader (ShaderType.FragmentShader, "ss1 bumpFragment", ctx.getAsset ("ss1_fragment.glsl"));
 				GL.AttachShader (ProgramID, fragmentShader.ShaderID);
 
 			}
