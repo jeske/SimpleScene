@@ -11,6 +11,8 @@
 
 - TODO: make sure boundingSphere radius is adjusted for object scale changes, or frustum culling will break
 
+- TODO: move projection matrix from Scene to Camera
+
 - 2d GUI: pipeline texture uploads
   - make refresh 2-stage (refresh textures, then paint)
   - switch 2d GUI to Pixel Buffer Object Async texture uploads
