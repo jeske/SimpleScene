@@ -15,7 +15,14 @@ namespace SimpleScene
 		GL_Lines,
 	};
 
+	public struct SSRenderStats {
+		public int objectsDrawn;
+		public int objectsCulled;
+	}     
+
 	public class SSRenderConfig {
+		public SSRenderStats renderStats;
+
 		public bool drawGLSL = true;
 		public bool useVBO = true;
 
@@ -75,6 +82,9 @@ namespace SimpleScene
 
 		public void Render ()
 		{			
+			// reset stats
+			renderConfig.renderStats = new SSRenderStats();
+
 			// load the projection matrix .. 
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadMatrix(ref renderConfig.projectionMatrix);
@@ -87,10 +97,12 @@ namespace SimpleScene
 				// frustum test... currently still broken
 				if (renderConfig.frustumCulling &&
 					obj.boundingSphere != null && !fc.isSphereInsideFrustum(obj.Pos,obj.boundingSphere.radius)) {
+					renderConfig.renderStats.objectsCulled++;
 					continue; // skip the object
 				}
 
 				// finally, render object
+				renderConfig.renderStats.objectsDrawn++;
 				obj.Render (ref renderConfig);
 			}
 		}
