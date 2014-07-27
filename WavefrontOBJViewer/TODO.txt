@@ -9,24 +9,21 @@
 *  TODO NEXT
 *
 
-- TODO: make sure boundingSphere radius is adjusted for object scale changes, or frustum culling will break
-
-- TODO: move projection matrix from Scene to Camera
-
-- 2d GUI: pipeline texture uploads
-  - make refresh 2-stage (refresh textures, then paint)
-  - switch 2d GUI to Pixel Buffer Object Async texture uploads
-  - http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
-
-- TEST: world-space hierarchy transform (parent an object under the light?)
-
-- add CPU frustrum culling based on bounding sphere
-  - http://www.lighthouse3d.com/tutorials/view-frustum-culling/
-  - http://mathinsight.org/distance_point_plane
-
 - add "HUD projection sprites" in 3d view
 
-- add render-to-texture to decouple 3d render resolution from window resolution
+- ADD: working world-space hierarchy transform dependency 
+  - (parent an object under the light?)
+  - TODO: make sure boundingSphere radius is adjusted for object scale changes, or frustum culling will break
+
+- TODO: move view projection matrix from Scene to Camera
+
+- gui2d: async-pipeline texture uploads
+  - switch 2d GUI to Pixel Buffer Object Async texture uploads
+  - http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
+  - make gui2d repaint 2-stage (a) 2d paint+refresh textures; (b) draw 3d surfaces
+    - consider a small "deferred object render queue" when waiting for texture d/l
+  
+- decouple 3d render resolution from window resolution (render to texture?)
   http://www.opentk.com/node/397
 
 - add threaded window handling (so it renders during window move/resize)
@@ -35,7 +32,9 @@
 - move screen projection computation so it only happens on win-resize
   - ( currently in OnRenderFrame )
 
-- ADD: if shader fails to compile, revert to simpler-shader or fixed-function
+- ADD: render HALs
+  - fallback (GL3/GLSL330, GL2/GLSL120+geom, GL2/GLSL120, GL1.2)
+  - VBO abstraction, to hide the details of which VBO layout API we're using
 
 - wavefront OBJ file-format bug/todo items
    - handle any-case for tokens
@@ -45,13 +44,8 @@
    - handle "Tr"/"d" material transparency/alpha
    - ADD: computation/constraint/warning of missing surface normals 
 
-- add face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
-   - add per-model BVH?
-
-- add HAL abstraction 
-  - VBO abstraction, to hide the details of which VBO layout API we're using
-  - for GL2 / GL3 style of VBO/matrix/shader communication
-    - shaders have to be per-HAL version
+- add click face-selection (to demonstrate mouse-to-ray-to-geometry)
+- add mouse-over-face-highlight (per model BVH?)
 
 - add FPS graph (like Three.js) (include "render-timer simulated-fps", for when it's FPS capped)
 - add Texture/video memory consumption visual
@@ -71,6 +65,22 @@
 
 - texture memory usage profiling...
   http://stackoverflow.com/questions/4552372/determining-available-video-memory
+
+************************
+*
+*  abstract vertex decl
+*
+
+- make an abstract mesh setup, which can handle rendering differently
+  based on mode or api (GL-immediate, GL-120-VBO, GL-330-VBO, DX, etc)
+
+  // more like this...
+  
+  var pbl = new PrimitiveBufferLayout(stride);
+  pbl.AddElementVertex(offset);
+  pbl.AddElementNormal(offset);
+  pbl.AddElementColor(offset,type);
+  var pb = new PrimitiveBuffer(pbl,PrimitiveType.Triangles,verticies,indicies);
 
 ************************
 *
@@ -281,3 +291,6 @@
 - (done) PORT HZG to this thing now!!! 
   - (done) restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
   - (done) rip out Brume, stick in SimpleScene, and hack hack hack
+- (done) add CPU frustrum culling based on bounding sphere
+  - http://www.lighthouse3d.com/tutorials/view-frustum-culling/
+  - http://mathinsight.org/distance_point_plane
