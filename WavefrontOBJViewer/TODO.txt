@@ -19,6 +19,8 @@
 
 - gui2d: async-pipeline texture uploads
   - switch 2d GUI to Pixel Buffer Object Async texture uploads
+  - http://www.songho.ca/opengl/gl_pbo.html
+  - http://www.songho.ca/opengl/gl_pbo.html#unpack
   - http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
   - make gui2d repaint 2-stage (a) 2d paint+refresh textures; (b) draw 3d surfaces
     - consider a small "deferred object render queue" when waiting for texture d/l

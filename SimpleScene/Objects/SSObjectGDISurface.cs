@@ -36,7 +36,7 @@ namespace SimpleScene {
             }
         }
 
-        private void _repaint() {
+        public void UpdateTexture() {
             if (!Dirty) return;
             Dirty = false;
 
@@ -53,7 +53,7 @@ namespace SimpleScene {
         public abstract Bitmap RepaintGDI(out Size gdiSize);
 
         public override void Render(ref SSRenderConfig renderConfig) {            
-            _repaint();            
+            UpdateTexture();            
 
             base.Render(ref renderConfig);
 
