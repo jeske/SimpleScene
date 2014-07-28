@@ -44,8 +44,13 @@
    - handle "Tr"/"d" material transparency/alpha
    - ADD: computation/constraint/warning of missing surface normals 
 
-- add click face-selection (to demonstrate mouse-to-ray-to-geometry)
-- add mouse-over-face-highlight (per model BVH?)
+- add face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
+   - add per-model BVH?
+
+- add HAL abstraction 
+  - VBO abstraction, to hide the details of which VBO layout API we're using
+  - for GL2 / GL3 style of VBO/matrix/shader communication
+    - shaders have to be per-HAL version
 
 - add FPS graph (like Three.js) (include "render-timer simulated-fps", for when it's FPS capped)
 - add Texture/video memory consumption visual
@@ -96,12 +101,11 @@
   
 - implement Bunny LOD (UV aware?)
 
-- experiment with Artemis-like component system
+- experiment with Axiom/Artemis component organization
+  - http://axiom3d.net/wiki/index.php/Main_Page
+  - https://github.com/thelinuxlich/artemis_CSharp
 
 - write "streaming loader", so the model is not buffered in the loader
-
-- write CR2 loader
-  - http://dj1.willowmail.com/~jeske/Projects/PoserCR2/kuroyumes/poserfilespec/introduction.html
 
 - simple b-rep editing (Radial Edge, or X-Maps)
 
@@ -112,17 +116,37 @@
 
 ************************
 *
+*  Poser/DAZ/CR2
+*
+
+- write CR2 loader
+  - implement "d-former" compatible bones
+  - http://dj1.willowmail.com/~jeske/Projects/PoserCR2/kuroyumes/poserfilespec/introduction.html
+
+************************
+*
 *  Visual GL2 ideas...
 *
 
-- particle system
+- sorting renderer
+  - alpha-sorted, shader-sorted
 
-- Lighting
+- simple shadow-maps
+
+- heightmap terrain
+  - height-based-texture-blending, terrain style (civ5)
+  - ROAM, geomipmapping
+
+- particle system
+  - fire, smoke, snow, rain
+
+- animation (keyframe, skeletal, blending)
+
+- Forward Lighting
+  - support all 8? hardcoded lights
   - ADD bump map channel
-     - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428
-  - ADD shader-code support for all (8?) fixed-function lights
-  - ??? ADD multi-texture "classic" (shader-free) mode
-  - shadow-map
+     - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428    
+ 
 
 - support "3d insets" (sub-scene cameras, render to region/texture)
   - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=19
@@ -148,7 +172,9 @@
 *  GL3/4 ideas...
 *
 
-- deferred lighting pass, shadow, glow/bloom, SSAO
+- Deferred Lighting
+  - g-buffer shadows
+  - SSAO, bloom, other screen space techniques
 
 - screen-space "warp" shader
 
