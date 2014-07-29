@@ -62,11 +62,15 @@ namespace SimpleScene
 			        if (collisionShell != null) {
 				        return collisionShell.Intersect(ref worldSpaceRay, out distanceAlongRay);
 		            } else {
-						return true;
+						return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
 					}
 				}
 			}
 			return false;
+		}
+
+		public virtual bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
+			return true;
 		}
 
 	    public delegate void ChangedEventHandler(SSObject sender);

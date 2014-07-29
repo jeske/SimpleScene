@@ -143,6 +143,22 @@ namespace SimpleScene
 				}
 			}
 		}
+		public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {
+			foreach(var subset in geometrySubsets) {
+				for(int idx=0;idx < subset.indicies.Length;idx+=3) {
+					var V1 = subset.vertices[subset.indicies[idx]].Position;
+					var V2 = subset.vertices[subset.indicies[idx+1]].Position;
+					var V3 = subset.vertices[subset.indicies[idx+2]].Position;
+					bool finished = fn(state, V1, V2, V3);
+					if (finished) { 
+						return true; 
+					}
+				}
+			}
+			return false;
+		}
+
+
 
 		private void _renderSendVBOTriangles(SSMeshOBJSubsetData subset) {
 			subset.vbo.bind (this.shaderPgm);

@@ -121,6 +121,55 @@ namespace SimpleScene
             double inner_product = q1.X * q2.X + q1.Y * q2.Y + q1.Z * q2.Z + q1.W * q2.W;
             return (float)Math.Acos(2.0 * Math.Pow(inner_product,2.0) - 1);
         }
+
+		// http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+		public static bool TriangleRayIntersectionTest(Vector3 V1, Vector3 V2, Vector3 V3, Vector3 rayStart, Vector3 rayDir, out float contact) {
+			Vector3 e1, e2;  //Edge1, Edge2
+            Vector3 P, Q, T;
+            float det, inv_det, u, v;
+            float t;
+
+			contact = 0.0f;
+ 
+            //Find vectors for two edges sharing V1
+			e1 = V2 - V1;
+			e2 = V3 - V1;
+            //Begin calculating determinant - also used to calculate u parameter
+			P = Vector3.Cross(rayDir, e2);
+            //if determinant is near zero, ray lies in plane of triangle
+            det = Vector3.Dot(e1,P);
+            //NOT CULLING
+			if (det > -float.Epsilon && det < float.Epsilon) return false;
+            inv_det = 1.0f / det;
+ 
+            //calculate distance from V1 to ray origin
+			T = rayStart - V1;
+ 
+            //Calculate u parameter and test bound
+            u = Vector3.Dot(T,P) * inv_det;
+            //The intersection lies outside of the triangle
+            if(u < 0.0f || u > 1.0f) return false;
+ 
+            //Prepare to test v parameter
+			Q = Vector3.Cross(T,e1);
+ 
+            //Calculate V parameter and test bound
+			v = Vector3.Dot(rayDir,Q) * inv_det;
+            //The intersection lies outside of the triangle
+            if(v < 0.0f || u + v  > 1.0f) return false;
+ 
+			t = Vector3.Dot(e2,Q) * inv_det;
+  
+			if(t > float.Epsilon) { //ray intersection
+                contact = t;
+                return true;
+            }
+ 
+            // No hit, no win
+            return false;
+		}
+
+
 	}
 }
 

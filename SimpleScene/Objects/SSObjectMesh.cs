@@ -11,6 +11,11 @@ namespace SimpleScene
 {
     public class SSObjectMesh : SSObject
     {
+		public SSObjectMesh () { }        
+		public SSObjectMesh (SSAbstractMesh mesh) : base() {
+            this.Mesh = mesh;
+        }
+		
         private SSAbstractMesh _mesh;
 		public SSAbstractMesh Mesh {
           get { return _mesh; }
@@ -57,10 +62,18 @@ namespace SimpleScene
         }
 
 
-        public SSObjectMesh (SSAbstractMesh mesh) : base() {
-            this.Mesh = mesh;
-        }
-		public SSObjectMesh () {
+		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
+		{
+			SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
+
+			SSAbstractMesh mesh = this._mesh;
+			if (mesh != null) {
+				return mesh.TraverseTriangles( (state,V1,V2,V3) => {
+					float contact;
+					return OpenTKHelper.TriangleRayIntersectionTest(V1,V2,V3,localRay.pos,localRay.dir,out contact);
+				});
+			}
+			return true;
 		}
     }
 }
