@@ -71,7 +71,7 @@ namespace SimpleScene
 
 	    public delegate void ChangedEventHandler(SSObject sender);
 		public event ChangedEventHandler Changed;
-		public override void MatrixChanged ()
+		public override void ObjectChanged ()
 		{
 			if (Changed != null) {
 				Changed(this);
@@ -188,10 +188,10 @@ namespace SimpleScene
 			this.localMat = newLocalMat;
 			this.worldMat = newWorldMat;
 
-			MatrixChanged();
+			ObjectChanged();
 		}
 
-		public virtual void MatrixChanged() { }
+		public virtual void ObjectChanged() { }
 
 		public virtual void Update () {}
 

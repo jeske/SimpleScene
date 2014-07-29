@@ -50,6 +50,9 @@ namespace SimpleScene
 				// Console.WriteLine("constructed collision shell of radius {0}",radius);
 
 				// TODO: make a more detailed collision mesh
+
+				// notify listeners..
+				ObjectChanged(); 
 			} 
         }
 
