@@ -19,7 +19,7 @@ namespace SimpleScene
 		{
 		    Vector3 pos1 = UnProject(ref projection, view, viewport, new Vector3(mouse.X,mouse.Y,0.0f));
 			Vector3 pos2 = UnProject(ref projection, view, viewport, new Vector3(mouse.X,mouse.Y,0.8f));
-			return SSRay.FromTwoPoints(pos1,pos2);
+			return SSRay.FromTwoPoints(pos1, pos2);
 		}
 
 		// UnProject takes a window-local mouse-coordinate, and a Z-coordinate depth [0,1] and 
@@ -47,7 +47,7 @@ namespace SimpleScene
 			Vector4.Transform(ref vec, ref projInv, out vec);
 			Vector4.Transform(ref vec, ref viewInv, out vec);
 		 
-			if (vec.W > float.Epsilon || vec.W < float.Epsilon)
+			if (vec.W > float.Epsilon || vec.W < -float.Epsilon)
 			{
 				vec.X /= vec.W;
 				vec.Y /= vec.W;
