@@ -62,10 +62,13 @@
 - add FPS graph (like Three.js) (include "render-timer simulated-fps", for when it's FPS capped)
 - add Texture/video memory consumption visual
 
-- implement triangle intersect
-  - https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/js/Three.js#L5378
-  - http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
-
+- improve ObjectMesh triangle intersect performance...
+  - poly reduction
+    - http://www.melax.com/polychop
+    - file:///Users/jeske/Downloads/gdmag.pdf
+  - model-local BVH
+  - bounding hull computation
+  
 - FIX: bug where window resize mousedown is also trapped by mouse-input framework
 - FIX: camera mouse rotation bug that allows it to get "off axis"
  
@@ -327,3 +330,4 @@
 - (done) add CPU frustrum culling based on bounding sphere
   - http://www.lighthouse3d.com/tutorials/view-frustum-culling/
   - http://mathinsight.org/distance_point_plane
+- (done) implement mesh-triangle intersection
