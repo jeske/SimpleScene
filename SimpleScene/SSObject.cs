@@ -63,6 +63,16 @@ namespace SimpleScene
 			}
 			return false;
 		}
+
+	    public delegate void ChangedEventHandler(SSObject sender);
+		public event ChangedEventHandler Changed;
+		public override void MatrixChanged ()
+		{
+			if (Changed != null) {
+				Changed(this);
+			}
+
+		}
 	}
 
 	public class SSOBRenderState {
@@ -172,7 +182,11 @@ namespace SimpleScene
 			// apply the transformations
 			this.localMat = newLocalMat;
 			this.worldMat = newWorldMat;
+
+			MatrixChanged();
 		}
+
+		public virtual void MatrixChanged() { }
 
 		public virtual void Update () {}
 
