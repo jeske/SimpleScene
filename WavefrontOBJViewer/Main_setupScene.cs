@@ -13,8 +13,20 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
-			scene = new SSScene ();
 			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+			scene.BeforeRenderObject += (obj, renderConfig) => {
+				GL.UseProgram(this.shaderPgm.ProgramID);
+				if (obj == selectedObject) {
+					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
+					GL.Uniform1 (this.u_showWireframes, (int) 1);			
+
+				} else {
+					renderConfig.drawWireframeMode = WireframeMode.None;
+					GL.Uniform1 (this.u_showWireframes, (int) 0);			
+
+				}
+			};
+
 
 			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
@@ -37,6 +49,7 @@ namespace WavefrontOBJViewer
 			droneObj.shininessMatColor = 10.0f;
 			droneObj.MouseDeltaOrient(-40.0f,0.0f);
 			droneObj.Pos = new OpenTK.Vector3(-5,0,0);
+			droneObj.Name = "drone 1";
 
 			// add second drone
 			
@@ -50,6 +63,7 @@ namespace WavefrontOBJViewer
 			drone2Obj.shininessMatColor = 10.0f;
 			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
 			drone2Obj.MouseDeltaOrient(20.0f,0.0f);
+			drone2Obj.Name = "drone 2";
 
 			// last. Add Camera
 
@@ -58,7 +72,6 @@ namespace WavefrontOBJViewer
 		}
 
 		public void setupEnvironment() {
-		    environmentScene = new SSScene();		
 
 			// add skybox cube
 			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
@@ -84,7 +97,6 @@ namespace WavefrontOBJViewer
 		}
 
 		public void setupHUD() {
-			hudScene = new SSScene ();			
 			hudScene.setProjectionMatrix(Matrix4.Identity);	
 
 			// HUD Triangle...

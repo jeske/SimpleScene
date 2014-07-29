@@ -54,6 +54,12 @@ namespace SimpleScene
 
 		public SSRenderConfig renderConfig = new SSRenderConfig ();
 
+		#region SSScene Events
+	    public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
+		public event BeforeRenderObjectHandler BeforeRenderObject;
+		#endregion
+
+
 		public void Update() {
 			// update all objects.. TODO: add elapsed time since last update..
 			foreach (var obj in objects) {
@@ -94,7 +100,7 @@ namespace SimpleScene
 			var fc = new Util3d.FrustumCuller (ref frustumMatrix); 
 			
 			foreach (var obj in objects) {					
-				// frustum test... currently still broken
+				// frustum test... 
 				if (renderConfig.frustumCulling &&
 					obj.boundingSphere != null && !fc.isSphereInsideFrustum(obj.Pos,obj.boundingSphere.radius)) {
 					renderConfig.renderStats.objectsCulled++;
@@ -102,6 +108,9 @@ namespace SimpleScene
 				}
 
 				// finally, render object
+				if (BeforeRenderObject != null) {
+					BeforeRenderObject(obj,renderConfig);
+				}
 				renderConfig.renderStats.objectsDrawn++;
 				obj.Render (ref renderConfig);
 			}
@@ -120,10 +129,21 @@ namespace SimpleScene
 			lights.Add (light);
 		}
 
-		public void Intersect(ref SSRay worldSpaceRay) {
+		public SSObject Intersect(ref SSRay worldSpaceRay) {
+			SSObject nearestIntersection = null;
+			float nearestDistance = float.MaxValue;
+			float distanceAlongRay;
 		    foreach (var obj in objects) {
-		        bool result = obj.Intersect(ref worldSpaceRay);
+				if (obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
+					Console.WriteLine("intersect: {0}", obj.Name);
+					if (distanceAlongRay < nearestDistance) {
+						nearestDistance = distanceAlongRay;
+						nearestIntersection = obj;
+					}
+				}
 		    }
+
+			return nearestIntersection;
 		}
 
 		public SSScene ()  {  }

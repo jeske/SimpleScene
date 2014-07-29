@@ -64,7 +64,7 @@ namespace SimpleScene
         /// <param name="ray"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-		public static float DistanceToLine(SSRay ray, Vector3 point) {
+		public static float DistanceToLine(SSRay ray, Vector3 point, out float distanceAlongRay) {
 
             // http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
 
@@ -72,7 +72,9 @@ namespace SimpleScene
 		    Vector3 n = ray.dir;
 		    Vector3 p = point;
 
-		    return ((a-p) - Vector3.Dot((a-p),n) * n).Length;
+			distanceAlongRay = Vector3.Dot((a-p),n);
+
+		    return ((a-p) - distanceAlongRay * n).Length;
         }
 
 #if false

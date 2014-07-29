@@ -26,9 +26,9 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 
-		SSScene scene;
-		SSScene hudScene;
-		SSScene environmentScene;
+		SSScene scene = new SSScene();
+		SSScene hudScene = new SSScene();
+		SSScene environmentScene = new SSScene();
 
 		bool mouseButtonDown = false;
 		SSObject activeModel;

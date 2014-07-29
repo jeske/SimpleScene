@@ -16,6 +16,8 @@ namespace WavefrontOBJViewer
 {
 	partial class WavefrontOBJViewer : OpenTK.GameWindow {
 
+		SSObject selectedObject = null;
+
 		public void setupInput() {
 			// hook mouse drag input...
 			this.Mouse.ButtonDown += (object sender, MouseButtonEventArgs e) => {
@@ -32,7 +34,7 @@ namespace WavefrontOBJViewer
 				// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 				// scene.addObject(new SSObjectRay(ray));
 
-				scene.Intersect(ref ray);
+				selectedObject = scene.Intersect(ref ray);
 
 			};
 			this.Mouse.ButtonUp += (object sender, MouseButtonEventArgs e) => { 

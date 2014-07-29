@@ -24,15 +24,13 @@ namespace SimpleScene
 				this._mesh.RenderMesh (ref renderConfig);
 
 				if (renderConfig.renderBoundingSpheres && this.boundingSphere != null) {
-					this.boundingSphere.Pos = this.Pos;
-					this.boundingSphere.Scale = this.Scale;
-                    // this.boundingSphere.Render(ref renderConfig);
+                    this.boundingSphere.Render(ref renderConfig);
 
 				}
 				if (renderConfig.renderCollisionShells && this.collisionShell != null) {
                     this.collisionShell.Pos = this.Pos;
                     this.collisionShell.Scale = this.Scale;
-                    // this.collisionShell.Render(ref renderConfig);
+                    this.collisionShell.Render(ref renderConfig);
 				}
             }
         }
@@ -45,6 +43,10 @@ namespace SimpleScene
 	                radius = Math.Max(radius,point.Length);
                 }
 				this.boundingSphere = new SSObjectSphere(radius);
+				this.Changed += (sender) => { 
+					this.boundingSphere.Pos = this.Pos;
+					this.boundingSphere.Scale = this.Scale;
+				};
 				// Console.WriteLine("constructed collision shell of radius {0}",radius);
 
 				// TODO: make a more detailed collision mesh

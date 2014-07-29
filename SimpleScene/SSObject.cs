@@ -21,7 +21,11 @@ namespace SimpleScene
 		public Color4 emissionMatColor = new Color4(0.5f,0.5f,0.5f,0.5f);
 		public float shininessMatColor = 10.0f;
 
-		public SSObject() : base() {}
+		public string Name = "";
+
+		public SSObject() : base() {
+			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
+		}
 		public virtual void Render (ref SSRenderConfig renderConfig) {
 			// compute and set the modelView matrix, by combining the cameraViewMat
 			// with the object's world matrix
@@ -51,11 +55,12 @@ namespace SimpleScene
 
 		public SSObjectSphere boundingSphere=null;
 		public SSObject collisionShell=null;
-		public virtual bool Intersect(ref SSRay worldSpaceRay) {
+		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
+			distanceAlongRay = 0.0f;
 			if (boundingSphere != null) {
-				if (boundingSphere.Intersect(ref worldSpaceRay)) {
+				if (boundingSphere.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
 			        if (collisionShell != null) {
-				        return collisionShell.Intersect(ref worldSpaceRay);
+				        return collisionShell.Intersect(ref worldSpaceRay, out distanceAlongRay);
 		            } else {
 						return true;
 					}

@@ -9,7 +9,12 @@
 *  TODO NEXT
 *
 
-- add "HUD projection sprites" in 3d view
+- add generic "HUD projection sprites" in 3d view
+
+- rethink how bounding spheres work (for performance)
+  - right now they are independently repeating the same matrix updates everytime the object moves
+  - can they just copy the matrix, instead of recreating it?
+  - do they need to be subclasses of SSObject? How about SSCollisionShape without a matrix?
 
 - ADD: working world-space hierarchy transform dependency 
   - (parent an object under the light?)

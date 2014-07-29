@@ -13,6 +13,7 @@ namespace SimpleScene
 		public SSObjectSphere (float radius) : base() {
 		    this.radius = radius;
 		}
+		
 
 		public override void Render(ref SSRenderConfig renderConfig) {
 
@@ -62,13 +63,13 @@ namespace SimpleScene
 
 		}
 
-		public override bool Intersect (ref SSRay worldSpaceRay)
+		public override bool Intersect (ref SSRay worldSpaceRay, out float distanceAlongRay)
 		{
 			// transform the ray into object space
 
 			SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
 
-			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(localRay,Vector3.Zero);
+			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(localRay,Vector3.Zero, out distanceAlongRay);
             bool result = distanceToSphereOrigin <= this.radius;
 #if false
 			Console.WriteLine("_____________________________");

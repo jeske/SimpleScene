@@ -27,6 +27,7 @@ namespace WavefrontOBJViewer
 		// uniform locations
 		public int u_WIN_SCALE;
 		public int u_animateSecondsOffset;
+		public int u_showWireframes;
 
 		public void setupShaders() {
 			// open the shader asset context...
@@ -95,6 +96,7 @@ namespace WavefrontOBJViewer
 
             u_animateSecondsOffset = GL.GetUniformLocation(ProgramID, "animateSecondsOffset");
 			u_WIN_SCALE = GL.GetUniformLocation(ProgramID, "WIN_SCALE");
+			u_showWireframes = GL.GetUniformLocation(ProgramID, "showWireframes");
 
 			{
 				ErrorCode glerr;
