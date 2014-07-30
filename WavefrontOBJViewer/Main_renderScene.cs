@@ -73,8 +73,6 @@ namespace WavefrontOBJViewer
 				// setup infinite projection for cubemap
 				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
 				environmentScene.setProjectionMatrix (projMatrix);	
-				// Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView ((float)Math.PI / 4, ClientRectangle.Width / (float)ClientRectangle.Height, 0.1f, 2.0f);				
-				// environmentScene.setProjectionMatrix(projection);
 
 				// create a matrix of just the camera rotation only (it needs to stay at the origin)				
 				environmentScene.setInvCameraViewMatrix (
@@ -95,6 +93,8 @@ namespace WavefrontOBJViewer
 				
 				// setup the inverse matrix of the active camera...
 				scene.setInvCameraViewMatrix (scene.activeCamera.worldMat.Inverted ());
+
+				// scene.renderConfig.renderBoundingSpheres = true;
 
 				// setup the view projection. technically only need to do this on window resize..
 				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);				

@@ -9,6 +9,8 @@
 *  TODO NEXT
 *
 
+- compute better bounding spheres (offset origin, more optimal sphere)
+
 - add generic "HUD projection sprites" in 3d view
 
 - rethink how bounding spheres work (for performance)
@@ -51,9 +53,6 @@
    - handle "Tr"/"d" material transparency/alpha
    - ADD: computation/constraint/warning of missing surface normals 
 
-- add face-selection (to demonstrate mouse-to-ray-to-geometry) - either click, or pre-selection highlight
-   - add per-model BVH?
-
 - add HAL abstraction 
   - VBO abstraction, to hide the details of which VBO layout API we're using
   - for GL2 / GL3 style of VBO/matrix/shader communication
@@ -74,14 +73,8 @@
   - bounding hull computation
   
 - FIX: bug where window resize mousedown is also trapped by mouse-input framework
-- FIX: camera mouse rotation bug that allows it to get "off axis"
+- FIX: camera mouse rotation bug that allows it to get "off axis" 
  
-
-- doc sources
-    - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
- 
-- INVESTIGATE: skybox projection (it's a little fisheye?)
-
 - texture memory usage profiling...
   http://stackoverflow.com/questions/4552372/determining-available-video-memory
 
@@ -164,11 +157,10 @@
   - ADD bump map channel
      - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428    
  
-
 - support "3d insets" (sub-scene cameras, render to region/texture)
   - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=19
 
-- Improve picking / collision precision
+- Improve precise picking / collision performance
   - implement per model BVH  ( or Quad or Octree ? )
     http://www.3dmuve.com/3dmblog/?p=182
   - implement ray-to-triangle intersection (slow)
@@ -338,3 +330,4 @@
   - http://www.lighthouse3d.com/tutorials/view-frustum-culling/
   - http://mathinsight.org/distance_point_plane
 - (done) implement mesh-triangle intersection
+- (done) INVESTIGATE: skybox projection (it's a little fisheye.... skybox aspect ratio was off)
