@@ -66,6 +66,8 @@
   - color-buffer picking
     - http://ogldev.atspace.co.uk/www/tutorial29/tutorial29.html
   - BVH (model-local, and scene-wide)
+    - http://www.3dmuve.com/3dmblog/?p=182
+    - http://www.cs.utah.edu/~thiago/papers/rotations.pdf
   - poly reduction
     - http://www.melax.com/polychop
     - file:///Users/jeske/Downloads/gdmag.pdf
