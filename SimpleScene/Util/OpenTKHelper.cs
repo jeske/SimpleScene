@@ -138,8 +138,8 @@ namespace SimpleScene
 			P = Vector3.Cross(rayDir, e2);
             //if determinant is near zero, ray lies in plane of triangle
             det = Vector3.Dot(e1,P);
-            //NOT CULLING
-			if (det > -float.Epsilon && det < float.Epsilon) return false;
+			if (det < 0.0f) return false; // backfaced triangle
+			if (det > -float.Epsilon && det < float.Epsilon) return false; // triangle parallel to ray
             inv_det = 1.0f / det;
  
             //calculate distance from V1 to ray origin
