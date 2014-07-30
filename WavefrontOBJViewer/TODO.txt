@@ -62,11 +62,13 @@
 - add FPS graph (like Three.js) (include "render-timer simulated-fps", for when it's FPS capped)
 - add Texture/video memory consumption visual
 
-- improve ObjectMesh triangle intersect performance...
+- improve mouse-click 3d object picking performance...
+  - color-buffer picking
+    - http://ogldev.atspace.co.uk/www/tutorial29/tutorial29.html
+  - BVH (model-local, and scene-wide)
   - poly reduction
     - http://www.melax.com/polychop
     - file:///Users/jeske/Downloads/gdmag.pdf
-  - model-local BVH
   - bounding hull computation
   
 - FIX: bug where window resize mousedown is also trapped by mouse-input framework
