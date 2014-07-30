@@ -138,6 +138,9 @@
 *  Visual GL2 ideas...
 *
 
+- projected textures
+  - http://www.3dkingdoms.com/weekly/weekly.php?a=20
+
 - sorting renderer
   - alpha-sorted, shader-sorted
 
