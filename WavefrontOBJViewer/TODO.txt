@@ -9,6 +9,9 @@
 *  TODO NEXT
 *
 
+- cross-platform 2d rasterization (AGG?)
+  - resolve origin (GDI upper-left, 
+
 - add generic "HUD projection sprites" in 3d view
 
 - rethink how bounding spheres work (for performance)

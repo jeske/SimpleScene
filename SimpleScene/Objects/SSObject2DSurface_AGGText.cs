@@ -4,6 +4,7 @@ using System.Drawing;
 using MatterHackers.Agg.Image;
 using MatterHackers.Agg.VertexSource;
 using MatterHackers.Agg.RasterizerScanline;
+using MatterHackers.Agg.Transform;
 using MatterHackers.Agg.Font;
 using OpenTK;
 using OpenTK.Graphics;
@@ -31,13 +32,16 @@ namespace SimpleScene {
         public override ImageBuffer RepaintAGG(out Vector2 gdiSize) {
             // figure out the size of the label			
 			var tfp = new TypeFacePrinter(_label);
-			var size = tfp.GetSize(_label);			
-			ImageBuffer bitmap = new ImageBuffer((int)size.x,(int)size.y,32, new BlenderBGRA());
+			var size = tfp.LocalBounds;			
+			ImageBuffer bitmap = new ImageBuffer((int)size.Width,(int)size.Height,32, new BlenderBGRA());
 			var gc = bitmap.NewGraphics2D();	
 
-			gc.Line(0,0,size.x,0, new MatterHackers.Agg.RGBA_Bytes(200,0,0));	
-			gc.Circle(20,20,10,new MatterHackers.Agg.RGBA_Bytes(0,200,0));			
-			gc.DrawString(_label,0,0,14,color: new MatterHackers.Agg.RGBA_Bytes(255,255,255));		
+			gc.Render(
+				new VertexSourceApplyTransform(
+					new TypeFacePrinter(_label,14,new MatterHackers.VectorMath.Vector2(0,0),Justification.Left,Baseline.BoundsTop),
+					Affine.NewScaling(1,-1))
+				,new MatterHackers.Agg.RGBA_Bytes(255,255,255));
+			// gc.DrawString(_label,0,0,14,color: new MatterHackers.Agg.RGBA_Bytes(255,255,255));		
 			
 			gdiSize = new Vector2(bitmap.Width,bitmap.Height);
 
