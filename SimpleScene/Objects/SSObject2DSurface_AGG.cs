@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright(C) David W. Jeske, 2013
+// Released to the public domain. Use, modify and relicense at will.
+
+using System;
 using System.Drawing;
 
 using MatterHackers.Agg.Image;
@@ -54,7 +57,7 @@ namespace SimpleScene {
             textureSurface.loadFromImageBuffer(bitmap);
         }
 
-        public abstract ImageBuffer RepaintAGG(out Size gdiSize);
+		public abstract UG.Bitmap RepaintAGG(out Size gdiSize);
 
         public override void Render (ref SSRenderConfig renderConfig)
 		{            

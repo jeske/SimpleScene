@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright(C) David W. Jeske, 2013
+// Released to the public domain. Use, modify and relicense at will.
+
+using System;
 using System.Drawing;
 
 using MatterHackers.Agg.Image;
@@ -32,7 +35,7 @@ namespace SimpleScene {
         public SSObject2DSurface_AGGText() {
         }
 
-		public override ImageBuffer RepaintAGG(out Size gdiSize) {
+		public override UG.Bitmap RepaintAGG(out Size gdiSize) {
             // figure out the size of the label
 			gdiSize = UG.Graphics.FromImage(new UG.Bitmap(1, 1)).MeasureString(_label, font).ToSize();
 
