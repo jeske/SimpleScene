@@ -40,6 +40,12 @@
     <Reference Include="OpenTK">
       <HintPath>..\Libs\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="MatterHackers.VectorMath">
+      <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
+    </Reference>
+    <Reference Include="AGG">
+      <HintPath>..\Libs\AGG.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />

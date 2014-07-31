@@ -3,8 +3,10 @@
 
 using System;
 using System.IO;
-
 using System.Drawing;
+
+using MatterHackers.Agg.Image;
+
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -111,6 +113,54 @@ namespace SimpleScene
 		    TextureBitmap.UnlockBits(TextureData);		 
 		}
 		
+
+		public void loadFromImageBuffer (ImageBuffer TextureBitmap, string name = null)
+		{	
+			//get the data out of the bitmap
+			byte[] buf = TextureBitmap.GetBuffer();			
+		 
+		    //Code to get the data to the OpenGL Driver
+		  
+			GL.Enable (EnableCap.Texture2D);
+			GL.ActiveTexture(TextureUnit.Texture0);
+		   
+		    //tell OpenGL that this is a 2D texture
+		    GL.BindTexture(TextureTarget.Texture2D,_glTextureID);
+		 
+		    //the following code sets certian parameters for the texture
+			// GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Combine);
+			// GL.TexEnv (TextureEnvTarget.TextureEnv, TextureEnvParameter.CombineRgb, (float)TextureEnvMode.Modulate);
+
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+			// this assumes mipmaps are present...
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+
+		    
+		    // tell OpenGL to build mipmaps out of the bitmap data
+			// .. what a mess ... http://www.g-truc.net/post-0256.html
+			// this is the old way, must be called before texture is loaded, see below for new way...
+		    // GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, (float)1.0f);
+		 
+			// tell openGL the next line begins on a word boundary...
+			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 4);
+
+		    // load the texture
+            GL.TexImage2D(
+                TextureTarget.Texture2D,
+                0, // level
+                PixelInternalFormat.CompressedRgba,
+                TextureBitmap.Width, TextureBitmap.Height,
+                0, // border
+                PixelFormat.Bgra,     // why is this Bgr when the lockbits is rgb!?
+                PixelType.UnsignedByte,
+                buf
+                );
+            //Console.WriteLine("SSTexture: loaded alpha ({0},{1}) from: {2}", TextureBitmap.Width, TextureBitmap.Height, name);
+
+			// this is the new way to generate mipmaps
+			GL.GenerateMipmap (GenerateMipmapTarget.Texture2D);
+		}	
+
 	}
 }
 

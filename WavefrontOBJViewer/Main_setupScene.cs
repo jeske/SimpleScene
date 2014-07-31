@@ -118,6 +118,14 @@ namespace WavefrontOBJViewer
 			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
 			wireframeDisplay.Scale = new Vector3 (1.0f);
 			updateWireframeDisplayText (scene.renderConfig);
+
+			// HUD text....
+			var testDisplay = new SSObject2DSurface_AGGText ();
+			testDisplay.Label = "TEST AGG";
+			hudScene.addObject (testDisplay);
+			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
+			testDisplay.Scale = new Vector3 (1.0f);
+
 		}
 	}
 }
