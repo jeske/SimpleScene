@@ -149,15 +149,11 @@ namespace UG
 			// TODO: emulate GDI "bordering" of text?
 
 			SolidBrush colorBrush = brush as SolidBrush;
-			var text_render = new VertexSourceApplyTransform(
-					new TypeFacePrinter(
-						text,
-						font.SizeInPoints,
-						new MatterHackers.VectorMath.Vector2(x,y),
-						Justification.Left,Baseline.BoundsTop),
-					Affine.NewScaling(1,-1));
+			var text_render = new TypeFacePrinter(text, font.SizeInPoints, new MatterHackers.VectorMath.Vector2(0,0), Justification.Left,Baseline.BoundsTop);
+			var text_invert = new VertexSourceApplyTransform(text_render,Affine.NewScaling(1,-1));
+			var text_position = new VertexSourceApplyTransform(text_invert, Affine.NewTranslation(x,y));
 
-			pipeInput.source = text_render;
+			pipeInput.source = text_position;
 			aggGc.Render(pipeTail,new MatterHackers.Agg.RGBA_Bytes((uint)colorBrush.Color.ToArgb()));
 		}		
 
@@ -218,14 +214,25 @@ namespace UG
 		}
 
 		public void SetClip(System.Drawing.Drawing2D.GraphicsPath path, System.Drawing.Drawing2D.CombineMode mode) {
-			
+			// TODO: implement clip paths somehow...
+
+			// bitmap masking?
+			// http://www.antigrain.com/demo/alpha_mask.cpp.html	
 		}
 
 
 		public void SetClip(System.Drawing.Rectangle rect) {
-			// http://www.antigrain.com/demo/alpha_mask.cpp.html	
-			
-			// aggGc.SetClippingRect(new RectangleDouble(rect.Left,rect.Bottom,rect.Right,rect.Top));				
+			// this is just a simple rectangular clip
+
+			// make sure it doesn't go outside the bounds of the image itself..
+			var bounds = aggGc.DestImage.GetBounds();
+
+			aggGc.SetClippingRect(
+				new RectangleDouble(
+					Math.Min(rect.Left,bounds.Width),
+					Math.Min(rect.Bottom,bounds.Height),
+					Math.Min(rect.Right,bounds.Width),
+					Math.Min(rect.Top,bounds.Height)));
 		}
 
 		public void RotateTransform (float angleDeg)
@@ -242,7 +249,16 @@ namespace UG
 
         public void FillPie (Brush brush, System.Drawing.Rectangle rect, float startAngleDeg, float endAngleDeg)
 		{
+			SolidBrush solidBrush = brush as SolidBrush;
 			// throw new NotImplementedException();
+			double originX = (rect.Left + rect.Right) / 2.0;
+			double originY = (rect.Top + rect.Bottom) / 2.0;
+			double radiusX = (rect.Height) / 2.0;
+			double radiusY = (rect.Width) / 2.0;
+			
+			var arc = new arc(originX,originY,radiusX,radiusY,DegreesToRadians(startAngleDeg),DegreesToRadians(endAngleDeg));
+			pipeInput.source = arc;
+			aggGc.Render ( pipeTail, new RGBA_Bytes((uint)solidBrush.Color.ToArgb()) );
 		}
 
 
