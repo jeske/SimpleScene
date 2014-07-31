@@ -46,15 +46,17 @@ namespace SimpleScene {
             var bitmap = new UG.Bitmap(textureSize.Width, textureSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 			
             var gc = UG.Graphics.FromImage(bitmap);
-            // gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+			gc.Clear(backgroundColor);            
+
             gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;			
             // gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-			gc.Clear(backgroundColor);
-            // gc.DrawLine(Pens.White,4,4,textureSize.Width-1,4);
+			gc.DrawString(_label, font, new SolidBrush(textColor), 0, 0);
+
+            // gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;						
+			// gc.DrawLine(Pens.Red,4,4,textureSize.Width-1,4);
             // gc.DrawRectangle(Pens.White,0,0,textureSize.Width-1,textureSize.Height-1);
 
-			gc.DrawString(_label, font, new SolidBrush(textColor), 0, 0);
             gc.Flush();
 
             // Console.WriteLine("SSObjectGDIText: created texture size = {0} {1}", bitmap.Width, bitmap.Height);

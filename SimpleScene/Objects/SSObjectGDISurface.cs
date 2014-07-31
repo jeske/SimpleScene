@@ -47,7 +47,7 @@ namespace SimpleScene {
             textureSize = bitmap.Size;
 
             // download bits into a texture...
-            textureSurface.loadFromBitmap(bitmap, hasAlpha: hasAlpha);
+            textureSurface.loadFromBitmap(bitmap, hasAlpha: hasAlpha, mipmap:false);
         }
 
         public abstract Bitmap RepaintGDI(out Size gdiSize);
@@ -79,6 +79,9 @@ namespace SimpleScene {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, textureSurface.TextureID);
+
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
 
             // draw text rectangle...
             GL.Begin(BeginMode.Triangles);

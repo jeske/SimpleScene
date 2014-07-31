@@ -67,15 +67,19 @@ namespace UG
 		Graphics context;
 		IVertexSource pipeTail;
 		RectangleDouble clipRect;
+		Affine transform;
 
 		internal GraphicsState (Graphics context) {
 			this.context = context;
 			this.pipeTail = context.pipeTail;
 			this.clipRect = context.aggGc.GetClippingRect();
+			this.transform = context.aggGc.GetTransform();
 		}
 		internal void Restore() {
 			context.pipeTail = this.pipeTail;
 			context.aggGc.SetClippingRect(this.clipRect);
+			context.aggGc.PushTransform();
+			context.aggGc.SetTransform(this.transform);
 		}
 	}
 
@@ -122,6 +126,12 @@ namespace UG
 
 		public Graphics (Graphics2D aggGc) {
 			this.aggGc = aggGc;
+
+			// this makes whole-numbers fall in the middle of pixels...
+			// TODO: fix the AGG coordinates so this isn't necessary?
+			this.aggGc.PushTransform();
+			this.aggGc.SetTransform(Affine.NewTranslation(0.5,0.5));
+
 			this.pipeInput = new DeferredVertexSource();
 			this.pipeTail = this.pipeInput;
 		}
@@ -144,16 +154,18 @@ namespace UG
 			this.DrawString(text,font,brush,curPoint.X,curPoint.Y);
 		}
 
-		public void DrawString (string text, Font font, Brush brush, float x, float y) {
+		public void DrawString (string text, Font font, Brush brush, float x, float y)
+		{
 			// TODO: handle different brushes
 			// TODO: emulate GDI "bordering" of text?
-
 			SolidBrush colorBrush = brush as SolidBrush;
-			var text_render = new TypeFacePrinter(text, font.SizeInPoints, new MatterHackers.VectorMath.Vector2(0,0), Justification.Left,Baseline.BoundsTop);
-			var text_invert = new VertexSourceApplyTransform(text_render,Affine.NewScaling(1,-1));
-			var text_position = new VertexSourceApplyTransform(text_invert, Affine.NewTranslation(x,y));
+			var s1 = new TypeFacePrinter (text, font.SizeInPoints, new MatterHackers.VectorMath.Vector2 (0, 0), Justification.Left, Baseline.BoundsTop);	
+			var s2 = new VertexSourceApplyTransform (s1, Affine.NewScaling (1, -1));
+			if (x != 0.0f || y != 0.0f) {
+				s2 = new VertexSourceApplyTransform (s2, Affine.NewTranslation (x, y));
+			}
 
-			pipeInput.source = text_position;
+			pipeInput.source = s2;
 			aggGc.Render(pipeTail,new MatterHackers.Agg.RGBA_Bytes((uint)colorBrush.Color.ToArgb()));
 		}		
 
@@ -237,14 +249,14 @@ namespace UG
 
 		public void RotateTransform (float angleDeg)
 		{
-			var transform = Affine.NewRotation(DegreesToRadians(angleDeg));
-			pipeTail = new VertexSourceApplyTransform(pipeTail,transform);
+			aggGc.PushTransform();
+			aggGc.SetTransform( Affine.NewRotation(DegreesToRadians(angleDeg)) * aggGc.GetTransform() );			
 		}
                             
 
 		public void TranslateTransform (double x, double y) {
-			var transform = Affine.NewTranslation(x,y);
-			pipeTail = new VertexSourceApplyTransform(pipeTail,transform);
+			aggGc.PushTransform();
+			aggGc.SetTransform( Affine.NewTranslation(x,y) * aggGc.GetTransform());			
 		}
 
         public void FillPie (Brush brush, System.Drawing.Rectangle rect, float startAngleDeg, float endAngleDeg)
