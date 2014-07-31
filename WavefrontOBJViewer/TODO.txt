@@ -11,6 +11,13 @@
 
 - compute better bounding spheres (offset origin, more optimal sphere)
 
+- cross-platform 2d rasterization ( agg-sharp ? )
+  - (done) AGG: resolve text orientation to match GDI
+  - make convenience implicit-casts for size/color/etc
+    - http://msdn.microsoft.com/en-us/library/09479473.aspx
+  - consider making GDI-GraphicsContext work-alike
+  - C https://github.com/micahpearlman/MonkVG
+
 - add generic "HUD projection sprites" in 3d view
 
 - rethink how bounding spheres work (for performance)

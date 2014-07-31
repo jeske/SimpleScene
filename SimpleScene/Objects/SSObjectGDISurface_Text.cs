@@ -29,14 +29,15 @@ namespace SimpleScene {
             gdiSize = Graphics.FromImage(new Bitmap(1, 1)).MeasureString(_label, font).ToSize();
 
             // adjust labelSize to power of 2
-            Size textureSize = makeValidTextureSize((int)gdiSize.Width, (int)gdiSize.Height);
+            Size textureSize = makeValidTextureSize((int)gdiSize.Width, (int)gdiSize.Height);			
 
             // draw the string onto a bitmap
             var bitmap = new Bitmap(textureSize.Width, textureSize.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+			
             var gc = Graphics.FromImage(bitmap);
             // gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+            gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;			
             // gc.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
             gc.Clear(Color.Black);
             // gc.DrawLine(Pens.White,4,4,textureSize.Width-1,4);

@@ -36,6 +36,12 @@
       <HintPath>..\Libs\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="MatterHackers.VectorMath">
+      <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
+    </Reference>
+    <Reference Include="AGG">
+      <HintPath>..\Libs\AGG.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Objects\SSObjectGDISurface.cs" />
@@ -70,6 +76,9 @@
     <Compile Include="Util\FPSCalculator.cs" />
     <Compile Include="Util\FrustumCuller.cs" />
     <Compile Include="Core\SSShader.cs" />
+    <Compile Include="Objects\SSObject2DSurface_AGG.cs" />
+    <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
+    <Compile Include="Util\GDIviaAGG.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

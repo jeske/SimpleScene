@@ -18,7 +18,6 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
     <Externalconsole>True</Externalconsole>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -39,6 +38,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="OpenTK">
       <HintPath>..\Libs\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="MatterHackers.VectorMath">
+      <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
+    </Reference>
+    <Reference Include="AGG">
+      <HintPath>..\Libs\AGG.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
