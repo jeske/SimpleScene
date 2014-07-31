@@ -33,6 +33,7 @@ namespace SimpleScene {
 
             // draw the string onto a bitmap
             var bitmap = new Bitmap(textureSize.Width, textureSize.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+			
             var gc = Graphics.FromImage(bitmap);
             // gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;

@@ -15,9 +15,8 @@ namespace SimpleScene {
         private SSTexture textureSurface;
 
         public bool Dirty = true;
-        Vector2 gdiSize;
-        Vector2 textureSize;
-        public bool hasAlpha = false;
+        Size gdiSize;
+        Size textureSize;
 
         public SSObject2DSurface_AGG() { 
 			textureSurface = new SSTexture();
@@ -30,14 +29,14 @@ namespace SimpleScene {
             return powof2;
         }
 
-        internal Vector2 makeValidTextureSize(int w, int h) {
+        internal Size makeValidTextureSize(int w, int h) {
             if (false) {
                 // if it requires power of two texture sizes
-                return new Vector2(
+                return new Size(
                     nextPowerOf2(Math.Max(w, 64)),
                     nextPowerOf2(Math.Max(h, 64)));
             } else {
-                return new Vector2(w, h);
+                return new Size(w, h);
             }
         }
 
@@ -49,36 +48,36 @@ namespace SimpleScene {
             // http://florianblock.blogspot.com/2008/06/copying-dynamically-created-bitmap-to.html          
 
             ImageBuffer bitmap = this.RepaintAGG(out gdiSize);
-			textureSize = new Vector2(bitmap.Width,bitmap.Height);
+			textureSize = new Size(bitmap.Width,bitmap.Height);
 
             // download bits into a texture...
             textureSurface.loadFromImageBuffer(bitmap);
         }
 
-        public abstract ImageBuffer RepaintAGG(out Vector2 gdiSize);
+        public abstract ImageBuffer RepaintAGG(out Size gdiSize);
 
-        public override void Render(ref SSRenderConfig renderConfig) {            
-            UpdateTexture();            
+        public override void Render (ref SSRenderConfig renderConfig)
+		{            
+			UpdateTexture ();            
 
-            base.Render(ref renderConfig);
+			base.Render (ref renderConfig);
 
-            GL.UseProgram(0); // disable GLSL
+			GL.UseProgram (0); // disable GLSL
 
-            // mode setup
-            // GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+			// mode setup
+			// GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
-            // Step 2: setup our material mode and paramaters...
-            GL.Disable(EnableCap.CullFace);
+			// Step 2: setup our material mode and paramaters...
+			GL.Disable (EnableCap.CullFace);
             
-            GL.Disable(EnableCap.Lighting);
-            if (hasAlpha) {
-                GL.Enable(EnableCap.AlphaTest);
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            } else {
-                GL.Disable(EnableCap.AlphaTest);
-                GL.Disable(EnableCap.Blend);
-            }
+			GL.Disable (EnableCap.Lighting);
+			// enable alpha blending 
+			{
+				GL.Enable (EnableCap.AlphaTest);
+				GL.Enable (EnableCap.Blend);
+				GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+			}
+	           
 
             // fixed function single-texture
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -89,8 +88,8 @@ namespace SimpleScene {
             GL.Begin(BeginMode.Triangles);
             GL.Color3(Color.White);  // clear the vertex color to white..
 
-            float w = gdiSize.X;
-            float h = gdiSize.Y;
+            float w = gdiSize.Width;
+            float h = gdiSize.Height;
 
             if (gdiSize != textureSize) {
                 // adjust texture coordinates

@@ -78,6 +78,7 @@
     <Compile Include="Core\SSShader.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGG.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
+    <Compile Include="Util\GDIviaAGG.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
