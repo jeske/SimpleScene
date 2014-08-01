@@ -58,8 +58,8 @@ namespace SimpleScene
 		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
 			distanceAlongRay = 0.0f;
 			if (boundingSphere != null) {
-				if (boundingSphere.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
-			        if (collisionShell != null) {
+				if (boundingSphere.Intersect(ref worldSpaceRay, out distanceAlongRay)) {					
+			        if (collisionShell != null) {			            
 				        return collisionShell.Intersect(ref worldSpaceRay, out distanceAlongRay);
 		            } else {
 						return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);

@@ -22,7 +22,6 @@ Q: Why a separate iterator and vertex() call, instead of merging them into the i
 
 - compute better bounding spheres (offset origin, more optimal sphere)
 
-
 - add generic "HUD projection sprites" in 3d view
 
 - rethink how bounding spheres work (for performance)
@@ -343,3 +342,4 @@ Q: Why a separate iterator and vertex() call, instead of merging them into the i
   - http://mathinsight.org/distance_point_plane
 - (done) implement mesh-triangle intersection
 - (done) INVESTIGATE: skybox projection (it's a little fisheye.... skybox aspect ratio was off)
+- (done) PreciseCollisionDetection needs to produce precise ray-distance

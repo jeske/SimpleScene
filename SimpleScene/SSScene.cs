@@ -129,17 +129,22 @@ namespace SimpleScene
 			lights.Add (light);
 		}
 
-		public SSObject Intersect(ref SSRay worldSpaceRay) {
+		public SSObject Intersect (ref SSRay worldSpaceRay)
+		{
 			SSObject nearestIntersection = null;
-			// distanceAlongRay gets smaller in the camera direction, not sure why.
 			float nearestDistance = float.MinValue;
-			float distanceAlongRay;
-		    foreach (var obj in objects) {
-				if (obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
-					Console.WriteLine("intersect: {0}", obj.Name);
-					if (distanceAlongRay > nearestDistance) {
-						nearestDistance = distanceAlongRay;
-						nearestIntersection = obj;
+			// distances get "smaller" as they move in camera direction for some reason (why?)
+			foreach (var obj in objects) {
+				float distanceAlongRay;
+				if (obj.Intersect (ref worldSpaceRay, out distanceAlongRay)) {					
+					// intersection must be in front of the camera ( < 0.0 )
+					if (distanceAlongRay < 0.0) {
+						Console.WriteLine ("intersect: [{0}] @distance: {1}", obj.Name, distanceAlongRay);
+						// then we want the nearest one (numerically biggest
+						if (distanceAlongRay > nearestDistance) {
+							nearestDistance = distanceAlongRay;
+							nearestIntersection = obj;
+						}
 					}
 				}
 		    }

@@ -60,20 +60,33 @@ namespace SimpleScene
 				ObjectChanged(); 
 			} 
         }
-
-
+			
 		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
 		{
-			SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
-
+			SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
 			SSAbstractMesh mesh = this._mesh;
-			if (mesh != null) {
-				return mesh.TraverseTriangles( (state,V1,V2,V3) => {
+			bool hit = false;			  
+			float localNearestContact = float.MaxValue;
+			if (mesh == null) {
+				return true; // no mesh to test
+			} else {
+				// precise meshIntersect
+				mesh.TraverseTriangles ((state, V1, V2, V3) => {
 					float contact;
-					return OpenTKHelper.TriangleRayIntersectionTest(V1,V2,V3,localRay.pos,localRay.dir,out contact);
+					if (OpenTKHelper.TriangleRayIntersectionTest (V1, V2, V3, localRay.pos, localRay.dir, out contact)) {
+						hit = true;
+						localNearestContact = Math.Min (localNearestContact, contact);
+						Console.WriteLine ("Triangle Hit @ {0} : Object {1}", contact, Name);
+					}
+					return false; // don't short circuit
 				});
-			}
-			return true;
+				if (hit) {
+					float worldSpaceContactDistance = -localNearestContact * this.Scale.LengthFast;
+					Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
+					distanceAlongRay = worldSpaceContactDistance;
+				}
+				return hit;
+			}			     
 		}
     }
 }

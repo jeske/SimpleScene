@@ -66,10 +66,12 @@ namespace SimpleScene
 		public override bool Intersect (ref SSRay worldSpaceRay, out float distanceAlongRay)
 		{
 			// transform the ray into object space
+			float localDistanceAlongRay;
 
 			SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
 
-			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(localRay,Vector3.Zero, out distanceAlongRay);
+			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(localRay,Vector3.Zero, out localDistanceAlongRay);
+			distanceAlongRay = localDistanceAlongRay * this.Scale.LengthFast;
             bool result = distanceToSphereOrigin <= this.radius;
 #if false
 			Console.WriteLine("_____________________________");

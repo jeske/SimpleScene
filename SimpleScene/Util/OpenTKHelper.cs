@@ -17,8 +17,10 @@ namespace SimpleScene
 			System.Drawing.Size viewport, 
 			Vector2 mouse) 
 		{
-		    Vector3 pos1 = UnProject(ref projection, view, viewport, new Vector3(mouse.X,mouse.Y,0.0f));
-			Vector3 pos2 = UnProject(ref projection, view, viewport, new Vector3(mouse.X,mouse.Y,0.8f));
+			// these mouse.Z values are NOT scientific. 
+			// Near plane needs to be < -1.5f or we have trouble selecting objects right in front of the camera. (why?)
+		    Vector3 pos1 = UnProject(ref projection, view, viewport, new Vector3(mouse.X,mouse.Y,-1.5f)); // near
+			Vector3 pos2 = UnProject(ref projection, view, viewport, new Vector3(mouse.X,mouse.Y,1.0f));  // far
 			return SSRay.FromTwoPoints(pos1, pos2);
 		}
 
