@@ -27,7 +27,7 @@ Global
 		{E028B740-9EBB-491B-8080-CDED0AAD2F92}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = GDIviaAGGTest\GDIviaAGGTest.csproj
+		StartupItem = WavefrontOBJViewer\WavefrontOBJViewer.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.inheritsSet = null
