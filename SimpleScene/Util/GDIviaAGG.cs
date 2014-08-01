@@ -1,6 +1,17 @@
 ﻿// Copyright(C) David W. Jeske, 2013
 // Released to the public domain. Use, modify and relicense at will.
 
+// This is a small partial windows-GDI System.Drawing.Graphics emulation via agg-sharp.
+// I wrote it because Mono's GDI impelemenation doesn't handle clip-paths properly.
+//
+// You may (or may not) need my private agg-sharp fork...
+//
+//   https://github.com/jeske/agg-sharp
+//
+// So far I havn't put much time into making the rendering output closely match GDI.
+// It currently only supports SolidBrush, and it ignores Fonts and uses the AGG internal font.
+// The text-rendering is always the minimal "GenericTypographic" style with no padding.
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,7 +28,7 @@ namespace UG
 {
 
 	public struct Bitmap {
-		internal ImageBuffer buffer;
+		public ImageBuffer buffer;
 
 		/// <summary>
 		/// Creates a bitmap with 32bit A-rgb (BGRA) PixelFormat
@@ -61,25 +72,59 @@ namespace UG
 		}
 	} // struct Bitmap
 
-	// -------------------------------[  GDI Graphics work-alike  ] ------------------------------------
 
+    // -------------------------------------------------------------------------------------------------
+
+	public class GraphicsPath {
+		internal PathStorage path = new PathStorage();
+
+        public void AddPie (System.Drawing.Rectangle rect, float startAngleDeg, float endAngleDeg)
+		{
+			// throw new NotImplementedException();
+			double originX = (rect.Left + rect.Right) / 2.0;
+			double originY = (rect.Top + rect.Bottom) / 2.0;
+			double radiusX = (rect.Height) / 2.0;
+			double radiusY = (rect.Width) / 2.0;
+			
+			IVertexSource arcpath;
+
+			if (Math.Abs (endAngleDeg - startAngleDeg) >= 360.0) {
+				// if it's a full circle, we don't need to connect to the origin
+				path.concat_path(new arc(originX,originY,radiusX,radiusY,
+					Graphics.DegreesToRadians(startAngleDeg),
+					Graphics.DegreesToRadians(endAngleDeg),moveToStart:true));
+			} else {
+				// if it's a partial arc, we need to connect to the origin
+				path.MoveTo(originX,originY);
+				path.concat_path(new arc(originX,originY,radiusX,radiusY,
+					Graphics.DegreesToRadians(startAngleDeg),
+					Graphics.DegreesToRadians(endAngleDeg),moveToStart:false));
+				path.LineTo(originX,originY);				
+			}
+		}
+
+	}
+
+
+    // -------------------------------------------------------------------------------------------------
 	public class GraphicsState {
 		Graphics context;
 		IVertexSource pipeTail;
 		RectangleDouble clipRect;
 		Affine transform;
+		ImageBuffer clipBuffer;
 
 		internal GraphicsState (Graphics context) {
 			this.context = context;
-			this.pipeTail = context.pipeTail;
 			this.clipRect = context.aggGc.GetClippingRect();
 			this.transform = context.aggGc.GetTransform();
+			this.clipBuffer = context._clipBuffer;
 		}
 		internal void Restore() {
-			context.pipeTail = this.pipeTail;
 			context.aggGc.SetClippingRect(this.clipRect);
 			context.aggGc.PushTransform();
 			context.aggGc.SetTransform(this.transform);
+			context._clipBuffer = clipBuffer;
 		}
 	}
 
@@ -110,38 +155,40 @@ namespace UG
 		public DeferredVertexSource () { }
 	}
 
+	// -------------------------------[  GDI Graphics work-alike  ] ------------------------------------
+
+
+
 	public class Graphics {
+		public ImageBuffer imb;
 		public Graphics2D aggGc;
 		public System.Drawing.Drawing2D.SmoothingMode SmoothingMode;
-		public System.Drawing.Text.TextRenderingHint TextRenderingHint;
-		internal DeferredVertexSource pipeInput;
-		internal IVertexSource pipeTail;
+		public System.Drawing.Text.TextRenderingHint TextRenderingHint;		
+		internal ImageBuffer _clipBuffer;
 
 		Stack<GraphicsState> restoreStack = new Stack<GraphicsState>();
 
-		private double DegreesToRadians (float angleDeg)
+		static internal double DegreesToRadians (float angleDeg)
 		{
 			return (angleDeg / 180.0 * Math.PI);
 		}
 
-		public Graphics (Graphics2D aggGc) {
+		public Graphics (ImageBuffer imb, Graphics2D aggGc) {
 			this.aggGc = aggGc;
+			this.imb = imb;
 
 			// this makes whole-numbers fall in the middle of pixels...
 			// TODO: fix the AGG coordinates so this isn't necessary?
 			this.aggGc.PushTransform();
-			this.aggGc.SetTransform(Affine.NewTranslation(0.5,0.5));
-
-			this.pipeInput = new DeferredVertexSource();
-			this.pipeTail = this.pipeInput;
+			this.aggGc.SetTransform(Affine.NewTranslation(0.5,0.5));			
 		}
 
-		public static Graphics FromImage (Bitmap image) {
-			return new Graphics(image.buffer.NewGraphics2D());
+		public static Graphics FromImage (Bitmap image) {			
+			return new Graphics(image.buffer,image.buffer.NewGraphics2D());
 		}
 
 		public static Graphics FromImage (ImageBuffer image) {
-			return new Graphics(image.NewGraphics2D());
+			return new Graphics(image,image.NewGraphics2D());
 		}
 
 		public void Flush () { }
@@ -164,9 +211,8 @@ namespace UG
 			if (x != 0.0f || y != 0.0f) {
 				s2 = new VertexSourceApplyTransform (s2, Affine.NewTranslation (x, y));
 			}
-
-			pipeInput.source = s2;
-			aggGc.Render(pipeTail,new MatterHackers.Agg.RGBA_Bytes((uint)colorBrush.Color.ToArgb()));
+			
+			_InternalRender(s2, new RGBA_Bytes((uint)colorBrush.Color.ToArgb()) );
 		}		
 
 		// TODO: adjust measure string to handle "StringFormat.GenericTypographic" differently than normal padding
@@ -192,9 +238,8 @@ namespace UG
 			path.LineTo(x+width,y+height);
 			path.LineTo(x+width,y);
 			path.LineTo(x,y);			
-
-			pipeInput.source = path;
-			aggGc.Render ( pipeTail, new RGBA_Bytes((uint)solidBrush.Color.ToArgb()) );
+			
+			_InternalRender(path, new RGBA_Bytes((uint)solidBrush.Color.ToArgb()) );
 		}
 
 
@@ -207,12 +252,24 @@ namespace UG
 			path.LineTo(x,y);			
 			var stroke = new Stroke(path, (double)pen.Width);
 
-			pipeInput.source = stroke;
-			aggGc.Render ( pipeTail, new RGBA_Bytes((uint)pen.Color.ToArgb()) );
+			_InternalRender(stroke, new RGBA_Bytes((uint)pen.Color.ToArgb()));
 		}
 	
 		public void DrawArc (Pen pen, System.Drawing.Rectangle rect, float startAngleDeg, float endAngleDeg) {
+			// throw new NotImplementedException();
+			double originX = (rect.Left + rect.Right) / 2.0;
+			double originY = (rect.Top + rect.Bottom) / 2.0;
+			double radiusX = (rect.Height) / 2.0;
+			double radiusY = (rect.Width) / 2.0;
 			
+			var arcshape = new arc(
+				originX,originY,
+				radiusX,radiusY,
+				DegreesToRadians(startAngleDeg),DegreesToRadians(endAngleDeg)
+				);
+			var stroke = new Stroke(arcshape,pen.Width);			
+			
+			_InternalRender(stroke, new RGBA_Bytes((uint)pen.Color.ToArgb()) );
 		}
 
 		public void DrawLine (Pen pen, int x1, int y1, int x2, int y2) {
@@ -220,18 +277,69 @@ namespace UG
 			path.MoveTo(x1,y1);
 			path.LineTo(x2,y2);
 			var stroke = new Stroke(path, (double)pen.Width);
+			
+			_InternalRender(stroke, new RGBA_Bytes((uint)pen.Color.ToArgb()) );
+		}
+		
+		public void SetClip (UG.GraphicsPath path, System.Drawing.Drawing2D.CombineMode mode)
+		{
+			// to mask we make a mask bitmap and draw the shapes to it as an alpha mask.
+			RGBA_Bytes shapeMaskColor;
+			RGBA_Bytes backgroundMaskColor;
+			switch (mode) {
+			case System.Drawing.Drawing2D.CombineMode.Exclude:
+				shapeMaskColor = new RGBA_Bytes (0,0,0,255);
+				backgroundMaskColor = new RGBA_Bytes (255,255,255,255);
+				break;
+			default:
+				throw new NotImplementedException ();
+			}			
 
-			pipeInput.source = stroke;
-			aggGc.Render ( pipeTail, new RGBA_Bytes((uint)pen.Color.ToArgb()) );
+			// setup the clip buffer
+			var bounds = aggGc.DestImage.GetBounds ();
+
+			_clipBuffer = new ImageBuffer (bounds.Width, bounds.Height, 8, new blender_gray (1));				
+			var clipGC = _clipBuffer.NewGraphics2D();
+			clipGC.Clear(backgroundMaskColor);
+			clipGC.SetTransform(aggGc.GetTransform()); // apply our transform to the clipper
+			clipGC.Render(path.path,shapeMaskColor);
+
+			// ImageClippingProxy clippingProxy = new ImageClippingProxy (_clipBuffer);
+			//clippingProxy.clear (backgroundMaskColor);
+						
+			// render our shapes to the clipbuf
+			// ScanlineCachePacked8 sl = new ScanlineCachePacked8 ();
+			// ScanlineRenderer scanlineRenderer = new ScanlineRenderer ();
+			// ScanlineRasterizer rasterizer = new ScanlineRasterizer ();
+
+			// rasterizer.add_path (path.path);
+			// scanlineRenderer.render_scanlines_aa_solid (clippingProxy, rasterizer, sl, shapeMaskColor);
+
+			// DEBUG_saveImageBuffer(_clipBuffer);			
 		}
 
-		public void SetClip(System.Drawing.Drawing2D.GraphicsPath path, System.Drawing.Drawing2D.CombineMode mode) {
-			// TODO: implement clip paths somehow...
 
-			// bitmap masking?
-			// http://www.antigrain.com/demo/alpha_mask.cpp.html	
+		private void DEBUG_saveImageBuffer (ImageBuffer buf)
+		{
+			int hash = 0;
+			var bounds = buf.GetBounds ();
+			System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap (bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+			for (int x = 0; x < bounds.Width; x++) {
+				for (int y = 0; y < bounds.Height; y++) {
+					var pcolor = buf.GetPixel (x, y);
+					var wcolor = Color.FromArgb (pcolor.alpha, pcolor.red, pcolor.green, pcolor.green);
+
+					hash += wcolor.ToArgb () ^ 0x1f2f019f;
+					hash <<= 1;
+					
+					bitmap.SetPixel (x, y, wcolor);
+				}	
+			}
+			string filename = String.Format (@"C:\tmp\masktest-{0}.bmp", hash);
+			if (!System.IO.File.Exists (filename)) {
+				bitmap.Save (filename, ImageFormat.Bmp);
+			}
 		}
-
 
 		public void SetClip(System.Drawing.Rectangle rect) {
 			// this is just a simple rectangular clip
@@ -268,9 +376,21 @@ namespace UG
 			double radiusX = (rect.Height) / 2.0;
 			double radiusY = (rect.Width) / 2.0;
 			
-			var arc = new arc(originX,originY,radiusX,radiusY,DegreesToRadians(startAngleDeg),DegreesToRadians(endAngleDeg));
-			pipeInput.source = arc;
-			aggGc.Render ( pipeTail, new RGBA_Bytes((uint)solidBrush.Color.ToArgb()) );
+			IVertexSource arcpath;
+
+			if (Math.Abs (endAngleDeg - startAngleDeg) >= 360.0) {
+				// if it's a full circle, we don't need to connect to the origin
+				arcpath = new arc(originX,originY,radiusX,radiusY,DegreesToRadians(startAngleDeg),DegreesToRadians(endAngleDeg),moveToStart:true);
+			} else {
+				// if it's a partial arc, we need to connect to the origin
+				var path = new PathStorage();
+				path.MoveTo(originX,originY);
+				path.concat_path(new arc(originX,originY,radiusX,radiusY,DegreesToRadians(startAngleDeg),DegreesToRadians(endAngleDeg),moveToStart:false));
+				path.LineTo(originX,originY);
+				arcpath = path;
+			}
+						
+			_InternalRender(arcpath, new RGBA_Bytes((uint)solidBrush.Color.ToArgb()));
 		}
 
 
@@ -288,6 +408,38 @@ namespace UG
 			}
 			
 			restoreState.Restore();
+		}
+
+
+		public void ResetClip () {
+			_clipBuffer = null;			
+			aggGc.SetClippingRect(new RectangleDouble(aggGc.DestImage.GetBounds()));
+		}
+
+		private void _InternalRender (IVertexSource vertexSource, RGBA_Bytes color)
+		{
+
+			if (_clipBuffer != null) {
+				// DEBUG_saveImageBuffer(_clipBuffer);
+				// DEBUG_saveImageBuffer(this.imb);
+
+				IAlphaMask alphaMask = new AlphaMaskByteClipped (_clipBuffer, 1, 0);
+				AlphaMaskAdaptor imageAlphaMaskAdaptor = new AlphaMaskAdaptor (aggGc.DestImage, alphaMask);
+				ImageClippingProxy alphaMaskClippingProxy = new ImageClippingProxy (imageAlphaMaskAdaptor);
+				
+				var scanlineRenderer = new ScanlineRenderer ();
+				var rasterizer = new ScanlineRasterizer ();
+				var scanlineCache = new ScanlineCachePacked8();
+
+				
+				VertexSourceApplyTransform trans = new VertexSourceApplyTransform(vertexSource, aggGc.GetTransform());
+				rasterizer.add_path(trans);
+
+				scanlineRenderer.render_scanlines_aa_solid(alphaMaskClippingProxy,rasterizer,scanlineCache,color);
+				aggGc.DestImage.MarkImageChanged();				
+			} else {
+				aggGc.Render (vertexSource, color);
+			}
 		}
 
 	} // class Graphics

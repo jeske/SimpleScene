@@ -4,6 +4,17 @@
 - OpenGL Tutorials
   http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
 
+
+************************
+*
+*  GDI via AGG
+*
+
+Q: what is the intent of Graphics2D? GDI like or not?
+Q: why do I have to add a 0.5,0.5 offset transform to get clear pixels?
+Q: why the dependence on RGBA_Byte as a color? (howto do single byte/bit color?)
+Q: Why a separate iterator and vertex() call, instead of merging them into the iterator response (or faster delegate)
+
 ************************
 *
 *  TODO NEXT
@@ -11,12 +22,6 @@
 
 - compute better bounding spheres (offset origin, more optimal sphere)
 
-- cross-platform 2d rasterization ( agg-sharp ? )
-  - (done) AGG: resolve text orientation to match GDI
-  - make convenience implicit-casts for size/color/etc
-    - http://msdn.microsoft.com/en-us/library/09479473.aspx
-  - consider making GDI-GraphicsContext work-alike
-  - C https://github.com/micahpearlman/MonkVG
 
 - add generic "HUD projection sprites" in 3d view
 

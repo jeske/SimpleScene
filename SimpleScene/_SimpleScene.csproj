@@ -36,12 +36,6 @@
       <HintPath>..\Libs\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
-    <Reference Include="MatterHackers.VectorMath">
-      <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
-    </Reference>
-    <Reference Include="AGG">
-      <HintPath>..\Libs\AGG.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Objects\SSObjectGDISurface.cs" />
@@ -81,4 +75,14 @@
     <Compile Include="Util\GDIviaAGG.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\agg-sharp\VectorMath\VectorMath.csproj">
+      <Project>{D3E41B4E-BFBB-44CA-94C8-95C00F754FDD}</Project>
+      <Name>VectorMath</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\agg-sharp\agg\AGG.csproj">
+      <Project>{657DBC6D-C3EA-4398-A3FA-DDB73C14F71B}</Project>
+      <Name>AGG</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
