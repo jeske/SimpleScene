@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -16,13 +17,14 @@ namespace GDIviaAGGTest
 	{
 		public static void Main (string[] args)
 		{
+			var platform = Extensions.RunningPlatform(); 
 			// FillPie GDI Reference
 			{
 				var bitmap = new System.Drawing.Bitmap (200, 200, PixelFormat.Format32bppArgb);
 				var gc = System.Drawing.Graphics.FromImage (bitmap);	
 				gc.FillPie (new SolidBrush (Color.White), new Rectangle (0, 0, 200, 200), 0, 30);
 				gc.Flush ();
-				bitmap.Save (@"C:\tmp\pie1_gdi.bmp", ImageFormat.Bmp);
+				bitmap.Save (String.Format(@"pie1_gdi{0}.bmp",platform), ImageFormat.Bmp);
 			}
 	
 			// FillPie GDIviaAGG test
@@ -31,9 +33,27 @@ namespace GDIviaAGGTest
 				var gc = UG.Graphics.FromImage(bitmap);
 				gc.FillPie(new SolidBrush(Color.White),new Rectangle(0,0,200,200),0,30);
 				gc.Flush();
-				bitmap.Save(@"C:\tmp\pie1_agg.bmp");
+				bitmap.Save(@"pie1_agg.bmp");
 			}
-			
+
+
+			// Arc GDI Reference
+			{
+				var bitmap = new System.Drawing.Bitmap (200, 200, PixelFormat.Format32bppArgb);
+				var gc = System.Drawing.Graphics.FromImage (bitmap);	
+				gc.DrawArc (Pens.White, new Rectangle (20, 20, 100, 100), 0, 360);
+				gc.Flush ();
+				bitmap.Save (String.Format(@"arc1_gdi{0}.bmp",platform), ImageFormat.Bmp);
+			}
+	
+			// FillPie GDIviaAGG test
+			{
+				var bitmap = new UG.Bitmap(200,200,PixelFormat.Format32bppArgb);
+				var gc = UG.Graphics.FromImage(bitmap);
+				gc.DrawArc(Pens.White,new Rectangle(20,20,100,100),0,360);
+				gc.Flush();
+				bitmap.Save(@"arc1_agg.bmp");
+			}
 		}
 
 	}
@@ -59,5 +79,38 @@ namespace GDIviaAGGTest
 
 			wbmp.Save (filename, ImageFormat.Bmp);
 		}
+
+	    public enum Platform
+	    {
+	        Windows,
+	        Linux,
+	        Mac
+	    }
+	
+	    public static Platform RunningPlatform()
+	    {
+	        switch (Environment.OSVersion.Platform)
+	        {
+	            case PlatformID.Unix:
+	                // Well, there are chances MacOSX is reported as Unix instead of MacOSX.
+	                // Instead of platform check, we'll do a feature checks (Mac specific root folders)
+	                if (Directory.Exists("/Applications")
+	                    & Directory.Exists("/System")
+	                    & Directory.Exists("/Users")
+	                    & Directory.Exists("/Volumes"))
+	                    return Platform.Mac;
+	                else
+	                    return Platform.Linux;
+	
+	            case PlatformID.MacOSX:
+	                return Platform.Mac;
+	
+	            default:
+	                return Platform.Windows;
+	        }
+	    }
 	}
+
+
+
 }
