@@ -52,7 +52,7 @@ namespace WavefrontOBJViewer
 				// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 				SSCameraThirdPerson ctp = scene.activeCamera as SSCameraThirdPerson;
 				if (ctp != null) {
-					ctp.followDistance += e.DeltaPrecise;
+					ctp.followDistance += -e.DeltaPrecise;
 				} 
 			};
 
