@@ -28,8 +28,7 @@ namespace SimpleScene
 			// openGL requires pre-multiplation of these matricies...
 			Quaternion qResult = yaw_Rotation * pitch_Rotation * this.localMat.ExtractRotation();
 						
-			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(qResult);
-			this.Orient(newOrientation);
+			this.Orient(qResult);
 		}
 
 	}

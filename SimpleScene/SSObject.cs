@@ -124,11 +124,11 @@ namespace SimpleScene
 		private SSObject parent;
 		private ICollection<SSObject> children;
 
-		public void Orient(Matrix4 newOrientation) {
+		public void Orient(Quaternion orientation) {
+			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(orientation);
 			this._dir = new Vector3(newOrientation.M31, newOrientation.M32, newOrientation.M33);
 			this._up = new Vector3(newOrientation.M21, newOrientation.M22, newOrientation.M23);
-			this._right = Vector3.Cross(this._up, this._dir);
-			this._right.Normalize();
+			this._right = Vector3.Cross(this._up, this._dir).Normalized();
 			this.updateMat(); 
 		}
 		
@@ -145,8 +145,7 @@ namespace SimpleScene
 			// openGL requires pre-multiplation of these matricies...
 			Quaternion qResult = yaw_Rotation * pitch_Rotation * this.localMat.ExtractRotation();
 						
-			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(qResult);
-			this.Orient(newOrientation);
+			this.Orient(qResult);
 		}
 
 		
