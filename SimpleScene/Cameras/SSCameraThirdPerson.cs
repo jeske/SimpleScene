@@ -10,7 +10,9 @@ namespace SimpleScene
 	public class SSCameraThirdPerson : SSCamera
 	{
 		public SSObject FollowTarget;
-		public float followDistance = -10.0f;
+		public float followDistance = 10.0f;
+		public float minFollowDistance = 0.5f;
+		public float maxFollowDistance = 500.0f;
 		public Vector3 basePos;
 		Vector3 xaxis = Vector3.UnitX;
 		Vector3 yaxis = Vector3.UnitY;
@@ -26,16 +28,21 @@ namespace SimpleScene
 			this.basePos = origin;
 		}
 		public override void Update() {
-			Vector3 pos = basePos;
+			Vector3 targetPos = basePos;
 			// FPS follow the target
 			if (this.FollowTarget != null) {
-				pos = this.FollowTarget.Pos;
+				targetPos = this.FollowTarget.Pos;
 			} 
+			
+			followDistance = OpenTKHelper.Clamp(followDistance,minFollowDistance,maxFollowDistance);
 			
 			// one way to have a third person camera, is to position ourselves
 			// relative to our target object, and our current camera-direction
 			
-			this.Pos = pos + (this.Dir * -followDistance);
+			// TODO: why are positive follow distances producing the correct orientation? 
+			//    it feels like something is inverted
+
+			this.Pos = targetPos + (this.Dir * followDistance);
 			// Console.WriteLine("Camera Up {0} / Dir {1} / Right {2}",this.Up,this.Dir,this.Right);
 			// Console.WriteLine("Camera Pos = {0}",this.Pos);
 			base.Update();

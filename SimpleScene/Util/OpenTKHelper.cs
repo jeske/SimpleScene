@@ -169,9 +169,15 @@ namespace SimpleScene
  
             // No hit, no win
             return false;
+		} // fn
+
+
+		public static float Clamp(float value, float min, float max) {
+			value = (value < min ? min : value);
+			value = (value > max ? max : value);
+			return value;
 		}
-
-
+	
 	}
 }
 
