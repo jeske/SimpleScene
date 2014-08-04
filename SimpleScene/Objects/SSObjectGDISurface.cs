@@ -74,11 +74,13 @@ namespace SimpleScene {
                 GL.Disable(EnableCap.AlphaTest);
                 GL.Disable(EnableCap.Blend);
             }
-
-            // fixed function single-texture
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.Enable(EnableCap.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, textureSurface.TextureID);
+			
+			// setup our texture source
+			if (textureSurface != null) {
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.Enable(EnableCap.Texture2D);
+                GL.BindTexture(TextureTarget.Texture2D, textureSurface.TextureID);
+			}
 
 			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
 			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);

@@ -37,12 +37,24 @@ namespace SimpleScene
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
+			// turn off most GL features to start..
+			GL.UseProgram(0);
+			GL.Disable(EnableCap.Blend);
+            // reset things to a default state
+			int maxtex = GL.GetInteger(GetPName.MaxTextureUnits); // this is the legacy fixed-function max
+			for (int i=0;i<maxtex;i++) {
+				GL.ActiveTexture(TextureUnit.Texture0 + i);
+				GL.Disable(EnableCap.Texture2D);
+			}
+
 			if (this.renderState.lighted) {
 				GL.Enable(EnableCap.Lighting);
 			} else {
 				GL.Disable(EnableCap.Lighting);
 			}
-
+	
+			// setup the base color values...
+			GL.Color4(diffuseMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
