@@ -96,12 +96,12 @@ namespace SimpleScene
 		protected Vector3 _pos;
 		public Vector3 Pos {  
 			get { return _pos; } 
-			set { _pos = value; this.updateMat();}
+			set { _pos = value; this.calcMatFromState();}
 		}
 		protected Vector3 _scale = new Vector3 (1.0f);
 		public Vector3 Scale { 
 			get { return _scale; } 
-			set { _scale = value; this.updateMat (); }
+			set { _scale = value; this.calcMatFromState (); }
 		}
 		public float Size {
 		    set { Scale = new Vector3(value); }
@@ -129,7 +129,7 @@ namespace SimpleScene
 			this._dir = new Vector3(newOrientation.M31, newOrientation.M32, newOrientation.M33);
 			this._up = new Vector3(newOrientation.M21, newOrientation.M22, newOrientation.M23);
 			this._right = Vector3.Cross(this._up, this._dir).Normalized();
-			this.updateMat(); 
+			this.calcMatFromState(); 
 		}
 		
 		private float DegreeToRadian(float angleInDegrees) {
@@ -140,7 +140,7 @@ namespace SimpleScene
 			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(-XDelta));
     		Quaternion pitch_Rotation = Quaternion.FromAxisAngle(Vector3.UnitX,DegreeToRadian(-YDelta));
 
-			this.updateMat(); // make sure our local matrix is current
+			this.calcMatFromState(); // make sure our local matrix is current
 
 			// openGL requires pre-multiplation of these matricies...
 			Quaternion qResult = yaw_Rotation * pitch_Rotation * this.localMat.ExtractRotation();
@@ -148,35 +148,37 @@ namespace SimpleScene
 			this.Orient(qResult);
 		}
 
-		
-		protected void updateMat() {
-			this.updateMat (ref this._dir, ref this._up, ref this._right, ref this._pos);
+		protected void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
+
+			this._pos = pos;
+			this._dir = dir;
+			this._right = right;
+			this._up = up;
+			calcMatFromState();
 		}
 
-		protected void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
+		protected void calcMatFromState() {
 			Matrix4 newLocalMat = Matrix4.Identity;
 
 			// rotation..
-			newLocalMat.M11 = right.X;
-			newLocalMat.M12 = right.Y;
-			newLocalMat.M13 = right.Z;
+			newLocalMat.M11 = _right.X;
+			newLocalMat.M12 = _right.Y;
+			newLocalMat.M13 = _right.Z;
 
-			newLocalMat.M21 = up.X;
-			newLocalMat.M22 = up.Y;
-			newLocalMat.M23 = up.Z;
+			newLocalMat.M21 = _up.X;
+			newLocalMat.M22 = _up.Y;
+			newLocalMat.M23 = _up.Z;
 
-			newLocalMat.M31 = dir.X;
-			newLocalMat.M32 = dir.Y;
-			newLocalMat.M33 = dir.Z;
+			newLocalMat.M31 = _dir.X;
+			newLocalMat.M32 = _dir.Y;
+			newLocalMat.M33 = _dir.Z;
 
 			newLocalMat *= Matrix4.CreateScale (this._scale);
 
 			// position
-			newLocalMat.M41 = pos.X;
-			newLocalMat.M42 = pos.Y;
-			newLocalMat.M43 = pos.Z;
-
-
+			newLocalMat.M41 = _pos.X;
+			newLocalMat.M42 = _pos.Y;
+			newLocalMat.M43 = _pos.Z;
 
 			// compute world transformation
 			Matrix4 newWorldMat;
@@ -208,7 +210,7 @@ namespace SimpleScene
 			this._up = new Vector3(0.0f,1.0f,0.0f);     // Y+  up
 			this._right = new Vector3(1.0f,0.0f,0.0f);  // X+  right
 			
-			this.updateMat();
+			this.calcMatFromState();
 			
 			// rotate here if we want to.
 		}

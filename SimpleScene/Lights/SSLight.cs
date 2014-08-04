@@ -22,7 +22,7 @@ namespace SimpleScene
 		public SSLight (LightName glLightName) : base() {
 			this.glLightName = glLightName;
 			this._pos = new Vector3 (0, 0, 1);
-			this.updateMat ();
+			this.calcMatFromState ();
 		}
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
