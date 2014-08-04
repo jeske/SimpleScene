@@ -20,6 +20,8 @@ Q: Why a separate iterator and vertex() call, instead of merging them into the i
 *  TODO NEXT
 *
 
+- BUG: fixed-function "flat shaded cube" is lit wrong, why?
+
 - compute better bounding spheres (offset origin, more optimal sphere)
 
 - add generic "HUD projection sprites" in 3d view

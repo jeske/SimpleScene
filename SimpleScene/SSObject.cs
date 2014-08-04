@@ -18,7 +18,7 @@ namespace SimpleScene
 	    public Color4 ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 		public Color4 diffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
 		public Color4 specularMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
-		public Color4 emissionMatColor = new Color4(0.5f,0.5f,0.5f,0.5f);
+		public Color4 emissionMatColor = new Color4(0f,0f,0f,0f);
 		public float shininessMatColor = 10.0f;
 
 		public string Name = "";
@@ -49,12 +49,12 @@ namespace SimpleScene
 
 			if (this.renderState.lighted) {
 				GL.Enable(EnableCap.Lighting);
+				GL.ShadeModel(ShadingModel.Flat);
 			} else {
 				GL.Disable(EnableCap.Lighting);
 			}
 	
 			// setup the base color values...
-			GL.Color4(diffuseMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
