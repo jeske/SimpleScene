@@ -6,7 +6,6 @@
     <ProjectGuid>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>SimpleScene</RootNamespace>
-    <AssemblyName>SimpleScene</AssemblyName>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
@@ -20,6 +19,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>SimpleScene</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -28,6 +28,21 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>SimpleScene</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Client|AnyCPU' ">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug-Client</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AssemblyName>_SimpleScene</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Server|AnyCPU' ">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug-Server</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AssemblyName>_SimpleScene</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
