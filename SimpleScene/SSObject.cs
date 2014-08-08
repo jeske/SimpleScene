@@ -99,6 +99,7 @@ namespace SimpleScene
 	public class SSOBRenderState {
 	    public bool lighted = true;
 	    public bool visible = true;
+		public bool toBeDeleted = false;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)

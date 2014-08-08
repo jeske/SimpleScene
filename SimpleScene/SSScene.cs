@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 
+
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -47,8 +48,8 @@ namespace SimpleScene
 
 	public sealed class SSScene
 	{
-		public ICollection<SSObject> objects = new List<SSObject>();
-		public ICollection<SSLight> lights = new List<SSLight> ();
+		public List<SSObject> objects = new List<SSObject>();
+		public List<SSLight> lights = new List<SSLight> ();
 
 		public SSCamera activeCamera;
 
@@ -98,8 +99,12 @@ namespace SimpleScene
 			// compute a world-space frustum matrix, so we can test against world-space object positions
 			Matrix4 frustumMatrix = renderConfig.invCameraViewMat * renderConfig.projectionMatrix;			
 			var fc = new Util3d.FrustumCuller (ref frustumMatrix); 
-			
-			foreach (var obj in objects) {					
+
+			bool needObjectDelete = false;			
+
+			foreach (var obj in objects) {	
+				if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
+				if (!obj.renderState.visible) continue; // skip invisible objects
 				// frustum test... 
 				if (renderConfig.frustumCulling &&
 					obj.boundingSphere != null && !fc.isSphereInsideFrustum(obj.Pos,obj.boundingSphere.radius)) {
@@ -113,6 +118,10 @@ namespace SimpleScene
 				}
 				renderConfig.renderStats.objectsDrawn++;
 				obj.Render (ref renderConfig);
+			}
+
+			if  (needObjectDelete) {
+				objects.RemoveAll(o => o.renderState.toBeDeleted);
 			}
 		}
 
