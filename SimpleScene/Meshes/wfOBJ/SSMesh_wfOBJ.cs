@@ -17,7 +17,7 @@ namespace SimpleScene
 		SSAssetManagerContext ctx;
 		public readonly string srcFilename;
 		
-		SSShaderProgram shaderPgm;
+		SSShaderProgram_Main shaderPgm;
 
 	    public struct SSMeshOBJSubsetData {
 	   		public SSTexture diffuseTexture;
@@ -43,7 +43,7 @@ namespace SimpleScene
 		}
 		
 #region Constructor
-        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, bool mipmapped, SSShaderProgram shaderPgm = null) {
+        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, bool mipmapped, SSShaderProgram_Main shaderPgm = null) {
             this.srcFilename = filename;
             // this.mipmapped = mipmapped;
             this.ctx = ctx;
@@ -79,7 +79,6 @@ namespace SimpleScene
 			if (shaderPgm == null) {
 				GL.UseProgram(0);
 				GL.Disable(EnableCap.CullFace);
-
 
 				// fixed function single-texture
 				GL.Disable(EnableCap.Texture2D);

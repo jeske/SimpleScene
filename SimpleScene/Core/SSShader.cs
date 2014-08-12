@@ -74,8 +74,7 @@ namespace SimpleScene
 	
 	public class SSShaderProgram {
 		public int ProgramID;
-		public SSShaderProgram(int id) {
-			this.ProgramID = id;
+		internal SSShaderProgram() {
 		}
 	}
 }

@@ -97,6 +97,7 @@
     <Compile Include="Util\IcoSphereCreator.cs" />
     <Compile Include="Objects\SSObjectSphere.cs" />
     <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
+    <Compile Include="Core\SSShaderProgram_Main.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
