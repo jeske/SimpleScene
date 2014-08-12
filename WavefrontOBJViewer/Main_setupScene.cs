@@ -47,7 +47,7 @@ namespace WavefrontOBJViewer
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.shininessMatColor = 10.0f;
-			droneObj.MouseDeltaOrient(-40.0f,0.0f);
+			droneObj.EulerDegAngleOrient(-40.0f,0.0f);
 			droneObj.Pos = new OpenTK.Vector3(-5,0,0);
 			droneObj.Name = "drone 1";
 
@@ -62,7 +62,7 @@ namespace WavefrontOBJViewer
 			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.shininessMatColor = 10.0f;
 			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
-			drone2Obj.MouseDeltaOrient(20.0f,0.0f);
+			drone2Obj.EulerDegAngleOrient(20.0f,0.0f);
 			drone2Obj.Name = "drone 2";
 
 			// last. Add Camera
