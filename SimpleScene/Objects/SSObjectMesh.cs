@@ -71,7 +71,7 @@ namespace SimpleScene
 				return true; // no mesh to test
 			} else {
 				// precise meshIntersect
-				mesh.TraverseTriangles ((state, V1, V2, V3) => {
+				bool global_hit = mesh.TraverseTriangles ((state, V1, V2, V3) => {
 					float contact;
 					if (OpenTKHelper.TriangleRayIntersectionTest (V1, V2, V3, localRay.pos, localRay.dir, out contact)) {
 						hit = true;
@@ -85,7 +85,7 @@ namespace SimpleScene
 					Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
 					distanceAlongRay = worldSpaceContactDistance;
 				}
-				return hit;
+				return global_hit || hit;
 			}			     
 		}
     }
