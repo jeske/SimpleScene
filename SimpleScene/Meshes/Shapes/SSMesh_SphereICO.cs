@@ -41,11 +41,15 @@ namespace SimpleScene
 			// compute latitute and longitute values from the vector to the normalized sphere surface position
 			// using Y-up coordinates
 			
-			float latitude = (float) Math.Atan2(vpn.Y, Math.Sqrt( vpn.X * vpn.X + vpn.Z * vpn.Z) );
-			float longitude = (float) Math.Atan2(vpn.X,vpn.Z);
+			// compute azimuth (x texture coord)
+			float longitude = (float) Math.Atan2(vpn.X,vpn.Z);  // azimuth [-PI  to PI]   			
+			u = (float) (( longitude / (2.0 * Math.PI) ) + 0.5);        // [0 to 1]
 
-			u = (float) ( longitude / Math.PI ) ;
-			v = (float) ( Math.Log((1.0 + Math.Sin(latitude))/(1.0 - Math.Sin(latitude))) / (4.0 * Math.PI) );
+			// compute altitude (y texture coord)
+			float latitude = (float) Math.Acos(vpn.Y);          // altitude [0 to PI]
+			v = (float) (latitude / Math.PI);                   // [0 to 1]
+
+			// v = (float) ( Math.Log((1.0 + Math.Sin(latitude))/(1.0 - Math.Sin(latitude))) / (4.0 * Math.PI) );
 		}
 
 		private void _Create(int divisions) {
@@ -92,8 +96,8 @@ namespace SimpleScene
 			} else {
 				GL.BindTexture(TextureTarget.Texture2D, 0);
 			}
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
 			vbo.bind (this.shaderPgm);
 			ibo.bind ();

@@ -37,6 +37,7 @@
     <WarningLevel>4</WarningLevel>
     <AssemblyName>_SimpleScene</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Server|AnyCPU' ">
     <Optimize>false</Optimize>
