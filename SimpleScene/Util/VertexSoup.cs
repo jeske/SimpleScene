@@ -27,19 +27,25 @@ namespace Util3d {
         public List<VERTEX_STRUCT> verticies = new List<VERTEX_STRUCT>();
         private readonly bool deDup;
 
+		public UInt16 digestVertex(ref VERTEX_STRUCT vertex) {
+			UInt16 retval;
+		    if (deDup && vertexToIndexMap.ContainsKey(vertex)) {
+                retval = vertexToIndexMap[vertex];
+            } else {
+                UInt16 nextIndex = (UInt16)verticies.Count;
+                vertexToIndexMap[vertex] = nextIndex;
+                verticies.Add(vertex);
+                retval = nextIndex;
+            }
+
+			return retval;
+		}
+
         public UInt16[] digestVerticies(VERTEX_STRUCT[] vertex_list) {
             UInt16[] retval = new UInt16[vertex_list.Length];
 
-            for(int x=0;x<vertex_list.Length;x++) {            
-                if (deDup && vertexToIndexMap.ContainsKey(vertex_list[x])) {
-                    retval[x] = vertexToIndexMap[vertex_list[x]];
-                } else {
-                    UInt16 nextIndex = (UInt16)verticies.Count;
-                    vertexToIndexMap[vertex_list[x]] = nextIndex;
-                    verticies.Add(vertex_list[x]);
-                    retval[x] = nextIndex;
-
-                }
+            for(int x=0;x<vertex_list.Length;x++) {
+				retval[x] = digestVertex(ref vertex_list[x]);          
             }
             return retval;
         }
