@@ -107,7 +107,8 @@ namespace SimpleScene
 				if (!obj.renderState.visible) continue; // skip invisible objects
 				// frustum test... 
 				if (renderConfig.frustumCulling &&
-					obj.boundingSphere != null && !fc.isSphereInsideFrustum(obj.Pos,obj.boundingSphere.radius)) {
+					obj.boundingSphere != null && 
+					!fc.isSphereInsideFrustum(obj.Pos,obj.boundingSphere.radius * obj.Scale.LengthFast)) {
 					renderConfig.renderStats.objectsCulled++;
 					continue; // skip the object
 				}
