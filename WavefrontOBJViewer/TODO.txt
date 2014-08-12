@@ -4,6 +4,9 @@
 - OpenGL Tutorials
   http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
 
+- OpenGL Common Mistakes:
+  - http://www.opengl.org/wiki/Common_Mistakes
+
 
 ************************
 *
