@@ -148,7 +148,7 @@ namespace SimpleScene
 			return (float)Math.PI * angleInDegrees / 180.0f;
 		}
 
-		public void MouseDeltaOrient(float XDelta, float YDelta) {
+		public void EulerDegAngleOrient(float XDelta, float YDelta) {
 			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(-XDelta));
     		Quaternion pitch_Rotation = Quaternion.FromAxisAngle(Vector3.UnitX,DegreeToRadian(-YDelta));
 
