@@ -2,7 +2,6 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
-
 using System.Collections.Generic;
 
 using OpenTK;

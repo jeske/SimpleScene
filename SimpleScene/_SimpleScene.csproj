@@ -80,7 +80,6 @@
     <Compile Include="Objects\SSObjectMesh.cs" />
     <Compile Include="Objects\SSObjectMeshSky.cs" />
     <Compile Include="Objects\SSObjectRay.cs" />
-    <Compile Include="Objects\SSObjectSphere.cs" />
     <Compile Include="Objects\SSObjectTriangle.cs" />
     <Compile Include="Util\OpenTKHelper.cs" />
     <Compile Include="Util\SSAssetManager.cs" />
@@ -94,6 +93,12 @@
     <Compile Include="Objects\SSObject2DSurface_AGG.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
     <Compile Include="Util\GDIviaAGG.cs" />
+    <Compile Include="Util\IcoSphereCreator.cs" />
+    <Compile Include="Objects\SSObjectSphere.cs" />
+    <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Meshes\Shapes\" />
+  </ItemGroup>
 </Project>

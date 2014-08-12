@@ -14,9 +14,6 @@ namespace SimpleScene
 		public float minFollowDistance = 0.5f;
 		public float maxFollowDistance = 500.0f;
 		public Vector3 basePos;
-		Vector3 xaxis = Vector3.UnitX;
-		Vector3 yaxis = Vector3.UnitY;
-		Vector3 zaxis = Vector3.UnitZ;
 
 		public SSCameraThirdPerson (SSObject followTarget) : base() {
 			this.FollowTarget = followTarget;			
