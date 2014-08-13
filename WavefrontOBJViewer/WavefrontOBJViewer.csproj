@@ -50,7 +50,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Main_setupScene.cs" />
-    <Compile Include="Main_setupShaders.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
     <Compile Include="Main_renderScene.cs" />
     <Compile Include="Main_setupInput.cs" />

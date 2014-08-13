@@ -18,11 +18,11 @@ namespace WavefrontOBJViewer
 				GL.UseProgram(this.shaderPgm.ProgramID);
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					GL.Uniform1 (this.u_showWireframes, (int) 1);			
+					GL.Uniform1 (this.shaderPgm.u_showWireframes, (int) 1);			
 
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					GL.Uniform1 (this.u_showWireframes, (int) 0);			
+					GL.Uniform1 (this.shaderPgm.u_showWireframes, (int) 0);			
 
 				}
 			};

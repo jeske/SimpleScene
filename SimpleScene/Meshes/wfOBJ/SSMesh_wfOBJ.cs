@@ -43,7 +43,7 @@ namespace SimpleScene
 		}
 		
 #region Constructor
-        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, bool mipmapped, SSShaderProgram_Main shaderPgm = null) {
+        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, bool mipmapped, SSShaderProgram_Main shaderPgm=null) {
             this.srcFilename = filename;
             // this.mipmapped = mipmapped;
             this.ctx = ctx;

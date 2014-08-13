@@ -27,17 +27,17 @@ namespace SimpleScene
 		public int u_animateSecondsOffset;
 		public int u_showWireframes;
 		
-		//public int u_diffTexEnabled;
-		//public int u_specTexEnabled;
-		//public int u_ambiTexEnabled;
-		//public int u_bumpTexEnabled;
+		public int u_diffTexEnabled;
+		public int u_specTexEnabled;
+		public int u_ambiTexEnabled;
+		public int u_bumpTexEnabled;
 
 		public SSShaderProgram_Main ()
 		{
 			// open the shader asset context...
 			var ctx = SSAssetManager.mgr.getContext ("./Shaders/");
 
-			int ProgramID = GL.CreateProgram();
+			ProgramID = GL.CreateProgram();
 			// we use this method of detecting the extension because we are in a GL2.2 context
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
@@ -89,10 +89,10 @@ namespace SimpleScene
 			u_WIN_SCALE = GL.GetUniformLocation(ProgramID, "WIN_SCALE");
 			u_showWireframes = GL.GetUniformLocation(ProgramID, "showWireframes");
 
-			//u_diffTexEnabled = GL.GetUniformLocation(ProgramID, "diffTexEnabled");
-			//u_specTexEnabled = GL.GetUniformLocation(ProgramID, "specTexEnabled");
-			//u_ambiTexEnabled = GL.GetUniformLocation(ProgramID, "ambiTexEnabled");
-			//u_bumpTexEnabled = GL.GetUniformLocation(ProgramID, "bumpTexEnabled");
+			u_diffTexEnabled = GL.GetUniformLocation(ProgramID, "diffTexEnabled");
+			u_specTexEnabled = GL.GetUniformLocation(ProgramID, "specTexEnabled");
+			u_ambiTexEnabled = GL.GetUniformLocation(ProgramID, "ambiTexEnabled");
+			u_bumpTexEnabled = GL.GetUniformLocation(ProgramID, "bumpTexEnabled");
 
 			{
 				ErrorCode glerr;

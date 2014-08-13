@@ -43,7 +43,7 @@ namespace WavefrontOBJViewer
 				animateSecondsOffset -= 1000.0f;
 			}
 			GL.UseProgram (this.shaderPgm.ProgramID);
-			GL.Uniform1 (this.u_animateSecondsOffset, (float)animateSecondsOffset);			
+			GL.Uniform1 (this.shaderPgm.u_animateSecondsOffset, (float)animateSecondsOffset);			
 
 
 			/////////////////////////////////////////
@@ -140,7 +140,7 @@ namespace WavefrontOBJViewer
 
 			// setup WIN_SCALE for our shader...
 			GL.UseProgram(shaderPgm.ProgramID);
-			GL.Uniform2(this.u_WIN_SCALE, (float)ClientRectangle.Width, (float)ClientRectangle.Height);
+			GL.Uniform2(this.shaderPgm.u_WIN_SCALE, (float)ClientRectangle.Width, (float)ClientRectangle.Height);
 		}
 
 	}

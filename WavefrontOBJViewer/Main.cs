@@ -33,6 +33,7 @@ namespace WavefrontOBJViewer
 		bool mouseButtonDown = false;
 		SSObject activeModel;
 		
+		SSShaderProgram_Main shaderPgm;
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public WavefrontOBJViewer()
@@ -106,7 +107,7 @@ namespace WavefrontOBJViewer
 				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
 				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
 
-				game.setupShaders();  // before scene
+				game.shaderPgm = new SSShaderProgram_Main(); // before scene
 				
 				game.setupInput ();
 
