@@ -46,6 +46,7 @@ namespace WavefrontOBJViewer
 			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.shininessMatColor = 10.0f;
 			droneObj.EulerDegAngleOrient(-40.0f,0.0f);
 			droneObj.Pos = new OpenTK.Vector3(-5,0,0);
@@ -60,6 +61,8 @@ namespace WavefrontOBJViewer
 			drone2Obj.renderState.lighted = true;
 			drone2Obj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			drone2Obj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.shininessMatColor = 10.0f;
 			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
 			drone2Obj.EulerDegAngleOrient(20.0f,0.0f);
