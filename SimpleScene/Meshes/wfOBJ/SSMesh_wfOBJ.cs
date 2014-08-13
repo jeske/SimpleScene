@@ -99,26 +99,35 @@ namespace SimpleScene
 				GL.ActiveTexture(TextureUnit.Texture0);
 				if (subset.diffuseTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+					GL.Uniform1(shaderPgm.u_diffTexEnabled,(int)1); 
+
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
+					GL.Uniform1(shaderPgm.u_diffTexEnabled,(int)0);
 				}
 				GL.ActiveTexture(TextureUnit.Texture1);
 				if (subset.specularTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
+					GL.Uniform1(shaderPgm.u_specTexEnabled,(int)1); 
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
+					GL.Uniform1(shaderPgm.u_specTexEnabled,(int)0); 
 				}
 				GL.ActiveTexture(TextureUnit.Texture2);
 				if (subset.ambientTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
+					GL.Uniform1(shaderPgm.u_ambiTexEnabled,(int)1); 
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
+					GL.Uniform1(shaderPgm.u_ambiTexEnabled,(int)0); 
 				}
 				GL.ActiveTexture(TextureUnit.Texture3);
 				if (subset.bumpTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
+					GL.Uniform1(shaderPgm.u_bumpTexEnabled,(int)1); 
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
+					GL.Uniform1(shaderPgm.u_ambiTexEnabled,(int)0); 
 				}
 
 				// reset to texture-unit 0 to be friendly..

@@ -36,10 +36,7 @@ namespace SimpleScene
 			var p6 = new Vector3 ( 1,  1, -1);
 			var p7 = new Vector3 (-1,  1, -1);
 
-			GL.Enable(EnableCap.ColorMaterial);
-
 			GL.Begin(BeginMode.Triangles);
-            GL.Color4(diffuseMatColor);
 
             drawQuadFace(p0, p1, p2, p3);            
             drawQuadFace(p7, p6, p5, p4);

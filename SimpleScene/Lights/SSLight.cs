@@ -45,9 +45,11 @@ namespace SimpleScene
 			GL.Enable (EnableCap.Lighting);
 			GL.ShadeModel (ShadingModel.Smooth);
 
-			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (0.5f)); // diffuse color (R,G,B,A)
-			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.5f)); // ambient light color (R,G,B,A)
-			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.5f)); // specular light color (R,G,B,A)
+			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.4f)); // ambient light color (R,G,B,A)
+
+			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (1.0f)); // diffuse color (R,G,B,A)
+
+			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.8f)); // specular light color (R,G,B,A)
 
 			// w=1.0 is a point light
 			// w=0.0 is a directional light

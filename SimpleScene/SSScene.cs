@@ -24,6 +24,8 @@ namespace SimpleScene
 	public class SSRenderConfig {
 		public SSRenderStats renderStats;
 
+		public SSShaderProgram_Main BaseShader;
+
 		public bool drawGLSL = true;
 		public bool useVBO = true;
 
@@ -53,7 +55,7 @@ namespace SimpleScene
 
 		public SSCamera activeCamera;
 
-		public SSRenderConfig renderConfig = new SSRenderConfig ();
+		public SSRenderConfig renderConfig = new SSRenderConfig();
 
 		#region SSScene Events
 	    public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
@@ -162,7 +164,7 @@ namespace SimpleScene
 			return nearestIntersection;
 		}
 
-		public SSScene ()  {  }
+		public SSScene ()  { }
 	}
 }
 

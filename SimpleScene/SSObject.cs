@@ -14,10 +14,10 @@ namespace SimpleScene
 
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
-	    public Color4 ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-		public Color4 diffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
-		public Color4 specularMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
-		public Color4 emissionMatColor = new Color4(0f,0f,0f,0f);
+	    public Color4 ambientMatColor = new Color4(0.001f,0.001f,0.001f,1.0f);
+		public Color4 diffuseMatColor = new Color4(1.2f,1.2f,1.2f,1.2f);
+		public Color4 specularMatColor = new Color4(0.8f,0.8f,0.8f,1.0f);
+		public Color4 emissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
 		public float shininessMatColor = 10.0f;
 
 		public string Name = "";
@@ -37,7 +37,17 @@ namespace SimpleScene
 			GL.LoadMatrix(ref modelViewMat);
 
 			// turn off most GL features to start..
-			GL.UseProgram(0);
+			if (renderConfig.BaseShader == null) {
+				GL.UseProgram(0);
+			} else {
+				var shaderPgm = renderConfig.BaseShader;			
+				GL.UseProgram(shaderPgm.ProgramID);
+				GL.Uniform1(shaderPgm.u_diffTexEnabled,(int)0); 
+				GL.Uniform1(shaderPgm.u_specTexEnabled,(int)0); 
+				GL.Uniform1(shaderPgm.u_ambiTexEnabled,(int)0); 
+				GL.Uniform1(shaderPgm.u_bumpTexEnabled,(int)0);
+			}
+
 			GL.Disable(EnableCap.Blend);
             // reset things to a default state
 			int maxtex = GL.GetInteger(GetPName.MaxTextureUnits); // this is the legacy fixed-function max
@@ -52,6 +62,8 @@ namespace SimpleScene
 			} else {
 				GL.Disable(EnableCap.Lighting);
 			}
+
+			GL.Disable(EnableCap.ColorMaterial); // turn off per-vertex color
 	
 			// setup the base color values...
 			GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
@@ -59,7 +71,8 @@ namespace SimpleScene
 			GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
 			GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
-			GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
+			
+            // GL.Color4(diffuseMatColor);
 
 			// ... subclasses will render the object itself..
 		}
