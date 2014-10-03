@@ -213,17 +213,29 @@ namespace UG
 			}
 			
 			_InternalRender(s2, new RGBA_Bytes((uint)colorBrush.Color.ToArgb()) );
-		}		
+		}
 
-		// TODO: adjust measure string to handle "StringFormat.GenericTypographic" differently than normal padding
-		public SizeF MeasureString(string text, Font font) {
+
+        // these are non-static to be compatible with GDI+
+        public SizeF MeasureString(string text, Font font)
+        {
+            return Graphics.MeasureStringStatic(text, font);
+        }
+        public SizeF MeasureString(string text, Font font, PointF origin, StringFormat format)
+        {
+            return Graphics.MeasureStringStatic(text, font, origin, format);
+        }
+
+        // TODO: These are not GDI+ compatible.. decide where to put them.
+		// TODO: adjust measure string to handle "StringFormat.GenericTypographic" differently than normal padding        
+		public static SizeF MeasureStringStatic (string text, Font font) {
 			// TODO: teach agg-sharp to render windows fonts
 			var tfp = new TypeFacePrinter(text, font.SizeInPoints);
 			var bounds = tfp.LocalBounds;
 			return new SizeF((float)bounds.Width,(float)bounds.Height);
 		}
 
-		public SizeF MeasureString (string text, Font font, PointF origin, StringFormat format) {
+		public static SizeF MeasureStringStatic (string text, Font font, PointF origin, StringFormat format) {
 			var tfp = new TypeFacePrinter(text, font.SizeInPoints);
 			var bounds = tfp.LocalBounds;
 			return new SizeF((float)bounds.Width,(float)bounds.Height);
