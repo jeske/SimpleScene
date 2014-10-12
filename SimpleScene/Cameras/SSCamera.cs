@@ -12,7 +12,7 @@ namespace SimpleScene
 		public SSCamera () : base() {
 		
 		}
-		public override void Update() {
+		public override void Update(float fElapsedMS) {
 			this.calcMatFromState ();
 		}
 		private float DegreeToRadian(float angleInDegrees) {

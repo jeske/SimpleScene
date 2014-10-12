@@ -63,10 +63,10 @@ namespace SimpleScene
 		#endregion
 
 
-		public void Update() {
+		public void Update(float fElapsedMS) {
 			// update all objects.. TODO: add elapsed time since last update..
 			foreach (var obj in objects) {
-				obj.Update ();
+				obj.Update (fElapsedMS);
 			}
 		}
 
