@@ -41,7 +41,7 @@ namespace WavefrontOBJViewer
 			triObj.Pos = lightPos;
 						
 			// add drone
-			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", shaderPgm));
+			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj"));
 			scene.addObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
 			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
@@ -56,7 +56,7 @@ namespace WavefrontOBJViewer
 			// add second drone
 			
 			SSObject drone2Obj = new SSObjectMesh(
-				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", shaderPgm)
+				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj")
 				);
 			scene.addObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
