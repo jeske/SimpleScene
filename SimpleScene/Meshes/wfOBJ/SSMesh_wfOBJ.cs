@@ -17,8 +17,6 @@ namespace SimpleScene
 		SSAssetManagerContext ctx;
 		public readonly string srcFilename;
 		
-		SSShaderProgram_Main shaderPgm;
-
 	    public struct SSMeshOBJSubsetData {
 	   		public SSTexture diffuseTexture;
 	   		public SSTexture specularTexture;
@@ -46,8 +44,6 @@ namespace SimpleScene
         public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename, SSShaderProgram_Main shaderPgm=null) {
             this.srcFilename = filename;            
             this.ctx = ctx;
-            this.shaderPgm = shaderPgm;
-
 
             Console.WriteLine("SSMesh_wfOBJ: loading wff {0}",filename);
             WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
@@ -61,7 +57,7 @@ namespace SimpleScene
         }    
 #endregion
 
-		private void _renderSetupGLSL(SSMeshOBJSubsetData subset) {
+		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
 
 			GL.Enable(EnableCap.CullFace);
@@ -74,6 +70,8 @@ namespace SimpleScene
 			// Step 2: setup our material mode and paramaters...
 
 			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
+
+            SSShaderProgram_Main shaderPgm = renderConfig.BaseShader;
 
 			if (shaderPgm == null) {
 				GL.UseProgram(0);
@@ -167,8 +165,8 @@ namespace SimpleScene
 
 
 
-		private void _renderSendVBOTriangles(SSMeshOBJSubsetData subset) {
-			subset.vbo.bind (this.shaderPgm);
+		private void _renderSendVBOTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+			subset.vbo.bind (renderConfig.BaseShader);
 			subset.ibo.bind ();
 
 			//GL.DrawArrays (PrimitiveType.Triangles, 0, 6);
@@ -176,7 +174,7 @@ namespace SimpleScene
 			subset.ibo.unbind ();
 			subset.vbo.unbind ();
 		}
-		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
+		private void _renderSendTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
 			//         note: programs written for modern OpenGL & D3D don't do this!
@@ -196,7 +194,7 @@ namespace SimpleScene
 			GL.End();
 		}
 			
-		private void _renderSendVBOLines(SSMeshOBJSubsetData subset) {
+		private void _renderSendVBOLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// TODO: this currently has classic problems with z-fighting between the model and the wireframe
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
 			subset.vbo.bind (null);
@@ -208,7 +206,7 @@ namespace SimpleScene
 			subset.vbo.unbind ();
 
 		}
-		private void _renderSendLines(SSMeshOBJSubsetData subset) {
+		private void _renderSendLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
 			//         note: programs written for modern OpenGL & D3D don't do this!
@@ -238,21 +236,21 @@ namespace SimpleScene
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 
 				if (renderConfig.drawGLSL) {
-					_renderSetupGLSL (subset);
-					if (renderConfig.useVBO && shaderPgm != null) {
-						_renderSendVBOTriangles (subset);
+					_renderSetupGLSL (ref renderConfig, subset);
+					if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+						_renderSendVBOTriangles (ref renderConfig, subset);
 					} else {
-						_renderSendTriangles (subset);
+						_renderSendTriangles (ref renderConfig, subset);
 					}
 			
 				}
 
 				if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
 					_renderSetupWireframe ();
-					if (renderConfig.useVBO && shaderPgm != null) {
-						_renderSendVBOLines (subset);
+					if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+						_renderSendVBOLines (ref renderConfig, subset);
 					} else {
-						_renderSendLines (subset);
+						_renderSendLines (ref renderConfig, subset);
 					}
 				}
 			}

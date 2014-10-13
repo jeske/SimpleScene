@@ -13,6 +13,7 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
+            scene.renderConfig.BaseShader = shaderPgm;
 			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += (obj, renderConfig) => {
 				GL.UseProgram(this.shaderPgm.ProgramID);
