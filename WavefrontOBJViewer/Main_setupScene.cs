@@ -40,7 +40,7 @@ namespace WavefrontOBJViewer
 			triObj.Pos = lightPos;
 						
 			// add drone
-			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", true, shaderPgm));
+			SSObject droneObj = new SSObjectMesh (new SSMesh_wfOBJ (SSAssetManager.mgr.getContext ("./drone2/"), "drone2.obj", shaderPgm));
 			scene.addObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
 			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
@@ -55,7 +55,7 @@ namespace WavefrontOBJViewer
 			// add second drone
 			
 			SSObject drone2Obj = new SSObjectMesh(
-				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", true, shaderPgm)
+				new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./drone2/"), "drone2.obj", shaderPgm)
 				);
 			scene.addObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
@@ -77,7 +77,7 @@ namespace WavefrontOBJViewer
 		public void setupEnvironment() {
 
 			// add skybox cube
-			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj",true));
+			SSObject skyboxCube = new SSObjectMeshSky(new SSMesh_wfOBJ(SSAssetManager.mgr.getContext("./skybox/"),"skybox.obj"));
 			environmentScene.addObject(skyboxCube);
 			skyboxCube.Scale = new Vector3(0.7f);
 			skyboxCube.renderState.lighted = false;

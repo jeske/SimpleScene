@@ -31,7 +31,7 @@ namespace WavefrontOBJViewer
 			// NOTE: this is a workaround for the fact that the ThirdPersonCamera is not parented to the target...
 			//   before we can remove this, we need to parent it properly, currently it's transform only follows
 			//   the target during Update() and input event processing.
-			scene.Update ();  
+			scene.Update ((float)e.Time);  
 			
 			fpsCalc.newFrame (e.Time);
 			fpsDisplay.Label = String.Format ("FPS: {0:0.00}", fpsCalc.AvgFramesPerSecond);

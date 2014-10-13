@@ -74,9 +74,9 @@ namespace WavefrontOBJViewer
 		{
 			base.OnUpdateFrame(e);
 
-			environmentScene.Update();
-			scene.Update ();
-			hudScene.Update ();
+			environmentScene.Update((float)e.Time);
+			scene.Update ((float)e.Time);
+			hudScene.Update ((float)e.Time);
 
 			if (Keyboard[Key.Escape])
 				Exit();
