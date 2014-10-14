@@ -11,10 +11,10 @@ namespace SimpleScene.Util
         public abstract T Divide(T left, int right);
         public abstract T Zero();
 
-        public void SubtractEquals(T left, T right) {
+        public void SubtractEquals(ref T left, T right) {
             left = Subtract(left, right);
         }
-        public void AddEquals(T left, T right) {
+        public void AddEquals(ref T left, T right) {
             left = Add(left, right);
         }
     }
@@ -60,13 +60,14 @@ namespace SimpleScene.Util
         }
 
         public void Push(T item) {
-            if (m_insertedCount == m_history.Length) {
+            if (m_insertedCount >= m_history.Length) {
                 // full. remove the last item first
-                s_mathProvider.SubtractEquals(m_sum, item);
+                s_mathProvider.SubtractEquals(ref m_sum, m_history[m_nextIdx]);
+            } else {
+                ++m_insertedCount;
             }
             m_history[m_nextIdx] = item;
-            m_sum += (dynamic)item;
-            ++m_insertedCount;
+            s_mathProvider.AddEquals(ref m_sum, item);
             ++m_nextIdx;
             if (m_nextIdx >= m_history.Length) {
                 m_nextIdx = 0;
