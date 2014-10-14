@@ -29,13 +29,13 @@ namespace SimpleScene
 			// this is the "transitional" GLSL 120 way of assigning buffer contents
 			// http://www.opentk.com/node/80?page=1
 
-			GL.EnableClientState (EnableCap.VertexArray);
+			GL.EnableClientState (ArrayCap.VertexArray);
 			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Position"));
 
-			GL.EnableClientState (EnableCap.NormalArray);			
+			GL.EnableClientState (ArrayCap.NormalArray);			
 			GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
-			GL.EnableClientState (EnableCap.TextureCoordArray);
+			GL.EnableClientState (ArrayCap.TextureCoordArray);
 			GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
 		}
         
@@ -79,6 +79,9 @@ namespace SimpleScene
         public int DiffuseColor;
     }
 
-
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSVertex_Pos {
+        public Vector3 Position;
+    }
 }
 

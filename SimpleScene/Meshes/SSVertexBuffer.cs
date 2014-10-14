@@ -13,24 +13,35 @@ namespace SimpleScene
 	// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
 
 	public class  SSVertexBuffer<VB> where VB : struct, ISSVertexLayout {
-		VB[] vb;
-		int VBOid;
-		public unsafe SSVertexBuffer (VB[] vertexBufferArray) {
-			vb = vertexBufferArray;
+		private VB[] m_vb;
+		private int m_VBOid;
+        private BufferUsageHint m_usageHint;
 
-			VBOid = GL.GenBuffer ();
+		public unsafe SSVertexBuffer (VB[] vertexBufferArray,
+                                     BufferUsageHint hint = BufferUsageHint.StaticDraw) {
+			m_vb = vertexBufferArray;
+            m_usageHint = hint;
+			m_VBOid = GL.GenBuffer ();
 
 			try {
-				GL.BindBuffer (BufferTarget.ArrayBuffer, VBOid);
-				GL.BufferData (BufferTarget.ArrayBuffer, (IntPtr) (vertexBufferArray.Length * vertexBufferArray[0].sizeOf()), vertexBufferArray, BufferUsageHint.StaticDraw);
+                UpdateBufferData();
 			} finally {
 				GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
 			}
 		}
 
+        void UpdateBufferData()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, m_VBOid);
+            GL.BufferData(BufferTarget.ArrayBuffer,
+               (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
+               m_vb,
+               m_usageHint);
+        }
+
 		public void Delete() {
-			GL.DeleteBuffer (VBOid);
-			VBOid = 0;
+			GL.DeleteBuffer (m_VBOid);
+			m_VBOid = 0;
 		}
 
 		public void bind(SSShaderProgram shaderPgm) {
@@ -39,8 +50,8 @@ namespace SimpleScene
 			} else {
 				GL.UseProgram (0);
 			}
-			GL.BindBuffer (BufferTarget.ArrayBuffer, VBOid);
-			vb [0].bindGLAttributes (shaderPgm);
+			GL.BindBuffer (BufferTarget.ArrayBuffer, m_VBOid);
+			m_vb [0].bindGLAttributes (shaderPgm);
 		}
 		public void unbind() {
 			GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
