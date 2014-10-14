@@ -39,6 +39,11 @@ namespace SimpleScene
                m_usageHint);
         }
 
+        void DrawArrays(PrimitiveType primType) {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, m_VBOid);
+            GL.DrawArrays(primType, 0, m_vb.Length);
+        }
+
 		public void Delete() {
 			GL.DeleteBuffer (m_VBOid);
 			m_VBOid = 0;
