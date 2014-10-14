@@ -46,6 +46,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="OpenTK">
       <HintPath>..\Libs\OpenTK.dll</HintPath>
@@ -82,6 +83,7 @@
     <Compile Include="Objects\SSObjectRay.cs" />
     <Compile Include="Objects\SSObjectTriangle.cs" />
     <Compile Include="Util\OpenTKHelper.cs" />
+    <Compile Include="Util\RunningAverage.cs" />
     <Compile Include="Util\SSAssetManager.cs" />
     <Compile Include="Util\VertexSoup.cs" />
     <Compile Include="Util\WavefrontObjLoader.cs" />
@@ -99,7 +101,5 @@
     <Compile Include="Core\SSShaderProgram_Main.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Meshes\Shapes\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
