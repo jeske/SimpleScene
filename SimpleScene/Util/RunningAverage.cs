@@ -116,7 +116,7 @@ namespace SimpleScene.Util
             return left - right;
         }
         public override int Divide(int left, int right) {
-            return left / (int)right;
+            return left / right;
         }
         public override int Zero() {
             return 0;
@@ -132,7 +132,7 @@ namespace SimpleScene.Util
             return left - right;
         }
         public override Vector3 Divide(Vector3 left, int right) {
-            return left / right;
+            return left / (float)right;
         }
         public override Vector3 Zero() {
             return new Vector3(0.0f, 0.0f, 0.0f);
