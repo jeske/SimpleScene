@@ -36,14 +36,14 @@ namespace SimpleScene
         }
 
         public void DrawElements(PrimitiveType primType, SSShaderProgram pgm = null) {
-            m_vbo.bind(pgm);
+            m_vbo.drawBind(pgm);
             bind();
             GL.DrawElements(primType,
                             m_indices.Length,
                             DrawElementsType.UnsignedShort,
                             IntPtr.Zero);
             unbind();
-            m_vbo.unbind();
+            m_vbo.drawUnbind();
         }
 
 		private void bind(SSShaderProgram pgm = null) {
