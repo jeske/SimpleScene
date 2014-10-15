@@ -12,23 +12,28 @@ namespace SimpleScene
 
 	// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
 
-    public interface SSIVertexBuffer
+    public interface ISSVertexBuffer
     {
         void drawBind(SSShaderProgram shaderPgm);
         void drawUnbind();
     }
 
-    public class SSVertexBuffer<VB> : SSIVertexBuffer
+    public class SSVertexBuffer<VB> : ISSVertexBuffer
         where VB : struct, ISSVertexLayout {
-		private readonly VB[] m_vb;
         private readonly BufferUsageHint m_usageHint;
         private int m_VBOid = 0;
+        private int m_numVertices = 0;
+        // dummy vertex for calling bindGLAttributes() and sizeOf()
+        private static readonly VB m_dummy = new VB();
 
-		public unsafe SSVertexBuffer (VB[] vertexBufferArray,
-                                     BufferUsageHint hint = BufferUsageHint.StaticDraw) {
-			m_vb = vertexBufferArray;
+        public SSVertexBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw) {
             m_usageHint = hint;
-            UpdateBufferData();
+        }
+        
+        public SSVertexBuffer (VB[] vertices,
+                               BufferUsageHint hint = BufferUsageHint.StaticDraw) 
+        : this(hint) {
+            UpdateBufferData(vertices);
 		}
 
         public void Delete() {
@@ -36,11 +41,11 @@ namespace SimpleScene
             m_VBOid = 0;
         }
 
-        public void UpdateBufferData()
+        public void UpdateBufferData(VB[] vertices)
         {
             genBufferPrivate();
             bindPrivate();
-            updatePrivate();
+            updatePrivate(vertices);
             unbindPrivate();
         }
 
@@ -51,11 +56,12 @@ namespace SimpleScene
             drawUnbind();
         }
 
-        public void UpdateAndDrawArrays(PrimitiveType primType,
+        public void UpdateAndDrawArrays(VB[] vertices,
+                                        PrimitiveType primType,
                                         SSShaderProgram shaderPgm = null) {
             genBufferPrivate();
             drawBind(shaderPgm);
-            updatePrivate();
+            updatePrivate(vertices);
             drawPrivate(primType);
             drawUnbind();
         }
@@ -69,7 +75,7 @@ namespace SimpleScene
                 GL.UseProgram(0);
             }
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            m_vb[0].bindGLAttributes(shaderPgm);
+            m_dummy.bindGLAttributes(shaderPgm);
         }
 
         public void drawUnbind() {
@@ -85,15 +91,16 @@ namespace SimpleScene
             }
         }
 
-        private void updatePrivate() {
+        private void updatePrivate(VB[] vertices) {
+            m_numVertices = vertices.Length;
             GL.BufferData(BufferTarget.ArrayBuffer,
-               (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
-               m_vb,
+               (IntPtr)(m_numVertices * m_dummy.sizeOf()),
+               vertices,
                m_usageHint);
         }
 
         private void drawPrivate(PrimitiveType primType) {
-            GL.DrawArrays(primType, 0, m_vb.Length);
+            GL.DrawArrays(primType, 0, m_numVertices);
         }
 
 		private void bindPrivate() {

@@ -6,11 +6,11 @@ namespace SimpleScene
 	public class SSIndexBuffer
 	{
         private readonly UInt16[] m_indices;
-        private readonly SSIVertexBuffer m_vbo;
+        private readonly ISSVertexBuffer m_vbo;
         private readonly BufferUsageHint m_usageHint;
         private int m_IBOid = 0;
 		
-        public unsafe SSIndexBuffer (UInt16[] indices, SSIVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.StaticDraw)
+        public unsafe SSIndexBuffer (UInt16[] indices, ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.StaticDraw)
 		{
             m_indices = indices;
             m_vbo = vbo;
