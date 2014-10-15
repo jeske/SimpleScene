@@ -32,7 +32,7 @@ namespace SimpleScene
 			GL.EnableClientState (ArrayCap.VertexArray);
 			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Position"));
 
-			GL.EnableClientState (ArrayCap.NormalArray);			
+			GL.EnableClientState (ArrayCap.NormalArray);
 			GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
 			GL.EnableClientState (ArrayCap.TextureCoordArray);
@@ -50,6 +50,9 @@ namespace SimpleScene
         public int GetHashCode(SSVertex_PosNormDiffTex1 a) {
             return a.GetHashCode();
         }
+        public unsafe int sizeOf() {
+            return sizeof (SSVertex_PosNormDiffTex1);
+        }
         public override bool Equals( object ob ){
 			if( ob is SSVertex_PosNormDiffTex1 ) {
 				SSVertex_PosNormDiffTex1 c = (SSVertex_PosNormDiffTex1) ob;
@@ -62,10 +65,6 @@ namespace SimpleScene
 		public override int GetHashCode ()
 		{
 			return base.GetHashCode ();
-		}
-
-		public unsafe int  sizeOf() {
-			return sizeof (SSVertex_PosNormDiffTex1);
 		}
 	}
 
@@ -80,8 +79,34 @@ namespace SimpleScene
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct SSVertex_Pos {
+    public struct SSVertex_Pos : IEqualityComparer<SSVertex_Pos>, ISSVertexLayout
+    {
         public Vector3 Position;
+
+        public unsafe void bindGLAttributes(SSShaderProgram shader) {
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_Pos), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_Pos), "Position"));
+        }
+
+        public int GetHashCode(SSVertex_Pos a) {
+            return a.GetHashCode();
+        }
+        unsafe public int sizeOf() {
+            return sizeof(SSVertex_Pos);
+        }
+
+        public bool Equals(SSVertex_Pos a, SSVertex_Pos b) {
+            return a.Position == b.Position;
+        }
+
+        public override bool Equals(object ob) {
+            if (ob is SSVertex_Pos) {
+                SSVertex_Pos c = (SSVertex_Pos)ob;
+                return this.Equals(this, c);
+            } else {
+                return false;
+            }
+        }
     }
 }
 

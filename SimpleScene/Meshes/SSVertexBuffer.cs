@@ -6,7 +6,7 @@ using OpenTK.Graphics.OpenGL;
 namespace SimpleScene
 {
 	public interface ISSVertexLayout {
-		int sizeOf();
+        int sizeOf();
 		void bindGLAttributes(SSShaderProgram shader);
 	}
 
@@ -30,7 +30,7 @@ namespace SimpleScene
 			}
 		}
 
-        void UpdateBufferData()
+        public void UpdateBufferData()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, m_VBOid);
             GL.BufferData(BufferTarget.ArrayBuffer,
@@ -39,9 +39,11 @@ namespace SimpleScene
                m_usageHint);
         }
 
-        void DrawArrays(PrimitiveType primType) {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, m_VBOid);
+        public void DrawArrays(PrimitiveType primType, 
+                               SSShaderProgram shaderPgm = null) {
+            bind(shaderPgm);
             GL.DrawArrays(primType, 0, m_vb.Length);
+            unbind();
         }
 
 		public void Delete() {
@@ -56,10 +58,12 @@ namespace SimpleScene
 				GL.UseProgram (0);
 			}
 			GL.BindBuffer (BufferTarget.ArrayBuffer, m_VBOid);
+            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
 			m_vb [0].bindGLAttributes (shaderPgm);
 		}
 		public void unbind() {
 			GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
+            GL.PopClientAttrib();
 			//GL.DisableClientState (EnableCap.VertexArray);
 			//GL.DisableClientState (EnableCap.NormalArray);
 			//GL.DisableClientState (EnableCap.TextureCoordArray);
