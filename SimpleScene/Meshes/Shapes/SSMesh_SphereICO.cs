@@ -19,8 +19,6 @@ namespace SimpleScene
 
 		SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;
 		SSIndexBuffer ibo;
-		int num_indicies;
-		int num_vertices;
 
 		SSTexture texture;
 
@@ -122,9 +120,6 @@ namespace SimpleScene
 
 			var vertexArr = vertexSoup.verticies.ToArray();
 			var idxArr = indexList.ToArray();
-
-			num_vertices = vertexArr.Length;
-			num_indicies = idxArr.Length;
 
 			// upload to GL
 			vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(vertexArr);

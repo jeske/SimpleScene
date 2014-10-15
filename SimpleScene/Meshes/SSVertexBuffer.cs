@@ -26,6 +26,8 @@ namespace SimpleScene
         // dummy vertex for calling bindGLAttributes() and sizeOf()
         private static readonly VB m_dummy = new VB();
 
+        public int NumVertices { get { return m_numVertices; } }
+
         public SSVertexBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw) {
             m_usageHint = hint;
         }

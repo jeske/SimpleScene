@@ -9,7 +9,9 @@ namespace SimpleScene
         private readonly BufferUsageHint m_usageHint;
         private int m_IBOid = 0;
         private int m_numIndices = 0;
-		
+
+        public int NumIndices { get { return m_numIndices; } }
+
         public SSIndexBuffer (ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.DynamicDraw)
 		{
             m_vbo = vbo;
