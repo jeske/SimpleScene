@@ -5,32 +5,37 @@ namespace SimpleScene
 {
 	public class SSIndexBuffer
 	{
-        private readonly UInt16[] m_indices;
         private readonly ISSVertexBuffer m_vbo;
         private readonly BufferUsageHint m_usageHint;
         private int m_IBOid = 0;
+        private int m_numIndices = 0;
 		
-        public unsafe SSIndexBuffer (UInt16[] indices, ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.StaticDraw)
+        public SSIndexBuffer (ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.DynamicDraw)
 		{
-            m_indices = indices;
             m_vbo = vbo;
             m_usageHint = hint;
-            UpdateBufferData();
 		}
+
+        public SSIndexBuffer(UInt16[] indices, ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.StaticDraw) 
+        : this(vbo, hint) {
+            UpdateBufferData(indices);
+        }
 
 		public void Delete() {
 			GL.DeleteBuffer (m_IBOid);
             m_IBOid = 0;
+            m_numIndices = 0;
 		}
 
-        public void UpdateBufferData() {
+        public void UpdateBufferData(UInt16[] indices) {
             if (m_IBOid == 0) {
                 m_IBOid = GL.GenBuffer();
             }
+            m_numIndices = indices.Length;
             bind();
-            GL.BufferData(BufferTarget.ElementArrayBuffer, 
-                         (IntPtr)(m_indices.Length * sizeof(UInt16)),
-                         m_indices, 
+            GL.BufferData(BufferTarget.ElementArrayBuffer,
+                         (IntPtr)(m_numIndices * sizeof(UInt16)),
+                         indices, 
                          m_usageHint);
             unbind();
         }
@@ -39,7 +44,7 @@ namespace SimpleScene
             m_vbo.drawBind(pgm);
             bind();
             GL.DrawElements(primType,
-                            m_indices.Length,
+                            m_numIndices,
                             DrawElementsType.UnsignedShort,
                             IntPtr.Zero);
             unbind();

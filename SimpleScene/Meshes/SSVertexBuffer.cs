@@ -39,6 +39,7 @@ namespace SimpleScene
         public void Delete() {
             GL.DeleteBuffer(m_VBOid);
             m_VBOid = 0;
+            m_numVertices = 0;
         }
 
         public void UpdateBufferData(VB[] vertices)
