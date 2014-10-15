@@ -18,7 +18,7 @@ namespace SimpleScene
 		MeshGeometry3D geom;
 
 		SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;
-		SSIndexBuffer<UInt16> ibo;
+		SSIndexBuffer ibo;
 		int num_indicies;
 		int num_vertices;
 
@@ -127,9 +127,8 @@ namespace SimpleScene
 			num_indicies = idxArr.Length;
 
 			// upload to GL
-
 			vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(vertexArr);
-			ibo = new SSIndexBuffer<UInt16> (idxArr, sizeof(UInt16));	
+			ibo = new SSIndexBuffer (idxArr, vbo);
 		}
 
 
@@ -153,12 +152,7 @@ namespace SimpleScene
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-			vbo.bind (this.shaderPgm);
-			ibo.bind ();
-
-			GL.DrawElements (PrimitiveType.Triangles, num_indicies, DrawElementsType.UnsignedShort, IntPtr.Zero);
-			ibo.unbind ();
-			vbo.unbind ();	
+            ibo.DrawElements(PrimitiveType.Triangles, this.shaderPgm);
 		}
 
 

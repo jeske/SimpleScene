@@ -31,8 +31,8 @@ namespace SimpleScene
 			// handles to OpenTK/OpenGL Vertex-buffer and index-buffer objects
 			// these are buffers stored on the videocard for higher performance rendering
 			public SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;	        
-			public SSIndexBuffer<UInt16> ibo;
-			public SSIndexBuffer<UInt16> ibo_wireframe;
+			public SSIndexBuffer ibo;
+			public SSIndexBuffer ibo_wireframe;
 		}
 
 		public override string ToString ()
@@ -166,14 +166,9 @@ namespace SimpleScene
 
 
 		private void _renderSendVBOTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
-			subset.vbo.bind (renderConfig.BaseShader);
-			subset.ibo.bind ();
-
-			//GL.DrawArrays (PrimitiveType.Triangles, 0, 6);
-			GL.DrawElements (PrimitiveType.Triangles, subset.indicies.Length, DrawElementsType.UnsignedShort, IntPtr.Zero);
-			subset.ibo.unbind ();
-			subset.vbo.unbind ();
+            subset.ibo.DrawElements(PrimitiveType.Triangles, renderConfig.BaseShader);
 		}
+
 		private void _renderSendTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
@@ -197,15 +192,11 @@ namespace SimpleScene
 		private void _renderSendVBOLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// TODO: this currently has classic problems with z-fighting between the model and the wireframe
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
-			subset.vbo.bind (null);
-			subset.ibo_wireframe.bind ();
-			GL.LineWidth (1.5f);
-			GL.Color4 (0.8f, 0.5f, 0.5f, 0.5f);		
-			GL.DrawElements (PrimitiveType.Lines, subset.wireframe_indicies.Length, DrawElementsType.UnsignedShort, IntPtr.Zero);
-			subset.ibo.unbind ();
-			subset.vbo.unbind ();
-
+            GL.LineWidth(1.5f);
+            GL.Color4(0.8f, 0.5f, 0.5f, 0.5f);		
+            subset.ibo.DrawElements(PrimitiveType.Lines, null);
 		}
+
 		private void _renderSendLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
@@ -294,8 +285,8 @@ namespace SimpleScene
 			subsetData.wireframe_indicies = OpenTKHelper.generateLineIndicies (subsetData.indicies);
 
 			subsetData.vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(subsetData.vertices);
-			subsetData.ibo = new SSIndexBuffer<UInt16> (subsetData.indicies, sizeof(UInt16));		
-			subsetData.ibo_wireframe = new SSIndexBuffer<UInt16> (subsetData.wireframe_indicies, sizeof(UInt16));		
+			subsetData.ibo = new SSIndexBuffer(subsetData.indicies, subsetData.vbo);		
+			subsetData.ibo_wireframe = new SSIndexBuffer (subsetData.wireframe_indicies, subsetData.vbo);
 
             return subsetData;
         }
