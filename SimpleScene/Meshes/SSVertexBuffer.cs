@@ -12,16 +12,22 @@ namespace SimpleScene
 
 	// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
 
-	public class  SSVertexBuffer<VB> where VB : struct, ISSVertexLayout {
-		private VB[] m_vb;
-		private int m_VBOid;
-        private BufferUsageHint m_usageHint;
+    public interface SSIVertexBuffer
+    {
+        void bind(SSShaderProgram shaderPgm);
+        void unbind();
+    }
+
+    public class SSVertexBuffer<VB> : SSIVertexBuffer
+        where VB : struct, ISSVertexLayout {
+		private readonly VB[] m_vb;
+        private readonly BufferUsageHint m_usageHint;
+        private int m_VBOid = 0;
 
 		public unsafe SSVertexBuffer (VB[] vertexBufferArray,
                                      BufferUsageHint hint = BufferUsageHint.StaticDraw) {
 			m_vb = vertexBufferArray;
             m_usageHint = hint;
-			m_VBOid = GL.GenBuffer();
             UpdateBufferData();
 		}
 
@@ -32,6 +38,9 @@ namespace SimpleScene
 
         public void UpdateBufferData()
         {
+            if (m_VBOid == 0) {
+                m_VBOid = GL.GenBuffer();
+            }
             bind();
             GL.BufferData(BufferTarget.ArrayBuffer,
                (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
