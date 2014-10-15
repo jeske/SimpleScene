@@ -36,22 +36,22 @@ namespace SimpleScene
         }
 
         public void DrawElements(PrimitiveType primType, SSShaderProgram pgm = null) {
-            bind(pgm);
+            m_vbo.bind(pgm);
+            bind();
             GL.DrawElements(primType,
                             m_indices.Length,
                             DrawElementsType.UnsignedShort,
                             IntPtr.Zero);
             unbind();
+            m_vbo.unbind();
         }
 
 		private void bind(SSShaderProgram pgm = null) {
-            m_vbo.bind(pgm);
 			GL.BindBuffer (BufferTarget.ElementArrayBuffer, m_IBOid);
 		}
 
 		private void unbind() {
 			GL.BindBuffer (BufferTarget.ElementArrayBuffer, 0);
-            m_vbo.unbind();
 		}
 	}
 }
