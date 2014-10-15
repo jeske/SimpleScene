@@ -14,8 +14,8 @@ namespace SimpleScene
 
     public interface SSIVertexBuffer
     {
-        void bind(SSShaderProgram shaderPgm);
-        void unbind();
+        void drawBind(SSShaderProgram shaderPgm);
+        void drawUnbind();
     }
 
     public class SSVertexBuffer<VB> : SSIVertexBuffer
@@ -41,37 +41,48 @@ namespace SimpleScene
             if (m_VBOid == 0) {
                 m_VBOid = GL.GenBuffer();
             }
-            bind();
+            bindPrivate();
             GL.BufferData(BufferTarget.ArrayBuffer,
                (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
                m_vb,
                m_usageHint);
-            unbind();
+            unbindPrivate();
         }
 
         public void DrawArrays(PrimitiveType primType, 
                                SSShaderProgram shaderPgm = null) {
-            bind(shaderPgm);
+            drawBind(shaderPgm);
             GL.DrawArrays(primType, 0, m_vb.Length);
-            unbind();
+            drawUnbind();
         }
 
-		public void bind(SSShaderProgram shaderPgm = null) {
-			if (shaderPgm != null) {
-				GL.UseProgram (shaderPgm.ProgramID);
-			} else {
-				GL.UseProgram (0);
-			}
-			GL.BindBuffer (BufferTarget.ArrayBuffer, m_VBOid);
+        public void drawBind(SSShaderProgram shaderPgm = null) {
+            // bind for use and setup for drawing
+            bindPrivate();
+            if (shaderPgm != null) {
+                GL.UseProgram(shaderPgm.ProgramID);
+            } else {
+                GL.UseProgram(0);
+            }
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-			m_vb [0].bindGLAttributes (shaderPgm);
-		}
-		public void unbind() {
-			GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
+            m_vb[0].bindGLAttributes(shaderPgm);
+        }
+
+        public void drawUnbind() {
+            // unbind from use and undo draw settings
             GL.UseProgram(0);
             GL.PopClientAttrib();
-		}
+            unbindPrivate();
+        }
 
+		private void bindPrivate() {
+            // bind for use
+			GL.BindBuffer (BufferTarget.ArrayBuffer, m_VBOid);
+		}
+		private void unbindPrivate() {
+            // unbind from use
+			GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
+		}
 	}
 }
 
