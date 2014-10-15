@@ -19,12 +19,6 @@ namespace SimpleScene
         public Vector3 Normal;
 		public Vector3 Position;
 
-		private void checkGLError() {
-			ErrorCode glERR;
-			if ((glERR = GL.GetError ()) != ErrorCode.NoError) {
-				throw new Exception (String.Format ("GL Error: {0}", glERR));
-		 	}
-		}
 		public unsafe void  bindGLAttributes(SSShaderProgram shader) {
 			// this is the "transitional" GLSL 120 way of assigning buffer contents
 			// http://www.opentk.com/node/80?page=1
@@ -90,9 +84,6 @@ namespace SimpleScene
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_Pos), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_Pos), "Position"));
         }
 
-        public int GetHashCode(SSVertex_Pos a) {
-            return a.GetHashCode();
-        }
         unsafe public int sizeOf() {
             return sizeof(SSVertex_Pos);
         }
@@ -108,6 +99,14 @@ namespace SimpleScene
             } else {
                 return false;
             }
+        }
+
+        public int GetHashCode(SSVertex_Pos a) {
+            return a.GetHashCode();
+        }
+
+        public override int GetHashCode() {
+            return base.GetHashCode();
         }
     }
 }
