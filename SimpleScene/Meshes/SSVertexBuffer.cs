@@ -21,22 +21,23 @@ namespace SimpleScene
                                      BufferUsageHint hint = BufferUsageHint.StaticDraw) {
 			m_vb = vertexBufferArray;
             m_usageHint = hint;
-			m_VBOid = GL.GenBuffer ();
-
-			try {
-                UpdateBufferData();
-			} finally {
-				GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
-			}
+			m_VBOid = GL.GenBuffer();
+            UpdateBufferData();
 		}
+
+        public void Delete() {
+            GL.DeleteBuffer(m_VBOid);
+            m_VBOid = 0;
+        }
 
         public void UpdateBufferData()
         {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, m_VBOid);
+            bind();
             GL.BufferData(BufferTarget.ArrayBuffer,
                (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
                m_vb,
                m_usageHint);
+            unbind();
         }
 
         public void DrawArrays(PrimitiveType primType, 
@@ -46,12 +47,7 @@ namespace SimpleScene
             unbind();
         }
 
-		public void Delete() {
-			GL.DeleteBuffer (m_VBOid);
-			m_VBOid = 0;
-		}
-
-		public void bind(SSShaderProgram shaderPgm) {
+		public void bind(SSShaderProgram shaderPgm = null) {
 			if (shaderPgm != null) {
 				GL.UseProgram (shaderPgm.ProgramID);
 			} else {
@@ -63,10 +59,8 @@ namespace SimpleScene
 		}
 		public void unbind() {
 			GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
+            GL.UseProgram(0);
             GL.PopClientAttrib();
-			//GL.DisableClientState (EnableCap.VertexArray);
-			//GL.DisableClientState (EnableCap.NormalArray);
-			//GL.DisableClientState (EnableCap.TextureCoordArray);
 		}
 
 	}

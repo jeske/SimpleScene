@@ -78,6 +78,8 @@ namespace SimpleScene
         public int DiffuseColor;
     }
 
+    ///////////////////////////////////////////////////////
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSVertex_Pos : IEqualityComparer<SSVertex_Pos>, ISSVertexLayout
     {
