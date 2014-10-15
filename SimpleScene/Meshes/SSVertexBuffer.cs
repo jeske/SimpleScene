@@ -38,21 +38,25 @@ namespace SimpleScene
 
         public void UpdateBufferData()
         {
-            if (m_VBOid == 0) {
-                m_VBOid = GL.GenBuffer();
-            }
+            genBufferPrivate();
             bindPrivate();
-            GL.BufferData(BufferTarget.ArrayBuffer,
-               (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
-               m_vb,
-               m_usageHint);
+            updatePrivate();
             unbindPrivate();
         }
 
         public void DrawArrays(PrimitiveType primType, 
                                SSShaderProgram shaderPgm = null) {
             drawBind(shaderPgm);
-            GL.DrawArrays(primType, 0, m_vb.Length);
+            drawPrivate(primType);
+            drawUnbind();
+        }
+
+        public void UpdateAndDrawArrays(PrimitiveType primType,
+                                        SSShaderProgram shaderPgm = null) {
+            genBufferPrivate();
+            drawBind(shaderPgm);
+            updatePrivate();
+            drawPrivate(primType);
             drawUnbind();
         }
 
@@ -73,6 +77,23 @@ namespace SimpleScene
             GL.UseProgram(0);
             GL.PopClientAttrib();
             unbindPrivate();
+        }
+
+        private void genBufferPrivate() {
+            if (m_VBOid == 0) {
+                m_VBOid = GL.GenBuffer();
+            }
+        }
+
+        private void updatePrivate() {
+            GL.BufferData(BufferTarget.ArrayBuffer,
+               (IntPtr)(m_vb.Length * m_vb[0].sizeOf()),
+               m_vb,
+               m_usageHint);
+        }
+
+        private void drawPrivate(PrimitiveType primType) {
+            GL.DrawArrays(primType, 0, m_vb.Length);
         }
 
 		private void bindPrivate() {
