@@ -41,6 +41,7 @@ namespace SimpleScene
 	}
 	#endregion
 
+
 	#region Exceptions
 	public abstract class SSAssetException : Exception {} 
 	public class SSNoSuchAssetException : SSAssetException {
@@ -175,6 +176,11 @@ namespace SimpleScene
             } else {
                 return (T)createInstance(context, filename, typeof(T));
             }
+        }
+
+        public static T GetInstance<T>(string context, string filename) {
+            var ctx = mgr.getContext(context);
+            return mgr.GetInstance<T>(ctx, filename);
         }
 
         public bool DeleteInstance<T>(SSAssetManagerContext context, string filename) {
