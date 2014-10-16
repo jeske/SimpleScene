@@ -163,8 +163,60 @@ namespace SimpleScene
 
             // no asset found
             throw new SSNoSuchAssetException(resource_name, handlers_arr);
-            
         }
+
+        public T GetInstance<T>(SSAssetManagerContext context, string filename) {
+            object obj = null;
+            string fullPath = context.fullHandlePathForResource(filename);
+            var key = new Tuple<string, Type>(fullPath, typeof(T));
+            bool found = m_instances.TryGetValue(key, out obj);
+            if (found) {
+                return (T)obj;
+            } else {
+                return (T)createInstance(context, filename, typeof(T));
+            }
+        }
+
+        public bool DeleteInstance<T>(SSAssetManagerContext context, string filename) {
+            string fullPath = context.fullHandlePathForResource(filename);
+            var key = new Tuple<string, Type>(fullPath, typeof(T));
+            bool ok = m_instances.Remove(key);
+            if (!ok) {
+                throw new Exception("SSAssetManager: no such instance");
+            }
+            return ok;
+        }
+
+        private object createInstance(SSAssetManagerContext context, string filename, Type resType) {
+            ISSAssetArchiveHandler[] handlersArr;
+            // make sure we are thread-safe on asset handler registration (though this really sholdn't happen)
+            lock (this) { 
+                handlersArr = this.handlers.ToArray(); 
+            }
+
+            if (handlersArr.Length == 0) {
+                throw new Exception("SSAssetManager: no handlers available for load");
+            }
+
+            string fullPath = context.fullHandlePathForResource(filename);
+            foreach (ISSAssetArchiveHandler handler in handlersArr) {
+                if (handler.resourceExists(fullPath)) {
+                    Object newObj = null;
+
+                    if (resType == typeof(SSMesh_wfOBJ)) {
+                        // todo: disassociate asset manager classes from mesh classes
+                        newObj = new SSMesh_wfOBJ(context, filename);
+                    }
+                    // todo: more type handlers
+
+                    var key = new Tuple<string, Type>(fullPath, resType);
+                    m_instances.Add(key, newObj);
+                    return newObj;
+                }
+            }
+            throw new SSNoSuchAssetException(filename, handlersArr);
+        }
+
         public SSAssetManagerContext getContextForResource(string fullpath) {
             string basepath = Path.Combine(fullpath, "../");
             return new SSAssetManagerContext(this, basepath);
@@ -172,6 +224,10 @@ namespace SimpleScene
         public SSAssetManagerContext getContext(string basepath) {
             return new SSAssetManagerContext(this, basepath);
         }
+
+        // todo: replace with a data structure that tracks use and removes Last Recently Used
+        private Dictionary<Tuple<string,Type>, object> m_instances 
+            = new Dictionary<Tuple<string,Type>, object>();
     }
 	#endregion
 
@@ -209,8 +265,7 @@ namespace SimpleScene
 				}
 			}
 		}
+
 	}
-
 	#endregion
-
 }
