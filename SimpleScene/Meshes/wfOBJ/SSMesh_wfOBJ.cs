@@ -15,7 +15,7 @@ namespace SimpleScene
     public class SSMesh_wfOBJ : SSAbstractMesh {
  
 		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
-		SSAssetManagerContext ctx;
+		SSAssetManager.Context ctx;
 		public readonly string srcFilename;
 		
 	    public struct SSMeshOBJSubsetData {
@@ -42,7 +42,7 @@ namespace SimpleScene
 		}
 		
 #region Constructor
-        public SSMesh_wfOBJ(SSAssetManagerContext ctx, string filename) {
+        public SSMesh_wfOBJ(SSAssetManager.Context ctx, string filename) {
             this.srcFilename = filename;            
             this.ctx = ctx;
 
@@ -248,7 +248,7 @@ namespace SimpleScene
 		}
 
 #region Load Data
-        private void _loadData(SSAssetManagerContext ctx ,WavefrontObjLoader m) {
+        private void _loadData(SSAssetManager.Context ctx ,WavefrontObjLoader m) {
             foreach (var srcmat in m.materials) {
                 if (srcmat.faces.Count != 0) {
                     this.geometrySubsets.Add(_loadMaterialSubset(ctx, m, srcmat));
@@ -256,7 +256,7 @@ namespace SimpleScene
             }
         }
         
-        private SSMeshOBJSubsetData _loadMaterialSubset(SSAssetManagerContext ctx, WavefrontObjLoader wff, WavefrontObjLoader.MaterialFromObj objMatSubset) {
+        private SSMeshOBJSubsetData _loadMaterialSubset(SSAssetManager.Context ctx, WavefrontObjLoader wff, WavefrontObjLoader.MaterialFromObj objMatSubset) {
             // create new mesh subset-data
             SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData();            
 

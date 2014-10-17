@@ -26,7 +26,8 @@ namespace SimpleScene
 		    GL.GenTextures(1,out _glTextureID);
 		}
 
-        public SSTexture(SSAssetManagerContext ctx, string filename) : this() {
+        public SSTexture(SSAssetManager.Context ctx, string filename)
+            : this() {
             Bitmap textureBitmap = new Bitmap(ctx.Open(filename));
             loadFromBitmap(textureBitmap, name: filename);
         }

@@ -25,7 +25,7 @@ using System.IO;
 //  // 2. open an asset context. this is like a directory, except that when opening things
 //  //    in this directory, all registered asset archives will be searched (in order) for a 
 //  //    matching asset
-// 	SSAssetManagerContext ctx = SSAssetManager.mgr.getContext("./drone2/");
+// 	Context ctx = SSAssetManager.mgr.getContext("./drone2/");
 //
 //  // 3. 
 // ctx.getAsset(resource_name).Open()
@@ -98,56 +98,55 @@ namespace SimpleScene
 	#endregion
 
 	#region Core Asset Manager
-	public class SSAssetManagerContext {
-		SSAssetManager mgr;
-		string basepath;
-
-		public SSAssetManagerContext(SSAssetManager mgr, string basepath) {
-			this.mgr = mgr;
-			this.basepath = basepath;
-		}
-
-        public Stream Open(string filename) {
-            string fullPath = fullResourcePath(filename);
-            return mgr.OpenStream(fullPath);
-        }
-
-        public string fullResourcePath(string filename) {
-			return Path.Combine(basepath, filename);
-		}
-	}
-
     public class SSAssetManager {
-        public static SSAssetManager mgr = new SSAssetManager();
-        List<ISSAssetArchiveHandler> handlers = new List<ISSAssetArchiveHandler>();
+        // Singleton
+        private static readonly SSAssetManager s_mgr = new SSAssetManager();
 
-        public static T GetInstance<T>(SSAssetManagerContext context, string filename) {
-            return mgr.getInstancePrivate<T>(context, filename);
-        }
+        private readonly List<ISSAssetArchiveHandler> m_handlers = new List<ISSAssetArchiveHandler>();
 
-        public static T GetInstance<T>(string context, string filename) {
-            var ctx = mgr.getContext(context);
-            return mgr.getInstancePrivate<T>(ctx, filename);
-        }
+        #region Public Static User Functions
+        public class Context
+        {
+            private readonly string m_basepath;
 
-        public static void DeleteInstance<T>(SSAssetManagerContext context, string filename) {
-            mgr.deleteInstancePrivate<T>(context, filename);
-        }
+            public Context(string basepath) {
+                m_basepath = basepath;
+            }
 
-        public void addAssetArchive(ISSAssetArchiveHandler handler) {
-            lock (this) {
-                handlers.Add(handler);
+            public Stream Open(string filename) {
+                string fullPath = fullResourcePath(filename);
+                return s_mgr.openStream(fullPath);
+            }
+
+            public string fullResourcePath(string filename) {
+                return Path.Combine(m_basepath, filename);
             }
         }
 
-        public string resourceCachePath(string basepath, string resource_name) {
-            return Path.Combine(basepath, resource_name);
+        public static T GetInstance<T>(SSAssetManager.Context context, string filename) {
+            return s_mgr.getInstance<T>(context, filename);
         }
 
-        public Stream OpenStream(string fullPath) {
+        public static T GetInstance<T>(string context, string filename) {
+            var ctx = new Context(context);
+            return s_mgr.getInstance<T>(ctx, filename);
+        }
+
+        public static void DeleteInstance<T>(Context context, string filename) {
+            s_mgr.deleteInstance<T>(context, filename);
+        }
+
+        public static void AddAssetArchive(ISSAssetArchiveHandler handler) {
+            lock (s_mgr) {
+                s_mgr.m_handlers.Add(handler);
+            }
+        }
+        #endregion
+
+        private Stream openStream(string fullPath) {
             ISSAssetArchiveHandler[] handlersArr;
 
-            lock (this) { handlersArr = this.handlers.ToArray(); }
+            lock (this) { handlersArr = this.m_handlers.ToArray(); }
 
             if (handlersArr.Length == 0) {
                 throw new Exception("SSAssetManager: no handlers available for load");
@@ -161,7 +160,7 @@ namespace SimpleScene
             throw new SSNoSuchAssetException(fullPath, handlersArr);
         }
 
-        private T getInstancePrivate<T>(SSAssetManagerContext context, string filename) {
+        private T getInstance<T>(Context context, string filename) {
             object obj = null;
             string fullPath = context.fullResourcePath(filename);
             var key = new Tuple<string, Type>(fullPath, typeof(T));
@@ -173,7 +172,7 @@ namespace SimpleScene
             }
         }
 
-        private bool deleteInstancePrivate<T>(SSAssetManagerContext context, string filename) {
+        private bool deleteInstance<T>(Context context, string filename) {
             string fullPath = context.fullResourcePath(filename);
             var key = new Tuple<string, Type>(fullPath, typeof(T));
             bool ok = m_instances.Remove(key);
@@ -183,11 +182,11 @@ namespace SimpleScene
             return ok;
         }
 
-        private object createInstance(SSAssetManagerContext context, string filename, Type resType) {
+        private object createInstance(Context context, string filename, Type resType) {
             ISSAssetArchiveHandler[] handlersArr;
             // make sure we are thread-safe on asset handler registration (though this really sholdn't happen)
             lock (this) { 
-                handlersArr = this.handlers.ToArray(); 
+                handlersArr = this.m_handlers.ToArray(); 
             }
 
             if (handlersArr.Length == 0) {
@@ -222,14 +221,6 @@ namespace SimpleScene
                 }
             }
             throw new SSNoSuchAssetException(filename, handlersArr);
-        }
-
-        public SSAssetManagerContext getContextForResource(string fullpath) {
-            string basepath = Path.Combine(fullpath, "../");
-            return new SSAssetManagerContext(this, basepath);
-        }
-        public SSAssetManagerContext getContext(string basepath) {
-            return new SSAssetManagerContext(this, basepath);
         }
 
         // todo: replace with a data structure that tracks use and removes Last Recently Used

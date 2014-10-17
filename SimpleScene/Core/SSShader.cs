@@ -71,7 +71,7 @@ namespace SimpleScene
 
     public class SSVertexShader : SSShader
     {
-        public SSVertexShader(SSAssetManagerContext context, string filename)
+        public SSVertexShader(SSAssetManager.Context context, string filename)
             : base(ShaderType.VertexShader,
                    filename, 
                    context.Open(filename).AsString())
@@ -80,7 +80,7 @@ namespace SimpleScene
 
     public class SSFragmentShader : SSShader
     {
-        public SSFragmentShader(SSAssetManagerContext context, string filename)
+        public SSFragmentShader(SSAssetManager.Context context, string filename)
             : base(ShaderType.FragmentShader,
                    filename,
                    context.Open(filename).AsString()) 
@@ -89,7 +89,7 @@ namespace SimpleScene
 
     public class SSGeometryShader : SSShader
     {
-        public SSGeometryShader(SSAssetManagerContext context, string filename)
+        public SSGeometryShader(SSAssetManager.Context context, string filename)
             : base(ShaderType.GeometryShader,
                    filename,
                    context.Open(filename).AsString()) { }
