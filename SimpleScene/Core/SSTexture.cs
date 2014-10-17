@@ -27,8 +27,7 @@ namespace SimpleScene
 		}
 
         public SSTexture(SSAssetManagerContext ctx, string filename) : this() {
-            SSAssetItem assetItem = ctx.getAsset(filename);
-            Bitmap textureBitmap = new Bitmap(assetItem.Open());
+            Bitmap textureBitmap = new Bitmap(ctx.Open(filename));
             loadFromBitmap(textureBitmap, name: filename);
         }
 

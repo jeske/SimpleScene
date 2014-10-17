@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 using Util3d;
+
 
 namespace SimpleScene
 {
@@ -47,8 +48,7 @@ namespace SimpleScene
 
             Console.WriteLine("SSMesh_wfOBJ: loading wff {0}",filename);
             WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
-               delegate(string resource_name) { return ctx.getAsset(resource_name).Open(); });
-
+               delegate(string resourceName) { return ctx.Open(resourceName); });
 
 			Console.WriteLine("wff vertex count = {0}",wff_data.positions.Count);
 			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
