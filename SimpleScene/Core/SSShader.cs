@@ -16,9 +16,6 @@ namespace SimpleScene
 		
 		string shaderName;
 
-		public SSShader (ShaderType type, string shaderName, SSAssetItem shaderAsset) 
-			: this (type, shaderName, shaderAsset.Open().AsString()) { }
-		
 		public SSShader (ShaderType type, string shaderName, string shaderProgramText)
 		{
 			this.type = type;
@@ -71,7 +68,32 @@ namespace SimpleScene
 		}
 		
 	}
-	
+
+    public class SSVertexShader : SSShader
+    {
+        public SSVertexShader(SSAssetManagerContext context, string filename)
+            : base(ShaderType.VertexShader,
+                   filename, 
+                   SSAssetManager.mgr.getAsset(context.fullHandlePathForResource(filename)).Open().AsString())
+        { }
+    }
+
+    public class SSFragmentShader : SSShader
+    {
+        public SSFragmentShader(SSAssetManagerContext context, string filename)
+            : base(ShaderType.FragmentShader,
+                   filename,
+                   SSAssetManager.mgr.getAsset(context.fullHandlePathForResource(filename)).Open().AsString()) { }
+    }
+
+    public class SSGeometryShader : SSShader
+    {
+        public SSGeometryShader(SSAssetManagerContext context, string filename)
+            : base(ShaderType.GeometryShader,
+                   filename,
+                   SSAssetManager.mgr.getAsset(context.fullHandlePathForResource(filename)).Open().AsString()) { }
+    }
+
 	public class SSShaderProgram {
 		public int ProgramID;
 		internal SSShaderProgram() {

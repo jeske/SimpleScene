@@ -209,11 +209,18 @@ namespace SimpleScene
                 if (handler.resourceExists(fullPath)) {
                     Object newObj = null;
 
+                    // todo replace with delegates
                     if (resType == typeof(SSMesh_wfOBJ)) {
                         // todo: disassociate asset manager classes from mesh classes
                         newObj = new SSMesh_wfOBJ(context, filename);
-                    }
-                    // todo: more type handlers
+                    } else if (resType == typeof(SSVertexShader)) {
+                        newObj = new SSVertexShader(context, filename);
+                    } else if (resType == typeof(SSFragmentShader)) {
+                        newObj = new SSFragmentShader(context, filename);
+                    } else if (resType == typeof(SSGeometryShader)) {
+                        newObj = new SSGeometryShader(context, filename);
+                    } 
+                    
 
                     var key = new Tuple<string, Type>(fullPath, resType);
                     m_instances.Add(key, newObj);
