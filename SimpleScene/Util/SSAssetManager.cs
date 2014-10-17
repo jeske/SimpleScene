@@ -131,15 +131,13 @@ namespace SimpleScene
         }
 
         static public void AddAssetArchive(ISSAssetArchiveHandler handler) {
-            lock (s_mgr) {
-                s_mgr.m_handlers.Add(handler);
-            }
+            s_mgr.addAssetArchive(handler);
         }
         #endregion
 
         private void registerLoadDelegate<T>(LoadDelegate dlg) {
+            Type type = typeof(T);
             lock (this) {
-                Type type = typeof(T);
                 if (!m_loadDelegates.ContainsKey(type)) {
                     m_loadDelegates.Add(typeof(T), dlg);
                 } else {
@@ -149,6 +147,12 @@ namespace SimpleScene
                         throw new Exception("SSAssetManager: Conflicting registration of a load delegate");
                     }
                 }
+            }
+        }
+
+        private void addAssetArchive(ISSAssetArchiveHandler handler) {
+            lock (this) {
+                m_handlers.Add(handler);
             }
         }
         
@@ -173,7 +177,10 @@ namespace SimpleScene
             object obj = null;
             string fullPath = context.fullResourcePath(filename);
             var key = new Tuple<string, Type>(fullPath, typeof(T));
-            bool found = m_instances.TryGetValue(key, out obj);
+            bool found;
+            lock (this) {
+                found = m_instances.TryGetValue(key, out obj);
+            }
             if (found) {
                 return (T)obj;
             } else {
@@ -184,7 +191,10 @@ namespace SimpleScene
         private bool deleteInstance<T>(Context context, string filename) {
             string fullPath = context.fullResourcePath(filename);
             var key = new Tuple<string, Type>(fullPath, typeof(T));
-            bool ok = m_instances.Remove(key);
+            bool ok;
+            lock (this) {
+                ok = m_instances.Remove(key);
+            }
             if (!ok) {
                 throw new Exception("SSAssetManager: no such instance");
             }
@@ -206,13 +216,18 @@ namespace SimpleScene
             foreach (ISSAssetArchiveHandler handler in handlersArr) {
                 if (handler.resourceExists(fullPath)) {
                     LoadDelegate dlg;
-                    bool found = m_loadDelegates.TryGetValue(resType, out dlg);
+                    bool found;
+                    lock (this) {
+                        found = m_loadDelegates.TryGetValue(resType, out dlg);
+                    }
                     if (!found) {
                         throw new Exception("SSAssetManager: Load delegate not found");
                     }
-                    object newObj = dlg(context, filename);
+                    Object newObj = dlg(context, filename);
                     var key = new Tuple<string, Type>(fullPath, resType);
-                    m_instances.Add(key, newObj);
+                    lock(this) {
+                        m_instances.Add(key, newObj);
+                    }
                     return newObj;
                 }
             }
