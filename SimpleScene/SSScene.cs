@@ -165,29 +165,19 @@ namespace SimpleScene
         public SSScene() {
             // Register SS types for loading by SSAssetManager
             SSAssetManager.RegisterLoadDelegate<SSTexture>(
-                delegate(SSAssetManager.Context ctx, string filename) {
-                    return new SSTexture(ctx, filename);
-                }
+                (ctx, filename) => { return new SSTexture(ctx, filename); }
             );
             SSAssetManager.RegisterLoadDelegate<SSMesh_wfOBJ>(
-                delegate(SSAssetManager.Context ctx, string filename) {
-                    return new SSMesh_wfOBJ(ctx, filename);
-                }
+                (ctx, filename) => { return new SSMesh_wfOBJ(ctx, filename); }
             );
             SSAssetManager.RegisterLoadDelegate<SSVertexShader>(
-                delegate(SSAssetManager.Context ctx, string filename) {
-                    return new SSVertexShader(ctx, filename);
-                }
+                (ctx, filename) => { return new SSVertexShader(ctx, filename); }
             );
             SSAssetManager.RegisterLoadDelegate<SSFragmentShader>(
-                delegate(SSAssetManager.Context ctx, string filename) {
-                    return new SSFragmentShader(ctx, filename);
-                }
+                (ctx, filename) => { return new SSFragmentShader(ctx, filename); }
             );
             SSAssetManager.RegisterLoadDelegate<SSGeometryShader>(
-                delegate(SSAssetManager.Context ctx, string filename) {
-                    return new SSGeometryShader(ctx, filename);
-                }
+                (ctx, filename) => { return new SSGeometryShader(ctx, filename); }
             );
         }
     }
