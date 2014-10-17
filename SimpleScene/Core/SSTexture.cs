@@ -26,6 +26,12 @@ namespace SimpleScene
 		    GL.GenTextures(1,out _glTextureID);
 		}
 
+        public SSTexture(SSAssetManagerContext ctx, string filename) : this() {
+            SSAssetItem assetItem = ctx.getAsset(filename);
+            Bitmap textureBitmap = new Bitmap(assetItem.Open());
+            loadFromBitmap(textureBitmap, name: filename);
+        }
+
         public void DeleteTexture() {
             GL.DeleteTexture(_glTextureID);
             _glTextureID = 0;

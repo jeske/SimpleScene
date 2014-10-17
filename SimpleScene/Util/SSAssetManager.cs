@@ -166,7 +166,7 @@ namespace SimpleScene
             throw new SSNoSuchAssetException(resource_name, handlers_arr);
         }
 
-        public T GetInstance<T>(SSAssetManagerContext context, string filename) {
+        private T GetInstancePrivate<T>(SSAssetManagerContext context, string filename) {
             object obj = null;
             string fullPath = context.fullHandlePathForResource(filename);
             var key = new Tuple<string, Type>(fullPath, typeof(T));
@@ -178,9 +178,13 @@ namespace SimpleScene
             }
         }
 
+        public static T GetInstance<T>(SSAssetManagerContext context, string filename) {
+            return mgr.GetInstancePrivate<T>(context, filename);
+        }
+
         public static T GetInstance<T>(string context, string filename) {
             var ctx = mgr.getContext(context);
-            return mgr.GetInstance<T>(ctx, filename);
+            return mgr.GetInstancePrivate<T>(ctx, filename);
         }
 
         public bool DeleteInstance<T>(SSAssetManagerContext context, string filename) {
@@ -209,7 +213,8 @@ namespace SimpleScene
                 if (handler.resourceExists(fullPath)) {
                     Object newObj = null;
 
-                    // todo replace with delegates
+                    // vv todo replace with delegates vv
+
                     if (resType == typeof(SSMesh_wfOBJ)) {
                         // todo: disassociate asset manager classes from mesh classes
                         newObj = new SSMesh_wfOBJ(context, filename);
@@ -219,8 +224,11 @@ namespace SimpleScene
                         newObj = new SSFragmentShader(context, filename);
                     } else if (resType == typeof(SSGeometryShader)) {
                         newObj = new SSGeometryShader(context, filename);
-                    } 
+                    } else if (resType == typeof(SSTexture)) {
+                        newObj = new SSTexture(context, filename);
+                    }
                     
+                    // ^^ todo replace with delegates ^^
 
                     var key = new Tuple<string, Type>(fullPath, resType);
                     m_instances.Add(key, newObj);

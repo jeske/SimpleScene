@@ -69,7 +69,6 @@
     <Compile Include="Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="Core\SSRay.cs" />
     <Compile Include="Core\SSTexture.cs" />
-    <Compile Include="Core\SSTexture_FromAsset.cs" />
     <Compile Include="Lights\SSLight.cs" />
     <Compile Include="Meshes\SSAbstractMesh.cs" />
     <Compile Include="Meshes\SSIndexBuffer.cs" />
