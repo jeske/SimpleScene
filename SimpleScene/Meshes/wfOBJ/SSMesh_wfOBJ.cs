@@ -40,7 +40,7 @@ namespace SimpleScene
 		{
 			return string.Format ("[SSMesh_FromOBJ:{0}]", this.srcFilename);
 		}
-		
+
 #region Constructor
         public SSMesh_wfOBJ(SSAssetManager.Context ctx, string filename) {
             this.srcFilename = filename;            
@@ -54,7 +54,7 @@ namespace SimpleScene
 			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
 
             _loadData(ctx, wff_data);
-        }    
+        }
 #endregion
 
 		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {

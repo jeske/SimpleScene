@@ -99,50 +99,59 @@ namespace SimpleScene
 
 	#region Core Asset Manager
     public class SSAssetManager {
-        // Singleton
+        
         private static readonly SSAssetManager s_mgr = new SSAssetManager();
 
         private readonly List<ISSAssetArchiveHandler> m_handlers = new List<ISSAssetArchiveHandler>();
+        
+        // todo: replace with a data structure that tracks use and removes Last Recently Used
+        private Dictionary<Tuple<string, Type>, object> m_instances
+            = new Dictionary<Tuple<string, Type>, object>();
 
-        #region Public Static User Functions
-        public class Context
-        {
-            private readonly string m_basepath;
+        private Dictionary<Type, LoadDelegate> m_loadDelegates = new Dictionary<Type,LoadDelegate>();
 
-            public Context(string basepath) {
-                m_basepath = basepath;
-            }
+        #region Public User Functions and Classes
+        public delegate object LoadDelegate(Context ctx, string filename);
 
-            public Stream Open(string filename) {
-                string fullPath = fullResourcePath(filename);
-                return s_mgr.openStream(fullPath);
-            }
-
-            public string fullResourcePath(string filename) {
-                return Path.Combine(m_basepath, filename);
-            }
+        static public void RegisterLoadDelegate<T>(LoadDelegate dlg) {
+            s_mgr.registerLoadDelegate<T>(dlg);
         }
 
-        public static T GetInstance<T>(SSAssetManager.Context context, string filename) {
+        static public T GetInstance<T>(SSAssetManager.Context context, string filename) {
             return s_mgr.getInstance<T>(context, filename);
         }
 
-        public static T GetInstance<T>(string context, string filename) {
+        static public T GetInstance<T>(string context, string filename) {
             var ctx = new Context(context);
             return s_mgr.getInstance<T>(ctx, filename);
         }
 
-        public static void DeleteInstance<T>(Context context, string filename) {
+        static public void DeleteInstance<T>(Context context, string filename) {
             s_mgr.deleteInstance<T>(context, filename);
         }
 
-        public static void AddAssetArchive(ISSAssetArchiveHandler handler) {
+        static public void AddAssetArchive(ISSAssetArchiveHandler handler) {
             lock (s_mgr) {
                 s_mgr.m_handlers.Add(handler);
             }
         }
         #endregion
 
+        private void registerLoadDelegate<T>(LoadDelegate dlg) {
+            lock (this) {
+                Type type = typeof(T);
+                if (!m_loadDelegates.ContainsKey(type)) {
+                    m_loadDelegates.Add(typeof(T), dlg);
+                } else {
+                    LoadDelegate existing;
+                    m_loadDelegates.TryGetValue(type, out existing);
+                    if (dlg != existing) {
+                        throw new Exception("SSAssetManager: Conflicting registration of a load delegate");
+                    }
+                }
+            }
+        }
+        
         private Stream openStream(string fullPath) {
             ISSAssetArchiveHandler[] handlersArr;
 
@@ -196,25 +205,12 @@ namespace SimpleScene
             string fullPath = context.fullResourcePath(filename);
             foreach (ISSAssetArchiveHandler handler in handlersArr) {
                 if (handler.resourceExists(fullPath)) {
-                    Object newObj = null;
-
-                    // vv todo replace with delegates vv
-
-                    if (resType == typeof(SSMesh_wfOBJ)) {
-                        // todo: disassociate asset manager classes from mesh classes
-                        newObj = new SSMesh_wfOBJ(context, filename);
-                    } else if (resType == typeof(SSVertexShader)) {
-                        newObj = new SSVertexShader(context, filename);
-                    } else if (resType == typeof(SSFragmentShader)) {
-                        newObj = new SSFragmentShader(context, filename);
-                    } else if (resType == typeof(SSGeometryShader)) {
-                        newObj = new SSGeometryShader(context, filename);
-                    } else if (resType == typeof(SSTexture)) {
-                        newObj = new SSTexture(context, filename);
+                    LoadDelegate dlg;
+                    bool found = m_loadDelegates.TryGetValue(resType, out dlg);
+                    if (!found) {
+                        throw new Exception("SSAssetManager: Load delegate not found");
                     }
-                    
-                    // ^^ todo replace with delegates ^^
-
+                    object newObj = dlg(context, filename);
                     var key = new Tuple<string, Type>(fullPath, resType);
                     m_instances.Add(key, newObj);
                     return newObj;
@@ -223,9 +219,23 @@ namespace SimpleScene
             throw new SSNoSuchAssetException(filename, handlersArr);
         }
 
-        // todo: replace with a data structure that tracks use and removes Last Recently Used
-        private Dictionary<Tuple<string,Type>, object> m_instances 
-            = new Dictionary<Tuple<string,Type>, object>();
+        public class Context
+        {
+            private readonly string m_basepath;
+
+            public Context(string basepath) {
+                m_basepath = basepath;
+            }
+
+            public Stream Open(string filename) {
+                string fullPath = fullResourcePath(filename);
+                return s_mgr.openStream(fullPath);
+            }
+
+            public string fullResourcePath(string filename) {
+                return Path.Combine(m_basepath, filename);
+            }
+        }
     }
 	#endregion
 

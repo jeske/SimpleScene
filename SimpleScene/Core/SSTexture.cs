@@ -19,7 +19,8 @@ namespace SimpleScene
 	{	
 		private int  _glTextureID;
 		public int TextureID { get { return _glTextureID; } }
-		public SSTexture () {
+       
+        public SSTexture () {
 			//generate one texture and put its ID number into the "_glTextureID" variable
 
 			// this is expensive, so we really only want to do it once...
