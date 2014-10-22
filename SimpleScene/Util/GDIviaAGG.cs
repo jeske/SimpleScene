@@ -1,5 +1,5 @@
 ﻿// Copyright(C) David W. Jeske, 2013
-// Released to the public domain. Use, modify and relicense at will.
+// Released to the public domain. 
 
 // This is a small partial windows-GDI System.Drawing.Graphics emulation via agg-sharp.
 // I wrote it because Mono's GDI impelemenation doesn't handle clip-paths properly.

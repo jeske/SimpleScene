@@ -1,5 +1,5 @@
 ﻿// Copyright(C) David W. Jeske, 2013
-// Released to the public domain.
+// Released to the public domain. 
 
 using System;
 
