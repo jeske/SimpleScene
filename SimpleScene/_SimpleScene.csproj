@@ -84,6 +84,8 @@
     <Compile Include="Util\OpenTKHelper.cs" />
     <Compile Include="Util\RunningAverage.cs" />
     <Compile Include="Util\SSAssetManager.cs" />
+    <Compile Include="Util\ssBVH\ssBVH.cs" />
+    <Compile Include="Util\ssBVH\ssBVH_SSObject.cs" />
     <Compile Include="Util\VertexSoup.cs" />
     <Compile Include="Util\WavefrontObjLoader.cs" />
     <Compile Include="Util\WhoCalls.cs" />
