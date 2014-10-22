@@ -55,7 +55,15 @@ namespace SimpleScene.Util.ssBVH
             GL.Vertex3(p3); GL.Vertex3(p0);
         }
 
-        public void renderCells(ssBVHNode<SSObject> n) {                        
+        public void renderCells(ssBVHNode<SSObject> n, int depth=0) {  
+            if (n.gobjects == null) {
+                GL.Color4(Color.FromArgb(255,25,25,25));
+            } else {
+                GL.Color4(Color.DarkRed);            
+            }
+            
+            
+                             
            	var p0 = new Vector3 (n.minX,  n.minY,  n.maxZ);  
 			var p1 = new Vector3 (n.maxX,  n.minY,  n.maxZ);
 			var p2 = new Vector3 (n.maxX,  n.maxY,  n.maxZ);  
@@ -72,8 +80,8 @@ namespace SimpleScene.Util.ssBVH
             drawQuadEdges(p3, p2, p6, p7);
             drawQuadEdges(p0, p3, p7, p4);
 
-            if (n.next != null) renderCells(n.next);
-            if (n.prev != null) renderCells(n.prev);
+            if (n.right != null) renderCells(n.right, depth:depth + 1);
+            if (n.left != null) renderCells(n.left, depth:depth + 1);
         }
 
         public override void Render(ref SSRenderConfig renderConfig) {
@@ -83,7 +91,6 @@ namespace SimpleScene.Util.ssBVH
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
-
    			
             GL.Begin(BeginMode.Lines);
             GL.Color4(Color.Red);          
