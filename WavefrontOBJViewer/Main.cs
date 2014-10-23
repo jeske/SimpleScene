@@ -103,9 +103,9 @@ namespace WavefrontOBJViewer
 				// setup asset manager contexts
 				// these help the asset manager find the "Asset" directy up above the bin/obj/Debug
 				// output directories... 
-				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
-				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
-				SSAssetManager.mgr.addAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
+				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
+				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
+				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
 
 				game.shaderPgm = new SSShaderProgram_Main(); // before scene
 				
