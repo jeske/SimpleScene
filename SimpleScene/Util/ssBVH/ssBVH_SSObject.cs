@@ -43,6 +43,7 @@ namespace SimpleScene.Util.ssBVH
     /// </summary>
     public class SSBVHRender : SSObject {
         ssBVH<SSObject> bvh;
+        public HashSet<ssBVHNode<SSObject>> highlightNodes = new HashSet<ssBVHNode<SSObject>>();
 
         public SSBVHRender(ssBVH<SSObject> bvh) {
             this.bvh = bvh;
@@ -56,14 +57,16 @@ namespace SimpleScene.Util.ssBVH
         }
 
         public void renderCells(ssBVHNode<SSObject> n, int depth=0) {  
-            if (n.gobjects == null) {
-                GL.Color4(Color.FromArgb(255,25,25,25));
+            if (highlightNodes.Contains(n)) {
+                GL.Color4(Color.Green); 
             } else {
-                GL.Color4(Color.DarkRed);            
+                if (n.gobjects == null) {
+                    GL.Color4(Color.FromArgb(255,25,25,25));
+                } else {
+                    GL.Color4(Color.DarkRed);            
+                }
             }
-            
-            
-                             
+                                                 
            	var p0 = new Vector3 (n.minX,  n.minY,  n.maxZ);  
 			var p1 = new Vector3 (n.maxX,  n.minY,  n.maxZ);
 			var p2 = new Vector3 (n.maxX,  n.maxY,  n.maxZ);  

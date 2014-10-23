@@ -175,6 +175,83 @@ namespace SimpleScene
 		} // fn
 
 
+        public static bool intersectRayAABox1(SSRay ray, SSAABB box, ref float tnear, ref float tfar) {
+            // r.dir is unit direction vector of ray
+            Vector3 dirfrac = new Vector3();
+            float t;
+            dirfrac.X = 1.0f / ray.dir.X;
+            dirfrac.Y = 1.0f / ray.dir.Y;
+            dirfrac.Z = 1.0f / ray.dir.Z;
+            // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+            // r.org is origin of ray
+            float t1 = (box.min.X - ray.pos.X)*dirfrac.X;
+            float t2 = (box.max.X - ray.pos.X)*dirfrac.X;
+            float t3 = (box.min.Y - ray.pos.Y)*dirfrac.Y;
+            float t4 = (box.max.Y - ray.pos.Y)*dirfrac.Y;
+            float t5 = (box.min.Z - ray.pos.Z)*dirfrac.Z;
+            float t6 = (box.max.Z - ray.pos.Z)*dirfrac.Z;
+
+            float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
+            float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
+
+            // if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
+            if (tmax < 0)
+            {
+                t = tmax;
+                return false;
+            }
+
+            // if tmin > tmax, ray doesn't intersect AABB
+            if (tmin > tmax)
+            {
+                t = tmax;
+                return false;
+            }
+
+            t = tmin;
+            return true;
+
+        }
+
+        // Ray to AABB (AxisAlignedBoundingBox)
+        // http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
+       
+        public static bool intersectRayAABox2(SSRay ray, SSAABB box, ref float tnear, ref float tfar) {
+            Vector3d T_1 = new Vector3d();
+            Vector3d T_2 = new Vector3d(); // vectors to hold the T-values for every direction
+            double t_near = double.MinValue; // maximums defined in float.h
+            double t_far = double.MaxValue;
+
+            for (int i = 0; i < 3; i++){ //we test slabs in every direction
+                if (ray.dir[i] == 0){ // ray parallel to planes in this direction
+                    if ((ray.pos[i] < box.min[i]) || (ray.pos[i] > box.max[i])) {
+                        return false; // parallel AND outside box : no intersection possible
+                    }
+                } else { // ray not parallel to planes in this direction
+                    T_1[i] = (box.min[i] - ray.pos[i]) / ray.dir[i];
+                    T_2[i] = (box.max[i] - ray.pos[i]) / ray.dir[i];
+
+                    if(T_1[i] > T_2[i]){ // we want T_1 to hold values for intersection with near plane
+                        var swp = T_2; // swap
+                        T_1 = swp; T_2 = T_1;   
+                    }
+                    if (T_1[i] > t_near){
+                        t_near = T_1[i];
+                    }
+                    if (T_2[i] < t_far){
+                        t_far = T_2[i];
+                    }
+                    if( (t_near > t_far) || (t_far < 0) ){
+                        return false;
+                    }
+                }
+            }
+            tnear = (float)t_near; tfar = (float)t_far; // put return values in place
+            return true; // if we made it here, there was an intersection - YAY
+        }
+
+
+
 		public static float Clamp(float value, float min, float max) {
 			value = (value < min ? min : value);
 			value = (value > max ? max : value);
