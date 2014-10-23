@@ -58,10 +58,14 @@ namespace SimpleScene.Util.ssBVH
 
         public void renderCells(ssBVHNode<SSObject> n, int depth=0) {  
             if (highlightNodes.Contains(n)) {
-                GL.Color4(Color.Green); 
+                if (n.gobjects == null) {
+                    GL.Color4(Color.FromArgb(255,25,25,100));
+                } else {
+                    GL.Color4(Color.Green); 
+                }                
             } else {
                 if (n.gobjects == null) {
-                    GL.Color4(Color.FromArgb(255,25,25,25));
+                    GL.Color4(Color.FromArgb(255,20,20,20));
                 } else {
                     GL.Color4(Color.DarkRed);            
                 }
