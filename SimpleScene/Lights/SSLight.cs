@@ -5,6 +5,7 @@ using System;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System.Collections.Generic;
 
 namespace SimpleScene
 {
@@ -15,9 +16,9 @@ namespace SimpleScene
 
 	public class SSLight : SSObjectBase
 	{
-		protected const int c_maxNumLights = (int)(LightName.Light7 - LightName.Light0) + 1;
-		protected const LightName c_lastLight = LightName.Light7;
-		protected static LightName s_nextLight = LightName.Light0;
+		private const LightName c_firstNameIdx = LightName.Light0;
+		private const LightName c_lastNameIdx = LightName.Light7;
+		static private readonly Queue<LightName> s_avaiableLightNames = new Queue<LightName>();
 
 		public Vector4 Ambient = new Vector4(0.0f);
 		public Vector4 Specular = new Vector4 (0.0f);
@@ -25,19 +26,26 @@ namespace SimpleScene
 
 		protected LightName m_lightName;
 
-
-		// TODO: should decouple the light-name from this class and auto-assign it based on the renderer
+		static SSLight() {
+			for (LightName l = c_firstNameIdx; l <= c_lastNameIdx; ++l) {
+				s_avaiableLightNames.Enqueue(l);
+			}
+		}
 
 		public SSLight () : base() {
-			if (s_nextLight > c_lastLight) {
-				string msg = "Cannot support more than " + c_maxNumLights + " lights.";
+			if (s_avaiableLightNames.Count == 0) {
+				string msg = "Cannot support this many lights.";
 				throw new Exception (msg);
 			}
 
-			this.m_lightName = s_nextLight;
-			++s_nextLight;
+			this.m_lightName = s_avaiableLightNames.Dequeue();
 			this._pos = new Vector3 (0, 0, 1);
 			this.calcMatFromState ();
+		}
+
+		~SSLight() {
+			DisableLight ();
+			s_avaiableLightNames.Enqueue (m_lightName);
 		}
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
@@ -49,7 +57,8 @@ namespace SimpleScene
 
 			GL.Light (m_lightName, LightParameter.Position, new Vector4(this._pos,1.0f));
 
-			GL.Enable (EnableCap.Light0 + (m_lightName - LightName.Light0));
+			int idx = m_lightName - c_firstNameIdx;
+			GL.Enable (EnableCap.Light0 + idx);
 
 		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
@@ -71,12 +80,13 @@ namespace SimpleScene
 			// we put it at the origin because it is transformed by the model view matrix (which already has our position)
 			GL.Light (m_lightName, LightParameter.Position, new Vector4(0,0,0,1.0f)); 
 
+			int idx = m_lightName - c_firstNameIdx;
+			GL.Enable (EnableCap.Light0 + idx);
+		}
 
-			// GL.Light (glLightName, LightParameter.SpotDirection, new Vector4 (this._dir, 0.0f));
-
-			GL.Enable (EnableCap.Light0 + (m_lightName - LightName.Light0));
-
-
+		public void DisableLight() {
+			int idx = m_lightName - c_firstNameIdx;
+			GL.Disable (EnableCap.Light0 + idx);
 		}
 	}
 }
