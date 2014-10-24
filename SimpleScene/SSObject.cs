@@ -38,14 +38,14 @@ namespace SimpleScene
 
 			// turn off most GL features to start..
 			if (renderConfig.BaseShader == null) {
-				GL.UseProgram(0);
+				SSShaderProgram.Deactivate ();
 			} else {
 				var shaderPgm = renderConfig.BaseShader;			
-				GL.UseProgram(shaderPgm.ProgramID);
-				GL.Uniform1(shaderPgm.u_diffTexEnabled,(int)0); 
-				GL.Uniform1(shaderPgm.u_specTexEnabled,(int)0); 
-				GL.Uniform1(shaderPgm.u_ambiTexEnabled,(int)0); 
-				GL.Uniform1(shaderPgm.u_bumpTexEnabled,(int)0);
+				shaderPgm.Activate ();
+				shaderPgm.DiffTexEnabled = false;
+				shaderPgm.SpecTexEnabled = false;
+				shaderPgm.AmbTexEnabled = false;
+				shaderPgm.BumpTexEnabled = false;
 			}
 
 			GL.Disable(EnableCap.Blend);

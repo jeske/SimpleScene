@@ -128,21 +128,20 @@ namespace SimpleScene
 
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
-			GL.UseProgram(shaderPgm.ProgramID);
+			shaderPgm.Activate ();
 
 			// turn off other texture layers
-			GL.Uniform1(shaderPgm.u_specTexEnabled,(int)0); 
-			GL.Uniform1(shaderPgm.u_ambiTexEnabled,(int)0); 
-			GL.Uniform1(shaderPgm.u_bumpTexEnabled,(int)0); 
-
+			shaderPgm.SpecTexEnabled = false;
+			shaderPgm.AmbTexEnabled = false;
+			shaderPgm.BumpTexEnabled = false;
 
 			GL.ActiveTexture(TextureUnit.Texture0);
 			if (texture != null) {
 				GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-				GL.Uniform1(shaderPgm.u_diffTexEnabled,(int)1); 
+				shaderPgm.DiffTexEnabled = true;
 			} else {
 				GL.BindTexture(TextureTarget.Texture2D, 0);
-				GL.Uniform1(shaderPgm.u_diffTexEnabled,(int)0); 
+				shaderPgm.DiffTexEnabled = false;
 			}
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);

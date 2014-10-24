@@ -96,8 +96,17 @@ namespace SimpleScene
     }
 
 	public class SSShaderProgram {
-		public int ProgramID;
+		protected int m_programID;
+
 		internal SSShaderProgram() {
+		}
+
+		public void Activate() {
+			GL.UseProgram (m_programID);
+		}
+
+		public static void Deactivate() {
+			GL.UseProgram (0);
 		}
 	}
 }

@@ -13,6 +13,7 @@ using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene;
+using System.Drawing;
 
 namespace SimpleScene
 {
@@ -22,61 +23,92 @@ namespace SimpleScene
 		SSShader fragmentShader;
 		SSShader geometryShader;
 
-		// uniform locations
-		public int u_WIN_SCALE;
-		public int u_animateSecondsOffset;
-		public int u_showWireframes;
-		
-		public int u_diffTexEnabled;
-		public int u_specTexEnabled;
-		public int u_ambiTexEnabled;
-		public int u_bumpTexEnabled;
+		#region Uniform Modifiers
+		public bool DiffTexEnabled {
+			set { GL.Uniform1 (u_diffTexEnabled, value ? 1 : 0); }
+		}
+
+		public bool SpecTexEnabled {
+			set { GL.Uniform1 (u_specTexEnabled, value ? 1 : 0); }
+		}
+
+		public bool AmbTexEnabled {
+			set { GL.Uniform1 (u_ambiTexEnabled, value ? 1 : 0); }
+		}
+
+		public bool BumpTexEnabled {
+			set { GL.Uniform1 (u_bumpTexEnabled, value ? 1 : 0); }
+		}
+
+		public float AnimateSecondsOffset {
+			set { GL.Uniform1 (u_animateSecondsOffset, value); }
+		}
+
+		public bool ShowWireframes {
+			set { GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
+		}
+
+		public Rectangle WinScale {
+			set { GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
+		}
+		#endregion
+
+		#region Uniform Locations
+		private int u_winScale;
+		private int u_animateSecondsOffset;
+		private int u_showWireframes;
+
+		private int u_diffTexEnabled;
+		private int u_specTexEnabled;
+		private int u_ambiTexEnabled;
+		private int u_bumpTexEnabled;
+		#endregion
 
 		public SSShaderProgram_Main ()
 		{
 			// open the shader asset context...
 			const string ctx = "./Shaders/";
 
-			ProgramID = GL.CreateProgram();
+			m_programID = GL.CreateProgram();
 			// we use this method of detecting the extension because we are in a GL2.2 context
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
 
 				this.vertexShader = SSAssetManager.GetInstance<SSVertexShader>(ctx, "ss4_vertex.glsl");
-				GL.AttachShader (ProgramID, vertexShader.ShaderID);
+				GL.AttachShader (m_programID, vertexShader.ShaderID);
 
 				this.fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(ctx, "ss4_fragment.glsl");
-				GL.AttachShader (ProgramID, fragmentShader.ShaderID);
+				GL.AttachShader (m_programID, fragmentShader.ShaderID);
 
 				this.geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(ctx, "ss4_geometry.glsl");		
-				GL.Ext.ProgramParameter (ProgramID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
-				GL.Ext.ProgramParameter (ProgramID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
-				GL.Ext.ProgramParameter (ProgramID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
-				GL.AttachShader (ProgramID, geometryShader.ShaderID);
+				GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
+				GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
+				GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
+				GL.AttachShader (m_programID, geometryShader.ShaderID);
 
 			} else {
 				this.vertexShader = SSAssetManager.GetInstance<SSVertexShader>(ctx, "ss1_vertex.glsl");
-				GL.AttachShader (ProgramID, vertexShader.ShaderID);
+				GL.AttachShader (m_programID, vertexShader.ShaderID);
 
 				this.fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(ctx, "ss1_fragment.glsl");
-				GL.AttachShader (ProgramID, fragmentShader.ShaderID);
+				GL.AttachShader (m_programID, fragmentShader.ShaderID);
 			}
 
 
-			GL.LinkProgram(ProgramID);
-			Console.WriteLine(GL.GetProgramInfoLog(ProgramID));
+			GL.LinkProgram(m_programID);
+			Console.WriteLine(GL.GetProgramInfoLog(m_programID));
 
 			// shader is initialized now...
 		
-			GL.UseProgram (ProgramID);
-			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "showWireframes"), (int)0);			
-			GL.Uniform1 (GL.GetUniformLocation (ProgramID, "animateSecondsOffset"), (float)0.0f);		
+			GL.UseProgram (m_programID);
+			GL.Uniform1 (GL.GetUniformLocation (m_programID, "showWireframes"), (int)0);			
+			GL.Uniform1 (GL.GetUniformLocation (m_programID, "animateSecondsOffset"), (float)0.0f);		
 
 			// get shader uniform variable locations	
-			int GLun_diffTex = GL.GetUniformLocation(ProgramID, "diffTex");
-			int GLun_specTex = GL.GetUniformLocation(ProgramID, "specTex");
-			int GLun_ambiTex = GL.GetUniformLocation(ProgramID, "ambiTex");
-			int GLun_bumpTex = GL.GetUniformLocation(ProgramID, "bumpTex");
+			int GLun_diffTex = GL.GetUniformLocation(m_programID, "diffTex");
+			int GLun_specTex = GL.GetUniformLocation(m_programID, "specTex");
+			int GLun_ambiTex = GL.GetUniformLocation(m_programID, "ambiTex");
+			int GLun_bumpTex = GL.GetUniformLocation(m_programID, "bumpTex");
 
 			// bind shader uniform variable handles to GL texture-unit numbers
 			GL.Uniform1(GLun_diffTex,0); // Texture.Texture0
@@ -85,14 +117,14 @@ namespace SimpleScene
 			GL.Uniform1(GLun_bumpTex,3); // Texture.Texture3
 
 
-            u_animateSecondsOffset = GL.GetUniformLocation(ProgramID, "animateSecondsOffset");
-			u_WIN_SCALE = GL.GetUniformLocation(ProgramID, "WIN_SCALE");
-			u_showWireframes = GL.GetUniformLocation(ProgramID, "showWireframes");
+            u_animateSecondsOffset = GL.GetUniformLocation(m_programID, "animateSecondsOffset");
+			u_winScale = GL.GetUniformLocation(m_programID, "WIN_SCALE");
+			u_showWireframes = GL.GetUniformLocation(m_programID, "showWireframes");
 
-			u_diffTexEnabled = GL.GetUniformLocation(ProgramID, "diffTexEnabled");
-			u_specTexEnabled = GL.GetUniformLocation(ProgramID, "specTexEnabled");
-			u_ambiTexEnabled = GL.GetUniformLocation(ProgramID, "ambiTexEnabled");
-			u_bumpTexEnabled = GL.GetUniformLocation(ProgramID, "bumpTexEnabled");
+			u_diffTexEnabled = GL.GetUniformLocation(m_programID, "diffTexEnabled");
+			u_specTexEnabled = GL.GetUniformLocation(m_programID, "specTexEnabled");
+			u_ambiTexEnabled = GL.GetUniformLocation(m_programID, "ambiTexEnabled");
+			u_bumpTexEnabled = GL.GetUniformLocation(m_programID, "bumpTexEnabled");
 
 			{
 				ErrorCode glerr;
