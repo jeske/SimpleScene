@@ -20,7 +20,7 @@ namespace WavefrontOBJViewer
 
 		public void setupInput() {
 			// hook mouse drag input...
-			this.Mouse.ButtonDown += (object sender, MouseButtonEventArgs e) => {
+			this.MouseDown += (object sender, MouseButtonEventArgs e) => {
 				this.mouseButtonDown = true;
 
 				// cast ray for mouse click
@@ -37,10 +37,10 @@ namespace WavefrontOBJViewer
 				selectedObject = scene.Intersect(ref ray);
 
 			};
-			this.Mouse.ButtonUp += (object sender, MouseButtonEventArgs e) => { 
+			this.MouseUp += (object sender, MouseButtonEventArgs e) => { 
 				this.mouseButtonDown = false;
 			};
-			this.Mouse.Move += (object sender, MouseMoveEventArgs e) => {
+			this.MouseMove += (object sender, MouseMoveEventArgs e) => {
 				if (this.mouseButtonDown) {
 
 					// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
@@ -48,7 +48,7 @@ namespace WavefrontOBJViewer
 					// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}
 			};
-			this.Mouse.WheelChanged += (object sender, MouseWheelEventArgs e) => { 
+			this.MouseWheel += (object sender, MouseWheelEventArgs e) => { 
 				// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 				SSCameraThirdPerson ctp = scene.activeCamera as SSCameraThirdPerson;
 				if (ctp != null) {
@@ -63,8 +63,8 @@ namespace WavefrontOBJViewer
 					updateWireframeDisplayText (scene.renderConfig);
 
 					// if we need single-pass wireframes, set the GLSL uniform variable
-					GL.UseProgram (this.shaderPgm.ProgramID);
-					GL.Uniform1 (GL.GetUniformLocation (this.shaderPgm.ProgramID, "showWireframes"), (int) (scene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass ? 1 : 0));
+					shaderPgm.Activate();
+					shaderPgm.ShowWireframes = (scene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
 					break;
 				}
 			};

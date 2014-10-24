@@ -16,14 +16,14 @@ namespace WavefrontOBJViewer
             scene.renderConfig.BaseShader = shaderPgm;
 			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += (obj, renderConfig) => {
-				GL.UseProgram(this.shaderPgm.ProgramID);
+				shaderPgm.Activate();
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					GL.Uniform1 (this.shaderPgm.u_showWireframes, (int) 1);			
+					shaderPgm.ShowWireframes = true;			
 
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					GL.Uniform1 (this.shaderPgm.u_showWireframes, (int) 0);			
+					shaderPgm.ShowWireframes = false;
 
 				}
 			};
@@ -31,7 +31,7 @@ namespace WavefrontOBJViewer
 
 			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
-			var light = new SSLight (LightName.Light0);
+			var light = new SSLight ();
 			light.Pos = lightPos;
 			scene.addLight(light);
 

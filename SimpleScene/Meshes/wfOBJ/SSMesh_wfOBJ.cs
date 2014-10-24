@@ -46,6 +46,7 @@ namespace SimpleScene
             this.srcFilename = filename;            
             this.ctx = ctx;
 
+
             Console.WriteLine("SSMesh_wfOBJ: loading wff {0}",filename);
             WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
                delegate(string resourceName) { return ctx.Open(resourceName); });

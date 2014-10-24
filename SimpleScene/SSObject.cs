@@ -111,6 +111,7 @@ namespace SimpleScene
 	public class SSOBRenderState {
 	    public bool lighted = true;
 	    public bool visible = true;
+		public bool castsShadow = false;
 		public bool toBeDeleted = false;
 	}
 

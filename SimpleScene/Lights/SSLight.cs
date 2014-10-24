@@ -20,9 +20,9 @@ namespace SimpleScene
 		private const LightName c_lastNameIdx = LightName.Light7;
 		static private readonly Queue<LightName> s_avaiableLightNames = new Queue<LightName>();
 
-		public Vector4 Ambient = new Vector4(0.0f);
-		public Vector4 Specular = new Vector4 (0.0f);
-		public Vector4 Diffuse = new Vector4 (0.0f);
+		public Vector4 Ambient = new Vector4(0.4f);
+		public Vector4 Specular = new Vector4 (1.0f);
+		public Vector4 Diffuse = new Vector4 (0.8f);
 
 		protected LightName m_lightName;
 
