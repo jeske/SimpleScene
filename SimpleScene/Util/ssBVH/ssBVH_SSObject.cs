@@ -30,18 +30,28 @@ namespace SimpleScene.Util.ssBVH
                 return 1.0f;
             }
         }
-        public void mapObjectToBVHLeaf(SSObject obj, ssBVHNode<SSObject> leaf) {
-            // TODO: implement a way for object movement to update object position.
+        public void checkMap(SSObject obj) {
+            if (!ssToLeafMap.ContainsKey(obj)) {
+                throw new Exception("missing map for shuffled child");
+            }
+        }
+        public void unmapObject(SSObject obj) {
+            ssToLeafMap.Remove(obj);
+        }
+        public void mapObjectToBVHLeaf(SSObject obj, ssBVHNode<SSObject> leaf) {            
+            // this allows us to be notified when an object moves, so we can adjust the BVH
             obj.OnChanged += obj_OnChanged;
+
+            // TODO: add a hook to handle SSObject deletion... (either a weakref GC notify, or OnDestroy)
 
             ssToLeafMap[obj] = leaf;
         }
 
-        void obj_OnChanged(SSObject sender)
-        {
-            ssToLeafMap[sender].refit_ObjectChanged(this, sender);            
+        // the SSObject has changed, so notify the BVH leaf to refit for the object
+        void obj_OnChanged(SSObject sender) {                 
+            ssToLeafMap[sender].refit_ObjectChanged(this, sender);
         }
-
+        
         public SSObjectNodeAdaptor() {}
     }
 

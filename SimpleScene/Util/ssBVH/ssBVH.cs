@@ -27,6 +27,8 @@ namespace SimpleScene.Util.ssBVH
         Vector3 objectpos(GO obj);
         float radius(GO obj);
         void mapObjectToBVHLeaf(GO obj, ssBVHNode<GO> leaf);
+        void unmapObject(GO obj);
+        void checkMap(GO obj);
     }
 
     public class ssBVH<GO>
