@@ -48,7 +48,7 @@ namespace SimpleScene
 	                radius = Math.Max(radius,point.Length);
                 }
 				this.boundingSphere = new SSObjectSphere(radius);
-				this.Changed += (sender) => { 
+				this.OnChanged += (sender) => { 
 					this.boundingSphere.Pos = this.Pos;
 					this.boundingSphere.Scale = this.Scale;
 				};

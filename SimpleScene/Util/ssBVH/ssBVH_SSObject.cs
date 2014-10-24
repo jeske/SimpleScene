@@ -18,6 +18,8 @@ namespace SimpleScene.Util.ssBVH
     /// An adaptor for ssBVH to understand SSObject nodes.
     /// </summary>
     public class SSObjectNodeAdaptor : SSBVHNodeAdaptor<SSObject> {
+        Dictionary<SSObject, ssBVHNode<SSObject>> ssToLeafMap = new Dictionary<SSObject, ssBVHNode<SSObject>>();
+
         public Vector3 objectpos(SSObject obj) {
             return obj.Pos;
         }
@@ -30,6 +32,14 @@ namespace SimpleScene.Util.ssBVH
         }
         public void mapObjectToBVHLeaf(SSObject obj, ssBVHNode<SSObject> leaf) {
             // TODO: implement a way for object movement to update object position.
+            obj.OnChanged += obj_OnChanged;
+
+            ssToLeafMap[obj] = leaf;
+        }
+
+        void obj_OnChanged(SSObject sender)
+        {
+            ssToLeafMap[sender].refit_ObjectChanged(this, sender);            
         }
 
         public SSObjectNodeAdaptor() {}

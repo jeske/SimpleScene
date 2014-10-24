@@ -98,11 +98,11 @@ namespace SimpleScene
 		}
 
 	    public delegate void ChangedEventHandler(SSObject sender);
-		public event ChangedEventHandler Changed;
+		public event ChangedEventHandler OnChanged;
 		public override void ObjectChanged ()
 		{
-			if (Changed != null) {
-				Changed(this);
+			if (OnChanged != null) {
+				OnChanged(this);
 			}
 
 		}

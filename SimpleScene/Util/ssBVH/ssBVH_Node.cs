@@ -15,7 +15,7 @@ using OpenTK;
 
 namespace SimpleScene.Util.ssBVH
 {
-        public class ssBVHNode<GO> {
+    public class ssBVHNode<GO> {
         public float minX;
         public float maxX;
         public float minY;
@@ -62,6 +62,13 @@ namespace SimpleScene.Util.ssBVH
             }
         }
 
+        public void refit_ObjectChanged(SSBVHNodeAdaptor<GO> nAda, GO obj) {
+            Vector3 objectpos = nAda.objectpos(obj);
+            float radius = nAda.radius(obj);
+
+            expandVolume(objectpos,radius);
+        }
+
         private void assignVolume(Vector3 objectpos, float radius) {
             minX = objectpos.X - radius;
             maxX = objectpos.X + radius;
@@ -69,39 +76,63 @@ namespace SimpleScene.Util.ssBVH
             maxY = objectpos.Y + radius;
             minZ = objectpos.Z - radius;
             maxZ = objectpos.Z + radius;
-        }
+        }      
+        
+        internal void childExpanded(ssBVHNode<GO> child) {
+            bool expanded = false;
+             
+            if (child.minX < minX) {
+                minX = child.minX; expanded = true;                
+            }
+            if (child.maxX > maxX) {
+                maxX = child.maxX; expanded = true;                
+            }
+            if (child.minY < minY) {
+                minY = child.minY; expanded = true;                 
+            }
+            if (child.maxY > maxY) {
+                maxY = child.maxY; expanded = true;
+            }             
+            if (child.minZ < minZ) {            
+                minZ = child.minZ; expanded = true;
+            }
+            if (parent != null && maxZ > parent.maxZ) {
+                parent.maxZ = maxZ; expanded = true;
+            }
+
+            if (expanded && parent != null) {
+                parent.childExpanded(this);
+            }
+        }  
+
         private void expandVolume(Vector3 objectpos, float radius) {
+            bool expanded = false;
+
             // test min X and max X against the current bounding volume
-            if ((objectpos.X - radius) < minX)
-                minX = (objectpos.X - radius);
-            if ((objectpos.X + radius) > maxX)
-                maxX = (objectpos.X + radius);
-            // Update the leaf node’s parent if appropriate with the min/max
-            if (parent != null && minX < parent.minX)
-                parent.minX = minX;
-            if (parent != null && maxX > parent.maxX)
-                parent.maxX = maxX;
+            if ((objectpos.X - radius) < minX) {
+                minX = (objectpos.X - radius); expanded = true;                
+            }
+            if ((objectpos.X + radius) > maxX) {
+                maxX = (objectpos.X + radius); expanded = true;                
+            }         
             // test min Y and max Y against the current bounding volume
-            if ((objectpos.Y - radius) < minY)
-                minY = (objectpos.Y - radius);
-            if ((objectpos.Y + radius) > maxY)
-                maxY = (objectpos.Y + radius);
-            // Update the leaf node’s parent if appropriate with the min/max
-            if (parent != null && minY < parent.minY)
-                parent.minY = minY;
-            if (parent != null && maxY > parent.maxY)
-                parent.maxY = maxY;
- 
+            if ((objectpos.Y - radius) < minY) {
+                minY = (objectpos.Y - radius); expanded = true;                
+            }
+            if ((objectpos.Y + radius) > maxY) {
+                maxY = (objectpos.Y + radius); expanded = true;                
+            }           
             // test min Z and max Z against the current bounding volume
-            if ( (objectpos.Z - radius) < minZ )
-                minZ = (objectpos.Z - radius);
-            if ( (objectpos.Z + radius) > maxZ )
-                maxZ = (objectpos.Z + radius);
-            // Update the leaf node’s parent if appropriate with the min/max
-            if (parent != null && minZ < parent.minZ)
-                parent.minZ = minZ;
-            if (parent != null && maxZ > parent.maxZ)
-                parent.maxZ = maxZ;
+            if ( (objectpos.Z - radius) < minZ ) {
+                minZ = (objectpos.Z - radius); expanded = true;                
+            }
+            if ( (objectpos.Z + radius) > maxZ ) {
+                maxZ = (objectpos.Z + radius); expanded = true;                
+            }
+
+            if (expanded && parent != null) {
+                parent.childExpanded(this);
+            }           
         }
         
         internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,gobjectlist,null,0,gobjectlist.Count-1, Axis.X)
