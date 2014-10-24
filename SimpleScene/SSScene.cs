@@ -70,7 +70,7 @@ namespace SimpleScene
             }
         }
 
-        public void SetupLights() {
+		private void SetupLights() {
             // setup the projection matrix
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref renderConfig.projectionMatrix);
@@ -90,6 +90,7 @@ namespace SimpleScene
         }
 
         public void Render() {
+			SetupLights ();
             // reset stats
             renderConfig.renderStats = new SSRenderStats();
 

@@ -26,14 +26,14 @@ namespace SimpleScene {
         }
 
         internal Size makeValidTextureSize(int w, int h) {
-            if (false) {
-                // if it requires power of two texture sizes
+			#if false
+			// if it requires power of two texture sizes
                 return new Size(
                     nextPowerOf2(Math.Max(w, 64)),
                     nextPowerOf2(Math.Max(h, 64)));
-            } else {
+			#else
                 return new Size(w, h);
-            }
+			#endif
         }
 
         public void UpdateTexture() {
@@ -86,7 +86,7 @@ namespace SimpleScene {
 			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
 
             // draw text rectangle...
-            GL.Begin(BeginMode.Triangles);
+			GL.Begin(PrimitiveType.Triangles);
             GL.Color3(Color.White);  // clear the vertex color to white..
 
             float w = gdiSize.Width;

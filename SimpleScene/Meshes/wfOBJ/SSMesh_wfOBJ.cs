@@ -165,18 +165,18 @@ namespace SimpleScene
 
 
 
-		private void _renderSendVBOTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
-            subset.ibo.DrawElements(PrimitiveType.Triangles, renderConfig.BaseShader);
+		private void _renderSendVBOTriangles(SSMeshOBJSubsetData subset) {
+            subset.ibo.DrawElements(PrimitiveType.Triangles);
 		}
 
-		private void _renderSendTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
 			//         note: programs written for modern OpenGL & D3D don't do this!
 			//               instead, they hand the vertex-buffer and index-buffer to the
 			//               GPU and let it do this..		
 
-			GL.Begin(BeginMode.Triangles);
+			GL.Begin(PrimitiveType.Triangles);
 			foreach(var idx in subset.indicies) {
 				var vertex = subset.vertices[idx];  // retrieve the vertex
 
@@ -189,15 +189,15 @@ namespace SimpleScene
 			GL.End();
 		}
 			
-		private void _renderSendVBOLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+		private void _renderSendVBOLines(SSMeshOBJSubsetData subset) {
 			// TODO: this currently has classic problems with z-fighting between the model and the wireframe
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
             GL.LineWidth(1.5f);
             GL.Color4(0.8f, 0.5f, 0.5f, 0.5f);		
-            subset.ibo.DrawElements(PrimitiveType.Lines, null);
+            subset.ibo.DrawElements(PrimitiveType.Lines);
 		}
 
-		private void _renderSendLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+		private void _renderSendLines(SSMeshOBJSubsetData subset) {
 			// Step 3: draw faces.. here we use the "old school" manual method of drawing
 
 			//         note: programs written for modern OpenGL & D3D don't do this!
@@ -213,7 +213,7 @@ namespace SimpleScene
 				// draw the vertex..
 				GL.Color3(System.Drawing.Color.FromArgb(v1.DiffuseColor));
 
-				GL.Begin(BeginMode.LineLoop);
+				GL.Begin(PrimitiveType.LineLoop);
 				GL.Vertex3 (v1.Position);
 				GL.Vertex3 (v2.Position);
 				GL.Vertex3 (v3.Position);
@@ -229,9 +229,9 @@ namespace SimpleScene
 				if (renderConfig.drawGLSL) {
 					_renderSetupGLSL (ref renderConfig, subset);
 					if (renderConfig.useVBO && renderConfig.BaseShader != null) {
-						_renderSendVBOTriangles (ref renderConfig, subset);
+						_renderSendVBOTriangles (subset);
 					} else {
-						_renderSendTriangles (ref renderConfig, subset);
+						_renderSendTriangles (subset);
 					}
 			
 				}
@@ -239,9 +239,9 @@ namespace SimpleScene
 				if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
 					_renderSetupWireframe ();
 					if (renderConfig.useVBO && renderConfig.BaseShader != null) {
-						_renderSendVBOLines (ref renderConfig, subset);
+						_renderSendVBOLines (subset);
 					} else {
-						_renderSendLines (ref renderConfig, subset);
+						_renderSendLines (subset);
 					}
 				}
 			}

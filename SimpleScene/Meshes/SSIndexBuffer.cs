@@ -42,8 +42,8 @@ namespace SimpleScene
             unbind();
         }
 
-        public void DrawElements(PrimitiveType primType, SSShaderProgram pgm = null) {
-            m_vbo.drawBind(pgm);
+        public void DrawElements(PrimitiveType primType) {
+			m_vbo.drawBind();
             bind();
             GL.DrawElements(primType,
                             m_numIndices,
@@ -53,7 +53,7 @@ namespace SimpleScene
             m_vbo.drawUnbind();
         }
 
-		private void bind(SSShaderProgram pgm = null) {
+		private void bind() {
 			GL.BindBuffer (BufferTarget.ElementArrayBuffer, m_IBOid);
 		}
 

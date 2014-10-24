@@ -19,7 +19,7 @@ namespace SimpleScene
         public Vector3 Normal;
 		public Vector3 Position;
 
-		public unsafe void  bindGLAttributes(SSShaderProgram shader) {
+		public unsafe void  bindGLAttributes() {
 			// this is the "transitional" GLSL 120 way of assigning buffer contents
 			// http://www.opentk.com/node/80?page=1
 
@@ -79,7 +79,7 @@ namespace SimpleScene
     {
         public Vector3 Position;
 
-        public unsafe void bindGLAttributes(SSShaderProgram shader) {
+        public unsafe void bindGLAttributes() {
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_Pos), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_Pos), "Position"));
         }

@@ -147,7 +147,7 @@ namespace SimpleScene
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            ibo.DrawElements(PrimitiveType.Triangles, this.shaderPgm);
+            ibo.DrawElements(PrimitiveType.Triangles);
 		}
 
 

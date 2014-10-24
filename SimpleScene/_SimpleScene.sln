@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_SimpleScene", "_SimpleScene.csproj", "{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Debug-Client|Any CPU = Debug-Client|Any CPU
+		Debug-Server|Any CPU = Debug-Server|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Debug-Client|Any CPU.ActiveCfg = Debug-Client|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Debug-Client|Any CPU.Build.0 = Debug-Client|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Debug-Server|Any CPU.ActiveCfg = Debug-Server|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Debug-Server|Any CPU.Build.0 = Debug-Server|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = _SimpleScene.csproj
+	EndGlobalSection
+EndGlobal

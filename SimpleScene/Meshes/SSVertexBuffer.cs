@@ -7,14 +7,14 @@ namespace SimpleScene
 {
 	public interface ISSVertexLayout {
         int sizeOf();
-		void bindGLAttributes(SSShaderProgram shader);
+		void bindGLAttributes();
 	}
 
 	// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
 
     public interface ISSVertexBuffer
     {
-        void drawBind(SSShaderProgram shaderPgm);
+        void drawBind();
         void drawUnbind();
     }
 
@@ -52,38 +52,29 @@ namespace SimpleScene
             unbindPrivate();
         }
 
-        public void DrawArrays(PrimitiveType primType, 
-                               SSShaderProgram shaderPgm = null) {
-            drawBind(shaderPgm);
+        public void DrawArrays(PrimitiveType primType) {
             drawPrivate(primType);
             drawUnbind();
         }
 
         public void UpdateAndDrawArrays(VB[] vertices,
-                                        PrimitiveType primType,
-                                        SSShaderProgram shaderPgm = null) {
+                                        PrimitiveType primType) {
             genBufferPrivate();
-            drawBind(shaderPgm);
+            drawBind();
             updatePrivate(vertices);
             drawPrivate(primType);
             drawUnbind();
         }
 
-        public void drawBind(SSShaderProgram shaderPgm = null) {
+        public void drawBind() {
             // bind for use and setup for drawing
             bindPrivate();
-            if (shaderPgm != null) {
-                GL.UseProgram(shaderPgm.ProgramID);
-            } else {
-                GL.UseProgram(0);
-            }
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            m_dummy.bindGLAttributes(shaderPgm);
+            m_dummy.bindGLAttributes();
         }
 
         public void drawUnbind() {
             // unbind from use and undo draw settings
-            GL.UseProgram(0);
             GL.PopClientAttrib();
             unbindPrivate();
         }
