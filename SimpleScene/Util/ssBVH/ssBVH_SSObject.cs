@@ -83,7 +83,9 @@ namespace SimpleScene.Util.ssBVH
             GL.Vertex3(p3); GL.Vertex3(p0);
         }
 
-        public void renderCells(ssBVHNode<SSObject> n, int depth=0) {  
+        public void renderCells(ssBVHNode<SSObject> n, int depth=0) {
+            float nudge = 0.01f * depth; // attempt to nudge out of z-fighting
+              
             if (highlightNodes.Contains(n)) {
                 if (n.gobjects == null) {
                     GL.Color4(Color.FromArgb(255,25,25,100));
@@ -98,14 +100,14 @@ namespace SimpleScene.Util.ssBVH
                 }
             }
                                                  
-           	var p0 = new Vector3 (n.box.min.X,  n.box.min.Y,  n.box.max.Z);  
-			var p1 = new Vector3 (n.box.max.X,  n.box.min.Y,  n.box.max.Z);
-			var p2 = new Vector3 (n.box.max.X,  n.box.max.Y,  n.box.max.Z);  
-			var p3 = new Vector3 (n.box.min.X,  n.box.max.Y,  n.box.max.Z);
-			var p4 = new Vector3 (n.box.min.X,  n.box.min.Y,  n.box.min.Z);
-			var p5 = new Vector3 (n.box.max.X,  n.box.min.Y,  n.box.min.Z);
-			var p6 = new Vector3 (n.box.max.X,  n.box.max.Y,  n.box.min.Z);
-			var p7 = new Vector3 (n.box.min.X,  n.box.max.Y,  n.box.min.Z);
+           	var p0 = new Vector3 (n.box.min.X + nudge,  n.box.min.Y + nudge,  n.box.max.Z - nudge);  
+			var p1 = new Vector3 (n.box.max.X - nudge,  n.box.min.Y + nudge,  n.box.max.Z - nudge);
+			var p2 = new Vector3 (n.box.max.X - nudge,  n.box.max.Y - nudge,  n.box.max.Z - nudge);  
+			var p3 = new Vector3 (n.box.min.X + nudge,  n.box.max.Y - nudge,  n.box.max.Z - nudge);
+			var p4 = new Vector3 (n.box.min.X + nudge,  n.box.min.Y + nudge,  n.box.min.Z + nudge);
+			var p5 = new Vector3 (n.box.max.X - nudge,  n.box.min.Y + nudge,  n.box.min.Z + nudge);
+			var p6 = new Vector3 (n.box.max.X - nudge,  n.box.max.Y - nudge,  n.box.min.Z + nudge);
+			var p7 = new Vector3 (n.box.min.X + nudge,  n.box.max.Y - nudge,  n.box.min.Z + nudge);
 
             drawQuadEdges(p0, p1, p2, p3);            
             drawQuadEdges(p7, p6, p5, p4);

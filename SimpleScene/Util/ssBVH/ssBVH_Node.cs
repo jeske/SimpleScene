@@ -68,14 +68,15 @@ namespace SimpleScene.Util.ssBVH
 
         public void refit_ObjectChanged(SSBVHNodeAdaptor<GO> nAda, GO obj) {
             if (parent == null) { throw new Exception("dangling leaf!"); }
-            recomputeVolume(nAda);
-            // add our grandparent to the shuffle.
-            if (parent != null) {
-                if (parent.parent != null) {
-                    nAda.BVH.refitNodes.Add(parent.parent); 
-                    nAda.BVH.optimize();
+            if ( recomputeVolume(nAda) ) {
+                // add our grandparent to the shuffle.
+                if (parent != null) {
+                    if (parent.parent != null) {
+                        nAda.BVH.refitNodes.Add(parent.parent); 
+                        nAda.BVH.optimize();
+                    }
                 }
-            }
+             }
         }
 
         private void assignVolume(Vector3 objectpos, float radius) {
@@ -87,13 +88,21 @@ namespace SimpleScene.Util.ssBVH
             box.max.Z = objectpos.Z + radius;
         }      
         
-        internal void recomputeVolume(SSBVHNodeAdaptor<GO> nAda) {
+        internal bool recomputeVolume(SSBVHNodeAdaptor<GO> nAda) {
             if (gobjects.Count == 0) { throw new NotImplementedException(); }  // TODO: fix this... we should never get called in this case...
+
+            SSAABB oldbox = box;
+
             assignVolume( nAda.objectpos(gobjects[0]), nAda.radius(gobjects[0]));
             for(int i=1; i<gobjects.Count;i++) {
                 expandVolume(nAda, nAda.objectpos(gobjects[i]) , nAda.radius(gobjects[i]) );
             }
-            if (parent != null) parent.childRefit(nAda);
+            if (!box.Equals(oldbox)) {
+                if (parent != null) parent.childRefit(nAda);
+                return true;
+            } else {
+                return false;
+            }
         }
         
         internal float SAH(ref SSAABB box) {
@@ -191,11 +200,18 @@ namespace SimpleScene.Util.ssBVH
                     else return new rotOpt(SAHofPair(right.left,left.right) + SAHofPair(left.left,right.right), rot);
                  default: throw new NotImplementedException();                                     
                 }
-            });    
-            
+            });                                
                    
             // perform the best rotation...            
             if (bestRot.rot != Rot.NONE) {
+
+                if (parent != null) { bvh.refitNodes.Add(parent); }
+
+                if ( ((mySAH - bestRot.SAH) / mySAH ) < 0.1f) {
+                    return; // the benefit is not worth the cost
+                }
+                
+
                 // in order to swap we need to:
                 //  1. swap the node locations
                 //  2. update the depth (if child-to-grandchild)
@@ -216,7 +232,6 @@ namespace SimpleScene.Util.ssBVH
                     default: throw new NotImplementedException();                                     
                 }
                 
-                if (parent != null) { bvh.refitNodes.Add(parent); }
             }
             
 
