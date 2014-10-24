@@ -96,18 +96,53 @@ namespace SimpleScene
     }
 
 	public class SSShaderProgram {
-		protected int m_programID;
+		private static SSShaderProgram s_activeProgram = null;
+
+		protected readonly int m_programID;
+
+		static SSShaderProgram() {
+			DeactivateAll ();
+		}
 
 		internal SSShaderProgram() {
+			m_programID = GL.CreateProgram();
 		}
 
+		~SSShaderProgram() {
+			GL.DeleteProgram (m_programID);
+		}
+
+		public bool IsActive {
+			get { return s_activeProgram == this; }
+		}
+
+		#region user interface
 		public void Activate() {
-			GL.UseProgram (m_programID);
+			if (s_activeProgram != this) {
+				s_activeProgram = this;
+				GL.UseProgram (m_programID);
+			}
 		}
 
-		public static void Deactivate() {
-			GL.UseProgram (0);
+		public static void DeactivateAll() {
+			if (s_activeProgram != null) {
+				s_activeProgram = null;
+				GL.UseProgram (0);
+			}
 		}
+
+		public void Deactivate() {
+			SSShaderProgram.DeactivateAll ();
+		}
+		#endregion
+
+		#region utilities
+		protected void assertActive() {
+			if (!IsActive) {
+				throw new Exception ("Shader is not active");
+			}
+		}
+		#endregion
 	}
 }
 

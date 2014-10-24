@@ -36,7 +36,7 @@ namespace SimpleScene
 
 		private void _RenderSolid(ref SSRenderConfig renderConfig) {
 			// mode setup
-			GL.UseProgram(0); // disable GLSL
+			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);
@@ -84,7 +84,7 @@ namespace SimpleScene
 
 		private void _RenderLines_ICO(ref SSRenderConfig renderConfig) {
 			// mode setup
-			GL.UseProgram(0); // disable GLSL
+			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);
@@ -116,7 +116,7 @@ namespace SimpleScene
 		private void _RenderLines_UV(ref SSRenderConfig renderConfig) {
 
 			// mode setup
-			GL.UseProgram(0); // disable GLSL
+			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);

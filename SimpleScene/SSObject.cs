@@ -38,7 +38,7 @@ namespace SimpleScene
 
 			// turn off most GL features to start..
 			if (renderConfig.BaseShader == null) {
-				SSShaderProgram.Deactivate ();
+				SSShaderProgram.DeactivateAll ();
 			} else {
 				var shaderPgm = renderConfig.BaseShader;			
 				shaderPgm.Activate ();

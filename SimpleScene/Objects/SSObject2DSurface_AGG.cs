@@ -65,7 +65,7 @@ namespace SimpleScene {
 
 			base.Render (ref renderConfig);
 
-			GL.UseProgram (0); // disable GLSL
+			SSShaderProgram.DeactivateAll(); // disable GLSL
 
 			// mode setup
 			// GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);

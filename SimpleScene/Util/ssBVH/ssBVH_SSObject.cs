@@ -93,13 +93,13 @@ namespace SimpleScene.Util.ssBVH
 
         public override void Render(ref SSRenderConfig renderConfig) {
 			base.Render(ref renderConfig);
-            GL.UseProgram(0);
+			SSShaderProgram.DeactivateAll();
             GL.Color4(Color.Red);          
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
    			
-            GL.Begin(BeginMode.Lines);
+			GL.Begin(PrimitiveType.Lines);
             GL.Color4(Color.Red);          
             this.renderCells(bvh.rootBVH);
             GL.End();

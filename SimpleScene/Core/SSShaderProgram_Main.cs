@@ -25,31 +25,31 @@ namespace SimpleScene
 
 		#region Uniform Modifiers
 		public bool DiffTexEnabled {
-			set { GL.Uniform1 (u_diffTexEnabled, value ? 1 : 0); }
+			set { assertActive (); GL.Uniform1 (u_diffTexEnabled, value ? 1 : 0); }
 		}
 
 		public bool SpecTexEnabled {
-			set { GL.Uniform1 (u_specTexEnabled, value ? 1 : 0); }
+			set { assertActive (); GL.Uniform1 (u_specTexEnabled, value ? 1 : 0); }
 		}
 
 		public bool AmbTexEnabled {
-			set { GL.Uniform1 (u_ambiTexEnabled, value ? 1 : 0); }
+			set { assertActive (); GL.Uniform1 (u_ambiTexEnabled, value ? 1 : 0); }
 		}
 
 		public bool BumpTexEnabled {
-			set { GL.Uniform1 (u_bumpTexEnabled, value ? 1 : 0); }
+			set { assertActive (); GL.Uniform1 (u_bumpTexEnabled, value ? 1 : 0); }
 		}
 
 		public float AnimateSecondsOffset {
-			set { GL.Uniform1 (u_animateSecondsOffset, value); }
+			set { assertActive (); GL.Uniform1 (u_animateSecondsOffset, value); }
 		}
 
 		public bool ShowWireframes {
-			set { GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
+			set { assertActive (); GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
 		}
 
 		public Rectangle WinScale {
-			set { GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
+			set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
 		}
 		#endregion
 
@@ -69,7 +69,6 @@ namespace SimpleScene
 			// open the shader asset context...
 			const string ctx = "./Shaders/";
 
-			m_programID = GL.CreateProgram();
 			// we use this method of detecting the extension because we are in a GL2.2 context
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
@@ -100,7 +99,7 @@ namespace SimpleScene
 
 			// shader is initialized now...
 		
-			GL.UseProgram (m_programID);
+			Activate ();
 			GL.Uniform1 (GL.GetUniformLocation (m_programID, "showWireframes"), (int)0);			
 			GL.Uniform1 (GL.GetUniformLocation (m_programID, "animateSecondsOffset"), (float)0.0f);		
 

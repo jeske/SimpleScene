@@ -74,7 +74,7 @@ namespace SimpleScene
             SSShaderProgram_Main shaderPgm = renderConfig.BaseShader;
 
 			if (shaderPgm == null) {
-				SSShaderProgram.Deactivate ();
+				SSShaderProgram.DeactivateAll ();
 				GL.Disable(EnableCap.CullFace);
 
 				// fixed function single-texture
@@ -133,7 +133,7 @@ namespace SimpleScene
 		}
 
 		private void _renderSetupWireframe() {
-			GL.UseProgram(0); // turn off GLSL
+			SSShaderProgram.DeactivateAll ();
 			GL.Enable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);

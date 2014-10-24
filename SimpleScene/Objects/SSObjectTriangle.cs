@@ -14,14 +14,14 @@ namespace SimpleScene
 			base.Render (ref renderConfig);
 
 			// mode setup
-			GL.UseProgram(0); // disable GLSL
+			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Lighting);
 
 			// triangle draw...
-            GL.Begin(BeginMode.Triangles);
+			GL.Begin(PrimitiveType.Triangles);
 
             GL.Color3(1.0f, 1.0f, 0.0f); GL.Vertex3(-1.0f, -1.0f, 0.0f);
             GL.Color3(1.0f, 0.0f, 0.0f); GL.Vertex3(1.0f, -1.0f, 0.0f);
