@@ -1,10 +1,18 @@
-﻿// based on: Bounding Volume Hierarchies (BVH) – A brief tutorial on what they are and how to implement them
+﻿// Copyright(C) David W. Jeske, 2014, and released to the public domain. 
+//
+// Dynamic BVH (Bounding Volume Hierarchy) using incremental refit and tree-rotations
+//
+// initial BVH build based on: Bounding Volume Hierarchies (BVH) – A brief tutorial on what they are and how to implement them
 //              http://www.3dmuve.com/3dmblog/?p=182
 //
-// changes Copyright(C) David W. Jeske, 2013, and released to the public domain. 
+// Dynamic Updates based on: "Fast, Effective BVH Updates for Animated Scenes" (Kopta, Ize, Spjut, Brunvand, David, Kensler)
+//              http://www.cs.utah.edu/~thiago/papers/rotations.pdf
 //
 // see also:  Space Partitioning: Octree vs. BVH
 //            http://thomasdiewald.com/blog/?p=1488
+//
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,28 +32,27 @@ namespace SimpleScene.Util.ssBVH
     }
 
     public interface SSBVHNodeAdaptor<GO> {
+        ssBVH<GO> BVH { get; }
+        void setBVH(ssBVH<GO> bvh);
         Vector3 objectpos(GO obj);
         float radius(GO obj);
         void mapObjectToBVHLeaf(GO obj, ssBVHNode<GO> leaf);
+        void unmapObject(GO obj);
+        void checkMap(GO obj);
     }
 
     public class ssBVH<GO>
     {
         public ssBVHNode<GO> rootBVH;
         public SSBVHNodeAdaptor<GO> nAda;
-        public int LEAF_OBJ_MAX = 5;
+        public readonly int LEAF_OBJ_MAX;
         public int nodeCount = 0;
 
+        public HashSet<ssBVHNode<GO>> refitNodes = new HashSet<ssBVHNode<GO>>();
 
         private void traverseRay(ssBVHNode<GO> curNode, SSRay ray, List<ssBVHNode<GO>> hitlist) {
             if (curNode == null) { return; }
-            SSAABB box = new SSAABB();
-            box.min.X = curNode.minX;
-            box.min.Y = curNode.minY;
-            box.min.Z = curNode.minZ;
-            box.max.X = curNode.maxX;
-            box.max.Y = curNode.maxY;
-            box.max.Z = curNode.maxZ;
+            SSAABB box = curNode.box;            
             float tnear = 0f, tfar = 0f;
             
             if (OpenTKHelper.intersectRayAABox1(ray,box,ref tnear, ref tfar)) {
@@ -62,11 +69,22 @@ namespace SimpleScene.Util.ssBVH
             return hits;
         }
 
+        public void optimize() {            
+            while (refitNodes.Count > 0) {                
+                int maxdepth = refitNodes.Max( n => n.depth );
+            
+                var sweepNodes = refitNodes.Where( n => n.depth == maxdepth ).ToList();
+                sweepNodes.ForEach( n => refitNodes.Remove(n) );
 
-        public ssBVH(SSBVHNodeAdaptor<GO> nodeAdaptor, List<GO> objects, int LEAF_OBJ_MAX = 5) {
+                sweepNodes.ForEach( n => n.tryRotate(this) );                
+            }            
+        }
+
+        public ssBVH(SSBVHNodeAdaptor<GO> nodeAdaptor, List<GO> objects, int LEAF_OBJ_MAX = 1) {
             this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
+            nodeAdaptor.setBVH(this);
             this.nAda = nodeAdaptor;
             rootBVH = new ssBVHNode<GO>(this,objects);
         }
-    }
+    }   
 }

@@ -18,6 +18,8 @@ namespace SimpleScene.Util.ssBVH
     /// An adaptor for ssBVH to understand SSObject nodes.
     /// </summary>
     public class SSObjectNodeAdaptor : SSBVHNodeAdaptor<SSObject> {
+        Dictionary<SSObject, ssBVHNode<SSObject>> ssToLeafMap = new Dictionary<SSObject, ssBVHNode<SSObject>>();
+
         public Vector3 objectpos(SSObject obj) {
             return obj.Pos;
         }
@@ -28,10 +30,35 @@ namespace SimpleScene.Util.ssBVH
                 return 1.0f;
             }
         }
-        public void mapObjectToBVHLeaf(SSObject obj, ssBVHNode<SSObject> leaf) {
-            // TODO: implement a way for object movement to update object position.
+        public void checkMap(SSObject obj) {
+            if (!ssToLeafMap.ContainsKey(obj)) {
+                throw new Exception("missing map for shuffled child");
+            }
+        }
+        public void unmapObject(SSObject obj) {
+            ssToLeafMap.Remove(obj);
+        }
+        public void mapObjectToBVHLeaf(SSObject obj, ssBVHNode<SSObject> leaf) {            
+            // this allows us to be notified when an object moves, so we can adjust the BVH
+            obj.OnChanged += obj_OnChanged;
+
+            // TODO: add a hook to handle SSObject deletion... (either a weakref GC notify, or OnDestroy)
+
+            ssToLeafMap[obj] = leaf;
         }
 
+        // the SSObject has changed, so notify the BVH leaf to refit for the object
+        void obj_OnChanged(SSObject sender) {                 
+            ssToLeafMap[sender].refit_ObjectChanged(this, sender);
+        }
+
+        ssBVH<SSObject> _BVH;
+        public ssBVH<SSObject> BVH { get { return _BVH; } }
+
+        public void setBVH(ssBVH<SSObject> BVH) {
+            this._BVH = BVH;
+        }
+        
         public SSObjectNodeAdaptor() {}
     }
 
@@ -56,7 +83,9 @@ namespace SimpleScene.Util.ssBVH
             GL.Vertex3(p3); GL.Vertex3(p0);
         }
 
-        public void renderCells(ssBVHNode<SSObject> n, int depth=0) {  
+        public void renderCells(ssBVHNode<SSObject> n, int depth=0) {
+            float nudge = 0.01f * depth; // attempt to nudge out of z-fighting
+              
             if (highlightNodes.Contains(n)) {
                 if (n.gobjects == null) {
                     GL.Color4(Color.FromArgb(255,25,25,100));
@@ -71,14 +100,14 @@ namespace SimpleScene.Util.ssBVH
                 }
             }
                                                  
-           	var p0 = new Vector3 (n.minX,  n.minY,  n.maxZ);  
-			var p1 = new Vector3 (n.maxX,  n.minY,  n.maxZ);
-			var p2 = new Vector3 (n.maxX,  n.maxY,  n.maxZ);  
-			var p3 = new Vector3 (n.minX,  n.maxY,  n.maxZ);
-			var p4 = new Vector3 (n.minX,  n.minY,  n.minZ);
-			var p5 = new Vector3 (n.maxX,  n.minY,  n.minZ);
-			var p6 = new Vector3 (n.maxX,  n.maxY,  n.minZ);
-			var p7 = new Vector3 (n.minX,  n.maxY,  n.minZ);
+           	var p0 = new Vector3 (n.box.min.X + nudge,  n.box.min.Y + nudge,  n.box.max.Z - nudge);  
+			var p1 = new Vector3 (n.box.max.X - nudge,  n.box.min.Y + nudge,  n.box.max.Z - nudge);
+			var p2 = new Vector3 (n.box.max.X - nudge,  n.box.max.Y - nudge,  n.box.max.Z - nudge);  
+			var p3 = new Vector3 (n.box.min.X + nudge,  n.box.max.Y - nudge,  n.box.max.Z - nudge);
+			var p4 = new Vector3 (n.box.min.X + nudge,  n.box.min.Y + nudge,  n.box.min.Z + nudge);
+			var p5 = new Vector3 (n.box.max.X - nudge,  n.box.min.Y + nudge,  n.box.min.Z + nudge);
+			var p6 = new Vector3 (n.box.max.X - nudge,  n.box.max.Y - nudge,  n.box.min.Z + nudge);
+			var p7 = new Vector3 (n.box.min.X + nudge,  n.box.max.Y - nudge,  n.box.min.Z + nudge);
 
             drawQuadEdges(p0, p1, p2, p3);            
             drawQuadEdges(p7, p6, p5, p4);
