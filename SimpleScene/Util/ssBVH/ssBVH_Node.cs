@@ -1,10 +1,17 @@
-﻿// based on: Bounding Volume Hierarchies (BVH) – A brief tutorial on what they are and how to implement them
+﻿// Copyright(C) David W. Jeske, 2014, and released to the public domain. 
+//
+// Dynamic BVH (Bounding Volume Hierarchy) using incremental refit and tree-rotations
+//
+// initial BVH build based on: Bounding Volume Hierarchies (BVH) – A brief tutorial on what they are and how to implement them
 //              http://www.3dmuve.com/3dmblog/?p=182
 //
-// changes Copyright(C) David W. Jeske, 2013, and released to the public domain. 
+// Dynamic Updates based on: "Fast, Effective BVH Updates for Animated Scenes" (Kopta, Ize, Spjut, Brunvand, David, Kensler)
+//              http://www.cs.utah.edu/~thiago/papers/rotations.pdf
 //
 // see also:  Space Partitioning: Octree vs. BVH
 //            http://thomasdiewald.com/blog/?p=1488
+//
+//
 
 using System;
 using System.Collections.Generic;
@@ -124,12 +131,9 @@ namespace SimpleScene.Util.ssBVH
             return SAH(ref box);
         }
 
+        // The list of all candidate rotations, from "Fast, Effective BVH Updates for Animated Scenes", Figure 1.
         internal enum Rot {
-            NONE,
-            L_RL,
-            L_RR,
-            R_LL,
-            R_LR,
+            NONE, L_RL, L_RR, R_LL, R_LR, LL_RR, LL_RL,
         }
 
         internal class rotOpt : IComparable<rotOpt> {  // rotation option
@@ -151,13 +155,21 @@ namespace SimpleScene.Util.ssBVH
             }
         }
         
+        /// <summary>
+        /// tryRotate looks at all candidate rotations, and executes the rotation with the best resulting SAH (if any)
+        /// </summary>
+        /// <param name="bvh"></param>
         internal void tryRotate(ssBVH<GO> bvh) {    
             SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                                
             float mySAH = SAH(this);
 
+            // for each rotation, check that there are valid non-leaf children
+            // then compute candidate SAH cost after the rotation.
+
             rotOpt bestRot = eachRot.Min( (rot) => { 
                 switch (rot) {
                  case Rot.NONE: return new rotOpt(mySAH,Rot.NONE);
+                 // child to grandchild rotations
                  case Rot.L_RL: 
                     if (right.gobjects != null) return new rotOpt(float.MaxValue,rot);
                     else return new rotOpt(SAH(right.left) + SAHofPair(left,right.right), rot);   
@@ -170,7 +182,13 @@ namespace SimpleScene.Util.ssBVH
                  case Rot.R_LR: 
                     if (left.gobjects != null) return new rotOpt(float.MaxValue,rot);
                     else return new rotOpt(SAHofPair(right,left.left) + SAH(left.right), rot); 
-                              
+                 // grandchild to grandchild rotations
+                 case Rot.LL_RR: 
+                    if (left.gobjects != null || right.gobjects != null) return new rotOpt(float.MaxValue,rot);
+                    else return new rotOpt(SAHofPair(right.right,left.right) + SAHofPair(right.left,left.left), rot);
+                 case Rot.LL_RL:
+                    if (left.gobjects != null || right.gobjects != null) return new rotOpt(float.MaxValue,rot);
+                    else return new rotOpt(SAHofPair(right.left,left.right) + SAHofPair(left.left,right.right), rot);
                  default: throw new NotImplementedException();                                     
                 }
             });    
@@ -178,14 +196,23 @@ namespace SimpleScene.Util.ssBVH
                    
             // perform the best rotation...            
             if (bestRot.rot != Rot.NONE) {
+                // in order to swap we need to:
+                //  1. swap the node locations
+                //  2. update the depth (if child-to-grandchild)
+                //  3. update the parent pointers
+                //  4. refit the boundary box
                 ssBVHNode<GO> swap = null;
                 switch (bestRot.rot) {
                     case Rot.NONE: break;
-                    case Rot.L_RL: swap = left;  swap.depth++; left  = right.left;  left.depth--;  right.left  = swap; right.childRefit(nAda); break;
-                    case Rot.L_RR: swap = left;  swap.depth++; left  = right.right; left.depth--;  right.right = swap; right.childRefit(nAda); break;
-                    case Rot.R_LL: swap = right; swap.depth++; right =  left.left;  right.depth--;  left.left  = swap;  left.childRefit(nAda); break;
-                    case Rot.R_LR: swap = right; swap.depth++; right =  left.right; right.depth--;  left.right = swap;  left.childRefit(nAda); break;
-
+                    // child to grandchild rotations
+                    case Rot.L_RL: swap = left;  swap.depth++; left  = right.left;  left.parent = this; left.depth--;  right.left  = swap; swap.parent = right; right.childRefit(nAda); break;
+                    case Rot.L_RR: swap = left;  swap.depth++; left  = right.right; left.parent = this; left.depth--;  right.right = swap; swap.parent = right; right.childRefit(nAda); break;
+                    case Rot.R_LL: swap = right; swap.depth++; right =  left.left;  right.parent = this; right.depth--;  left.left  = swap;swap.parent = left; left.childRefit(nAda); break;
+                    case Rot.R_LR: swap = right; swap.depth++; right =  left.right; right.parent = this; right.depth--;  left.right = swap;swap.parent = left;  left.childRefit(nAda); break;
+                    
+                    // grandchild to grandchild rotations
+                    case Rot.LL_RR: swap = left.left; left.left = right.right; left.left.parent = left; right.right = swap; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
+                    case Rot.LL_RL: swap = left.left; left.left = right.left; left.left.parent = left; right.left = swap; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
                     default: throw new NotImplementedException();                                     
                 }
                 
@@ -337,7 +364,7 @@ namespace SimpleScene.Util.ssBVH
             }
         }  
 
-        internal void childRefit(SSBVHNodeAdaptor<GO> nAda) {
+        internal void childRefit(SSBVHNodeAdaptor<GO> nAda, bool recurse=true) {
             SSAABB oldbox = box;           
             box.min.X = left.box.min.X; box.max.X = left.box.max.X;
             box.min.Y = left.box.min.Y; box.max.Y = left.box.max.Y;
@@ -351,7 +378,7 @@ namespace SimpleScene.Util.ssBVH
             if (right.box.max.Y > box.max.Y) { box.max.Y = right.box.max.Y; }            
             if (right.box.max.Z > box.max.Z) { box.max.Z = right.box.max.Z; }
             
-            if (parent != null) { parent.childRefit(nAda); }
+            if (recurse && parent != null) { parent.childRefit(nAda); }
         }
 
 
