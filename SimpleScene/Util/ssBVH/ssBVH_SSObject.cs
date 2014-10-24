@@ -51,6 +51,13 @@ namespace SimpleScene.Util.ssBVH
         void obj_OnChanged(SSObject sender) {                 
             ssToLeafMap[sender].refit_ObjectChanged(this, sender);
         }
+
+        ssBVH<SSObject> _BVH;
+        public ssBVH<SSObject> BVH { get { return _BVH; } }
+
+        public void setBVH(ssBVH<SSObject> BVH) {
+            this._BVH = BVH;
+        }
         
         public SSObjectNodeAdaptor() {}
     }

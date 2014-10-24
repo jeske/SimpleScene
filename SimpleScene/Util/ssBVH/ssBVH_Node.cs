@@ -28,6 +28,8 @@ namespace SimpleScene.Util.ssBVH
         public float splitOverlap = 0.0f;
         public ssBVHNode<GO> left;
         public ssBVHNode<GO> right;
+
+        public int depth;
                  
         public List<GO> gobjects;  // only populated in leaf nodes
 
@@ -64,11 +66,7 @@ namespace SimpleScene.Util.ssBVH
 
         public void refit_ObjectChanged(SSBVHNodeAdaptor<GO> nAda, GO obj) {
             if (parent == null) { throw new Exception("dangling leaf!"); }
-            Vector3 objectpos = nAda.objectpos(obj);
-            float radius = nAda.radius(obj);
-
-            expandVolume(nAda, objectpos,radius);
-            // checkLeafOverlap(nAda);
+            recomputeVolume(nAda);
         }
 
         private void assignVolume(Vector3 objectpos, float radius) {
@@ -88,125 +86,7 @@ namespace SimpleScene.Util.ssBVH
             }
             if (parent != null) parent.childRefit(nAda);
         }
-
-        internal void removeLeaf(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> removeLeaf) {
-             ssBVHNode<GO> keepLeaf = (left == removeLeaf) ? right : left;
-
-             // copy over paramaters from the leaf we're keeping
-             minX = keepLeaf.minX;
-             minY = keepLeaf.minY;
-             minZ = keepLeaf.minZ;
-             maxX = keepLeaf.maxX;
-             maxY = keepLeaf.maxY;
-             maxZ = keepLeaf.maxZ;
-             splitAxis = keepLeaf.splitAxis;
-             splitOverlap = keepLeaf.splitOverlap;
-             left = keepLeaf.left;
-             right = keepLeaf.right;
-             gobjects = keepLeaf.gobjects;
-
-             if (gobjects != null) {
-                // reassign ourself as the owner of these obejcts
-                foreach (var obj in gobjects) {
-                    nAda.mapObjectToBVHLeaf(obj,this);
-                }
-             }
-        }
-
-        internal void childrenToShuffle(SSBVHNodeAdaptor<GO> nAda, ref SSAABB overlapBox, List<GO> list) {            
-            if (gobjects != null) {                       
-                // find the children that lie in the overlap box
-                List<GO> toShuffle = new List<GO>();
-                foreach (var obj in gobjects) {
-                    Vector3 objectpos = nAda.objectpos(obj);
-                    float radius = nAda.radius(obj);
-
-                    if (overlapBox.intersectsSphere(objectpos,radius)) {
-                        toShuffle.Add(obj);
-                    }
-                }
-                foreach (var obj in toShuffle) {
-                    list.Add(obj);
-                    gobjects.Remove(obj);
-                    nAda.unmapObject(obj);
-                }
-
-                if (gobjects.Count > 0) {
-                    recomputeVolume(nAda);
-                } else {
-                    if (parent != null) {
-                        parent.removeLeaf(nAda, this);
-                        // null ourself..
-                        parent = null;
-                    }                    
-                }
-            } else {
-                // if we are not a leaf, traverse. But since either one of these could
-                // turn us into a leaf, check pointers first.
-                if (left != null) left.childrenToShuffle(nAda, ref overlapBox, list);
-                if (right != null) right.childrenToShuffle(nAda, ref overlapBox, list);                        
-            }
-        }
-
-        internal bool overlapThresholdReached(SSBVHNodeAdaptor<GO> nAda) {
-            return false;
-        }
-
-        internal void shuffleOverlapChildren(SSBVHNodeAdaptor<GO> nAda) {
-            // initialize the overlap box to surround both children
-            // (isn't this the same as our AABB?)
-            SSAABB overlapBox = new SSAABB();
-            overlapBox.min.X = Math.Min(left.minX,right.minX);
-            overlapBox.min.Y = Math.Min(left.minY,right.minY);
-            overlapBox.min.Z = Math.Min(left.minZ,right.minZ);
-            overlapBox.max.X = Math.Max(left.maxX,right.maxX);
-            overlapBox.max.Y = Math.Max(left.maxY,right.maxY);
-            overlapBox.max.Z = Math.Max(left.maxZ,right.maxZ);
-
-
-            // then, set the bounds of the split access to include only the overlap
-            switch (splitAxis) {
-                case Axis.X:
-                    if (right.maxX > left.maxX) {
-                        overlapBox.min.X = right.minX;
-                        overlapBox.max.X = left.maxX;
-                    } else {
-                        overlapBox.min.X = left.minX;
-                        overlapBox.max.X = right.maxX;
-                    }
-                    break;
-                case Axis.Y:
-                    if (right.maxY > left.maxY) {
-                        overlapBox.min.Y = right.minY;
-                        overlapBox.max.Y = left.maxY;
-                    } else {
-                        overlapBox.min.Y = left.minY;
-                        overlapBox.max.Y = right.maxY;
-                    }
-                    break;
-                case Axis.Z:
-                    if (right.maxX > left.maxX) {
-                        overlapBox.min.Z = right.minZ;
-                        overlapBox.max.Z = left.maxZ;
-                    } else {
-                        overlapBox.min.Z = left.minZ;
-                        overlapBox.max.Z = right.maxZ;
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-
-            // now, ask our children to remove and hand back any nodes inside this overlap.
-            var shufChildren = new List<GO>();
-            childrenToShuffle(nAda, ref overlapBox, shufChildren);
-            addObjects(nAda,shufChildren); 
-            
-            foreach(var obj in shufChildren) {
-                nAda.checkMap(obj);
-            }                              
-        }
-
+        
         internal void addObjects(SSBVHNodeAdaptor<GO> nAda, List<GO> objects) {
             if (gobjects != null) {
                 foreach (var obj in objects) {
@@ -288,39 +168,7 @@ namespace SimpleScene.Util.ssBVH
             return cur;
         }
 
-        internal void checkLeafOverlap2(SSBVHNodeAdaptor<GO> nAda) {
-            var overlapList = new List<ssBVHNode<GO>>();
-            ssBVHNode<GO> root = rootNode();
-            root.findOverlappingLeaves(nAda,this.toAABB(), overlapList);
-
-            overlapList.Remove(this);            
-            if (false && overlapList.Count > 0) {
-                List<GO> toShuffle = new List<GO>();
-                foreach (var obj in gobjects) {
-                    Vector3 objectpos = nAda.objectpos(obj);
-                    float radius = nAda.radius(obj);
-
-                    foreach(var leaf in overlapList) {                        
-                        if (leaf.toAABB().intersectsSphere(objectpos,radius)) {
-                            toShuffle.Add(obj);
-                            break;
-                        }
-                    }
-                }
-                // now shuffle those objects
-                foreach (var obj in toShuffle) {
-                    this.gobjects.Remove(obj);
-                    nAda.unmapObject(obj);                          
-                }
-                if (gobjects.Count == 0) {
-                    parent.removeLeaf(nAda,this);
-                } else {
-                    recomputeVolume(nAda);
-                }
-                root.addObjects(nAda,toShuffle);
-            }
-        }
-
+       
         internal void findOverlappingLeaves(SSBVHNodeAdaptor<GO> nAda, Vector3 origin, float radius, List<ssBVHNode<GO>> overlapList) {
             if (toAABB().intersectsSphere(origin,radius)) {
                 if (gobjects != null) {    
@@ -352,42 +200,6 @@ namespace SimpleScene.Util.ssBVH
             aabb.max.Y = maxY;
             aabb.max.Z = maxZ;
             return aabb;
-        }
-
-        internal void computeChildOverlap(SSBVHNodeAdaptor<GO> nAda) {
-            // http://stackoverflow.com/questions/4879315/what-is-a-tidy-algorithm-to-find-overlapping-intervals
-            float a,b,c,d;
-
-
-            if (left == null || right == null) {
-                return; // no way to compute overlap
-            }
-            
-            switch (splitAxis) {
-                case Axis.X:
-                    a = left.minX; b = left.maxX; c = right.minX; d = right.maxX;
-                    break;
-                case Axis.Y:
-                    a = left.minY; b = left.maxY; c = right.minY; d = right.maxY;
-                    break;
-                case Axis.Z:
-                    a = left.minZ; b = left.maxZ; c = right.minZ; d = right.maxZ;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-
-            if ( (b > c) && (a < d) ) {
-                float overlap = Math.Min(b,d) - Math.Max(c,a);
-                float totalAxisLength = d - a;
-                splitOverlap = (overlap / totalAxisLength);
-                if (overlapThresholdReached(nAda)) {
-                    // compute the conservative overlap box
-                    shuffleOverlapChildren(nAda);            
-                }
-            } else {
-                splitOverlap = 0f;
-            }
         }
 
         internal void childExpanded(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> child) {
@@ -464,15 +276,15 @@ namespace SimpleScene.Util.ssBVH
             }           
         }
         
-        internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,gobjectlist,null,0,gobjectlist.Count-1, Axis.X)
+        internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,gobjectlist,null,0,gobjectlist.Count-1, Axis.X,0)
          { }
         
-        private ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist, ssBVHNode<GO> lparent, int start, int end, Axis lastSplitAxis) {   
+        private ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist, ssBVHNode<GO> lparent, int start, int end, Axis lastSplitAxis, int curdepth) {   
             SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                 
             int center;
             int loop;
-            int count = end - start;            
-            List<GO> newgolist = new List<GO>();
+            int span = end - start;            
+            int count = span + 1;  // because end is inclusive            
             bvh.nodeCount++;
  
             parent = lparent; // save off the parent BVHGObj Node
@@ -486,6 +298,7 @@ namespace SimpleScene.Util.ssBVH
                 maxY = 0;
                 minZ = 0;
                 maxZ = 0;
+                depth = curdepth;
                 left = null;
                 right = null;
                 gobjects = null;
@@ -494,21 +307,20 @@ namespace SimpleScene.Util.ssBVH
             }
  
             // Check if we’re at our LEAF node, and if so, save the objects and stop recursing.  Also store the min/max for the leaf node and update the parent appropriately
-            if (count < bvh.LEAF_OBJ_MAX)
+            if (count <= bvh.LEAF_OBJ_MAX)
             {
-                // We need to find the aggregate min/max for all 5 remaining objects
-                // Start by recording the min max of the first object to have a starting point, then we’ll loop through the remaining
-                assignVolume( nAda.objectpos(gobjectlist[start]), nAda.radius(gobjectlist[start]));
-                                    
                 // once we reach the leaf node, we must set prev/next to null to signify the end
                 left = null;
                 right = null;
                 // at the leaf node we store the remaining objects, so initialize a list
                 gobjects = new List<GO>();
+                
+                // We need to find the aggregate min/max for all 5 remaining objects
+                // Start by recording the min max of the first object to have a starting point, then we’ll loop through the remaining
+                assignVolume( nAda.objectpos(gobjectlist[start]), nAda.radius(gobjectlist[start]));                                                    
                 // loop through all the objects to add them to our leaf node, and calculate the min/max values as we go 
                 for (loop = start; loop <= end; loop++)
                 {
-
                     Vector3 objectpos = nAda.objectpos(gobjectlist[loop]);
                     float radius = nAda.radius(gobjectlist[loop]);
 
@@ -527,7 +339,8 @@ namespace SimpleScene.Util.ssBVH
             // if we have more than (bvh.LEAF_OBJECT_COUNT) objects, then sort and split
             
             // first, create a new list using just the subject of objects from the old list
-            //  .. while we do this, we compute the volume
+            //  .. while we do this, we compute our volume over those objects
+            List<GO> newgolist = new List<GO>();
             assignVolume( nAda.objectpos(gobjectlist[start]) , nAda.radius(gobjectlist[start]) );            
             for (loop = start; loop <= end; loop++) {
                 newgolist.Add(gobjectlist[loop]);
@@ -548,28 +361,13 @@ namespace SimpleScene.Util.ssBVH
                     newgolist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Z.CompareTo(nAda.objectpos(go2).Z); }); 
                     break;
             }
-            center = (int) (count * 0.5f); // Find the center object in our current sub-list
+            center = (int) (span * 0.5f); // Find the center object in our current sub-list
 
-            // Initialize the branch to a starting value, then we’ll update it based on the leaf node recursion updating the parent
-            assignVolume( nAda.objectpos(newgolist[0]) , nAda.radius(newgolist[0]) );
             gobjects = null;
-
+            depth = curdepth;
             // if we’re here then we’re still *NOT* in a leaf node.  therefore we need to split prev/next and keep branching until we reach the leaf node            
-            left = new ssBVHNode<GO>(bvh, newgolist, this, 0, center, splitAxis); // Split the Hierarchy to the left
-            right = new ssBVHNode<GO>(bvh, newgolist, this, center + 1, count, splitAxis); // Split the Hierarchy to the right
-            // Update the parent bounding box to ensure it includes the children. Note: the leaf node already updated it’s parent, but now that parent needs to keep updating it’s branch parent until we reach the root level
-            if (parent != null && minX < parent.minX)
-                parent.minX = minX;
-            if (parent != null && maxX > parent.maxX)
-                parent.maxX = maxX;
-            if (parent != null && minY < parent.minY)
-                parent.minY = minY;
-            if (parent != null && maxY > parent.maxY)
-                parent.maxY = maxY;
-            if (parent != null && minZ < parent.minZ)
-                parent.minZ = minZ;
-            if (parent != null && maxZ > parent.maxZ)
-                parent.maxZ = maxZ;
+            left = new ssBVHNode<GO>(bvh, newgolist, this, 0, center, splitAxis, curdepth+1); // Split the Hierarchy to the left
+            right = new ssBVHNode<GO>(bvh, newgolist, this, center + 1, span, splitAxis,curdepth+1); // Split the Hierarchy to the right                      
         }
 
     }

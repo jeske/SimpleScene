@@ -24,6 +24,8 @@ namespace SimpleScene.Util.ssBVH
     }
 
     public interface SSBVHNodeAdaptor<GO> {
+        ssBVH<GO> BVH { get; }
+        void setBVH(ssBVH<GO> bvh);
         Vector3 objectpos(GO obj);
         float radius(GO obj);
         void mapObjectToBVHLeaf(GO obj, ssBVHNode<GO> leaf);
@@ -35,7 +37,7 @@ namespace SimpleScene.Util.ssBVH
     {
         public ssBVHNode<GO> rootBVH;
         public SSBVHNodeAdaptor<GO> nAda;
-        public int LEAF_OBJ_MAX = 5;
+        public readonly int LEAF_OBJ_MAX;
         public int nodeCount = 0;
 
 
@@ -65,8 +67,9 @@ namespace SimpleScene.Util.ssBVH
         }
 
 
-        public ssBVH(SSBVHNodeAdaptor<GO> nodeAdaptor, List<GO> objects, int LEAF_OBJ_MAX = 5) {
+        public ssBVH(SSBVHNodeAdaptor<GO> nodeAdaptor, List<GO> objects, int LEAF_OBJ_MAX = 1) {
             this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
+            nodeAdaptor.setBVH(this);
             this.nAda = nodeAdaptor;
             rootBVH = new ssBVHNode<GO>(this,objects);
         }
