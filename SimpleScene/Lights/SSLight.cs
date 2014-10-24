@@ -15,12 +15,27 @@ namespace SimpleScene
 
 	public class SSLight : SSObjectBase
 	{
-		LightName glLightName;
+		protected const int c_maxNumLights = (int)(LightName.Light7 - LightName.Light0) + 1;
+		protected const LightName c_lastLight = LightName.Light7;
+		protected static LightName s_nextLight = LightName.Light0;
+
+		public Vector4 Ambient = new Vector4(0.0f);
+		public Vector4 Specular = new Vector4 (0.0f);
+		public Vector4 Diffuse = new Vector4 (0.0f);
+
+		protected LightName m_lightName;
+
 
 		// TODO: should decouple the light-name from this class and auto-assign it based on the renderer
 
-		public SSLight (LightName glLightName) : base() {
-			this.glLightName = glLightName;
+		public SSLight () : base() {
+			if (s_nextLight > c_lastLight) {
+				string msg = "Cannot support more than " + c_maxNumLights + " lights.";
+				throw new Exception (msg);
+			}
+
+			this.m_lightName = s_nextLight;
+			++s_nextLight;
 			this._pos = new Vector3 (0, 0, 1);
 			this.calcMatFromState ();
 		}
@@ -32,9 +47,9 @@ namespace SimpleScene
 			GL.Enable (EnableCap.Lighting);
 			GL.ShadeModel (ShadingModel.Smooth);
 
-			GL.Light (glLightName, LightParameter.Position, new Vector4(this._pos,1.0f));
+			GL.Light (m_lightName, LightParameter.Position, new Vector4(this._pos,1.0f));
 
-			GL.Enable (EnableCap.Light0 + (glLightName - LightName.Light0));
+			GL.Enable (EnableCap.Light0 + (m_lightName - LightName.Light0));
 
 		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
@@ -45,21 +60,21 @@ namespace SimpleScene
 			GL.Enable (EnableCap.Lighting);
 			GL.ShadeModel (ShadingModel.Smooth);
 
-			GL.Light (glLightName, LightParameter.Ambient, new Vector4 (0.4f)); // ambient light color (R,G,B,A)
+			GL.Light (m_lightName, LightParameter.Ambient, this.Ambient); // ambient light color (R,G,B,A)
 
-			GL.Light (glLightName, LightParameter.Diffuse, new Vector4 (1.0f)); // diffuse color (R,G,B,A)
+			GL.Light (m_lightName, LightParameter.Diffuse, this.Diffuse); // diffuse color (R,G,B,A)
 
-			GL.Light (glLightName, LightParameter.Specular, new Vector4 (0.8f)); // specular light color (R,G,B,A)
+			GL.Light (m_lightName, LightParameter.Specular, this.Specular); // specular light color (R,G,B,A)
 
 			// w=1.0 is a point light
 			// w=0.0 is a directional light
 			// we put it at the origin because it is transformed by the model view matrix (which already has our position)
-			GL.Light (glLightName, LightParameter.Position, new Vector4(0,0,0,1.0f)); 
+			GL.Light (m_lightName, LightParameter.Position, new Vector4(0,0,0,1.0f)); 
 
 
 			// GL.Light (glLightName, LightParameter.SpotDirection, new Vector4 (this._dir, 0.0f));
 
-			GL.Enable (EnableCap.Light0 + (glLightName - LightName.Light0));
+			GL.Enable (EnableCap.Light0 + (m_lightName - LightName.Light0));
 
 
 		}
