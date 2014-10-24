@@ -98,14 +98,14 @@ namespace SimpleScene.Util.ssBVH
                 }
             }
                                                  
-           	var p0 = new Vector3 (n.minX,  n.minY,  n.maxZ);  
-			var p1 = new Vector3 (n.maxX,  n.minY,  n.maxZ);
-			var p2 = new Vector3 (n.maxX,  n.maxY,  n.maxZ);  
-			var p3 = new Vector3 (n.minX,  n.maxY,  n.maxZ);
-			var p4 = new Vector3 (n.minX,  n.minY,  n.minZ);
-			var p5 = new Vector3 (n.maxX,  n.minY,  n.minZ);
-			var p6 = new Vector3 (n.maxX,  n.maxY,  n.minZ);
-			var p7 = new Vector3 (n.minX,  n.maxY,  n.minZ);
+           	var p0 = new Vector3 (n.box.min.X,  n.box.min.Y,  n.box.max.Z);  
+			var p1 = new Vector3 (n.box.max.X,  n.box.min.Y,  n.box.max.Z);
+			var p2 = new Vector3 (n.box.max.X,  n.box.max.Y,  n.box.max.Z);  
+			var p3 = new Vector3 (n.box.min.X,  n.box.max.Y,  n.box.max.Z);
+			var p4 = new Vector3 (n.box.min.X,  n.box.min.Y,  n.box.min.Z);
+			var p5 = new Vector3 (n.box.max.X,  n.box.min.Y,  n.box.min.Z);
+			var p6 = new Vector3 (n.box.max.X,  n.box.max.Y,  n.box.min.Z);
+			var p7 = new Vector3 (n.box.min.X,  n.box.max.Y,  n.box.min.Z);
 
             drawQuadEdges(p0, p1, p2, p3);            
             drawQuadEdges(p7, p6, p5, p4);

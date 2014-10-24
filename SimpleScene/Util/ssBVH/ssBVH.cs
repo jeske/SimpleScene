@@ -40,16 +40,11 @@ namespace SimpleScene.Util.ssBVH
         public readonly int LEAF_OBJ_MAX;
         public int nodeCount = 0;
 
+        public HashSet<ssBVHNode<GO>> refitNodes = new HashSet<ssBVHNode<GO>>();
 
         private void traverseRay(ssBVHNode<GO> curNode, SSRay ray, List<ssBVHNode<GO>> hitlist) {
             if (curNode == null) { return; }
-            SSAABB box = new SSAABB();
-            box.min.X = curNode.minX;
-            box.min.Y = curNode.minY;
-            box.min.Z = curNode.minZ;
-            box.max.X = curNode.maxX;
-            box.max.Y = curNode.maxY;
-            box.max.Z = curNode.maxZ;
+            SSAABB box = curNode.box;            
             float tnear = 0f, tfar = 0f;
             
             if (OpenTKHelper.intersectRayAABox1(ray,box,ref tnear, ref tfar)) {
@@ -66,6 +61,16 @@ namespace SimpleScene.Util.ssBVH
             return hits;
         }
 
+        public void optimize() {            
+            while (refitNodes.Count > 0) {                
+                int maxdepth = refitNodes.Max( n => n.depth );
+            
+                var sweepNodes = refitNodes.Where( n => n.depth == maxdepth ).ToList();
+                sweepNodes.ForEach( n => refitNodes.Remove(n) );
+
+                sweepNodes.ForEach( n => n.tryRotate(this) );                
+            }            
+        }
 
         public ssBVH(SSBVHNodeAdaptor<GO> nodeAdaptor, List<GO> objects, int LEAF_OBJ_MAX = 1) {
             this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
@@ -73,5 +78,5 @@ namespace SimpleScene.Util.ssBVH
             this.nAda = nodeAdaptor;
             rootBVH = new ssBVHNode<GO>(this,objects);
         }
-    }
+    }   
 }
