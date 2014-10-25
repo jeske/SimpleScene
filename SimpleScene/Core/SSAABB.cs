@@ -42,5 +42,15 @@ namespace SimpleScene
                 (max.Z == other.max.Z);
         }
 
+        internal void expandToFit(SSAABB b) {
+            if (b.min.X < this.min.X) { this.min.X = b.min.X; }            
+            if (b.min.Y < this.min.Y) { this.min.Y = b.min.Y; }            
+            if (b.min.Z < this.min.Z) { this.min.Z = b.min.Z; }
+            
+            if (b.max.X > this.max.X) { this.max.X = b.max.X; }
+            if (b.max.Y > this.max.Y) { this.max.Y = b.max.Y; }
+            if (b.max.Z > this.max.Z) { this.max.Z = b.max.Z; }                        
+        }
+
     }
 }

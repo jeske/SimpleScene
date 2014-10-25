@@ -84,7 +84,7 @@ namespace SimpleScene.Util.ssBVH
             this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
             nodeAdaptor.setBVH(this);
             this.nAda = nodeAdaptor;
-            rootBVH = new ssBVHNode<GO>(this,objects);
+            rootBVH = new ssBVHNode<GO>(this,objects);            
         }
     }   
 }

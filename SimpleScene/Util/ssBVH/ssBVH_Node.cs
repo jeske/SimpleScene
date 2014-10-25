@@ -13,6 +13,9 @@
 //
 //
 
+// TODO: implement node merge/split, to handle updates when LEAF_OBJ_MAX > 1
+// 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +59,17 @@ namespace SimpleScene.Util.ssBVH
             }
 
         }
+        public bool IsLeaf {
+            get {            
+                bool isLeaf = (this.gobjects != null);
+                // if we're a leaf, then both left and right should be null..
+                if (isLeaf &&  ( (right != null) || (left != null) ) ) {
+                        throw new Exception("ssBVH Leaf has objects and left/right pointers!");
+                }
+                return isLeaf;
+
+            }
+        }
 
         private Axis NextAxis(Axis cur) {
             switch(cur) {
@@ -69,12 +83,11 @@ namespace SimpleScene.Util.ssBVH
         public void refit_ObjectChanged(SSBVHNodeAdaptor<GO> nAda, GO obj) {
             if (parent == null) { throw new Exception("dangling leaf!"); }
             if ( recomputeVolume(nAda) ) {
-                // add our grandparent to the shuffle.
-                if (parent != null) {
-                    if (parent.parent != null) {
-                        nAda.BVH.refitNodes.Add(parent.parent); 
-                        nAda.BVH.optimize();
-                    }
+                // add our parent to the optimize list...
+                if (parent != null) {                    
+                    nAda.BVH.refitNodes.Add(parent); 
+                    nAda.BVH.optimize();
+                    
                 }
              }
         }
@@ -105,6 +118,14 @@ namespace SimpleScene.Util.ssBVH
             }
         }
         
+        internal float SAH(SSAABB box) {
+            float x_size = box.max.X - box.min.X;
+            float y_size = box.max.Y - box.min.Y;
+            float z_size = box.max.Z - box.min.Z;
+
+            return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
+            
+        }
         internal float SAH(ref SSAABB box) {
             float x_size = box.max.X - box.min.X;
             float y_size = box.max.Y - box.min.Y;
@@ -125,26 +146,30 @@ namespace SimpleScene.Util.ssBVH
             return (float)(4.0 * Math.PI * radius * radius);  // bounding sphere surface area
         }
 
-        internal void expandBox(ref SSAABB a, SSAABB b) {
-            if (b.min.X < a.min.X) { a.min.X = b.min.X; }
-            if (b.max.X > a.max.X) { a.max.X = b.max.X; }
-            if (b.min.Y < a.min.Y) { a.min.Y = b.min.Y; }
-            if (b.max.Y > a.max.Y) { a.max.Y = b.max.Y; }
-            if (b.min.Z < a.min.Z) { a.min.Z = b.min.Z; }
-            if (b.max.Z > a.max.Z) { a.max.Z = b.max.Z; }                        
+        
+
+        internal SSAABB AABBofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
+            SSAABB box = nodea.box;
+            box.expandToFit(nodeb.box);
+            return box;
         }
 
         internal float SAHofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
             SSAABB box = nodea.box;
-            expandBox(ref box, nodeb.box);
+            box.expandToFit(nodeb.box);
             return SAH(ref box);
+        }
+        internal float SAHofPair(SSAABB boxa, SSAABB boxb) {
+            SSAABB pairbox = boxa;
+            pairbox.expandToFit(boxb);
+            return SAH(ref pairbox);
         }
 
         // The list of all candidate rotations, from "Fast, Effective BVH Updates for Animated Scenes", Figure 1.
         internal enum Rot {
             NONE, L_RL, L_RR, R_LL, R_LR, LL_RR, LL_RL,
         }
-
+        
         internal class rotOpt : IComparable<rotOpt> {  // rotation option
             public float SAH;
             public Rot rot;
@@ -170,35 +195,48 @@ namespace SimpleScene.Util.ssBVH
         /// <param name="bvh"></param>
         internal void tryRotate(ssBVH<GO> bvh) {    
             SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                                
-            float mySAH = SAH(this);
+            
+            // TODO: should we always add or parent? maybe some random percentage of the time?
+            // if (parent != null) { bvh.refitNodes.Add(parent); }
 
-            // for each rotation, check that there are valid non-leaf children
-            // then compute candidate SAH cost after the rotation.
+            // if we are not a grandparent, then we can't rotate, so queue our parent and bail out
+            if (left.IsLeaf && right.IsLeaf) {
+                if (parent != null) {
+                    bvh.refitNodes.Add(parent);
+                    return;
+                }
+            }
+
+            // for each rotation, check that there are grandchildren as necessary (aka not a leaf)
+            // then compute total SAH cost of our branches after the rotation.
+
+            float mySAH = SAH(left) + SAH(right);
 
             rotOpt bestRot = eachRot.Min( (rot) => { 
                 switch (rot) {
                  case Rot.NONE: return new rotOpt(mySAH,Rot.NONE);
                  // child to grandchild rotations
                  case Rot.L_RL: 
-                    if (right.gobjects != null) return new rotOpt(float.MaxValue,rot);
-                    else return new rotOpt(SAH(right.left) + SAHofPair(left,right.right), rot);   
+                    if (right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
+                    else return new rotOpt(SAH(right.left) + SAH(AABBofPair(left,right.right)), rot);   
                  case Rot.L_RR: 
-                    if (right.gobjects != null) return new rotOpt(float.MaxValue,rot);
-                    else return new rotOpt(SAH(right.right) + SAHofPair(left,right.left), rot);
+                    if (right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
+                    else return new rotOpt(SAH(right.right) + SAH(AABBofPair(left,right.left)), rot);
                  case Rot.R_LL: 
-                    if (left.gobjects != null) return new rotOpt(float.MaxValue,rot);
-                    else return new rotOpt(SAHofPair(right,left.right) + SAH(left.left), rot);
+                    if (left.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
+                    else return new rotOpt(SAH(AABBofPair(right,left.right)) + SAH(left.left), rot);
                  case Rot.R_LR: 
-                    if (left.gobjects != null) return new rotOpt(float.MaxValue,rot);
-                    else return new rotOpt(SAHofPair(right,left.left) + SAH(left.right), rot); 
+                    if (left.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
+                    else return new rotOpt(SAH(AABBofPair(right,left.left)) + SAH(left.right), rot); 
                  // grandchild to grandchild rotations
                  case Rot.LL_RR: 
-                    if (left.gobjects != null || right.gobjects != null) return new rotOpt(float.MaxValue,rot);
-                    else return new rotOpt(SAHofPair(right.right,left.right) + SAHofPair(right.left,left.left), rot);
+                    if (left.IsLeaf || right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
+                    else return new rotOpt(SAH(AABBofPair(right.right,left.right)) + SAH(AABBofPair(right.left,left.left)), rot);
                  case Rot.LL_RL:
-                    if (left.gobjects != null || right.gobjects != null) return new rotOpt(float.MaxValue,rot);
-                    else return new rotOpt(SAHofPair(right.left,left.right) + SAHofPair(left.left,right.right), rot);
-                 default: throw new NotImplementedException();                                     
+                    if (left.IsLeaf || right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
+                    else return new rotOpt(SAH(AABBofPair(right.left,left.right)) + SAH(AABBofPair(left.left,right.right)), rot);
+                 // unknown...
+                 default: throw new NotImplementedException("missing implementation for BVH Rotation SAH Computation .. " + rot.ToString());                                     
                 }
             });                                
                    
@@ -207,10 +245,10 @@ namespace SimpleScene.Util.ssBVH
 
                 if (parent != null) { bvh.refitNodes.Add(parent); }
 
-                if ( ((mySAH - bestRot.SAH) / mySAH ) < 0.1f) {
+                if ( ((mySAH - bestRot.SAH) / mySAH ) < 0.3f) {
                     return; // the benefit is not worth the cost
                 }
-                
+                Console.WriteLine("BVH swap {0} from {1} to {2}", bestRot.rot.ToString(), mySAH, bestRot.SAH);
 
                 // in order to swap we need to:
                 //  1. swap the node locations
@@ -221,15 +259,17 @@ namespace SimpleScene.Util.ssBVH
                 switch (bestRot.rot) {
                     case Rot.NONE: break;
                     // child to grandchild rotations
-                    case Rot.L_RL: swap = left;  swap.depth++; left  = right.left;  left.parent = this; left.depth--;  right.left  = swap; swap.parent = right; right.childRefit(nAda); break;
-                    case Rot.L_RR: swap = left;  swap.depth++; left  = right.right; left.parent = this; left.depth--;  right.right = swap; swap.parent = right; right.childRefit(nAda); break;
-                    case Rot.R_LL: swap = right; swap.depth++; right =  left.left;  right.parent = this; right.depth--;  left.left  = swap;swap.parent = left; left.childRefit(nAda); break;
-                    case Rot.R_LR: swap = right; swap.depth++; right =  left.right; right.parent = this; right.depth--;  left.right = swap;swap.parent = left;  left.childRefit(nAda); break;
+                    case Rot.L_RL: swap = left;  swap.depth++; left  = right.left;  left.parent = this; left.depth--;  right.left  = swap;  swap.parent = right; right.childRefit(nAda); break;
+                    case Rot.L_RR: swap = left;  swap.depth++; left  = right.right; left.parent = this; left.depth--;  right.right = swap;  swap.parent = right; right.childRefit(nAda); break;
+                    case Rot.R_LL: swap = right; swap.depth++; right =  left.left;  right.parent = this; right.depth--; left.left  = swap;  swap.parent = left;   left.childRefit(nAda); break;
+                    case Rot.R_LR: swap = right; swap.depth++; right =  left.right; right.parent = this; right.depth--; left.right = swap;  swap.parent = left;   left.childRefit(nAda); break;
                     
                     // grandchild to grandchild rotations
-                    case Rot.LL_RR: swap = left.left; left.left = right.right; left.left.parent = left; right.right = swap; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
-                    case Rot.LL_RL: swap = left.left; left.left = right.left; left.left.parent = left; right.left = swap; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
-                    default: throw new NotImplementedException();                                     
+                    case Rot.LL_RR: swap = left.left; left.left = right.right; right.right = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
+                    case Rot.LL_RL: swap = left.left; left.left = right.left;  right.left  = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
+                    
+                    // unknown...
+                    default: throw new NotImplementedException("missing implementation for BVH Rotation .. " + bestRot.rot.ToString());                                     
                 }
                 
             }
