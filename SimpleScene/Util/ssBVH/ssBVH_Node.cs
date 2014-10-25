@@ -86,8 +86,10 @@ namespace SimpleScene.Util.ssBVH
                 // add our parent to the optimize list...
                 if (parent != null) {                    
                     nAda.BVH.refitNodes.Add(parent); 
-                    nAda.BVH.optimize();
-                    
+
+                    // you can force an optimize every time something moves, but it's not very efficient
+                    // instead we do this per-frame after a bunch of updates.
+                    // nAda.BVH.optimize();                    
                 }
              }
         }
@@ -195,10 +197,7 @@ namespace SimpleScene.Util.ssBVH
         /// <param name="bvh"></param>
         internal void tryRotate(ssBVH<GO> bvh) {    
             SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                                
-            
-            // TODO: should we always add or parent? maybe some random percentage of the time?
-            // if (parent != null) { bvh.refitNodes.Add(parent); }
-
+                                           
             // if we are not a grandparent, then we can't rotate, so queue our parent and bail out
             if (left.IsLeaf && right.IsLeaf) {
                 if (parent != null) {
@@ -242,6 +241,14 @@ namespace SimpleScene.Util.ssBVH
                    
             // perform the best rotation...            
             if (bestRot.rot != Rot.NONE) {
+                // if the best rotation is no-rotation... we check our parents anyhow..                
+                if (parent != null) { 
+                    // but only do it some random percentage of the time.
+                    if ((DateTime.Now.Ticks % 100) < 2) {
+                        bvh.refitNodes.Add(parent); 
+                    }
+                }                
+            } else {
 
                 if (parent != null) { bvh.refitNodes.Add(parent); }
 
@@ -273,7 +280,6 @@ namespace SimpleScene.Util.ssBVH
                 }
                 
             }
-            
 
         }
 
