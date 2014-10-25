@@ -22,6 +22,15 @@ namespace SimpleScene
 
         public SSShadowMap()
         {
+            string version_string = GL.GetString(StringName.Version);
+            int major = int.Parse(version_string.Split(' ')[0]);
+            int minor = int.Parse(version_string.Split(' ')[1]);
+            Version version = new Version(major, minor);
+            Version versionRequired = new Version(3, 0);
+            if (version < versionRequired) {
+                throw new Exception("framebuffers not support by the GL backed used");
+            }
+
 			m_frameBufferID = GL.GenFramebuffer();
             m_textureID = GL.GenTexture();
             bind();
