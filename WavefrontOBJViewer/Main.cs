@@ -38,6 +38,7 @@ namespace WavefrontOBJViewer
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public WavefrontOBJViewer()
 			: base(
+				#if false
 				800, 600, 
 				GraphicsMode.Default, // color format
 				"WavefrontOBJLoader",
@@ -45,6 +46,7 @@ namespace WavefrontOBJViewer
 				DisplayDevice.Default,    // primary monitor
 				2, 2,  // opengl version
 				GraphicsContextFlags.Debug
+				#endif
 				)
 		{
 			VSync = VSyncMode.On;
@@ -106,6 +108,7 @@ namespace WavefrontOBJViewer
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("./Assets"));
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
+				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../../Assets"));
 
 				game.shaderPgm = new SSShaderProgram_Main(); // before scene
 				

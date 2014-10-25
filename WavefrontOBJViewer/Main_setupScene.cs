@@ -40,7 +40,7 @@ namespace WavefrontOBJViewer
 			scene.addObject (triObj = new SSObjectTriangle () );
 			triObj.Pos = lightPos;
 
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "drone2.obj");
+			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (mesh);
@@ -58,7 +58,7 @@ namespace WavefrontOBJViewer
 			// add second drone
 			
 			SSObject drone2Obj = new SSObjectMesh(
-				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/", "drone2.obj")
+				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/", "Drone2.obj")
 			);
 			scene.addObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
