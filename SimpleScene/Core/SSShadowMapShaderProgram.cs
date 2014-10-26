@@ -9,7 +9,7 @@ namespace SimpleScene
         #region Constants
         private const string c_ctx = "./Shaders/shadowmap/";
         private const string c_vertexFilename = "shadowmap_vertex.glsl";
-        private const string c_fragmentFilename = "shadowmap_gragment.glsl";
+        private const string c_fragmentFilename = "shadowmap_fragment.glsl";
         #endregion
 
         #region Shaders
@@ -33,11 +33,13 @@ namespace SimpleScene
             m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, c_vertexFilename);
             attach(m_vertexShader);
             m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, c_fragmentFilename);
-            attach(m_vertexShader);
+            attach(m_fragmentShader);
             link();
             Activate();
+            GL.BindAttribLocation(m_programID, 0, "vertexPosition_modelspace");
+            GL.BindAttribLocation(m_programID, 0, "fragmentDepth");
             u_mvpMatrix = getUniLoc("depthMVP");
-            checkErrors();
+            Deactivate();
         }
     }
 }
