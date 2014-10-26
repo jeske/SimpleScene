@@ -47,6 +47,9 @@ namespace SimpleScene
                 foreach(var point in _mesh.EnumeratePoints()) {
 	                radius = Math.Max(radius,point.Length);
                 }
+
+                // TODO: fix this confusion -> currently boundingSphere is object-space radius, world-space position
+                //  this affects collision intersect, bounding-sphere rendering, and the SSObjectBVHNodeAdaptor
 				this.boundingSphere = new SSObjectSphere(radius);
 				this.OnChanged += (sender) => { 
 					this.boundingSphere.Pos = this.Pos;

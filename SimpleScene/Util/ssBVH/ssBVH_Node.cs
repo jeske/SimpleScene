@@ -485,22 +485,11 @@ namespace SimpleScene.Util.ssBVH
             bvh.nodeCount++;
  
             parent = lparent; // save off the parent BVHGObj Node
+
             // Early out check due to bad data
             // If the list is empty then we have no BVHGObj, or invalid parameters are passed in
-            if (gobjectlist == null || end < start)
-            {
-                box.min.X = 0;
-                box.max.X = 0;
-                box.min.Y = 0;
-                box.max.Y = 0;
-                box.min.Z = 0;
-                box.max.Z = 0;
-                depth = curdepth;
-                left = null;
-                right = null;
-                gobjects = null;
-
-                return;
+            if (gobjectlist == null || end < start) {
+                throw new Exception("ssBVHNode constructed with invalid paramaters");
             }
  
             // Check if we’re at our LEAF node, and if so, save the objects and stop recursing.  Also store the min/max for the leaf node and update the parent appropriately

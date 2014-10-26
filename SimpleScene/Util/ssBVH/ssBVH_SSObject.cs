@@ -17,7 +17,7 @@ namespace SimpleScene.Util.ssBVH
     /// <summary>
     /// An adaptor for ssBVH to understand SSObject nodes.
     /// </summary>
-    public class SSObjectNodeAdaptor : SSBVHNodeAdaptor<SSObject> {
+    public class SSObjectBVHNodeAdaptor : SSBVHNodeAdaptor<SSObject> {
         Dictionary<SSObject, ssBVHNode<SSObject>> ssToLeafMap = new Dictionary<SSObject, ssBVHNode<SSObject>>();
 
         public Vector3 objectpos(SSObject obj) {
@@ -25,7 +25,11 @@ namespace SimpleScene.Util.ssBVH
         }
         public float radius(SSObject obj) {
             if (obj.boundingSphere != null) {
-                return obj.boundingSphere.radius;
+                // extract the object scale...
+                var objmat = obj.worldMat.ExtractScale();
+                float max_scale = Math.Max(objmat.X,Math.Max(objmat.Y,objmat.Z));
+                // use it to transform the object-space bounding-sphere radius into a world-space radius
+                return obj.boundingSphere.radius * max_scale;
             } else {
                 return 1.0f;
             }
@@ -59,7 +63,7 @@ namespace SimpleScene.Util.ssBVH
             this._BVH = BVH;
         }
         
-        public SSObjectNodeAdaptor() {}
+        public SSObjectBVHNodeAdaptor() {}
     }
 
 

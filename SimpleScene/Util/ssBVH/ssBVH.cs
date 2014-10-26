@@ -69,7 +69,11 @@ namespace SimpleScene.Util.ssBVH
             return hits;
         }
 
-        public void optimize() {            
+        public void optimize() {  
+            if (LEAF_OBJ_MAX != 1) {
+                throw new Exception("In order to use optimize, you must set LEAF_OBJ_MAX=1");
+            }
+                  
             while (refitNodes.Count > 0) {                
                 int maxdepth = refitNodes.Max( n => n.depth );
             
@@ -80,6 +84,12 @@ namespace SimpleScene.Util.ssBVH
             }            
         }
 
+        /// <summary>
+        /// initializes a BVH with a given nodeAdaptor, and object list.
+        /// </summary>
+        /// <param name="nodeAdaptor"></param>
+        /// <param name="objects"></param>
+        /// <param name="LEAF_OBJ_MAX">WARNING! currently this must be 1 to use dynamic BVH updates</param>
         public ssBVH(SSBVHNodeAdaptor<GO> nodeAdaptor, List<GO> objects, int LEAF_OBJ_MAX = 1) {
             this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
             nodeAdaptor.setBVH(this);

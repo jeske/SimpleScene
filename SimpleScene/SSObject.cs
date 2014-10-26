@@ -77,7 +77,7 @@ namespace SimpleScene
 			// ... subclasses will render the object itself..
 		}
 
-		public SSObjectSphere boundingSphere=null;
+		public SSObjectSphere boundingSphere=null;  // TODO: fix this, it's object-space radius, world-space position
 		public SSObject collisionShell=null;
 		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
 			distanceAlongRay = 0.0f;
