@@ -38,7 +38,7 @@ namespace SimpleScene.Util.ssBVH
                  
         public List<GO> gobjects;  // only populated in leaf nodes
 
-        private Axis pickSplitAxis(Axis cur) {            
+        private Axis pickSplitAxis() {            
             float axis_x = box.max.X - box.min.X; 
             float axis_y = box.max.Y - box.min.Y;
             float axis_z = box.max.Z - box.min.Z;
@@ -81,8 +81,8 @@ namespace SimpleScene.Util.ssBVH
         }
 
         public void refit_ObjectChanged(SSBVHNodeAdaptor<GO> nAda, GO obj) {
-            if (parent == null) { throw new Exception("dangling leaf!"); }
-            if ( recomputeVolume(nAda) ) {
+            if (gobjects == null) { throw new Exception("dangling leaf!"); }
+            if ( refitVolume(nAda) ) {
                 // add our parent to the optimize list...
                 if (parent != null) {                    
                     nAda.BVH.refitNodes.Add(parent); 
@@ -94,6 +94,36 @@ namespace SimpleScene.Util.ssBVH
              }
         }
 
+         private void expandVolume(SSBVHNodeAdaptor<GO> nAda, Vector3 objectpos, float radius) {
+            bool expanded = false;
+
+            // test min X and max X against the current bounding volume
+            if ((objectpos.X - radius) < box.min.X) {
+                box.min.X = (objectpos.X - radius); expanded = true;                
+            }
+            if ((objectpos.X + radius) > box.max.X) {
+                box.max.X = (objectpos.X + radius); expanded = true;                
+            }         
+            // test min Y and max Y against the current bounding volume
+            if ((objectpos.Y - radius) < box.min.Y) {
+                box.min.Y = (objectpos.Y - radius); expanded = true;                
+            }
+            if ((objectpos.Y + radius) > box.max.Y) {
+                box.max.Y = (objectpos.Y + radius); expanded = true;                
+            }           
+            // test min Z and max Z against the current bounding volume
+            if ( (objectpos.Z - radius) < box.min.Z ) {
+                box.min.Z = (objectpos.Z - radius); expanded = true;                
+            }
+            if ( (objectpos.Z + radius) > box.max.Z ) {
+                box.max.Z = (objectpos.Z + radius); expanded = true;                
+            }
+
+            if (expanded && parent != null) {                
+                parent.childExpanded(nAda, this);
+            }           
+        }
+
         private void assignVolume(Vector3 objectpos, float radius) {
             box.min.X = objectpos.X - radius;
             box.max.X = objectpos.X + radius;
@@ -102,16 +132,20 @@ namespace SimpleScene.Util.ssBVH
             box.min.Z = objectpos.Z - radius;
             box.max.Z = objectpos.Z + radius;
         }      
+
+        internal void computeVolume(SSBVHNodeAdaptor<GO> nAda) {            
+            assignVolume( nAda.objectpos(gobjects[0]), nAda.radius(gobjects[0]));
+            for(int i=1; i<gobjects.Count;i++) {
+                expandVolume( nAda, nAda.objectpos(gobjects[i]) , nAda.radius(gobjects[i]) );
+            }      
+        }
         
-        internal bool recomputeVolume(SSBVHNodeAdaptor<GO> nAda) {
+        internal bool refitVolume(SSBVHNodeAdaptor<GO> nAda) {
             if (gobjects.Count == 0) { throw new NotImplementedException(); }  // TODO: fix this... we should never get called in this case...
 
             SSAABB oldbox = box;
 
-            assignVolume( nAda.objectpos(gobjects[0]), nAda.radius(gobjects[0]));
-            for(int i=1; i<gobjects.Count;i++) {
-                expandVolume(nAda, nAda.objectpos(gobjects[i]) , nAda.radius(gobjects[i]) );
-            }
+            computeVolume(nAda);
             if (!box.Equals(oldbox)) {
                 if (parent != null) parent.childRefit(nAda);
                 return true;
@@ -283,81 +317,64 @@ namespace SimpleScene.Util.ssBVH
 
         }
 
-        internal void addObjects(SSBVHNodeAdaptor<GO> nAda, List<GO> objects) {
-            if (gobjects != null) {
-                foreach (var obj in objects) {
-                    gobjects.Add(obj);
-                    nAda.mapObjectToBVHLeaf(obj,this);
-                }
-                recomputeVolume(nAda);
-                // TODO: add splitting if we have more than MAX_OBJECTS 
-                return;
-            } 
-            
-            // find the approximate child gap midpoint
-            float midpoint;
-            ssBVHNode<GO> lower = left,higher = right;
-            switch (splitAxis) 
-            { 
-                case Axis.X:
-                    if (left.box.min.X < right.box.min.X) {
-                        midpoint = (left.box.max.X + right.box.min.X) / 2.0f;
-                    } else { 
-                        midpoint = (right.box.max.X + left.box.min.X) / 2.0f;
-                        lower = right; higher = left;
-                    }                    
-                    break;
-                case Axis.Y:
-                    if (left.box.min.Y < right.box.min.Y) {
-                        midpoint = (left.box.max.Y + right.box.min.Y) / 2.0f;
-                    } else { 
-                        midpoint = (right.box.max.Y + left.box.min.Y) / 2.0f;
-                        lower = right; higher = left;
-                    }                    
-                    break;
-                case Axis.Z:
-                    if (left.box.min.Z < right.box.min.Z) {
-                        midpoint = (left.box.max.Z + right.box.min.Z) / 2.0f;
-                    } else { 
-                        midpoint = (right.box.max.Z + left.box.min.Z) / 2.0f;
-                        lower = right; higher = left;
-                    }                    
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+        internal void splitNode(SSBVHNodeAdaptor<GO> nAda) {
+            // second, decide which axis to split on, and sort..
+            List<GO> splitlist = gobjects;
+            int span = splitlist.Count - 1;
 
-            var sendToLower = new List<GO>();
-            var sendToUpper = new List<GO>();
-            foreach(var o in objects) {
-                switch (splitAxis) {
-                    case Axis.X:
-                        if (nAda.objectpos(o).X < midpoint) {
-                            sendToLower.Add(o);                            
-                        } else {
-                            sendToUpper.Add(o);
-                        }
-                        break;
-                    case Axis.Y:
-                        if (nAda.objectpos(o).X < midpoint) {
-                            sendToLower.Add(o);                            
-                        } else {
-                            sendToUpper.Add(o);
-                        }
-                        break;
-                    case Axis.Z:
-                        if (nAda.objectpos(o).X < midpoint) {
-                            sendToLower.Add(o);                            
-                        } else {
-                            sendToUpper.Add(o);
-                        }
-                        break;                      
-                }
+            splitAxis = pickSplitAxis();
+            switch (splitAxis) // sort along the appropriate axis
+            {
+                case Axis.X: 
+                    splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).X.CompareTo(nAda.objectpos(go2).X); }); 
+                    break;
+                case Axis.Y: 
+                    splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Y.CompareTo(nAda.objectpos(go2).Y); }); 
+                    break;
+                case Axis.Z: 
+                    splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Z.CompareTo(nAda.objectpos(go2).Z); }); 
+                    break;
             }
-            lower.addObjects(nAda,sendToLower);
-            higher.addObjects(nAda,sendToUpper);            
+            int center = (int) (span * 0.5f); // Find the center object in our current sub-list
+
+            gobjects = null;
+            // if we’re here then we’re still *NOT* in a leaf node.  therefore we need to split prev/next and keep branching until we reach the leaf node            
+            left = new ssBVHNode<GO>(nAda.BVH, splitlist, this, 0, center, splitAxis, this.depth+1); // Split the Hierarchy to the left
+            right = new ssBVHNode<GO>(nAda.BVH, splitlist, this, center + 1, span, splitAxis, this.depth+1); // Split the Hierarchy to the right                      
+
         }
 
+        internal void splitIfNecessary(SSBVHNodeAdaptor<GO> nAda) {
+            if (gobjects.Count > nAda.BVH.LEAF_OBJ_MAX) {
+                splitNode(nAda);
+            }
+        }
+
+        internal void addObject(SSBVHNodeAdaptor<GO> nAda, GO newOb, ref SSAABB newObBox) { 
+            if (gobjects != null) {
+                // add the object and map it to our leaf
+                gobjects.Add(newOb);
+                nAda.mapObjectToBVHLeaf(newOb,this);                
+                refitVolume(nAda);
+                // split if necessary...
+                splitIfNecessary(nAda);
+            } else {
+                // find the best child to add this to
+                float leftSAH = SAH(left);
+                float rightSAH = SAH(right);
+                float sendLeftSAH = SAH(left.box.expandedBy(newObBox));
+                float sendRightSAH = SAH(right.box.expandedBy(newObBox));
+                if ( (sendLeftSAH + rightSAH) < (leftSAH + sendRightSAH) ) {
+                    // send left
+                    left.addObject(nAda,newOb,ref newObBox);
+                } else {
+                    // send right
+                    right.addObject(nAda,newOb,ref newObBox);
+                }
+            }
+
+        }
+      
         internal ssBVHNode<GO> rootNode() {
             ssBVHNode<GO> cur = this;
             while (cur.parent != null) { cur = cur.parent; }
@@ -441,38 +458,11 @@ namespace SimpleScene.Util.ssBVH
             
             if (recurse && parent != null) { parent.childRefit(nAda); }
         }
-
-
-        private void expandVolume(SSBVHNodeAdaptor<GO> nAda, Vector3 objectpos, float radius) {
-            bool expanded = false;
-
-            // test min X and max X against the current bounding volume
-            if ((objectpos.X - radius) < box.min.X) {
-                box.min.X = (objectpos.X - radius); expanded = true;                
-            }
-            if ((objectpos.X + radius) > box.max.X) {
-                box.max.X = (objectpos.X + radius); expanded = true;                
-            }         
-            // test min Y and max Y against the current bounding volume
-            if ((objectpos.Y - radius) < box.min.Y) {
-                box.min.Y = (objectpos.Y - radius); expanded = true;                
-            }
-            if ((objectpos.Y + radius) > box.max.Y) {
-                box.max.Y = (objectpos.Y + radius); expanded = true;                
-            }           
-            // test min Z and max Z against the current bounding volume
-            if ( (objectpos.Z - radius) < box.min.Z ) {
-                box.min.Z = (objectpos.Z - radius); expanded = true;                
-            }
-            if ( (objectpos.Z + radius) > box.max.Z ) {
-                box.max.Z = (objectpos.Z + radius); expanded = true;                
-            }
-
-            if (expanded && parent != null) {                
-                parent.childExpanded(nAda, this);
-            }           
+                
+        internal ssBVHNode() {
+            // new empty node
         }
-        
+
         internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,gobjectlist,null,0,gobjectlist.Count-1, Axis.X,0)
          { }
         
@@ -485,6 +475,7 @@ namespace SimpleScene.Util.ssBVH
             bvh.nodeCount++;
  
             parent = lparent; // save off the parent BVHGObj Node
+            depth = curdepth;
 
             // Early out check due to bad data
             // If the list is empty then we have no BVHGObj, or invalid parameters are passed in
@@ -499,61 +490,18 @@ namespace SimpleScene.Util.ssBVH
                 left = null;
                 right = null;
                 // at the leaf node we store the remaining objects, so initialize a list
-                gobjects = new List<GO>();
-                
-                // We need to find the aggregate min/max for all 5 remaining objects
-                // Start by recording the min max of the first object to have a starting point, then we’ll loop through the remaining
-                assignVolume( nAda.objectpos(gobjectlist[start]), nAda.radius(gobjectlist[start]));                                                    
-                // loop through all the objects to add them to our leaf node, and calculate the min/max values as we go 
-                for (loop = start; loop <= end; loop++)
-                {
-                    Vector3 objectpos = nAda.objectpos(gobjectlist[loop]);
-                    float radius = nAda.radius(gobjectlist[loop]);
-
-                    expandVolume(nAda, objectpos,radius);
-
-                    // store our object into this nodes object list
-                    gobjects.Add(gobjectlist[loop]);
-                    // store this BVH leaf into our world-object so we can quickly find what BVH leaf node our object is stored in
-                    nAda.mapObjectToBVHLeaf(gobjectlist[loop],this);                    
-                }
-                // done with this branch, return recursively and on return update the parent min/max bounding volume
+                gobjects = gobjectlist.GetRange(start,count);
+                gobjects.ForEach( o => nAda.mapObjectToBVHLeaf(o,this) );
+                computeVolume(nAda);
+                splitIfNecessary(nAda);                
                 return;
             }
  
             // --------------------------------------------------------------------------------------------
-            // if we have more than (bvh.LEAF_OBJECT_COUNT) objects, then sort and split
-            
-            // first, create a new list using just the subject of objects from the old list
-            //  .. while we do this, we compute our volume over those objects
-            List<GO> newgolist = new List<GO>();
-            assignVolume( nAda.objectpos(gobjectlist[start]) , nAda.radius(gobjectlist[start]) );            
-            for (loop = start; loop <= end; loop++) {
-                newgolist.Add(gobjectlist[loop]);
-                expandVolume(nAda, nAda.objectpos(gobjectlist[loop]) , nAda.radius(gobjectlist[loop]) );
-            }
-
-            // second, decide which axis to split on, and sort..
-            splitAxis = pickSplitAxis(lastSplitAxis);
-            switch (splitAxis) // sort along the appropriate axis
-            {
-                case Axis.X: 
-                    newgolist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).X.CompareTo(nAda.objectpos(go2).X); }); 
-                    break;
-                case Axis.Y: 
-                    newgolist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Y.CompareTo(nAda.objectpos(go2).Y); }); 
-                    break;
-                case Axis.Z: 
-                    newgolist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Z.CompareTo(nAda.objectpos(go2).Z); }); 
-                    break;
-            }
-            center = (int) (span * 0.5f); // Find the center object in our current sub-list
-
-            gobjects = null;
-            depth = curdepth;
-            // if we’re here then we’re still *NOT* in a leaf node.  therefore we need to split prev/next and keep branching until we reach the leaf node            
-            left = new ssBVHNode<GO>(bvh, newgolist, this, 0, center, splitAxis, curdepth+1); // Split the Hierarchy to the left
-            right = new ssBVHNode<GO>(bvh, newgolist, this, center + 1, span, splitAxis,curdepth+1); // Split the Hierarchy to the right                      
+            // if we have more than (bvh.LEAF_OBJECT_COUNT) objects, then compute the volume and split
+            gobjects = gobjectlist.GetRange(start,count);            
+            computeVolume(nAda);
+            splitNode(nAda);                      
         }
 
     }

@@ -84,6 +84,11 @@ namespace SimpleScene.Util.ssBVH
             }            
         }
 
+        public void addObject(GO newOb) {
+            SSAABB box = SSAABB.fromSphere(nAda.objectpos(newOb),nAda.radius(newOb));
+            rootBVH.addObject(nAda,newOb, ref box);
+        }
+
         /// <summary>
         /// initializes a BVH with a given nodeAdaptor, and object list.
         /// </summary>
@@ -94,7 +99,13 @@ namespace SimpleScene.Util.ssBVH
             this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
             nodeAdaptor.setBVH(this);
             this.nAda = nodeAdaptor;
-            rootBVH = new ssBVHNode<GO>(this,objects);            
-        }
+            
+            if (objects.Count > 0) {
+                rootBVH = new ssBVHNode<GO>(this,objects);            
+            } else {                
+                rootBVH = new ssBVHNode<GO>();
+                rootBVH.gobjects = new List<GO>();                
+            }
+        }       
     }   
 }
