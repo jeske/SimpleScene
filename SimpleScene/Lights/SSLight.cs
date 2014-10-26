@@ -23,6 +23,7 @@ namespace SimpleScene
 		public Vector4 Ambient = new Vector4(0.4f);
 		public Vector4 Specular = new Vector4 (1.0f);
 		public Vector4 Diffuse = new Vector4 (0.8f);
+        public SSShadowMap ShadowMap = new SSShadowMap();
 
 		protected LightName m_lightName;
 

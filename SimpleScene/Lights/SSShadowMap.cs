@@ -21,6 +21,18 @@ namespace SimpleScene
         private int m_textureID = 0;
         private bool m_isBound = false;
 
+        private Matrix4 m_projMatrix = Matrix4.CreateOrthographic(2000f, 2000f, -5000f, 5000f);
+        private Matrix4 m_viewMatrix = Matrix4.LookAt(new Vector3(0f, 0f, 1500f),
+                                                      new Vector3(0f, 0f, -1500f),
+                                                      new Vector3(0f, 1f, 0f));
+        private Matrix4 m_depthModelMatrix = Matrix4.Identity;
+        public Matrix4 DepthMVP {
+            get { return m_projMatrix * m_viewMatrix * m_depthModelMatrix; } 
+        }
+        public Matrix4 DepthBiasMVP {
+            get { return c_biasMatrix * DepthMVP; }
+        }
+
         public SSShadowMap()
         {
             validateVersion();
