@@ -35,9 +35,9 @@ namespace SimpleScene
             m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, c_fragmentFilename);
             attach(m_fragmentShader);
             link();
-            Activate();
             GL.BindAttribLocation(m_programID, 0, "vertexPosition_modelspace");
             GL.BindAttribLocation(m_programID, 0, "fragmentDepth");
+            Activate();
             u_mvpMatrix = getUniLoc("depthMVP");
             Deactivate();
         }
