@@ -13,7 +13,7 @@ namespace SimpleScene
 {
 	public class SSMesh_SphereICO : SSAbstractMesh
 	{
-		SSShaderProgram_Main shaderPgm;
+		SSMainShaderProgram shaderPgm;
 
 		MeshGeometry3D geom;
 
@@ -22,7 +22,7 @@ namespace SimpleScene
 
 		SSTexture texture;
 
-		public SSMesh_SphereICO (int divisions, SSShaderProgram_Main shaderPgm, SSTexture texture)
+		public SSMesh_SphereICO (int divisions, SSMainShaderProgram shaderPgm, SSTexture texture)
 		{
 			this.shaderPgm = shaderPgm;
 			this.texture = texture;

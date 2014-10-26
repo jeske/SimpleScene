@@ -136,12 +136,32 @@ namespace SimpleScene
 		}
 		#endregion
 
-		#region utilities
+        #region private and utilities
 		protected void assertActive() {
 			if (!IsActive) {
 				throw new Exception ("Shader is not active");
 			}
 		}
+
+        protected void checkErrors() {
+            ErrorCode glerr;
+            if ((glerr = GL.GetError ()) != ErrorCode.NoError) {
+                throw new Exception (String.Format ("GL Error: {0}", glerr));
+            }
+        }
+
+        protected void link() {
+            GL.LinkProgram(m_programID);
+            Console.WriteLine(GL.GetProgramInfoLog(m_programID));
+        }
+
+        protected void attach(SSShader shader) {
+            GL.AttachShader(m_programID, shader.ShaderID);
+        }
+
+        protected int getUniLoc(string name) {
+            return GL.GetUniformLocation(m_programID, name);
+        }
 		#endregion
 	}
 }

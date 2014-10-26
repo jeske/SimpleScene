@@ -24,7 +24,7 @@ namespace SimpleScene
 	public class SSRenderConfig {
 		public SSRenderStats renderStats;
 
-		public SSShaderProgram_Main BaseShader;
+		public SSMainShaderProgram BaseShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;

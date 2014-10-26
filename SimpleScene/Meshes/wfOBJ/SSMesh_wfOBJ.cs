@@ -72,7 +72,7 @@ namespace SimpleScene
 
 			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 
-            SSShaderProgram_Main shaderPgm = renderConfig.BaseShader;
+            SSMainShaderProgram shaderPgm = renderConfig.BaseShader;
 
 			if (shaderPgm == null) {
 				SSShaderProgram.DeactivateAll ();
