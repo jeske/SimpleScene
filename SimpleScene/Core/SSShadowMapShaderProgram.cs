@@ -13,7 +13,7 @@ namespace SimpleScene
         #endregion
 
         #region Shaders
-        private readonly SSShader m_vertexShader;  
+        private readonly SSShader m_vertexShader;
         private readonly SSShader m_fragmentShader;
         #endregion
 

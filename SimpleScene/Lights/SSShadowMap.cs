@@ -37,7 +37,7 @@ namespace SimpleScene
         {
             validateVersion();
             m_textureID = GL.GenTexture();
-            m_frameBufferID = GL.GenFramebuffer();
+            m_frameBufferID = GL.Ext.GenFramebuffer();
             bind();
             GL.TexParameter(TextureTarget.Texture2D, 
                             TextureParameterName.TextureMagFilter, 
@@ -56,9 +56,9 @@ namespace SimpleScene
                 c_texWidth, c_texHeight, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
-            GL.FramebufferTexture(FramebufferTarget.Framebuffer,
-                                  FramebufferAttachment.DepthAttachment,
-                                  m_textureID, 0);
+            GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
+                                      FramebufferAttachment.DepthAttachment,
+                                      m_textureID, 0);
 			assertFramebufferOK();
             Unbind();
         }
@@ -71,30 +71,30 @@ namespace SimpleScene
         public void DeleteData() {
             // TODO: who/when calling this?
             GL.DeleteTexture(m_textureID);
-            GL.DeleteFramebuffer(m_frameBufferID);
+            GL.Ext.DeleteFramebuffer(m_frameBufferID);
         }
 
         public void PrepareForRender(ref SSRenderConfig renderConfig) {
 			GL.DrawBuffer(DrawBufferMode.None);
-            //TODO: configure shadow map shader
+            //TODO: configure shadow map shader?
 		}
 
 		public void Unbind() {
             if (m_isBound) {
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 m_isBound = false;
             }
 		}
 
 		private void bind() {
             m_isBound = true;
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
 
 		private void assertFramebufferOK() {
-            var currCode = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            var currCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (currCode != FramebufferErrorCode.FramebufferComplete) {
                 throw new Exception("Frame buffer operation failed: " + currCode.ToString());
 			}
