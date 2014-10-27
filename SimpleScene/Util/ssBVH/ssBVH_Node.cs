@@ -360,7 +360,7 @@ namespace SimpleScene.Util.ssBVH
             }
         }
 
-        internal void addObject(SSBVHNodeAdaptor<GO> nAda, GO newOb, ref SSAABB newObBox) { 
+        internal void addObject(SSBVHNodeAdaptor<GO> nAda, GO newOb, ref SSAABB newObBox, float newObSAH) { 
             if (gobjects != null) {
                 // add the object and map it to our leaf
                 gobjects.Add(newOb);
@@ -369,17 +369,50 @@ namespace SimpleScene.Util.ssBVH
                 // split if necessary...
                 splitIfNecessary(nAda);
             } else {
-                // find the best child to add this to
+                // find the best way to add this object.. 3 options..
+                // 1. send to left node  (L+N,R)
+                // 2. send to right node (L,R+N)
+                // 3. merge and pushdown left-and-right node (L+R,N)
+
                 float leftSAH = SAH(left);
                 float rightSAH = SAH(right);
-                float sendLeftSAH = SAH(left.box.expandedBy(newObBox));
-                float sendRightSAH = SAH(right.box.expandedBy(newObBox));
-                if ( (sendLeftSAH + rightSAH) < (leftSAH + sendRightSAH) ) {
-                    // send left
-                    left.addObject(nAda,newOb,ref newObBox);
+                float sendLeftSAH = rightSAH + SAH(left.box.expandedBy(newObBox));    // (L+N,R)
+                float sendRightSAH = leftSAH + SAH(right.box.expandedBy(newObBox));   // (L,R+N)
+                float mergedLeftAndRightSAH = SAH(AABBofPair(left,right)) + newObSAH; // (L+R,N)
+
+                // Doing a merge-and-pushdown can be expensive, so we only do it if it's notably better
+                const float MERGE_DISCOUNT = 0.3f; 
+
+                if (mergedLeftAndRightSAH < ( Math.Min(sendLeftSAH,sendRightSAH)) * MERGE_DISCOUNT ) {
+                    // merge and pushdown left and right as a new node..
+                    var mSubnode = new ssBVHNode<GO>(nAda.BVH);
+                    mSubnode.left = left;
+                    mSubnode.right = right;                    
+                    mSubnode.parent = this;
+                    left.parent = mSubnode;
+                    right.parent = mSubnode;
+                    mSubnode.childRefit(nAda, recurse:false);                  
+                    
+                    // make new subnode for obj
+                    var nSubnode = new ssBVHNode<GO>(nAda.BVH);
+                    nSubnode.parent = this;
+                    nSubnode.gobjects = new List<GO>{ newOb };                                        
+                    nAda.mapObjectToBVHLeaf(newOb,nSubnode);
+                    nSubnode.computeVolume(nAda);                    
+
+                    // make assignments..
+                    this.left = mSubnode;
+                    this.right = nSubnode;
+                    this.setDepth(this.depth); // propagate new depths to our children.
+                    this.childRefit(nAda);                  
                 } else {
-                    // send right
-                    right.addObject(nAda,newOb,ref newObBox);
+                    if ( sendLeftSAH < sendRightSAH ) {
+                        // send left
+                        left.addObject(nAda,newOb,ref newObBox, newObSAH);
+                    } else {
+                        // send right
+                        right.addObject(nAda,newOb,ref newObBox, newObSAH);
+                    }
                 }
             }
 

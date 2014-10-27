@@ -87,7 +87,8 @@ namespace SimpleScene.Util.ssBVH
 
         public void addObject(GO newOb) {
             SSAABB box = SSAABB.fromSphere(nAda.objectpos(newOb),nAda.radius(newOb));
-            rootBVH.addObject(nAda,newOb, ref box);
+            float boxSAH = rootBVH.SAH(ref box);
+            rootBVH.addObject(nAda,newOb, ref box, boxSAH);
         }
 
         public void removeObject(GO newObj) {
