@@ -3,10 +3,9 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
-
-
-namespace SimpleScene
+namespace Util
 {
 	public static class Extensions
 	{
@@ -16,6 +15,12 @@ namespace SimpleScene
 				return reader.ReadToEnd();
 			}
 		}
+
+        public static void ForEachN<T>(this List<T> list, Action<T,int> fn) {
+            int n=0;
+            list.ForEach( o => { fn(o,n); n++; } );            
+        }
+
 	}
 }
 
