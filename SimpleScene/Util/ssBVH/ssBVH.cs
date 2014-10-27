@@ -39,6 +39,7 @@ namespace SimpleScene.Util.ssBVH
         void mapObjectToBVHLeaf(GO obj, ssBVHNode<GO> leaf);
         void unmapObject(GO obj);
         void checkMap(GO obj);
+        ssBVHNode<GO> getLeaf(GO obj);
     }
 
     public class ssBVH<GO>
@@ -89,6 +90,15 @@ namespace SimpleScene.Util.ssBVH
             rootBVH.addObject(nAda,newOb, ref box);
         }
 
+        public void removeObject(GO newObj) {
+            var leaf = nAda.getLeaf(newObj);
+            leaf.removeObject(nAda,newObj);
+        }
+
+        public int countBVHNodes() {
+            return rootBVH.countBVHNodes();
+        }
+
         /// <summary>
         /// initializes a BVH with a given nodeAdaptor, and object list.
         /// </summary>
@@ -103,8 +113,7 @@ namespace SimpleScene.Util.ssBVH
             if (objects.Count > 0) {
                 rootBVH = new ssBVHNode<GO>(this,objects);            
             } else {                
-                rootBVH = new ssBVHNode<GO>();
-                rootBVH.gobjects = new List<GO>();                
+                rootBVH = new ssBVHNode<GO>(this);
             }
         }       
     }   

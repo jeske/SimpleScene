@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using System.Diagnostics;
+
 using OpenTK;
 
 namespace SimpleScene.Util.ssBVH
@@ -28,15 +30,18 @@ namespace SimpleScene.Util.ssBVH
     public class ssBVHNode<GO> {
         public SSAABB box;
 
-        public ssBVHNode<GO> parent;
-        public Axis splitAxis;
-        public float splitOverlap = 0.0f;
+        public ssBVHNode<GO> parent;        
         public ssBVHNode<GO> left;
         public ssBVHNode<GO> right;
 
         public int depth;
+        public int nodeNumber; // for debugging
                  
         public List<GO> gobjects;  // only populated in leaf nodes
+
+        public override string ToString() {
+            return String.Format("ssBVHNode<{0}>:{1}",typeof(GO),this.nodeNumber);
+        }
 
         private Axis pickSplitAxis() {            
             float axis_x = box.max.X - box.min.X; 
@@ -218,8 +223,10 @@ namespace SimpleScene.Util.ssBVH
             }
         }        
 
-        internal List<Rot>_rots = new List<Rot> ((Rot[])Enum.GetValues(typeof(Rot)));
-        internal List<Rot> eachRot {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private List<Rot>_rots = new List<Rot> ((Rot[])Enum.GetValues(typeof(Rot)));
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private List<Rot> eachRot {
             get {
                 return _rots;
             }
@@ -319,10 +326,11 @@ namespace SimpleScene.Util.ssBVH
 
         internal void splitNode(SSBVHNodeAdaptor<GO> nAda) {
             // second, decide which axis to split on, and sort..
-            List<GO> splitlist = gobjects;
-            int span = splitlist.Count - 1;
+            List<GO> splitlist = gobjects; 
 
-            splitAxis = pickSplitAxis();
+            splitlist.ForEach( o => nAda.unmapObject(o) );
+
+            Axis splitAxis = pickSplitAxis();
             switch (splitAxis) // sort along the appropriate axis
             {
                 case Axis.X: 
@@ -334,13 +342,15 @@ namespace SimpleScene.Util.ssBVH
                 case Axis.Z: 
                     splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Z.CompareTo(nAda.objectpos(go2).Z); }); 
                     break;
+                default: throw new NotImplementedException();
             }
-            int center = (int) (span * 0.5f); // Find the center object in our current sub-list
+            int center = (int) (splitlist.Count / 2); // Find the center object in our current sub-list
+            
+            gobjects = null;           
 
-            gobjects = null;
-            // if we’re here then we’re still *NOT* in a leaf node.  therefore we need to split prev/next and keep branching until we reach the leaf node            
-            left = new ssBVHNode<GO>(nAda.BVH, splitlist, this, 0, center, splitAxis, this.depth+1); // Split the Hierarchy to the left
-            right = new ssBVHNode<GO>(nAda.BVH, splitlist, this, center + 1, span, splitAxis, this.depth+1); // Split the Hierarchy to the right                      
+            // create the new left and right nodes...
+            left = new ssBVHNode<GO>(nAda.BVH, this, splitlist.GetRange(0,center), splitAxis, this.depth+1); // Split the Hierarchy to the left
+            right = new ssBVHNode<GO>(nAda.BVH, this, splitlist.GetRange(center,splitlist.Count - center), splitAxis, this.depth+1); // Split the Hierarchy to the right                                
 
         }
 
@@ -375,6 +385,72 @@ namespace SimpleScene.Util.ssBVH
 
         }
       
+        internal int countBVHNodes() {
+            if (gobjects != null) {
+                return 1;
+            } else {
+                return left.countBVHNodes() + right.countBVHNodes();
+            }
+        }
+
+        internal void removeObject(SSBVHNodeAdaptor<GO> nAda, GO newOb) {
+            if (gobjects == null) { throw new Exception("removeObject() called on nonLeaf!"); }
+
+            nAda.unmapObject(newOb);
+            gobjects.Remove(newOb);
+            if (gobjects.Count > 0) {
+                refitVolume(nAda);
+            } else {
+                // our leaf is empty, so collapse it if we are not the root...
+                if (parent != null) {
+                    gobjects = null;
+                    parent.removeLeaf(nAda, this);
+                    parent = null;
+                } 
+            }
+        }
+
+        void setDepth(int newdepth) {
+            this.depth = newdepth;
+            if (gobjects == null) {
+                left.setDepth(newdepth+1);
+                right.setDepth(newdepth+1);
+            }
+        }
+
+        internal void removeLeaf(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> removeLeaf) {
+            if (left == null || right == null) { throw new Exception("bad intermediate node"); }
+            ssBVHNode<GO> keepLeaf;
+
+            if (removeLeaf == left) { 
+                keepLeaf = right;
+            } else if (removeLeaf == right) {
+                keepLeaf = left;
+            } else {
+                throw new Exception("removeLeaf doesn't match any leaf!");
+            }
+                                                
+            // "become" the leaf we are keeping.
+            box = keepLeaf.box;  
+            left = keepLeaf.left; right = keepLeaf.right; gobjects = keepLeaf.gobjects;                   
+            // clear the leaf..
+            // keepLeaf.left = null; keepLeaf.right = null; keepLeaf.gobjects = null; keepLeaf.parent = null; 
+
+            if (gobjects == null) {
+                left.parent = this; right.parent = this;  // reassign child parents..
+                this.setDepth(this.depth); // this reassigns depth for our children
+            } else {
+                // map the objects we adopted to us...                                                
+                gobjects.ForEach( o => { nAda.mapObjectToBVHLeaf(o,this); } );
+            }
+
+            // propagate our new volume..
+            if (parent != null) {
+                parent.childRefit(nAda);
+            }
+        }
+
+
         internal ssBVHNode<GO> rootNode() {
             ssBVHNode<GO> cur = this;
             while (cur.parent != null) { cur = cur.parent; }
@@ -459,49 +535,51 @@ namespace SimpleScene.Util.ssBVH
             if (recurse && parent != null) { parent.childRefit(nAda); }
         }
                 
-        internal ssBVHNode() {
-            // new empty node
+        internal ssBVHNode(ssBVH<GO> bvh) {
+            gobjects = new List<GO>();
+            left = right = null;
+            parent = null;
+            this.nodeNumber = bvh.nodeCount++;
+
         }
 
-        internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,gobjectlist,null,0,gobjectlist.Count-1, Axis.X,0)
+        internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,null, gobjectlist, Axis.X,0)
          { }
         
-        private ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist, ssBVHNode<GO> lparent, int start, int end, Axis lastSplitAxis, int curdepth) {   
+        private ssBVHNode(ssBVH<GO> bvh, ssBVHNode<GO> lparent, List<GO> gobjectlist, Axis lastSplitAxis, int curdepth) {   
             SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                 
             int center;
             int loop;
-            int span = end - start;            
-            int count = span + 1;  // because end is inclusive            
-            bvh.nodeCount++;
+            this.nodeNumber = bvh.nodeCount++;
  
-            parent = lparent; // save off the parent BVHGObj Node
-            depth = curdepth;
+            this.parent = lparent; // save off the parent BVHGObj Node
+            this.depth = curdepth;
 
             // Early out check due to bad data
             // If the list is empty then we have no BVHGObj, or invalid parameters are passed in
-            if (gobjectlist == null || end < start) {
+            if (gobjectlist == null || gobjectlist.Count < 1) {
                 throw new Exception("ssBVHNode constructed with invalid paramaters");
             }
  
             // Check if we’re at our LEAF node, and if so, save the objects and stop recursing.  Also store the min/max for the leaf node and update the parent appropriately
-            if (count <= bvh.LEAF_OBJ_MAX)
+            if (gobjectlist.Count <= bvh.LEAF_OBJ_MAX)
             {
                 // once we reach the leaf node, we must set prev/next to null to signify the end
                 left = null;
                 right = null;
                 // at the leaf node we store the remaining objects, so initialize a list
-                gobjects = gobjectlist.GetRange(start,count);
+                gobjects = gobjectlist;
                 gobjects.ForEach( o => nAda.mapObjectToBVHLeaf(o,this) );
                 computeVolume(nAda);
                 splitIfNecessary(nAda);                
-                return;
+            } else { 
+                // --------------------------------------------------------------------------------------------
+                // if we have more than (bvh.LEAF_OBJECT_COUNT) objects, then compute the volume and split
+                gobjects = gobjectlist;            
+                computeVolume(nAda);
+                splitNode(nAda);  
+                childRefit(nAda,recurse:false);
             }
- 
-            // --------------------------------------------------------------------------------------------
-            // if we have more than (bvh.LEAF_OBJECT_COUNT) objects, then compute the volume and split
-            gobjects = gobjectlist.GetRange(start,count);            
-            computeVolume(nAda);
-            splitNode(nAda);                      
         }
 
     }

@@ -50,6 +50,9 @@ namespace SimpleScene.Util.ssBVH
 
             ssToLeafMap[obj] = leaf;
         }
+        public ssBVHNode<SSObject> getLeaf(SSObject obj) {
+            return ssToLeafMap[obj];
+        }
 
         // the SSObject has changed, so notify the BVH leaf to refit for the object
         void obj_OnChanged(SSObject sender) {                 
@@ -87,8 +90,13 @@ namespace SimpleScene.Util.ssBVH
             GL.Vertex3(p3); GL.Vertex3(p0);
         }
 
-        public void renderCells(ssBVHNode<SSObject> n, int depth=0) {
-            float nudge = 0.01f * depth; // attempt to nudge out of z-fighting
+        public void renderCells(ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
+            float nudge = 0f; 
+
+            if (parentbox.Equals(n.box)) {
+                // attempt to nudge out of z-fighting
+                nudge = 0.2f;
+            }
               
             if (highlightNodes.Contains(n)) {
                 if (n.gobjects == null) {
@@ -120,8 +128,8 @@ namespace SimpleScene.Util.ssBVH
             drawQuadEdges(p3, p2, p6, p7);
             drawQuadEdges(p0, p3, p7, p4);
 
-            if (n.right != null) renderCells(n.right, depth:depth + 1);
-            if (n.left != null) renderCells(n.left, depth:depth + 1);
+            if (n.right != null) renderCells(n.right, ref n.box, depth:depth + 1);
+            if (n.left != null) renderCells(n.left, ref n.box, depth:depth + 1);
         }
 
         public override void Render(ref SSRenderConfig renderConfig) {
@@ -133,8 +141,8 @@ namespace SimpleScene.Util.ssBVH
             GL.LineWidth(1.0f);
    			
             GL.Begin(BeginMode.Lines);
-            GL.Color4(Color.Red);          
-            this.renderCells(bvh.rootBVH);
+            GL.Color4(Color.Red);                      
+            this.renderCells(bvh.rootBVH, ref bvh.rootBVH.box, 0);
             GL.End();
         }
     }
