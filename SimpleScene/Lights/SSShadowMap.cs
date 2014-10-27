@@ -36,8 +36,8 @@ namespace SimpleScene
         public SSShadowMap()
         {
             validateVersion();
-            m_textureID = GL.GenTexture();
             m_frameBufferID = GL.Ext.GenFramebuffer();
+            m_textureID = GL.GenTexture();
             bind();
             GL.TexParameter(TextureTarget.Texture2D, 
                             TextureParameterName.TextureMagFilter, 
@@ -60,11 +60,11 @@ namespace SimpleScene
                                       FramebufferAttachment.DepthAttachment,
                                       m_textureID, 0);
 			assertFramebufferOK();
-            Unbind();
+            unbind();
         }
 
         ~SSShadowMap() {
-            Unbind ();
+            unbind ();
             // DeleteData();
         }
 
@@ -75,11 +75,25 @@ namespace SimpleScene
         }
 
         public void PrepareForRender(ref SSRenderConfig renderConfig) {
-			GL.DrawBuffer(DrawBufferMode.None);
-            //TODO: configure shadow map shader?
+            renderConfig.drawingShadowMap = true;
+            bind();
+            renderConfig.ShadowMapShader.Activate();
+
+            GL.DrawBuffer(DrawBufferMode.None);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.PushMatrix();
+            GL.LoadIdentity();
 		}
 
-		public void Unbind() {
+        public void FinishRender(ref SSRenderConfig renderConfig) {
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.PopMatrix();
+            renderConfig.ShadowMapShader.Deactivate();
+            unbind();
+            renderConfig.drawingShadowMap = false;
+        }
+
+        private void unbind() {
             if (m_isBound) {
                 GL.BindTexture(TextureTarget.Texture2D, 0);
                 GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);

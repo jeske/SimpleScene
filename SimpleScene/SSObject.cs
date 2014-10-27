@@ -26,55 +26,66 @@ namespace SimpleScene
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 		}
 		public virtual void Render (ref SSRenderConfig renderConfig) {
+            if (renderConfig.drawingShadowMap && !renderState.castsShadow)
+                return;
+
 			// compute and set the modelView matrix, by combining the cameraViewMat
 			// with the object's world matrix
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 
 			// Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+            Matrix4 modelViewMat = this.worldMat;
+            if (!renderConfig.drawingShadowMap) {
+                modelViewMat *= renderConfig.invCameraViewMat;
+            }
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
-			// turn off most GL features to start..
-			if (renderConfig.BaseShader == null) {
-				SSShaderProgram.DeactivateAll ();
-			} else {
-				var shaderPgm = renderConfig.BaseShader;			
-				shaderPgm.Activate ();
-				shaderPgm.DiffTexEnabled = false;
-				shaderPgm.SpecTexEnabled = false;
-				shaderPgm.AmbTexEnabled = false;
-				shaderPgm.BumpTexEnabled = false;
-			}
+            if (renderConfig.drawingShadowMap) {
+                // TODO: pass modelview to the shadow map shader?
+            } else {
 
-			GL.Disable(EnableCap.Blend);
-            // reset things to a default state
-			int maxtex = GL.GetInteger(GetPName.MaxTextureUnits); // this is the legacy fixed-function max
-			for (int i=0;i<maxtex;i++) {
-				GL.ActiveTexture(TextureUnit.Texture0 + i);
-				GL.Disable(EnableCap.Texture2D);
-			}
+                // turn off most GL features to start..
+                if (renderConfig.BaseShader == null) {
+                    SSShaderProgram.DeactivateAll();
+                } else {
+                    var shaderPgm = renderConfig.BaseShader;			
+                    shaderPgm.Activate();
+                    shaderPgm.DiffTexEnabled = false;
+                    shaderPgm.SpecTexEnabled = false;
+                    shaderPgm.AmbTexEnabled = false;
+                    shaderPgm.BumpTexEnabled = false;
+                }
 
-			if (this.renderState.lighted) {
-				GL.Enable(EnableCap.Lighting);
-				GL.ShadeModel(ShadingModel.Flat);
-			} else {
-				GL.Disable(EnableCap.Lighting);
-			}
+                GL.Disable(EnableCap.Blend);
+                // reset things to a default state
+                int maxtex = GL.GetInteger(GetPName.MaxTextureUnits); // this is the legacy fixed-function max
+                for (int i = 0; i < maxtex; i++) {
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    GL.Disable(EnableCap.Texture2D);
+                }
 
-			GL.Disable(EnableCap.ColorMaterial); // turn off per-vertex color
-	
-			// setup the base color values...
-			GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
-			GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
-			GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
-			GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
-			GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
-			
-            // GL.Color4(diffuseMatColor);
+                if (this.renderState.lighted) {
+                    GL.Enable(EnableCap.Lighting);
+                    GL.ShadeModel(ShadingModel.Flat);
+                } else {
+                    GL.Disable(EnableCap.Lighting);
+                }
 
-			// ... subclasses will render the object itself..
+                GL.Disable(EnableCap.ColorMaterial); // turn off per-vertex color
+    	
+                // setup the base color values...
+                GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
+                GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
+                GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
+                GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
+                GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
+    			
+                // GL.Color4(diffuseMatColor);
+
+                // ... subclasses will render the object itself..
+            }
 		}
 
 		public SSObjectSphere boundingSphere=null;  // TODO: fix this, it's object-space radius, world-space position
@@ -111,7 +122,7 @@ namespace SimpleScene
 	public class SSOBRenderState {
 	    public bool lighted = true;
 	    public bool visible = true;
-		public bool castsShadow = false;
+        public bool castsShadow = true;
 		public bool toBeDeleted = false;
 	}
 

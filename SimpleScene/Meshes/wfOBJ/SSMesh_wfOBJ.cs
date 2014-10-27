@@ -225,27 +225,29 @@ namespace SimpleScene
 
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {		
-			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
-
-				if (renderConfig.drawGLSL) {
-					_renderSetupGLSL (ref renderConfig, subset);
-					if (renderConfig.useVBO && renderConfig.BaseShader != null) {
-						_renderSendVBOTriangles (subset);
-					} else {
-						_renderSendTriangles (subset);
-					}
-			
-				}
-
-				if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
-					_renderSetupWireframe ();
-					if (renderConfig.useVBO && renderConfig.BaseShader != null) {
-						_renderSendVBOLines (subset);
-					} else {
-						_renderSendLines (subset);
-					}
-				}
-			}
+            foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
+                if (renderConfig.drawingShadowMap) {
+                    _renderSendTriangles(subset);
+                } else {
+                    if (renderConfig.drawGLSL) {
+                        _renderSetupGLSL(ref renderConfig, subset);
+                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                            _renderSendVBOTriangles(subset);
+                        } else {
+                            _renderSendTriangles(subset);
+                        }
+    			
+                    }
+                    if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
+                        _renderSetupWireframe();
+                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                            _renderSendVBOLines(subset);
+                        } else {
+                            _renderSendLines(subset);
+                        }
+                    }
+                }
+            }
 		}
 
 #region Load Data

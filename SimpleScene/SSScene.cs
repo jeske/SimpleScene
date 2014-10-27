@@ -25,9 +25,11 @@ namespace SimpleScene
 		public SSRenderStats renderStats;
 
 		public SSMainShaderProgram BaseShader;
+        public SSShadowMapShaderProgram ShadowMapShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
+        public bool drawingShadowMap = false;
 
 		public bool renderBoundingSpheres;
 		public bool renderCollisionShells;
@@ -91,8 +93,16 @@ namespace SimpleScene
 
         public void Render() {
 			SetupLights ();
-            // reset stats
-            renderConfig.renderStats = new SSRenderStats();
+            #if true
+            // Shadow Map Pass(es)
+            foreach (var light in lights) {
+                if (light.ShadowMap != null) {
+                    light.ShadowMap.PrepareForRender(ref renderConfig);
+                    renderPass(false);
+                    light.ShadowMap.FinishRender(ref renderConfig);
+                }
+            }
+            #endif
 
             // load the projection matrix .. 
             GL.MatrixMode(MatrixMode.Projection);
@@ -100,7 +110,13 @@ namespace SimpleScene
 
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = renderConfig.invCameraViewMat * renderConfig.projectionMatrix;
-            var fc = new Util3d.FrustumCuller(ref frustumMatrix);
+
+            renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
+        }
+
+        private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
+            // reset stats
+            renderConfig.renderStats = new SSRenderStats();
 
             bool needObjectDelete = false;
 
@@ -109,6 +125,7 @@ namespace SimpleScene
                 if (!obj.renderState.visible) continue; // skip invisible objects
                 // frustum test... 
                 if (renderConfig.frustumCulling &&
+                    fc != null &&
                     obj.boundingSphere != null &&
                     !fc.isSphereInsideFrustum(obj.Pos, obj.boundingSphere.radius * obj.Scale.LengthFast)) {
                     renderConfig.renderStats.objectsCulled++;
@@ -116,7 +133,7 @@ namespace SimpleScene
                 }
 
                 // finally, render object
-                if (BeforeRenderObject != null) {
+                if (notifyBeforeRender && BeforeRenderObject != null) {
                     BeforeRenderObject(obj, renderConfig);
                 }
                 renderConfig.renderStats.objectsDrawn++;
