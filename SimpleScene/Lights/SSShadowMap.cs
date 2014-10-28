@@ -21,11 +21,12 @@ namespace SimpleScene
         private int m_textureID = 0;
         private bool m_isBound = false;
 
-        private Matrix4 m_projMatrix = Matrix4.CreateOrthographic(5000f, -5000f, -15000f, 15000f);
-        private Matrix4 m_viewMatrix = Matrix4.LookAt(new Vector3(0f, 0f, 3000.0f),
+        private Matrix4 m_projMatrix = Matrix4.CreateOrthographic(10000f, 10000f, -7000f, 7000f);
+        private Matrix4 m_viewMatrix = Matrix4.LookAt(new Vector3(0f, 0f, 1500f),
                                                       new Vector3(0f, 0f, -1500f),
                                                       new Vector3(0f, 1f, 0f));
-        private Matrix4 m_temp;
+        private Matrix4 m_projTemp;
+        private Matrix4 m_viewTemp;
 
         //private Matrix4 m_depthModelMatrix = Matrix4.Identity;
         public Matrix4 DepthMVP {
@@ -77,24 +78,26 @@ namespace SimpleScene
         }
 
         public void PrepareForRender(ref SSRenderConfig renderConfig) {
+            m_projTemp = renderConfig.projectionMatrix;
+            m_viewTemp = renderConfig.invCameraViewMat;
+            renderConfig.projectionMatrix = m_projMatrix;
+            renderConfig.invCameraViewMat = m_viewMatrix;
             renderConfig.drawingShadowMap = true;
+
             bind();
             renderConfig.ShadowMapShader.Activate();
             renderConfig.ShadowMapShader.MVPMatrix = DepthMVP;
 
             GL.DrawBuffer(DrawBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.PushMatrix();
-            GL.LoadIdentity();
 		}
 
         public void FinishRender(ref SSRenderConfig renderConfig) {
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.PopMatrix();
             renderConfig.ShadowMapShader.Deactivate();
             unbind();
             renderConfig.drawingShadowMap = false;
+            renderConfig.projectionMatrix = m_projTemp;
+            renderConfig.invCameraViewMat = m_viewTemp;
         }
 
         private void unbind() {

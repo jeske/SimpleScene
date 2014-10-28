@@ -34,11 +34,7 @@ namespace SimpleScene
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 
-			// Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-            Matrix4 modelViewMat = this.worldMat;
-            if (!renderConfig.drawingShadowMap) {
-                modelViewMat *= renderConfig.invCameraViewMat;
-            }
+			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 

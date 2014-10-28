@@ -74,8 +74,6 @@ namespace SimpleScene
 
 		private void SetupLights() {
             // setup the projection matrix
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref renderConfig.projectionMatrix);
 
             GL.Enable(EnableCap.Lighting);
             foreach (var light in lights) {
@@ -117,6 +115,9 @@ namespace SimpleScene
         private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
             // reset stats
             renderConfig.renderStats = new SSRenderStats();
+
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref renderConfig.projectionMatrix);
 
             bool needObjectDelete = false;
 

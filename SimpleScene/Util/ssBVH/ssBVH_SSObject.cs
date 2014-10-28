@@ -133,6 +133,7 @@ namespace SimpleScene.Util.ssBVH
         }
 
         public override void Render(ref SSRenderConfig renderConfig) {
+            if (renderConfig.drawingShadowMap) return;
 			base.Render(ref renderConfig);
 			SSShaderProgram.DeactivateAll();
             GL.Color4(Color.Red);          
