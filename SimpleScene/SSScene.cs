@@ -91,7 +91,6 @@ namespace SimpleScene
 
         public void Render() {
 			SetupLights ();
-            #if true
             // Shadow Map Pass(es)
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
@@ -100,11 +99,6 @@ namespace SimpleScene
                     light.ShadowMap.FinishRender(ref renderConfig);
                 }
             }
-            #endif
-
-            // load the projection matrix .. 
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref renderConfig.projectionMatrix);
 
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = renderConfig.invCameraViewMat * renderConfig.projectionMatrix;
@@ -125,6 +119,7 @@ namespace SimpleScene
                 if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
                 if (!obj.renderState.visible) continue; // skip invisible objects
                 // frustum test... 
+                #if true
                 if (renderConfig.frustumCulling &&
                     fc != null &&
                     obj.boundingSphere != null &&
@@ -132,6 +127,7 @@ namespace SimpleScene
                     renderConfig.renderStats.objectsCulled++;
                     continue; // skip the object
                 }
+                #endif
 
                 // finally, render object
                 if (notifyBeforeRender && BeforeRenderObject != null) {

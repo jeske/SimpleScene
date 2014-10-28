@@ -24,7 +24,7 @@ namespace SimpleScene
         private Matrix4 m_projMatrix = Matrix4.CreateOrthographic(10000f, 10000f, -7000f, 7000f);
         private Matrix4 m_viewMatrix = Matrix4.LookAt(new Vector3(0f, 0f, 1500f),
                                                       new Vector3(0f, 0f, -1500f),
-                                                      new Vector3(0f, 1f, 0f));
+                                                      new Vector3(0f, 1f, 0f)).Inverted();
         private Matrix4 m_projTemp;
         private Matrix4 m_viewTemp;
 
