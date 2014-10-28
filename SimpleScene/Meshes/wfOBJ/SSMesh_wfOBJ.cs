@@ -227,7 +227,7 @@ namespace SimpleScene
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {		
             foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
                 if (renderConfig.drawingShadowMap) {
-                    _renderSendTriangles(subset);
+                    _renderSendVBOTriangles(subset);
                 } else {
                     if (renderConfig.drawGLSL) {
                         _renderSetupGLSL(ref renderConfig, subset);
