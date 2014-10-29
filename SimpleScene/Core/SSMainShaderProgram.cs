@@ -14,6 +14,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace SimpleScene
 {
@@ -36,6 +37,11 @@ namespace SimpleScene
         private readonly int u_specTexEnabled;
         private readonly int u_ambiTexEnabled;
         private readonly int u_bumpTexEnabled;
+
+        private readonly int u_numShadowMaps;
+        private readonly int u_shadowMapTextures;
+        private readonly int u_shadowMapMVPs;
+        private readonly int u_objectWorldTransform;
 		#endregion
 
         #region Uniform Modifiers
@@ -65,6 +71,28 @@ namespace SimpleScene
 
         public Rectangle WinScale {
             set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
+        }
+
+        public Matrix4 ObjectWorldTransform {
+            set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
+        }
+
+        public List<SSShadowMap> ShadowMaps {
+            set {
+                assertActive();
+                if (value.Count > SSShadowMap.c_maxNumberOfShadowMaps) {
+                    throw new Exception ("Unsupported number of shadow maps: " 
+                                         + value.Count);
+                }
+                GL.Uniform1(u_numShadowMaps, value.Count);
+                for (int i = 0; i < value.Count; ++i) {
+                    SSShadowMap current = value [i];
+                    // todo: textures, mvps
+                    GL.Uniform1(u_shadowMapTextures + i, current.TextureID);
+                    Matrix4 currMVP = current.DepthBiasMVP;
+                    GL.UniformMatrix4(u_shadowMapMVPs + i, false, ref currMVP);
+                }
+            }
         }
         #endregion
 
@@ -106,6 +134,9 @@ namespace SimpleScene
             u_animateSecondsOffset = getUniLoc("animateSecondsOffset");
             u_winScale = getUniLoc("WIN_SCALE");
             u_showWireframes = getUniLoc("showWireframes");
+            u_shadowMapTextures = getUniLoc("shadowMapTextures");
+            u_shadowMapMVPs = getUniLoc("shadowMapMVPs");
+            u_objectWorldTransform = getUniLoc("objWorldTransform");
 
             ShowWireframes = false;
             AnimateSecondsOffset = 0.0f;

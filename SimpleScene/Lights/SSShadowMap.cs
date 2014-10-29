@@ -8,6 +8,8 @@ namespace SimpleScene
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
+        public const int c_maxNumberOfShadowMaps = 4;
+
         private readonly Matrix4 c_biasMatrix = new Matrix4(
             0.5f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.5f, 0.0f, 0.0f,
@@ -16,10 +18,25 @@ namespace SimpleScene
         );
         private const int c_texWidth = 1024;
         private const int c_texHeight = 1024;
+        private static int s_numberOfShadowMaps = 0;
 
-        private int m_frameBufferID = 0;
-        private int m_textureID = 0;
+        private readonly int m_frameBufferID;
+        private readonly int m_textureID;
         private bool m_isBound = false;
+
+        public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
+
+        public Matrix4 DepthMVP {
+            get { return m_projMatrix * m_viewMatrix; } 
+        }
+
+        public Matrix4 DepthBiasMVP {
+            get { return c_biasMatrix * DepthMVP; }
+        }
+
+        public int TextureID {
+            get { return m_textureID; }
+        }
 
         private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-5000f, 5000f, -5000f, 5000f, 1f, 10000f);
         #if true
@@ -34,17 +51,15 @@ namespace SimpleScene
         private Matrix4 m_projTemp;
         private Matrix4 m_viewTemp;
 
-        //private Matrix4 m_depthModelMatrix = Matrix4.Identity;
-        public Matrix4 DepthMVP {
-            get { return m_projMatrix * m_viewMatrix; } 
-        }
-        public Matrix4 DepthBiasMVP {
-            get { return c_biasMatrix * DepthMVP; }
-        }
-
         public SSShadowMap()
         {
             validateVersion();
+            if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
+                throw new Exception ("Unsupported number of shadow maps: " 
+                                     + (c_maxNumberOfShadowMaps + 1));
+            }
+            ++s_numberOfShadowMaps;
+
             m_frameBufferID = GL.Ext.GenFramebuffer();
             m_textureID = GL.GenTexture();
             bind();
