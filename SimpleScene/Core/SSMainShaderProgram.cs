@@ -87,10 +87,9 @@ namespace SimpleScene
                 GL.Uniform1(u_numShadowMaps, value.Count);
                 for (int i = 0; i < value.Count; ++i) {
                     SSShadowMap current = value [i];
-                    // todo: textures, mvps
-                    GL.Uniform1(u_shadowMapTextures + i, current.TextureID);
                     Matrix4 currMVP = current.DepthBiasMVP;
                     GL.UniformMatrix4(u_shadowMapMVPs + i, false, ref currMVP);
+                    GL.Uniform1(u_shadowMapTextures + i, current.TextureID);
                 }
             }
         }
