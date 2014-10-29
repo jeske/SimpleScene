@@ -14,6 +14,8 @@ namespace SimpleScene
 	// http://www.opengl.org/discussion_boards/showthread.php/174851-Two-spot-lights
 	// http://stackoverflow.com/questions/10768950/opentk-c-sharp-perspective-lighting-looks-glitchy
 
+    // TODO: update shadowmap mvp when position of SSLight changes
+
 	public class SSLight : SSObjectBase
 	{
 		private const LightName c_firstNameIdx = LightName.Light0;

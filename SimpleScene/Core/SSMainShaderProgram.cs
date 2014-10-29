@@ -133,6 +133,7 @@ namespace SimpleScene
             u_animateSecondsOffset = getUniLoc("animateSecondsOffset");
             u_winScale = getUniLoc("WIN_SCALE");
             u_showWireframes = getUniLoc("showWireframes");
+            u_numShadowMaps = getUniLoc("numShadowMaps");
             u_shadowMapTextures = getUniLoc("shadowMapTextures");
             u_shadowMapMVPs = getUniLoc("shadowMapMVPs");
             u_objectWorldTransform = getUniLoc("objWorldTransform");

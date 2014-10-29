@@ -8,6 +8,8 @@ namespace SimpleScene
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
+        // TODO: update shadowmap mvp when position of SSLight changes
+
         public const int c_maxNumberOfShadowMaps = 4;
 
         private readonly Matrix4 c_biasMatrix = new Matrix4(
@@ -98,7 +100,7 @@ namespace SimpleScene
             GL.Ext.DeleteFramebuffer(m_frameBufferID);
         }
 
-        public void PrepareForRender(ref SSRenderConfig renderConfig) {
+        public void PrepareForRender(SSRenderConfig renderConfig) {
             m_projTemp = renderConfig.projectionMatrix;
             m_viewTemp = renderConfig.invCameraViewMat;
             renderConfig.projectionMatrix = m_projMatrix;
@@ -111,7 +113,7 @@ namespace SimpleScene
             GL.Clear(ClearBufferMask.DepthBufferBit);
 		}
 
-        public void FinishRender(ref SSRenderConfig renderConfig) {
+        public void FinishRender(SSRenderConfig renderConfig) {
             unbind();
             renderConfig.drawingShadowMap = false;
             renderConfig.projectionMatrix = m_projTemp;

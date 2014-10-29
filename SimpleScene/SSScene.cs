@@ -51,114 +51,73 @@ namespace SimpleScene
 
     public sealed class SSScene
     {
-        public List<SSObject> objects = new List<SSObject>();
-        public List<SSLight> lights = new List<SSLight>();
+        private SSCamera m_activeCamera = null;
+        private SSRenderConfig m_renderConfig = new SSRenderConfig();
+        private List<SSObject> m_objects = new List<SSObject>();
+        private List<SSLight> m_lights = new List<SSLight>();
+        private List<SSShadowMap> m_shadowMaps = new List<SSShadowMap> ();
 
-        public SSCamera activeCamera;
+        public List <SSObject> Objects { get { return m_objects; } }
 
-        public SSRenderConfig renderConfig = new SSRenderConfig();
+        public SSCamera ActiveCamera { 
+            get { return m_activeCamera; }
+            set { m_activeCamera = value; }
+        }
+
+        public SSRenderConfig RenderConfig { 
+            get { return m_renderConfig; } 
+            set { m_renderConfig = value; } 
+        }
+
+        public Matrix4 ProjectionMatrix {
+            get { return m_renderConfig.projectionMatrix; }
+            set { m_renderConfig.projectionMatrix = value; }
+        }
+
+        public Matrix4 InvCameraViewMatrix {
+            get { return m_renderConfig.invCameraViewMat; }
+            set { m_renderConfig.invCameraViewMat = value; }
+        }
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
         public event BeforeRenderObjectHandler BeforeRenderObject;
         #endregion
 
-
-        public void Update(float fElapsedMS) {
-            // update all objects.. TODO: add elapsed time since last update..
-            foreach (var obj in objects) {
-                obj.Update(fElapsedMS);
-            }
+        public void AddObject(SSObject obj) {
+            m_objects.Add(obj);
         }
 
-		private void SetupLights() {
-            // setup the projection matrix
-
-            GL.Enable(EnableCap.Lighting);
-            foreach (var light in lights) {
-                light.SetupLight(ref renderConfig);
-            }
-        }
-
-        public void setProjectionMatrix(Matrix4 projectionMatrix) {
-            renderConfig.projectionMatrix = projectionMatrix;
-        }
-
-        public void setInvCameraViewMatrix(Matrix4 invCameraViewMatrix) {
-            renderConfig.invCameraViewMat = invCameraViewMatrix;
-        }
-
-        public void Render() {
-			SetupLights ();
-            // Shadow Map Pass(es)
-            foreach (var light in lights) {
-                if (light.ShadowMap != null) {
-                    light.ShadowMap.PrepareForRender(ref renderConfig);
-                    renderPass(false);
-                    light.ShadowMap.FinishRender(ref renderConfig);
-                }
-            }
-
-            // compute a world-space frustum matrix, so we can test against world-space object positions
-            Matrix4 frustumMatrix = renderConfig.invCameraViewMat * renderConfig.projectionMatrix;
-
-            renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
-        }
-
-        private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
-            // reset stats
-            renderConfig.renderStats = new SSRenderStats();
-
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref renderConfig.projectionMatrix);
-
-            bool needObjectDelete = false;
-
-            foreach (var obj in objects) {
-                if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
-                if (!obj.renderState.visible) continue; // skip invisible objects
-                // frustum test... 
-                #if true
-                if (renderConfig.frustumCulling &&
-                    fc != null &&
-                    obj.boundingSphere != null &&
-                    !fc.isSphereInsideFrustum(obj.Pos, obj.boundingSphere.radius * obj.Scale.LengthFast)) {
-                    renderConfig.renderStats.objectsCulled++;
-                    continue; // skip the object
-                }
-                #endif
-
-                // finally, render object
-                if (notifyBeforeRender && BeforeRenderObject != null) {
-                    BeforeRenderObject(obj, renderConfig);
-                }
-                renderConfig.renderStats.objectsDrawn++;
-                obj.Render(ref renderConfig);
-            }
-
-            if (needObjectDelete) {
-                objects.RemoveAll(o => o.renderState.toBeDeleted);
-            }
-        }
-
-        public void addObject(SSObject obj) {
-            objects.Add(obj);
-        }
-
-        public void removeObject(SSObject obj) {
+        public void RemoveObject(SSObject obj) {
             // todo threading
-            objects.Remove(obj);
+            m_objects.Remove(obj);
         }
 
-        public void addLight(SSLight light) {
-            lights.Add(light);
+        public void AddLight(SSLight light) {
+            if (m_lights.Contains(light)) {
+                return;
+            }
+            m_lights.Add(light);
+            if (light.ShadowMap != null) {
+                m_shadowMaps.Add(light.ShadowMap);
+            }
+        }
+
+        public void RemoveLight(SSLight light) {
+            if (!m_lights.Contains(light)) {
+                throw new Exception ("Light not found.");
+            }
+            if (light.ShadowMap != null) {
+                m_shadowMaps.Remove(light.ShadowMap);
+            }
+            m_lights.Remove(light);
         }
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
             SSObject nearestIntersection = null;
             float nearestDistance = float.MinValue;
             // distances get "smaller" as they move in camera direction for some reason (why?)
-            foreach (var obj in objects) {
+            foreach (var obj in m_objects) {
                 float distanceAlongRay;
                 if (obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
@@ -174,6 +133,79 @@ namespace SimpleScene
             }
 
             return nearestIntersection;
+        }
+
+        public void Update(float fElapsedMS) {
+            // update all objects.. TODO: add elapsed time since last update..
+            foreach (var obj in m_objects) {
+                obj.Update(fElapsedMS);
+            }
+        }
+
+        public void Render() {
+			setupLights ();
+            // Shadow Map Pass(es)
+            foreach (var light in m_lights) {
+                if (light.ShadowMap != null) {
+                    light.ShadowMap.PrepareForRender(m_renderConfig);
+                    renderPass(false);
+                    light.ShadowMap.FinishRender(m_renderConfig);
+                }
+            }
+
+            // update mvp and textures for shadowmaps in the main shader
+            if (m_renderConfig.BaseShader != null) {
+                m_renderConfig.BaseShader.Activate();
+                m_renderConfig.BaseShader.ShadowMaps = m_shadowMaps;
+            }
+            // compute a world-space frustum matrix, so we can test against world-space object positions
+            Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
+            renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
+        }
+
+        private void setupLights() {
+            // setup the projection matrix
+
+            GL.Enable(EnableCap.Lighting);
+            foreach (var light in m_lights) {
+                light.SetupLight(ref m_renderConfig);
+            }
+        }
+
+        private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
+            // reset stats
+            m_renderConfig.renderStats = new SSRenderStats();
+
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref m_renderConfig.projectionMatrix);
+
+            bool needObjectDelete = false;
+
+            foreach (var obj in m_objects) {
+                if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
+                if (!obj.renderState.visible) continue; // skip invisible objects
+                // frustum test... 
+                #if true
+                if (m_renderConfig.frustumCulling &&
+                    fc != null &&
+                    obj.boundingSphere != null &&
+                    !fc.isSphereInsideFrustum(obj.Pos, obj.boundingSphere.radius * obj.Scale.LengthFast)) {
+                    m_renderConfig.renderStats.objectsCulled++;
+                    continue; // skip the object
+                }
+                #endif
+
+                // finally, render object
+                if (notifyBeforeRender && BeforeRenderObject != null) {
+                    BeforeRenderObject(obj, m_renderConfig);
+                }
+                m_renderConfig.renderStats.objectsDrawn++;
+                obj.Render(ref m_renderConfig);
+            }
+
+            if (needObjectDelete) {
+                m_objects.RemoveAll(o => o.renderState.toBeDeleted);
+            }
         }
 
         public SSScene() {
