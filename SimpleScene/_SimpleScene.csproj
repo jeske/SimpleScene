@@ -103,7 +103,6 @@
     <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
     <Compile Include="Lights\SSShadowMap.cs" />
     <Compile Include="Core\SSMainShaderProgram.cs" />
-    <Compile Include="Core\SSShadowMapShaderProgram.cs" />
     <Compile Include="Core\SSShaderProgram.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

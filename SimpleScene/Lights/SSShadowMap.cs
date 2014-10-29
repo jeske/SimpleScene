@@ -21,10 +21,16 @@ namespace SimpleScene
         private int m_textureID = 0;
         private bool m_isBound = false;
 
-        private Matrix4 m_projMatrix = Matrix4.CreateOrthographic(10000f, 10000f, -7000f, 7000f);
-        private Matrix4 m_viewMatrix = Matrix4.LookAt(new Vector3(0f, 0f, 1500f),
-                                                      new Vector3(0f, 0f, -1500f),
-                                                      new Vector3(0f, 1f, 0f)).Inverted();
+        private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-5000f, 5000f, -5000f, 5000f, 1f, 10000f);
+        #if true
+        private Matrix4 m_viewMatrix = Matrix4.LookAt(
+            new Vector3 (0f, 0f, 4000f),
+            new Vector3 (0f, 0f, -4000f),
+            new Vector3 (0f, 1f, 0f));
+        #else
+        Matrix4 m_viewMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, -4000f);
+        #endif
+
         private Matrix4 m_projTemp;
         private Matrix4 m_viewTemp;
 
@@ -83,17 +89,14 @@ namespace SimpleScene
             renderConfig.projectionMatrix = m_projMatrix;
             renderConfig.invCameraViewMat = m_viewMatrix;
             renderConfig.drawingShadowMap = true;
-
+            SSShaderProgram.DeactivateAll();
             bind();
-            renderConfig.ShadowMapShader.Activate();
-            renderConfig.ShadowMapShader.MVPMatrix = DepthMVP;
 
             GL.DrawBuffer(DrawBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
 		}
 
         public void FinishRender(ref SSRenderConfig renderConfig) {
-            renderConfig.ShadowMapShader.Deactivate();
             unbind();
             renderConfig.drawingShadowMap = false;
             renderConfig.projectionMatrix = m_projTemp;

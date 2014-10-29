@@ -25,7 +25,6 @@ namespace SimpleScene
 		public SSRenderStats renderStats;
 
 		public SSMainShaderProgram BaseShader;
-        public SSShadowMapShaderProgram ShadowMapShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
