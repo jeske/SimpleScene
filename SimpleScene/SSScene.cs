@@ -55,18 +55,30 @@ namespace SimpleScene
         private SSRenderConfig m_renderConfig = new SSRenderConfig();
         private List<SSObject> m_objects = new List<SSObject>();
         private List<SSLight> m_lights = new List<SSLight>();
-        private List<SSShadowMap> m_shadowMaps = new List<SSShadowMap> ();
 
         public List <SSObject> Objects { get { return m_objects; } }
 
+        #region Public Parameters
         public SSCamera ActiveCamera { 
             get { return m_activeCamera; }
             set { m_activeCamera = value; }
         }
 
-        public SSRenderConfig RenderConfig { 
-            get { return m_renderConfig; } 
-            set { m_renderConfig = value; } 
+        public SSMainShaderProgram BaseShader {
+            get { return m_renderConfig.BaseShader; }
+            set { 
+                m_renderConfig.BaseShader = value;
+                if (m_renderConfig.BaseShader != null) {
+                    m_renderConfig.BaseShader.Activate();
+                    m_renderConfig.BaseShader.SetupShadowMap(m_lights);
+                    m_renderConfig.BaseShader.Deactivate();
+                }
+            }
+        }
+
+        public bool FrustumCulling {
+            get { return m_renderConfig.frustumCulling; }
+            set { m_renderConfig.frustumCulling = value; }
         }
 
         public Matrix4 ProjectionMatrix {
@@ -78,12 +90,14 @@ namespace SimpleScene
             get { return m_renderConfig.invCameraViewMat; }
             set { m_renderConfig.invCameraViewMat = value; }
         }
+        #endregion
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
         public event BeforeRenderObjectHandler BeforeRenderObject;
         #endregion
 
+        #region Public Functions
         public void AddObject(SSObject obj) {
             m_objects.Add(obj);
         }
@@ -98,8 +112,10 @@ namespace SimpleScene
                 return;
             }
             m_lights.Add(light);
-            if (light.ShadowMap != null) {
-                m_shadowMaps.Add(light.ShadowMap);
+            if (BaseShader != null) {
+                BaseShader.Activate();
+                BaseShader.SetupShadowMap(m_lights);
+                BaseShader.Deactivate();
             }
         }
 
@@ -107,10 +123,12 @@ namespace SimpleScene
             if (!m_lights.Contains(light)) {
                 throw new Exception ("Light not found.");
             }
-            if (light.ShadowMap != null) {
-                m_shadowMaps.Remove(light.ShadowMap);
-            }
             m_lights.Remove(light);
+            if (BaseShader != null) {
+                BaseShader.Activate();
+                BaseShader.SetupShadowMap(m_lights);
+                BaseShader.Deactivate();
+            }
         }
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
@@ -153,16 +171,18 @@ namespace SimpleScene
                 }
             }
 
-            // update mvp and textures for shadowmaps in the main shader
+            // update mvps shadowmaps in the main shader
             if (m_renderConfig.BaseShader != null) {
                 m_renderConfig.BaseShader.Activate();
-                m_renderConfig.BaseShader.ShadowMaps = m_shadowMaps;
+                m_renderConfig.BaseShader.UpdateShadowMapMVPs(m_lights);
             }
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
         }
+        #endregion
 
+        #region Private Functions
         private void setupLights() {
             // setup the projection matrix
 
@@ -207,6 +227,7 @@ namespace SimpleScene
                 m_objects.RemoveAll(o => o.renderState.toBeDeleted);
             }
         }
+        #endregion
 
         public SSScene() {
             // Register SS types for loading by SSAssetManager

@@ -74,27 +74,42 @@ namespace SimpleScene
         }
 
         public Matrix4 ObjectWorldTransform {
+            // pass object world transform matrix for use in shadowmap lookup
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public List<SSShadowMap> ShadowMaps {
-            set {
-                assertActive();
-                if (value.Count > SSShadowMap.c_maxNumberOfShadowMaps) {
-                    throw new Exception ("Unsupported number of shadow maps: " 
-                                         + value.Count);
+        public void SetupShadowMap(List<SSLight> lights) {
+            // setup number of shadowmaps, textures
+            assertActive();
+            int count = 0;
+            foreach (var light in lights) {
+                if (light.ShadowMap != null) {
+                    if (count > SSShadowMap.c_maxNumberOfShadowMaps) {
+                        throw new Exception ("Unsupported number of shadow maps: " + count);
+                    }
+                    GL.Uniform1(u_shadowMapTextures + count, light.ShadowMap.TextureID);
+                    ++count;
                 }
-                GL.Uniform1(u_numShadowMaps, value.Count);
-                for (int i = 0; i < value.Count; ++i) {
-                    SSShadowMap current = value [i];
-                    Matrix4 currMVP = current.DepthBiasMVP;
-                    GL.UniformMatrix4(u_shadowMapMVPs + i, false, ref currMVP);
-                    GL.Uniform1(u_shadowMapTextures + i, current.TextureID);
+            }
+            GL.Uniform1(u_numShadowMaps, count);
+        }
+
+        public void UpdateShadowMapMVPs(List<SSLight> lights) {
+            // pass update mvp matrices for shadowmap lookup
+            assertActive();
+            int count = 0;
+            foreach (var light in lights) {
+                if (light.ShadowMap != null) {
+                    if (count > SSShadowMap.c_maxNumberOfShadowMaps) {
+                        throw new Exception ("Unsupported number of shadow maps: " + count);
+                    }
+                    Matrix4 temp = light.ShadowMap.DepthBiasMVP; // to pass by reference
+                    GL.UniformMatrix4(u_shadowMapMVPs + count, false, ref temp);
+                    ++count;
                 }
             }
         }
         #endregion
-
 
 		public SSMainShaderProgram ()
 		{
