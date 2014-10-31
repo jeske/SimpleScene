@@ -60,7 +60,10 @@ namespace SimpleScene
 
             m_frameBufferID = GL.Ext.GenFramebuffer();
             m_textureID = GL.GenTexture();
-            bind();
+
+			// bind the texture and set it up...
+			GL.ActiveTexture(TextureUnit.Texture4);
+			GL.BindTexture(TextureTarget.Texture2D, m_textureID);
             GL.TexParameter(TextureTarget.Texture2D, 
                             TextureParameterName.TextureMagFilter, 
                             (int)TextureMagFilter.Nearest);
@@ -78,6 +81,8 @@ namespace SimpleScene
                 c_texWidth, c_texHeight, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
+			// bind the framebuffer and set it up..
+			GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
                                       FramebufferAttachment.DepthAttachment,
                                       m_textureID, 0);
@@ -91,11 +96,9 @@ namespace SimpleScene
 
 
 			assertFramebufferOK();
-            unbind();
         }
 
         ~SSShadowMap() {
-            unbind ();
             // DeleteData();
         }
 
@@ -108,35 +111,28 @@ namespace SimpleScene
         public void PrepareForRender(SSRenderConfig renderConfig) {
             m_projTemp = renderConfig.projectionMatrix;
             m_viewTemp = renderConfig.invCameraViewMat;
+
+            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+
             renderConfig.projectionMatrix = m_projMatrix;
             renderConfig.invCameraViewMat = m_viewMatrix;
             renderConfig.drawingShadowMap = true;
             SSShaderProgram.DeactivateAll();
-            bind();
 
             GL.DrawBuffer(DrawBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
+
+			assertFramebufferOK();
 		}
 
         public void FinishRender(SSRenderConfig renderConfig) {
-            unbind();
+			GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             renderConfig.drawingShadowMap = false;
             renderConfig.projectionMatrix = m_projTemp;
             renderConfig.invCameraViewMat = m_viewTemp;
         }
 
-        private void unbind() {
-            if (m_isBound) {
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-                m_isBound = false;
-            }
-		}
-
-		private void bind() {
-            m_isBound = true;
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-            
+		public void bindShadowMapToTexture() {            
 			GL.ActiveTexture(TextureUnit.Texture4);
 			GL.BindTexture(TextureTarget.Texture2D, m_textureID);	
         }

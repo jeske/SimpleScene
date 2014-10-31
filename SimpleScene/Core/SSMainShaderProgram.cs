@@ -80,21 +80,20 @@ namespace SimpleScene
 
         public void SetupShadowMap(List<SSLight> lights) {
             // setup number of shadowmaps, textures
+			int count=0;
             assertActive();
-            int count = 0;
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
-                    if (count > SSShadowMap.c_maxNumberOfShadowMaps) {
+					if (count > 1) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    
-					// this is not how texture binding works...
-					// GL.Uniform1(u_shadowMapTextures + count, light.ShadowMap.TextureID);
-					
-                    ++count;
+					// this will only work for ONE shadow map
+					light.ShadowMap.bindShadowMapToTexture();
+					count ++;		            
                 }
             }
-            GL.Uniform1(u_numShadowMaps, count);
+
+			GL.Uniform1(u_numShadowMaps, count);
         }
 
         public void UpdateShadowMapMVPs(List<SSLight> lights) {
@@ -103,7 +102,7 @@ namespace SimpleScene
             int count = 0;
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
-                    if (count > SSShadowMap.c_maxNumberOfShadowMaps) {
+                    if (count > 1) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
                     Matrix4 temp = light.ShadowMap.DepthBiasVP; // to pass by reference
