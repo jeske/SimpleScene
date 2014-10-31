@@ -4,6 +4,9 @@ using System;
 using SimpleScene;
 
 public class SSShaderProgram {
+	// BUG: this not valid, because there can be multiple simultaneous GL rendering contexts... 
+	//     the scene or scene.renderConfig should hold the active shader program. - jeske
+
     private static SSShaderProgram s_activeProgram = null;
 
     protected readonly int m_programID;

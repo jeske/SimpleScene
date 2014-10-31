@@ -76,6 +76,9 @@ namespace SimpleScene
             GL.TexParameter(TextureTarget.Texture2D, 
                             TextureParameterName.TextureWrapT, 
                             (int)TextureWrapMode.ClampToEdge);
+
+			// GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, (float)1.0f);
+
             GL.TexImage2D(TextureTarget.Texture2D, 0,
                 PixelInternalFormat.DepthComponent32f,
                 c_texWidth, c_texHeight, 0,

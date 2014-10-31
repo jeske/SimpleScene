@@ -104,6 +104,7 @@
     <Compile Include="Lights\SSShadowMap.cs" />
     <Compile Include="Core\SSMainShaderProgram.cs" />
     <Compile Include="Core\SSShaderProgram.cs" />
+    <Compile Include="Objects\SSObjectHUDQuad.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

@@ -36,8 +36,8 @@ namespace SimpleScene
 		public bool frustumCulling;
 
 		public WireframeMode drawWireframeMode;
-		public Matrix4 invCameraViewMat;
-		public Matrix4 projectionMatrix;
+		public Matrix4 invCameraViewMat = Matrix4.Identity;
+		public Matrix4 projectionMatrix = Matrix4.Identity;
 
 		public static void toggle(ref WireframeMode val) {
 			int value = (int)val;
