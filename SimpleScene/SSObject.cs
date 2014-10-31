@@ -45,12 +45,12 @@ namespace SimpleScene
                 var shaderPgm = renderConfig.BaseShader;
                 // turn off most GL features to start..
                 shaderPgm.Activate();
-                shaderPgm.DiffTexEnabled = false;
-                shaderPgm.SpecTexEnabled = false;
-                shaderPgm.AmbTexEnabled = false;
-                shaderPgm.BumpTexEnabled = false;
+                shaderPgm.u_DiffTexEnabled = false;
+                shaderPgm.u_SpecTexEnabled = false;
+                shaderPgm.u_AmbTexEnabled = false;
+                shaderPgm.u_BumpTexEnabled = false;
                 // pass world transform to the main shader for referencing the shadowmap
-                shaderPgm.ObjectWorldTransform = this.worldMat;
+                shaderPgm.u_ObjectWorldTransform = this.worldMat;
             }
 
             GL.Disable(EnableCap.Blend);

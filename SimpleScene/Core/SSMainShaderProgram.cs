@@ -45,35 +45,39 @@ namespace SimpleScene
 		#endregion
 
         #region Uniform Modifiers
-        public bool DiffTexEnabled {
+
+		// I don't like the way this makes rendering-state uniform sets look like
+		// normal variables.. I might undo this.. - jeske
+
+        public bool u_DiffTexEnabled {
             set { assertActive (); GL.Uniform1 (u_diffTexEnabled, value ? 1 : 0); }
         }
 
-        public bool SpecTexEnabled {
+        public bool u_SpecTexEnabled {
             set { assertActive (); GL.Uniform1 (u_specTexEnabled, value ? 1 : 0); }
         }
 
-        public bool AmbTexEnabled {
+        public bool u_AmbTexEnabled {
             set { assertActive (); GL.Uniform1 (u_ambiTexEnabled, value ? 1 : 0); }
         }
 
-        public bool BumpTexEnabled {
+        public bool u_BumpTexEnabled {
             set { assertActive (); GL.Uniform1 (u_bumpTexEnabled, value ? 1 : 0); }
         }
 
-        public float AnimateSecondsOffset {
+        public float u_AnimateSecondsOffset {
             set { assertActive (); GL.Uniform1 (u_animateSecondsOffset, value); }
         }
 
-        public bool ShowWireframes {
+        public bool u_ShowWireframes {
             set { assertActive (); GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
         }
 
-        public Rectangle WinScale {
+        public Rectangle u_WinScale {
             set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
         }
 
-        public Matrix4 ObjectWorldTransform {
+        public Matrix4 u_ObjectWorldTransform {
             // pass object world transform matrix for use in shadowmap lookup
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
@@ -155,8 +159,8 @@ namespace SimpleScene
             u_shadowMapVPs = getUniLoc("shadowMapVPs");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
 
-            ShowWireframes = false;
-            AnimateSecondsOffset = 0.0f;
+            u_ShowWireframes = false;
+            u_AnimateSecondsOffset = 0.0f;
             
             // uniform locations for texture setup only
             int GLun_diffTex = getUniLoc("diffTex");
