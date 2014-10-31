@@ -39,8 +39,8 @@ namespace SimpleScene
         private readonly int u_bumpTexEnabled;
 
         private readonly int u_numShadowMaps;
-        private readonly int u_shadowMapTextures;
-        private readonly int u_shadowMapMVPs;
+        private readonly int u_shadowMapTexture;
+        private readonly int u_shadowMapVPs;
         private readonly int u_objectWorldTransform;
 		#endregion
 
@@ -87,7 +87,10 @@ namespace SimpleScene
                     if (count > SSShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    GL.Uniform1(u_shadowMapTextures + count, light.ShadowMap.TextureID);
+                    
+					// this is not how texture binding works...
+					// GL.Uniform1(u_shadowMapTextures + count, light.ShadowMap.TextureID);
+					
                     ++count;
                 }
             }
@@ -103,8 +106,8 @@ namespace SimpleScene
                     if (count > SSShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    Matrix4 temp = light.ShadowMap.DepthBiasMVP; // to pass by reference
-                    GL.UniformMatrix4(u_shadowMapMVPs + count, false, ref temp);
+                    Matrix4 temp = light.ShadowMap.DepthBiasVP; // to pass by reference
+                    GL.UniformMatrix4(u_shadowMapVPs + count, false, ref temp);
                     ++count;
                 }
             }
@@ -149,8 +152,8 @@ namespace SimpleScene
             u_winScale = getUniLoc("WIN_SCALE");
             u_showWireframes = getUniLoc("showWireframes");
             u_numShadowMaps = getUniLoc("numShadowMaps");
-            u_shadowMapTextures = getUniLoc("shadowMapTextures");
-            u_shadowMapMVPs = getUniLoc("shadowMapMVPs");
+            u_shadowMapTexture = getUniLoc("shadowMapTexture");
+            u_shadowMapVPs = getUniLoc("shadowMapVPs");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
 
             ShowWireframes = false;
@@ -167,6 +170,7 @@ namespace SimpleScene
             GL.Uniform1(GLun_specTex, 1); // Texture.Texture1
             GL.Uniform1(GLun_ambiTex, 2); // Texture.Texture2
             GL.Uniform1(GLun_bumpTex, 3); // Texture.Texture3
+			GL.Uniform1(u_shadowMapTexture, 4); // Texture.Texture4
 
             checkErrors();
 		}

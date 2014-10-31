@@ -28,7 +28,7 @@ namespace SimpleScene
 
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
 
-        public Matrix4 DepthBiasMVP {
+        public Matrix4 DepthBiasVP {
             get { return m_viewMatrix * m_projMatrix * c_biasMatrix; }
         }
 
@@ -74,13 +74,22 @@ namespace SimpleScene
                             TextureParameterName.TextureWrapT, 
                             (int)TextureWrapMode.ClampToEdge);
             GL.TexImage2D(TextureTarget.Texture2D, 0,
-                PixelInternalFormat.DepthComponent16,
+                PixelInternalFormat.DepthComponent32f,
                 c_texWidth, c_texHeight, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
             GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
                                       FramebufferAttachment.DepthAttachment,
                                       m_textureID, 0);
+
+			// turn off reading and writing to color data
+			GL.DrawBuffer(DrawBufferMode.None); 
+			GL.ReadBuffer(ReadBufferMode.None);
+			GL.Ext.FramebufferTexture(
+				FramebufferTarget.Framebuffer,
+				FramebufferAttachment.ColorAttachment0,0,0);
+
+
 			assertFramebufferOK();
             unbind();
         }
@@ -127,7 +136,9 @@ namespace SimpleScene
 		private void bind() {
             m_isBound = true;
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-            GL.BindTexture(TextureTarget.Texture2D, m_textureID);
+            
+			GL.ActiveTexture(TextureUnit.Texture4);
+			GL.BindTexture(TextureTarget.Texture2D, m_textureID);	
         }
 
 		private void assertFramebufferOK() {
