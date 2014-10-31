@@ -116,6 +116,8 @@ namespace SimpleScene
             m_viewTemp = renderConfig.invCameraViewMat;
 
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+            GL.Viewport(0, 0, c_texWidth, c_texHeight);
+
 
             renderConfig.projectionMatrix = m_projMatrix;
             renderConfig.invCameraViewMat = m_viewMatrix;

@@ -159,10 +159,8 @@ namespace SimpleScene
                 obj.Update(fElapsedMS);
             }
         }
-
-        public void Render() {
-			setupLights ();
-            // Shadow Map Pass(es)
+		public void RenderShadowMap() {
+			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
                     light.ShadowMap.PrepareForRender(m_renderConfig);
@@ -176,6 +174,11 @@ namespace SimpleScene
                 m_renderConfig.BaseShader.Activate();
                 m_renderConfig.BaseShader.UpdateShadowMapMVPs(m_lights);
             }
+		}
+
+        public void Render() {
+			setupLights ();
+            
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
