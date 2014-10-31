@@ -28,12 +28,8 @@ namespace SimpleScene
 
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
 
-        public Matrix4 DepthMVP {
-            get { return m_projMatrix * m_viewMatrix; } 
-        }
-
         public Matrix4 DepthBiasMVP {
-            get { return c_biasMatrix * DepthMVP; }
+            get { return m_viewMatrix * m_projMatrix * c_biasMatrix; }
         }
 
         public int TextureID {
