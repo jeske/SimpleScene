@@ -6,6 +6,8 @@
     <ProjectGuid>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>SimpleScene</RootNamespace>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -108,4 +110,27 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Assets\Shaders\ss1_fragment.glsl">
+      <Link>Assets\Shaders\ss1_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss1_vertex.glsl">
+      <Link>Assets\Shaders\ss1_vertex.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4__readme.txt">
+      <Link>Assets\Shaders\ss4__readme.txt</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4_fragment.glsl">
+      <Link>Assets\Shaders\ss4_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4_geometry.glsl">
+      <Link>Assets\Shaders\ss4_geometry.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4_vertex.glsl">
+      <Link>Assets\Shaders\ss4_vertex.glsl</Link>
+    </None>
+  </ItemGroup>
 </Project>

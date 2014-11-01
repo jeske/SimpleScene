@@ -86,15 +86,9 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox_readme.txt" />
     <None Include="Assets\drone2\drone2_readme.txt" />
-    <None Include="Assets\shaders\ss4_vertex.glsl" />
-    <None Include="Assets\shaders\ss4_fragment.glsl" />
-    <None Include="Assets\shaders\ss4_geometry.glsl" />
-    <None Include="Assets\shaders\ss1_fragment.glsl" />
-    <None Include="Assets\shaders\ss1_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\skybox\" />
-    <Folder Include="Assets\shaders\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">

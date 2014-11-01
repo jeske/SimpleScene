@@ -1,16 +1,15 @@
-﻿// Copyright(C) David W. Jeske, 2013
-// Released to the public domain. Use, modify and relicense at will.
+﻿// Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 
 #version 120
 				
-	// in eye-space/camera space
-	varying vec3 vertexNormal;
-	varying vec3 n;  // vertex normal
-	varying vec3 VV; // vertex position
-	varying vec3 lightPosition;
-	varying vec3 eyeVec;
+// in eye-space/camera space
+varying vec3 vertexNormal;
+varying vec3 n;  // vertex normal
+varying vec3 VV; // vertex position
+varying vec3 lightPosition;
+varying vec3 eyeVec;
 
-    varying vec3 vertexPosition_objectspace;
+varying vec3 vertexPosition_objectspace;
 
 void main()
 {

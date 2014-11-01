@@ -1,5 +1,4 @@
-﻿// Copyright(C) David W. Jeske, 2013
-// Released to the public domain. Use, modify and relicense at will.
+﻿// Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 
 #version 120
 #extension GL_EXT_gpu_shader4 : enable
@@ -11,6 +10,11 @@ uniform sampler2D diffTex;
 uniform sampler2D specTex;
 uniform sampler2D ambiTex;
 uniform sampler2D bumpTex;
+
+uniform int diffTexEnabled;
+uniform int specTexEnabled;
+uniform int ambiTexEnabled;
+uniform int bumpTexEnabled;
 
 uniform int showWireframes;
 uniform float animateSecondsOffset;
@@ -27,21 +31,34 @@ varying vec3 surfaceLightVector;
 varying vec3 surfaceViewVector;
 varying vec3 surfaceNormalVector;
 
+// shadowmap related
+uniform int shadowMapEnabled;
+uniform sampler2D shadowMapTexture;
+const int MAX_NUM_SHADOWMAPS = 4;
+uniform int numShadowMaps;
+varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+
+
 // http://www.clockworkcoders.com/oglsl/tutorial5.htm
+// http://www.ozone3d.net/tutorials/bump_mapping_p4.php
 
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
 
-    // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
-
 vec4 linearTest(vec4 outputColor) {
+       float PI = 3.14159265358979323846264;
        vec4 effectColor = vec4(0.9);
+	   float speedDivisor = 4.0f;
+	   float pulseSpeedDivisor = 0.8f;
+	   float pulseWidthDivisor = 3.0f;
 
-       float proximity = mod(f_vertexPosition_objectspace.z + (animateSecondsOffset / 3.5), 1);
-       if (proximity < 0.2) {
-         outputColor = mix(effectColor,outputColor,clamp(proximity * 7.0,0,1));
+	   float intensity = sin(mod (((f_vertexPosition_objectspace.z / pulseWidthDivisor) + (animateSecondsOffset / pulseSpeedDivisor)), PI));
+
+       float proximity = mod(f_vertexPosition_objectspace.z + (animateSecondsOffset / speedDivisor), 1);
+       if (proximity < 0.08) {
+         outputColor = mix(effectColor,outputColor,clamp(proximity * 7.0,intensity,1));
        }
 	return outputColor;
 }
@@ -66,6 +83,29 @@ vec4 spiralTest(vec4 outputColor) {
   return outputColor;
 }
 
+vec4 gridTest(vec4 outputColor) {
+       float PI = 3.14159265358979323846264;
+       vec4 effectColor = vec4(0.9);
+       vec3 vp = f_vertexPosition_objectspace;
+	   float speedDivisor = 2.0f;
+	   float pulseSpeedDivisor = 1.0f;
+
+	   float intensity = sin(mod ((animateSecondsOffset / pulseSpeedDivisor), PI));
+
+       float a_prox = mod(vp.x + vp.y + (animateSecondsOffset / speedDivisor), 0.7);
+	   float b_prox = mod(vp.z + vp.y + (animateSecondsOffset / speedDivisor), 0.7);
+
+       if (a_prox < 0.07) {
+         outputColor = mix(effectColor,outputColor,clamp(a_prox * 7.0,intensity,1));
+       }
+       
+       if (b_prox < 0.07) {
+         outputColor = mix(effectColor,outputColor,clamp(b_prox * 7.0,intensity,1));
+       }
+	   
+
+	return outputColor;
+}
 
 
 void main()
@@ -77,15 +117,31 @@ void main()
 	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 	vec4 specularStrength = gl_FrontMaterial.specular;
 	// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
+
 	vec3 lightPosition = surfaceLightVector;
 
 	// load texels...
-	vec4 ambientColor = texture2D (diffTex, gl_TexCoord[0].st);
-	vec4 diffuseColor = texture2D (diffTex, gl_TexCoord[0].st);
-	vec4 glowColor = texture2D (ambiTex, gl_TexCoord[0].st);
-	vec4 specTex = texture2D (specTex, gl_TexCoord[0].st);
+	vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
+	vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
 
-	if (true) {
+	vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+
+    float shadeFactor = 1.0;
+    // shadowmap test
+	if (numShadowMaps > 0) {
+    	vec2 shadowMapUV = f_shadowMapCoords[0].xy;
+	    vec4 shadowMapTexel = texture2D(shadowMapTexture,shadowMapUV);
+	    float nearestOccluder = shadowMapTexel.x;
+	    float distanceToTexel = f_shadowMapCoords[0].z;
+		float DEPTH_OFFSET = 0.01;
+		
+	    if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
+			shadeFactor = 0.5;
+	    }
+	}	
+
+    if (true) {
 	   // eye space shading
 	   outputColor = ambientColor * ambientStrength;
 	   outputColor += glowColor * gl_FrontMaterial.emission;
@@ -93,7 +149,7 @@ void main()
 	   float diffuseIllumination = clamp(dot(f_vertexNormal, f_lightPosition), 0, 1);
 	   // boost the diffuse color by the glowmap .. poor mans bloom
 	   float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
-	   outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
+	   outputColor += shadeFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
 
 	   // compute specular lighting
 	   if (dot(f_vertexNormal, f_lightPosition) > 0.0) {   // if light is front of the surface
@@ -102,7 +158,7 @@ void main()
 	      float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), gl_FrontMaterial.shininess);
 
 	      // outputColor += specularStrength * shininess;
-	      outputColor += specTex * specularStrength * shininess;      
+	      outputColor += shadeFactor * specTex * specularStrength * shininess;      
        } 
 
 
@@ -134,6 +190,7 @@ void main()
     // ---- object space shader effect tests ----
     // outputColor = linearTest(outputColor);
     // outputColor = spiralTest(outputColor);
+    // outputColor = gridTest(outputColor);
 
 	// single-pass wireframe calculation
 	// .. compute distance from fragment to closest edge
@@ -147,9 +204,9 @@ void main()
         outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
     }
 
-
 	// finally, output the fragment color
-    gl_FragColor = outputColor;    
+    gl_FragColor = outputColor;
+
 }			
 
 	

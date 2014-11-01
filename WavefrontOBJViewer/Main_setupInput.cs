@@ -28,8 +28,7 @@ namespace WavefrontOBJViewer
 				Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
 				SSRay ray = OpenTKHelper.MouseToWorldRay(
-					this.scene.renderConfig.projectionMatrix,
-					this.scene.renderConfig.invCameraViewMat, clientRect, mouseLoc);
+					this.scene.ProjectionMatrix,this.scene.InvCameraViewMatrix, clientRect, mouseLoc);
 
 				// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 				// scene.addObject(new SSObjectRay(ray));
@@ -44,13 +43,13 @@ namespace WavefrontOBJViewer
 				if (this.mouseButtonDown) {
 
 					// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-					this.scene.activeCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+					this.scene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 					// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}
 			};
 			this.MouseWheel += (object sender, MouseWheelEventArgs e) => { 
 				// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
-				SSCameraThirdPerson ctp = scene.activeCamera as SSCameraThirdPerson;
+				SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
 				if (ctp != null) {
 					ctp.followDistance += -e.DeltaPrecise;
 				} 
@@ -59,12 +58,12 @@ namespace WavefrontOBJViewer
 			this.KeyPress += (object sender, KeyPressEventArgs e) => {
 				switch (e.KeyChar) {
 				case 'w':
-					SSRenderConfig.toggle(ref scene.renderConfig.drawWireframeMode);
-					updateWireframeDisplayText (scene.renderConfig);
+					scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode(scene.DrawWireFrameMode);
+					updateWireframeDisplayText (scene.DrawWireFrameMode);
 
 					// if we need single-pass wireframes, set the GLSL uniform variable
 					shaderPgm.Activate();
-					shaderPgm.ShowWireframes = (scene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
+					shaderPgm.u_ShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
 					break;
 				}
 			};

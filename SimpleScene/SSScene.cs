@@ -39,13 +39,13 @@ namespace SimpleScene
 		public Matrix4 invCameraViewMat = Matrix4.Identity;
 		public Matrix4 projectionMatrix = Matrix4.Identity;
 
-		public static void toggle(ref WireframeMode val) {
-			int value = (int)val;
-			value++;
-			if (value > (int)WireframeMode.GL_Lines) {
-				value = (int)WireframeMode.None;
+		public static WireframeMode NextWireFrameMode(WireframeMode val) {
+			int newVal = (int)val;
+			newVal++;
+			if (newVal > (int)WireframeMode.GL_Lines) {
+				newVal = (int)WireframeMode.None;
 			}
-			val = (WireframeMode)value;
+			return (WireframeMode)newVal;
 		}
 	}
 
@@ -89,6 +89,11 @@ namespace SimpleScene
         public Matrix4 InvCameraViewMatrix {
             get { return m_renderConfig.invCameraViewMat; }
             set { m_renderConfig.invCameraViewMat = value; }
+        }
+
+        public WireframeMode DrawWireFrameMode {
+            get { return m_renderConfig.drawWireframeMode; }
+            set { m_renderConfig.drawWireframeMode = value; }
         }
         #endregion
 

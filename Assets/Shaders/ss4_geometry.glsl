@@ -1,5 +1,4 @@
-﻿// Copyright(C) David W. Jeske, 2013
-// Released to the public domain. Use, modify and relicense at will.
+﻿// Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 
 #version 120
 #extension GL_EXT_gpu_shader4 : enable
@@ -15,12 +14,16 @@
 uniform vec2 WIN_SCALE;
 noperspective varying vec3 dist;
 
+const int MAX_NUM_SHADOWMAPS = 4;
+uniform int numShadowMaps;
+
 // these are pass-through variables
 varying in vec3 VV[3];
 varying in vec3 vertexNormal[3];
 varying in vec3 lightPosition[3];
 varying in vec3 eyeVec[3];
 varying in vec3 vertexPosition_objectspace[3];
+varying in vec4 shadowMapCoords[3][MAX_NUM_SHADOWMAPS];
 
 // non-uniform blocks are not supported until GLSL 330?
 varying out vec3 f_VV;
@@ -28,6 +31,7 @@ varying out vec3 f_vertexNormal;
 varying out vec3 f_lightPosition;
 varying out vec3 f_eyeVec;
 varying out vec3 f_vertexPosition_objectspace;
+varying out vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 varying out vec3 surfaceLightVector;
 varying out vec3 surfaceViewVector;
@@ -93,6 +97,9 @@ void main(void)
 		f_lightPosition = lightPosition[i];
 		f_eyeVec = eyeVec[i];
         f_vertexPosition_objectspace = vertexPosition_objectspace[i];
+		for (int smc=0;smc<MAX_NUM_SHADOWMAPS;smc++) {
+        	f_shadowMapCoords[smc] = shadowMapCoords[i][smc];
+		}
 		       
 		gl_TexCoord[0] = gl_TexCoordIn[i][0];
 		gl_FrontColor = gl_FrontColorIn[i];

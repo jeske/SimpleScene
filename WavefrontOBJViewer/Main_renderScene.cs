@@ -43,7 +43,7 @@ namespace WavefrontOBJViewer
 				animateSecondsOffset -= 1000.0f;
 			}
 			shaderPgm.Activate();
-			shaderPgm.AnimateSecondsOffset = (float)animateSecondsOffset;
+			shaderPgm.u_AnimateSecondsOffset = (float)animateSecondsOffset;
 
 
 			/////////////////////////////////////////
@@ -72,13 +72,13 @@ namespace WavefrontOBJViewer
 
 				// setup infinite projection for cubemap
 				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
-				environmentScene.setProjectionMatrix (projMatrix);	
+				environmentScene.ProjectionMatrix = projMatrix;
 
 				// create a matrix of just the camera rotation only (it needs to stay at the origin)				
-				environmentScene.setInvCameraViewMatrix (
+				environmentScene.InvCameraViewMatrix = 
 					Matrix4.CreateFromQuaternion (
-						scene.activeCamera.worldMat.ExtractRotation ()
-					).Inverted ());
+						scene.ActiveCamera.worldMat.ExtractRotation ()
+					).Inverted ();
 
 				environmentScene.Render ();
 			}
@@ -92,14 +92,14 @@ namespace WavefrontOBJViewer
 				GL.DepthMask (true);
 				
 				// setup the inverse matrix of the active camera...
-				scene.setInvCameraViewMatrix (scene.activeCamera.worldMat.Inverted ());
+				scene.InvCameraViewMatrix = scene.ActiveCamera.worldMat.Inverted ();
 
 				// scene.renderConfig.renderBoundingSpheres = true;
 
 				// setup the view projection. technically only need to do this on window resize..
 				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);				
 				//projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
-				scene.setProjectionMatrix (projection);
+				scene.ProjectionMatrix = projection;
 				
 				// render 3d content...
 				scene.Render ();
@@ -113,7 +113,8 @@ namespace WavefrontOBJViewer
 
 				// setup an orthographic projection looking down the +Z axis, same as:
 				// GL.Ortho (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);			
-				hudScene.setInvCameraViewMatrix(Matrix4.CreateOrthographicOffCenter(0,ClientRectangle.Width,ClientRectangle.Height,0,-1,1));
+				hudScene.InvCameraViewMatrix 
+				= Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
 
 				hudScene.Render ();
 
@@ -139,7 +140,7 @@ namespace WavefrontOBJViewer
 
 			// setup WIN_SCALE for our shader...
 			shaderPgm.Activate();
-			shaderPgm.WinScale = ClientRectangle;
+			shaderPgm.u_WinScale = ClientRectangle;
 		}
 
 	}

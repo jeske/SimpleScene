@@ -13,17 +13,17 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
-            scene.renderConfig.BaseShader = shaderPgm;
-			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+			scene.BaseShader = shaderPgm;
+			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += (obj, renderConfig) => {
 				shaderPgm.Activate();
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					shaderPgm.ShowWireframes = true;			
+					shaderPgm.u_ShowWireframes = true;			
 
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					shaderPgm.ShowWireframes = false;
+					shaderPgm.u_ShowWireframes = false;
 
 				}
 			};
@@ -33,18 +33,18 @@ namespace WavefrontOBJViewer
 			// 0. Add Lights
 			var light = new SSLight ();
 			light.Pos = lightPos;
-			scene.addLight(light);
+			scene.AddLight(light);
 
 			// 1. Add Objects
 			SSObject triObj;
-			scene.addObject (triObj = new SSObjectTriangle () );
+			scene.AddObject (triObj = new SSObjectTriangle () );
 			triObj.Pos = lightPos;
 
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (mesh);
-			scene.addObject (this.activeModel = droneObj);
+			scene.AddObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
 			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -60,7 +60,7 @@ namespace WavefrontOBJViewer
 			SSObject drone2Obj = new SSObjectMesh(
 				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/", "Drone2.obj")
 			);
-			scene.addObject (drone2Obj);
+			scene.AddObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
 			drone2Obj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -73,7 +73,7 @@ namespace WavefrontOBJViewer
 
 			// last. Add Camera
 
-			scene.addObject (scene.activeCamera = 
+			scene.AddObject (scene.ActiveCamera = 
 					new SSCameraThirdPerson (droneObj));
 		}
 
@@ -82,14 +82,14 @@ namespace WavefrontOBJViewer
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
 			SSObject skyboxCube = new SSObjectMeshSky(mesh);
-			environmentScene.addObject(skyboxCube);
+			environmentScene.AddObject(skyboxCube);
 			skyboxCube.Scale = new Vector3(0.7f);
 			skyboxCube.renderState.lighted = false;
 
 			// scene.addObject(skyboxCube);
 
 			SSObject skyboxStars = new SSObjectMeshSky(new SSMesh_Starfield(1600));
-			environmentScene.addObject(skyboxStars);
+			environmentScene.AddObject(skyboxStars);
 			skyboxStars.renderState.lighted = false;
 
 		}
@@ -99,12 +99,13 @@ namespace WavefrontOBJViewer
 
 		SSObjectGDISurface_Text wireframeDisplay;
 
-		public void updateWireframeDisplayText(SSRenderConfig config) {
-			wireframeDisplay.Label = String.Format ("press 'w' to toggle wireframe mode: [{0}]", config.drawWireframeMode);
+		public void updateWireframeDisplayText(WireframeMode mode) {
+			wireframeDisplay.Label = String.Format ("press 'w' to toggle wireframe mode: [{0}]", 
+				mode);
 		}
 
 		public void setupHUD() {
-			hudScene.setProjectionMatrix(Matrix4.Identity);	
+			hudScene.ProjectionMatrix = Matrix4.Identity;
 
 			// HUD Triangle...
 			//SSObject triObj = new SSObjectTriangle ();
@@ -115,21 +116,21 @@ namespace WavefrontOBJViewer
 			// HUD text....
 			fpsDisplay = new SSObjectGDISurface_Text ();
 			fpsDisplay.Label = "FPS: ...";
-			hudScene.addObject (fpsDisplay);
+			hudScene.AddObject (fpsDisplay);
 			fpsDisplay.Pos = new Vector3 (10f, 10f, 0f);
 			fpsDisplay.Scale = new Vector3 (1.0f);
 
 			// wireframe mode text....
 			wireframeDisplay = new SSObjectGDISurface_Text ();
-			hudScene.addObject (wireframeDisplay);
+			hudScene.AddObject (wireframeDisplay);
 			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
 			wireframeDisplay.Scale = new Vector3 (1.0f);
-			updateWireframeDisplayText (scene.renderConfig);
+			updateWireframeDisplayText (scene.DrawWireFrameMode);
 
 			// HUD text....
 			var testDisplay = new SSObject2DSurface_AGGText ();
 			testDisplay.Label = "TEST AGG";
-			hudScene.addObject (testDisplay);
+			hudScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
 

@@ -110,7 +110,7 @@ namespace SimpleScene
 
         private Dictionary<Type, LoadDelegate> m_loadDelegates = new Dictionary<Type,LoadDelegate>();
 
-        #region Public User Functions and Classes
+        #region Public User Functions
         public delegate object LoadDelegate(Context ctx, string filename);
 
         static public void RegisterLoadDelegate<T>(LoadDelegate dlg) {

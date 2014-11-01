@@ -25,7 +25,7 @@ namespace SimpleScene
 		public Vector4 Ambient = new Vector4(0.4f);
 		public Vector4 Specular = new Vector4 (1.0f);
 		public Vector4 Diffuse = new Vector4 (0.8f);
-        public SSShadowMap ShadowMap = new SSShadowMap();
+        public SSShadowMap ShadowMap = null;
 
 		protected LightName m_lightName;
 
@@ -50,6 +50,12 @@ namespace SimpleScene
 			DisableLight ();
 			s_avaiableLightNames.Enqueue (m_lightName);
 		}
+
+        public void AddShadowMap(TextureUnit unit) {
+            // TODO pass the texture unit to shadowmap constructor
+            // TODO add multiple shadowmaps to the same light?
+            ShadowMap = new SSShadowMap ();
+        }
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
 			GL.MatrixMode (MatrixMode.Modelview);			
