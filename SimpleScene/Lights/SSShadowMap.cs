@@ -24,6 +24,7 @@ namespace SimpleScene
 
         private readonly int m_frameBufferID;
         private readonly int m_textureID;
+        private readonly TextureUnit m_textureUnit;
         private bool m_isBound = false;
 
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
@@ -49,7 +50,7 @@ namespace SimpleScene
         private Matrix4 m_projTemp;
         private Matrix4 m_viewTemp;
 
-        public SSShadowMap()
+        public SSShadowMap(TextureUnit texUnit)
         {
             validateVersion();
             if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
@@ -62,8 +63,8 @@ namespace SimpleScene
             m_textureID = GL.GenTexture();
 
 			// bind the texture and set it up...
-			GL.ActiveTexture(TextureUnit.Texture4);
-			GL.BindTexture(TextureTarget.Texture2D, m_textureID);
+            m_textureUnit = texUnit;
+            BindShadowMapToTexture();
             GL.TexParameter(TextureTarget.Texture2D, 
                             TextureParameterName.TextureMagFilter, 
                             (int)TextureMagFilter.Nearest);
@@ -137,7 +138,7 @@ namespace SimpleScene
             renderConfig.invCameraViewMat = m_viewTemp;
         }
 
-		public void bindShadowMapToTexture() {            
+		public void BindShadowMapToTexture() {
 			GL.ActiveTexture(TextureUnit.Texture4);
 			GL.BindTexture(TextureTarget.Texture2D, m_textureID);	
         }

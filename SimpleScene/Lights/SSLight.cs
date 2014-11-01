@@ -54,7 +54,7 @@ namespace SimpleScene
         public void AddShadowMap(TextureUnit unit) {
             // TODO pass the texture unit to shadowmap constructor
             // TODO add multiple shadowmaps to the same light?
-            ShadowMap = new SSShadowMap ();
+            ShadowMap = new SSShadowMap (unit);
         }
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {

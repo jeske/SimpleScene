@@ -92,7 +92,7 @@ namespace SimpleScene
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
 					// this will only work for ONE shadow map
-					light.ShadowMap.bindShadowMapToTexture();
+					light.ShadowMap.BindShadowMapToTexture();
 					count ++;		            
                 }
             }
