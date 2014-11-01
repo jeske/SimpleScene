@@ -26,9 +26,6 @@ namespace SimpleScene
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 		}
 		public virtual void Render (ref SSRenderConfig renderConfig) {
-            if (renderConfig.drawingShadowMap && !renderState.castsShadow)
-                return;
-
 			// compute and set the modelView matrix, by combining the cameraViewMat
 			// with the object's world matrix
 			//    ... http://www.songho.ca/opengl/gl_transform.html

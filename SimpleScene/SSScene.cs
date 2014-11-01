@@ -58,7 +58,7 @@ namespace SimpleScene
 
         public List <SSObject> Objects { get { return m_objects; } }
 
-        #region Public Parameters
+
         public SSCamera ActiveCamera { 
             get { return m_activeCamera; }
             set { m_activeCamera = value; }
@@ -95,14 +95,14 @@ namespace SimpleScene
             get { return m_renderConfig.drawWireframeMode; }
             set { m_renderConfig.drawWireframeMode = value; }
         }
-        #endregion
+
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
         public event BeforeRenderObjectHandler BeforeRenderObject;
         #endregion
 
-        #region Public Functions
+
         public void AddObject(SSObject obj) {
             m_objects.Add(obj);
         }
@@ -164,6 +164,8 @@ namespace SimpleScene
                 obj.Update(fElapsedMS);
             }
         }
+
+        #region Render Pass Logic
 		public void RenderShadowMap() {
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
@@ -188,9 +190,8 @@ namespace SimpleScene
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
         }
-        #endregion
 
-        #region Private Functions
+        
         private void setupLights() {
             // setup the projection matrix
 
@@ -212,6 +213,8 @@ namespace SimpleScene
             foreach (var obj in m_objects) {
                 if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
                 if (!obj.renderState.visible) continue; // skip invisible objects
+                if (m_renderConfig.drawingShadowMap && !obj.renderState.castsShadow) continue; // skip non-shadow casters
+
                 // frustum test... 
                 #if true
                 if (m_renderConfig.frustumCulling &&
@@ -235,7 +238,9 @@ namespace SimpleScene
                 m_objects.RemoveAll(o => o.renderState.toBeDeleted);
             }
         }
+
         #endregion
+        
 
         public SSScene() {
             // Register SS types for loading by SSAssetManager
