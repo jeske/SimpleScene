@@ -167,6 +167,14 @@ namespace SimpleScene
 
         #region Render Pass Logic
 		public void RenderShadowMap() {
+            // clear some basics for 
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Texture2D);
+            GL.Disable(EnableCap.Lighting);
+            GL.ShadeModel(ShadingModel.Flat);
+            GL.Disable(EnableCap.ColorMaterial);
+
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {

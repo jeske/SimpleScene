@@ -74,6 +74,12 @@ namespace SimpleScene
 
             SSMainShaderProgram shaderPgm = renderConfig.BaseShader;
 
+            if (renderConfig.drawingShadowMap) { 
+                // assume SSObject.Render has setup our materials properly for the shadowmap Pass               
+                // TODO: find a better way to do this! 
+                return;
+            }
+
 			if (shaderPgm == null) {
 				SSShaderProgram.DeactivateAll ();
 				GL.Disable(EnableCap.CullFace);

@@ -35,8 +35,11 @@ namespace SimpleScene
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
-            if (renderConfig.drawingShadowMap) // nothing to setup
-                return;
+            if (renderConfig.drawingShadowMap) {                
+                return; // skip the rest of setup...
+
+                // ----- Dirty return ------
+            }
 
             if (renderConfig.BaseShader != null) {
                 var shaderPgm = renderConfig.BaseShader;
