@@ -37,6 +37,10 @@ namespace SimpleScene
             get { return m_textureID; }
         }
 
+        public TextureUnit TextureUnit {
+            get { return m_textureUnit; }
+        }
+
         private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-5000f, 5000f, -5000f, 5000f, 1f, 10000f);
         #if true
         private Matrix4 m_viewMatrix = Matrix4.LookAt(
@@ -94,9 +98,9 @@ namespace SimpleScene
 			// turn off reading and writing to color data
 			GL.DrawBuffer(DrawBufferMode.None); 
 			GL.ReadBuffer(ReadBufferMode.None);
-			GL.Ext.FramebufferTexture(
-				FramebufferTarget.Framebuffer,
-                FramebufferAttachment.Depth,0,0);
+            //GL.Ext.FramebufferTexture(
+            //	FramebufferTarget.Framebuffer,
+            //    FramebufferAttachment.Depth,0,0);
 
 
 			assertFramebufferOK();
@@ -140,7 +144,7 @@ namespace SimpleScene
 
 		public void BindShadowMapToTexture() {
 			GL.ActiveTexture(TextureUnit.Texture4);
-			GL.BindTexture(TextureTarget.Texture2D, m_textureID);	
+			GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
 
 		private void assertFramebufferOK() {

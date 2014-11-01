@@ -33,9 +33,9 @@ varying vec3 surfaceNormalVector;
 
 // shadowmap related
 uniform int shadowMapEnabled;
-uniform sampler2D shadowMapTexture;
 const int MAX_NUM_SHADOWMAPS = 4;
 uniform int numShadowMaps;
+uniform sampler2D shadowMapTextures[MAX_NUM_SHADOWMAPS];
 varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 
@@ -127,13 +127,13 @@ void main()
 	vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
 
-    float shadeFactor = 1.0;
     // shadowmap test
-	if (numShadowMaps > 0) {
-    	vec2 shadowMapUV = f_shadowMapCoords[0].xy;
-	    vec4 shadowMapTexel = texture2D(shadowMapTexture,shadowMapUV);
+    float shadeFactor = 1.0;
+	for (int i = 0; i < numShadowMaps; ++i) {
+    	vec2 shadowMapUV = f_shadowMapCoords[i].xy;
+	    vec4 shadowMapTexel = texture2D(shadowMapTextures[i], shadowMapUV);
 	    float nearestOccluder = shadowMapTexel.x;
-	    float distanceToTexel = f_shadowMapCoords[0].z;
+	    float distanceToTexel = f_shadowMapCoords[i].z;
 		float DEPTH_OFFSET = 0.01;
 		
 	    if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
@@ -175,14 +175,14 @@ void main()
        // diffuse...       
        float diffuseIllumination = clamp(dot(bump_normal,surfaceLightVector), 0,1);
        float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
-       outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
+       outputColor += shadeFactor * diffuseColor * max(diffuseIllumination, glowFactor);
 
 	   if (dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
 
           // specular...
           vec3 R = reflect(-lVec,bump_normal);
           float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0,1), gl_FrontMaterial.shininess);
-          outputColor += specTex * specularStrength * shininess;      
+          outputColor += specTex * shadeFactor * specularStrength * shininess;      
        }
 
     }
