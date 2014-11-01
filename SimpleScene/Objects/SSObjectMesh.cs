@@ -11,9 +11,12 @@ namespace SimpleScene
 {
     public class SSObjectMesh : SSObject
     {
-		public SSObjectMesh () { }        
-		public SSObjectMesh (SSAbstractMesh mesh) : base() {
-            this.Mesh = mesh;
+		public SSObjectMesh () { 
+            this.renderState.castsShadow = true; // SSObjectMesh casts shadow by default
+        }        
+		public SSObjectMesh (SSAbstractMesh mesh) : this() {
+            this.Mesh = mesh;        
+            this.renderState.castsShadow = true; // SSObjectMesh casts shadow by default
         }
 		
         private SSAbstractMesh _mesh;

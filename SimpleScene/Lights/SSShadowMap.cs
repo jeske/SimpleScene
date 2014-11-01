@@ -41,7 +41,7 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
-        private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-5000f, 5000f, -5000f, 5000f, 1f, 10000f);
+        private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-3000f, 3000f, -1000f, 1000f, 1f, 10000f);
         #if true
         private Matrix4 m_viewMatrix = Matrix4.LookAt(
             new Vector3 (0f, 0f, 4000f),
