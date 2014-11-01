@@ -80,7 +80,7 @@ namespace SimpleScene
 			// GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, (float)1.0f);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0,
-                PixelInternalFormat.DepthComponent32f,
+                PixelInternalFormat.DepthComponent16,
                 c_texWidth, c_texHeight, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
@@ -95,7 +95,7 @@ namespace SimpleScene
 			GL.ReadBuffer(ReadBufferMode.None);
 			GL.Ext.FramebufferTexture(
 				FramebufferTarget.Framebuffer,
-				FramebufferAttachment.ColorAttachment0,0,0);
+                FramebufferAttachment.Depth,0,0);
 
 
 			assertFramebufferOK();
@@ -152,7 +152,7 @@ namespace SimpleScene
         private void validateVersion() {
             string version_string = GL.GetString(StringName.Version);
             Version version = new Version(version_string[0], version_string[2]); // todo: improve
-            Version versionRequired = new Version(3, 0);
+            Version versionRequired = new Version(2, 2);
             if (version < versionRequired) {
                 throw new Exception("framebuffers not supported by the GL backend used");
             }
