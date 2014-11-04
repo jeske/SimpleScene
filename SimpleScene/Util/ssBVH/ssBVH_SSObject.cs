@@ -10,6 +10,7 @@ using System.Drawing;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene;
 
 namespace SimpleScene.Util.ssBVH
 {
@@ -90,6 +91,19 @@ namespace SimpleScene.Util.ssBVH
             GL.Vertex3(p3); GL.Vertex3(p0);
         }
 
+        private static readonly SSVertex_Pos[] vertices = {
+            new SSVertex_Pos (0f, 0f, 0f), new SSVertex_Pos(1f, 0f, 0f), new SSVertex_Pos(1f, 1f, 0f), new SSVertex_Pos(0f, 1f, 0f),
+            new SSVertex_Pos (0f, 0f, 1f), new SSVertex_Pos(1f, 0f, 1f), new SSVertex_Pos(1f, 1f, 1f), new SSVertex_Pos(0f, 1f, 1f),
+        };
+        private static readonly ushort[] indices = {
+            0, 1, 1, 2, 2, 3, 3, 0, // face1
+            4, 5, 5, 6, 6, 7, 7, 4, // face2
+            0, 4, 1, 5, 2, 6, 3, 7  // interconnects
+        };
+
+        private static SSVertexBuffer<SSVertex_Pos> vbo = new SSVertexBuffer<SSVertex_Pos> (vertices);
+        private static SSIndexBuffer ibo = new SSIndexBuffer (indices, vbo);
+
         public void renderCells(ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
             float nudge = 0f; 
 
@@ -111,22 +125,16 @@ namespace SimpleScene.Util.ssBVH
                     GL.Color4(Color.DarkRed);            
                 }
             }
-                                                 
-           	var p0 = new Vector3 (n.box.min.X + nudge,  n.box.min.Y + nudge,  n.box.max.Z - nudge);  
-			var p1 = new Vector3 (n.box.max.X - nudge,  n.box.min.Y + nudge,  n.box.max.Z - nudge);
-			var p2 = new Vector3 (n.box.max.X - nudge,  n.box.max.Y - nudge,  n.box.max.Z - nudge);  
-			var p3 = new Vector3 (n.box.min.X + nudge,  n.box.max.Y - nudge,  n.box.max.Z - nudge);
-			var p4 = new Vector3 (n.box.min.X + nudge,  n.box.min.Y + nudge,  n.box.min.Z + nudge);
-			var p5 = new Vector3 (n.box.max.X - nudge,  n.box.min.Y + nudge,  n.box.min.Z + nudge);
-			var p6 = new Vector3 (n.box.max.X - nudge,  n.box.max.Y - nudge,  n.box.min.Z + nudge);
-			var p7 = new Vector3 (n.box.min.X + nudge,  n.box.max.Y - nudge,  n.box.min.Z + nudge);
 
-            drawQuadEdges(p0, p1, p2, p3);            
-            drawQuadEdges(p7, p6, p5, p4);
-            drawQuadEdges(p1, p0, p4, p5);
-            drawQuadEdges(p2, p1, p5, p6);
-            drawQuadEdges(p3, p2, p6, p7);
-            drawQuadEdges(p0, p3, p7, p4);
+            Vector3 nudgeVect = new Vector3 (nudge);
+            Vector3 scale = n.box.max - n.box.min - 2f * nudgeVect;
+            Matrix4 mat = Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(n.box.min + nudgeVect);
+
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.PushMatrix();
+            GL.MultMatrix(ref mat);
+            ibo.DrawElements(PrimitiveType.Lines);
+            GL.PopMatrix();
 
             if (n.right != null) renderCells(n.right, ref n.box, depth:depth + 1);
             if (n.left != null) renderCells(n.left, ref n.box, depth:depth + 1);
@@ -141,10 +149,8 @@ namespace SimpleScene.Util.ssBVH
 			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
    			
-            GL.Begin(PrimitiveType.Lines);
             GL.Color4(Color.Red);                      
             this.renderCells(bvh.rootBVH, ref bvh.rootBVH.box, 0);
-            GL.End();
         }
     }
 

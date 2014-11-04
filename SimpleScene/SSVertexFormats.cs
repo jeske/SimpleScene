@@ -79,6 +79,10 @@ namespace SimpleScene
     {
         public Vector3 Position;
 
+        public SSVertex_Pos(float x, float y, float z) {
+            Position = new Vector3 (x, y, z);
+        }
+
         public unsafe void bindGLAttributes() {
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_Pos), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_Pos), "Position"));
