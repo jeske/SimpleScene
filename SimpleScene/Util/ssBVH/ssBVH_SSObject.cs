@@ -84,13 +84,6 @@ namespace SimpleScene.Util.ssBVH
             this.bvh = bvh;
         }
 
-         private void drawQuadEdges(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {            
-            GL.Vertex3(p0); GL.Vertex3(p1);
-            GL.Vertex3(p1); GL.Vertex3(p2);
-            GL.Vertex3(p2); GL.Vertex3(p3);
-            GL.Vertex3(p3); GL.Vertex3(p0);
-        }
-
         private static readonly SSVertex_Pos[] vertices = {
             new SSVertex_Pos (0f, 0f, 0f), new SSVertex_Pos(1f, 0f, 0f), new SSVertex_Pos(1f, 1f, 0f), new SSVertex_Pos(0f, 1f, 0f),
             new SSVertex_Pos (0f, 0f, 1f), new SSVertex_Pos(1f, 0f, 1f), new SSVertex_Pos(1f, 1f, 1f), new SSVertex_Pos(0f, 1f, 1f),
@@ -101,8 +94,8 @@ namespace SimpleScene.Util.ssBVH
             0, 4, 1, 5, 2, 6, 3, 7  // interconnects
         };
 
-        private static SSVertexBuffer<SSVertex_Pos> vbo = new SSVertexBuffer<SSVertex_Pos> (vertices);
-        private static SSIndexBuffer ibo = new SSIndexBuffer (indices, vbo);
+        private static readonly SSVertexBuffer<SSVertex_Pos> vbo = new SSVertexBuffer<SSVertex_Pos> (vertices);
+        private static readonly SSIndexBuffer ibo = new SSIndexBuffer (indices, vbo);
 
         public void renderCells(ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
             float nudge = 0f; 
@@ -130,10 +123,9 @@ namespace SimpleScene.Util.ssBVH
             Vector3 scale = n.box.max - n.box.min - 2f * nudgeVect;
             Matrix4 mat = Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(n.box.min + nudgeVect);
 
-            GL.MatrixMode(MatrixMode.Modelview);
             GL.PushMatrix();
             GL.MultMatrix(ref mat);
-            ibo.DrawElements(PrimitiveType.Lines);
+            ibo.DrawElements(PrimitiveType.Lines, false);
             GL.PopMatrix();
 
             if (n.right != null) renderCells(n.right, ref n.box, depth:depth + 1);
@@ -149,9 +141,13 @@ namespace SimpleScene.Util.ssBVH
 			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
    			
-            GL.Color4(Color.Red);                      
+            GL.Color4(Color.Red);
+            GL.MatrixMode(MatrixMode.Modelview);
+            ibo.Bind();
+            vbo.DrawBind();
             this.renderCells(bvh.rootBVH, ref bvh.rootBVH.box, 0);
+            vbo.DrawUnbind();
+            ibo.Unbind();
         }
     }
-
 }

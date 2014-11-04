@@ -14,8 +14,8 @@ namespace SimpleScene
 
     public interface ISSVertexBuffer
     {
-        void drawBind();
-        void drawUnbind();
+        void DrawBind();
+        void DrawUnbind();
     }
 
     public class SSVertexBuffer<VB> : ISSVertexBuffer
@@ -52,28 +52,31 @@ namespace SimpleScene
             unbindPrivate();
         }
 
-        public void DrawArrays(PrimitiveType primType) {
+        public void DrawArrays(PrimitiveType primType, bool doBind = true) {
+            if (doBind) DrawBind();
             drawPrivate(primType);
-            drawUnbind();
+            if (doBind) DrawUnbind();
         }
 
         public void UpdateAndDrawArrays(VB[] vertices,
-                                        PrimitiveType primType) {
+                                        PrimitiveType primType,
+                                        bool doBind = true)
+        {
             genBufferPrivate();
-            drawBind();
+            if (doBind) DrawBind();
             updatePrivate(vertices);
             drawPrivate(primType);
-            drawUnbind();
+            if (doBind) DrawUnbind();
         }
 
-        public void drawBind() {
+        public void DrawBind() {
             // bind for use and setup for drawing
             bindPrivate();
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             m_dummy.bindGLAttributes();
         }
 
-        public void drawUnbind() {
+        public void DrawUnbind() {
             // unbind from use and undo draw settings
             GL.PopClientAttrib();
             unbindPrivate();

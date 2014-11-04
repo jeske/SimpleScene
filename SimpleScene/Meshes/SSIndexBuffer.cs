@@ -34,30 +34,34 @@ namespace SimpleScene
                 m_IBOid = GL.GenBuffer();
             }
             m_numIndices = indices.Length;
-            bind();
+            Bind();
             GL.BufferData(BufferTarget.ElementArrayBuffer,
                          (IntPtr)(m_numIndices * sizeof(UInt16)),
                          indices, 
                          m_usageHint);
-            unbind();
+            Unbind();
         }
 
-        public void DrawElements(PrimitiveType primType) {
-			m_vbo.drawBind();
-            bind();
+        public void DrawElements(PrimitiveType primType, bool doBind = true) {
+            if (doBind) {
+                m_vbo.DrawBind();
+                Bind();
+            }
             GL.DrawElements(primType,
                             m_numIndices,
                             DrawElementsType.UnsignedShort,
                             IntPtr.Zero);
-            unbind();
-            m_vbo.drawUnbind();
+            if (doBind) {
+                Unbind();
+                m_vbo.DrawUnbind();
+            }
         }
 
-		private void bind() {
+        public void Bind() {
 			GL.BindBuffer (BufferTarget.ElementArrayBuffer, m_IBOid);
 		}
 
-		private void unbind() {
+        public void Unbind() {
 			GL.BindBuffer (BufferTarget.ElementArrayBuffer, 0);
 		}
 	}
