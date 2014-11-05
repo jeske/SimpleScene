@@ -51,23 +51,32 @@ namespace SimpleScene.Util.ssBVH
 
         public HashSet<ssBVHNode<GO>> refitNodes = new HashSet<ssBVHNode<GO>>();
 
-        private void traverseRay(ssBVHNode<GO> curNode, SSRay ray, List<ssBVHNode<GO>> hitlist) {
+        public delegate bool NodeTest(SSAABB box);
+
+        // internal functional traversal...
+        private void _traverse(ssBVHNode<GO> curNode, NodeTest hitTest, List<ssBVHNode<GO>> hitlist) {
             if (curNode == null) { return; }
-            SSAABB box = curNode.box;            
-            float tnear = 0f, tfar = 0f;
-            
-            if (OpenTKHelper.intersectRayAABox1(ray,box,ref tnear, ref tfar)) {
+            if (hitTest(curNode.box)) {
                 hitlist.Add(curNode);
-                traverseRay(curNode.left,ray,hitlist);
-                traverseRay(curNode.right,ray,hitlist);
+                _traverse(curNode.left,hitTest,hitlist);
+                _traverse(curNode.right,hitTest,hitlist);
             }
         }
 
-        public List<ssBVHNode<GO>> traverseRay(SSRay ray) {
+        // public interface to traversal..
+        public List<ssBVHNode<GO>> traverse(NodeTest hitTest) {
             var hits = new List<ssBVHNode<GO>>();
-
-            traverseRay(rootBVH,ray,hits);
+            this._traverse(rootBVH,hitTest,hits);
             return hits;
+        }
+        
+        public List<ssBVHNode<GO>> traverse(SSRay ray) {
+            float tnear = 0f, tfar = 0f;
+
+            return traverse( box => OpenTKHelper.intersectRayAABox1(ray,box,ref tnear, ref tfar) );
+        }
+        public List<ssBVHNode<GO>> traverse(SSAABB volume) {
+            return traverse( box => box.intersectsAABB(volume) );            
         }
 
         public void optimize() {  
