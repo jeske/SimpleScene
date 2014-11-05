@@ -70,6 +70,13 @@ namespace SimpleScene.Util.ssBVH
             return hits;
         }
         
+        // left in for compatibility..
+        public List<ssBVHNode<GO>> traverseRay(SSRay ray) {
+            float tnear = 0f, tfar = 0f;
+
+            return traverse( box => OpenTKHelper.intersectRayAABox1(ray,box,ref tnear, ref tfar) );
+        }
+
         public List<ssBVHNode<GO>> traverse(SSRay ray) {
             float tnear = 0f, tfar = 0f;
 
