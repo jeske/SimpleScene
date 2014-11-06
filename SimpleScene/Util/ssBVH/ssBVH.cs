@@ -20,10 +20,8 @@ using System.Text;
 
 using OpenTK;
 
-// TODO: add BVH ray-traversal
-// TODO: add BVH sphere-intersection 
-// TODO: add method to "add an object to the existing BVH"
-// TODO: add method to "move an object in the existing BVH"
+// TODO: handle merge/split when LEAF_OBJ_MAX > 1 and objects move
+// TODO: add sphere traversal
 
 namespace SimpleScene.Util.ssBVH
 {
@@ -85,6 +83,12 @@ namespace SimpleScene.Util.ssBVH
         public List<ssBVHNode<GO>> traverse(SSAABB volume) {
             return traverse( box => box.intersectsAABB(volume) );            
         }
+
+        /// <summary>
+        /// Call this to batch-optimize any object-changes notified through 
+        /// ssBVHNode.refit_ObjectChanged(..). For example, in a game-loop, 
+        /// call this once per frame.
+        /// </summary>
 
         public void optimize() {  
             if (LEAF_OBJ_MAX != 1) {
