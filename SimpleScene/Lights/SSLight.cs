@@ -18,6 +18,8 @@ namespace SimpleScene
 
 	public class SSLight : SSObjectBase
 	{
+        public enum LightType { Directional, PointSource };
+
 		private const LightName c_firstNameIdx = LightName.Light0;
 		private const LightName c_lastNameIdx = LightName.Light7;
 		static private readonly Queue<LightName> s_avaiableLightNames = new Queue<LightName>();
@@ -25,6 +27,7 @@ namespace SimpleScene
 		public Vector4 Ambient = new Vector4(0.4f);
 		public Vector4 Specular = new Vector4 (1.0f);
 		public Vector4 Diffuse = new Vector4 (0.8f);
+        public LightType Type = LightType.Directional;
         public SSShadowMap ShadowMap = null;
 
 		protected LightName m_lightName;

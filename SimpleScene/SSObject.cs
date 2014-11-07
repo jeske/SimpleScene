@@ -22,6 +22,16 @@ namespace SimpleScene
 
 		public string Name = "";
 
+        public float ScaledRadius {
+            get {
+                if (boundingSphere == null) {
+                    return 0f;
+                } else {
+                    return boundingSphere.radius * Scale.LengthFast;
+                }
+            }
+        }
+
 		public SSObject() : base() {
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 		}
