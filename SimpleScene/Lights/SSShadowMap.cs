@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using System.Collections.Generic;
 
 namespace SimpleScene
 {
@@ -25,6 +26,7 @@ namespace SimpleScene
         private readonly int m_frameBufferID;
         private readonly int m_textureID;
         private readonly TextureUnit m_textureUnit;
+        protected readonly SSLight m_light;
         private bool m_isBound = false;
 
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
@@ -41,20 +43,19 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
+        private Matrix4 m_projMatrix;
+        private Matrix4 m_viewMatrix;
+
+        #if false
         private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-3000f, 3000f, -1000f, 1000f, 1f, 10000f);
-        #if true
         private Matrix4 m_viewMatrix = Matrix4.LookAt(
             new Vector3 (0f, 0f, 4000f),
             new Vector3 (0f, 0f, -4000f),
             new Vector3 (0f, 1f, 0f));
-        #else
         Matrix4 m_viewMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, -4000f);
         #endif
 
-        private Matrix4 m_projTemp;
-        private Matrix4 m_viewTemp;
-
-        public SSShadowMap(TextureUnit texUnit)
+        public SSShadowMap(SSLight light, TextureUnit texUnit)
         {
             validateVersion();
             if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
@@ -63,6 +64,7 @@ namespace SimpleScene
             }
             ++s_numberOfShadowMaps;
 
+            m_light = light;
             m_frameBufferID = GL.Ext.GenFramebuffer();
             m_textureID = GL.GenTexture();
 
@@ -116,13 +118,15 @@ namespace SimpleScene
             GL.Ext.DeleteFramebuffer(m_frameBufferID);
         }
 
-        public void PrepareForRender(SSRenderConfig renderConfig) {
-            m_projTemp = renderConfig.projectionMatrix;
-            m_viewTemp = renderConfig.invCameraViewMat;
-
+        public void PrepareForRender(SSRenderConfig renderConfig, 
+                                     List<SSObject> objects,
+                                     Util3d.FrustumCuller frustum) {
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
+            Util3d.Projections.SimpleShadowmapProjection(
+                objects, m_light, frustum,
+                out m_projMatrix, out m_viewMatrix);
 
             renderConfig.projectionMatrix = m_projMatrix;
             renderConfig.invCameraViewMat = m_viewMatrix;
@@ -138,8 +142,6 @@ namespace SimpleScene
         public void FinishRender(SSRenderConfig renderConfig) {
 			GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             renderConfig.drawingShadowMap = false;
-            renderConfig.projectionMatrix = m_projTemp;
-            renderConfig.invCameraViewMat = m_viewTemp;
         }
 
 		public void BindShadowMapToTexture() {

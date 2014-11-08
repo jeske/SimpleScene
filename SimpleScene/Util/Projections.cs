@@ -65,6 +65,14 @@ namespace Util3d
                 if (RectsOverlap(aabbMin.Xy, aabbMax.Xy, localMin.Xy, localMax.Xy)
                  && localMin.Z < aabbMin.Z) {
                     aabbMin.Z = localMin.Z;
+                    for (int i = 0; i < 2; ++i) {
+                        if (localMin[i] < aabbMin[i]) {
+                            aabbMin [i] = localMin[i];
+                        }
+                        if (localMax[i] > aabbMax[i]) {
+                            aabbMax [i] = localMax[i];
+                        }
+                    }
                 }
             }
 

@@ -32,7 +32,10 @@ namespace SimpleScene
         public LightType Type = LightType.Directional;
         public SSShadowMap ShadowMap = null;
 
-        public Vector3 Direction = new Vector3 ();
+        public Vector3 Direction {
+            get { return Pos; }
+            set { Pos = value; }
+        }
 
 		protected LightName m_lightName;
 
@@ -61,7 +64,7 @@ namespace SimpleScene
         public void AddShadowMap(TextureUnit unit) {
             // TODO pass the texture unit to shadowmap constructor
             // TODO add multiple shadowmaps to the same light?
-            ShadowMap = new SSShadowMap (unit);
+            ShadowMap = new SSShadowMap (this, unit);
         }
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
@@ -94,7 +97,8 @@ namespace SimpleScene
 			// w=1.0 is a point light
 			// w=0.0 is a directional light
 			// we put it at the origin because it is transformed by the model view matrix (which already has our position)
-			GL.Light (m_lightName, LightParameter.Position, new Vector4(0,0,0,1.0f)); 
+            float w = (Type == LightType.Directional ? 0.0f : 1.0f);
+            GL.Light (m_lightName, LightParameter.Position, new Vector4(Pos, w)); 
 
 			int idx = m_lightName - c_firstNameIdx;
 			GL.Enable (EnableCap.Light0 + idx);
