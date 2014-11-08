@@ -250,7 +250,13 @@ namespace SimpleScene
             return true; // if we made it here, there was an intersection - YAY
         }
 
+        public static float DegreeToRadian(this float angleInDegrees) {
+			return (float)Math.PI * angleInDegrees / 180.0f;
+		}
 
+        public static float RadianToDegree(this float angleInRadians) {
+			return 180f * (angleInRadians / (float)Math.PI);            
+		}
 
 		public static float Clamp(float value, float min, float max) {
 			value = (value < min ? min : value);
