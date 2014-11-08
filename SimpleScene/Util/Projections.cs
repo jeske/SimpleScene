@@ -12,8 +12,7 @@ namespace Util3d
             SSLight light,
             FrustumCuller frustum, // can be null (disabled)
             out Matrix4 proj,
-            out Matrix4 view
-        )
+            out Matrix4 view)
         {
             if (light.Type != SSLight.LightType.Directional) {
                 throw new NotSupportedException();
@@ -54,6 +53,8 @@ namespace Util3d
                 }
             }
 
+            // TODO what happens if all objects are exluded?
+
             // Step 2: Extend Z of AABB to cover objects "between" current AABB and the light
             foreach (var obj in excluded) {
                 Vector3 lightAlignedPos = DirAlignedCoord(obj.Pos, lightX, lightY, lightZ);
@@ -74,8 +75,10 @@ namespace Util3d
                 1f, 1f + (aabbMax.Z - aabbMin.Z));
 
             // Use center of AABB in regular coordinates to get the view matrix
-            Vector3 center = (aabbMin + aabbMax) / 2f;
-            center = DirAlignedCoord(center, Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ);
+            Vector3 centerAligned = (aabbMin + aabbMax) / 2f;
+            Vector3 center = centerAligned.X * lightX
+                           + centerAligned.Y * lightY
+                           + centerAligned.Z * lightZ;
             view = Matrix4.LookAt(center - lightZ, center, lightY);
         }
 
