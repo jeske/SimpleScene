@@ -18,9 +18,11 @@ namespace SimpleScene
 
 	public class SSLight : SSObjectBase
 	{
+        // Light type is somewhat of a placeholder for now.
+        // Currently need a way to find objects "between" AABB and the light
         public enum LightType { Directional, PointSource };
 
-		private const LightName c_firstNameIdx = LightName.Light0;
+        private const LightName c_firstNameIdx = LightName.Light0;
 		private const LightName c_lastNameIdx = LightName.Light7;
 		static private readonly Queue<LightName> s_avaiableLightNames = new Queue<LightName>();
 
@@ -29,6 +31,8 @@ namespace SimpleScene
 		public Vector4 Diffuse = new Vector4 (0.8f);
         public LightType Type = LightType.Directional;
         public SSShadowMap ShadowMap = null;
+
+        public Vector3 Direction = new Vector3 ();
 
 		protected LightName m_lightName;
 
