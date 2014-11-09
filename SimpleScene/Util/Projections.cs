@@ -21,7 +21,7 @@ namespace Util3d
             // light-aligned unit vectors
             Vector3 lightZ = light.Direction.Normalized();
             Vector3 lightX, lightY;
-            TwoPerpAxes(lightZ, out lightX, out lightY);
+            OpenTKHelper.TwoPerpAxes(lightZ, out lightX, out lightY);
 
             var excluded = new List<SSObject> ();
 
@@ -38,7 +38,7 @@ namespace Util3d
                     excluded.Add(obj);
                 } else {
                     // determine AABB in light coordinates of the objects so far
-                    Vector3 lightAlignedPos = DirAlignedCoord(obj.Pos, lightX, lightY, lightZ);
+                    Vector3 lightAlignedPos = OpenTKHelper.ProjectCoord(obj.Pos, lightX, lightY, lightZ);
                     Vector3 rad = new Vector3(obj.ScaledRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
@@ -51,12 +51,12 @@ namespace Util3d
 
             // Step 2: Extend Z of AABB to cover objects "between" current AABB and the light
             foreach (var obj in excluded) {
-                Vector3 lightAlignedPos = DirAlignedCoord(obj.Pos, lightX, lightY, lightZ);
+                Vector3 lightAlignedPos = OpenTKHelper.ProjectCoord(obj.Pos, lightX, lightY, lightZ);
                 Vector3 rad = new Vector3(obj.ScaledRadius);
                 Vector3 localMin = lightAlignedPos - rad;
                 Vector3 localMax = lightAlignedPos + rad;
 
-                if (RectsOverlap(aabbMin.Xy, aabbMax.Xy, localMin.Xy, localMax.Xy)
+                if (OpenTKHelper.RectsOverlap(aabbMin.Xy, aabbMax.Xy, localMin.Xy, localMax.Xy)
                  && localMin.Z < aabbMax.Z) {
                     aabbMin = Vector3.ComponentMin(aabbMin, localMin);
                     aabbMax = Vector3.ComponentMax(aabbMax, localMax);
@@ -76,37 +76,6 @@ namespace Util3d
                            + centerAligned.Z * lightZ;
             float farEnough = (centerAligned.Z - aabbMin.Z) + 1f;
             view = Matrix4.LookAt(center - farEnough * lightZ, center, lightY);
-        }
-
-        public static void TwoPerpAxes(Vector3 zAxis, 
-                                       out Vector3 xAxis, 
-                                       out Vector3 yAxis,
-                                       float delta = 0.01f) {
-            // pick two perpendicular axes to an axis
-            zAxis.Normalize();
-            if (Math.Abs(zAxis.X) < delta
-             && Math.Abs(zAxis.Y) < delta) { // special case
-                xAxis = Vector3.UnitX;
-            } else {
-                xAxis = new Vector3(zAxis.Y, -zAxis.X, 0.0f);
-            }
-            yAxis = Vector3.Cross(zAxis, xAxis);
-        }
-
-        public static Vector3 DirAlignedCoord(Vector3 pt, 
-                                              Vector3 dirX, Vector3 dirY, Vector3 dirZ) {
-            // Assumes xAxis, yAxis, and zAxis are normalized
-            Vector3 ret;
-            ret.X = Vector3.Dot(pt, dirX);
-            ret.Y = Vector3.Dot(pt, dirY);
-            ret.Z = Vector3.Dot(pt, dirZ);
-            return ret;
-        }
-
-        public static bool RectsOverlap(Vector2 r1Min, Vector2 r1Max,
-                                        Vector2 r2Min, Vector2 r2Max) {
-            return !(r1Max.X < r2Min.X || r2Max.X < r1Min.X
-                  || r1Max.Y < r2Min.Y || r2Max.Y < r1Min.Y);
         }
     }
 }
