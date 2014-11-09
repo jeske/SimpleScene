@@ -27,7 +27,11 @@ namespace SimpleScene
                 if (boundingSphere == null) {
                     return 0f;
                 } else {
-                    return boundingSphere.radius * Scale.LengthFast;
+                    float scaleMax = float.NegativeInfinity;
+                    for (int i = 0; i < 3; ++i) {
+                        scaleMax = Math.Max(scaleMax, Scale [i]);
+                    }
+                    return boundingSphere.radius * scaleMax;
                 }
             }
         }

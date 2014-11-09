@@ -27,7 +27,6 @@ namespace SimpleScene
         private readonly int m_textureID;
         private readonly TextureUnit m_textureUnit;
         protected readonly SSLight m_light;
-        private bool m_isBound = false;
 
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
 
@@ -45,15 +44,6 @@ namespace SimpleScene
 
         private Matrix4 m_projMatrix;
         private Matrix4 m_viewMatrix;
-
-        #if false
-        private Matrix4 m_projMatrix = Matrix4.CreateOrthographicOffCenter(-3000f, 3000f, -1000f, 1000f, 1f, 10000f);
-        private Matrix4 m_viewMatrix = Matrix4.LookAt(
-            new Vector3 (0f, 0f, 4000f),
-            new Vector3 (0f, 0f, -4000f),
-            new Vector3 (0f, 1f, 0f));
-        Matrix4 m_viewMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, -4000f);
-        #endif
 
         public SSShadowMap(SSLight light, TextureUnit texUnit)
         {
@@ -125,7 +115,7 @@ namespace SimpleScene
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
             Util3d.Projections.SimpleShadowmapProjection(
-                objects, m_light, frustum,
+                objects, m_light, null,//frustum,
                 out m_projMatrix, out m_viewMatrix);
 
             renderConfig.projectionMatrix = m_projMatrix;

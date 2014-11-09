@@ -18,7 +18,7 @@ namespace Util3d
                 throw new NotSupportedException();
             }
 
-            // light "Z" vector
+            // light-aligned unit vectors
             Vector3 lightZ = light.Direction.Normalized();
             Vector3 lightX, lightY;
             TwoPerpAxes(lightZ, out lightX, out lightY);
@@ -33,7 +33,7 @@ namespace Util3d
                  || !obj.renderState.visible
                  || !obj.renderState.castsShadow) {
                     continue;
-                } else if (obj.boundingSphere != null
+                } else if (frustum != null && obj.boundingSphere != null
                         && !frustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
                     excluded.Add(obj);
                 } else {
@@ -42,14 +42,8 @@ namespace Util3d
                     Vector3 rad = new Vector3(obj.ScaledRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
-                    for (int i = 0; i < 3; ++i) {
-                        if (localMin[i] < aabbMin[i]) {
-                            aabbMin [i] = localMin[i];
-                        }
-                        if (localMax[i] > aabbMax[i]) {
-                            aabbMax [i] = localMax[i];
-                        }
-                    }
+                    aabbMin = Vector3.ComponentMin(aabbMin, localMin);
+                    aabbMax = Vector3.ComponentMax(aabbMax, localMax);
                 }
             }
 
@@ -63,16 +57,9 @@ namespace Util3d
                 Vector3 localMax = lightAlignedPos + rad;
 
                 if (RectsOverlap(aabbMin.Xy, aabbMax.Xy, localMin.Xy, localMax.Xy)
-                 && localMin.Z < aabbMin.Z) {
-                    aabbMin.Z = localMin.Z;
-                    for (int i = 0; i < 2; ++i) {
-                        if (localMin[i] < aabbMin[i]) {
-                            aabbMin [i] = localMin[i];
-                        }
-                        if (localMax[i] > aabbMax[i]) {
-                            aabbMax [i] = localMax[i];
-                        }
-                    }
+                 && localMin.Z < aabbMax.Z) {
+                    aabbMin = Vector3.ComponentMin(aabbMin, localMin);
+                    aabbMax = Vector3.ComponentMax(aabbMax, localMax);
                 }
             }
 
@@ -87,7 +74,8 @@ namespace Util3d
             Vector3 center = centerAligned.X * lightX
                            + centerAligned.Y * lightY
                            + centerAligned.Z * lightZ;
-            view = Matrix4.LookAt(center - lightZ, center, lightY);
+            float farEnough = (centerAligned.Z - aabbMin.Z) + 1f;
+            view = Matrix4.LookAt(center - farEnough * lightZ, center, lightY);
         }
 
         public static void TwoPerpAxes(Vector3 zAxis, 
@@ -109,9 +97,9 @@ namespace Util3d
                                               Vector3 dirX, Vector3 dirY, Vector3 dirZ) {
             // Assumes xAxis, yAxis, and zAxis are normalized
             Vector3 ret;
-            ret.X = Vector3.Dot(pt, dirX) / pt.X;
-            ret.Y = Vector3.Dot(pt, dirY) / pt.Y;
-            ret.Z = Vector3.Dot(pt, dirZ) / pt.Z;
+            ret.X = Vector3.Dot(pt, dirX);
+            ret.Y = Vector3.Dot(pt, dirY);
+            ret.Z = Vector3.Dot(pt, dirZ);
             return ret;
         }
 
