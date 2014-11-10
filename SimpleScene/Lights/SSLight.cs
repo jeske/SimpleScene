@@ -20,7 +20,7 @@ namespace SimpleScene
 	{
         // Light type is somewhat of a placeholder for now.
         // Currently need a way to find objects "between" AABB and the light
-        public enum LightType { Directional, PointSource };
+        public enum LightType { Directional, PointSource };        
 
         private const LightName c_firstNameIdx = LightName.Light0;
 		private const LightName c_lastNameIdx = LightName.Light7;
@@ -56,9 +56,12 @@ namespace SimpleScene
 			this.calcMatFromState ();
 		}
 
-		~SSLight() {
-			DisableLight ();
-			s_avaiableLightNames.Enqueue (m_lightName);
+		~SSLight() { 
+            // this isn't valid, because the GL context can be gone before this destructor is called
+            // If we're going to do this, we need to do something to find out that the owning GL context is still alive.
+                    
+			// DisableLight ();
+			// s_avaiableLightNames.Enqueue (m_lightName);
 		}
 
         public void AddShadowMap(TextureUnit unit) {

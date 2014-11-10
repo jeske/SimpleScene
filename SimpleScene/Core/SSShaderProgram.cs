@@ -20,7 +20,8 @@ public class SSShaderProgram {
     }
 
     ~SSShaderProgram() {
-        GL.DeleteProgram (m_programID);
+        // not valid if the GL context is gone...
+        // GL.DeleteProgram (m_programID);
     }
 
     public bool IsActive {
