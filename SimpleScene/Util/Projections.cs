@@ -11,8 +11,8 @@ namespace Util3d
             List<SSObject> objects, 
             SSLight light,
             FrustumCuller frustum, // can be null (disabled)
-            out Matrix4 proj,
-            out Matrix4 view)
+            out Vector3 projBBMin, out Vector3 projBBMax,
+            out Vector3 viewEye, out Vector3 viewTarget, out Vector3 viewUp)
         {
             if (light.Type != SSLight.LightType.Directional) {
                 throw new NotSupportedException();
@@ -26,8 +26,8 @@ namespace Util3d
             var excluded = new List<SSObject> ();
 
             // Step 1: light-direction aligned AABB of the visible objects
-            Vector3 aabbMin = new Vector3 (float.PositiveInfinity);
-            Vector3 aabbMax = new Vector3 (float.NegativeInfinity);
+            projBBMin = new Vector3 (float.PositiveInfinity);
+            projBBMax = new Vector3 (float.NegativeInfinity);
             foreach (var obj in objects) {
                 if (obj.renderState.toBeDeleted
                  || !obj.renderState.visible
@@ -42,8 +42,8 @@ namespace Util3d
                     Vector3 rad = new Vector3(obj.ScaledRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
-                    aabbMin = Vector3.ComponentMin(aabbMin, localMin);
-                    aabbMax = Vector3.ComponentMax(aabbMax, localMax);
+                    projBBMin = Vector3.ComponentMin(projBBMin, localMin);
+                    projBBMax = Vector3.ComponentMax(projBBMax, localMax);
                 }
             }
 
@@ -56,26 +56,23 @@ namespace Util3d
                 Vector3 localMin = lightAlignedPos - rad;
                 Vector3 localMax = lightAlignedPos + rad;
 
-                if (OpenTKHelper.RectsOverlap(aabbMin.Xy, aabbMax.Xy, localMin.Xy, localMax.Xy)
-                 && localMin.Z < aabbMax.Z) {
-                    aabbMin = Vector3.ComponentMin(aabbMin, localMin);
-                    aabbMax = Vector3.ComponentMax(aabbMax, localMax);
+                if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)
+                 && localMin.Z < projBBMax.Z) {
+                    projBBMin = Vector3.ComponentMin(projBBMin, localMin);
+                    projBBMax = Vector3.ComponentMax(projBBMax, localMax);
                 }
             }
 
             // Finish the projection matrix
-            proj = Matrix4.CreateOrthographicOffCenter(
-                aabbMin.X, aabbMax.X,
-                aabbMin.Y, aabbMax.Y,
-                1f, 1f + (aabbMax.Z - aabbMin.Z));
 
             // Use center of AABB in regular coordinates to get the view matrix
-            Vector3 centerAligned = (aabbMin + aabbMax) / 2f;
-            Vector3 center = centerAligned.X * lightX
-                           + centerAligned.Y * lightY
-                           + centerAligned.Z * lightZ;
-            float farEnough = (centerAligned.Z - aabbMin.Z) + 1f;
-            view = Matrix4.LookAt(center - farEnough * lightZ, center, lightY);
+            Vector3 centerAligned = (projBBMin + projBBMax) / 2f;
+            viewTarget = centerAligned.X * lightX
+                       + centerAligned.Y * lightY
+                       + centerAligned.Z * lightZ;
+            float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
+            viewEye = viewTarget - farEnough * lightZ;
+            viewUp = lightY;
         }
     }
 }
