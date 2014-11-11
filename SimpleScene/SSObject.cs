@@ -193,8 +193,24 @@ namespace SimpleScene
 			this.Orient(qResult);
 		}
 
-		protected void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
+		public void updateMat(ref Vector3 pos, ref Quaternion orient) {
+			this._pos = pos;
+			Matrix4 mat = Matrix4.CreateFromQuaternion(orient);
+			this._right = new Vector3(mat.M11,mat.M12,mat.M13);
+			this._up = new Vector3(mat.M21,mat.M22,mat.M23);
+			this._dir = new Vector3(mat.M31,mat.M32,mat.M33);
+			calcMatFromState();
+		}
 
+		public void updateMat(ref Matrix4 mat) {
+			this._right = new Vector3(mat.M11,mat.M12,mat.M13);
+			this._up = new Vector3(mat.M21,mat.M22,mat.M23);
+			this._dir = new Vector3(mat.M31,mat.M32,mat.M33);
+			this._pos = new Vector3(mat.M41,mat.M42,mat.M43);
+			calcMatFromState();
+		}
+
+		protected void updateMat(ref Vector3 dir, ref Vector3 up, ref Vector3 right, ref Vector3 pos) {
 			this._pos = pos;
 			this._dir = dir;
 			this._right = right;
