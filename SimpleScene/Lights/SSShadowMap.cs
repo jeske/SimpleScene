@@ -110,14 +110,15 @@ namespace SimpleScene
 
         public void PrepareForRender(SSRenderConfig renderConfig, 
                                      List<SSObject> objects,
-                                     Util3d.FrustumCuller frustum) {
+                                     Util3d.FrustumCuller frustum,
+									 SSCamera camera) {
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
             Vector3 projBBMin, projBBMax;
             Vector3 viewEye, viewTarget, viewUp;
             Util3d.Projections.SimpleShadowmapProjection(
-                objects, m_light, null, //frustum,
+				objects, m_light, frustum, camera,
                 out projBBMin, out projBBMax,
                 out viewEye, out viewTarget, out viewUp);
             m_projMatrix = Matrix4.CreateOrthographicOffCenter(

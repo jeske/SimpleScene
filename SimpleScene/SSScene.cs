@@ -181,7 +181,7 @@ namespace SimpleScene
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
-                    light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, frustum);
+					light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, frustum, this.ActiveCamera);
                     renderPass(false);
                     light.ShadowMap.FinishRender(m_renderConfig);
                 }

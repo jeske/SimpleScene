@@ -84,7 +84,8 @@ namespace SimpleScene
 
 		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
-			Matrix4 modelViewMatrix = this.worldMat * renderConfig.invCameraViewMat;
+			// we only use the invCameraViewMatrix, because we specify the pos/dir later below...
+			Matrix4 modelViewMatrix = renderConfig.invCameraViewMat;
 			GL.MatrixMode (MatrixMode.Modelview);
 			GL.LoadMatrix (ref modelViewMatrix);
 
