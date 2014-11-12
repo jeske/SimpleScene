@@ -12,21 +12,21 @@ namespace Util3d
             SSLight light,
             FrustumCuller frustum, // can be null (disabled)
 			SSCamera camera,
-            out Vector3 projBBMin, out Vector3 projBBMax,
+			out float width, out float height, out float nearZ, out float farZ,
             out Vector3 viewEye, out Vector3 viewTarget, out Vector3 viewUp)
         {
             if (light.Type != SSLight.LightType.Directional) {
                 throw new NotSupportedException();
             }
-
+			
             // light-aligned unit vectors
             Vector3 lightZ = light.Direction.Normalized();
             Vector3 lightX, lightY;
             OpenTKHelper.TwoPerpAxes(lightZ, out lightX, out lightY);
 
             // Step 1: light-direction aligned AABB of the visible objects
-            projBBMin = new Vector3 (float.PositiveInfinity);
-            projBBMax = new Vector3 (float.NegativeInfinity);
+            Vector3 projBBMin = new Vector3 (float.PositiveInfinity);
+            Vector3 projBBMax = new Vector3 (float.NegativeInfinity);
             foreach (var obj in objects) {
                 if (obj.renderState.toBeDeleted
                  || !obj.renderState.visible
@@ -79,12 +79,18 @@ namespace Util3d
 
             // Use center of AABB in regular coordinates to get the view matrix
             Vector3 centerAligned = (projBBMin + projBBMax) / 2f;
+
             viewTarget = centerAligned.X * lightX
                        + centerAligned.Y * lightY
                        + centerAligned.Z * lightZ;
             float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
             viewEye = viewTarget - farEnough * lightZ;
             viewUp = lightY;
+
+			width = projBBMax.X - projBBMin.X;
+			height = projBBMax.Y - projBBMin.Y;
+			nearZ = 1f;
+			farZ = 1f + (projBBMax.Z - projBBMin.Z);
         }
     }
 }
