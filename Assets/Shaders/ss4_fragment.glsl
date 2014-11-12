@@ -128,6 +128,10 @@ void main()
 	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
 
     // shadowmap test
+    float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
+    float bias = 0.005 * tan(acos(cosTheta));
+    float DEPTH_OFFSET = clamp(bias, 0, 0.01);
+    
     float shadeFactor = 1.0;
 	for (int i = 0; i < numShadowMaps; ++i) {
     	vec2 shadowMapUV = f_shadowMapCoords[i].xy;
