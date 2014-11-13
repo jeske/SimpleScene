@@ -141,7 +141,7 @@ namespace SimpleScene
                 attach(m_vertexShader);
 
                 m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "ss1_fragment.glsl");
-                attach(m_geometryShader);
+                attach(m_fragmentShader);
 			}
             link();
 			// shader is initialized now...	
