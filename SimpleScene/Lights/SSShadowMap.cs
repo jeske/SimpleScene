@@ -117,10 +117,23 @@ namespace SimpleScene
 
 			float width,height,nearZ,farZ;
             Vector3 viewEye, viewTarget, viewUp;
-            Util3d.Projections.SimpleShadowmapProjection(
-				objects, m_light, frustum, camera,
-				out width, out height, out nearZ, out farZ,
-                out viewEye, out viewTarget, out viewUp);
+			if (true) {
+				// dynamically compute light frustum
+	            Util3d.Projections.SimpleShadowmapProjection(
+					objects, m_light, frustum, camera,
+					out width, out height, out nearZ, out farZ,
+	                out viewEye, out viewTarget, out viewUp);
+			} else {
+				// hard-coded "whole scene"...
+				width = 2500;
+				height = 1500;
+				nearZ = 1;
+				farZ = 15000;
+				viewEye = new Vector3(0,0,-1500f);
+				viewTarget = new Vector3(0,0,1f);
+				viewUp = new Vector3(0,1f,0);
+			}
+
 			m_projMatrix = Matrix4.CreateOrthographic(width,height,nearZ,farZ);
             m_viewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 

@@ -18,7 +18,7 @@ namespace SimpleScene
 		int _stalls;
 		DateTime _stallPeriodBegin;
 
-		static int STALL_TIMEOUT = 60 * 5;  // 5 minute stall timeout
+		static float STALL_TIMEOUT_SECONDS = 0.9f;
 
 		public FPSCalculator () { 
 		}
@@ -29,19 +29,19 @@ namespace SimpleScene
 
 			// if there is a stall, don't count it against the frames per second calculation
 			// 10 fps = 100ms per frame, anything less we call a "stall"... 
-			// TODO: make this dynamic based on the FPS...
-			if (afterTimeElapsedSeconds > (100.0 /1000.0)) {
+			if (afterTimeElapsedSeconds > STALL_TIMEOUT_SECONDS) {
 				// looks like a stall! 				
 				_stalls++;
 				if (_stallPeriodBegin == default(DateTime)) {
 					_stallPeriodBegin = now;
+					_stalls++;
 				}
-				Console.WriteLine("*** Render Stall *** {0} seconds",afterTimeElapsedSeconds);
 				return;
 			} else {
-				if ((now - _stallPeriodBegin).TotalMinutes > STALL_TIMEOUT) {
-					_stalls = 0;
+				// the stall ended..
+				if (_stallPeriodBegin != default(DateTime)) {								
 					_stallPeriodBegin = default(DateTime);
+					Console.WriteLine("*** Render Stall *** {0} seconds",afterTimeElapsedSeconds);
 				}
 			}
 
