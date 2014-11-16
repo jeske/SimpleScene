@@ -8,13 +8,16 @@ namespace Util3d
     public static class Projections
     {
         public static void SimpleShadowmapProjection(
-            List<SSObject> objects, 
+            List<SSObject> objects,
             SSLight light,
-            FrustumCuller frustum, // can be null (disabled)
-			SSCamera camera,
+            Matrix4 cameraView, Matrix4 cameraProj,
 			out float width, out float height, out float nearZ, out float farZ,
             out Vector3 viewEye, out Vector3 viewTarget, out Vector3 viewUp)
         {
+            Matrix4 cameraViewProj = cameraView * cameraProj;
+            FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
+            Vector3 cameraPos = -cameraView.ExtractTranslation();
+
             if (light.Type != SSLight.LightType.Directional) {
                 throw new NotSupportedException();
             }
@@ -50,7 +53,7 @@ namespace Util3d
 
 				// compute the camera's position in lightspace, because we need to
 				// include everything "closer" that the midline of the camera frustum
-				Vector3 lightAlignedCameraPos = OpenTKHelper.ProjectCoord(camera.Pos, lightX, lightY, lightZ);
+				Vector3 lightAlignedCameraPos = OpenTKHelper.ProjectCoord(cameraPos, lightX, lightY, lightZ);
 				float minZTest = lightAlignedCameraPos.Z;
 			
 	            // TODO what happens if all objects are exluded?
@@ -91,6 +94,26 @@ namespace Util3d
 			height = projBBMax.Y - projBBMin.Y;
 			nearZ = 1f;
 			farZ = 1f + (projBBMax.Z - projBBMin.Z);
+        }
+
+        private static readonly Vector4[] c_viewCube = {
+            new Vector4(0f, 0f, 0f, 1f),
+            new Vector4(1f, 0f, 0f, 1f),
+            new Vector4(1f, 1f, 0f, 1f),
+            new Vector4(0f, 1f, 0f, 1f),
+            new Vector4(0f, 0f, 1f, 1f),
+            new Vector4(1f, 0f, 1f, 1f),
+            new Vector4(1f, 1f, 1f, 1f),
+            new Vector4(0f, 1f, 1f, 1f),
+        };
+
+        public static List<Vector3> FrustumCorners(ref Matrix4 modelViewProj) {
+            Matrix4 inverse = modelViewProj.Inverted();
+            var ret = new List<Vector3>(c_viewCube.Length);
+            for (int i = 0; i < ret.Count; ++i) {
+                ret [i] = Vector4.Transform(c_viewCube [i], inverse).Xyz;
+            }
+            return ret;
         }
     }
 }
