@@ -56,7 +56,7 @@ namespace Util3d
 
 			// compute the camera's position in lightspace, because we need to
 			// include everything "closer" that the midline of the camera frustum
-            Vector3 cameraPos = -cameraView.ExtractTranslation();
+            Vector3 cameraPos = cameraView.ExtractTranslation();
             Vector3 lightAlignedCameraPos = Vector3.Transform(cameraPos, lightTransform);
 			float minZTest = lightAlignedCameraPos.Z;
 		
