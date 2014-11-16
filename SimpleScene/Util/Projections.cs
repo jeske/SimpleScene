@@ -29,8 +29,19 @@ namespace Util3d
                  0f,       0f,       0f,       0f
             );
 
-            // Step 1: light-direction aligned AABB of the visible objects
+            // Step 0: AABB of frustum corners in light coordinates
+            Vector3 frustumBBMin = new Vector3 (float.PositiveInfinity);
+            Vector3 frustumBBMax = new Vector3 (float.NegativeInfinity);
             Matrix4 cameraViewProj = cameraView * cameraProj;
+            List<Vector3> corners = FrustumCorners(ref cameraViewProj);
+            for (int i = 0; i < corners.Count; ++i) {
+                Vector3 corner = Vector3.Transform(corners [i], lightTransform);
+                frustumBBMin = Vector3.ComponentMin(frustumBBMin, corner);
+                frustumBBMax = Vector3.ComponentMax(frustumBBMax, corner);
+            }
+
+            // Step 1: light-direction aligned AABB of the visible objects,
+            //         clamped by AABB of frustum in light coordinates
             FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
 
             Vector3 projBBMin = new Vector3 (float.PositiveInfinity);
@@ -101,22 +112,27 @@ namespace Util3d
             shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
         }
 
-        private static readonly Vector3[] c_viewCube = {
-            new Vector3(0f, 0f, 0f),
-            new Vector3(1f, 0f, 0f),
-            new Vector3(1f, 1f, 0f),
-            new Vector3(0f, 1f, 0f),
-            new Vector3(0f, 0f, 1f),
-            new Vector3(1f, 0f, 1f),
-            new Vector3(1f, 1f, 1f),
-            new Vector3(0f, 1f, 1f),
+        private static readonly Vector4[] c_viewCube = {
+            new Vector4(-1f, -1f, 0f, 1f),
+            new Vector4(-1f, 1f, 0f, 1f),
+            new Vector4(1f, 1f, 0f, 1f),
+            new Vector4(1f, -1f, 0f, 1f),
+
+            new Vector4(-1f, -1f, 1f, 1f),
+            new Vector4(-1f, 1f, 1f, 1f),
+            new Vector4(1f, 1f, 1f, 1f),
+            new Vector4(1f, -1f, 1f, 1f),
         };
 
         public static List<Vector3> FrustumCorners(ref Matrix4 modelViewProj) {
-            Matrix4 inverse = modelViewProj.Inverted();
+            Matrix4 inverse = modelViewProj;
+            //inverse.Transpose();
+            inverse.Invert();
             var ret = new List<Vector3>(c_viewCube.Length);
-            for (int i = 0; i < ret.Count; ++i) {
-                ret [i] = Vector3.Transform(c_viewCube [i], inverse);
+            for (int i = 0; i < c_viewCube.Length; ++i) {
+                Vector4 corner = Vector4.Transform(c_viewCube [i], inverse);
+                corner /= corner.W;
+                ret.Add(corner.Xyz);
             }
             return ret;
         }
