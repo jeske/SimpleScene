@@ -113,15 +113,10 @@ namespace SimpleScene
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
-			float width,height,nearZ,farZ;
-            Vector3 viewEye, viewTarget, viewUp;
             Util3d.Projections.SimpleShadowmapProjection(
                 objects, m_light, 
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-				out width, out height, out nearZ, out farZ,
-                out viewEye, out viewTarget, out viewUp);
-			m_projMatrix = Matrix4.CreateOrthographic(width,height,nearZ,farZ);
-            m_viewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);
+                out m_viewMatrix, out m_projMatrix);
 
             renderConfig.projectionMatrix = m_projMatrix;
             renderConfig.invCameraViewMat = m_viewMatrix;

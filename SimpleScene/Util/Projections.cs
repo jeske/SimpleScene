@@ -11,8 +11,7 @@ namespace Util3d
             List<SSObject> objects,
             SSLight light,
             Matrix4 cameraView, Matrix4 cameraProj,
-			out float width, out float height, out float nearZ, out float farZ,
-            out Vector3 viewEye, out Vector3 viewTarget, out Vector3 viewUp)
+            out Matrix4 shadowView, out Matrix4 shadowProj)
         {
             Matrix4 cameraViewProj = cameraView * cameraProj;
             FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
@@ -78,22 +77,25 @@ namespace Util3d
 	                }
 	            }
 			}
-            // Finish the projection matrix
-
             // Use center of AABB in regular coordinates to get the view matrix
             Vector3 centerAligned = (projBBMin + projBBMax) / 2f;
 
+            float width, height, nearZ, farZ;
+            Vector3 viewEye, viewTarget, viewUp;
             viewTarget = centerAligned.X * lightX
                        + centerAligned.Y * lightY
                        + centerAligned.Z * lightZ;
             float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
             viewEye = viewTarget - farEnough * lightZ;
             viewUp = lightY;
+            shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
+            // Finish the projection matrix
 			width = projBBMax.X - projBBMin.X;
 			height = projBBMax.Y - projBBMin.Y;
 			nearZ = 1f;
 			farZ = 1f + (projBBMax.Z - projBBMin.Z);
+            shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
         }
 
         private static readonly Vector4[] c_viewCube = {
