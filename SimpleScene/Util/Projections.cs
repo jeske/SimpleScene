@@ -30,6 +30,11 @@ namespace Util3d
             float objFarZ = float.NegativeInfinity;
             float objNearZ = float.PositiveInfinity;
             foreach (var obj in objects) {
+                // pass through all shadow casters and receivers
+                if (obj.renderState.toBeDeleted
+                 || !obj.renderState.visible) {
+                    continue;
+                }
                 float rad = obj.ScaledRadius;
                 if (frustum.isSphereInsideFrustum(obj.Pos, rad)) {
                     float currViewZ = - Vector3.Transform(obj.Pos, cameraView).Z;
@@ -78,16 +83,15 @@ namespace Util3d
                 frustumBBMax = Vector3.ComponentMax(frustumBBMax, corner);
             }
 
-            // Step 1: light-direction aligned AABB of the visible objects,
-            //         clamped by AABB of frustum in light coordinates
+            // Step 1: light-direction aligned AABB of shadow receivers,
             FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
 
             Vector3 projBBMin = new Vector3 (float.PositiveInfinity);
             Vector3 projBBMax = new Vector3 (float.NegativeInfinity);
             foreach (var obj in objects) {
+                // pass through all shadow casters and receivers
                 if (obj.renderState.toBeDeleted
-                 || !obj.renderState.visible
-                 || !obj.renderState.castsShadow) {
+                 || !obj.renderState.visible) {
                     continue;
                 } else if (frustum == null || ( obj.boundingSphere != null
                         && frustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius))) {
@@ -101,30 +105,26 @@ namespace Util3d
                 }
             }
 
-            // Step 2: Extend Z of AABB to cover objects "between" current AABB and the light,
+            // Step 1A: trim by the frustum bounding box, but min Z alone
+            projBBMin.Xy = Vector2.Min(projBBMin.Xy, frustumBBMin.Xy);
+            projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
 
-			// compute the camera's position in lightspace, because we need to
-			// include everything "closer" that the midline of the camera frustum
-            Vector3 cameraPos = cameraView.ExtractTranslation();
-            Vector3 lightAlignedCameraPos = Vector3.Transform(cameraPos, lightTransform);
-			float minZTest = lightAlignedCameraPos.Z;
-		
+            // Step 2: Extend Z of AABB to cover shadow casters current AABB and the light,
             foreach (var obj in objects) {
+                // pass through all shadow casters
 				if (obj.renderState.toBeDeleted
                  || !obj.renderState.visible
                  || !obj.renderState.castsShadow) {
                     continue;
 				}
-
                 Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
                 Vector3 rad = new Vector3(obj.ScaledRadius);
                 Vector3 localMin = lightAlignedPos - rad;
-                Vector3 localMax = lightAlignedPos + rad;
-
-                if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)
-                 && localMin.Z < minZTest) {
-                    projBBMin = Vector3.ComponentMin(projBBMin, localMin);
-                    projBBMax = Vector3.ComponentMax(projBBMax, localMax);
+                if (localMin.Z < projBBMin.Z) {
+                    Vector3 localMax = lightAlignedPos + rad;
+                    if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)) {
+                        projBBMin.Z = localMin.Z;
+                    }
                 }
             }
 
