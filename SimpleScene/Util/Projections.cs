@@ -52,17 +52,17 @@ namespace Util3d
             // camera projection matrix (nearZ and farZ modified) for each frustum split
             shadowProjs.Clear();
             shadowViews.Clear();
-            float prevFarZ = 0f;
+            float prevFarZ = nearZ;
             Matrix4 nextView, nextProj;
-            for (int i = 0; i < numShadowMaps; ++i) {
+            for (int i = 1; i <= numShadowMaps; ++i) {
                 // generate frustum splits using Practical Split Scheme (GPU Gems 3, 10.2.1)
                 float iRatio = (float)i / (float)numShadowMaps;
                 float cLog = nearZ * (float)Math.Pow(farZ / nearZ, iRatio);
                 float cUni = nearZ + (farZ - nearZ) * iRatio;
                 float nextFarZ = c_alpha * cLog + (1f - c_alpha) * cUni;
+                float nextNearZ = prevFarZ;
 
                 // modify the view proj matrix with the nearZ, farZ values for the current split
-                float nextNearZ = prevFarZ;
                 cameraProj [2, 2] = (nextNearZ + nextFarZ) / (nextNearZ - nextFarZ);
                 cameraProj [2, 3] = nextFarZ * nextNearZ / (nextNearZ - nextFarZ);
 
@@ -132,7 +132,7 @@ namespace Util3d
                 }
             }
 
-            // Step 1A: trim by the frustum bounding box, but min Z alone
+            // Step 1A: trim by the frustum bounding box, but leave min Z alone
             projBBMin.Xy = Vector2.Min(projBBMin.Xy, frustumBBMin.Xy);
             projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
 

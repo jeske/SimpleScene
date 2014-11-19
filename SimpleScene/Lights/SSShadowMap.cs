@@ -115,11 +115,11 @@ namespace SimpleScene
 
             List<Matrix4> shadowmapViews = new List<Matrix4> ();
             List<Matrix4> shadowmapProjs = new List<Matrix4> ();
-            #if false
+            #if true
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-                ref shadowmapViews, ref shadowmapProjs);
+                4, ref shadowmapViews, ref shadowmapProjs);
             #endif
             Util3d.Projections.SimpleShadowmapProjection(
                 objects, m_light, 
