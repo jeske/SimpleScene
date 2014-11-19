@@ -7,10 +7,13 @@ namespace Util3d
 {
     public static class Projections
     {
+        const float c_alpha = 0.5f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+
         public static void ParallelShadowmapProjections(
             List<SSObject> objects,
             SSLight light,
             Matrix4 cameraView, Matrix4 cameraProj,
+            int numShadowMaps,
             ref List<Matrix4> shadowViews,
             ref List<Matrix4> shadowProjs
             // ideally this would have, as input, nearZ, farZ, width and height of camera proj
@@ -47,7 +50,31 @@ namespace Util3d
 
             // Step 3: Dispatch shadowmap view/projection calculations with a modified
             // camera projection matrix (nearZ and farZ modified) for each frustum split
+            shadowProjs.Clear();
+            shadowViews.Clear();
+            float prevFarZ = 0f;
+            Matrix4 nextView, nextProj;
+            for (int i = 0; i < numShadowMaps; ++i) {
+                // generate frustum splits using Practical Split Scheme (GPU Gems 3, 10.2.1)
+                float iRatio = (float)i / (float)numShadowMaps;
+                float cLog = nearZ * (float)Math.Pow(farZ / nearZ, iRatio);
+                float cUni = nearZ + (farZ - nearZ) * iRatio;
+                float nextFarZ = c_alpha * cLog + (1f - c_alpha) * cUni;
 
+                // modify the view proj matrix with the nearZ, farZ values for the current split
+                float nextNearZ = prevFarZ;
+                cameraProj [2, 2] = (nextNearZ + nextFarZ) / (nextNearZ - nextFarZ);
+                cameraProj [2, 3] = nextFarZ * nextNearZ / (nextNearZ - nextFarZ);
+
+                SimpleShadowmapProjection(
+                    objects, light, 
+                    cameraView, cameraProj,
+                    out nextView, out nextProj);
+
+                shadowViews.Add(nextView);
+                shadowProjs.Add(nextProj);
+                prevFarZ = nextFarZ;
+            }
         }
 
         public static void SimpleShadowmapProjection(
