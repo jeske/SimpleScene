@@ -7,6 +7,44 @@ namespace Util3d
 {
     public static class Projections
     {
+        public static void ParallelShadowmapProjections(
+            List<SSObject> objects,
+            SSLight light,
+            Matrix4 cameraView, Matrix4 cameraProj,
+            ref List<Matrix4> shadowViews,
+            ref List<Matrix4> shadowProjs
+            // ideally this would have, as input, nearZ, farZ, width and height of camera proj
+        )
+        {
+            // Step 1: Extract the old near Z, far Z from the camera proj matrix
+            // http://www.terathon.com/gdc07_lengyel.pdf
+            float A = cameraProj [2, 2];
+            float B = cameraProj [2, 3];
+            float nearZ = 2f * B / (A - 1);
+            float farZ = 2f * B / (A + 1);
+
+            // Step 2: Try to shrink [nearZ, farZ] range to the objects inside the frustum
+            Matrix4 cameraViewProj = cameraView * cameraProj;
+            FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
+
+            float objFarZ = float.NegativeInfinity;
+            float objNearZ = float.PositiveInfinity;
+            foreach (var obj in objects) {
+                float rad = obj.ScaledRadius;
+                if (frustum.isSphereInsideFrustum(obj.Pos, rad)) {
+                    float currViewZ = - Vector3.Transform(obj.Pos, cameraView).Z;
+                    objNearZ = Math.Min(objNearZ, currViewZ - rad);
+                    objFarZ = Math.Max(objFarZ, currViewZ + rad);
+                }
+            }
+            nearZ = Math.Max(nearZ, objNearZ);
+            farZ = Math.Min(farZ, objFarZ);
+
+            // Step 3: Dispatch shadowmap view/projection calculations with a modified
+            // camera projection matrix (nearZ and farZ modified) for each frustum split
+
+        }
+
         public static void SimpleShadowmapProjection(
             List<SSObject> objects,
             SSLight light,
