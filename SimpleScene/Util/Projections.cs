@@ -132,11 +132,11 @@ namespace Util3d
                 }
             }
 
-            // Step 1A: trim by the frustum bounding box, but leave min Z alone
+            // Step 1B: trim by the frustum bounding box, but leave min Z alone
             projBBMin.Xy = Vector2.Min(projBBMin.Xy, frustumBBMin.Xy);
             projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
 
-            // Step 2: Extend Z of AABB to cover shadow casters current AABB and the light,
+            // Step 2: Extend Z of AABB to cover shadow casters between current AABB and the light,
             foreach (var obj in objects) {
                 // pass through all shadow casters
 				if (obj.renderState.toBeDeleted

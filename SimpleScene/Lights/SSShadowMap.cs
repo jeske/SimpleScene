@@ -113,18 +113,21 @@ namespace SimpleScene
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
+            #if true
             List<Matrix4> shadowmapViews = new List<Matrix4> ();
             List<Matrix4> shadowmapProjs = new List<Matrix4> ();
-            #if true
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-                4, ref shadowmapViews, ref shadowmapProjs);
-            #endif
+                1, ref shadowmapViews, ref shadowmapProjs);
+            m_viewMatrix = shadowmapViews[0];
+            m_projMatrix = shadowmapProjs[0];
+            #else
             Util3d.Projections.SimpleShadowmapProjection(
                 objects, m_light, 
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
                 out m_viewMatrix, out m_projMatrix);
+            #endif
 
             renderConfig.projectionMatrix = m_projMatrix;
             renderConfig.invCameraViewMat = m_viewMatrix;
