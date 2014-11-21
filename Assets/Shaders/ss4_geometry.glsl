@@ -98,9 +98,6 @@ void main(void)
 		f_eyeVec = eyeVec[i];
         f_vertexPosition_objectspace = vertexPosition_objectspace[i];        
         f_shadowMapCoords = shadowMapCoords[i];
-        for (int smc = 0; smc < numShadowMaps; smc++) {
-            f_shadowMapCoords[smc] = shadowMapCoords[i][smc];
-        }
 		       
 		gl_TexCoord[0] = gl_TexCoordIn[i][0];
 		gl_FrontColor = gl_FrontColorIn[i];

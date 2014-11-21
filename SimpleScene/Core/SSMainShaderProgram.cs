@@ -39,7 +39,7 @@ namespace SimpleScene
         private readonly int u_bumpTexEnabled;
 
         private readonly int u_numShadowMaps;
-        private readonly int u_shadowMapTextures;
+        private readonly int u_shadowMapTexture;
         private readonly int u_shadowMapVPs;
         private readonly int u_objectWorldTransform;
 		#endregion
@@ -88,11 +88,11 @@ namespace SimpleScene
             assertActive();
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
-                    // TODO: multiple shadowmaps per light?
+                    // TODO: multiple lights with shadowmaps?
                     if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    GL.Uniform1(u_shadowMapTextures + count, 
+                    GL.Uniform1(u_shadowMapTexture, 
                                 (int)light.ShadowMap.TextureUnit - (int)TextureUnit.Texture0);
 					count ++;
                 }
@@ -110,8 +110,10 @@ namespace SimpleScene
                     if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    Matrix4 temp = light.ShadowMap.DepthBiasVP; // to pass by reference
-                    GL.UniformMatrix4(u_shadowMapVPs + count, false, ref temp);
+                    Matrix4[] temp = light.ShadowMap.BiasViewProjectionMatrices;
+                    for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
+                        GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
+                    }
                     ++count;
                 }
             }
@@ -156,7 +158,7 @@ namespace SimpleScene
             u_winScale = getUniLoc("WIN_SCALE");
             u_showWireframes = getUniLoc("showWireframes");
             u_numShadowMaps = getUniLoc("numShadowMaps");
-            u_shadowMapTextures = getUniLoc("shadowMapTextures");
+            u_shadowMapTexture = getUniLoc("shadowMapTexture");
             u_shadowMapVPs = getUniLoc("shadowMapVPs");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
 

@@ -35,7 +35,7 @@ varying vec3 surfaceNormalVector;
 uniform int shadowMapEnabled;
 const int MAX_NUM_SHADOWMAPS = 4;
 uniform int numShadowMaps;
-uniform sampler2D shadowMapTextures[MAX_NUM_SHADOWMAPS];
+uniform sampler2D shadowMapTexture;
 varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 
@@ -137,10 +137,9 @@ void main()
     
         for (int i = 0; i < numShadowMaps; ++i) {
             vec2 shadowMapUV = f_shadowMapCoords[i].xy;
-            vec4 shadowMapTexel = texture2D(shadowMapTextures[i], shadowMapUV);
+            vec4 shadowMapTexel = texture2D(shadowMapTexture, shadowMapUV);
             float nearestOccluder = shadowMapTexel.x;
             float distanceToTexel = f_shadowMapCoords[i].z;
-            float DEPTH_OFFSET = 0.01;
             
             if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
                 shadeFactor = 0.5;

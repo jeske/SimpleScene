@@ -9,16 +9,18 @@ namespace SimpleScene
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
-        // TODO: update shadowmap mvp when position of SSLight changes
+        public const int c_maxNumberOfShadowMaps = 1;
+        public const int c_numberOfSplits = 1;
 
-        public const int c_maxNumberOfShadowMaps = 4;
+        private static readonly Matrix4[] c_biasMatrices = {
+            new Matrix4(
+                0.5f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.5f, 0.0f,
+                0.5f, 0.5f, 0.5f, 1.0f
+            ) 
+        };
 
-        private readonly Matrix4 c_biasMatrix = new Matrix4(
-            0.5f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.5f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f
-        );
         private const int c_texWidth = 1024;
         private const int c_texHeight = 1024;
         private static int s_numberOfShadowMaps = 0;
@@ -30,8 +32,18 @@ namespace SimpleScene
 
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
 
-        public Matrix4 DepthBiasVP {
-            get { return m_viewMatrix * m_projMatrix * c_biasMatrix; }
+        public Matrix4[] ViewProjectionMatrices {
+            get { return m_viewProjMatrices; }
+        }
+
+        public Matrix4[] BiasViewProjectionMatrices {
+            get {
+                Matrix4[] ret = new Matrix4[c_numberOfSplits];
+                for (int i = 0; i < c_numberOfSplits; ++i) {
+                    ret [i] = m_viewProjMatrices[i] * c_biasMatrices [i];
+                }
+                return ret;
+            }
         }
 
         public int TextureID {
@@ -42,8 +54,7 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
-        private Matrix4 m_projMatrix;
-        private Matrix4 m_viewMatrix;
+        private Matrix4[] m_viewProjMatrices = new Matrix4[c_numberOfSplits];
 
         public SSShadowMap(SSLight light, TextureUnit texUnit)
         {
@@ -114,14 +125,10 @@ namespace SimpleScene
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
             #if true
-            List<Matrix4> shadowmapViews = new List<Matrix4> ();
-            List<Matrix4> shadowmapProjs = new List<Matrix4> ();
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-                1, ref shadowmapViews, ref shadowmapProjs);
-            m_viewMatrix = shadowmapViews[0];
-            m_projMatrix = shadowmapProjs[0];
+                1, ref m_viewProjMatrices);
             #else
             Util3d.Projections.SimpleShadowmapProjection(
                 objects, m_light, 
@@ -129,8 +136,9 @@ namespace SimpleScene
                 out m_viewMatrix, out m_projMatrix);
             #endif
 
-            renderConfig.projectionMatrix = m_projMatrix;
-            renderConfig.invCameraViewMat = m_viewMatrix;
+            // TODO pass entire array of VPs
+            renderConfig.projectionMatrix = m_viewProjMatrices[0];
+            renderConfig.invCameraViewMat = Matrix4.Identity;
             renderConfig.drawingShadowMap = true;
             SSShaderProgram.DeactivateAll();
 
