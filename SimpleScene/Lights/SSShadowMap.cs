@@ -12,14 +12,12 @@ namespace SimpleScene
         public const int c_maxNumberOfShadowMaps = 1;
         public const int c_numberOfSplits = 1;
 
-        private static readonly Matrix4[] c_biasMatrices = {
-            new Matrix4(
-                0.5f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.5f, 0.0f,
-                0.5f, 0.5f, 0.5f, 1.0f
-            ) 
-        };
+        private static readonly Matrix4 c_biasMatrix = new Matrix4(
+            0.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f
+        );
 
         private const int c_texWidth = 1024;
         private const int c_texHeight = 1024;
@@ -40,7 +38,7 @@ namespace SimpleScene
             get {
                 Matrix4[] ret = new Matrix4[c_numberOfSplits];
                 for (int i = 0; i < c_numberOfSplits; ++i) {
-                    ret [i] = m_viewProjMatrices[i] * c_biasMatrices [i];
+                    ret [i] = m_viewProjMatrices[i] * c_biasMatrix;
                 }
                 return ret;
             }
