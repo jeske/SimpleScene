@@ -7,7 +7,16 @@ namespace Util3d
 {
     public static class Projections
     {
-        const float c_alpha = 0.5f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+        private const float c_alpha = 0.5f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+
+        private static readonly Matrix4[] c_cropMatrices = {
+            new Matrix4 (
+                .5f, 0f, 0f, 0f,
+                0f, .5f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                -.5f, -.5f, 0f, 1f
+            )
+        };
 
         public static void ParallelShadowmapProjections(
             List<SSObject> objects,
@@ -68,7 +77,7 @@ namespace Util3d
                     cameraView, cameraProj,
                     out nextView, out nextProj);
 
-                shadowViewsProjs [i] = nextView * nextProj;
+                shadowViewsProjs [i] = nextView * nextProj * c_cropMatrices[i];
                 prevFarZ = nextFarZ;
             }
         }
