@@ -131,17 +131,17 @@ namespace SimpleScene
 			shaderPgm.Activate ();
 
 			// turn off other texture layers
-			shaderPgm.u_SpecTexEnabled = false;
-			shaderPgm.u_AmbTexEnabled = false;
-			shaderPgm.u_BumpTexEnabled = false;
+			shaderPgm.UniSpecTexEnabled = false;
+			shaderPgm.UniAmbTexEnabled = false;
+			shaderPgm.UniBumpTexEnabled = false;
 
 			GL.ActiveTexture(TextureUnit.Texture0);
 			if (texture != null) {
 				GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-				shaderPgm.u_DiffTexEnabled = true;
+				shaderPgm.UniDiffTexEnabled = true;
 			} else {
 				GL.BindTexture(TextureTarget.Texture2D, 0);
-				shaderPgm.u_DiffTexEnabled = false;
+				shaderPgm.UniDiffTexEnabled = false;
 			}
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
