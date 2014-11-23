@@ -11,7 +11,7 @@ uniform float shadowMapSplits[MAX_NUM_SHADOWMAPS];
 uniform mat4 objWorldTransform;
 
 // output
-varying int shadowMapIndexMask;
+flat int shadowMapIndexMask;
 
 void main()
 {

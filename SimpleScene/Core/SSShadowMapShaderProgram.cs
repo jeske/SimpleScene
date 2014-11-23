@@ -62,7 +62,7 @@ namespace SimpleScene
         }
         #endregion
 
-        SSShadowMapShaderProgram()
+        public SSShadowMapShaderProgram()
         {
             if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
                 m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "shadowmap_vertex.glsl");
@@ -71,7 +71,7 @@ namespace SimpleScene
                 m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "shadowmap_fragment.glsl");
                 attach(m_fragmentShader);
 
-                m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "fragment_geometry.glsl");
+                m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "shadowmap_geometry.glsl");
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
