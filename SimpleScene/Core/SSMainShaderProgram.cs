@@ -28,7 +28,7 @@ namespace SimpleScene
         private readonly SSShader m_geometryShader;
         #endregion
 
-		#region Uniform Locations
+        #region Uniform Locations
         private readonly int u_winScale;
         private readonly int u_animateSecondsOffset;
         private readonly int u_showWireframes;
@@ -97,8 +97,6 @@ namespace SimpleScene
 					count ++;
                 }
             }
-
-			GL.Uniform1(u_numShadowMaps, count);
         }
 
         public void UpdateShadowMapMVPs(List<SSLight> lights) {
@@ -176,6 +174,9 @@ namespace SimpleScene
             GL.Uniform1(GLun_specTex, 1); // Texture.Texture1
             GL.Uniform1(GLun_ambiTex, 2); // Texture.Texture2
             GL.Uniform1(GLun_bumpTex, 3); // Texture.Texture3
+
+            // shadowmap splits
+            GL.Uniform1(u_numShadowMaps, SSShadowMap.c_numberOfSplits);
 
             checkErrors();
 		}
