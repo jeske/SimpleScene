@@ -135,6 +135,7 @@ namespace SimpleScene.Util.ssBVH
                 rootBVH = new ssBVHNode<GO>(this,objects);            
             } else {                
                 rootBVH = new ssBVHNode<GO>(this);
+                rootBVH.gobjects = new List<GO>(); // it's a leaf, so give it an empty object list
             }
         }       
     }   
