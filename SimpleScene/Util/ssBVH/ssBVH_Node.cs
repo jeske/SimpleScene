@@ -389,6 +389,7 @@ namespace SimpleScene.Util.ssBVH
                     mSubnode.left = left;
                     mSubnode.right = right;                    
                     mSubnode.parent = this;
+                    mSubnode.gobjects = null; // we need to be an interior node... so null out our object list..
                     left.parent = mSubnode;
                     right.parent = mSubnode;
                     mSubnode.childRefit(nAda, recurse:false);                  
@@ -573,7 +574,6 @@ namespace SimpleScene.Util.ssBVH
             left = right = null;
             parent = null;
             this.nodeNumber = bvh.nodeCount++;
-
         }
 
         internal ssBVHNode(ssBVH<GO> bvh, List<GO> gobjectlist) : this (bvh,null, gobjectlist, Axis.X,0)
