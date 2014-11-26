@@ -45,9 +45,18 @@ namespace SimpleScene
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-			GL.MatrixMode(MatrixMode.Modelview);
-			GL.LoadMatrix(ref modelViewMat);
+            if (renderConfig.drawingShadowMap) {
+                if (renderConfig.ShadowmapShader != null
+                    && renderConfig.ShadowmapShader.IsActive) {
+                    var shadowPgm = renderConfig.ShadowmapShader;
+                    shadowPgm.UniObjectWorldTransform = this.worldMat;
+                }
+                return; // skip the rest of setup; "dirty return"
+            }
+
+            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadMatrix(ref modelViewMat);
 
             if (renderConfig.MainShader != null
                 && renderConfig.MainShader.IsActive) {
@@ -60,12 +69,7 @@ namespace SimpleScene
                 shaderPgm.UniBumpTexEnabled = false;
                 // pass world transform to the main shader for referencing the shadowmap
                 shaderPgm.UniObjectWorldTransform = this.worldMat;
-            } else if (renderConfig.ShadowmapShader != null
-                    && renderConfig.ShadowmapShader.IsActive) {
-                var shadowPgm = renderConfig.ShadowmapShader;
-                shadowPgm.UniObjectWorldTransform = this.worldMat;
-                return; // skip the rest of setup; "dirty return"
-            }
+            } 
 
             GL.Disable(EnableCap.Blend);
             // reset things to a default state
