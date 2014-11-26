@@ -72,7 +72,7 @@ namespace SimpleScene
 
 			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 
-            SSMainShaderProgram shaderPgm = renderConfig.BaseShader;
+            SSMainShaderProgram shaderPgm = renderConfig.MainShader;
 
             if (renderConfig.drawingShadowMap) { 
                 // assume SSObject.Render has setup our materials properly for the shadowmap Pass               
@@ -237,7 +237,7 @@ namespace SimpleScene
                 } else {
                     if (renderConfig.drawGLSL) {
                         _renderSetupGLSL(ref renderConfig, subset);
-                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOTriangles(subset);
                         } else {
                             _renderSendTriangles(subset);
@@ -246,7 +246,7 @@ namespace SimpleScene
                     }
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();
-                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOLines(subset);
                         } else {
                             _renderSendLines(subset);

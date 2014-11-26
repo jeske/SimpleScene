@@ -49,14 +49,9 @@ namespace SimpleScene
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
-            if (renderConfig.drawingShadowMap) {                
-                return; // skip the rest of setup...
-
-                // ----- Dirty return ------
-            }
-
-            if (renderConfig.BaseShader != null) {
-                var shaderPgm = renderConfig.BaseShader;
+            if (renderConfig.MainShader != null
+                && renderConfig.MainShader.IsActive) {
+                var shaderPgm = renderConfig.MainShader;
                 // turn off most GL features to start..
                 shaderPgm.Activate();
                 shaderPgm.UniDiffTexEnabled = false;
@@ -65,6 +60,11 @@ namespace SimpleScene
                 shaderPgm.UniBumpTexEnabled = false;
                 // pass world transform to the main shader for referencing the shadowmap
                 shaderPgm.UniObjectWorldTransform = this.worldMat;
+            } else if (renderConfig.ShadowmapShader != null
+                    && renderConfig.ShadowmapShader.IsActive) {
+                var shadowPgm = renderConfig.ShadowmapShader;
+                shadowPgm.UniObjectWorldTransform = this.worldMat;
+                return; // skip the rest of setup; "dirty return"
             }
 
             GL.Disable(EnableCap.Blend);

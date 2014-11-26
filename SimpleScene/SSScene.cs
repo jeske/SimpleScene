@@ -24,7 +24,8 @@ namespace SimpleScene
 	public class SSRenderConfig {
 		public SSRenderStats renderStats;
 
-		public SSMainShaderProgram BaseShader;
+		public SSMainShaderProgram MainShader;
+        public SSShadowMapShaderProgram ShadowmapShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
@@ -64,16 +65,21 @@ namespace SimpleScene
             set { m_activeCamera = value; }
         }
 
-        public SSMainShaderProgram BaseShader {
-            get { return m_renderConfig.BaseShader; }
+        public SSMainShaderProgram MainShader {
+            get { return m_renderConfig.MainShader; }
             set { 
-                m_renderConfig.BaseShader = value;
-                if (m_renderConfig.BaseShader != null) {
-                    m_renderConfig.BaseShader.Activate();
-                    m_renderConfig.BaseShader.SetupShadowMap(m_lights);
-                    m_renderConfig.BaseShader.Deactivate();
+                m_renderConfig.MainShader = value;
+                if (m_renderConfig.MainShader != null) {
+                    m_renderConfig.MainShader.Activate();
+                    m_renderConfig.MainShader.SetupShadowMap(m_lights);
+                    m_renderConfig.MainShader.Deactivate();
                 }
             }
+        }
+
+        public SSShadowMapShaderProgram ShadowmapShader {
+            get { return m_renderConfig.ShadowmapShader; }
+            set { m_renderConfig.ShadowmapShader = value; }
         }
 
         public bool FrustumCulling {
@@ -117,10 +123,10 @@ namespace SimpleScene
                 return;
             }
             m_lights.Add(light);
-            if (BaseShader != null) {
-                BaseShader.Activate();
-                BaseShader.SetupShadowMap(m_lights);
-                BaseShader.Deactivate();
+            if (MainShader != null) {
+                MainShader.Activate();
+                MainShader.SetupShadowMap(m_lights);
+                MainShader.Deactivate();
             }
         }
 
@@ -129,10 +135,10 @@ namespace SimpleScene
                 throw new Exception ("Light not found.");
             }
             m_lights.Remove(light);
-            if (BaseShader != null) {
-                BaseShader.Activate();
-                BaseShader.SetupShadowMap(m_lights);
-                BaseShader.Deactivate();
+            if (MainShader != null) {
+                MainShader.Activate();
+                MainShader.SetupShadowMap(m_lights);
+                MainShader.Deactivate();
             }
         }
 
@@ -181,16 +187,16 @@ namespace SimpleScene
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
-					light.ShadowMap.PrepareForRender(m_renderConfig, m_objects);
+                    light.ShadowMap.PrepareForRender(m_renderConfig, m_objects);
                     renderPass(false);
                     light.ShadowMap.FinishRender(m_renderConfig);
                 }
             }
 
             // update mvps shadowmaps in the main shader
-            if (m_renderConfig.BaseShader != null) {
-                m_renderConfig.BaseShader.Activate();
-                m_renderConfig.BaseShader.UpdateShadowMapMVPs(m_lights);
+            if (m_renderConfig.MainShader != null) {
+                m_renderConfig.MainShader.Activate();
+                m_renderConfig.MainShader.UpdateShadowMapMVPs(m_lights);
             }
 		}
 

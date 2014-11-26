@@ -37,7 +37,8 @@ namespace Util3d
             SSLight light,
             Matrix4 cameraView, Matrix4 cameraProj,
             int numShadowMaps,
-            ref Matrix4[] shadowViewsProjs
+            ref Matrix4[] shadowViewsProjs,
+            float[] viewSplits
             // ideally this would have, as input, nearZ, farZ, width and height of camera proj
         )
         {
@@ -81,6 +82,9 @@ namespace Util3d
                 float cUni = nearZ + (farZ - nearZ) * iRatio;
                 float nextFarZ = c_alpha * cLog + (1f - c_alpha) * cUni;
                 float nextNearZ = prevFarZ;
+
+                // exported to the shader
+                viewSplits [i] = nextFarZ;
 
                 // modify the view proj matrix with the nearZ, farZ values for the current split
                 cameraProj [2, 2] = (nextNearZ + nextFarZ) / (nextNearZ - nextFarZ);

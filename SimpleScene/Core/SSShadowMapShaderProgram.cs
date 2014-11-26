@@ -34,30 +34,23 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public int[] UniShadowMapSplits {
-            set {
-                assertActive();
-                for (int i = 0; i < value.Length; ++i) {
-                    GL.Uniform1(u_shadowMapSplits + i, value [i]);
-                }
-            }
-        }
-
-        public void UpdateShadowMapMVPs(List<SSLight> lights) {
+        public void UpdateShadowMapMVPs(SSLight light) {
             // pass update mvp matrices for shadowmap lookup
             assertActive();
             int count = 0;
-            foreach (var light in lights) {
-                if (light.ShadowMap != null) {
-                    if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
-                        throw new Exception ("Unsupported number of shadow maps: " + count);
-                    }
-                    Matrix4[] temp = light.ShadowMap.ViewProjectionMatrices;
-                    for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
-                        GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
-                    }
-                    ++count;
+            if (light.ShadowMap != null) {
+                Matrix4[] temp = light.ShadowMap.ViewProjectionMatrices;
+                for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
+                    GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
                 }
+                ++count;
+            }
+        }
+
+        public void UpdateViewSplits(float[] splits) {
+            assertActive();
+            for (int s = 0; s < splits.Length; ++s) {
+                GL.Uniform1(u_shadowMapSplits + s, splits[s]);
             }
         }
         #endregion

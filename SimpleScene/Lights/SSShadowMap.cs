@@ -10,7 +10,7 @@ namespace SimpleScene
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
         public const int c_maxNumberOfShadowMaps = 1;
-        public const int c_numberOfSplits = 1;
+        public const int c_numberOfSplits = 4;
 
         private static readonly Matrix4 c_biasMatrix = new Matrix4(
             0.5f, 0.0f, 0.0f, 0.0f,
@@ -53,6 +53,7 @@ namespace SimpleScene
         }
 
         private Matrix4[] m_viewProjMatrices = new Matrix4[c_numberOfSplits];
+        private float[] m_viewSplits = new float[c_numberOfSplits];
 
         public SSShadowMap(SSLight light, TextureUnit texUnit)
         {
@@ -126,19 +127,23 @@ namespace SimpleScene
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-                1, ref m_viewProjMatrices);
+                4, ref m_viewProjMatrices, m_viewSplits);
             #else
+            Matrix4 shadowView, shadowProj;
             Util3d.Projections.SimpleShadowmapProjection(
                 objects, m_light, 
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-                out m_viewMatrix, out m_projMatrix);
+                out shadowView, out shadowProj);
+            m_viewProjMatrices[0] = shadowView * shadowProj;
             #endif
 
             // TODO pass entire array of VPs
-            renderConfig.projectionMatrix = m_viewProjMatrices[0];
-            renderConfig.invCameraViewMat = Matrix4.Identity;
+            //renderConfig.projectionMatrix = m_viewProjMatrices[0];
+            //renderConfig.invCameraViewMat = Matrix4.Identity;
             renderConfig.drawingShadowMap = true;
-            SSShaderProgram.DeactivateAll();
+            renderConfig.ShadowmapShader.Activate();
+            renderConfig.ShadowmapShader.UpdateShadowMapMVPs(m_light);
+            renderConfig.ShadowmapShader.UpdateViewSplits(m_viewSplits);
 
             GL.DrawBuffer(DrawBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
