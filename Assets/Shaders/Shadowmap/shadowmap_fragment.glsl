@@ -2,7 +2,7 @@
 
 #version 120
 
-flat int f_shadowMapIndex;
+flat int f_shadowMapIndex = 0;
 
 vec2 boundaries[4] = vec2[](
     vec2(-1.0, -1.0),

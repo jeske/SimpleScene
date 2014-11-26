@@ -7,7 +7,7 @@ const int MAX_NUM_SHADOWMAPS = 4;
 
 // input
 uniform int numShadowMaps;
-uniform float shadowMapSplits[MAX_NUM_SHADOWMAPS];
+uniform vec4 shadowMapSplits;
 uniform mat4 objWorldTransform;
 
 // output

@@ -47,10 +47,10 @@ namespace SimpleScene
             }
         }
 
-        public void UpdateViewSplits(float[] splits) {
-            assertActive();
-            for (int s = 0; s < splits.Length; ++s) {
-                GL.Uniform1(u_shadowMapSplits + s, splits[s]);
+        public float[] UniViewSplits {
+            set {
+                assertActive();
+                GL.Uniform4(u_shadowMapSplits, value [0], value [1], value [2], value [3]);
             }
         }
         #endregion

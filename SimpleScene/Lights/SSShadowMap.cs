@@ -143,7 +143,7 @@ namespace SimpleScene
             renderConfig.drawingShadowMap = true;
             renderConfig.ShadowmapShader.Activate();
             renderConfig.ShadowmapShader.UpdateShadowMapMVPs(m_light);
-            renderConfig.ShadowmapShader.UpdateViewSplits(m_viewSplits);
+            renderConfig.ShadowmapShader.UniViewSplits = m_viewSplits;
 
             GL.DrawBuffer(DrawBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
