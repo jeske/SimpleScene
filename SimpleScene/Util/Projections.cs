@@ -37,7 +37,7 @@ namespace Util3d
             SSLight light,
             Matrix4 cameraView, Matrix4 cameraProj,
             int numShadowMaps,
-            ref Matrix4[] shadowViewsProjs,
+            Matrix4[] shadowViewsProjs,
             float[] viewSplits
             // ideally this would have, as input, nearZ, farZ, width and height of camera proj
         )
