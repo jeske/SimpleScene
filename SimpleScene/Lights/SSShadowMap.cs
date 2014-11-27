@@ -145,6 +145,11 @@ namespace SimpleScene
             renderConfig.ShadowmapShader.UpdateShadowMapMVPs(m_light);
             renderConfig.ShadowmapShader.UniViewSplits = m_viewSplits;
 
+            // frustum view matrix is used to dispatch different split renders
+            // and does not need to be changed per object
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadMatrix(ref renderConfig.invCameraViewMat);
+
             GL.DrawBuffer(DrawBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
