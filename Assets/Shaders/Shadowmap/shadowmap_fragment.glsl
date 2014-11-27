@@ -19,5 +19,5 @@ void main()
      || gl_FragCoord.y < bmin.y || gl_FragCoord.y >= bmax.y) {
         discard;
     }
-    //gl_FragColor = gl_FragCoord.z;
+    gl_FragColor = vec4(1);
 }

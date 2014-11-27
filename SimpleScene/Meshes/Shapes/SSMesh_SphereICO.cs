@@ -127,25 +127,26 @@ namespace SimpleScene
 		}
 
 
-		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
-			shaderPgm.Activate ();
+		public override void RenderMesh(ref SSRenderConfig renderConfig) {
+            if (!renderConfig.drawingShadowMap) {
+                shaderPgm.Activate();
 
-			// turn off other texture layers
-			shaderPgm.UniSpecTexEnabled = false;
-			shaderPgm.UniAmbTexEnabled = false;
-			shaderPgm.UniBumpTexEnabled = false;
+                // turn off other texture layers
+                shaderPgm.UniSpecTexEnabled = false;
+                shaderPgm.UniAmbTexEnabled = false;
+                shaderPgm.UniBumpTexEnabled = false;
 
-			GL.ActiveTexture(TextureUnit.Texture0);
-			if (texture != null) {
-				GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-				shaderPgm.UniDiffTexEnabled = true;
-			} else {
-				GL.BindTexture(TextureTarget.Texture2D, 0);
-				shaderPgm.UniDiffTexEnabled = false;
-			}
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
+                GL.ActiveTexture(TextureUnit.Texture0);
+                if (texture != null) {
+                    GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
+                    shaderPgm.UniDiffTexEnabled = true;
+                } else {
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                    shaderPgm.UniDiffTexEnabled = false;
+                }
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            }
             ibo.DrawElements(PrimitiveType.Triangles);
 		}
 
