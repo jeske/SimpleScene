@@ -37,13 +37,11 @@ namespace SimpleScene
         public void UpdateShadowMapMVPs(SSLight light) {
             // pass update mvp matrices for shadowmap lookup
             assertActive();
-            int count = 0;
             if (light.ShadowMap != null) {
                 Matrix4[] temp = light.ShadowMap.ViewProjectionMatrices;
                 for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
                     GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
                 }
-                ++count;
             }
         }
 

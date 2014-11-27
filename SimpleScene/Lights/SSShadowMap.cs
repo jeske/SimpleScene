@@ -127,7 +127,7 @@ namespace SimpleScene
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
-                4, m_viewProjMatrices, m_viewSplits);
+                c_numberOfSplits, m_viewProjMatrices, m_viewSplits);
             #else
             Matrix4 shadowView, shadowProj;
             Util3d.Projections.SimpleShadowmapProjection(
