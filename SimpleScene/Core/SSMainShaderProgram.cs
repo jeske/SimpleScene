@@ -113,6 +113,7 @@ namespace SimpleScene
                         GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
                     }
                     ++count;
+
                 }
             }
         }

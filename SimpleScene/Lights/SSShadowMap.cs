@@ -123,7 +123,7 @@ namespace SimpleScene
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
-            #if true
+            #if false
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
@@ -142,7 +142,7 @@ namespace SimpleScene
             //renderConfig.invCameraViewMat = Matrix4.Identity;
             renderConfig.drawingShadowMap = true;
             renderConfig.ShadowmapShader.Activate();
-            renderConfig.ShadowmapShader.UpdateShadowMapMVPs(m_light);
+            renderConfig.ShadowmapShader.UpdateShadowMapMVPs(m_viewProjMatrices);
             renderConfig.ShadowmapShader.UniViewSplits = m_viewSplits;
 
             // frustum view matrix is used to dispatch different split renders

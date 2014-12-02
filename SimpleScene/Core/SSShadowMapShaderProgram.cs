@@ -34,14 +34,10 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public void UpdateShadowMapMVPs(SSLight light) {
+        public void UpdateShadowMapMVPs(Matrix4[] mvps) {
             // pass update mvp matrices for shadowmap lookup
-            assertActive();
-            if (light.ShadowMap != null) {
-                Matrix4[] temp = light.ShadowMap.ViewProjectionMatrices;
-                for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
-                    GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
-                }
+            for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
+                GL.UniformMatrix4(u_shadowMapVPs + s, false, ref mvps[s]);
             }
         }
 

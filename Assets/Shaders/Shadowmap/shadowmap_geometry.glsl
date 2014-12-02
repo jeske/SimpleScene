@@ -20,7 +20,8 @@ void main()
     }
 
     for (int m = 0; m < numShadowMaps; ++m) {
-        if ((combinedMask & (1 << m)) != 0) {
+        //if ((combinedMask & (1 << m)) != 0) {
+        if (m == 0) {
             f_shadowMapIndex = m;
             for (int i = 0; i < 3; ++i) {
                 gl_Position = shadowMapVPs[m] * gl_PositionIn[i];

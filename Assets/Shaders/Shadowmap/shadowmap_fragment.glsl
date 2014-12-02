@@ -13,11 +13,12 @@ vec2 boundaries[4] = vec2[](
 
 void main()
 {
+    /*
     vec2 bmin = boundaries[f_shadowMapIndex];
     vec2 bmax = bmin + vec2(1.0);
     if (gl_FragCoord.x < bmin.x || gl_FragCoord.x >= bmax.x
      || gl_FragCoord.y < bmin.y || gl_FragCoord.y >= bmax.y) {
         discard;
-    }
+        }*/
     gl_FragColor = vec4(1);
 }

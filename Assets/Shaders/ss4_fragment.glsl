@@ -135,7 +135,8 @@ void main()
         float bias = 0.005 * tan(acos(cosTheta));
         float DEPTH_OFFSET = clamp(bias, 0, 0.01);
     
-        for (int i = 0; i < numShadowMaps; ++i) {
+        //for (int i = 0; i < numShadowMaps; ++i) {
+        for (int i = 0; i < 1; ++i) {
             vec2 shadowMapUV = f_shadowMapCoords[i].xy;
             vec4 shadowMapTexel = texture2D(shadowMapTexture, shadowMapUV);
             float nearestOccluder = shadowMapTexel.x;
