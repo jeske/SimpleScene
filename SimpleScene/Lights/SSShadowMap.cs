@@ -19,8 +19,8 @@ namespace SimpleScene
             0.5f, 0.5f, 0.5f, 1.0f
         );
 
-        private const int c_texWidth = 1024;
-        private const int c_texHeight = 1024;
+        private const int c_texWidth = 2048;
+        private const int c_texHeight = 2048;
         private static int s_numberOfShadowMaps = 0;
 
         private readonly int m_frameBufferID;
@@ -123,7 +123,7 @@ namespace SimpleScene
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
-            #if false
+            #if true
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
@@ -137,9 +137,6 @@ namespace SimpleScene
             m_viewProjMatrices[0] = shadowView * shadowProj;
             #endif
 
-            // TODO pass entire array of VPs
-            //renderConfig.projectionMatrix = m_viewProjMatrices[0];
-            //renderConfig.invCameraViewMat = Matrix4.Identity;
             renderConfig.drawingShadowMap = true;
             renderConfig.ShadowmapShader.Activate();
             renderConfig.ShadowmapShader.UpdateShadowMapMVPs(m_viewProjMatrices);
