@@ -16,7 +16,7 @@ flat int shadowMapIndexMask;
 void main()
 {
     vec4 v = vec4(gl_Vertex.xyz, 1);
-    /*
+    /*    
     float viewZ = -(gl_ModelViewMatrix * v).z;
     for (int i = 0; i < numShadowMaps; ++i) {
         if (viewZ < shadowMapSplits[i]) {
@@ -24,5 +24,6 @@ void main()
             break;
         }
         }*/
+    
     gl_Position = objWorldTransform * v;
 }    
