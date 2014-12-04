@@ -14,8 +14,6 @@ uniform int numShadowMaps;
 
 varying in int shadowMapIndexMask[3];
 
-flat int f_shadowMapIndex;
-
 void main()
 {
     int combinedMask = 0;
@@ -35,12 +33,12 @@ void main()
         //if ((combinedMask & (1 << m)) != 0) {
         //if (m == 0) {
         {
-            f_shadowMapIndex = m;
+            gl_PrimitiveID = m;
             for (int i = 0; i < 3; ++i) {
                 gl_Position = mvp * gl_PositionIn[i];
                 EmitVertex();
             }
         }
+        EndPrimitive();
     }
-    EndPrimitive(); // not necessary?
 }

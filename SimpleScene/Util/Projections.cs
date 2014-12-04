@@ -19,12 +19,12 @@ namespace Util3d
                 .5f, 0f, 0f, 0f,
                 0f, .5f, 0f, 0f,
                 0f, 0f, 1f, 0f,
-                -.5f, +.5f, 0f, 1f),
+                +.5f, -.5f, 0f, 1f),
             new Matrix4 (
                 .5f, 0f, 0f, 0f,
                 0f, .5f, 0f, 0f,
                 0f, 0f, 1f, 0f,
-                +.5f, -.5f, 0f, 1f),
+                -.5f, +.5f, 0f, 1f),
             new Matrix4 (
                 .5f, 0f, 0f, 0f,
                 0f, .5f, 0f, 0f,
