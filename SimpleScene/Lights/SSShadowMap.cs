@@ -119,14 +119,17 @@ namespace SimpleScene
         }
 
         public void PrepareForRender(SSRenderConfig renderConfig, 
-                                     List<SSObject> objects) {
+                                     List<SSObject> objects,
+                                     float fov, float aspect, float nearZ, float farZ) {
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
             GL.Viewport(0, 0, c_texWidth, c_texHeight);
 
             #if true
             Util3d.Projections.ParallelShadowmapProjections(
                 objects, m_light,
-                renderConfig.invCameraViewMat, renderConfig.projectionMatrix,
+                renderConfig.invCameraViewMat,
+                renderConfig.projectionMatrix,
+                fov, aspect, nearZ, farZ,
                 c_numberOfSplits, m_viewProjMatrices, m_viewSplits);
             #else
             Matrix4 shadowView, shadowProj;

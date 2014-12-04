@@ -10,7 +10,7 @@ namespace SimpleScene
 	public class SSCameraThirdPerson : SSCamera
 	{
 		public SSObject FollowTarget;
-		public float followDistance = 10.0f;
+        public float followDistance = 15.0f;
 		public float minFollowDistance = 0.5f;
 		public float maxFollowDistance = 500.0f;
 		public Vector3 basePos;

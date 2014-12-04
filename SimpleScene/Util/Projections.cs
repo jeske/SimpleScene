@@ -35,20 +35,15 @@ namespace Util3d
         public static void ParallelShadowmapProjections(
             List<SSObject> objects,
             SSLight light,
-            Matrix4 cameraView, Matrix4 cameraProj,
+            Matrix4 cameraView,
+            Matrix4 cameraProj,
+            float fov, float aspect, float nearZ, float farZ,
             int numShadowMaps,
             Matrix4[] shadowViewsProjs,
             float[] viewSplits
             // ideally this would have, as input, nearZ, farZ, width and height of camera proj
         )
         {
-            // Step 1: Extract the old near Z, far Z from the camera proj matrix
-            // http://www.terathon.com/gdc07_lengyel.pdf
-            float A = cameraProj [2, 2];
-            float B = cameraProj [2, 3];
-            float nearZ = 2f * B / (A - 1);
-            float farZ = 2f * B / (A + 1);
-
             // Step 2: Try to shrink [nearZ, farZ] range to the objects inside the frustum
             Matrix4 cameraViewProj = cameraView * cameraProj;
             FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
@@ -86,9 +81,8 @@ namespace Util3d
                 // exported to the shader
                 viewSplits [i] = nextFarZ;
 
-                // modify the view proj matrix with the nearZ, farZ values for the current split
-                cameraProj [2, 2] = (nextNearZ + nextFarZ) / (nextNearZ - nextFarZ) * 2f;
-                cameraProj [2, 3] = nextFarZ * nextNearZ / (nextNearZ - nextFarZ) * 2f;
+                // create a view proj matrix with the nearZ, farZ values for the current split
+                cameraProj = Matrix4.CreatePerspectiveFieldOfView(fov, aspect, nextNearZ, nextFarZ);
 
                 SimpleShadowmapProjection(
                     objects, light, 

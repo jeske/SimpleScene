@@ -172,7 +172,7 @@ namespace SimpleScene
         }
 
         #region Render Pass Logic
-		public void RenderShadowMap() {
+        public void RenderShadowMap(float fov, float aspect, float nearZ, float farZ) {
             // clear some basics for 
             GL.Disable(EnableCap.Lighting);
             GL.Disable(EnableCap.Blend);
@@ -187,7 +187,7 @@ namespace SimpleScene
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
-                    light.ShadowMap.PrepareForRender(m_renderConfig, m_objects);
+                    light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, fov, aspect, nearZ, farZ);
                     renderPass(false);
                     light.ShadowMap.FinishRender(m_renderConfig);
                 }
