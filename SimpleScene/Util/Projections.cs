@@ -87,8 +87,8 @@ namespace Util3d
                 viewSplits [i] = nextFarZ;
 
                 // modify the view proj matrix with the nearZ, farZ values for the current split
-                cameraProj [2, 2] = (nextNearZ + nextFarZ) / (nextNearZ - nextFarZ);
-                cameraProj [2, 3] = nextFarZ * nextNearZ / (nextNearZ - nextFarZ);
+                cameraProj [2, 2] = (nextNearZ + nextFarZ) / (nextNearZ - nextFarZ) * 2f;
+                cameraProj [2, 3] = nextFarZ * nextNearZ / (nextNearZ - nextFarZ) * 2f;
 
                 SimpleShadowmapProjection(
                     objects, light, 

@@ -26,6 +26,7 @@ namespace SimpleScene
         private readonly int u_shadowMapVPs;
         private readonly int u_objectWorldTransform;
         private readonly int u_shadowMapSplits;
+        private readonly int[] u_uniMVPsTest = new int[SSShadowMap.c_numberOfSplits];
         #endregion
 
         #region Uniform Modifiers
@@ -37,7 +38,8 @@ namespace SimpleScene
         public void UpdateShadowMapMVPs(Matrix4[] mvps) {
             // pass update mvp matrices for shadowmap lookup
             for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
-                GL.UniformMatrix4(u_shadowMapVPs + s, false, ref mvps[s]);
+                //GL.UniformMatrix4(u_shadowMapVPs + s, false, ref mvps[s]);
+                GL.UniformMatrix4(u_uniMVPsTest [s], false, ref mvps [s]);
             }
         }
 
@@ -68,6 +70,11 @@ namespace SimpleScene
             }
             link();
             Activate();
+
+            for (int i = 0; i < SSShadowMap.c_numberOfSplits; ++i) {
+                var str = String.Format("shadowMapVPs{0}", i);
+                u_uniMVPsTest[i] = getUniLoc(str);
+            }
 
             u_shadowMapVPs = getUniLoc("shadowMapVPs");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
