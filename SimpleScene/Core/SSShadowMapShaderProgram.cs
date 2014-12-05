@@ -23,10 +23,9 @@ namespace SimpleScene
 
         #region Uniform Locations
         private readonly int u_numShadowMaps;
-        private readonly int u_shadowMapVPs;
         private readonly int u_objectWorldTransform;
+        private readonly int[] u_uniShadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
         private readonly int u_shadowMapSplits;
-        private readonly int[] u_uniMVPsTest = new int[SSShadowMap.c_numberOfSplits];
         #endregion
 
         #region Uniform Modifiers
@@ -39,7 +38,7 @@ namespace SimpleScene
             // pass update mvp matrices for shadowmap lookup
             for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
                 //GL.UniformMatrix4(u_shadowMapVPs + s, false, ref mvps[s]);
-                GL.UniformMatrix4(u_uniMVPsTest [s], false, ref mvps [s]);
+                GL.UniformMatrix4(u_uniShadowMapVPs [s], false, ref mvps [s]);
             }
         }
 
@@ -63,7 +62,7 @@ namespace SimpleScene
                 m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "shadowmap_geometry.glsl");
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
-                GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 12);
+                GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3 * SSShadowMap.c_numberOfSplits);
                 attach(m_geometryShader);
             } else {
                 throw new NotImplementedException ();
@@ -71,15 +70,16 @@ namespace SimpleScene
             link();
             Activate();
 
+            // TODO: debug passing things through arrays
             for (int i = 0; i < SSShadowMap.c_numberOfSplits; ++i) {
                 var str = String.Format("shadowMapVPs{0}", i);
-                u_uniMVPsTest[i] = getUniLoc(str);
+                u_uniShadowMapVPs[i] = getUniLoc(str);
             }
+            //u_shadowMapVPs = getUniLoc("shadowMapVPs");
 
-            u_shadowMapVPs = getUniLoc("shadowMapVPs");
+            u_shadowMapSplits = getUniLoc("shadowMapSplits");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_numShadowMaps = getUniLoc("numShadowMaps");
-            u_shadowMapSplits = getUniLoc("shadowMapSplits");
 
             GL.Uniform1(u_numShadowMaps, SSShadowMap.c_numberOfSplits);
 

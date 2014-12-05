@@ -10,20 +10,17 @@ uniform int numShadowMaps;
 uniform vec4 shadowMapSplits;
 uniform mat4 objWorldTransform;
 
-// output
-flat int shadowMapIndexMask;
+varying int indexMask;
 
 void main()
 {
-    vec4 v = vec4(gl_Vertex.xyz, 1);
-    /*    
-    float viewZ = -(gl_ModelViewMatrix * v).z;
+    float viewZ = -(gl_ModelViewMatrix * gl_Vertex).z;
     for (int i = 0; i < numShadowMaps; ++i) {
         if (viewZ < shadowMapSplits[i]) {
-            shadowMapIndexMask = 1 << i;
+            indexMask = 1 << i;
             break;
         }
-        }*/
+    }
     
-    gl_Position = objWorldTransform * v;
+    gl_Position = objWorldTransform * gl_Vertex;
 }    

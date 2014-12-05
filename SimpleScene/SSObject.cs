@@ -45,6 +45,11 @@ namespace SimpleScene
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 
+            // modelview is used by both by the rendering of the shadow and "main" rendering
+            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadMatrix(ref modelViewMat);
+
             if (renderConfig.drawingShadowMap) {
                 if (renderConfig.ShadowmapShader != null
                     && renderConfig.ShadowmapShader.IsActive) {
@@ -53,10 +58,6 @@ namespace SimpleScene
                 }
                 return; // skip the rest of setup; "dirty return"
             }
-
-            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadMatrix(ref modelViewMat);
 
             if (renderConfig.MainShader != null
                 && renderConfig.MainShader.IsActive) {
