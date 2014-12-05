@@ -22,7 +22,8 @@ void main()
     }
 
     for (int m = 0; m < numShadowMaps; ++m) {       
-        if ((combinedMask & (1 << m)) != 0)  {
+        //if ((combinedMask & (1 << m)) != 0)  {
+        {
             mat4 mvp;
             switch(m) {
             case 0: mvp = shadowMapVPs0; break;
