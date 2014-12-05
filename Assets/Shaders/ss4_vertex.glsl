@@ -5,9 +5,11 @@
 // shadow-map related
 const int MAX_NUM_SHADOWMAPS = 4;
 uniform int numShadowMaps;
-uniform mat4 shadowMapVPs[MAX_NUM_SHADOWMAPS];
+uniform mat4 shadowMapVPs0;
+uniform mat4 shadowMapVPs1;
+uniform mat4 shadowMapVPs2;
+uniform mat4 shadowMapVPs3;
 uniform mat4 objWorldTransform;
-varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 // in eye-space/camera space
 varying vec3 vertexNormal;
@@ -17,6 +19,7 @@ varying vec3 lightPosition;
 varying vec3 eyeVec;
 
 varying vec3 vertexPosition_objectspace;
+varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 void main()
 {
@@ -36,6 +39,13 @@ void main()
     // shadowmap transform
     vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1);
     for (int i = 0; i < numShadowMaps; ++i) {
-        shadowMapCoords[i] = shadowMapVPs[i] * objPos;
+        mat4 vp;
+        switch(i) {
+        case 0: vp = shadowMapVPs0; break;
+        case 1: vp = shadowMapVPs1; break;
+        case 2: vp = shadowMapVPs2; break;
+        default: vp = shadowMapVPs3; break;
+        }
+        shadowMapCoords[i] = vp * objPos;
     }
 }	

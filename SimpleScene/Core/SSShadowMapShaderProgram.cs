@@ -24,7 +24,7 @@ namespace SimpleScene
         #region Uniform Locations
         private readonly int u_numShadowMaps;
         private readonly int u_objectWorldTransform;
-        private readonly int[] u_uniShadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
+        private readonly int[] u_shadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
         private readonly int u_shadowMapSplits;
         #endregion
 
@@ -34,11 +34,11 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public void UpdateShadowMapMVPs(Matrix4[] mvps) {
+        public void UpdateShadowMapVPs(Matrix4[] mvps) {
             // pass update mvp matrices for shadowmap lookup
             for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
                 //GL.UniformMatrix4(u_shadowMapVPs + s, false, ref mvps[s]);
-                GL.UniformMatrix4(u_uniShadowMapVPs [s], false, ref mvps [s]);
+                GL.UniformMatrix4(u_shadowMapVPs [s], false, ref mvps [s]);
             }
         }
 
@@ -73,7 +73,7 @@ namespace SimpleScene
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSShadowMap.c_numberOfSplits; ++i) {
                 var str = "shadowMapVPs" + i;
-                u_uniShadowMapVPs[i] = getUniLoc(str);
+                u_shadowMapVPs[i] = getUniLoc(str);
             }
             //u_shadowMapVPs = getUniLoc("shadowMapVPs");
 

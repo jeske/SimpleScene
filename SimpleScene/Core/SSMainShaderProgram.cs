@@ -40,7 +40,7 @@ namespace SimpleScene
 
         private readonly int u_numShadowMaps;
         private readonly int u_shadowMapTexture;
-        private readonly int u_shadowMapVPs;
+        private readonly int[] u_shadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
         private readonly int u_objectWorldTransform;
 		#endregion
 
@@ -99,7 +99,7 @@ namespace SimpleScene
             }
         }
 
-        public void UpdateShadowMapMVPs(List<SSLight> lights) {
+        public void UpdateShadowMapVPs(List<SSLight> lights) {
             // pass update mvp matrices for shadowmap lookup
             assertActive();
             int count = 0;
@@ -110,7 +110,7 @@ namespace SimpleScene
                     }
                     Matrix4[] temp = light.ShadowMap.BiasViewProjectionMatrices;
                     for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
-                        GL.UniformMatrix4(u_shadowMapVPs + s, false, ref temp[s]);
+                        GL.UniformMatrix4(u_shadowMapVPs[s], false, ref temp[s]);
                     }
                     ++count;
 
@@ -158,8 +158,13 @@ namespace SimpleScene
             u_showWireframes = getUniLoc("showWireframes");
             u_numShadowMaps = getUniLoc("numShadowMaps");
             u_shadowMapTexture = getUniLoc("shadowMapTexture");
-            u_shadowMapVPs = getUniLoc("shadowMapVPs");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
+
+            // TODO: debug passing things through arrays
+            for (int i = 0; i < SSShadowMap.c_numberOfSplits; ++i) {
+                var str = "shadowMapVPs" + i;
+                u_shadowMapVPs[i] = getUniLoc(str);
+            }
 
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
