@@ -25,7 +25,7 @@ namespace SimpleScene
         private readonly int u_numShadowMaps;
         private readonly int u_objectWorldTransform;
         private readonly int[] u_shadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
-        private readonly int u_shadowMapSplits;
+        //private readonly int u_shadowMapSplits;
         #endregion
 
         #region Uniform Modifiers
@@ -42,12 +42,14 @@ namespace SimpleScene
             }
         }
 
+        #if false
         public float[] UniViewSplits {
             set {
                 assertActive();
                 GL.Uniform4(u_shadowMapSplits, value [0], value [1], value [2], value [3]);
             }
         }
+        #endif
         #endregion
 
         public SSShadowMapShaderProgram()
@@ -77,7 +79,7 @@ namespace SimpleScene
             }
             //u_shadowMapVPs = getUniLoc("shadowMapVPs");
 
-            u_shadowMapSplits = getUniLoc("shadowMapSplits");
+            //u_shadowMapSplits = getUniLoc("shadowMapSplits");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_numShadowMaps = getUniLoc("numShadowMaps");
 

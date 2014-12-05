@@ -5,12 +5,12 @@
 
 const int MAX_NUM_SHADOWMAPS = 4;
 
+uniform int numShadowMaps;
+
 uniform mat4 shadowMapVPs0;
 uniform mat4 shadowMapVPs1;
 uniform mat4 shadowMapVPs2;
 uniform mat4 shadowMapVPs3;
-
-uniform int numShadowMaps;
 
 varying in int indexMask[3];
 
@@ -22,19 +22,18 @@ void main()
     }
 
     for (int m = 0; m < numShadowMaps; ++m) {       
-        //if ((combinedMask & (1 << m)) != 0)  {
-        {
-            mat4 mvp;
+        if ((combinedMask & (1 << m)) != 0)  {
+            mat4 vp;
             switch(m) {
-            case 0: mvp = shadowMapVPs0; break;
-            case 1: mvp = shadowMapVPs1; break;
-            case 2: mvp = shadowMapVPs2; break;
-            default: mvp = shadowMapVPs3; break;
+            case 0: vp = shadowMapVPs0; break;
+            case 1: vp = shadowMapVPs1; break;
+            case 2: vp = shadowMapVPs2; break;
+            default: vp = shadowMapVPs3; break;
             }
             
             gl_PrimitiveID = m;
             for (int i = 0; i < 3; ++i) {
-                gl_Position = mvp * gl_PositionIn[i];
+                gl_Position = vp * gl_PositionIn[i];
                 EmitVertex();
             }
         }
