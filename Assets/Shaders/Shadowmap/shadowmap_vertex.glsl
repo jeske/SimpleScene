@@ -54,8 +54,7 @@ void main()
         vec4 test = vp * gl_Position;
         if (test.x >= bmin.x && test.x <= bmax.x
          && test.y >= bmin.y && test.y <= bmax.y) {
-            indexMask = 1 << i;
-            break;
+            indexMask |= 1 << i;
         }
     }
 }    
