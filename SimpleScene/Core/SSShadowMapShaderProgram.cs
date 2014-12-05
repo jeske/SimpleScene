@@ -72,7 +72,7 @@ namespace SimpleScene
 
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSShadowMap.c_numberOfSplits; ++i) {
-                var str = String.Format("shadowMapVPs{0}", i);
+                var str = "shadowMapVPs" + i;
                 u_uniShadowMapVPs[i] = getUniLoc(str);
             }
             //u_shadowMapVPs = getUniLoc("shadowMapVPs");
