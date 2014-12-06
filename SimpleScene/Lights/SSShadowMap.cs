@@ -28,6 +28,9 @@ namespace SimpleScene
         private readonly TextureUnit m_textureUnit;
         protected readonly SSLight m_light;
 
+        private Matrix4[] m_viewProjMatrices = new Matrix4[c_numberOfSplits];
+        private float[] m_viewSplits = new float[c_numberOfSplits];
+
         public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
 
         public Matrix4[] ViewProjectionMatrices {
@@ -52,8 +55,9 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
-        private Matrix4[] m_viewProjMatrices = new Matrix4[c_numberOfSplits];
-        private float[] m_viewSplits = new float[c_numberOfSplits];
+        public float[] ViewSplits {
+            get { return m_viewSplits; } 
+        }
 
         public SSShadowMap(SSLight light, TextureUnit texUnit)
         {

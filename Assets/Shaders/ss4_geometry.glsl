@@ -96,7 +96,7 @@ void main(void)
 		f_vertexNormal = vertexNormal[i];
 		f_lightPosition = lightPosition[i];
 		f_eyeVec = eyeVec[i];
-        f_vertexPosition_objectspace = vertexPosition_objectspace[i];        
+        f_vertexPosition_objectspace = vertexPosition_objectspace[i];
         f_shadowMapCoords = shadowMapCoords[i];
 		       
 		gl_TexCoord[0] = gl_TexCoordIn[i][0];

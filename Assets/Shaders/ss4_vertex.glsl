@@ -29,10 +29,10 @@ void main()
 
 	// transform into eye-space
 	vertexNormal = n = normalize (gl_NormalMatrix * gl_Normal);
-	vec4 vertexPosition = gl_ModelViewMatrix * gl_Vertex;
-	VV = vec3(vertexPosition);
-	lightPosition = (gl_LightSource[0].position - vertexPosition).xyz;
-	eyeVec = -normalize(vertexPosition).xyz;
+	vec4 vertexPosition_viewspace = gl_ModelViewMatrix * gl_Vertex;
+	VV = vec3(vertexPosition_viewspace);
+	lightPosition = (gl_LightSource[0].position - vertexPosition_viewspace).xyz;
+	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
 	gl_Position = ftransform();  
 

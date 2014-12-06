@@ -196,7 +196,7 @@ namespace SimpleScene
             // update mvps shadowmaps in the main shader
             if (m_renderConfig.MainShader != null) {
                 m_renderConfig.MainShader.Activate();
-                m_renderConfig.MainShader.UpdateShadowMapVPs(m_lights);
+                m_renderConfig.MainShader.UpdateShadowMapInfo(m_lights);
             }
 		}
 

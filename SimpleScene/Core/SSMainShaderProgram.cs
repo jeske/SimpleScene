@@ -42,6 +42,7 @@ namespace SimpleScene
         private readonly int u_shadowMapTexture;
         private readonly int[] u_shadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
         private readonly int u_objectWorldTransform;
+        private readonly int u_shadowMapViewSplits;
 		#endregion
 
         #region Uniform Modifiers
@@ -99,8 +100,7 @@ namespace SimpleScene
             }
         }
 
-        public void UpdateShadowMapVPs(List<SSLight> lights) {
-            // pass update mvp matrices for shadowmap lookup
+        public void UpdateShadowMapInfo(List<SSLight> lights) {
             assertActive();
             int count = 0;
             foreach (var light in lights) {
@@ -108,12 +108,15 @@ namespace SimpleScene
                     if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
+                    // update shadowmap view-projection-crop-bias matrices for shadowmap lookup
                     Matrix4[] temp = light.ShadowMap.BiasViewProjectionMatrices;
                     for (int s = 0; s < SSShadowMap.c_numberOfSplits; ++s) {
                         GL.UniformMatrix4(u_shadowMapVPs[s], false, ref temp[s]);
                     }
+                    // update view paritioning info for shadowmap lookup
+                    float[] splits = light.ShadowMap.ViewSplits;
+                    GL.Uniform4(u_shadowMapViewSplits, splits [0], splits [1], splits [2], splits [3]);
                     ++count;
-
                 }
             }
         }
@@ -159,6 +162,7 @@ namespace SimpleScene
             u_numShadowMaps = getUniLoc("numShadowMaps");
             u_shadowMapTexture = getUniLoc("shadowMapTexture");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
+            u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
 
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSShadowMap.c_numberOfSplits; ++i) {

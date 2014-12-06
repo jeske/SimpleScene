@@ -26,16 +26,6 @@ vec2 boundaries[4] = vec2[](
 
 void main()
 {
-    /*
-    float viewZ = -(gl_ModelViewMatrix * gl_Vertex).z;
-    for (int i = 0; i < numShadowMaps; ++i) {
-        if (viewZ < shadowMapSplits[i]) {
-            indexMask = 1 << i;
-            break;
-        }
-    }
-    */
-    
     gl_Position = objWorldTransform * gl_Vertex;
 
     indexMask = 0;

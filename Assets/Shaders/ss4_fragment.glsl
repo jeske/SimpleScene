@@ -33,18 +33,12 @@ varying vec3 surfaceNormalVector;
 
 // shadowmap related
 uniform int shadowMapEnabled;
-const int MAX_NUM_SHADOWMAPS = 4;
 uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
+uniform vec4 shadowMapViewSplits;
+const int MAX_NUM_SHADOWMAPS = 4;
+
 varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
-
-vec2 shadowMapBoundaries[4] = vec2[](
-    vec2(0f, 0f),
-    vec2(.5f, 0f),
-    vec2(0f, .5f),
-    vec2(.5, .5f)
-);
-
 
 // http://www.clockworkcoders.com/oglsl/tutorial5.htm
 // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
@@ -141,30 +135,36 @@ void main()
         float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
         float bias = 0.005 * tan(acos(cosTheta));
         float DEPTH_OFFSET = clamp(bias, 0, 0.01);
-    
+
+        // TODO: blend between cascades by setting multiple indeces in this mask?
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ee416307%28v=vs.85%29.aspx
+        int smapIndexMask = 0;
+        float viewZ = -f_VV.z;
         for (int i = 0; i < numShadowMaps; ++i) {
-            //for (int i = 0; i < 1; ++i) {
-            vec2 bmin = shadowMapBoundaries[i];
-            vec2 bmax = bmin + vec2(0.5f, 0.5f);           
-            vec2 uv = f_shadowMapCoords[i].xy;
-            if (uv.x < bmin.x || uv.x > bmax.x
-             || uv.y < bmin.y || uv.y > bmax.y) {
-                continue;
-            }          
-            vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
-            float nearestOccluder = shadowMapTexel.x;
-            float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0f, 1f);
-            
-            if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
-                //shadeFactor = 0.5;
-                switch(i) {
-                case 0: gl_FragColor = vec4(1f, 0f, 0f, 1f); break;
-                case 1: gl_FragColor = vec4(0f, 1f, 0f, 1f); break;
-                case 2: gl_FragColor = vec4(0f, 0f, 1f, 1f); break;
-                default: gl_FragColor = vec4(1f, 1f, 0f, 1f); break;
-                }
-                return;
+            if (viewZ < shadowMapViewSplits[i]) {
+                smapIndexMask = 1 << i;
                 break;
+            }
+        }
+        
+        for (int i = 0; i < numShadowMaps; ++i) {
+            if ((smapIndexMask & (1 << i)) != 0) {
+                vec2 uv = f_shadowMapCoords[i].xy;
+                vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
+                float nearestOccluder = shadowMapTexel.x;
+                float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0f, 1f);
+                
+                if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
+                    //shadeFactor = 0.5;
+                    switch(i) {
+                    case 0: gl_FragColor = vec4(1f, 0f, 0f, 1f); break;
+                    case 1: gl_FragColor = vec4(0f, 1f, 0f, 1f); break;
+                    case 2: gl_FragColor = vec4(0f, 0f, 1f, 1f); break;
+                    default: gl_FragColor = vec4(1f, 1f, 0f, 1f); break;
+                    }
+                    return;
+                    break;
+                }
             }
         }
     }
@@ -234,7 +234,6 @@ void main()
 
 	// finally, output the fragment color
     gl_FragColor = outputColor;
-
 }			
 
 	

@@ -25,7 +25,6 @@ namespace SimpleScene
         private readonly int u_numShadowMaps;
         private readonly int u_objectWorldTransform;
         private readonly int[] u_shadowMapVPs = new int[SSShadowMap.c_numberOfSplits];
-        //private readonly int u_shadowMapSplits;
         #endregion
 
         #region Uniform Modifiers
@@ -41,15 +40,6 @@ namespace SimpleScene
                 GL.UniformMatrix4(u_shadowMapVPs [s], false, ref mvps [s]);
             }
         }
-
-        #if false
-        public float[] UniViewSplits {
-            set {
-                assertActive();
-                GL.Uniform4(u_shadowMapSplits, value [0], value [1], value [2], value [3]);
-            }
-        }
-        #endif
         #endregion
 
         public SSShadowMapShaderProgram()
