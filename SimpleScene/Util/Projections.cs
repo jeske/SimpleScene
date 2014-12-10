@@ -194,11 +194,11 @@ namespace Util3d
             shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
         }
 
-        private static readonly Vector4[] c_viewCube = {
-            new Vector4(-1f, -1f, 0f, 1f),
-            new Vector4(-1f, 1f, 0f, 1f),
-            new Vector4(1f, 1f, 0f, 1f),
-            new Vector4(1f, -1f, 0f, 1f),
+        private static readonly Vector4[] c_homogenousCorners = {
+            new Vector4(-1f, -1f, -1f, 1f),
+            new Vector4(-1f, 1f, -1f, 1f),
+            new Vector4(1f, 1f, -1f, 1f),
+            new Vector4(1f, -1f, -1f, 1f),
 
             new Vector4(-1f, -1f, 1f, 1f),
             new Vector4(-1f, 1f, 1f, 1f),
@@ -208,11 +208,10 @@ namespace Util3d
 
         public static List<Vector3> FrustumCorners(ref Matrix4 modelViewProj) {
             Matrix4 inverse = modelViewProj;
-            //inverse.Transpose();
             inverse.Invert();
-            var ret = new List<Vector3>(c_viewCube.Length);
-            for (int i = 0; i < c_viewCube.Length; ++i) {
-                Vector4 corner = Vector4.Transform(c_viewCube [i], inverse);
+            var ret = new List<Vector3>(c_homogenousCorners.Length);
+            for (int i = 0; i < c_homogenousCorners.Length; ++i) {
+                Vector4 corner = Vector4.Transform(c_homogenousCorners [i], inverse);
                 corner /= corner.W;
                 ret.Add(corner.Xyz);
             }
