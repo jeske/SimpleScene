@@ -150,7 +150,7 @@ namespace Util3d
             }
 
             // Step 1B: trim by the frustum bounding box, but leave min Z alone
-            projBBMin.Xy = Vector2.Min(projBBMin.Xy, frustumBBMin.Xy);
+            projBBMin.Xy = Vector2.Max(projBBMin.Xy, frustumBBMin.Xy);
             projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
 
             // Step 2: Extend Z of AABB to cover shadow casters between current AABB and the light,
