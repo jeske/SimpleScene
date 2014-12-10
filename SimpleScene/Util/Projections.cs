@@ -149,7 +149,7 @@ namespace Util3d
                 }
             }
 
-            // Step 1B: trim by the frustum bounding box, but leave min Z alone
+            // Step 1B: trim by the frustum bounding box, but leave min Z to be scene dependent
             projBBMin.Xy = Vector2.Max(projBBMin.Xy, frustumBBMin.Xy);
             projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
 
