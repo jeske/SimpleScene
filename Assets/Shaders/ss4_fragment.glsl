@@ -135,6 +135,7 @@ void main()
         float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
         float bias = 0.005 * tan(acos(cosTheta));
         float DEPTH_OFFSET = clamp(bias, 0, 0.01);
+        //DEPTH_OFFSET = 0.005;
 
         // TODO: blend between cascades by setting multiple indeces in this mask?
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ee416307%28v=vs.85%29.aspx
@@ -153,18 +154,20 @@ void main()
                 vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
                 float nearestOccluder = shadowMapTexel.x;
                 float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0f, 1f);
+
+                switch(i) {
+                case 0: gl_FragColor = vec4(1f, 0f, 0f, 1f); break;
+                case 1: gl_FragColor = vec4(0f, 1f, 0f, 1f); break;
+                case 2: gl_FragColor = vec4(0f, 0f, 1f, 1f); break;
+                default: gl_FragColor = vec4(1f, 1f, 0f, 1f); break;
+                }
                 
                 if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
                     //shadeFactor = 0.5;
-                    switch(i) {
-                    case 0: gl_FragColor = vec4(1f, 0f, 0f, 1f); break;
-                    case 1: gl_FragColor = vec4(0f, 1f, 0f, 1f); break;
-                    case 2: gl_FragColor = vec4(0f, 0f, 1f, 1f); break;
-                    default: gl_FragColor = vec4(1f, 1f, 0f, 1f); break;
-                    }
-                    return;
-                    break;
+                    //break;
+                    gl_FragColor.xyz = gl_FragColor.xyz * 0.5f;
                 }
+                return;
             }
         }
     }
