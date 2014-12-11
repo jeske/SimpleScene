@@ -21,8 +21,13 @@ void main()
         combinedMask |= indexMask[i];
     }
 
-    for (int m = 0; m < numShadowMaps; ++m) {       
-        if ((combinedMask & (1 << m)) != 0)  {
+    int submask;
+    bool horizOverlap, vertOverlap;
+    for (int m = 0; m < numShadowMaps; ++m) {
+        submask = combinedMask >> (m * 4);
+        horizOverlap = (submask & 0x3) == 0x3;
+        vertOverlap = (submask & 0xC) == 0xC;
+        if (horizOverlap && vertOverlap) {
             mat4 vp;
             switch(m) {
             case 0: vp = shadowMapVPs0; break;

@@ -29,6 +29,7 @@ void main()
     gl_Position = objWorldTransform * gl_Vertex;
 
     indexMask = 0;
+    int submask;
     for (int i = 0; i < numShadowMaps; ++i) {
         vec2 bmin = boundaries[i];
         vec2 bmax = bmin + vec2(1f, 1f);
@@ -42,9 +43,23 @@ void main()
         }
         
         vec4 test = vp * gl_Position;
-        if (test.x >= bmin.x && test.x <= bmax.x
-         && test.y >= bmin.y && test.y <= bmax.y) {
-            indexMask |= 1 << i;
+
+        // figure out how the point relates to the split's rectangle
+        if (test.x < bmin.x) {
+            submask = 0x1; // to the left
+        } else if (test.x > bmax.x) {
+            submask = 0x2; // to the right
+        } else {
+            submask = 0x3; // implies horizontal overlap
         }
+
+        if (test.y < bmin.y) {
+            submask |= 0x4; // below
+        } else if (test.y > bmax.y) {
+            submask |= 0x8; // above
+        } else {
+            submask |= 0xC; // implies vertical overlap
+        }
+        indexMask |= (submask << (i * 4));
     }
 }    
