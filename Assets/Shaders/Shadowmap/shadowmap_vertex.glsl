@@ -15,7 +15,7 @@ uniform mat4 shadowMapVPs1;
 uniform mat4 shadowMapVPs2;
 uniform mat4 shadowMapVPs3;
 
-varying int indexMask;
+varying int splitOverlapMask;
 
 vec2 boundaries[4] = vec2[](
     vec2(-1f, -1f),
@@ -28,7 +28,7 @@ void main()
 {
     gl_Position = objWorldTransform * gl_Vertex;
 
-    indexMask = 0;
+    splitOverlapMask = 0;
     int submask;
     for (int i = 0; i < numShadowMaps; ++i) {
         vec2 bmin = boundaries[i];
@@ -60,6 +60,6 @@ void main()
         } else {
             submask |= 0xC; // implies vertical overlap
         }
-        indexMask |= (submask << (i * 4));
+        splitOverlapMask |= (submask << (i * 4));
     }
 }    

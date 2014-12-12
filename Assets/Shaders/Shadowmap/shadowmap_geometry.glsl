@@ -12,13 +12,13 @@ uniform mat4 shadowMapVPs1;
 uniform mat4 shadowMapVPs2;
 uniform mat4 shadowMapVPs3;
 
-varying in int indexMask[3];
+varying in int splitOverlapMask[3];
 
 void main()
 {
     int combinedMask = 0;
     for (int i = 0; i < 3; ++i) {
-        combinedMask |= indexMask[i];
+        combinedMask |= splitOverlapMask[i];
     }
 
     int submask;
