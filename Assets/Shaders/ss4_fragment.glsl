@@ -132,10 +132,10 @@ void main()
     bool lightIsInFront = dot(f_vertexNormal, f_lightPosition) > 0.0;
     float shadeFactor = 1.0;
     if (lightIsInFront) {   
-        float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
-        float bias = 0.005 * tan(acos(cosTheta));
-        float DEPTH_OFFSET = clamp(bias, 0, 0.01);
-        //DEPTH_OFFSET = 0.005;
+        //float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
+        //float bias = 0.005 * tan(acos(cosTheta));
+        //float DEPTH_OFFSET = clamp(bias, 0, 0.01);
+        float depthOffset = 0.125;
 
         // TODO: blend between cascades by setting multiple indeces in this mask?
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ee416307%28v=vs.85%29.aspx
@@ -162,7 +162,7 @@ void main()
                 default: gl_FragColor = vec4(1f, 1f, 0f, 1f); break;
                 }
                 
-                if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
+                if (nearestOccluder < (distanceToTexel - depthOffset)) {
                     //shadeFactor = 0.5;
                     //break;
                     gl_FragColor.xyz = gl_FragColor.xyz * 0.5f;

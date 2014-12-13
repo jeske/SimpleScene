@@ -108,7 +108,6 @@ namespace SimpleScene
             //	FramebufferTarget.Framebuffer,
             //    FramebufferAttachment.Depth,0,0);
 
-
 			assertFramebufferOK();
         }
 
@@ -151,6 +150,9 @@ namespace SimpleScene
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
 			assertFramebufferOK();
+
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Front);
 		}
 
         public void FinishRender(SSRenderConfig renderConfig) {
