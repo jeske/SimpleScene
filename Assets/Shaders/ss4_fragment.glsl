@@ -134,7 +134,7 @@ void main()
     if (lightIsInFront) {   
         //float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
         //float bias = 0.005 * tan(acos(cosTheta));
-        //float DEPTH_OFFSET = clamp(bias, 0, 0.01);
+        //float depthOffset = clamp(bias, 0, 0.01);
         float depthOffset = 0.125;
 
         // TODO: blend between cascades by setting multiple indeces in this mask?

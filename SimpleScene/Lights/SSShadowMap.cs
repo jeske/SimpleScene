@@ -151,8 +151,8 @@ namespace SimpleScene
 
 			assertFramebufferOK();
 
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Front);
+            //GL.Enable(EnableCap.CullFace);
+            //GL.CullFace(CullFaceMode.Front);
 		}
 
         public void FinishRender(SSRenderConfig renderConfig) {
