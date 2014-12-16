@@ -129,13 +129,15 @@ void main()
 	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
 
     // shadowmap test
-    bool lightIsInFront = dot(f_vertexNormal, gl_LightSource[0].position.xyz) < 0.005;
+    vec3 lightDir = gl_LightSource[0].position.xyz;
+    float lightDotProd = dot(f_vertexNormal, lightDir);
+    bool lightIsInFront =  lightDotProd < 0.005;
     float shadeFactor = 1.0;
     if (lightIsInFront) {   
-        //float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
-        //float bias = 0.005 * tan(acos(cosTheta));
-        //float depthOffset = clamp(bias, 0, 0.01);
-        float depthOffset = 0.125;
+        float cosTheta = clamp(lightDotProd, 0, 1);
+        float bias = 0.005 * tan(acos(cosTheta));
+        float depthOffset = clamp(bias, 0, 0.01);
+        //float depthOffset = 0.005;
 
         // TODO: blend between cascades by setting multiple indeces in this mask?
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ee416307%28v=vs.85%29.aspx
