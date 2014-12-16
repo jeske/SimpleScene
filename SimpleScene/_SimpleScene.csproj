@@ -112,6 +112,7 @@
   <ItemGroup />
   <ItemGroup>
     <Folder Include="Assets\" />
+    <Folder Include="Assets\Shaders\ShadowMap\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\Shaders\ss1_fragment.glsl">
@@ -131,6 +132,15 @@
     </None>
     <None Include="..\Assets\Shaders\ss4_vertex.glsl">
       <Link>Assets\Shaders\ss4_vertex.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Shadowmap\shadowmap_fragment.glsl">
+      <Link>Assets\Shaders\ShadowMap\shadowmap_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Shadowmap\shadowmap_geometry.glsl">
+      <Link>Assets\Shaders\ShadowMap\shadowmap_geometry.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Shadowmap\shadowmap_vertex.glsl">
+      <Link>Assets\Shaders\ShadowMap\shadowmap_vertex.glsl</Link>
     </None>
   </ItemGroup>
 </Project>

@@ -12,13 +12,13 @@ uniform mat4 shadowMapVPs1;
 uniform mat4 shadowMapVPs2;
 uniform mat4 shadowMapVPs3;
 
-varying in int splitOverlapMask[3];
+varying in float splitOverlapMask_Float[3];
 
 void main()
 {
     int combinedMask = 0;
     for (int i = 0; i < 3; ++i) {
-        combinedMask |= splitOverlapMask[i];
+        combinedMask |= int(splitOverlapMask_Float[i]);
     }
 
     int submask;
@@ -29,12 +29,10 @@ void main()
         vertOverlap = (submask & 0xC) == 0xC;
         if (horizOverlap && vertOverlap) {
             mat4 vp;
-            switch(m) {
-            case 0: vp = shadowMapVPs0; break;
-            case 1: vp = shadowMapVPs1; break;
-            case 2: vp = shadowMapVPs2; break;
-            default: vp = shadowMapVPs3; break;
-            }
+            if      (m == 0) { vp = shadowMapVPs0; }
+            else if (m == 1) { vp = shadowMapVPs1; }
+            else if (m == 2) { vp = shadowMapVPs2; }
+            else             { vp = shadowMapVPs3; }
             
             gl_PrimitiveID = m;
             for (int i = 0; i < 3; ++i) {

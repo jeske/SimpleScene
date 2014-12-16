@@ -153,15 +153,13 @@ void main()
                 vec2 uv = f_shadowMapCoords[i].xy;
                 vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
                 float nearestOccluder = shadowMapTexel.x;
-                float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0f, 1f);
+                float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0.0f, 1.0f);
 
-                switch(i) {
-                case 0: gl_FragColor = vec4(1f, 0f, 0f, 1f); break;
-                case 1: gl_FragColor = vec4(0f, 1f, 0f, 1f); break;
-                case 2: gl_FragColor = vec4(0f, 0f, 1f, 1f); break;
-                default: gl_FragColor = vec4(1f, 1f, 0f, 1f); break;
-                }
-                
+				if      (i == 0) { gl_FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
+                else if (i == 1) { gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }
+                else if (i == 2) { gl_FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }
+                else             { gl_FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }
+   
                 if (nearestOccluder < (distanceToTexel - depthOffset)) {
                     //shadeFactor = 0.5;
                     //break;
