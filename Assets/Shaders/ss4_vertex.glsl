@@ -40,12 +40,12 @@ void main()
     vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1);
     for (int i = 0; i < numShadowMaps; ++i) {
         mat4 vp;
-        switch(i) {
-        case 0: vp = shadowMapVPs0; break;
-        case 1: vp = shadowMapVPs1; break;
-        case 2: vp = shadowMapVPs2; break;
-        default: vp = shadowMapVPs3; break;
-        }
+
+		if      (i == 0) { vp = shadowMapVPs0; }
+        else if (i == 1) { vp = shadowMapVPs1; }
+        else if (i == 2) { vp = shadowMapVPs2; }
+        else             { vp = shadowMapVPs3; }
+
         shadowMapCoords[i] = vp * objPos;
     }
 }	

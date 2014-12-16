@@ -7,9 +7,9 @@ const float SPLIT_WIDTH = 1024;
 const float SPLIT_HEIGHT = 1024;
 
 vec2 boundaries[4] = vec2[](
-    vec2(0f, 0f),
-    vec2(SPLIT_WIDTH, 0f),
-    vec2(0f, SPLIT_HEIGHT),
+    vec2(0.0f, 0.0f),
+    vec2(SPLIT_WIDTH, 0.0f),
+    vec2(0.0f, SPLIT_HEIGHT),
     vec2(SPLIT_WIDTH, SPLIT_HEIGHT)
 );
 

@@ -15,32 +15,30 @@ uniform mat4 shadowMapVPs1;
 uniform mat4 shadowMapVPs2;
 uniform mat4 shadowMapVPs3;
 
-varying int splitOverlapMask;
+varying float splitOverlapMask_Float;
 
 vec2 boundaries[4] = vec2[](
-    vec2(-1f, -1f),
-    vec2(0f, -1f),
-    vec2(-1f, 0f),
-    vec2(0f, 0f)
+    vec2(-1.0f, -1.0f),
+    vec2( 0.0f, -1.0f),
+    vec2(-1.0f,  0.0f),
+    vec2( 0.0f,  0.0f)
 );
 
 void main()
 {
     gl_Position = objWorldTransform * gl_Vertex;
 
-    splitOverlapMask = 0;
+    int splitOverlapMask = 0;
     int submask;
     for (int i = 0; i < numShadowMaps; ++i) {
         vec2 bmin = boundaries[i];
-        vec2 bmax = bmin + vec2(1f, 1f);
+        vec2 bmax = bmin + vec2(1.0f, 1.0f);
         
         mat4 vp;
-        switch(i) {
-        case 0: vp = shadowMapVPs0; break;
-        case 1: vp = shadowMapVPs1; break;
-        case 2: vp = shadowMapVPs2; break;
-        default: vp = shadowMapVPs3; break;
-        }
+        if      (i == 0) { vp = shadowMapVPs0; }
+        else if (i == 1) { vp = shadowMapVPs1; }
+        else if (i == 2) { vp = shadowMapVPs2; }
+        else             { vp = shadowMapVPs3; }
         
         vec4 test = vp * gl_Position;
 
@@ -62,4 +60,5 @@ void main()
         }
         splitOverlapMask |= (submask << (i * 4));
     }
+	splitOverlapMask_Float = splitOverlapMask;
 }    
