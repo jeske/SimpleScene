@@ -129,7 +129,7 @@ void main()
 	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
 
     // shadowmap test
-    bool lightIsInFront = dot(f_vertexNormal, f_lightPosition) > 0.0;
+    bool lightIsInFront = dot(f_vertexNormal, gl_LightSource[0].position.xyz) < 0.005;
     float shadeFactor = 1.0;
     if (lightIsInFront) {   
         //float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
@@ -170,6 +170,9 @@ void main()
                 return;
             }
         }
+    } else {
+        gl_FragColor = vec4(.5f, 0f, .5f, 1f);
+        return;
     }
 
     if (true) {
