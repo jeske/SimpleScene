@@ -85,7 +85,7 @@ namespace SimpleScene
 		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
 			// we only use the invCameraViewMatrix, because we specify the pos/dir later below...
-			Matrix4 modelViewMatrix = renderConfig.invCameraViewMat;
+            Matrix4 modelViewMatrix = renderConfig.invCameraViewMat;
 			GL.MatrixMode (MatrixMode.Modelview);
 			GL.LoadMatrix (ref modelViewMatrix);
 
@@ -102,7 +102,7 @@ namespace SimpleScene
 			// w=0.0 is a directional light
 			// we put it at the origin because it is transformed by the model view matrix (which already has our position)
             float w = (Type == LightType.Directional ? 0.0f : 1.0f);
-            GL.Light (m_lightName, LightParameter.Position, new Vector4(0f, 0f, 0f, w)); 
+            GL.Light (m_lightName, LightParameter.Position, new Vector4(Pos, w)); 
 
 			int idx = m_lightName - c_firstNameIdx;
 			GL.Enable (EnableCap.Light0 + idx);
