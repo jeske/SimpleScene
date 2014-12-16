@@ -4,7 +4,6 @@ WavefrontOBJ -- Simple wavefrontOBJ model viewer example
 
 (C) Copyright 2014 by David W. Jeske
 Released to the Public Domain AND under the Apache 2.0 license.
-----------------------------------------------------------------
 
 SimpleScene contains decent:
 
