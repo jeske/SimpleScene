@@ -113,7 +113,7 @@ namespace Util3d
             Vector3 projBBMin = frustumBBMin;
             Vector3 projBBMax = frustumBBMax;            
 
-            if (false) {
+            if (true) {
                 // (optional) scene dependent optimization
 			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
                 FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);
@@ -167,8 +167,13 @@ namespace Util3d
                 if (!splitEmpty) {
                     projBBMin.X = Math.Max(projBBMin.X,objBBMin.X);
                     projBBMin.Y = Math.Max(projBBMin.Y,objBBMin.Y);
+                    // note: don't adjust projBBMin.Z, because this needs to catch all shadow-casters. 
+                    // TODO: ideally, we *should* clamp the min-Z value recorded to objBBMin.Z, because we don't care
+                    //       about z-value detail less than this. However, to do this we need to somehow separate the 
+                    //       light-frustum culling from the light-frustrum z-value projection calculation.
                     projBBMax.X = Math.Min(projBBMax.X,objBBMax.X);
                     projBBMax.Y = Math.Min(projBBMax.Y,objBBMax.Y);
+                    projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);
                 }
 
             }
