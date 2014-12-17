@@ -113,7 +113,7 @@ namespace Util3d
             Vector3 projBBMin = frustumBBMin;
             Vector3 projBBMax = frustumBBMax;            
 
-            if (true) {
+            if (false) {
                 // (optional) scene dependent optimization
 			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
                 FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);
