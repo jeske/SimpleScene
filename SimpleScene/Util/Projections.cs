@@ -127,7 +127,8 @@ namespace Util3d
                 frustumBBMax = Vector3.ComponentMax(frustumBBMax, corner);
             }
 
-            // Step 1: light-direction aligned AABB of shadow receivers,
+			#if false // set to 'true' to enable screne dependent optimizations
+			// Step 1: light-direction aligned AABB of shadow receivers,
             FrustumCuller frustum = new FrustumCuller (ref cameraViewProj);
 
             Vector3 projBBMin = new Vector3 (float.PositiveInfinity);
@@ -150,8 +151,12 @@ namespace Util3d
             }
 
             // Step 1B: trim by the frustum bounding box, but leave min Z to be scene dependent
-            projBBMin.Xy = Vector2.ComponentMax(projBBMin.Xy, frustumBBMin.Xy);
-            projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
+			//projBBMin.Xy = Vector2.ComponentMax(projBBMin.Xy, frustumBBMin.Xy);
+			//projBBMax = Vector3.ComponentMin(projBBMax, frustumBBMax);
+			#else
+			Vector3 projBBMin = frustumBBMin;
+			Vector3 projBBMax = frustumBBMax;
+			#endif
 
             // Step 2: Extend Z of AABB to cover shadow casters between current AABB and the light,
             foreach (var obj in objects) {
