@@ -171,7 +171,7 @@ void main()
             }
         }
     } else {
-        gl_FragColor = vec4(.5f, 0f, .5f, 1f);
+        gl_FragColor = vec4(0.5f, 0.0f, 0.5f, 1.0f);
         return;
     }
 
