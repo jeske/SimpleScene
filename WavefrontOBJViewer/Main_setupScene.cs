@@ -13,38 +13,51 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
-			scene.BaseShader = shaderPgm;
-			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
-			scene.BeforeRenderObject += (obj, renderConfig) => {
+			mainScene.MainShader = shaderPgm;
+            mainScene.ShadowmapShader = shadowMapShaderPgm;
+
+			mainScene.FrustumCulling = true;  
+
+            // toggle wireframe drawing mode per-object
+			mainScene.BeforeRenderObject += (obj, renderConfig) => {
 				shaderPgm.Activate();
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					shaderPgm.u_ShowWireframes = true;			
-
+					shaderPgm.UniShowWireframes = true;			
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					shaderPgm.u_ShowWireframes = false;
-
+					shaderPgm.UniShowWireframes = false;
 				}
 			};
-
-
-			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
-			// 0. Add Lights
+			
+			// 0. Add Light
 			var light = new SSLight ();
-			light.Pos = lightPos;
-			scene.AddLight(light);
+            var lightSourceDirection = new Vector3 (5.0f, 40.0f, 10.0f);
+            light.Ambient = new Vector4 (0.4f);
+			light.Diffuse = new Vector4 (1.0f);
+			light.Specular = new Vector4 (0.8f);
+            light.AddShadowMap(TextureUnit.Texture4);
+            light.Direction = lightSourceDirection.Normalized(); 
+			mainScene.AddLight(light);
+            
+			// shadow map debug
+            if (light.ShadowMap != null) {
+				var shadowMapDebug = new SSObjectHUDQuad(light.ShadowMap.TextureID);
+                shadowMapDebug.Scale = new Vector3 (.3f);
+                shadowMapDebug.Pos = new Vector3(10,200,0);
+				hudScene.AddObject(shadowMapDebug);
+			}
 
 			// 1. Add Objects
 			SSObject triObj;
-			scene.AddObject (triObj = new SSObjectTriangle () );
-			triObj.Pos = lightPos;
+			mainScene.AddObject (triObj = new SSObjectTriangle () );
+			triObj.Pos =  - lightSourceDirection; // invert the light-source direction to get a source-pos 
 
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (mesh);
-			scene.AddObject (this.activeModel = droneObj);
+			mainScene.AddObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
 			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -60,7 +73,7 @@ namespace WavefrontOBJViewer
 			SSObject drone2Obj = new SSObjectMesh(
 				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/", "Drone2.obj")
 			);
-			scene.AddObject (drone2Obj);
+			mainScene.AddObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
 			drone2Obj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -73,7 +86,7 @@ namespace WavefrontOBJViewer
 
 			// last. Add Camera
 
-			scene.AddObject (scene.ActiveCamera = 
+			mainScene.AddObject (mainScene.ActiveCamera = 
 					new SSCameraThirdPerson (droneObj));
 		}
 
@@ -125,7 +138,7 @@ namespace WavefrontOBJViewer
 			hudScene.AddObject (wireframeDisplay);
 			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
 			wireframeDisplay.Scale = new Vector3 (1.0f);
-			updateWireframeDisplayText (scene.DrawWireFrameMode);
+			updateWireframeDisplayText (mainScene.DrawWireFrameMode);
 
 			// HUD text....
 			var testDisplay = new SSObject2DSurface_AGGText ();

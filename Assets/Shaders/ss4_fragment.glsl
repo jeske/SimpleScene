@@ -109,30 +109,13 @@ vec4 gridTest(vec4 outputColor) {
 }
 
 
-void main()
-{
-	vec4 outputColor = vec4(0.0);
+float shadowMapLighting(out vec4 debugOutputColor)  {  
 
-	// lighting strength
-	vec4 ambientStrength = gl_FrontMaterial.ambient;
-	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
-	vec4 specularStrength = gl_FrontMaterial.specular;
-	// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
-
-	vec3 lightPosition = surfaceLightVector;
-
-	// load texels...
-	vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
-	vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
-
-	vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
-	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
-
-    // shadowmap test
-    vec3 lightDir = gl_LightSource[0].position.xyz;
+	vec3 lightDir = gl_LightSource[0].position.xyz;
     float lightDotProd = dot(f_vertexNormal, lightDir);
-    bool lightIsInFront =  lightDotProd < 0.005;
+    bool lightIsInFront =  lightDotProd < 0.000001;
     float shadeFactor = 1.0;
+
     if (lightIsInFront) {   
         float cosTheta = clamp(lightDotProd, 0, 1);
         float bias = 0.005 * tan(acos(cosTheta));
@@ -157,30 +140,58 @@ void main()
                 float nearestOccluder = shadowMapTexel.x;
                 float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0.0f, 1.0f);
 
-				if      (i == 0) { gl_FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
-                else if (i == 1) { gl_FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }
-                else if (i == 2) { gl_FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }
-                else             { gl_FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }
+				if      (i == 0) { debugOutputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
+                else if (i == 1) { debugOutputColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }
+                else if (i == 2) { debugOutputColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }
+                else             { debugOutputColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }
    
                 if (nearestOccluder < (distanceToTexel - depthOffset)) {
-                    //shadeFactor = 0.5;
-                    //break;
-                    gl_FragColor.xyz = gl_FragColor.xyz * 0.5f;
+                    shadeFactor = 0.5;                    
+                    debugOutputColor = debugOutputColor * 0.5f; 
                 }
-                return;
+                
+				return shadeFactor;
             }
         }
     } else {
-        gl_FragColor = vec4(0.5f, 0.0f, 0.5f, 1.0f);
-        return;
+	    debugOutputColor = vec4(0.5f, 0.0f, 0.5f, 1.0f);        
+		return shadeFactor;
     }
+	
+}
 
-    if (true) {
-	   // eye space shading
+vec4 shadowMapTestLighting(vec4 outputColor) {
+    vec4 shadowMapDebugColor;
+    float shadeFactor = shadowMapLighting(shadowMapDebugColor);
+	return shadowMapDebugColor;
+}
+vec4 BlinnPhongLighting(vec4 outputColor) {
+		// eye space lighting
+		vec3 lightDir = gl_LightSource[0].position.xyz;
+        float lightDotProd = dot(f_vertexNormal, lightDir);
+        bool lightIsInFront =  lightDotProd < 0.005;
+
+		vec4 shadowMapDebugColor;
+		float shadeFactor = shadowMapLighting(shadowMapDebugColor);
+
+		// lighting strength
+		vec4 ambientStrength = gl_FrontMaterial.ambient;
+		vec4 diffuseStrength = gl_FrontMaterial.diffuse;
+		vec4 specularStrength = gl_FrontMaterial.specular;
+		// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
+
+		// load texels...
+		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+
+	   
+	   
 	   outputColor = ambientColor * ambientStrength;
 	   outputColor += glowColor * gl_FrontMaterial.emission;
 
-	   float diffuseIllumination = clamp(dot(f_vertexNormal, f_lightPosition), 0, 1);
+	   float diffuseIllumination = clamp(lightDotProd, 0, 1);
 	   // boost the diffuse color by the glowmap .. poor mans bloom
 	   float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
 	   outputColor += shadeFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
@@ -194,10 +205,37 @@ void main()
 	      // outputColor += specularStrength * shininess;
 	      outputColor += shadeFactor * specTex * specularStrength * shininess;      
        } 
+	   return outputColor;
+}
+
+vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
+	   // tangent space shading with bump map...	
+	      
+		vec3 lightDir = gl_LightSource[0].position.xyz;
+        float lightDotProd = dot(f_vertexNormal, lightDir);
+        bool lightIsInFront =  lightDotProd < 0.005;
+
+		vec4 shadowMapDebugColor;
+		float shadeFactor = shadowMapLighting(shadowMapDebugColor);
+
+	   	// lighting strength
+	    vec4 ambientStrength = gl_FrontMaterial.ambient;
+	    vec4 diffuseStrength = gl_FrontMaterial.diffuse;
+	    vec4 specularStrength = gl_FrontMaterial.specular;
+	    // specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 
 
-	} else {  // tangent space shading (with bump) 
-       // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
+		// load texels...
+
+		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+
+		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+
+
+
+	   // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
        vec3 bump_normal = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
 	   float distSqr = dot(surfaceLightVector,surfaceLightVector);
 	   vec3 lVec = surfaceLightVector * inversesqrt(distSqr);
@@ -218,8 +256,23 @@ void main()
           float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0,1), gl_FrontMaterial.shininess);
           outputColor += specTex * shadeFactor * specularStrength * shininess;      
        }
+	   return outputColor;
+}
 
-    }
+
+void main()
+{
+	vec4 outputColor = vec4(0.0);
+
+
+	vec3 lightPosition = surfaceLightVector;
+
+    
+	// Lighting type (pick one)
+	// outputColor = BlinnPhongLighting(outputColor);
+	// outputColor = BumpMapBlinnPhongLighting(outputColor);
+	outputColor = shadowMapTestLighting(outputColor);
+
 
     // ---- object space shader effect tests ----
     // outputColor = linearTest(outputColor);

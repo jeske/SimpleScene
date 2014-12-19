@@ -31,7 +31,7 @@ namespace WavefrontOBJViewer
 			// NOTE: this is a workaround for the fact that the ThirdPersonCamera is not parented to the target...
 			//   before we can remove this, we need to parent it properly, currently it's transform only follows
 			//   the target during Update() and input event processing.
-			scene.Update ((float)e.Time);  
+			mainScene.Update ((float)e.Time);  
 			
 			fpsCalc.newFrame (e.Time);
 			fpsDisplay.Label = String.Format ("FPS: {0:0.00}", fpsCalc.AvgFramesPerSecond);
@@ -43,21 +43,40 @@ namespace WavefrontOBJViewer
 				animateSecondsOffset -= 1000.0f;
 			}
 			shaderPgm.Activate();
-			shaderPgm.u_AnimateSecondsOffset = (float)animateSecondsOffset;
+			shaderPgm.UniAnimateSecondsOffset = (float)animateSecondsOffset;
+            
+            // setup camera matrix
+            Matrix4 invCameraViewMatrix = mainScene.ActiveCamera.worldMat.Inverted();
+            float fov = (float)Math.PI / 4;
+            float nearPlane = 1.0f;
+            float farPlane = 15000.0f;
+            
+            // setup the view projection, including the active camera matrix
+            float aspect = (float)this.ClientRectangle.Width / (float)this.ClientRectangle.Height; 
+        
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(fov, aspect, nearPlane, farPlane);
 
+            /////////////////////////////////////////
+            // render the "shadowMap" 
+            // 
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
+
+            mainScene.ProjectionMatrix = projection;
+            mainScene.InvCameraViewMatrix = invCameraViewMatrix;
+            mainScene.RenderShadowMap(fov, aspect, nearPlane, farPlane);
+
+			// setup the view-bounds.
+			GL.Viewport(this.ClientRectangle.X, this.ClientRectangle.Y, 
+				this.ClientRectangle.Width, this.ClientRectangle.Height);
 
 			/////////////////////////////////////////
-			// clear the render buffer....
+			// clear the render buffer....            
 			GL.Enable (EnableCap.DepthTest);
 			GL.DepthMask (true);
 			GL.ClearColor (0.0f, 0.0f, 0.0f, 0.0f); // black
 			// GL.ClearColor (System.Drawing.Color.White);
-			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-
-			float fovy = (float)Math.PI / 4;
-			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
-
+			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);            
 
 			/////////////////////////////////////////
 			// render the "environment" scene
@@ -71,13 +90,13 @@ namespace WavefrontOBJViewer
 				GL.Disable (EnableCap.DepthClamp);
 
 				// setup infinite projection for cubemap
-				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
+				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (fov, aspect, 0.1f, 2.0f);
 				environmentScene.ProjectionMatrix = projMatrix;
 
 				// create a matrix of just the camera rotation only (it needs to stay at the origin)				
 				environmentScene.InvCameraViewMatrix = 
 					Matrix4.CreateFromQuaternion (
-						scene.ActiveCamera.worldMat.ExtractRotation ()
+						mainScene.ActiveCamera.worldMat.ExtractRotation ()
 					).Inverted ();
 
 				environmentScene.Render ();
@@ -92,17 +111,13 @@ namespace WavefrontOBJViewer
 				GL.DepthMask (true);
 				
 				// setup the inverse matrix of the active camera...
-				scene.InvCameraViewMatrix = scene.ActiveCamera.worldMat.Inverted ();
+				mainScene.InvCameraViewMatrix = invCameraViewMatrix;
 
-				// scene.renderConfig.renderBoundingSpheres = true;
-
-				// setup the view projection. technically only need to do this on window resize..
-				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);				
-				//projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
-				scene.ProjectionMatrix = projection;
+				// scene.renderConfig.renderBoundingSpheres = true;			
+				mainScene.ProjectionMatrix = projection;
 				
 				// render 3d content...
-				scene.Render ();
+				mainScene.Render ();
 			}
 			////////////////////////////////////////
 			//  render HUD scene
@@ -140,7 +155,7 @@ namespace WavefrontOBJViewer
 
 			// setup WIN_SCALE for our shader...
 			shaderPgm.Activate();
-			shaderPgm.u_WinScale = ClientRectangle;
+			shaderPgm.UniWinScale = ClientRectangle;
 		}
 
 	}

@@ -26,7 +26,7 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 
-		SSScene scene = new SSScene();
+		SSScene mainScene = new SSScene();
 		SSScene hudScene = new SSScene();
 		SSScene environmentScene = new SSScene();
 
@@ -34,6 +34,7 @@ namespace WavefrontOBJViewer
 		SSObject activeModel;
 		
 		SSMainShaderProgram shaderPgm;
+        SSShadowMapShaderProgram shadowMapShaderPgm;
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public WavefrontOBJViewer()
@@ -77,7 +78,7 @@ namespace WavefrontOBJViewer
 			base.OnUpdateFrame(e);
 
 			environmentScene.Update((float)e.Time);
-			scene.Update ((float)e.Time);
+			mainScene.Update ((float)e.Time);
 			hudScene.Update ((float)e.Time);
 
 			if (Keyboard[Key.Escape])
@@ -111,12 +112,14 @@ namespace WavefrontOBJViewer
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../../Assets"));
 
 				game.shaderPgm = new SSMainShaderProgram(); // before scene
+                game.shadowMapShaderPgm = new SSShadowMapShaderProgram(); 
 				
 				game.setupInput ();
 
+                game.setupHUD (); // before scene..
 				game.setupScene ();
 				game.setupEnvironment ();
-				game.setupHUD ();
+				
 
 				// game.VSync = VSyncMode.Off;
 				game.Run(30.0);

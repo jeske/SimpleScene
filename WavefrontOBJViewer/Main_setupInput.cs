@@ -28,12 +28,12 @@ namespace WavefrontOBJViewer
 				Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
 				SSRay ray = OpenTKHelper.MouseToWorldRay(
-					this.scene.ProjectionMatrix,this.scene.InvCameraViewMatrix, clientRect, mouseLoc);
+					this.mainScene.ProjectionMatrix,this.mainScene.InvCameraViewMatrix, clientRect, mouseLoc);
 
 				// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 				// scene.addObject(new SSObjectRay(ray));
 
-				selectedObject = scene.Intersect(ref ray);
+				selectedObject = mainScene.Intersect(ref ray);
 
 			};
 			this.MouseUp += (object sender, MouseButtonEventArgs e) => { 
@@ -43,13 +43,13 @@ namespace WavefrontOBJViewer
 				if (this.mouseButtonDown) {
 
 					// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-					this.scene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+					this.mainScene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 					// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 				}
 			};
 			this.MouseWheel += (object sender, MouseWheelEventArgs e) => { 
 				// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
-				SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
+				SSCameraThirdPerson ctp = mainScene.ActiveCamera as SSCameraThirdPerson;
 				if (ctp != null) {
 					ctp.followDistance += -e.DeltaPrecise;
 				} 
@@ -58,12 +58,12 @@ namespace WavefrontOBJViewer
 			this.KeyPress += (object sender, KeyPressEventArgs e) => {
 				switch (e.KeyChar) {
 				case 'w':
-					scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode(scene.DrawWireFrameMode);
-					updateWireframeDisplayText (scene.DrawWireFrameMode);
+					mainScene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode(mainScene.DrawWireFrameMode);
+					updateWireframeDisplayText (mainScene.DrawWireFrameMode);
 
 					// if we need single-pass wireframes, set the GLSL uniform variable
 					shaderPgm.Activate();
-					shaderPgm.u_ShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
+					shaderPgm.UniShowWireframes = (mainScene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
 					break;
 				}
 			};

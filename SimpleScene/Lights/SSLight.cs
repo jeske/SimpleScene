@@ -64,9 +64,7 @@ namespace SimpleScene
 			// s_avaiableLightNames.Enqueue (m_lightName);
 		}
 
-        public void AddShadowMap(TextureUnit unit) {
-            // TODO pass the texture unit to shadowmap constructor
-            // TODO add multiple shadowmaps to the same light?
+        public void AddShadowMap(TextureUnit unit) {            
             ShadowMap = new SSShadowMap (this, unit);
         }
 
