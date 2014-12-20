@@ -116,43 +116,31 @@ namespace Util3d
             if (true) {
                 // (optional) scene dependent optimization
 			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
-                FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);
-                
-                // create the light-shadow view matrix  
-                Vector3 centerAligned = (projBBMin + projBBMax) / 2f;
-              
-                Vector3 viewEye, viewTarget, viewUp;
-                viewTarget = centerAligned.X * lightX
-                           + centerAligned.Y * lightY
-                           + centerAligned.Z * lightZ;
-                float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
-                viewEye = viewTarget - farEnough * lightZ;
-                viewUp = lightY;
-                Matrix4 initialShadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
-                 // create the light-shadow projection matrix
-			    float width = projBBMax.X - projBBMin.X;
-			    float height = projBBMax.Y - projBBMin.Y;
-			    float nearZ = 1f;
-			    float farZ = 1f + (projBBMax.Z - projBBMin.Z);
-                Matrix4 initialShadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
-                Matrix4 initialShadowMVP = initialShadowView * initialShadowProj;
-                FrustumCuller lightFrustum = new FrustumCuller (ref initialShadowMVP);
+                FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);               
 
+                // create a light-aligned orthographic projection matrix to find all shadow-casters.
+                FrustumCuller lightAlignedLightFrustum;
+                { 
+			        float width = (projBBMax.X - projBBMin.X);
+			        float height = (projBBMax.Y - projBBMin.Y);
+			        float nearZ = float.NegativeInfinity;
+			        float farZ = projBBMax.Z;
+                    shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
+                    lightAlignedLightFrustum = new FrustumCuller(ref shadowProj);
+                }
 
                 Vector3 objBBMin = new Vector3(float.PositiveInfinity);
                 Vector3 objBBMax = new Vector3(float.NegativeInfinity);
-                bool splitEmpty = true;
+                bool haveShadowReceiver = false;                
+                float lightAlignedNearZForFirstShadowCaster = float.PositiveInfinity;
 
                 foreach (var obj in objects) {
                     // pass through all shadow casters and receivers
-                    if (obj.renderState.toBeDeleted
-                     || !obj.renderState.visible) {
+                    if (obj.renderState.toBeDeleted || !obj.renderState.visible || obj.boundingSphere == null) {
                         continue;
-                    } else if (obj.boundingSphere != null 
-                            && cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)
-                            && lightFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
+                    } else if (cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
                         // determine AABB in light coordinates of the objects so far
-                        splitEmpty = false;
+                        haveShadowReceiver = true;                        
                         Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
                         Vector3 rad = new Vector3(obj.ScaledRadius);
                         Vector3 localMin = lightAlignedPos - rad;
@@ -160,45 +148,50 @@ namespace Util3d
                         
                         objBBMin = Vector3.ComponentMin(objBBMin,localMin);
                         objBBMax = Vector3.ComponentMax(objBBMax,localMax);
-                    }
-                }
+                    } 
 
-                // shrink the light-frustum-projection bounding box by the object-bounding-box
-                if (!splitEmpty) {
+                    // find out if it is inside the light-aligned-frustum, to compute nearZ of
+                    // the first shadow caster.
+                    {
+                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);                                                
+                        if (lightAlignedLightFrustum.isSphereInsideFrustum(lightAlignedPos,obj.ScaledRadius)) {                         
+                            lightAlignedNearZForFirstShadowCaster = Math.Min(lightAlignedNearZForFirstShadowCaster,lightAlignedPos.Z);
+                        }
+                    }
+                    
+                }
+                
+                // optimize the light-frustum-projection bounding box by the object-bounding-box
+                if (haveShadowReceiver) {                
+                    // shrink the XY & far-Z coordinates..
                     projBBMin.X = Math.Max(projBBMin.X,objBBMin.X);
                     projBBMin.Y = Math.Max(projBBMin.Y,objBBMin.Y);
-                    // note: don't adjust projBBMin.Z, because this needs to catch all shadow-casters. 
-                    // TODO: ideally, we *should* clamp the min-Z value recorded to objBBMin.Z, because we don't care
-                    //       about z-value detail less than this. However, to do this we need to somehow separate the 
-                    //       light-frustum culling from the light-frustrum z-value projection calculation.
+                    
                     projBBMax.X = Math.Min(projBBMax.X,objBBMax.X);
                     projBBMax.Y = Math.Min(projBBMax.Y,objBBMax.Y);
-                    projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);
+                    projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);                    
+
+                    // extend nearZ towards the light
+                    projBBMin.Z = Math.Min(projBBMin.Z, lightAlignedNearZForFirstShadowCaster);
                 }
-
             }
-
-
-
-          
             
             // Finish the view matrix
             {
 
-                // Use center of AABB in regular coordinates to get the view matrix
-                Vector3 centerAligned = (projBBMin + projBBMax) / 2f;
-
-                float width, height, nearZ, farZ;
-                Vector3 viewEye, viewTarget, viewUp;
-                viewTarget = centerAligned.X * lightX
-                           + centerAligned.Y * lightY
-                           + centerAligned.Z * lightZ;
+                // Use center of AABB in regular coordinates to get the view matrix                                                                        
+                Vector3 centerAligned = (projBBMin + projBBMax) / 2f;                
                 float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
-                viewEye = viewTarget - farEnough * lightZ;
-                viewUp = lightY;
+
+                Vector3 viewTarget = centerAligned.X * lightX
+                           + centerAligned.Y * lightY
+                           + centerAligned.Z * lightZ;                
+                Vector3 viewEye = viewTarget - farEnough * lightZ;                
+                Vector3 viewUp = lightY;
                 shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
                 // Finish the projection matrix
+                float width, height, nearZ, farZ;
 			    width = (projBBMax.X - projBBMin.X);
 			    height = (projBBMax.Y - projBBMin.Y);
 			    nearZ = 1f;

@@ -113,7 +113,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
 
 	vec3 lightDir = gl_LightSource[0].position.xyz;
     float lightDotProd = dot(f_vertexNormal, lightDir);
-    bool lightIsInFront =  lightDotProd < 0.000001;
+    bool lightIsInFront =  lightDotProd < 0.05;
     float shadeFactor = 1.0;
 
     if (lightIsInFront) {   
