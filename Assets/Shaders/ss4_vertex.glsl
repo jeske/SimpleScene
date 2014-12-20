@@ -34,18 +34,19 @@ void main()
 	lightPosition = (gl_LightSource[0].position - vertexPosition_viewspace).xyz;
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
+	// ftransform() is ... gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+	//                 ... gl_ProjectionMatrix * (invCameraViewMatrix * objWorldTransform) * gl_Vertex;
 	gl_Position = ftransform();  
 
-    // shadowmap transform
-    vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1);
+    // shadowmap transform    
     for (int i = 0; i < numShadowMaps; ++i) {
-        mat4 vp;
 
+        mat4 vp;
 		if      (i == 0) { vp = shadowMapVPs0; }
         else if (i == 1) { vp = shadowMapVPs1; }
         else if (i == 2) { vp = shadowMapVPs2; }
         else             { vp = shadowMapVPs3; }
 
-        shadowMapCoords[i] = vp * objPos;
+        shadowMapCoords[i] =  vp * objWorldTransform * vec4(gl_Vertex.xyz, 1);
     }
 }	

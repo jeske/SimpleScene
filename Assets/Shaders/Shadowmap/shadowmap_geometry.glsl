@@ -36,7 +36,7 @@ void main()
             
             gl_PrimitiveID = m;
             for (int i = 0; i < 3; ++i) {
-                gl_Position = vp * gl_PositionIn[i];
+                gl_Position = vp * gl_PositionIn[i];				
                 EmitVertex();
             }
 			EndPrimitive();

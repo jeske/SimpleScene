@@ -68,13 +68,14 @@ namespace Util3d
                 // create a view proj matrix with the nearZ, farZ values for the current split
                 cameraProj = Matrix4.CreatePerspectiveFieldOfView(fov, aspect, nextNearZ, nextFarZ);
 
+                Console.WriteLine("Split {0}: ", i);
                 // then calculate the shadowmap for that frustrum section...
                 SimpleShadowmapProjection(
                     objects, light, 
                     cameraView, cameraProj,
                     out nextView, out nextProj);
 
-                shadowViewsProjs [i] = nextView * nextProj * c_cropMatrices[i];
+                shadowViewsProjs [i] =  nextView * nextProj * c_cropMatrices[i];
                 prevFarZ = nextFarZ;
             }
 
@@ -102,7 +103,7 @@ namespace Util3d
                  lightY.X, lightY.Y, lightY.Z, 0f,
                  lightZ.X, lightZ.Y, lightZ.Z, 0f,
                  0f,       0f,       0f,       0f
-            );
+            ).Inverted();
 
             // Step 0: AABB of frustum corners in light coordinates
             Vector3 frustumBBMin = new Vector3 (float.PositiveInfinity);
@@ -178,7 +179,6 @@ namespace Util3d
 
             // Finish the view matrix
             {
-
                 // Use center of AABB in regular coordinates to get the view matrix  
                 Vector3 target_lightSpace = (projBBMin + projBBMax) / 2f;                
                 Vector3 eye_lightSpace = new Vector3(target_lightSpace.X,target_lightSpace.Y,projBBMin.Z);
@@ -186,16 +186,17 @@ namespace Util3d
                 Vector3 viewTarget = Vector3.Transform(target_lightSpace,lightTransform.Inverted()); 
                 Vector3 viewEye = Vector3.Transform(eye_lightSpace,lightTransform.Inverted());
                 
+                Console.WriteLine("shadowmap Matrix: {0} {1}",viewEye,viewTarget);
+
                 Vector3 viewUp = lightY;
-                shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
+                shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp).Inverted();
 
                 // Finish the projection matrix
                 {
                     float width, height, nearZ, farZ;
 			        width = (projBBMax.X - projBBMin.X);
 			        height = (projBBMax.Y - projBBMin.Y);
-			        nearZ = 1f;
-			        farZ = 1f + (projBBMax.Z - projBBMin.Z);
+			        nearZ = 1f + 10f; farZ = 1f + (projBBMax.Z - projBBMin.Z);
                     shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
                 }
             }

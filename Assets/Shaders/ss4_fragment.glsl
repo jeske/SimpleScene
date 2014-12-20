@@ -134,11 +134,14 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
         }
         
         for (int i = 0; i < numShadowMaps; ++i) {
-            if ((smapIndexMask & (1 << i)) != 0) {
-                vec2 uv = f_shadowMapCoords[i].xy;
+            if ((smapIndexMask & (1 << i)) != 0) {		
+			    vec3 ndc_shadowMapCoords = f_shadowMapCoords[i].xyz / f_shadowMapCoords[i].w;
+					    
+				vec2 uv = ndc_shadowMapCoords.xy;
                 vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
                 float nearestOccluder = shadowMapTexel.x;
-                float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0.0f, 1.0f);
+				
+                float distanceToTexel = clamp(ndc_shadowMapCoords.z, 0.0f, 1.0f);
 
 				if      (i == 0) { debugOutputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
                 else if (i == 1) { debugOutputColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }

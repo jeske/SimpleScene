@@ -26,7 +26,7 @@ vec2 boundaries[4] = vec2[](
 
 void main()
 {
-    gl_Position = objWorldTransform * gl_Vertex;
+    gl_Position = objWorldTransform * gl_Vertex;	
 
     int splitOverlapMask = 0;
     int submask;

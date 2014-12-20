@@ -181,6 +181,7 @@ namespace SimpleScene
             GL.ShadeModel(ShadingModel.Flat);
             GL.Disable(EnableCap.ColorMaterial);
 
+            // these are used by PrepareForRender to derive the shadowmap matricies...
             m_renderConfig.invCameraViewMat = InvCameraViewMatrix;
             m_renderConfig.projectionMatrix = ProjectionMatrix;
 
@@ -188,6 +189,11 @@ namespace SimpleScene
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
                     light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, fov, aspect, nearZ, farZ);
+
+                    // this is just to make sure these are not accidentally having effects during shadowmap render
+                    m_renderConfig.invCameraViewMat = Matrix4.Identity;
+                    m_renderConfig.projectionMatrix = Matrix4.Identity;
+
                     // TODO: add shadowmap frustum culling, but we currently have 4 shadowmap frustums, one
                     // for each split, so it's a little tricky..
                     renderPass(false);                    
@@ -203,8 +209,11 @@ namespace SimpleScene
 		}
 
         public void Render() {
+            m_renderConfig.invCameraViewMat = InvCameraViewMatrix;
+            m_renderConfig.projectionMatrix = ProjectionMatrix;
+
 			setupLights ();
-            
+
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
