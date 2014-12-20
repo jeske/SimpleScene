@@ -39,7 +39,7 @@ void main()
                 gl_Position = vp * gl_PositionIn[i];
                 EmitVertex();
             }
-        }
-        EndPrimitive();
+			EndPrimitive();
+        }        
     }
 }

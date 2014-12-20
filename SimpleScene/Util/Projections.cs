@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright(C) David W. Jeske, Sergey Butylkov 2014
+// Released to the public domain. Use, modify and relicense at will.
+
+using System;
 using OpenTK;
 using System.Collections.Generic;
 using SimpleScene;
@@ -87,6 +90,8 @@ namespace Util3d
                 throw new NotSupportedException();
             }
 			
+            
+
             // light-aligned unit vectors
             Vector3 lightZ = light.Direction.Normalized();
             Vector3 lightX, lightY;
@@ -118,36 +123,11 @@ namespace Util3d
 			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
                 FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);               
 
-#if OPTIMIZE_NEAR_Z
-                // create a light-aligned orthographic projection matrix to find all shadow-casters.
-                FrustumCuller lightAlignedLightFrustum;
-                { 
-                    // Use center of AABB in regular coordinates to get the view matrix                                                                        
-                    Vector3 centerAligned = (projBBMin + projBBMax) / 2f;                
-                    float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
-
-                    Vector3 viewTarget = centerAligned.X * lightX
-                               + centerAligned.Y * lightY
-                               + centerAligned.Z * lightZ;                
-                    Vector3 viewEye = viewTarget - farEnough * lightZ;                
-                    Vector3 viewUp = lightY;
-                    shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
-
-			        float width = (projBBMax.X - projBBMin.X);
-			        float height = (projBBMax.Y - projBBMin.Y);
-			        float nearZ = float.NegativeInfinity;
-			        float farZ = projBBMax.Z;
-                    shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
-                    
-                    Matrix4 initialShadowmapSplitMatrix = shadowView * shadowProj;
-                    lightAlignedLightFrustum = new FrustumCuller(ref initialShadowmapSplitMatrix);
-                }
-#endif
 
                 Vector3 objBBMin = new Vector3(float.PositiveInfinity);
                 Vector3 objBBMax = new Vector3(float.NegativeInfinity);
                 bool haveShadowReceiver = false;                
-                float lightAlignedNearZForFirstShadowCaster = float.PositiveInfinity;
+                float lightAlignedNearZForFirstShadowCaster = projBBMin.Z;
 
                 foreach (var obj in objects) {
                     // pass through all shadow casters and receivers
@@ -162,19 +142,21 @@ namespace Util3d
                         Vector3 localMax = lightAlignedPos + rad;
                         
                         objBBMin = Vector3.ComponentMin(objBBMin,localMin);
-                        objBBMax = Vector3.ComponentMax(objBBMax,localMax);
-                    } 
-
-#if OPTIMIZE_NEAR_Z
-                    // find out if it is inside the light-aligned-frustum, to compute nearZ of
-                    // the first shadow caster.
+                        objBBMax = Vector3.ComponentMax(objBBMax,localMax);                        
+                    }
+                     
+                    // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
                     {
-                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);                                                
-                        if (lightAlignedLightFrustum.isSphereInsideFrustum(lightAlignedPos,obj.ScaledRadius)) {                         
-                            lightAlignedNearZForFirstShadowCaster = Math.Min(lightAlignedNearZForFirstShadowCaster,lightAlignedPos.Z);
+                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                        Vector3 rad = new Vector3(obj.ScaledRadius);
+                        Vector3 localMin = lightAlignedPos - rad;
+                        if (localMin.Z < lightAlignedNearZForFirstShadowCaster) {
+                            Vector3 localMax = lightAlignedPos + rad;
+                            if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)) {
+                                lightAlignedNearZForFirstShadowCaster = localMin.Z;
+                            }
                         }
                     }
-#endif
                     
                 }
                 
@@ -188,24 +170,22 @@ namespace Util3d
                     projBBMax.Y = Math.Min(projBBMax.Y,objBBMax.Y);
                     projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);                    
 
-#if OPTIMIZE_NEAR_Z
-                    // extend nearZ towards the light
+                    // extend nearZ towards the light                    
                     projBBMin.Z = Math.Min(projBBMin.Z, lightAlignedNearZForFirstShadowCaster);
-#endif
                 }
             }
-            
+           
+
             // Finish the view matrix
             {
 
-                // Use center of AABB in regular coordinates to get the view matrix                                                                        
-                Vector3 centerAligned = (projBBMin + projBBMax) / 2f;                
-                float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
-
-                Vector3 viewTarget = centerAligned.X * lightX
-                           + centerAligned.Y * lightY
-                           + centerAligned.Z * lightZ;                
-                Vector3 viewEye = viewTarget - farEnough * lightZ;                
+                // Use center of AABB in regular coordinates to get the view matrix  
+                Vector3 target_lightSpace = (projBBMin + projBBMax) / 2f;                
+                Vector3 eye_lightSpace = new Vector3(target_lightSpace.X,target_lightSpace.Y,projBBMin.Z);
+                
+                Vector3 viewTarget = Vector3.Transform(target_lightSpace,lightTransform.Inverted()); 
+                Vector3 viewEye = Vector3.Transform(eye_lightSpace,lightTransform.Inverted());
+                
                 Vector3 viewUp = lightY;
                 shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
