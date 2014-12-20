@@ -118,16 +118,31 @@ namespace Util3d
 			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
                 FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);               
 
+#if OPTIMIZE_NEAR_Z
                 // create a light-aligned orthographic projection matrix to find all shadow-casters.
                 FrustumCuller lightAlignedLightFrustum;
                 { 
+                    // Use center of AABB in regular coordinates to get the view matrix                                                                        
+                    Vector3 centerAligned = (projBBMin + projBBMax) / 2f;                
+                    float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
+
+                    Vector3 viewTarget = centerAligned.X * lightX
+                               + centerAligned.Y * lightY
+                               + centerAligned.Z * lightZ;                
+                    Vector3 viewEye = viewTarget - farEnough * lightZ;                
+                    Vector3 viewUp = lightY;
+                    shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
+
 			        float width = (projBBMax.X - projBBMin.X);
 			        float height = (projBBMax.Y - projBBMin.Y);
 			        float nearZ = float.NegativeInfinity;
 			        float farZ = projBBMax.Z;
                     shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
-                    lightAlignedLightFrustum = new FrustumCuller(ref shadowProj);
+                    
+                    Matrix4 initialShadowmapSplitMatrix = shadowView * shadowProj;
+                    lightAlignedLightFrustum = new FrustumCuller(ref initialShadowmapSplitMatrix);
                 }
+#endif
 
                 Vector3 objBBMin = new Vector3(float.PositiveInfinity);
                 Vector3 objBBMax = new Vector3(float.NegativeInfinity);
@@ -150,6 +165,7 @@ namespace Util3d
                         objBBMax = Vector3.ComponentMax(objBBMax,localMax);
                     } 
 
+#if OPTIMIZE_NEAR_Z
                     // find out if it is inside the light-aligned-frustum, to compute nearZ of
                     // the first shadow caster.
                     {
@@ -158,6 +174,7 @@ namespace Util3d
                             lightAlignedNearZForFirstShadowCaster = Math.Min(lightAlignedNearZForFirstShadowCaster,lightAlignedPos.Z);
                         }
                     }
+#endif
                     
                 }
                 
@@ -171,8 +188,10 @@ namespace Util3d
                     projBBMax.Y = Math.Min(projBBMax.Y,objBBMax.Y);
                     projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);                    
 
+#if OPTIMIZE_NEAR_Z
                     // extend nearZ towards the light
                     projBBMin.Z = Math.Min(projBBMin.Z, lightAlignedNearZForFirstShadowCaster);
+#endif
                 }
             }
             
@@ -191,12 +210,14 @@ namespace Util3d
                 shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
                 // Finish the projection matrix
-                float width, height, nearZ, farZ;
-			    width = (projBBMax.X - projBBMin.X);
-			    height = (projBBMax.Y - projBBMin.Y);
-			    nearZ = 1f;
-			    farZ = 1f + (projBBMax.Z - projBBMin.Z);
-                shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
+                {
+                    float width, height, nearZ, farZ;
+			        width = (projBBMax.X - projBBMin.X);
+			        height = (projBBMax.Y - projBBMin.Y);
+			        nearZ = 1f;
+			        farZ = 1f + (projBBMax.Z - projBBMin.Z);
+                    shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
+                }
             }
         }
 
