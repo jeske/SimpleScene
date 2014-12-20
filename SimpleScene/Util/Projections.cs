@@ -98,12 +98,13 @@ namespace Util3d
             Vector3 lightX, lightY;
             OpenTKHelper.TwoPerpAxes(lightZ, out lightX, out lightY);
             // transform matrix from regular space into light aligned space
-            Matrix4 lightTransform = new Matrix4 (
+            Matrix4 lightWorldMatrix = new Matrix4 (
                  lightX.X, lightX.Y, lightX.Z, 0f,
                  lightY.X, lightY.Y, lightY.Z, 0f,
                  lightZ.X, lightZ.Y, lightZ.Z, 0f,
                  0f,       0f,       0f,       0f
-            ).Inverted();
+            );
+            Matrix4 worldLightMatrix = lightWorldMatrix.Inverted();
 
             // Step 0: AABB of frustum corners in light coordinates
             Vector3 frustumBBMin = new Vector3 (float.PositiveInfinity);
@@ -111,7 +112,7 @@ namespace Util3d
             Matrix4 cameraViewProj = cameraView * cameraProj;
             List<Vector3> corners = FrustumCorners(ref cameraViewProj);
             for (int i = 0; i < corners.Count; ++i) {
-                Vector3 corner = Vector3.Transform(corners [i], lightTransform);
+                Vector3 corner = Vector3.Transform(corners [i], worldLightMatrix);
                 frustumBBMin = Vector3.ComponentMin(frustumBBMin, corner);
                 frustumBBMax = Vector3.ComponentMax(frustumBBMax, corner);
             }
@@ -128,7 +129,7 @@ namespace Util3d
                 Vector3 objBBMin = new Vector3(float.PositiveInfinity);
                 Vector3 objBBMax = new Vector3(float.NegativeInfinity);
                 bool haveShadowReceiver = false;                
-                float lightAlignedNearZForFirstShadowCaster = projBBMin.Z;
+                float lightAlignedNearZForFirstShadowCaster = float.PositiveInfinity;
 
                 foreach (var obj in objects) {
                     // pass through all shadow casters and receivers
@@ -137,24 +138,25 @@ namespace Util3d
                     } else if (cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
                         // determine AABB in light coordinates of the objects so far
                         haveShadowReceiver = true;                        
-                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, worldLightMatrix);
                         Vector3 rad = new Vector3(obj.ScaledRadius);
                         Vector3 localMin = lightAlignedPos - rad;
                         Vector3 localMax = lightAlignedPos + rad;
                         
                         objBBMin = Vector3.ComponentMin(objBBMin,localMin);
-                        objBBMax = Vector3.ComponentMax(objBBMax,localMax);                        
+                        objBBMax = Vector3.ComponentMax(objBBMax,localMax); 
+                        lightAlignedNearZForFirstShadowCaster = Math.Min(lightAlignedNearZForFirstShadowCaster,objBBMin.Z);                       
                     }
                      
                     // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
                     {
-                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, worldLightMatrix);
                         Vector3 rad = new Vector3(obj.ScaledRadius);
                         Vector3 localMin = lightAlignedPos - rad;
                         if (localMin.Z < lightAlignedNearZForFirstShadowCaster) {
                             Vector3 localMax = lightAlignedPos + rad;
                             if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)) {
-                                lightAlignedNearZForFirstShadowCaster = localMin.Z;
+                                lightAlignedNearZForFirstShadowCaster = Math.Min(lightAlignedNearZForFirstShadowCaster, localMin.Z);
                             }
                         }
                     }
@@ -183,13 +185,13 @@ namespace Util3d
                 Vector3 target_lightSpace = (projBBMin + projBBMax) / 2f;                
                 Vector3 eye_lightSpace = new Vector3(target_lightSpace.X,target_lightSpace.Y,projBBMin.Z);
                 
-                Vector3 viewTarget = Vector3.Transform(target_lightSpace,lightTransform.Inverted()); 
-                Vector3 viewEye = Vector3.Transform(eye_lightSpace,lightTransform.Inverted());
+                Vector3 viewTarget = Vector3.Transform(target_lightSpace,lightWorldMatrix); 
+                Vector3 viewEye = Vector3.Transform(eye_lightSpace,lightWorldMatrix);
                 
                 Console.WriteLine("shadowmap Matrix: {0} {1}",viewEye,viewTarget);
 
                 Vector3 viewUp = lightY;
-                shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp).Inverted();
+                shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
                 // Finish the projection matrix
                 {

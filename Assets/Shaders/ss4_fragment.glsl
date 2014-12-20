@@ -124,7 +124,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
 
         // TODO: blend between cascades by setting multiple indeces in this mask?
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ee416307%28v=vs.85%29.aspx
-        int smapIndexMask = 0;
+        int smapIndexMask = 0;		
         float viewZ = -f_VV.z;
         for (int i = 0; i < numShadowMaps; ++i) {
             if (viewZ < shadowMapViewSplits[i]) {
