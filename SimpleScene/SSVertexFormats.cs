@@ -10,36 +10,36 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-	
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	public struct SSVertex_PosNormDiffTex1 : IEqualityComparer<SSVertex_PosNormDiffTex1>, ISSVertexLayout {
-		public float Tu, Tv;
-		public Int32 DiffuseColor;
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSVertex_PosNormDiffTex1 : IEqualityComparer<SSVertex_PosNormDiffTex1>, ISSVertexLayout {
+        public float Tu, Tv;
+        public Int32 DiffuseColor;
 
         public Vector3 Normal;
-		public Vector3 Position;
+        public Vector3 Position;
 
-		public unsafe void  bindGLAttributes() {
-			// this is the "transitional" GLSL 120 way of assigning buffer contents
-			// http://www.opentk.com/node/80?page=1
+        public unsafe void  bindGLAttributes() {
+            // this is the "transitional" GLSL 120 way of assigning buffer contents
+            // http://www.opentk.com/node/80?page=1
 
-			GL.EnableClientState (ArrayCap.VertexArray);
-			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Position"));
+            GL.EnableClientState (ArrayCap.VertexArray);
+            GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Position"));
 
-			GL.EnableClientState (ArrayCap.NormalArray);
-			GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
+            GL.EnableClientState (ArrayCap.NormalArray);
+            GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
-			GL.EnableClientState (ArrayCap.TextureCoordArray);
-			GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
-		}
-        
+            GL.EnableClientState (ArrayCap.TextureCoordArray);
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+        }
+
         public bool Equals(SSVertex_PosNormDiffTex1 a, SSVertex_PosNormDiffTex1 b) {
-        		return 
-					a.Position==b.Position 
-					&& a.Normal==b.Normal 
-					&& a.DiffuseColor==b.DiffuseColor
-					&& a.Tu==b.Tu
-					&& a.Tv==b.Tv;
+            return 
+                a.Position==b.Position 
+                && a.Normal==b.Normal 
+                && a.DiffuseColor==b.DiffuseColor
+                && a.Tu==b.Tu
+                && a.Tv==b.Tv;
         }
         public int GetHashCode(SSVertex_PosNormDiffTex1 a) {
             return a.GetHashCode();
@@ -48,27 +48,27 @@ namespace SimpleScene
             return sizeof (SSVertex_PosNormDiffTex1);
         }
         public override bool Equals( object ob ){
-			if( ob is SSVertex_PosNormDiffTex1 ) {
-				SSVertex_PosNormDiffTex1 c = (SSVertex_PosNormDiffTex1) ob;
-				return this.Equals(this,c);
-			}
-			else {
-				return false;
-			}
-		}
-		public override int GetHashCode ()
-		{
-			return base.GetHashCode ();
-		}
-	}
+            if( ob is SSVertex_PosNormDiffTex1 ) {
+                SSVertex_PosNormDiffTex1 c = (SSVertex_PosNormDiffTex1) ob;
+                return this.Equals(this,c);
+            }
+            else {
+                return false;
+            }
+        }
+        public override int GetHashCode ()
+        {
+            return base.GetHashCode ();
+        }
+    }
 
-	///////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	public struct SSVertex_PosNormDiff {
-		public Vector3 Position;
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSVertex_PosNormDiff {
+        public Vector3 Position;
         public Vector3 Normal;
-        
+
         public int DiffuseColor;
     }
 
@@ -106,6 +106,55 @@ namespace SimpleScene
         }
 
         public int GetHashCode(SSVertex_Pos a) {
+            return a.GetHashCode();
+        }
+
+        public override int GetHashCode() {
+            return base.GetHashCode();
+        }
+    }
+
+    ///////////////////////////////////////////////////////
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSVertex_PosTex1 : IEqualityComparer<SSVertex_PosTex1>, ISSVertexLayout
+    {
+        public float Tu, Tv;
+        public Vector3 Position;
+
+        public SSVertex_PosTex1(float x, float y, float z, float u, float v) {
+            Tu = u;
+            Tv = v;
+            Position = new Vector3 (x, y, z);
+        }
+
+        public unsafe void bindGLAttributes() {
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex1), "Position"));
+
+            GL.EnableClientState (ArrayCap.TextureCoordArray);
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosTex1), "Tu"));
+        }
+
+        unsafe public int sizeOf() {
+            return sizeof(SSVertex_PosTex1);
+        }
+
+        public bool Equals(SSVertex_PosTex1 a, SSVertex_PosTex1 b) {
+            return a.Position == b.Position 
+                && a.Tu == b.Tu && a.Tv == b.Tv;
+        }
+
+        public override bool Equals(object ob) {
+            if (ob is SSVertex_PosTex1) {
+                SSVertex_PosTex1 c = (SSVertex_PosTex1)ob;
+                return this.Equals(this, c);
+            } else {
+                return false;
+            }
+        }
+
+        public int GetHashCode(SSVertex_PosTex1 a) {
             return a.GetHashCode();
         }
 

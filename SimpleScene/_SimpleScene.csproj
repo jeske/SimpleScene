@@ -106,6 +106,8 @@
     <Compile Include="Core\SSShaderProgram.cs" />
     <Compile Include="Objects\SSObjectHUDQuad.cs" />
     <Compile Include="Util\Projections.cs" />
+    <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
+    <Compile Include="Objects\SSObjectBillboard.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
