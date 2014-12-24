@@ -24,7 +24,7 @@ namespace SimpleScene
 	public class SSRenderConfig {
 		public SSRenderStats renderStats;
 
-		public SSMainShaderProgram BaseShader;
+		public SSMainShaderProgram MainShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
@@ -65,13 +65,13 @@ namespace SimpleScene
         }
 
         public SSMainShaderProgram BaseShader {
-            get { return m_renderConfig.BaseShader; }
+            get { return m_renderConfig.MainShader; }
             set { 
-                m_renderConfig.BaseShader = value;
-                if (m_renderConfig.BaseShader != null) {
-                    m_renderConfig.BaseShader.Activate();
-                    m_renderConfig.BaseShader.SetupShadowMap(m_lights);
-                    m_renderConfig.BaseShader.Deactivate();
+                m_renderConfig.MainShader = value;
+                if (m_renderConfig.MainShader != null) {
+                    m_renderConfig.MainShader.Activate();
+                    m_renderConfig.MainShader.SetupShadowMap(m_lights);
+                    m_renderConfig.MainShader.Deactivate();
                 }
             }
         }
@@ -192,9 +192,9 @@ namespace SimpleScene
             }
 
             // update mvps shadowmaps in the main shader
-            if (m_renderConfig.BaseShader != null) {
-                m_renderConfig.BaseShader.Activate();
-                m_renderConfig.BaseShader.UpdateShadowMapMVPs(m_lights);
+            if (m_renderConfig.MainShader != null) {
+                m_renderConfig.MainShader.Activate();
+                m_renderConfig.MainShader.UpdateShadowMapMVPs(m_lights);
             }
 		}
 

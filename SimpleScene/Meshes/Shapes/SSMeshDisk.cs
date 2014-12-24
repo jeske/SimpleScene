@@ -56,7 +56,7 @@ namespace SimpleScene
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
-            renderConfig.BaseShader.Deactivate();
+            renderConfig.MainShader.Deactivate();
 
             if (m_texture != null) {
                 GL.ActiveTexture(TextureUnit.Texture0);

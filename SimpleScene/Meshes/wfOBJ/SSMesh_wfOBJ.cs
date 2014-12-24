@@ -72,7 +72,7 @@ namespace SimpleScene
 
 			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 
-            SSMainShaderProgram shaderPgm = renderConfig.BaseShader;
+            SSMainShaderProgram shaderPgm = renderConfig.MainShader;
 
             if (renderConfig.drawingShadowMap) { 
                 // assume SSObject.Render has setup our materials properly for the shadowmap Pass               
@@ -103,35 +103,35 @@ namespace SimpleScene
 				GL.ActiveTexture(TextureUnit.Texture0);
 				if (subset.diffuseTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-					shaderPgm.u_DiffTexEnabled = true; 
+					shaderPgm.UniDiffTexEnabled = true; 
 
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_DiffTexEnabled = false;
+					shaderPgm.UniDiffTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture1);
 				if (subset.specularTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
-					shaderPgm.u_SpecTexEnabled = true;
+					shaderPgm.UniSpecTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_SpecTexEnabled = false;
+					shaderPgm.UniSpecTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture2);
 				if (subset.ambientTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
-					shaderPgm.u_AmbTexEnabled = true;
+					shaderPgm.UniAmbTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_AmbTexEnabled = false;
+					shaderPgm.UniAmbTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture3);
 				if (subset.bumpTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
-					shaderPgm.u_BumpTexEnabled = true;
+					shaderPgm.UniBumpTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_BumpTexEnabled = false;
+					shaderPgm.UniBumpTexEnabled = false;
 				}
 
 				// reset to texture-unit 0 to be friendly..
@@ -237,7 +237,7 @@ namespace SimpleScene
                 } else {
                     if (renderConfig.drawGLSL) {
                         _renderSetupGLSL(ref renderConfig, subset);
-                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOTriangles(subset);
                         } else {
                             _renderSendTriangles(subset);
@@ -246,7 +246,7 @@ namespace SimpleScene
                     }
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();
-                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOLines(subset);
                         } else {
                             _renderSendLines(subset);

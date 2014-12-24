@@ -55,14 +55,14 @@ namespace SimpleScene
                 // ----- Dirty return ------
             }
 
-            if (renderConfig.BaseShader != null) {
-                var shaderPgm = renderConfig.BaseShader;
+            if (renderConfig.MainShader != null) {
+                var shaderPgm = renderConfig.MainShader;
                 // turn off most GL features to start..
                 shaderPgm.Activate();
-                shaderPgm.u_DiffTexEnabled = false;
-                shaderPgm.u_SpecTexEnabled = false;
-                shaderPgm.u_AmbTexEnabled = false;
-                shaderPgm.u_BumpTexEnabled = false;
+                shaderPgm.UniDiffTexEnabled = false;
+                shaderPgm.UniSpecTexEnabled = false;
+                shaderPgm.UniAmbTexEnabled = false;
+                shaderPgm.UniBumpTexEnabled = false;
                 // pass world transform to the main shader for referencing the shadowmap
                 shaderPgm.u_ObjectWorldTransform = this.worldMat;
             }
