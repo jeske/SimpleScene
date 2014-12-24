@@ -9,7 +9,8 @@ using MatterHackers.Agg.VertexSource;
 using MatterHackers.Agg.RasterizerScanline;
 using MatterHackers.Agg.Transform;
 using MatterHackers.Agg.Font;
-using OpenTK;
+
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 

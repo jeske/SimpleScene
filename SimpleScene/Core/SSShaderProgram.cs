@@ -37,10 +37,8 @@ public class SSShaderProgram {
     }
 
     public static void DeactivateAll() {
-        if (s_activeProgram != null) {
-            s_activeProgram = null;
-            GL.UseProgram (0);
-        }
+        s_activeProgram = null;
+        GL.UseProgram (0);
     }
 
     public void Deactivate() {

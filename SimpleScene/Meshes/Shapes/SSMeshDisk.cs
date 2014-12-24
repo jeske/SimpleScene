@@ -66,13 +66,14 @@ namespace SimpleScene
                 GL.Enable (EnableCap.Blend);
                 GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             }
+            
+            GL.Disable(EnableCap.Lighting);
+            GL.Color3(Color.Red);
+            GL.Disable(EnableCap.ColorMaterial);            
 
             GL.Enable(EnableCap.Texture2D);
-            GL.Disable(EnableCap.Lighting);
-            GL.Color3(Color.White);
-            GL.Disable(EnableCap.ColorMaterial);
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
+            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
 
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }

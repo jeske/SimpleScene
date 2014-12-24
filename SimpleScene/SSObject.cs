@@ -49,6 +49,18 @@ namespace SimpleScene
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
+            GL.ActiveTexture(TextureUnit.Texture0);GL.BindTexture(TextureTarget.Texture2D, 0);            
+            GL.ActiveTexture(TextureUnit.Texture1);GL.BindTexture(TextureTarget.Texture2D, 0);            
+            GL.ActiveTexture(TextureUnit.Texture2);GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.ActiveTexture(TextureUnit.Texture3);GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            // don't turn off this stuff, because it might be used for the shadowmap.
+            // GL.ActiveTexture(TextureUnit.Texture4);GL.BindTexture(TextureTarget.Texture2D, 0);
+            // GL.ActiveTexture(TextureUnit.Texture5);GL.BindTexture(TextureTarget.Texture2D, 0);
+            // GL.ActiveTexture(TextureUnit.Texture6);GL.BindTexture(TextureTarget.Texture2D, 0);
+            // GL.ActiveTexture(TextureUnit.Texture7);GL.BindTexture(TextureTarget.Texture2D, 0);
+            // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
+
             if (renderConfig.drawingShadowMap) {                
                 return; // skip the rest of setup...
 
@@ -91,6 +103,9 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
 			
+
+            
+
             // GL.Color4(diffuseMatColor);
 
             // ... subclasses will render the object itself..
