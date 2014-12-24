@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -56,20 +57,22 @@ namespace SimpleScene
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
-            //if (renderConfig.MainShader != null) {
-            //    renderConfig.MainShader.Deactivate();
-            //}
+            if (m_texture == null) return;
 
             SSShaderProgram.DeactivateAll();
 
-            if (m_texture != null) {
-                GL.Enable(EnableCap.Texture2D);
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
-            } else {
-                GL.Disable(EnableCap.Texture2D);
-                GL.BindTexture(TextureTarget.Texture2D, 0);
+            {
+                GL.Enable (EnableCap.AlphaTest);
+                GL.Enable (EnableCap.Blend);
+                GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             }
+
+            GL.Enable(EnableCap.Texture2D);
+            GL.Disable(EnableCap.Lighting);
+            GL.Color3(Color.White);
+            GL.Disable(EnableCap.ColorMaterial);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
 
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }

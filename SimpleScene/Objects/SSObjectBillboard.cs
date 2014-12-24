@@ -28,11 +28,11 @@ namespace SimpleScene
                 // http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
                 Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
                 Vector3 trans = modelViewMat.ExtractTranslation();
-                Vector3 scale = modelViewMat.ExtractScale();
+                //Vector3 scale = modelViewMat.ExtractScale();
                 modelViewMat = new Matrix4 (
-                    scale.X, 0f, 0f, trans.X,
-                    0f, scale.Y, 0f, trans.Y,
-                    0f, 0f, scale.Z, trans.Z,
+                    Scale.X, 0f, 0f, trans.X,
+                    0f, Scale.Y, 0f, trans.Y,
+                    0f, 0f, Scale.Z, trans.Z,
                     0f, 0f, 0f, 1f);
                 modelViewMat.Transpose();
                 GL.MatrixMode(MatrixMode.Modelview);
