@@ -56,12 +56,15 @@ namespace SimpleScene
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
-            renderConfig.MainShader.Deactivate();
+            if (renderConfig.MainShader != null) {
+                renderConfig.MainShader.Deactivate();
+            }
 
             if (m_texture != null) {
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             } else {
+                GL.Disable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
             }
 
