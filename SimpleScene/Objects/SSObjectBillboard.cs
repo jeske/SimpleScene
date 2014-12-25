@@ -10,12 +10,25 @@ namespace SimpleScene
     {
         public Vector3 color = new Vector3 (1f);
 
+        public bool IsOcclusionQueueryEnabled = false;
+
+        private int m_queuery;
+
+        public int QueueryResult {
+            get {
+                int ret;
+                GL.GetQueryObject(m_queuery, GetQueryObjectParam.QueryResult, out ret);
+                return ret;
+            }
+        }
+
         public SSObjectBillboard ()
         {
+            m_queuery = GL.GenQuery();
         }
 
         public SSObjectBillboard(SSAbstractMesh mesh)
-            : base()
+            : this()
         {
             Mesh = mesh;
         }
@@ -41,13 +54,17 @@ namespace SimpleScene
                 GL.LoadMatrix(ref modelViewMat);
                 #endif
 
-                // TODO occulsion queuery
-
                 GL.Color3(color);
+
+                if (IsOcclusionQueueryEnabled) {
+                    GL.BeginQuery(QueryTarget.SamplesPassed, m_queuery);
+                }
 
                 Mesh.RenderMesh(ref renderConfig);
 
-                // TODO occulsion queuery
+                if (IsOcclusionQueueryEnabled) {
+                    GL.EndQuery(QueryTarget.SamplesPassed);
+                }
             }
         }
     }
