@@ -57,21 +57,21 @@ namespace SimpleScene
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
-            if (m_texture == null) return;
-
             SSShaderProgram.DeactivateAll();
 
             GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.ColorMaterial);            
+            GL.Disable(EnableCap.ColorMaterial);
+            GL.Enable (EnableCap.AlphaTest);
+            GL.Enable (EnableCap.Blend);
+            GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            GL.Enable(EnableCap.Texture2D);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
 
-            {
-                GL.Enable (EnableCap.AlphaTest);
-                GL.Enable (EnableCap.Blend);
-                GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            if (m_texture != null) {
+                GL.Enable(EnableCap.Texture2D);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
+            } else {
+                GL.Disable(EnableCap.Texture2D);
             }
 
             m_ibo.DrawElements(PrimitiveType.Triangles);
