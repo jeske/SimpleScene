@@ -262,6 +262,9 @@ namespace SimpleScene
             SSAssetManager.RegisterLoadDelegate<SSTexture>(
                 (ctx, filename) => { return new SSTexture(ctx, filename); }
             );
+            SSAssetManager.RegisterLoadDelegate<SSTextureWithAlpha>(
+                (ctx, filename) => { return new SSTextureWithAlpha(ctx, filename); }
+            );
             SSAssetManager.RegisterLoadDelegate<SSMesh_wfOBJ>(
                 (ctx, filename) => { return new SSMesh_wfOBJ(ctx, filename); }
             );

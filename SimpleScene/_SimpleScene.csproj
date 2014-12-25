@@ -108,6 +108,7 @@
     <Compile Include="Util\Projections.cs" />
     <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
     <Compile Include="Objects\SSObjectBillboard.cs" />
+    <Compile Include="Core\SSTextureWithAlpha.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

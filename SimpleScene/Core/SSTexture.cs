@@ -38,7 +38,7 @@ namespace SimpleScene
             _glTextureID = 0;
         }
 
-		public void loadFromBitmap (Bitmap TextureBitmap, string name = null, bool hasAlpha = false, bool mipmap = true)
+        public void loadFromBitmap (Bitmap TextureBitmap, string name = null, bool hasAlpha = false, bool mipmap = true)
 		{		    
 			//get the data out of the bitmap
 			System.Drawing.Imaging.BitmapData TextureData;
