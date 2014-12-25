@@ -8,6 +8,8 @@ namespace SimpleScene
 {
     public class SSObjectBillboard : SSObjectMesh
     {
+        public Vector3 color = new Vector3 (1f);
+
         public SSObjectBillboard ()
         {
         }
@@ -40,6 +42,8 @@ namespace SimpleScene
                 #endif
 
                 // TODO occulsion queuery
+
+                GL.Color3(color);
 
                 Mesh.RenderMesh(ref renderConfig);
 

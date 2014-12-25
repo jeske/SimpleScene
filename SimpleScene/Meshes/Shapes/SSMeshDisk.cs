@@ -27,7 +27,7 @@ namespace SimpleScene
             m_vertices [0] = new SSVertex_PosTex1 (0f, 0f, 0f, 0.5f, 0.5f);
 
             float angleStep = 2f * (float)Math.PI / divisions;
-            float Tr = 0.5f - texOffset;
+            float Tr = 0.5f + texOffset;
 
             for (int i = 0; i < divisions; ++i) {
                 float angle = i * angleStep;
@@ -62,7 +62,6 @@ namespace SimpleScene
             SSShaderProgram.DeactivateAll();
 
             GL.Disable(EnableCap.Lighting);
-            GL.Color3(Color.White);
             GL.Disable(EnableCap.ColorMaterial);            
 
             GL.Enable(EnableCap.Texture2D);
@@ -74,7 +73,6 @@ namespace SimpleScene
                 GL.Enable (EnableCap.Blend);
                 GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             }
-
 
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }
