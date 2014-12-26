@@ -21,8 +21,9 @@ namespace SimpleScene
             new Vector2(0f, 1f)
         };
 
+        // individual sprite scales, in terms of the on-screen size of the sun
         private static readonly float[] c_spriteScales = {
-            2.0f
+            20.0f
         };
 
         private SSVertex_PosTex1[] m_vertices;
@@ -115,16 +116,16 @@ namespace SimpleScene
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            //GL.Enable(EnableCap.Texture2D);
-            //GL.ActiveTexture(TextureUnit.Texture0);
-            //GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
+            GL.Enable(EnableCap.Texture2D);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
 
-            GL.Disable(EnableCap.Texture2D);
+            //GL.Disable(EnableCap.Texture2D);
 
             //GL.Translate(0f, 0f, 0f);
             //GL.Scale(1f, 1f, 1f);
-            //GL.Color3(m_sun.Color);
-            GL.Color4(1f, 0f, 0f, intensityFraction);
+            GL.Color4(new Vector4(m_sun.Color, intensityFraction));
+            //GL.Color4(1f, 0f, 0f, intensityFraction);
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }
     }
