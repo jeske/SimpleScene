@@ -29,6 +29,14 @@ namespace SimpleScene
         private SSObjectBillboard m_sun;
         private SSTexture m_texture;
 
+        static private Vector2 worldToScreen(Vector3 worldPos, ref Matrix4 viewProj, 
+                                             ref Vector2 screenCenter, ref Vector2 clientRect) {
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), viewProj);
+            pos /= pos.W;
+            pos.Y = -pos.Y;
+            return screenCenter + pos.Xy * clientRect / 2f;
+        }
+
         public SSObjectSunFlare (SSScene sunScene,
                                  SSObjectBillboard sun,
                                  SSTexture texture)
@@ -48,29 +56,31 @@ namespace SimpleScene
             }
         }
 
-          public override void Render (ref SSRenderConfig renderConfig)
+        public override void Render (ref SSRenderConfig renderConfig)
         {
-            Matrix4 viewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
-            //Matrix4 viewProj = m_sunScene.ProjectionMatrix * m_sunScene.InvCameraViewMatrix;
-            Vector4 sunPos = Vector4.Transform(new Vector4(m_sun.Pos, 1f), viewProj);
-            sunPos /= sunPos.W;
-            sunPos.Y = -sunPos.Y;
+            Matrix4 viewInverted = m_sunScene.InvCameraViewMatrix.Inverted();
+            Vector3 viewRight = Vector3.Transform(new Vector3 (1f, 0f, 0f), viewInverted);
+            Vector3 viewUp = Vector3.Transform(new Vector3 (0f, 1f, 0f), viewInverted);
+            Vector3 sunRightMost = m_sun.Pos + viewRight.Normalized() * m_sun.Scale.X;
+            Vector3 sunTopMost = m_sun.Pos + viewUp.Normalized() * m_sun.Scale.Y;
 
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             Vector2 screenOrig = new Vector2 (viewport [0], viewport [1]);
             Vector2 clientRect = new Vector2 (viewport [2], viewport [3]);
             Vector2 screenCenter = screenOrig + clientRect / 2f;
-            Vector2 sunScreenPos = screenCenter + sunPos.Xy * clientRect / 2f;
+
+            Matrix4 viewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
+            Vector2 sunScreenPos = worldToScreen(m_sun.Pos, ref viewProj, ref screenCenter, ref clientRect);
+            Vector2 sunScreenRightMost = worldToScreen(sunRightMost, ref viewProj, ref screenCenter, ref clientRect);
+            Vector2 sunScreenTopMost = worldToScreen(sunTopMost, ref viewProj, ref screenCenter, ref clientRect);
             Vector2 towardsCenter = (screenCenter - sunScreenPos).Normalized();
 
-            //sunScreenPos = screenCenter;
-
-            Vector2 tileVec = Scale.Xy * 128f / 2f;
+            Vector2 tileVec = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenTopMost.Y - sunScreenPos.Y);
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
-                Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
-                //Vector2 center = sunScreenPos;
+                //Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
+                Vector2 center = sunScreenPos;
 
                 m_vertices [i].Position.X = center.X - tileVec.X;
                 m_vertices [i].Position.Y = center.Y - tileVec.Y;
@@ -103,7 +113,7 @@ namespace SimpleScene
             //GL.Translate(0f, 0f, 0f);
             //GL.Scale(1f, 1f, 1f);
             //GL.Color3(m_sun.Color);
-            GL.Color3(Color.Red);
+            GL.Color4(1f, 0f, 0f, 0.5f);
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }
     }
