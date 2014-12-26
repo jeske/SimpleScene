@@ -66,6 +66,7 @@ namespace SimpleScene
             int queryResult = m_sun.QueueryResult;
             if (queryResult <= 0) return;
 
+            // Begin the quest to update VBO vertices
             Matrix4 viewInverted = m_sunScene.InvCameraViewMatrix.Inverted();
             Vector3 viewRight = Vector3.Transform(new Vector3 (1f, 0f, 0f), viewInverted);
             Vector3 viewUp = Vector3.Transform(new Vector3 (0f, 1f, 0f), viewInverted);
@@ -108,24 +109,20 @@ namespace SimpleScene
             }
             m_vbo.UpdateBufferData(m_vertices);
 
-            SSShaderProgram.DeactivateAll();
-
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.ColorMaterial);
+            // now, actually draw
+            base.Render(ref renderConfig);
+            SSShaderProgram.DeactivateAll(); // disable GLSL
+            GL.Disable(EnableCap.CullFace);
             GL.Enable (EnableCap.AlphaTest);
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Disable(EnableCap.Lighting);
 
-            GL.Enable(EnableCap.Texture2D);
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
-
-            //GL.Disable(EnableCap.Texture2D);
-
-            //GL.Translate(0f, 0f, 0f);
-            //GL.Scale(1f, 1f, 1f);
+            GL.Enable(EnableCap.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             GL.Color4(new Vector4(m_sun.Color, intensityFraction));
-            //GL.Color4(1f, 0f, 0f, intensityFraction);
+
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }
     }
