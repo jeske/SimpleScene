@@ -120,7 +120,7 @@ namespace SimpleScene
 
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
-                Vector2 center = sunScreenPos + towardsCenter * i / 2f; // TODO scale based on sqrt(w^2 + h^2)
+                Vector2 center = sunScreenPos + towardsCenter * 2.5f / (float)c_numElements * (float)i;
                 Vector2 tileVec = tileVecBase * c_spriteScales [i];
 
                 int baseIdx = i * 4;
