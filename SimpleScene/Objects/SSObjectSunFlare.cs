@@ -85,7 +85,6 @@ namespace SimpleScene
             Vector2 sunScreenTopMost = worldToScreen(sunTopMost, ref viewProj, ref screenCenter, ref clientRect);
             Vector2 towardsCenter = (screenCenter - sunScreenPos).Normalized();
 
-            //Vector2 tileVec = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenTopMost.Y - sunScreenPos.Y);
             Vector2 tileVecBase = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenPos.Y - sunScreenTopMost.Y);
             float sunFullEstimate = (float)Math.PI * tileVecBase.X * tileVecBase.Y;
             float intensityFraction = (float)queryResult / sunFullEstimate;
