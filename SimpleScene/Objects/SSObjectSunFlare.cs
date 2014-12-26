@@ -51,23 +51,26 @@ namespace SimpleScene
           public override void Render (ref SSRenderConfig renderConfig)
         {
             Matrix4 viewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
+            //Matrix4 viewProj = m_sunScene.ProjectionMatrix * m_sunScene.InvCameraViewMatrix;
             Vector4 sunPos = Vector4.Transform(new Vector4(m_sun.Pos, 1f), viewProj);
             sunPos /= sunPos.W;
+            sunPos.Y = -sunPos.Y;
 
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             Vector2 screenOrig = new Vector2 (viewport [0], viewport [1]);
             Vector2 clientRect = new Vector2 (viewport [2], viewport [3]);
             Vector2 screenCenter = screenOrig + clientRect / 2f;
-            Vector2 sunScreenPos = screenOrig + sunPos.Xy * clientRect;
+            Vector2 sunScreenPos = screenCenter + sunPos.Xy * clientRect / 2f;
             Vector2 towardsCenter = (screenCenter - sunScreenPos).Normalized();
 
-            //sunScreenPos = new Vector2 (500f, 500f);
+            //sunScreenPos = screenCenter;
 
             Vector2 tileVec = Scale.Xy * 128f / 2f;
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
-                Vector2 center = sunScreenPos + towardsCenter * i * 10f; // TODO scale based on sqrt(w^2 + h^2)
+                Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
+                //Vector2 center = sunScreenPos;
 
                 m_vertices [i].Position.X = center.X - tileVec.X;
                 m_vertices [i].Position.Y = center.Y - tileVec.Y;
@@ -97,7 +100,8 @@ namespace SimpleScene
 
             GL.Disable(EnableCap.Texture2D);
 
-            GL.Translate(0f, 0f, 0f);
+            //GL.Translate(0f, 0f, 0f);
+            //GL.Scale(1f, 1f, 1f);
             //GL.Color3(m_sun.Color);
             GL.Color3(Color.Red);
             m_ibo.DrawElements(PrimitiveType.Triangles);
