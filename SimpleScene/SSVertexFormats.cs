@@ -119,12 +119,11 @@ namespace SimpleScene
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSVertex_PosTex1 : IEqualityComparer<SSVertex_PosTex1>, ISSVertexLayout
     {
-        public float Tu, Tv;
+        public Vector2 TexCoord;
         public Vector3 Position;
 
         public SSVertex_PosTex1(float x, float y, float z, float u, float v) {
-            Tu = u;
-            Tv = v;
+            TexCoord = new Vector2 (u, v);
             Position = new Vector3 (x, y, z);
         }
 
@@ -133,7 +132,7 @@ namespace SimpleScene
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex1), "Position"));
 
             GL.EnableClientState (ArrayCap.TextureCoordArray);
-            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosTex1), "Tu"));
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosTex1), "TexCoord"));
         }
 
         unsafe public int sizeOf() {
@@ -141,8 +140,8 @@ namespace SimpleScene
         }
 
         public bool Equals(SSVertex_PosTex1 a, SSVertex_PosTex1 b) {
-            return a.Position == b.Position 
-                && a.Tu == b.Tu && a.Tv == b.Tv;
+            return a.Position == b.Position
+                && a.TexCoord == b.TexCoord;
         }
 
         public override bool Equals(object ob) {

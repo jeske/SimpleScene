@@ -51,7 +51,7 @@ namespace SimpleScene
         }
         public SSObjectHUDQuad (int GLu_textureID) : base() {
 			this.GLu_textureID = GLu_textureID;
-			this.Pos = new Vector3(100,100,0);
+            this.Pos = new Vector3(0,0,0);
         }
     }
 }
