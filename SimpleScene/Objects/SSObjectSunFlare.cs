@@ -89,6 +89,9 @@ namespace SimpleScene
             float sunFullEstimate = (float)Math.PI * tileVecBase.X * tileVecBase.Y;
             float intensityFraction = (float)queryResult / sunFullEstimate;
 
+            // modulate sprite size with the intensity fraction
+            tileVecBase *= Math.Min(1f / (1f - intensityFraction), 2f);
+
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
                 Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
@@ -120,6 +123,8 @@ namespace SimpleScene
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
+
+            // modulate color alpha with the intensity fraction
             GL.Color4(new Vector4(m_sun.Color, intensityFraction));
 
             m_ibo.DrawElements(PrimitiveType.Triangles);
