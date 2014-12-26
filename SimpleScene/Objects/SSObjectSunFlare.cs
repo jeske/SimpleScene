@@ -11,7 +11,7 @@ namespace SimpleScene
         const int c_numElements = 1;
 
         private static readonly UInt16[] c_indices = {
-            0, 1, 2, 0, 2, 3
+            0, 1, 2, //0, 2, 3
         };
 
         private static readonly Vector2[] c_textureCoords = {
@@ -58,6 +58,9 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
+            int queryResult = m_sun.QueueryResult;
+            if (queryResult <= 0) return;
+
             Matrix4 viewInverted = m_sunScene.InvCameraViewMatrix.Inverted();
             Vector3 viewRight = Vector3.Transform(new Vector3 (1f, 0f, 0f), viewInverted);
             Vector3 viewUp = Vector3.Transform(new Vector3 (0f, 1f, 0f), viewInverted);
@@ -76,11 +79,15 @@ namespace SimpleScene
             Vector2 sunScreenTopMost = worldToScreen(sunTopMost, ref viewProj, ref screenCenter, ref clientRect);
             Vector2 towardsCenter = (screenCenter - sunScreenPos).Normalized();
 
-            Vector2 tileVec = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenTopMost.Y - sunScreenPos.Y);
+            //Vector2 tileVec = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenTopMost.Y - sunScreenPos.Y);
+            Vector2 tileVec = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenPos.Y - sunScreenTopMost.Y);
+            float sunFullEstimate = (float)Math.PI * tileVec.X * tileVec.Y;
+            float intensityFraction = (float)queryResult / sunFullEstimate;
+
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
-                //Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
-                Vector2 center = sunScreenPos;
+                Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
+                //Vector2 center = sunScreenPos;
 
                 m_vertices [i].Position.X = center.X - tileVec.X;
                 m_vertices [i].Position.Y = center.Y - tileVec.Y;
@@ -113,7 +120,7 @@ namespace SimpleScene
             //GL.Translate(0f, 0f, 0f);
             //GL.Scale(1f, 1f, 1f);
             //GL.Color3(m_sun.Color);
-            GL.Color4(1f, 0f, 0f, 0.5f);
+            GL.Color4(1f, 0f, 0f, intensityFraction);
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }
     }
