@@ -8,22 +8,48 @@ namespace SimpleScene
 {
     public class SSObjectSunFlare : SSObject
     {
-        const int c_numElements = 1;
-
-        private static readonly UInt16[] c_indices = {
-            0, 1, 2, 0, 2, 3
-        };
+        const int c_numElements = 5;
+        const float c_bigOffset = 0.889f;
+        const float c_smallOffset = 0.125f;
 
         private static readonly Vector2[] c_textureCoords = {
             new Vector2(0f, 0f),
             new Vector2(1f, 0f),
-            new Vector2(1f, 1f),
-            new Vector2(0f, 1f)
+            new Vector2(1f, c_bigOffset),
+            new Vector2(0f, c_bigOffset),
+
+            new Vector2(0f, c_bigOffset),
+            new Vector2(c_smallOffset, c_bigOffset),
+            new Vector2(c_smallOffset, 1f),
+            new Vector2(0f, 1f),
+
+            new Vector2(c_smallOffset, c_bigOffset),
+            new Vector2(c_smallOffset*2f, c_bigOffset),
+            new Vector2(c_smallOffset*2f, 1f),
+            new Vector2(c_smallOffset, 1f),
+
+            new Vector2(c_smallOffset*2f, c_bigOffset),
+            new Vector2(c_smallOffset*3f, c_bigOffset),
+            new Vector2(c_smallOffset*3f, 1f),
+            new Vector2(c_smallOffset*2f, 1f),
+
+            new Vector2(c_smallOffset*3f, c_bigOffset),
+            new Vector2(c_smallOffset*4f, c_bigOffset),
+            new Vector2(c_smallOffset*4f, 1f),
+            new Vector2(c_smallOffset*3f, 1f),
         };
 
         // individual sprite scales, in terms of the on-screen size of the sun
         private static readonly float[] c_spriteScales = {
-            20.0f
+            20f, 1f, 2f, 1f, 1f
+        };
+
+        private static readonly UInt16[] c_indices = {
+            0, 1, 2, 0, 2, 3,
+            4, 5, 6, 4, 6, 7,
+            8, 9, 10, 8, 10, 11,
+            12, 13, 14, 12, 14, 15,
+            16, 17, 18, 16, 18, 19
         };
 
         private SSVertex_PosTex1[] m_vertices;
@@ -83,7 +109,7 @@ namespace SimpleScene
             Vector2 sunScreenPos = worldToScreen(m_sun.Pos, ref viewProj, ref screenCenter, ref clientRect);
             Vector2 sunScreenRightMost = worldToScreen(sunRightMost, ref viewProj, ref screenCenter, ref clientRect);
             Vector2 sunScreenTopMost = worldToScreen(sunTopMost, ref viewProj, ref screenCenter, ref clientRect);
-            Vector2 towardsCenter = (screenCenter - sunScreenPos).Normalized();
+            Vector2 towardsCenter = (screenCenter - sunScreenPos);
 
             Vector2 tileVecBase = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenPos.Y - sunScreenTopMost.Y);
             float sunFullEstimate = (float)Math.PI * tileVecBase.X * tileVecBase.Y;
@@ -94,20 +120,21 @@ namespace SimpleScene
 
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
-                Vector2 center = sunScreenPos + towardsCenter * i * 2f / c_numElements; // TODO scale based on sqrt(w^2 + h^2)
+                Vector2 center = sunScreenPos + towardsCenter * i / 2f; // TODO scale based on sqrt(w^2 + h^2)
                 Vector2 tileVec = tileVecBase * c_spriteScales [i];
 
-                m_vertices [i].Position.X = center.X - tileVec.X;
-                m_vertices [i].Position.Y = center.Y - tileVec.Y;
+                int baseIdx = i * 4;
+                m_vertices [baseIdx].Position.X = center.X - tileVec.X;
+                m_vertices [baseIdx].Position.Y = center.Y - tileVec.Y;
 
-                m_vertices [i+1].Position.X = center.X + tileVec.X;
-                m_vertices [i+1].Position.Y = center.Y - tileVec.Y;
+                m_vertices [baseIdx+1].Position.X = center.X + tileVec.X;
+                m_vertices [baseIdx+1].Position.Y = center.Y - tileVec.Y;
 
-                m_vertices [i+2].Position.X = center.X + tileVec.X;
-                m_vertices [i+2].Position.Y = center.Y + tileVec.Y;
+                m_vertices [baseIdx+2].Position.X = center.X + tileVec.X;
+                m_vertices [baseIdx+2].Position.Y = center.Y + tileVec.Y;
 
-                m_vertices [i+3].Position.X = center.X - tileVec.X;
-                m_vertices [i+3].Position.Y = center.Y + tileVec.Y;
+                m_vertices [baseIdx+3].Position.X = center.X - tileVec.X;
+                m_vertices [baseIdx+3].Position.Y = center.Y + tileVec.Y;
             }
             m_vbo.UpdateBufferData(m_vertices);
 
@@ -126,6 +153,7 @@ namespace SimpleScene
 
             // modulate color alpha with the intensity fraction
             GL.Color4(new Vector4(m_sun.Color, intensityFraction));
+            //GL.Color3(0f, 1f, 0f);
 
             m_ibo.DrawElements(PrimitiveType.Triangles);
         }
