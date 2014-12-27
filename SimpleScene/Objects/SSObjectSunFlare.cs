@@ -108,7 +108,7 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
-            int queryResult = m_sun.QueueryResult;
+            int queryResult = m_sun.OcclusionQueueryResult;
             if (queryResult <= 0) return;
 
             // Begin the quest to update VBO vertices

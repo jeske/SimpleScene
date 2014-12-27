@@ -10,11 +10,10 @@ namespace SimpleScene
     {
         public Vector4 Color = new Vector4 (1f);
 
-        public bool IsOcclusionQueueryEnabled = false;
-
+        private bool m_isOcclusionQueueryEnabled;
         private int m_queuery;
 
-        public int QueueryResult {
+        public int OcclusionQueueryResult {
             get {
                 int ret;
                 GL.GetQueryObject(m_queuery, GetQueryObjectParam.QueryResult, out ret);
@@ -22,14 +21,13 @@ namespace SimpleScene
             }
         }
 
-        public SSObjectBillboard ()
-        {
-            m_queuery = GL.GenQuery();
-        }
-        public SSObjectBillboard(SSAbstractMesh mesh)
-            : this()
+        public SSObjectBillboard(SSAbstractMesh mesh, bool enableOcclusionTest = false)
         {
             Mesh = mesh;
+            m_isOcclusionQueueryEnabled = enableOcclusionTest;
+            if (m_isOcclusionQueueryEnabled) {
+                m_queuery = GL.GenQuery();
+            }
         }
 
         public override void Render(ref SSRenderConfig renderConfig)
@@ -37,7 +35,6 @@ namespace SimpleScene
             if (Mesh != null) {
                 base.Render(ref renderConfig);
 
-                #if true
                 // override matrix setup to get rid of any rotation in view
                 // http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
                 Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
@@ -51,17 +48,16 @@ namespace SimpleScene
                 modelViewMat.Transpose();
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelViewMat);
-                #endif
 
                 GL.Color4(Color);
 
-                if (IsOcclusionQueueryEnabled) {
+                if (m_isOcclusionQueueryEnabled) {
                     GL.BeginQuery(QueryTarget.SamplesPassed, m_queuery);
                 }
 
                 Mesh.RenderMesh(ref renderConfig);
 
-                if (IsOcclusionQueueryEnabled) {
+                if (m_isOcclusionQueueryEnabled) {
                     GL.EndQuery(QueryTarget.SamplesPassed);
                 }
             }
