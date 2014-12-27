@@ -40,7 +40,7 @@ namespace SimpleScene
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 		}
 
-        protected static void resetTexturingState()
+        protected static void setDefaultTexturingState()
         {
             GL.Disable(EnableCap.Texture2D);
             GL.Disable(EnableCap.ColorMaterial); // turn off per-vertex color
@@ -62,13 +62,14 @@ namespace SimpleScene
             // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        protected void resetShaderState(SSMainShaderProgram pgm) {
+        protected void setDefaultShaderState(SSMainShaderProgram pgm) {
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniDiffTexEnabled = false;
                 pgm.UniSpecTexEnabled = false;
                 pgm.UniAmbTexEnabled = false;
                 pgm.UniBumpTexEnabled = false;
+                pgm.UniObjectWorldTransform = this.worldMat;
             }
         }
 
@@ -92,13 +93,13 @@ namespace SimpleScene
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
-            resetTexturingState();
+            setDefaultTexturingState();
 
             if (renderConfig.drawingShadowMap) {                
                 return; // skip the rest of setup...
             }
 
-            resetShaderState(renderConfig.MainShader);
+            setDefaultShaderState(renderConfig.MainShader);
             setMaterialState();
 
             GL.Disable(EnableCap.Blend);
