@@ -96,6 +96,11 @@ namespace SimpleScene
             set { m_renderConfig.drawWireframeMode = value; }
         }
 
+        public bool RenderBoundingSpheres {
+            get { return m_renderConfig.renderBoundingSpheres; }
+            set { m_renderConfig.renderBoundingSpheres = value; }
+        }
+
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);

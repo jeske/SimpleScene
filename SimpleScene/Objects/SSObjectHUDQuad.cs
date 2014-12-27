@@ -17,10 +17,8 @@ namespace SimpleScene
 
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
-			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Lighting);
-
 
 			GL.ActiveTexture(TextureUnit.Texture0);
             GL.Enable(EnableCap.Texture2D);
@@ -38,15 +36,14 @@ namespace SimpleScene
 
 			// upper-left
             GL.TexCoord2(0.0, 0.0); GL.Vertex3(0.0, 0.0, 0.0);
-            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
             GL.TexCoord2(0.0, 1.0); GL.Vertex3(0.0, h, 0.0);
+            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
 
             // lower-right
             GL.TexCoord2(0.0, 1.0); GL.Vertex3(0.0, h, 0.0);
-            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
             GL.TexCoord2(1.0, 1.0); GL.Vertex3(w, h, 0.0);
-
-            
+            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
+                        
             GL.End();
         }
         public SSObjectHUDQuad (int GLu_textureID) : base() {

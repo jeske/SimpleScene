@@ -71,8 +71,7 @@ namespace SimpleScene {
 			// GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
 			// Step 2: setup our material mode and paramaters...
-			GL.Disable (EnableCap.CullFace);
-            
+
 			GL.Disable (EnableCap.Lighting);
 			// enable alpha blending 
 			{
@@ -81,7 +80,6 @@ namespace SimpleScene {
 				GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 			}
 	           
-
             // fixed function single-texture
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.Enable(EnableCap.Texture2D);
