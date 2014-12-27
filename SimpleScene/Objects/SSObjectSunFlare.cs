@@ -134,7 +134,7 @@ namespace SimpleScene
             float intensityFraction = (float)queryResult / sunFullEstimate;
 
             // modulate sprite size with the intensity fraction
-            tileVecBase *= Math.Min(1f / (1f - intensityFraction), 2f);
+            tileVecBase *= Math.Min(1f / (1f - intensityFraction), 1.5f);
 
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions

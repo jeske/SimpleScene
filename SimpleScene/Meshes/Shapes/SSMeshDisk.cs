@@ -17,8 +17,8 @@ namespace SimpleScene
         private SSTexture m_texture;
 
         public SSMeshDisk (int divisions = 50,
-            SSTexture texture = null, 
-            float texOffset = 0.1f)
+                           SSTexture texture = null, 
+                           float texOffset = 0.1f)
         {
             m_texture = texture;
 
