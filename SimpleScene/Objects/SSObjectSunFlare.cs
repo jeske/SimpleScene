@@ -9,7 +9,7 @@ namespace SimpleScene
     public class SSObjectSunFlare : SSObject
     {
         const int c_numElements = 5;
-        const float c_bigOffset = 0.889f;
+        const float c_bigOffset = 0.8889f;
         const float c_smallOffset = 0.125f;
 
         private static readonly Vector2[] c_textureCoords = {
@@ -152,7 +152,9 @@ namespace SimpleScene
             GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
 
             // modulate color alpha with the intensity fraction
-            GL.Color4(new Vector4(m_sun.Color, intensityFraction));
+            Vector4 color = m_sun.Color;
+            color.W = intensityFraction;
+            GL.Color4(color);
             //GL.Color3(0f, 1f, 0f);
 
             m_ibo.DrawElements(PrimitiveType.Triangles);

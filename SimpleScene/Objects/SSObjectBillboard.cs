@@ -8,7 +8,7 @@ namespace SimpleScene
 {
     public class SSObjectBillboard : SSObjectMesh
     {
-        public Vector3 Color = new Vector3 (1f);
+        public Vector4 Color = new Vector4 (1f);
 
         public bool IsOcclusionQueueryEnabled = false;
 
@@ -53,7 +53,7 @@ namespace SimpleScene
                 GL.LoadMatrix(ref modelViewMat);
                 #endif
 
-                GL.Color3(Color);
+                GL.Color4(Color);
 
                 if (IsOcclusionQueueryEnabled) {
                     GL.BeginQuery(QueryTarget.SamplesPassed, m_queuery);
