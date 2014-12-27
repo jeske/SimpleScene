@@ -45,11 +45,19 @@ namespace SimpleScene
         };
 
         private static readonly UInt16[] c_indices = {
+            #if false
             0, 1, 2, 0, 2, 3,
             4, 5, 6, 4, 6, 7,
             8, 9, 10, 8, 10, 11,
             12, 13, 14, 12, 14, 15,
             16, 17, 18, 16, 18, 19
+            #else
+            0, 2, 1, 0, 3, 2,
+            4, 6, 5, 4, 7, 6,
+            8, 10, 9, 8, 11, 10,
+            12, 14, 13, 12, 15, 14,
+            16, 18, 17, 16, 19, 18,
+            #endif
         };
 
         private SSVertex_PosTex1[] m_vertices;
