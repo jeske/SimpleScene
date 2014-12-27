@@ -40,10 +40,9 @@ namespace SimpleScene
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 		}
 
-        protected static void setDefaultTexturingState()
+        protected static void resetTexturingState()
         {
             GL.Disable(EnableCap.Texture2D);
-            GL.Disable(EnableCap.ColorMaterial); // turn off per-vertex color
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);            
@@ -62,6 +61,19 @@ namespace SimpleScene
             // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
+        protected void setMaterialState()
+        {
+            // turn off per-vertex color
+            GL.Disable(EnableCap.ColorMaterial);
+
+            // setup the base color values...
+            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
+        }
+
         protected void setDefaultShaderState(SSMainShaderProgram pgm) {
             if (pgm != null) {
                 pgm.Activate();
@@ -71,16 +83,6 @@ namespace SimpleScene
                 pgm.UniBumpTexEnabled = false;
                 pgm.UniObjectWorldTransform = this.worldMat;
             }
-        }
-
-        protected void setMaterialState()
-        {
-            // setup the base color values...
-            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
         }
 
 		public virtual void Render (ref SSRenderConfig renderConfig) {
@@ -93,7 +95,7 @@ namespace SimpleScene
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
-            setDefaultTexturingState();
+            resetTexturingState();
 
             if (renderConfig.drawingShadowMap) {                
                 return; // skip the rest of setup...
@@ -109,6 +111,7 @@ namespace SimpleScene
             } else {
                 GL.Disable(EnableCap.Lighting);
             }
+
             // ... subclass will render the object itself..
 		}
 

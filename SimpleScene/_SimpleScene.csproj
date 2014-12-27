@@ -79,7 +79,6 @@
     <Compile Include="Objects\SSObjectCube.cs" />
     <Compile Include="Objects\SSObjectGDISurface_Text.cs" />
     <Compile Include="Objects\SSObjectMesh.cs" />
-    <Compile Include="Objects\SSObjectMeshSky.cs" />
     <Compile Include="Objects\SSObjectRay.cs" />
     <Compile Include="Objects\SSObjectTriangle.cs" />
     <Compile Include="Util\OpenTKHelper.cs" />
