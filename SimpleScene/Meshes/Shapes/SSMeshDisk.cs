@@ -16,7 +16,7 @@ namespace SimpleScene
         private SSVertexBuffer<SSVertex_PosTex1> m_vbo;
         private SSTexture m_texture;
 
-        public SSMeshDisk (int divisions = 16,
+        public SSMeshDisk (int divisions = 50,
             SSTexture texture = null, 
             float texOffset = 0.1f)
         {

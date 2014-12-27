@@ -77,7 +77,7 @@ namespace SimpleScene
             set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
         }
 
-        public Matrix4 u_ObjectWorldTransform {
+        public Matrix4 UniObjectWorldTransform {
             // pass object world transform matrix for use in shadowmap lookup
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
