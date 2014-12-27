@@ -8,6 +8,7 @@ namespace SimpleScene
 {
     public class SSObjectSunFlare : SSObject
     {
+        #region Constant/Static Drawing Info
         const int c_numElements = 5;
         const float c_bigOffset = 0.8889f;
         const float c_smallOffset = 0.125f;
@@ -59,21 +60,31 @@ namespace SimpleScene
             16, 18, 17, 16, 19, 18,
             #endif
         };
+        #endregion
 
+        #region Instance-Specific Drawing Constructs
         private SSVertex_PosTex1[] m_vertices;
         private SSVertexBuffer<SSVertex_PosTex1> m_vbo;
         private SSIndexBuffer m_ibo;
+        private SSTexture m_texture;
+        #endregion
 
+        #region Source of Per-Frame Input
         private SSScene m_sunScene;
         private SSObjectBillboard m_sun;
-        private SSTexture m_texture;
+        #endregion
 
-        static private Vector2 worldToScreen(Vector3 worldPos, ref Matrix4 viewProj, 
-                                             ref Vector2 screenCenter, ref Vector2 clientRect) {
-            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), viewProj);
+        #region Per-Frame Temp Variables
+        private Matrix4 m_sunSceneViewProj;
+        private Vector2 m_screenCenter;
+        private Vector2 m_clientRect;
+        #endregion
+
+        private Vector2 worldToScreen(Vector3 worldPos) {
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), m_sunSceneViewProj);
             pos /= pos.W;
             pos.Y = -pos.Y;
-            return screenCenter + pos.Xy * clientRect / 2f;
+            return m_screenCenter + pos.Xy * m_clientRect / 2f;
         }
 
         public SSObjectSunFlare (SSScene sunScene,
@@ -110,14 +121,13 @@ namespace SimpleScene
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             Vector2 screenOrig = new Vector2 (viewport [0], viewport [1]);
-            Vector2 clientRect = new Vector2 (viewport [2], viewport [3]);
-            Vector2 screenCenter = screenOrig + clientRect / 2f;
-
-            Matrix4 viewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
-            Vector2 sunScreenPos = worldToScreen(m_sun.Pos, ref viewProj, ref screenCenter, ref clientRect);
-            Vector2 sunScreenRightMost = worldToScreen(sunRightMost, ref viewProj, ref screenCenter, ref clientRect);
-            Vector2 sunScreenTopMost = worldToScreen(sunTopMost, ref viewProj, ref screenCenter, ref clientRect);
-            Vector2 towardsCenter = (screenCenter - sunScreenPos);
+            m_clientRect = new Vector2 (viewport [2], viewport [3]);
+            m_screenCenter = screenOrig + m_clientRect / 2f;
+            m_sunSceneViewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
+            Vector2 sunScreenPos = worldToScreen(m_sun.Pos);
+            Vector2 sunScreenRightMost = worldToScreen(sunRightMost);
+            Vector2 sunScreenTopMost = worldToScreen(sunTopMost);
+            Vector2 towardsCenter = m_screenCenter - sunScreenPos;
 
             Vector2 tileVecBase = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenPos.Y - sunScreenTopMost.Y);
             float sunFullEstimate = (float)Math.PI * tileVecBase.X * tileVecBase.Y;
