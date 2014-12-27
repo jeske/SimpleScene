@@ -98,13 +98,13 @@ namespace SimpleScene {
 
             // upper-left
             GL.TexCoord2(0.0, 0.0); GL.Vertex3(0.0, 0.0, 0.0);
-            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
             GL.TexCoord2(0.0, 1.0); GL.Vertex3(0.0, h, 0.0);
+            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
 
             // lower-right
             GL.TexCoord2(0.0, 1.0); GL.Vertex3(0.0, h, 0.0);
-            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
             GL.TexCoord2(1.0, 1.0); GL.Vertex3(w, h, 0.0);
+            GL.TexCoord2(1.0, 0.0); GL.Vertex3(w, 0.0, 0.0);
 
             GL.End();
         }
