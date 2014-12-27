@@ -130,10 +130,8 @@ namespace SimpleScene
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
 			shaderPgm.Activate ();
 
-			// turn off other texture layers
-			shaderPgm.UniSpecTexEnabled = false;
-			shaderPgm.UniAmbTexEnabled = false;
-			shaderPgm.UniBumpTexEnabled = false;
+            // note that the texture state was previously reset by the calling SSObject
+            // note that the shader state was previously reset by the calling SSObject
 
 			GL.ActiveTexture(TextureUnit.Texture0);
 			if (texture != null) {
