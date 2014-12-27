@@ -167,17 +167,8 @@ namespace SimpleScene
 
         #region Render Pass Logic
 		public void RenderShadowMap() {
-            // clear some basics for 
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.Blend);
-            GL.Disable(EnableCap.Texture2D);
-            GL.Disable(EnableCap.Lighting);
-            GL.ShadeModel(ShadingModel.Flat);
-            GL.Disable(EnableCap.ColorMaterial);
-
 		    var frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             var cameraFrustum = new Util3d.FrustumCuller (ref frustumMatrix);
-
 
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {

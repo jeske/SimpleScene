@@ -140,8 +140,8 @@ namespace SimpleScene
 
             // now, actually draw
             base.Render(ref renderConfig);
-            SSShaderProgram.DeactivateAll(); // disable GLSL
-            GL.Disable(EnableCap.CullFace);
+            SSShaderProgram.DeactivateAll(); // disable shaders
+
             GL.Enable (EnableCap.AlphaTest);
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
