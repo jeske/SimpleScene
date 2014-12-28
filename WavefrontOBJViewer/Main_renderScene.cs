@@ -48,12 +48,9 @@ namespace WavefrontOBJViewer
 
 			/////////////////////////////////////////
 			// clear the render buffer....
-			GL.Enable (EnableCap.DepthTest);
 			GL.DepthMask (true);
 			GL.ClearColor (0.0f, 0.0f, 0.0f, 0.0f); // black
-			// GL.ClearColor (System.Drawing.Color.White);
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
 
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
