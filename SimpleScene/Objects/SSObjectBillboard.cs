@@ -41,11 +41,10 @@ namespace SimpleScene
                 Vector3 trans = modelViewMat.ExtractTranslation();
                 //Vector3 scale = modelViewMat.ExtractScale();
                 modelViewMat = new Matrix4 (
-                    Scale.X, 0f, 0f, trans.X,
-                    0f, Scale.Y, 0f, trans.Y,
-                    0f, 0f, Scale.Z, trans.Z,
-                    0f, 0f, 0f, 1f);
-                modelViewMat.Transpose();
+                    Scale.X, 0f, 0f, 0f,
+                    0f, Scale.Y, 0f, 0f,
+                    0f, 0f, Scale.Z, 0f,
+                    trans.X, trans.Y, trans.Z, 1f);
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelViewMat);
 
