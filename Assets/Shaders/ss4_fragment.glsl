@@ -144,6 +144,8 @@ void main()
             
             if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
                 shadeFactor = 0.5;
+                //gl_FragColor = vec4(1.0f, 0f, 0f, 1f);
+                //return;
             }
         }
     }

@@ -19,11 +19,11 @@ namespace WavefrontOBJViewer
 				shaderPgm.Activate();
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					shaderPgm.u_ShowWireframes = true;			
+					shaderPgm.UniShowWireframes = true;			
 
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					shaderPgm.u_ShowWireframes = false;
+					shaderPgm.UniShowWireframes = false;
 
 				}
 			};
@@ -81,14 +81,14 @@ namespace WavefrontOBJViewer
 
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
-			SSObject skyboxCube = new SSObjectMeshSky(mesh);
+			SSObject skyboxCube = new SSObjectMesh(mesh);
 			environmentScene.AddObject(skyboxCube);
 			skyboxCube.Scale = new Vector3(0.7f);
 			skyboxCube.renderState.lighted = false;
 
 			// scene.addObject(skyboxCube);
 
-			SSObject skyboxStars = new SSObjectMeshSky(new SSMesh_Starfield(1600));
+			SSObject skyboxStars = new SSObjectMesh(new SSMesh_Starfield(1600));
 			environmentScene.AddObject(skyboxStars);
 			skyboxStars.renderState.lighted = false;
 

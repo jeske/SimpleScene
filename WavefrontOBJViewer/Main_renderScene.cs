@@ -43,21 +43,17 @@ namespace WavefrontOBJViewer
 				animateSecondsOffset -= 1000.0f;
 			}
 			shaderPgm.Activate();
-			shaderPgm.u_AnimateSecondsOffset = (float)animateSecondsOffset;
+			shaderPgm.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
 
 			/////////////////////////////////////////
 			// clear the render buffer....
-			GL.Enable (EnableCap.DepthTest);
 			GL.DepthMask (true);
 			GL.ClearColor (0.0f, 0.0f, 0.0f, 0.0f); // black
-			// GL.ClearColor (System.Drawing.Color.White);
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
 
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
-
 
 			/////////////////////////////////////////
 			// render the "environment" scene
@@ -65,56 +61,56 @@ namespace WavefrontOBJViewer
 			// todo: should move this after the scene render, with a proper depth
 			//  test, because it's more efficient when it doesn't have to write every pixel
 			{
-				GL.Disable (EnableCap.DepthTest);
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Front);
-				GL.Disable (EnableCap.DepthClamp);
-
 				// setup infinite projection for cubemap
 				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
 				environmentScene.ProjectionMatrix = projMatrix;
 
-				// create a matrix of just the camera rotation only (it needs to stay at the origin)				
-				environmentScene.InvCameraViewMatrix = 
-					Matrix4.CreateFromQuaternion (
-						scene.ActiveCamera.worldMat.ExtractRotation ()
-					).Inverted ();
+				// create a matrix of just the camera rotation only (it needs to stay at the origin)
+				var rotOnly = Matrix4.CreateFromQuaternion(scene.ActiveCamera.worldMat.ExtractRotation()).Inverted ();
+				environmentScene.InvCameraViewMatrix = rotOnly;
+
+				GL.Enable (EnableCap.CullFace);
+				GL.CullFace (CullFaceMode.Back);
+				GL.Disable (EnableCap.DepthTest);
+				GL.Disable (EnableCap.DepthClamp);
+				GL.DepthMask (false);
 
 				environmentScene.Render ();
 			}
 			/////////////////////////////////////////
 			// rendering the "main" 3d scene....
 			{
+				// setup the inverse matrix of the active camera...
+				scene.InvCameraViewMatrix = scene.ActiveCamera.worldMat.Inverted ();
+
+				// setup the view projection. technically only need to do this on window resize..
+				scene.ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);
+
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
 				GL.Enable (EnableCap.DepthTest);
 				GL.Enable (EnableCap.DepthClamp);
 				GL.DepthMask (true);
 				
-				// setup the inverse matrix of the active camera...
-				scene.InvCameraViewMatrix = scene.ActiveCamera.worldMat.Inverted ();
-
-				// scene.renderConfig.renderBoundingSpheres = true;
-
-				// setup the view projection. technically only need to do this on window resize..
-				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);				
-				//projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
-				scene.ProjectionMatrix = projection;
-				
 				// render 3d content...
+				// scene.renderConfig.renderBoundingSpheres = true;
 				scene.Render ();
 			}
 			////////////////////////////////////////
 			//  render HUD scene
 			{
-				GL.Disable (EnableCap.DepthTest);
-				GL.Disable (EnableCap.CullFace);
-				GL.DepthMask (false);
+				// Note that a default identity view matrix is used and doesn't need to be changed
 
 				// setup an orthographic projection looking down the +Z axis, same as:
 				// GL.Ortho (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);			
-				hudScene.InvCameraViewMatrix 
+				hudScene.ProjectionMatrix 
 				= Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
+
+				GL.Enable (EnableCap.CullFace);
+				GL.CullFace (CullFaceMode.Back);
+				GL.Disable(EnableCap.DepthTest);
+				GL.Disable(EnableCap.DepthClamp);
+				GL.DepthMask(false);
 
 				hudScene.Render ();
 
@@ -140,7 +136,7 @@ namespace WavefrontOBJViewer
 
 			// setup WIN_SCALE for our shader...
 			shaderPgm.Activate();
-			shaderPgm.u_WinScale = ClientRectangle;
+			shaderPgm.UniWinScale = ClientRectangle;
 		}
 
 	}

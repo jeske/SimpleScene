@@ -63,7 +63,7 @@ namespace WavefrontOBJViewer
 
 					// if we need single-pass wireframes, set the GLSL uniform variable
 					shaderPgm.Activate();
-					shaderPgm.u_ShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
+					shaderPgm.UniShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
 					break;
 				}
 			};

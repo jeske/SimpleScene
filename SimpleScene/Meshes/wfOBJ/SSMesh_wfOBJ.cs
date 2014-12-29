@@ -61,7 +61,6 @@ namespace SimpleScene
 		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
 
-			GL.Enable(EnableCap.CullFace);
 			// GL.Enable(EnableCap.Lighting);
 
 			// GL.Enable(EnableCap.Blend);
@@ -72,7 +71,7 @@ namespace SimpleScene
 
 			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
 
-            SSMainShaderProgram shaderPgm = renderConfig.BaseShader;
+            SSMainShaderProgram shaderPgm = renderConfig.MainShader;
 
             if (renderConfig.drawingShadowMap) { 
                 // assume SSObject.Render has setup our materials properly for the shadowmap Pass               
@@ -82,56 +81,51 @@ namespace SimpleScene
 
 			if (shaderPgm == null) {
 				SSShaderProgram.DeactivateAll ();
-				GL.Disable(EnableCap.CullFace);
 
 				// fixed function single-texture
-				GL.Disable(EnableCap.Texture2D);
 				if (subset.diffuseTexture != null) {
 					GL.ActiveTexture(TextureUnit.Texture0);
 					GL.Enable(EnableCap.Texture2D);
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 				}
 			} else {
-				// activate GLSL shader
-				shaderPgm.Activate ();
-
 				// bind our texture-images to GL texture-units 
 				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
 
 				// these texture-unit assignments are hard-coded in the shader setup
-
+                shaderPgm.Activate ();
 				GL.ActiveTexture(TextureUnit.Texture0);
 				if (subset.diffuseTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-					shaderPgm.u_DiffTexEnabled = true; 
+					shaderPgm.UniDiffTexEnabled = true; 
 
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_DiffTexEnabled = false;
+					shaderPgm.UniDiffTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture1);
 				if (subset.specularTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
-					shaderPgm.u_SpecTexEnabled = true;
+					shaderPgm.UniSpecTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_SpecTexEnabled = false;
+					shaderPgm.UniSpecTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture2);
 				if (subset.ambientTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
-					shaderPgm.u_AmbTexEnabled = true;
+					shaderPgm.UniAmbTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_AmbTexEnabled = false;
+					shaderPgm.UniAmbTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture3);
 				if (subset.bumpTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
-					shaderPgm.u_BumpTexEnabled = true;
+					shaderPgm.UniBumpTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.u_BumpTexEnabled = false;
+					shaderPgm.UniBumpTexEnabled = false;
 				}
 
 				// reset to texture-unit 0 to be friendly..
@@ -141,7 +135,6 @@ namespace SimpleScene
 
 		private void _renderSetupWireframe() {
 			SSShaderProgram.DeactivateAll ();
-			GL.Enable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Lighting);
@@ -237,7 +230,7 @@ namespace SimpleScene
                 } else {
                     if (renderConfig.drawGLSL) {
                         _renderSetupGLSL(ref renderConfig, subset);
-                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOTriangles(subset);
                         } else {
                             _renderSendTriangles(subset);
@@ -246,7 +239,7 @@ namespace SimpleScene
                     }
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();
-                        if (renderConfig.useVBO && renderConfig.BaseShader != null) {
+                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOLines(subset);
                         } else {
                             _renderSendLines(subset);

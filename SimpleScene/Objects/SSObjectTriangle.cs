@@ -15,7 +15,6 @@ namespace SimpleScene
 
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
-			GL.Disable(EnableCap.CullFace);
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Lighting);

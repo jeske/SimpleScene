@@ -79,7 +79,6 @@
     <Compile Include="Objects\SSObjectCube.cs" />
     <Compile Include="Objects\SSObjectGDISurface_Text.cs" />
     <Compile Include="Objects\SSObjectMesh.cs" />
-    <Compile Include="Objects\SSObjectMeshSky.cs" />
     <Compile Include="Objects\SSObjectRay.cs" />
     <Compile Include="Objects\SSObjectTriangle.cs" />
     <Compile Include="Util\OpenTKHelper.cs" />
@@ -106,6 +105,10 @@
     <Compile Include="Core\SSShaderProgram.cs" />
     <Compile Include="Objects\SSObjectHUDQuad.cs" />
     <Compile Include="Util\Projections.cs" />
+    <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
+    <Compile Include="Objects\SSObjectBillboard.cs" />
+    <Compile Include="Core\SSTextureWithAlpha.cs" />
+    <Compile Include="Objects\SSObjectSunFlare.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
