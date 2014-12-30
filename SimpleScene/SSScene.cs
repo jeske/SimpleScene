@@ -228,7 +228,7 @@ namespace SimpleScene
 
                 // frustum test... 
                 #if true
-                if (m_renderConfig.frustumCulling &&
+				if (m_renderConfig.frustumCulling && obj.renderState.frustumCulling &&
                     fc != null &&
                     obj.boundingSphere != null &&
                     !fc.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {

@@ -150,6 +150,7 @@ namespace SimpleScene
 	    public bool lighted = true;
 	    public bool visible = true;
         public bool castsShadow = false;
+		public bool frustumCulling = true;
 		public bool toBeDeleted = false;
 	}
 
