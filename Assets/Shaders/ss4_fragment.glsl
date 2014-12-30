@@ -193,8 +193,8 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
         bool lightIsInFront =  lightDotProd < 0.005;
 
 		vec4 shadowMapDebugColor;
+
 		float litFactor = shadowMapLighting(shadowMapDebugColor);
-        //float litFactor = simpleLighting();
 
 		// lighting strength
 		vec4 ambientStrength = gl_FrontMaterial.ambient;

@@ -46,7 +46,7 @@ namespace WavefrontOBJViewer
 			SSObject droneObj = new SSObjectMesh (mesh);
 			scene.AddObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
-			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
+			droneObj.ambientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);

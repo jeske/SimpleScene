@@ -15,7 +15,7 @@ namespace SimpleScene
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
 	    public Color4 ambientMatColor = new Color4(0.001f,0.001f,0.001f,1.0f);
-		public Color4 diffuseMatColor = new Color4(1.2f,1.2f,1.2f,1.2f);
+		public Color4 diffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
 		public Color4 specularMatColor = new Color4(0.8f,0.8f,0.8f,1.0f);
 		public Color4 emissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
 		public float shininessMatColor = 10.0f;
@@ -63,8 +63,8 @@ namespace SimpleScene
 
         protected void setMaterialState()
         {
-            // turn off per-vertex color
-            GL.Disable(EnableCap.ColorMaterial);
+            GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
+            GL.Color3(System.Drawing.Color.White);
 
             // setup the base color values...
             GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
@@ -115,8 +115,6 @@ namespace SimpleScene
             } else {
                 GL.Disable(EnableCap.Lighting);
             }
-
-            // ... subclass will render the object itself..
 		}
 
 		public SSObjectSphere boundingSphere=null;  // TODO: fix this, it's object-space radius, world-space position
