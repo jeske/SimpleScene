@@ -139,6 +139,10 @@ namespace SimpleScene
             // modulate sprite size with the intensity fraction
             tileVecBase *= Math.Min(1f / (1f - intensityFraction), 1.5f);
 
+            // allow simple scaling
+            tileVecBase.X *= Scale.X; 
+            tileVecBase.Y *= Scale.Y;
+
             for (int i = 0; i < c_numElements; ++i) {
                 //assign positions
                 Vector2 center = sunScreenPos + towardsCenter * 2.5f / (float)c_numElements * (float)i;
@@ -161,6 +165,8 @@ namespace SimpleScene
 
             // now, actually draw
             base.Render(ref renderConfig);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
             SSShaderProgram.DeactivateAll(); // disable shaders
 
             GL.Enable (EnableCap.AlphaTest);
