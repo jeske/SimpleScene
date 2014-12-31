@@ -115,7 +115,7 @@ namespace SimpleScene
         }
 
         private void BindShadowMapToTexture() {
-            GL.ActiveTexture(TextureUnit.Texture4);
+            GL.ActiveTexture(m_textureUnit);
             GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
 
