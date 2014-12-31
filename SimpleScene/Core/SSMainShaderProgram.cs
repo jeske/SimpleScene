@@ -89,7 +89,7 @@ namespace SimpleScene
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
                     // TODO: multiple shadowmaps per light?
-                    if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
+                    if (count >= SSSimpleShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
                     GL.Uniform1(u_shadowMapTextures + count, 
@@ -107,7 +107,7 @@ namespace SimpleScene
             int count = 0;
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
-                    if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
+                    if (count >= SSSimpleShadowMap.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
                     Matrix4 temp = light.ShadowMap.DepthBiasVP; // to pass by reference

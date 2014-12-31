@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace SimpleScene
 {
-    public class SSShadowMap
+    public class SSSimpleShadowMap
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
         // TODO: update shadowmap mvp when position of SSLight changes
 
-        public const int c_maxNumberOfShadowMaps = 4;
+        public const int c_maxNumberOfShadowMaps = 1;
 
         private readonly Matrix4 c_biasMatrix = new Matrix4(
             0.5f, 0.0f, 0.0f, 0.0f,
@@ -28,8 +28,6 @@ namespace SimpleScene
         private readonly TextureUnit m_textureUnit;
         protected readonly SSLight m_light;
 
-        public static int NumberOfShadowMaps { get { return s_numberOfShadowMaps; } }
-
         public Matrix4 DepthBiasVP {
             get { return m_viewMatrix * m_projMatrix * c_biasMatrix; }
         }
@@ -45,7 +43,7 @@ namespace SimpleScene
         private Matrix4 m_projMatrix;
         private Matrix4 m_viewMatrix;
 
-        public SSShadowMap(SSLight light, TextureUnit texUnit)
+        public SSSimpleShadowMap(SSLight light, TextureUnit texUnit)
         {
             validateVersion();
             if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
@@ -94,11 +92,10 @@ namespace SimpleScene
             //	FramebufferTarget.Framebuffer,
             //    FramebufferAttachment.Depth,0,0);
 
-
 			assertFramebufferOK();
         }
 
-        ~SSShadowMap() {
+        ~SSSimpleShadowMap() {
             // DeleteData();
         }
 
@@ -117,22 +114,11 @@ namespace SimpleScene
 
 			float width,height,nearZ,farZ;
             Vector3 viewEye, viewTarget, viewUp;
-			if (true) {
-				// dynamically compute light frustum
-	            Util3d.Projections.SimpleShadowmapProjection(
-					objects, m_light, frustum, camera,
-					out width, out height, out nearZ, out farZ,
-	                out viewEye, out viewTarget, out viewUp);
-			} else {
-				// hard-coded "whole scene"...
-				width = 2500;
-				height = 1500;
-				nearZ = 1;
-				farZ = 15000;
-				viewEye = new Vector3(0,0,-1500f);
-				viewTarget = new Vector3(0,0,1f);
-				viewUp = new Vector3(0,1f,0);
-			}
+			// dynamically compute light frustum
+            Util3d.Projections.SimpleShadowmapProjection(
+				objects, m_light, frustum, camera,
+				out width, out height, out nearZ, out farZ,
+                out viewEye, out viewTarget, out viewUp);
 
 			m_projMatrix = Matrix4.CreateOrthographic(width,height,nearZ,farZ);
             m_viewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);

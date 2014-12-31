@@ -100,7 +100,6 @@
     <Compile Include="Util\IcoSphereCreator.cs" />
     <Compile Include="Objects\SSObjectSphere.cs" />
     <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
-    <Compile Include="Lights\SSShadowMap.cs" />
     <Compile Include="Core\SSMainShaderProgram.cs" />
     <Compile Include="Core\SSShaderProgram.cs" />
     <Compile Include="Objects\SSObjectHUDQuad.cs" />
@@ -109,6 +108,7 @@
     <Compile Include="Objects\SSObjectBillboard.cs" />
     <Compile Include="Core\SSTextureWithAlpha.cs" />
     <Compile Include="Objects\SSObjectSunFlare.cs" />
+    <Compile Include="Lights\SSSimpleShadowMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

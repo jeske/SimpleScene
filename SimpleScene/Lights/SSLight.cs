@@ -30,7 +30,7 @@ namespace SimpleScene
 		public Vector4 Specular = new Vector4 (1.0f);
 		public Vector4 Diffuse = new Vector4 (0.8f);
         public LightType Type = LightType.Directional;
-        public SSShadowMap ShadowMap = null;
+        public SSSimpleShadowMap ShadowMap = null;
 
         public Vector3 Direction {
             get { return Pos; }
@@ -67,7 +67,7 @@ namespace SimpleScene
         public void AddShadowMap(TextureUnit unit) {
             // TODO pass the texture unit to shadowmap constructor
             // TODO add multiple shadowmaps to the same light?
-            ShadowMap = new SSShadowMap (this, unit);
+            ShadowMap = new SSSimpleShadowMap (this, unit);
         }
 
 		public void SetupLight_alt(ref SSRenderConfig renderConfig) {

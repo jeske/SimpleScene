@@ -8,6 +8,9 @@ namespace SimpleScene
 {
     public class SSObjectSunFlare : SSObject
     {
+        // TODO decouple some sprite details from this class
+        // (make it more friendly for generic use)
+
         #region Constant/Static Drawing Info
         const int c_numElements = 5;
         const float c_bigOffset = 0.8889f;
