@@ -128,21 +128,22 @@ namespace SimpleScene
 
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
-			shaderPgm.Activate ();
-
             // note that the texture state was previously reset by the calling SSObject
             // note that the shader state was previously reset by the calling SSObject
 
-			GL.ActiveTexture(TextureUnit.Texture0);
-			if (texture != null) {
-				GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-				shaderPgm.UniDiffTexEnabled = true;
-			} else {
-				GL.BindTexture(TextureTarget.Texture2D, 0);
-				shaderPgm.UniDiffTexEnabled = false;
-			}
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            if (!renderConfig.drawingShadowMap) {
+                shaderPgm.Activate ();
+                GL.ActiveTexture(TextureUnit.Texture0);
+                if (texture != null) {
+                    GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
+                    shaderPgm.UniDiffTexEnabled = true;
+                } else {
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                    shaderPgm.UniDiffTexEnabled = false;
+                }
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            }
 
             ibo.DrawElements(PrimitiveType.Triangles);
 		}

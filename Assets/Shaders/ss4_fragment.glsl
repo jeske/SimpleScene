@@ -33,11 +33,12 @@ varying vec3 surfaceNormalVector;
 
 // shadowmap related
 uniform int shadowMapEnabled;
-const int MAX_NUM_SHADOWMAPS = 4;
 uniform int numShadowMaps;
-uniform sampler2D shadowMapTextures[MAX_NUM_SHADOWMAPS];
-varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+uniform sampler2D shadowMapTexture;
+uniform vec4 shadowMapViewSplits;
+const int MAX_NUM_SHADOWMAPS = 4;
 
+varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 // http://www.clockworkcoders.com/oglsl/tutorial5.htm
 // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
@@ -107,72 +108,162 @@ vec4 gridTest(vec4 outputColor) {
 	return outputColor;
 }
 
+float simpleLighting() {
+	vec3 lightDir = gl_LightSource[0].position.xyz;
+    float lightDotProd = dot(f_vertexNormal, lightDir);
+    bool lightIsInFront =  lightDotProd < 0.05;
+    float litFactor = 1.0;
 
-void main()
-{
-	vec4 outputColor = vec4(0.0);
+	if (lightIsInFront) {
+		litFactor = 1;
+	} else {
+		litFactor = 0;
+	}
+	return litFactor;
 
-	// lighting strength
-	vec4 ambientStrength = gl_FrontMaterial.ambient;
-	vec4 diffuseStrength = gl_FrontMaterial.diffuse;
-	vec4 specularStrength = gl_FrontMaterial.specular;
-	// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
+}
 
-	vec3 lightPosition = surfaceLightVector;
+float shadowMapLighting(out vec4 debugOutputColor)  {  
 
-	// load texels...
-	vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
-	vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+	vec3 lightDir = gl_LightSource[0].position.xyz;
+    float lightDotProd = dot(f_vertexNormal, lightDir);
+    bool lightIsInFront =  lightDotProd < 0.05;
+    float litFactor = 1.0;
 
-	vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
-	vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
-
-    // shadowmap test
-    bool lightIsInFront = dot(f_vertexNormal, f_lightPosition) > 0.0;
-    float shadeFactor = 1.0;
     if (lightIsInFront) {   
-        float cosTheta = clamp(dot(surfaceLightVector, f_vertexNormal), 0, 1);
+        float cosTheta = clamp(lightDotProd, 0, 1);
         float bias = 0.005 * tan(acos(cosTheta));
-        float DEPTH_OFFSET = clamp(bias, 0, 0.01);
-    
-        for (int i = 0; i < numShadowMaps; ++i) {
-            vec2 shadowMapUV = f_shadowMapCoords[i].xy;
-            vec4 shadowMapTexel = texture2D(shadowMapTextures[i], shadowMapUV);
-            float nearestOccluder = shadowMapTexel.x;
-            float distanceToTexel = f_shadowMapCoords[i].z;
-            float DEPTH_OFFSET = 0.01;
-            
-            if (nearestOccluder < (distanceToTexel - DEPTH_OFFSET)) {
-                shadeFactor = 0.5;
-                //gl_FragColor = vec4(1.0f, 0f, 0f, 1f);
-                //return;
+        float depthOffset = clamp(bias, 0, 0.01);
+        //float depthOffset = 0.005;
+
+        int smapIndexMask = 0;
+        if (numShadowMaps == 1) {
+             // simple shadowmap
+            smapIndexMask = 1;
+        } else {
+            // PSSM
+            // TODO: blend between cascades by setting multiple indeces in this mask?
+            // http://msdn.microsoft.com/en-us/library/windows/desktop/ee416307%28v=vs.85%29.aspx
+            float viewZ = -f_VV.z;
+            for (int i = 0; i < numShadowMaps; ++i) {
+                if (viewZ < shadowMapViewSplits[i]) {
+                    smapIndexMask = 1 << i;
+                    break;
+                }
             }
         }
+        
+        for (int i = 0; i < numShadowMaps; ++i) {
+            if ((smapIndexMask & (1 << i)) != 0) {
+                vec2 uv = f_shadowMapCoords[i].xy;
+                vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
+                float nearestOccluder = shadowMapTexel.x;
+                float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0.0f, 1.0f);
+
+				if      (i == 0) { debugOutputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
+                else if (i == 1) { debugOutputColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }
+                else if (i == 2) { debugOutputColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }
+                else             { debugOutputColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }
+   
+                if (nearestOccluder < (distanceToTexel - depthOffset)) {
+                    litFactor = 0.5;                    
+                    debugOutputColor = debugOutputColor * 0.5f; 
+                }
+                
+				return litFactor;
+            }
+        }
+    } else {
+		// surface away from the light
+	    debugOutputColor = vec4(0.5f, 0.0f, 0.5f, 1.0f);  
+		return litFactor;
     }
+	
+}
 
-    if (true) {
-	   // eye space shading
-	   outputColor = ambientColor * ambientStrength;
-	   outputColor += glowColor * gl_FrontMaterial.emission;
+vec4 shadowMapTestLighting(vec4 outputColor) {
+    vec4 shadowMapDebugColor;
+    float litFactor = shadowMapLighting(shadowMapDebugColor);
+	return shadowMapDebugColor;
+}
+vec4 BlinnPhongLighting(vec4 outputColor) {
+		// eye space lighting
+		vec3 lightDir = gl_LightSource[0].position.xyz;
+        float lightDotProd = dot(f_vertexNormal, lightDir);
+        bool lightIsInFront =  lightDotProd < 0.005;
 
-	   float diffuseIllumination = clamp(dot(f_vertexNormal, f_lightPosition), 0, 1);
-	   // boost the diffuse color by the glowmap .. poor mans bloom
-	   float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
-	   outputColor += shadeFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
+		vec4 shadowMapDebugColor;
+		float litFactor = shadowMapLighting(shadowMapDebugColor);
+        //float litFactor = simpleLighting();
 
-	   // compute specular lighting
+		// lighting strength
+		vec4 ambientStrength = gl_FrontMaterial.ambient;
+		vec4 diffuseStrength = gl_FrontMaterial.diffuse;
+		vec4 specularStrength = gl_FrontMaterial.specular;
+		vec4 glowStrength = gl_FrontMaterial.emission;
+		float matShininess = 20; // gl_FrontMaterial.shininess;
+
+		// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
+
+		// load texels...
+		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+	   
+       // 1. ambient lighting term
+	   outputColor = ambientColor * ambientStrength * vec4(0.6);
+
+       // 2. glow/emissive lighting term
+	   outputColor += glowColor * glowStrength;
+
+	   // 4. specular reflection lighting term
 	   if (lightIsInFront) {   // if light is front of the surface
-	  
-	      vec3 R = reflect(-normalize(f_lightPosition), normalize(f_vertexNormal));
-	      float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), gl_FrontMaterial.shininess);
 
-	      // outputColor += specularStrength * shininess;
-	      outputColor += shadeFactor * specTex * specularStrength * shininess;      
+	       // 3. diffuse reflection lighting term
+		   float diffuseIllumination = clamp(-lightDotProd, 0, 1);
+		   // boost the diffuse color by the glowmap .. poor mans bloom
+	       // float glowFactor = length(glowStrength.xyz) * 0.2; 
+		   // outputColor += litFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
+	       outputColor += litFactor * diffuseColor * diffuseStrength * diffuseIllumination * vec4(1.5);
+
+          // add the specular highlight
+	      vec3 R = reflect(normalize(gl_LightSource[0].position.xyz), normalize(f_vertexNormal));
+	      float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), matShininess);
+	      outputColor += litFactor * specTex * specularStrength * shininess; 
        } 
+	   return outputColor;
+}
+
+vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
+	   // tangent space shading with bump map...	
+	      
+		vec3 lightDir = gl_LightSource[0].position.xyz;
+        float lightDotProd = dot(f_vertexNormal, lightDir);
+        bool lightIsInFront =  lightDotProd < 0.005;
+
+		vec4 shadowMapDebugColor;
+		float litFactor = shadowMapLighting(shadowMapDebugColor);
+
+	   	// lighting strength
+	    vec4 ambientStrength = gl_FrontMaterial.ambient;
+	    vec4 diffuseStrength = gl_FrontMaterial.diffuse;
+	    vec4 specularStrength = gl_FrontMaterial.specular;
+	    // specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
+		float matShininess = 1.0; // gl_FrontMaterial.shininess;
 
 
-	} else {  // tangent space shading (with bump) 
-       // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
+		// load texels...
+
+		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+
+		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+
+
+
+	   // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
        vec3 bump_normal = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
 	   float distSqr = dot(surfaceLightVector,surfaceLightVector);
 	   vec3 lVec = surfaceLightVector * inversesqrt(distSqr);
@@ -184,17 +275,32 @@ void main()
        // diffuse...       
        float diffuseIllumination = clamp(dot(bump_normal,surfaceLightVector), 0,1);
        float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
-       outputColor += shadeFactor * diffuseColor * max(diffuseIllumination, glowFactor);
+       outputColor += litFactor * diffuseColor * max(diffuseIllumination, glowFactor);
 
 	   if (dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
 
           // specular...
           vec3 R = reflect(-lVec,bump_normal);
-          float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0,1), gl_FrontMaterial.shininess);
-          outputColor += specTex * shadeFactor * specularStrength * shininess;      
+          float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0,1), matShininess);
+          outputColor += specTex * litFactor * specularStrength * shininess;      
        }
+	   return outputColor;
+}
 
-    }
+
+void main()
+{
+	vec4 outputColor = vec4(0.0);
+
+
+	vec3 lightPosition = surfaceLightVector;
+
+    
+	// Lighting type (pick one)
+	outputColor = BlinnPhongLighting(outputColor);
+	// outputColor = BumpMapBlinnPhongLighting(outputColor);
+	// outputColor = shadowMapTestLighting(outputColor);
+
 
     // ---- object space shader effect tests ----
     // outputColor = linearTest(outputColor);
@@ -215,7 +321,6 @@ void main()
 
 	// finally, output the fragment color
     gl_FragColor = outputColor;
-
 }			
 
 	

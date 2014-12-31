@@ -97,7 +97,11 @@ namespace SimpleScene
 
             resetTexturingState();
 
-            if (renderConfig.drawingShadowMap) {                
+            if (renderConfig.drawingShadowMap) {
+                if (renderConfig.PssmShader.IsActive) {
+                    // Currently drawing pssm...
+                    renderConfig.PssmShader.UniObjectWorldTransform = this.worldMat;
+                }
                 return; // skip the rest of setup...
             }
 

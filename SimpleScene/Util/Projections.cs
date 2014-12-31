@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright(C) David W. Jeske, Sergey Butylkov 2014
+// Released to the public domain. Use, modify and relicense at will.
+
+using System;
 using OpenTK;
 using System.Collections.Generic;
 using SimpleScene;
@@ -7,90 +10,217 @@ namespace Util3d
 {
     public static class Projections
     {
-        public static void SimpleShadowmapProjection(
-            List<SSObject> objects, 
+        private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+
+        private static readonly Matrix4[] c_cropMatrices = {
+            new Matrix4 (
+                .5f, 0f, 0f, 0f,
+                0f, .5f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                -.5f, -.5f, 0f, 1f),
+            new Matrix4 (
+                .5f, 0f, 0f, 0f,
+                0f, .5f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                +.5f, -.5f, 0f, 1f),
+            new Matrix4 (
+                .5f, 0f, 0f, 0f,
+                0f, .5f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                -.5f, +.5f, 0f, 1f),
+            new Matrix4 (
+                .5f, 0f, 0f, 0f,
+                0f, .5f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                +.5f, +.5f, 0f, 1f),
+        };
+
+        public static void ParallelShadowmapProjections(
+            List<SSObject> objects,
             SSLight light,
-            FrustumCuller frustum, // can be null (disabled)
-			SSCamera camera,
-			out float width, out float height, out float nearZ, out float farZ,
-            out Vector3 viewEye, out Vector3 viewTarget, out Vector3 viewUp)
+            Matrix4 cameraView,
+            Matrix4 cameraProj,
+            float fov, float aspect, float nearZ, float farZ,
+            int numShadowMaps,
+            Matrix4[] shadowViewsProjs,
+            float[] viewSplits
+            // ideally this would have, as input, nearZ, farZ, width and height of camera proj
+        )
+        {
+            // based on GPU Gems 3 Ch 10. Parallel-Split Shadow Maps on Programmable GPUs
+            // http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
+            
+            // Dispatch shadowmap view/projection calculations with a modified
+            // camera projection matrix (nearZ and farZ modified) for each frustum split
+            float prevFarZ = nearZ;
+            Matrix4 nextView, nextProj;
+            for (int i = 0; i < numShadowMaps; ++i) {
+                // generate frustum splits using Practical Split Scheme (GPU Gems 3, 10.2.1)
+                float iRatio = (float)(i+1) / (float)numShadowMaps;
+                float cLog = nearZ * (float)Math.Pow(farZ / nearZ, iRatio);
+                float cUni = nearZ + (farZ - nearZ) * iRatio;
+                float nextFarZ = c_alpha * cLog + (1f - c_alpha) * cUni;
+                float nextNearZ = prevFarZ;
+
+                // exported to the shader
+                viewSplits [i] = nextFarZ;
+
+                // create a view proj matrix with the nearZ, farZ values for the current split
+                cameraProj = Matrix4.CreatePerspectiveFieldOfView(fov, aspect, nextNearZ, nextFarZ);
+
+                // then calculate the shadowmap for that frustrum section...
+                SimpleShadowmapProjection(
+                    objects, light, 
+                    cameraView, cameraProj,
+                    out nextView, out nextProj);
+
+                shadowViewsProjs [i] = nextView * nextProj * c_cropMatrices[i];
+                prevFarZ = nextFarZ;
+            }
+
+        }
+
+        public static void SimpleShadowmapProjection(
+            List<SSObject> objects,
+            SSLight light,
+            Matrix4 cameraView, Matrix4 cameraProj,
+            out Matrix4 shadowView, out Matrix4 shadowProj)
         {
             if (light.Type != SSLight.LightType.Directional) {
                 throw new NotSupportedException();
             }
-			
+
             // light-aligned unit vectors
             Vector3 lightZ = light.Direction.Normalized();
             Vector3 lightX, lightY;
             OpenTKHelper.TwoPerpAxes(lightZ, out lightX, out lightY);
+            // transform matrix from regular space into light aligned space
+            Matrix4 lightTransform = new Matrix4 (
+                 lightX.X, lightX.Y, lightX.Z, 0f,
+                 lightY.X, lightY.Y, lightY.Z, 0f,
+                 lightZ.X, lightZ.Y, lightZ.Z, 0f,
+                 0f,       0f,       0f,       0f
+            );
 
-            // Step 1: light-direction aligned AABB of the visible objects
-            Vector3 projBBMin = new Vector3 (float.PositiveInfinity);
-            Vector3 projBBMax = new Vector3 (float.NegativeInfinity);
-            foreach (var obj in objects) {
-                if (obj.renderState.toBeDeleted
-                 || !obj.renderState.visible
-                 || !obj.renderState.castsShadow) {
-                    continue;
-                } else if (frustum == null || ( obj.boundingSphere != null
-                        && frustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius))) {
-                    // determine AABB in light coordinates of the objects so far
-                    Vector3 lightAlignedPos = OpenTKHelper.ProjectCoord(obj.Pos, lightX, lightY, lightZ);
-                    Vector3 rad = new Vector3(obj.ScaledRadius);
-                    Vector3 localMin = lightAlignedPos - rad;
-                    Vector3 localMax = lightAlignedPos + rad;
-                    projBBMin = Vector3.ComponentMin(projBBMin, localMin);
-                    projBBMax = Vector3.ComponentMax(projBBMax, localMax);
+            // Step 0: AABB of frustum corners in light coordinates
+            Vector3 frustumBBMin = new Vector3 (float.PositiveInfinity);
+            Vector3 frustumBBMax = new Vector3 (float.NegativeInfinity);
+            Matrix4 cameraViewProj = cameraView * cameraProj;
+            List<Vector3> corners = FrustumCorners(ref cameraViewProj);
+            for (int i = 0; i < corners.Count; ++i) {
+                Vector3 corner = Vector3.Transform(corners [i], lightTransform);
+                frustumBBMin = Vector3.ComponentMin(frustumBBMin, corner);
+                frustumBBMax = Vector3.ComponentMax(frustumBBMax, corner);
+            }
+            
+            Vector3 projBBMin = frustumBBMin;
+            Vector3 projBBMax = frustumBBMax;            
+
+            if (true) {
+                // (optional) scene dependent optimization
+			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
+                FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);               
+
+
+                Vector3 objBBMin = new Vector3(float.PositiveInfinity);
+                Vector3 objBBMax = new Vector3(float.NegativeInfinity);
+                bool haveShadowReceiver = false;                
+                float lightAlignedNearZForFirstShadowCaster = projBBMin.Z;
+
+                foreach (var obj in objects) {
+                    // pass through all shadow casters and receivers
+                    if (obj.renderState.toBeDeleted || !obj.renderState.visible || obj.boundingSphere == null) {
+                        continue;
+                    } else if (cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
+                        // determine AABB in light coordinates of the objects so far
+                        haveShadowReceiver = true;                        
+                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                        Vector3 rad = new Vector3(obj.ScaledRadius);
+                        Vector3 localMin = lightAlignedPos - rad;
+                        Vector3 localMax = lightAlignedPos + rad;
+                        
+                        objBBMin = Vector3.ComponentMin(objBBMin,localMin);
+                        objBBMax = Vector3.ComponentMax(objBBMax,localMax);                        
+                    }
+                     
+                    // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
+                    {
+                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                        Vector3 rad = new Vector3(obj.ScaledRadius);
+                        Vector3 localMin = lightAlignedPos - rad;
+                        if (localMin.Z < lightAlignedNearZForFirstShadowCaster) {
+                            Vector3 localMax = lightAlignedPos + rad;
+                            if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)) {
+                                lightAlignedNearZForFirstShadowCaster = localMin.Z;
+                            }
+                        }
+                    }
+                    
+                }
+                
+                // optimize the light-frustum-projection bounding box by the object-bounding-box
+                if (haveShadowReceiver) {                
+                    // shrink the XY & far-Z coordinates..
+                    projBBMin.X = Math.Max(projBBMin.X,objBBMin.X);
+                    projBBMin.Y = Math.Max(projBBMin.Y,objBBMin.Y);
+                    
+                    projBBMax.X = Math.Min(projBBMax.X,objBBMax.X);
+                    projBBMax.Y = Math.Min(projBBMax.Y,objBBMax.Y);
+                    projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);                    
+
+                    // extend nearZ towards the light                    
+                    projBBMin.Z = Math.Min(projBBMin.Z, lightAlignedNearZForFirstShadowCaster);
                 }
             }
+           
 
-			if (frustum != null) {
-				// then we need to do a second pass, including shadow-casters that
-				// are between the camera-frusum and the light
+            // Finish the view matrix
+            {
 
-				// compute the camera's position in lightspace, because we need to
-				// include everything "closer" that the midline of the camera frustum
-				Vector3 lightAlignedCameraPos = OpenTKHelper.ProjectCoord(camera.Pos, lightX, lightY, lightZ);
-				float minZTest = lightAlignedCameraPos.Z;
-			
-	            // TODO what happens if all objects are exluded?
+                // Use center of AABB in regular coordinates to get the view matrix  
+                Vector3 target_lightSpace = (projBBMin + projBBMax) / 2f;                
+                Vector3 eye_lightSpace = new Vector3(target_lightSpace.X,target_lightSpace.Y,projBBMin.Z);
+                
+                Vector3 viewTarget = Vector3.Transform(target_lightSpace,lightTransform.Inverted()); 
+                Vector3 viewEye = Vector3.Transform(eye_lightSpace,lightTransform.Inverted());
+                
+                Vector3 viewUp = lightY;
+                shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
-	            // Step 2: Extend Z of AABB to cover objects "between" current AABB and the light
-	            foreach (var obj in objects) {
-					if (obj.renderState.toBeDeleted
-	                 || !obj.renderState.visible
-	                 || !obj.renderState.castsShadow) {
-	                    continue;
-					}
-	
-	                Vector3 lightAlignedPos = OpenTKHelper.ProjectCoord(obj.Pos, lightX, lightY, lightZ);
-	                Vector3 rad = new Vector3(obj.ScaledRadius);
-	                Vector3 localMin = lightAlignedPos - rad;
-	                Vector3 localMax = lightAlignedPos + rad;
-	
-	                if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)
-	                 && localMin.Z < minZTest) {
-	                    projBBMin = Vector3.ComponentMin(projBBMin, localMin);
-	                    projBBMax = Vector3.ComponentMax(projBBMax, localMax);
-	                }
-	            }
-			}
-            // Finish the projection matrix
+                // Finish the projection matrix
+                {
+                    float width, height, nearZ, farZ;
+			        width = (projBBMax.X - projBBMin.X);
+			        height = (projBBMax.Y - projBBMin.Y);
+			        nearZ = 1f;
+			        farZ = 1f + (projBBMax.Z - projBBMin.Z);
+                    shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
+                }
+            }
+        }
 
-            // Use center of AABB in regular coordinates to get the view matrix
-            Vector3 centerAligned = (projBBMin + projBBMax) / 2f;
+        private static readonly Vector4[] c_homogenousCorners = {
+            new Vector4(-1f, -1f, -1f, 1f),
+            new Vector4(-1f, 1f, -1f, 1f),
+            new Vector4(1f, 1f, -1f, 1f),
+            new Vector4(1f, -1f, -1f, 1f),
 
-            viewTarget = centerAligned.X * lightX
-                       + centerAligned.Y * lightY
-                       + centerAligned.Z * lightZ;
-            float farEnough = (centerAligned.Z - projBBMin.Z) + 1f;
-            viewEye = viewTarget - farEnough * lightZ;
-            viewUp = lightY;
+            new Vector4(-1f, -1f, 1f, 1f),
+            new Vector4(-1f, 1f, 1f, 1f),
+            new Vector4(1f, 1f, 1f, 1f),
+            new Vector4(1f, -1f, 1f, 1f),
+        };
 
-			width = projBBMax.X - projBBMin.X;
-			height = projBBMax.Y - projBBMin.Y;
-			nearZ = 1f;
-			farZ = 1f + (projBBMax.Z - projBBMin.Z);
+        public static List<Vector3> FrustumCorners(ref Matrix4 modelViewProj) {
+            Matrix4 inverse = modelViewProj;
+            inverse.Invert();
+            var ret = new List<Vector3>(c_homogenousCorners.Length);
+            for (int i = 0; i < c_homogenousCorners.Length; ++i) {
+                Vector4 corner = Vector4.Transform(c_homogenousCorners [i], inverse);
+                corner /= corner.W;
+                ret.Add(corner.Xyz);
+            }
+            return ret;
         }
     }
 }
