@@ -45,8 +45,8 @@ namespace SimpleScene
             SSShaderProgram.DeactivateAll();
 		}
 
-        protected override int texWidth() { return 1024; }
-        protected override int texHeight() { return 1024; }
+        protected override int texWidth() { return c_texWidth; }
+        protected override int texHeight() { return c_texHeight; }
     }
 }
 
