@@ -27,6 +27,8 @@ namespace WavefrontOBJViewer
 	{
 
 		SSScene scene = new SSScene();
+		SSScene sunDiskScene = new SSScene ();
+		SSScene sunFlareScene = new SSScene ();
 		SSScene hudScene = new SSScene();
 		SSScene environmentScene = new SSScene();
 

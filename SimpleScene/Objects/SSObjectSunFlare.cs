@@ -86,7 +86,7 @@ namespace SimpleScene
 
             Vector2 tileVecBase = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenPos.Y - sunScreenTopMost.Y);
             float sunFullEstimate = (float)Math.PI * tileVecBase.X * tileVecBase.Y;
-            float intensityFraction = (float)queryResult / sunFullEstimate;
+			float intensityFraction = Math.Min((float)queryResult / sunFullEstimate, 1f);
 
             // modulate sprite size with the intensity fraction
             tileVecBase *= Math.Min(1f / (1f - intensityFraction), 1.5f);
