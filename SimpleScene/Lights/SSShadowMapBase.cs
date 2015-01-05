@@ -42,10 +42,12 @@ namespace SimpleScene
         public SSShadowMapBase (TextureUnit texUnit)
         {
             validateVersion();
+            #if false
             if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
                 throw new Exception ("Unsupported number of shadow maps: " 
                     + (c_maxNumberOfShadowMaps + 1));
             }
+            #endif
             ++s_numberOfShadowMaps;
 
             m_frameBufferID = GL.Ext.GenFramebuffer();
@@ -82,7 +84,8 @@ namespace SimpleScene
         }
 
         ~SSShadowMapBase() {
-            // DeleteData();
+            //DeleteData();
+            --s_numberOfShadowMaps;
         }
 
         public void DeleteData() {
