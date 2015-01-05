@@ -32,7 +32,8 @@ varying vec3 surfaceViewVector;
 varying vec3 surfaceNormalVector;
 
 // shadowmap related
-uniform int shadowMapEnabled;
+uniform bool poissonSamplingEnabled;
+uniform int numPoissonSamples = 16;
 uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
 uniform vec4 shadowMapViewSplits;
@@ -40,13 +41,35 @@ const int MAX_NUM_SHADOWMAPS = 4;
 
 varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
-// http://www.clockworkcoders.com/oglsl/tutorial5.htm
-// http://www.ozone3d.net/tutorials/bump_mapping_p4.php
+const float maxLitReductionByShade = 0.5f;
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+vec2 poissonDisk[16] = vec2[] (
+    vec2(-0.04770581f, 0.1478396f),
+    vec2(0.3363894f, 0.4504989f),
+    vec2(-0.2229154f, 0.66614f),
+    vec2(0.2214093f, -0.218469f),
+    vec2(0.6464681f, 0.0007115538f),
+    vec2(-0.4084882f, -0.2793796f),
+    vec2(-0.6255119f, 0.1134195f),
+    vec2(0.5613756f, -0.4556728f),
+    vec2(0.7622108f, 0.4088926f),
+    vec2(-0.01734736f, -0.7944852f),
+    vec2(-0.8065997f, -0.4794133f),
+    vec2(0.4379586f, 0.8250926f),
+    vec2(0.3348362f, -0.9189008f),
+    vec2(-0.3919142f, -0.9179187f),
+    vec2(0.02141847f, 0.9828521f),
+    vec2(-0.6499051f, 0.5785806f)
+);
+
+//float rand(vec2 co){
+//    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+//}
+
+float rand(vec4 seed4) {
+    float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
+    return fract(sin(dot_product) * 43758.5453);
 }
-
 
 vec4 linearTest(vec4 outputColor) {
        float PI = 3.14159265358979323846264;
@@ -155,21 +178,36 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
         
         for (int i = 0; i < numShadowMaps; ++i) {
             if ((smapIndexMask & (1 << i)) != 0) {
-                vec2 uv = f_shadowMapCoords[i].xy;
-                vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
-                float nearestOccluder = shadowMapTexel.x;
-                float distanceToTexel = clamp(f_shadowMapCoords[i].z, 0.0f, 1.0f);
-
 				if      (i == 0) { debugOutputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
                 else if (i == 1) { debugOutputColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }
                 else if (i == 2) { debugOutputColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }
                 else             { debugOutputColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }
-   
-                if (nearestOccluder < (distanceToTexel - depthOffset)) {
-                    litFactor = 0.5;                    
-                    debugOutputColor = debugOutputColor * 0.5f; 
-                }
                 
+                vec4 coord = f_shadowMapCoords[i];
+                vec2 uv = coord.xy;
+                float distanceToTexel = clamp(coord.z, 0.0f, 1.0f);
+
+                if (poissonSamplingEnabled) {
+                    vec3 seed3 = floor(f_vertexPosition_objectspace.xyz * 1000.0);
+                    float litReductionPerSample = maxLitReductionByShade
+                                                / float(numPoissonSamples);
+                    for (int p = 0; p < numPoissonSamples; ++p) {
+                        int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
+                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0f;
+                        vec4 shadowMapTexel = texture2D(shadowMapTexture, uvSample);
+                        float nearestOccluder = shadowMapTexel.x;               
+                        if (nearestOccluder < (distanceToTexel - depthOffset)) {
+                            litFactor -= litReductionPerSample;
+                        }
+                    }
+                } else {
+                    vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
+                    float nearestOccluder = shadowMapTexel.x;               
+                    if (nearestOccluder < (distanceToTexel - depthOffset)) {
+                        litFactor = 1f - maxLitReductionByShade;
+                    }
+                }
+                debugOutputColor *= litFactor;               
 				return litFactor;
             }
         }
@@ -186,6 +224,9 @@ vec4 shadowMapTestLighting(vec4 outputColor) {
     float litFactor = shadowMapLighting(shadowMapDebugColor);
 	return shadowMapDebugColor;
 }
+
+// http://www.clockworkcoders.com/oglsl/tutorial5.htm
+// http://www.ozone3d.net/tutorials/bump_mapping_p4.php
 vec4 BlinnPhongLighting(vec4 outputColor) {
 		// eye space lighting
 		vec3 lightDir = gl_LightSource[0].position.xyz;
@@ -292,9 +333,7 @@ void main()
 {
 	vec4 outputColor = vec4(0.0);
 
-
 	vec3 lightPosition = surfaceLightVector;
-
     
 	// Lighting type (pick one)
 	outputColor = BlinnPhongLighting(outputColor);

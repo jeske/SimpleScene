@@ -38,7 +38,7 @@ namespace SimpleScene
                 m_viewProjBiasMatrices[i] = m_viewProjMatrices[i] * c_biasMatrix;
             }
             renderConfig.MainShader.Activate();
-            renderConfig.MainShader.NumShadowMaps = c_numberOfSplits;
+            renderConfig.MainShader.UniNumShadowMaps = c_numberOfSplits;
             renderConfig.MainShader.UpdateShadowMapBiasVPs(m_viewProjBiasMatrices);
             renderConfig.MainShader.UpdatePssmSplits(m_viewSplits);
 

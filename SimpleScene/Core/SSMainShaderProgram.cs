@@ -43,6 +43,8 @@ namespace SimpleScene
         private readonly int[] u_shadowMapVPs = new int[SSParallelSplitShadowMap.c_numberOfSplits];
         private readonly int u_objectWorldTransform;
         private readonly int u_shadowMapViewSplits;
+        private readonly int u_poissonSamplingEnabled;
+        private readonly int u_numPoissonSamples;
 		#endregion
 
         #region Uniform Modifiers
@@ -83,9 +85,18 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public int NumShadowMaps {
+        public int UniNumShadowMaps {
             set { assertActive(); GL.Uniform1(u_numShadowMaps, value); }
         }
+
+        public bool UniPoissonSamplingEnabled {
+            set { assertActive(); GL.Uniform1(u_poissonSamplingEnabled, value ? 1 : 0); }
+        }
+
+        public int UniNumPoissonSamples {
+            set { assertActive(); GL.Uniform1(u_numPoissonSamples, value); }
+        }
+
 
         public void SetupShadowMap(List<SSLight> lights) {
             // setup number of shadowmaps, textures
@@ -157,6 +168,8 @@ namespace SimpleScene
             u_showWireframes = getUniLoc("showWireframes");
             u_numShadowMaps = getUniLoc("numShadowMaps");
             u_shadowMapTexture = getUniLoc("shadowMapTexture");
+            u_poissonSamplingEnabled = getUniLoc("poissonSamplingEnabled");
+            u_numPoissonSamples = getUniLoc("numPoissonSamples");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
 
@@ -168,7 +181,9 @@ namespace SimpleScene
 
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
-            NumShadowMaps = 0;
+            UniNumShadowMaps = 0;
+            UniPoissonSamplingEnabled = true;
+            UniNumPoissonSamples = 4;
             
             // uniform locations for texture setup only
             int GLun_diffTex = getUniLoc("diffTex");

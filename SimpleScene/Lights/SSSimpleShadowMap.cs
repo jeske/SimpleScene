@@ -36,7 +36,7 @@ namespace SimpleScene
             // update info for the regular draw pass later
             Matrix4[] vp = { m_viewMatrix * m_projMatrix * c_biasMatrix };
             renderConfig.MainShader.Activate();
-            renderConfig.MainShader.NumShadowMaps = 1;
+            renderConfig.MainShader.UniNumShadowMaps = 1;
             renderConfig.MainShader.UpdateShadowMapBiasVPs(vp);
 
             // setup for render shadowmap pass
