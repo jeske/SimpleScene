@@ -42,8 +42,8 @@ namespace WavefrontOBJViewer
 			if (animateSecondsOffset > 1000.0f) {
 				animateSecondsOffset -= 1000.0f;
 			}
-			shaderPgm.Activate();
-			shaderPgm.UniAnimateSecondsOffset = (float)animateSecondsOffset;
+			mainShader.Activate();
+			mainShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
 
 			/////////////////////////////////////////
@@ -169,8 +169,8 @@ namespace WavefrontOBJViewer
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
 
 			// setup WIN_SCALE for our shader...
-			shaderPgm.Activate();
-			shaderPgm.UniWinScale = ClientRectangle;
+			mainShader.Activate();
+			mainShader.UniWinScale = ClientRectangle;
 		}
 
 	}

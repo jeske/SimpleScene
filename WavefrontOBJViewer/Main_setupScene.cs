@@ -13,17 +13,18 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
-			scene.MainShader = shaderPgm;
+			scene.MainShader = mainShader;
+			scene.PssmShader = pssmShader;
 			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += (obj, renderConfig) => {
-				shaderPgm.Activate();
+				mainShader.Activate();
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					shaderPgm.UniShowWireframes = true;			
+					mainShader.UniShowWireframes = true;			
 
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					shaderPgm.UniShowWireframes = false;
+					mainShader.UniShowWireframes = false;
 
 				}
 			};
