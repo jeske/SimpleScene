@@ -78,6 +78,7 @@ namespace SimpleScene
                 m_textureID, 0);
 
             assertFramebufferOK();
+            unbindFramebuffer();
         }
 
         ~SSShadowMapBase() {
@@ -91,7 +92,7 @@ namespace SimpleScene
         }
 
         public void FinishRender(SSRenderConfig renderConfig) {
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            unbindFramebuffer();
             renderConfig.drawingShadowMap = false;
         }
 
@@ -99,6 +100,10 @@ namespace SimpleScene
             SSRenderConfig renderConfig,
             List<SSObject> objects,
             float fov, float aspect, float nearZ, float farZ);
+
+        protected void unbindFramebuffer() {
+            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
 
         protected void PrepareForRenderBase(SSRenderConfig renderConfig,
                                             List<SSObject> objects) {
