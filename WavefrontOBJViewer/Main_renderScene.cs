@@ -54,15 +54,45 @@ namespace WavefrontOBJViewer
 
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
+			float nearPlane = 1.0f;
+			float farPlane = 500.0f;
 
 			// setup the inverse matrix of the active camera...
 			Matrix4 mainSceneView = scene.ActiveCamera.worldMat.Inverted();
 			// setup the view projection. technically only need to do this on window resize..
-			Matrix4 mainSceneProj = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);
+			Matrix4 mainSceneProj = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, nearPlane, farPlane);
 			// create a matrix of just the camera rotation only (it needs to stay at the origin)
 			Matrix4 rotationOnlyView = Matrix4.CreateFromQuaternion (mainSceneView.ExtractRotation ());
 			// create an orthographic projection matrix looking down the +Z matrix; for hud scene and sun flare scene
 			Matrix4 screenProj = Matrix4.CreateOrthographicOffCenter (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
+
+			/////////////////////////////////////////
+			// render the "shadowMap" 
+			// 
+			#if false
+			scene.ProjectionMatrix = mainSceneProj;
+			scene.InvCameraViewMatrix = mainSceneView;
+
+			// clear some basics 
+			GL.Disable(EnableCap.Lighting);
+			GL.Disable(EnableCap.Blend);
+			GL.Disable(EnableCap.Texture2D);
+			GL.Disable(EnableCap.Lighting);
+			GL.ShadeModel(ShadingModel.Flat);
+			GL.Disable(EnableCap.ColorMaterial);
+
+			GL.Enable(EnableCap.CullFace);
+			GL.CullFace(CullFaceMode.Front);
+			GL.Enable(EnableCap.DepthTest);
+			GL.Enable(EnableCap.DepthClamp);
+			GL.DepthMask(true);
+
+			scene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
+			#endif
+
+			// setup the view-bounds.
+			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, 
+						ClientRectangle.Width, ClientRectangle.Height);
 
 			/////////////////////////////////////////
 			// render the "environment" scene

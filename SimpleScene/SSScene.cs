@@ -59,6 +59,8 @@ namespace SimpleScene
 
         public List <SSObject> Objects { get { return m_objects; } }
 
+		public List<SSLight> Lights { get { return m_lights; } }
+
         public SSCamera ActiveCamera { 
             get { return m_activeCamera; }
             set { m_activeCamera = value; }

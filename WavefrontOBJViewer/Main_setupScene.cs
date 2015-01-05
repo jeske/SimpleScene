@@ -30,16 +30,20 @@ namespace WavefrontOBJViewer
 			};
 
 
-			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
 			var light = new SSLight ();
-			light.Pos = lightPos;
+			light.Type = SSLight.LightType.Directional;
+			light.Direction = new Vector3(0f, 0f, -1f);
 			scene.AddLight(light);
 
-			// 1. Add Objects
-			SSObject triObj;
-			scene.AddObject (triObj = new SSObjectTriangle () );
-			triObj.Pos = lightPos;
+			#if false
+			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture4);
+			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
+			smapDebug.Scale = new Vector3(0.3f);
+			smapDebug.Pos = new Vector3(50f, 200, 0f);
+			hudScene.AddObject(smapDebug);
+			#endif
+
 
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 						
@@ -52,8 +56,8 @@ namespace WavefrontOBJViewer
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.shininessMatColor = 10.0f;
-			droneObj.EulerDegAngleOrient(-40.0f,0.0f);
-			droneObj.Pos = new OpenTK.Vector3(-5,0,0);
+			//droneObj.EulerDegAngleOrient(-40.0f,0.0f);
+			droneObj.Pos = new OpenTK.Vector3(0,0,-15f);
 			droneObj.Name = "drone 1";
 
 			// add second drone
@@ -68,14 +72,17 @@ namespace WavefrontOBJViewer
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.shininessMatColor = 10.0f;
-			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
-			drone2Obj.EulerDegAngleOrient(20.0f,0.0f);
+			drone2Obj.EulerDegAngleOrient(-40f, 0f);
+			drone2Obj.Pos = new OpenTK.Vector3(0f, 0f, 0f);
 			drone2Obj.Name = "drone 2";
 
 			// last for the main scene. Add Camera
 
-			scene.AddObject (scene.ActiveCamera = 
-					new SSCameraThirdPerson (droneObj));
+			var camera = new SSCameraThirdPerson (droneObj);
+			camera.followDistance = 30.0f;
+			scene.ActiveCamera = camera;
+			scene.AddObject (camera);
+
 
 			// setup a sun billboard object and a sun flare spriter renderer
 			{
@@ -182,7 +189,6 @@ namespace WavefrontOBJViewer
 			hudScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
-
 		}
 	}
 }
