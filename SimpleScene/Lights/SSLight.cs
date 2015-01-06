@@ -22,11 +22,7 @@ namespace SimpleScene
         // Currently need a way to find objects "between" AABB and the light
         public enum LightType { Directional, PointSource };        
 
-        private const LightName c_firstNameIdx = LightName.Light0;
-        #if false
-		private const LightName c_lastNameIdx = LightName.Light7;
-		static private readonly Queue<LightName> s_avaiableLightNames = new Queue<LightName>();
-        #endif
+        private const LightName c_firstName = LightName.Light0;
 
 		public Vector4 Ambient = new Vector4(0.4f);
 		public Vector4 Specular = new Vector4 (1.0f);
@@ -52,26 +48,12 @@ namespace SimpleScene
 
 		protected LightName m_lightName;
 
-        #if false
-        static SSLight() {
-			for (LightName l = c_firstNameIdx; l <= c_lastNameIdx; ++l) {
-				s_avaiableLightNames.Enqueue(l);
-			}
-		}
-		public SSLight () : base() {
-			if (s_avaiableLightNames.Count == 0) {
-				string msg = "Cannot support this many lights.";
-				throw new Exception (msg);
-			}
-            this.m_lightName = s_avaiableLightNames.Dequeue();
-        #else
         public SSLight(LightName lightName)
         {
             this.m_lightName = lightName;
             this._pos = new Vector3 (0f, 0f, 1f);
 			this.calcMatFromState ();
 		}
-        #endif
 
 		~SSLight() { 
             // this isn't valid, because the GL context can be gone before this destructor is called
@@ -90,7 +72,7 @@ namespace SimpleScene
 
 			GL.Light (m_lightName, LightParameter.Position, new Vector4(this._pos,1.0f));
 
-			int idx = m_lightName - c_firstNameIdx;
+			int idx = m_lightName - c_firstName;
 			GL.Enable (EnableCap.Light0 + idx);
 
 		}
@@ -109,18 +91,15 @@ namespace SimpleScene
 
 			GL.Light (m_lightName, LightParameter.Specular, this.Specular); // specular light color (R,G,B,A)
 
-			// w=1.0 is a point light
-			// w=0.0 is a directional light
-			// we put it at the origin because it is transformed by the model view matrix (which already has our position)
             float w = (Type == LightType.Directional ? 0.0f : 1.0f);
             GL.Light (m_lightName, LightParameter.Position, new Vector4(Pos, w)); 
 
-			int idx = m_lightName - c_firstNameIdx;
+			int idx = m_lightName - c_firstName;
 			GL.Enable (EnableCap.Light0 + idx);
 		}
 
 		public void DisableLight() {
-			int idx = m_lightName - c_firstNameIdx;
+			int idx = m_lightName - c_firstName;
 			GL.Disable (EnableCap.Light0 + idx);
 		}
 	}
