@@ -23,8 +23,10 @@ namespace SimpleScene
         public enum LightType { Directional, PointSource };        
 
         private const LightName c_firstNameIdx = LightName.Light0;
+        #if false
 		private const LightName c_lastNameIdx = LightName.Light7;
 		static private readonly Queue<LightName> s_avaiableLightNames = new Queue<LightName>();
+        #endif
 
 		public Vector4 Ambient = new Vector4(0.4f);
 		public Vector4 Specular = new Vector4 (1.0f);
@@ -50,22 +52,26 @@ namespace SimpleScene
 
 		protected LightName m_lightName;
 
-		static SSLight() {
+        #if false
+        static SSLight() {
 			for (LightName l = c_firstNameIdx; l <= c_lastNameIdx; ++l) {
 				s_avaiableLightNames.Enqueue(l);
 			}
 		}
-
 		public SSLight () : base() {
 			if (s_avaiableLightNames.Count == 0) {
 				string msg = "Cannot support this many lights.";
 				throw new Exception (msg);
 			}
-
-			this.m_lightName = s_avaiableLightNames.Dequeue();
-			this._pos = new Vector3 (0, 0, 1);
+            this.m_lightName = s_avaiableLightNames.Dequeue();
+        #else
+        public SSLight(LightName lightName)
+        {
+            this.m_lightName = lightName;
+            this._pos = new Vector3 (0f, 0f, 1f);
 			this.calcMatFromState ();
 		}
+        #endif
 
 		~SSLight() { 
             // this isn't valid, because the GL context can be gone before this destructor is called
