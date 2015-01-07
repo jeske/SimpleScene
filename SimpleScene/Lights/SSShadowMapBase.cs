@@ -41,7 +41,7 @@ namespace SimpleScene
             set { m_light = value; }
         }
 
-        public SSShadowMapBase (TextureUnit texUnit, int textureWidht, int textureHeight)
+        public SSShadowMapBase (TextureUnit texUnit, int textureWidth, int textureHeight)
         {
             validateVersion();
             #if false
@@ -54,7 +54,7 @@ namespace SimpleScene
 
             m_frameBufferID = GL.Ext.GenFramebuffer();
             m_textureID = GL.GenTexture();
-            m_textureWidth = textureWidht;
+            m_textureWidth = textureWidth;
             m_textureHeight = textureHeight;
 
             // bind the texture and set it up...

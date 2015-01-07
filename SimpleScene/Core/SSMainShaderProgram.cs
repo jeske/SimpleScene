@@ -100,7 +100,7 @@ namespace SimpleScene
             set { assertActive(); GL.Uniform1(u_numPoissonSamples, value); }
         }
 
-        public LightingMode UniLithingMode {
+        public LightingMode UniLightingMode {
             set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
 
         }
@@ -191,9 +191,9 @@ namespace SimpleScene
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;
-            UniLithingMode = LightingMode.BlinnPhong;
+            UniLightingMode = LightingMode.BlinnPhong;
             UniPoissonSamplingEnabled = true;
-            UniNumPoissonSamples = 4;
+            UniNumPoissonSamples = 8;
 
             // uniform locations for texture setup only
             int GLun_diffTex = getUniLoc("diffTex");
