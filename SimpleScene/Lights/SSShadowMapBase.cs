@@ -83,6 +83,9 @@ namespace SimpleScene
                 FramebufferAttachment.DepthAttachment,
                 m_textureID, 0);
 
+			GL.DrawBuffer(DrawBufferMode.None); 
+            GL.ReadBuffer(ReadBufferMode.None);
+
             assertFramebufferOK();
             unbindFramebuffer();
         }

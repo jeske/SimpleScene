@@ -206,7 +206,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                     vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
                     float nearestOccluder = shadowMapTexel.x;               
                     if (nearestOccluder < (distanceToTexel - depthOffset)) {
-                        litFactor = 1f - maxLitReductionByShade;
+                        litFactor = 1.0f - maxLitReductionByShade;
                     }
                 }
                 debugOutputColor *= litFactor;               
