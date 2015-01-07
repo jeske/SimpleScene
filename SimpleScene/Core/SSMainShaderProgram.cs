@@ -20,10 +20,12 @@ namespace SimpleScene
 {
 	public class SSMainShaderProgram : SSShaderProgram
 	{
-        private static string c_ctx = "./Shaders";
+        public enum LightingMode { BlinnPhong = 0, BumpMapBlinnPhong = 1, ShadowMapDebug = 2 };
+
+        private static readonly string c_ctx = "./Shaders";
 
         #region Shaders
-        private readonly SSShader m_vertexShader;  
+        private readonly SSShader m_vertexShader;
         private readonly SSShader m_fragmentShader;
         private readonly SSShader m_geometryShader;
         #endregion
@@ -45,6 +47,7 @@ namespace SimpleScene
         private readonly int u_shadowMapViewSplits;
         private readonly int u_poissonSamplingEnabled;
         private readonly int u_numPoissonSamples;
+        private readonly int u_lightingMode;
 		#endregion
 
         #region Uniform Modifiers
@@ -95,6 +98,11 @@ namespace SimpleScene
 
         public int UniNumPoissonSamples {
             set { assertActive(); GL.Uniform1(u_numPoissonSamples, value); }
+        }
+
+        public LightingMode UniLithingMode {
+            set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
+
         }
 
 
@@ -172,6 +180,7 @@ namespace SimpleScene
             u_numPoissonSamples = getUniLoc("numPoissonSamples");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
+            u_lightingMode = getUniLoc("lightingMode");
 
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
@@ -182,9 +191,10 @@ namespace SimpleScene
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;
-            UniPoissonSamplingEnabled = false;
+            UniLithingMode = LightingMode.BlinnPhong;
+            UniPoissonSamplingEnabled = true;
             UniNumPoissonSamples = 4;
-            
+
             // uniform locations for texture setup only
             int GLun_diffTex = getUniLoc("diffTex");
             int GLun_specTex = getUniLoc("specTex");

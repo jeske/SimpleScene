@@ -16,6 +16,8 @@ uniform int specTexEnabled;
 uniform int ambiTexEnabled;
 uniform int bumpTexEnabled;
 
+uniform int lightingMode;
+
 uniform int showWireframes;
 uniform float animateSecondsOffset;
 
@@ -336,9 +338,13 @@ void main()
 	vec3 lightPosition = surfaceLightVector;
     
 	// Lighting type (pick one)
-	outputColor = BlinnPhongLighting(outputColor);
-	// outputColor = BumpMapBlinnPhongLighting(outputColor);
-	// outputColor = shadowMapTestLighting(outputColor);
+    if (lightingMode == 0) {
+        outputColor = BlinnPhongLighting(outputColor);
+    } else if (lightingMode == 1) {
+        outputColor = BumpMapBlinnPhongLighting(outputColor);
+    } else { // lightingMode == 2
+        outputColor = shadowMapTestLighting(outputColor);
+    }
 
 
     // ---- object space shader effect tests ----
