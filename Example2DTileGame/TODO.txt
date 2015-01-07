@@ -1,0 +1,9 @@
+﻿
+
+- add GameMode (from HZG)
+  - menu (with images and buttons using Gui2D)
+  - main (with TiledMap Scene)
+
+- add SSSceneTiledMap
+   - ? should this be a Scene or an object within SSScene
+   - top-down camera object   
