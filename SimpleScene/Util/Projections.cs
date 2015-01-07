@@ -11,6 +11,7 @@ namespace Util3d
     public static class Projections
     {
         private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+        //private const float c_alpha = 0.5f; // logarithmic component ratio (GPU Gems 3 10.1.12)
 
         private static readonly Matrix4[] c_cropMatrices = {
             new Matrix4 (
@@ -112,90 +113,80 @@ namespace Util3d
                 frustumBBMin = Vector3.ComponentMin(frustumBBMin, corner);
                 frustumBBMax = Vector3.ComponentMax(frustumBBMax, corner);
             }
-            
-            Vector3 projBBMin = frustumBBMin;
-            Vector3 projBBMax = frustumBBMax;            
 
-            if (true) {
-                // (optional) scene dependent optimization
-			    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
-                FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);               
+            bool shrink = false;
+            Vector3 objBBMin = new Vector3(float.PositiveInfinity);
+            Vector3 objBBMax = new Vector3(float.NegativeInfinity);
+            #if true
+            // (optional) scene dependent optimization
+		    // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
+            FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);
 
-
-                Vector3 objBBMin = new Vector3(float.PositiveInfinity);
-                Vector3 objBBMax = new Vector3(float.NegativeInfinity);
-                bool haveShadowReceiver = false;                
-                float lightAlignedNearZForFirstShadowCaster = projBBMin.Z;
-
-                foreach (var obj in objects) {
-                    // pass through all shadow casters and receivers
-                    if (obj.renderState.toBeDeleted || !obj.renderState.visible || obj.boundingSphere == null) {
-                        continue;
-                    } else if (cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
-                        // determine AABB in light coordinates of the objects so far
-                        haveShadowReceiver = true;                        
-                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
-                        Vector3 rad = new Vector3(obj.ScaledRadius);
-                        Vector3 localMin = lightAlignedPos - rad;
-                        Vector3 localMax = lightAlignedPos + rad;
-                        
-                        objBBMin = Vector3.ComponentMin(objBBMin,localMin);
-                        objBBMax = Vector3.ComponentMax(objBBMax,localMax);                        
-                    }
-                     
-                    // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
-                    {
-                        Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
-                        Vector3 rad = new Vector3(obj.ScaledRadius);
-                        Vector3 localMin = lightAlignedPos - rad;
-                        if (localMin.Z < lightAlignedNearZForFirstShadowCaster) {
-                            Vector3 localMax = lightAlignedPos + rad;
-                            if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)) {
-                                lightAlignedNearZForFirstShadowCaster = localMin.Z;
-                            }
-                        }
-                    }
+            foreach (var obj in objects) {
+                // pass through all shadow casters and receivers
+                if (obj.renderState.toBeDeleted || !obj.renderState.visible || obj.boundingSphere == null) {
+                    continue;
+                } else if (cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
+                    // determine AABB in light coordinates of the objects so far
+                    shrink = true;                        
+                    Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                    Vector3 rad = new Vector3(obj.ScaledRadius);
+                    Vector3 localMin = lightAlignedPos - rad;
+                    Vector3 localMax = lightAlignedPos + rad;
                     
-                }
-                
-                // optimize the light-frustum-projection bounding box by the object-bounding-box
-                if (haveShadowReceiver) {                
-                    // shrink the XY & far-Z coordinates..
-                    projBBMin.X = Math.Max(projBBMin.X,objBBMin.X);
-                    projBBMin.Y = Math.Max(projBBMin.Y,objBBMin.Y);
-                    
-                    projBBMax.X = Math.Min(projBBMax.X,objBBMax.X);
-                    projBBMax.Y = Math.Min(projBBMax.Y,objBBMax.Y);
-                    projBBMax.Z = Math.Min(projBBMax.Z,objBBMax.Z);                    
-
-                    // extend nearZ towards the light                    
-                    projBBMin.Z = Math.Min(projBBMin.Z, lightAlignedNearZForFirstShadowCaster);
-                }
+                    objBBMin = Vector3.ComponentMin(objBBMin,localMin);
+                    objBBMax = Vector3.ComponentMax(objBBMax,localMax);                        
+                }                 
             }
-           
+            #endif
+
+            // optimize the light-frustum-projection bounding box by the object-bounding-box
+            Vector3 projBBMin = frustumBBMin;
+            Vector3 projBBMax = frustumBBMax;
+            if (shrink) {                
+                // shrink the XY & far-Z coordinates..
+                projBBMin.Xy = Vector2.ComponentMax(frustumBBMin.Xy, objBBMin.Xy);
+                projBBMin.Z = objBBMin.Z;
+                projBBMax = Vector3.ComponentMin(frustumBBMax, objBBMax);
+            } 
+
+            // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
+            foreach (var obj in objects) {
+                if (obj.renderState.toBeDeleted || !obj.renderState.visible || !obj.renderState.castsShadow) {
+                    continue;
+                }
+                Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+                Vector3 rad = new Vector3(obj.ScaledRadius);
+                Vector3 localMin = lightAlignedPos - rad;
+                if (localMin.Z < projBBMin.Z) {
+                    Vector3 localMax = lightAlignedPos + rad;
+                    if (OpenTKHelper.RectsOverlap(projBBMin.Xy, projBBMax.Xy, localMin.Xy, localMax.Xy)) {
+                        projBBMin.Z = localMin.Z;
+                    }
+                }
+            }  
 
             // Finish the view matrix
             {
-
                 // Use center of AABB in regular coordinates to get the view matrix  
-                Vector3 target_lightSpace = (projBBMin + projBBMax) / 2f;                
-                Vector3 eye_lightSpace = new Vector3(target_lightSpace.X,target_lightSpace.Y,projBBMin.Z);
+                Vector3 targetLightSpace = (projBBMin + projBBMax) / 2f;                
+                Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, targetLightSpace.Y, projBBMin.Z);
                 
-                Vector3 viewTarget = Vector3.Transform(target_lightSpace,lightTransform.Inverted()); 
-                Vector3 viewEye = Vector3.Transform(eye_lightSpace,lightTransform.Inverted());
+                Vector3 viewTarget = Vector3.Transform(targetLightSpace, lightTransform.Inverted()); 
+                Vector3 viewEye = Vector3.Transform(eyeLightSpace, lightTransform.Inverted());
                 
                 Vector3 viewUp = lightY;
                 shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
+            }
 
-                // Finish the projection matrix
-                {
-                    float width, height, nearZ, farZ;
-			        width = (projBBMax.X - projBBMin.X);
-			        height = (projBBMax.Y - projBBMin.Y);
-			        nearZ = 1f;
-			        farZ = 1f + (projBBMax.Z - projBBMin.Z);
-                    shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
-                }
+            // Finish the projection matrix
+            {
+                float width, height, nearZ, farZ;
+		        width = (projBBMax.X - projBBMin.X);
+		        height = (projBBMax.Y - projBBMin.Y);
+		        nearZ = 1f;
+		        farZ = 1f + (projBBMax.Z - projBBMin.Z);
+                shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
             }
         }
 
