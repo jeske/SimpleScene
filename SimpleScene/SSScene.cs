@@ -179,17 +179,12 @@ namespace SimpleScene
 
         #region Render Pass Logic
         public void RenderShadowMap(float fov, float aspect, float nearZ, float farZ) {
-		    var frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
-            var cameraFrustum = new Util3d.FrustumCuller (ref frustumMatrix);
-
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
                     light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, fov, aspect, nearZ, farZ);
 
-					var lightFrustum = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
-
-                    renderPass(false, new Util3d.FrustumCuller(ref lightFrustum));
+                    renderPass(false);
                     light.ShadowMap.FinishRender(m_renderConfig);
                 }
             }
