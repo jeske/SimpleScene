@@ -36,6 +36,7 @@
     <AssemblyName>_SimpleScene</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Server|AnyCPU' ">
     <Optimize>false</Optimize>
@@ -44,6 +45,7 @@
     <AssemblyName>_SimpleScene</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -115,10 +117,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
-  <ItemGroup>
-    <Folder Include="Assets\" />
-    <Folder Include="Assets\Shaders\Shadowmap\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="..\Assets\Shaders\ss1_fragment.glsl">
       <Link>Assets\Shaders\ss1_fragment.glsl</Link>
