@@ -14,6 +14,8 @@ namespace SimpleScene
         private readonly int m_frameBufferID;
         private readonly int m_textureID;
         private readonly TextureUnit m_textureUnit;
+        private readonly int m_textureWidth;
+        private readonly int m_textureHeight;
 
         protected SSLight m_light;
 
@@ -39,7 +41,7 @@ namespace SimpleScene
             set { m_light = value; }
         }
 
-        public SSShadowMapBase (TextureUnit texUnit)
+        public SSShadowMapBase (TextureUnit texUnit, int textureWidht, int textureHeight)
         {
             validateVersion();
             #if false
@@ -52,6 +54,8 @@ namespace SimpleScene
 
             m_frameBufferID = GL.Ext.GenFramebuffer();
             m_textureID = GL.GenTexture();
+            m_textureWidth = textureWidht;
+            m_textureHeight = textureHeight;
 
             // bind the texture and set it up...
             m_textureUnit = texUnit;
@@ -71,7 +75,7 @@ namespace SimpleScene
 
             GL.TexImage2D(TextureTarget.Texture2D, 0,
                 PixelInternalFormat.DepthComponent16,
-                texWidth(), texHeight(), 0,
+                m_textureWidth, m_textureHeight, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
@@ -111,7 +115,7 @@ namespace SimpleScene
         protected void PrepareForRenderBase(SSRenderConfig renderConfig,
                                             List<SSObject> objects) {
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-            GL.Viewport(0, 0, texWidth(), texHeight());
+            GL.Viewport(0, 0, m_textureWidth, m_textureHeight);
 
             // turn off reading and writing to color data
             GL.DrawBuffer(DrawBufferMode.None); 
@@ -126,10 +130,6 @@ namespace SimpleScene
             GL.ActiveTexture(m_textureUnit);
             GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
-
-        protected abstract int texWidth();
-
-        protected abstract int texHeight();
 
         protected void assertFramebufferOK() {
             var currCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);

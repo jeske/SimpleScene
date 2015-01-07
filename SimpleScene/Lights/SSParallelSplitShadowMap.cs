@@ -10,15 +10,13 @@ namespace SimpleScene
         // http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
 
         public const int c_numberOfSplits = 4;
-        private const int c_texWidth = 1024;
-        private const int c_texHeight = 1024;
 
         private Matrix4[] m_viewProjMatrices = new Matrix4[c_numberOfSplits];
         private Matrix4[] m_viewProjBiasMatrices = new Matrix4[c_numberOfSplits];
         private float[] m_viewSplits = new float[c_numberOfSplits];
 
         public SSParallelSplitShadowMap(TextureUnit unit) 
-            : base(unit)        
+            : base(unit, 2048, 2048)        
         { }
 
         public override void PrepareForRender(SSRenderConfig renderConfig, 
@@ -46,9 +44,6 @@ namespace SimpleScene
             renderConfig.PssmShader.Activate();
             renderConfig.PssmShader.UpdateShadowMapVPs(m_viewProjMatrices);
         }
-
-        protected override int texWidth() { return c_texWidth; }
-        protected override int texHeight() { return c_texHeight; }
     }
 }
 

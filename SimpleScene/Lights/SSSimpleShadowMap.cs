@@ -9,15 +9,11 @@ namespace SimpleScene
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
-        // TODO: update shadowmap mvp when position of SSLight changes
-        private const int c_texWidth = 1024;
-        private const int c_texHeight = 1024;
-
         private Matrix4 m_projMatrix;
         private Matrix4 m_viewMatrix;
 
         public SSSimpleShadowMap(TextureUnit unit)
-            : base(unit)
+            : base(unit, 1024, 1024)
         { }
 
 
@@ -44,9 +40,6 @@ namespace SimpleScene
             renderConfig.invCameraViewMat = m_viewMatrix;
             SSShaderProgram.DeactivateAll();
 		}
-
-        protected override int texWidth() { return c_texWidth; }
-        protected override int texHeight() { return c_texHeight; }
     }
 }
 
