@@ -11,6 +11,8 @@ namespace SimpleScene
 
         public const int c_numberOfSplits = 4;
 
+        public bool UsePoissonSampling = true;
+
         private Matrix4[] m_viewProjMatrices = new Matrix4[c_numberOfSplits];
         private Matrix4[] m_viewProjBiasMatrices = new Matrix4[c_numberOfSplits];
         private float[] m_viewSplits = new float[c_numberOfSplits];

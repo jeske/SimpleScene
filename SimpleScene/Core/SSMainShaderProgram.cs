@@ -43,6 +43,7 @@ namespace SimpleScene
         private readonly int u_numShadowMaps;
         private readonly int u_shadowMapTexture;
         private readonly int[] u_shadowMapVPs = new int[SSParallelSplitShadowMap.c_numberOfSplits];
+        private readonly int[] u_poissonScaling = new int[SSParallelSplitShadowMap.c_numberOfSplits];
         private readonly int u_objectWorldTransform;
         private readonly int u_shadowMapViewSplits;
         private readonly int u_poissonSamplingEnabled;
@@ -105,7 +106,6 @@ namespace SimpleScene
 
         }
 
-
         public void SetupShadowMap(List<SSLight> lights) {
             // setup number of shadowmaps, textures
 			int count=0;
@@ -128,6 +128,13 @@ namespace SimpleScene
             for (int i = 0; i < vps.Length; ++i) {
                 // update shadowmap view-projection-crop-bias matrices for shadowmap lookup
                 GL.UniformMatrix4(u_shadowMapVPs [i], false, ref vps [i]);
+            }
+        }
+
+        public void UpdatePoissonSamplingScales(Vector2[] scales) {
+            assertActive();
+            for (int i = 0; i < scales.Length; ++i) {
+                GL.Uniform2(u_poissonScaling [i], scales [i]);
             }
         }
 
@@ -186,6 +193,8 @@ namespace SimpleScene
             for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
                 var str = "shadowMapVPs" + i;
                 u_shadowMapVPs[i] = getUniLoc(str);
+                str = "poissonScale" + i;
+                u_poissonScaling[i] = getUniLoc(str);
             }
 
             UniShowWireframes = false;

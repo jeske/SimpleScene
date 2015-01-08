@@ -40,10 +40,14 @@ uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
 uniform vec4 shadowMapViewSplits;
 const int MAX_NUM_SHADOWMAPS = 4;
+uniform vec2 poissonScale0;
+uniform vec2 poissonScale1;
+uniform vec2 poissonScale2;
+uniform vec2 poissonScale3;
 
 varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
-const float maxLitReductionByShade = 0.5f;
+const float maxLitReductionByShade = 0.7f;
 
 vec2 poissonDisk[16] = vec2[] (
     vec2(-0.04770581f, 0.1478396f),
@@ -190,12 +194,18 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 float distanceToTexel = clamp(coord.z, 0.0f, 1.0f);
 
                 if (poissonSamplingEnabled) {
+                    vec2 scale;
+                    if      (i == 0) { scale = poissonScale0; }
+                    else if (i == 1) { scale = poissonScale1; }
+                    else if (i == 2) { scale = poissonScale2; }
+                    else             { scale = poissonScale3; }
+
                     vec3 seed3 = floor(f_vertexPosition_objectspace.xyz * 1000.0);
                     float litReductionPerSample = maxLitReductionByShade
                                                 / float(numPoissonSamples);
                     for (int p = 0; p < numPoissonSamples; ++p) {
                         int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
-                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0f;
+                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0f / scale;
                         vec4 shadowMapTexel = texture2D(shadowMapTexture, uvSample);
                         float nearestOccluder = shadowMapTexel.x;               
                         if (nearestOccluder < (distanceToTexel - depthOffset)) {
@@ -337,7 +347,6 @@ void main()
 
 	vec3 lightPosition = surfaceLightVector;
     
-	// Lighting type (pick one)
     if (lightingMode == 0) {
         outputColor = BlinnPhongLighting(outputColor);
     } else if (lightingMode == 1) {

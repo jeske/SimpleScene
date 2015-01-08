@@ -44,9 +44,8 @@ namespace Util3d
             float fov, float aspect, float nearZ, float farZ,
             int numShadowMaps,
             Matrix4[] shadowViewsProjs,
-            float[] viewSplits
+            float[] viewSplits)
             // ideally this would have, as input, nearZ, farZ, width and height of camera proj
-        )
         {
             // based on GPU Gems 3 Ch 10. Parallel-Split Shadow Maps on Programmable GPUs
             // http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
@@ -78,7 +77,6 @@ namespace Util3d
                 shadowViewsProjs [i] = nextView * nextProj * c_cropMatrices[i];
                 prevFarZ = nextFarZ;
             }
-
         }
 
         public static void SimpleShadowmapProjection(
