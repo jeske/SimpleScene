@@ -31,7 +31,6 @@ namespace SimpleScene
             Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
             renderConfig.MainShader.Activate();
             renderConfig.MainShader.UniNumShadowMaps = 1;
-            renderConfig.MainShader.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
             if (renderConfig.usePoissonSampling) {
                 Vector2[] poissonScales = { new Vector2 (1f) };
                 renderConfig.MainShader.UpdatePoissonScaling(poissonScales);

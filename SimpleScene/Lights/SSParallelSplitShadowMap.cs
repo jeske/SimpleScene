@@ -10,6 +10,7 @@ namespace SimpleScene
     {
         // http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
 
+        #region Constants
         public const int c_numberOfSplits = 4;
         private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
 
@@ -35,8 +36,7 @@ namespace SimpleScene
                 0f, 0f, 1f, 0f,
                 +.5f, +.5f, 0f, 1f),
         };
-
-        public bool UsePoissonSampling = true;
+        #endregion
 
         #region Temp Use Variables
         private Matrix4[] m_shadowProjMatrices = new Matrix4[c_numberOfSplits];
@@ -72,7 +72,6 @@ namespace SimpleScene
             // update info for the regular draw pass later
             renderConfig.MainShader.Activate();
             renderConfig.MainShader.UniNumShadowMaps = c_numberOfSplits;
-            renderConfig.MainShader.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
             if (renderConfig.usePoissonSampling) {
                 renderConfig.MainShader.UpdatePoissonScaling(m_poissonScaling);
             }

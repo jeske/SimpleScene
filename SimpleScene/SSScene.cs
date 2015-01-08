@@ -30,7 +30,10 @@ namespace SimpleScene
 		public bool drawGLSL = true;
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
+
         public bool usePoissonSampling = true;
+        public int numPoissonSamples = 8;
+        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 
 		public bool renderBoundingSpheres;
 		public bool renderCollisionShells;
@@ -192,7 +195,7 @@ namespace SimpleScene
 		}
 
         public void Render() {
-			setupLights ();
+			setupLighting ();
             
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
@@ -200,12 +203,14 @@ namespace SimpleScene
         }
 
         
-        private void setupLights() {
-            // setup the projection matrix
-
+        private void setupLighting() {
             GL.Enable(EnableCap.Lighting);
             foreach (var light in m_lights) {
                 light.SetupLight(ref m_renderConfig);
+            }
+            if (MainShader != null) {
+                MainShader.Activate();
+                MainShader.UniLightingMode = m_renderConfig.lightingMode;
             }
         }
 

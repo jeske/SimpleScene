@@ -126,6 +126,14 @@ namespace SimpleScene
             GL.Clear(ClearBufferMask.DepthBufferBit);
             assertFramebufferOK();
 
+            if (renderConfig.MainShader != null) {
+                renderConfig.MainShader.Activate();
+                renderConfig.MainShader.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
+                if (renderConfig.usePoissonSampling) {
+                    renderConfig.MainShader.UniNumPoissonSamples = renderConfig.numPoissonSamples;
+                }
+            }
+
             renderConfig.drawingShadowMap = true;
         }
 
