@@ -131,7 +131,7 @@ namespace SimpleScene
             }
         }
 
-        public void UpdatePoissonSamplingScales(Vector2[] scales) {
+        public void UpdatePoissonScaling(Vector2[] scales) {
             assertActive();
             for (int i = 0; i < scales.Length; ++i) {
                 GL.Uniform2(u_poissonScaling [i], scales [i]);

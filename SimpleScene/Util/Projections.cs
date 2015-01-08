@@ -183,7 +183,7 @@ namespace Util3d
 		        width = (projBBMax.X - projBBMin.X);
 		        height = (projBBMax.Y - projBBMin.Y);
 		        nearZ = 1f;
-		        farZ = 1f + (projBBMax.Z - projBBMin.Z);
+                farZ = 1f + (projBBMax.Z - projBBMin.Z);
                 shadowProj = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
             }
         }

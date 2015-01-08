@@ -44,9 +44,9 @@ namespace SimpleScene.Util.ssBVH
         }
 
         private Axis pickSplitAxis() {            
-            float axis_x = box.max.X - box.min.X; 
-            float axis_y = box.max.Y - box.min.Y;
-            float axis_z = box.max.Z - box.min.Z;
+            float axis_x = box.Max.X - box.Min.X; 
+            float axis_y = box.Max.Y - box.Min.Y;
+            float axis_z = box.Max.Z - box.Min.Z;
 
             // return the biggest axis
             if (axis_x > axis_y) {
@@ -103,25 +103,25 @@ namespace SimpleScene.Util.ssBVH
             bool expanded = false;
 
             // test min X and max X against the current bounding volume
-            if ((objectpos.X - radius) < box.min.X) {
-                box.min.X = (objectpos.X - radius); expanded = true;                
+            if ((objectpos.X - radius) < box.Min.X) {
+                box.Min.X = (objectpos.X - radius); expanded = true;                
             }
-            if ((objectpos.X + radius) > box.max.X) {
-                box.max.X = (objectpos.X + radius); expanded = true;                
+            if ((objectpos.X + radius) > box.Max.X) {
+                box.Max.X = (objectpos.X + radius); expanded = true;                
             }         
             // test min Y and max Y against the current bounding volume
-            if ((objectpos.Y - radius) < box.min.Y) {
-                box.min.Y = (objectpos.Y - radius); expanded = true;                
+            if ((objectpos.Y - radius) < box.Min.Y) {
+                box.Min.Y = (objectpos.Y - radius); expanded = true;                
             }
-            if ((objectpos.Y + radius) > box.max.Y) {
-                box.max.Y = (objectpos.Y + radius); expanded = true;                
+            if ((objectpos.Y + radius) > box.Max.Y) {
+                box.Max.Y = (objectpos.Y + radius); expanded = true;                
             }           
             // test min Z and max Z against the current bounding volume
-            if ( (objectpos.Z - radius) < box.min.Z ) {
-                box.min.Z = (objectpos.Z - radius); expanded = true;                
+            if ( (objectpos.Z - radius) < box.Min.Z ) {
+                box.Min.Z = (objectpos.Z - radius); expanded = true;                
             }
-            if ( (objectpos.Z + radius) > box.max.Z ) {
-                box.max.Z = (objectpos.Z + radius); expanded = true;                
+            if ( (objectpos.Z + radius) > box.Max.Z ) {
+                box.Max.Z = (objectpos.Z + radius); expanded = true;                
             }
 
             if (expanded && parent != null) {                
@@ -130,12 +130,12 @@ namespace SimpleScene.Util.ssBVH
         }
 
         private void assignVolume(Vector3 objectpos, float radius) {
-            box.min.X = objectpos.X - radius;
-            box.max.X = objectpos.X + radius;
-            box.min.Y = objectpos.Y - radius;
-            box.max.Y = objectpos.Y + radius;
-            box.min.Z = objectpos.Z - radius;
-            box.max.Z = objectpos.Z + radius;
+            box.Min.X = objectpos.X - radius;
+            box.Max.X = objectpos.X + radius;
+            box.Min.Y = objectpos.Y - radius;
+            box.Max.Y = objectpos.Y + radius;
+            box.Min.Z = objectpos.Z - radius;
+            box.Max.Z = objectpos.Z + radius;
         }      
 
         internal void computeVolume(SSBVHNodeAdaptor<GO> nAda) {            
@@ -160,25 +160,25 @@ namespace SimpleScene.Util.ssBVH
         }
         
         internal float SAH(SSAABB box) {
-            float x_size = box.max.X - box.min.X;
-            float y_size = box.max.Y - box.min.Y;
-            float z_size = box.max.Z - box.min.Z;
+            float x_size = box.Max.X - box.Min.X;
+            float y_size = box.Max.Y - box.Min.Y;
+            float z_size = box.Max.Z - box.Min.Z;
 
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
             
         }
         internal float SAH(ref SSAABB box) {
-            float x_size = box.max.X - box.min.X;
-            float y_size = box.max.Y - box.min.Y;
-            float z_size = box.max.Z - box.min.Z;
+            float x_size = box.Max.X - box.Min.X;
+            float y_size = box.Max.Y - box.Min.Y;
+            float z_size = box.Max.Z - box.Min.Z;
 
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
             
         }
         internal float SAH(ssBVHNode<GO> node) {            
-            float x_size = node.box.max.X - node.box.min.X;
-            float y_size = node.box.max.Y - node.box.min.Y;
-            float z_size = node.box.max.Z - node.box.min.Z;
+            float x_size = node.box.Max.X - node.box.Min.X;
+            float y_size = node.box.Max.Y - node.box.Min.Y;
+            float z_size = node.box.Max.Z - node.box.Min.Z;
 
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
         }
@@ -191,18 +191,18 @@ namespace SimpleScene.Util.ssBVH
 
         internal SSAABB AABBofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
             SSAABB box = nodea.box;
-            box.expandToFit(nodeb.box);
+            box.ExpandToFit(nodeb.box);
             return box;
         }
 
         internal float SAHofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
             SSAABB box = nodea.box;
-            box.expandToFit(nodeb.box);
+            box.ExpandToFit(nodeb.box);
             return SAH(ref box);
         }
         internal float SAHofPair(SSAABB boxa, SSAABB boxb) {
             SSAABB pairbox = boxa;
-            pairbox.expandToFit(boxb);
+            pairbox.ExpandToFit(boxb);
             return SAH(ref pairbox);
         }
 
@@ -376,8 +376,8 @@ namespace SimpleScene.Util.ssBVH
 
                 float leftSAH = SAH(left);
                 float rightSAH = SAH(right);
-                float sendLeftSAH = rightSAH + SAH(left.box.expandedBy(newObBox));    // (L+N,R)
-                float sendRightSAH = leftSAH + SAH(right.box.expandedBy(newObBox));   // (L,R+N)
+                float sendLeftSAH = rightSAH + SAH(left.box.ExpandedBy(newObBox));    // (L+N,R)
+                float sendRightSAH = leftSAH + SAH(right.box.ExpandedBy(newObBox));   // (L,R+N)
                 float mergedLeftAndRightSAH = SAH(AABBofPair(left,right)) + newObSAH; // (L+R,N)
 
                 // Doing a merge-and-pushdown can be expensive, so we only do it if it's notably better
@@ -493,7 +493,7 @@ namespace SimpleScene.Util.ssBVH
 
        
         internal void findOverlappingLeaves(SSBVHNodeAdaptor<GO> nAda, Vector3 origin, float radius, List<ssBVHNode<GO>> overlapList) {
-            if (toAABB().intersectsSphere(origin,radius)) {
+            if (toAABB().IntersectsSphere(origin,radius)) {
                 if (gobjects != null) {    
                     overlapList.Add(this);
                 } else {
@@ -504,7 +504,7 @@ namespace SimpleScene.Util.ssBVH
         }
 
         internal void findOverlappingLeaves(SSBVHNodeAdaptor<GO> nAda, SSAABB aabb, List<ssBVHNode<GO>> overlapList) {
-            if (toAABB().intersectsAABB(aabb)) {
+            if (toAABB().IntersectsAABB(aabb)) {
                 if (gobjects != null) {    
                     overlapList.Add(this);
                 } else {
@@ -516,35 +516,35 @@ namespace SimpleScene.Util.ssBVH
         
         internal SSAABB toAABB() {
             SSAABB aabb = new SSAABB();
-            aabb.min.X = box.min.X;
-            aabb.min.Y = box.min.Y;
-            aabb.min.Z = box.min.Z;
-            aabb.max.X = box.max.X;
-            aabb.max.Y = box.max.Y;
-            aabb.max.Z = box.max.Z;
+            aabb.Min.X = box.Min.X;
+            aabb.Min.Y = box.Min.Y;
+            aabb.Min.Z = box.Min.Z;
+            aabb.Max.X = box.Max.X;
+            aabb.Max.Y = box.Max.Y;
+            aabb.Max.Z = box.Max.Z;
             return aabb;
         }
 
         internal void childExpanded(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> child) {
             bool expanded = false;
              
-            if (child.box.min.X < box.min.X) {
-                box.min.X = child.box.min.X; expanded = true;                
+            if (child.box.Min.X < box.Min.X) {
+                box.Min.X = child.box.Min.X; expanded = true;                
             }
-            if (child.box.max.X > box.max.X) {
-                box.max.X = child.box.max.X; expanded = true;                
+            if (child.box.Max.X > box.Max.X) {
+                box.Max.X = child.box.Max.X; expanded = true;                
             }
-            if (child.box.min.Y < box.min.Y) {
-                box.min.Y = child.box.min.Y; expanded = true;                 
+            if (child.box.Min.Y < box.Min.Y) {
+                box.Min.Y = child.box.Min.Y; expanded = true;                 
             }
-            if (child.box.max.Y > box.max.Y) {
-                box.max.Y = child.box.max.Y; expanded = true;
+            if (child.box.Max.Y > box.Max.Y) {
+                box.Max.Y = child.box.Max.Y; expanded = true;
             }             
-            if (child.box.min.Z < box.min.Z) {            
-                box.min.Z = child.box.min.Z; expanded = true;
+            if (child.box.Min.Z < box.Min.Z) {            
+                box.Min.Z = child.box.Min.Z; expanded = true;
             }
-            if (child.box.max.Z > box.max.Z) {
-                box.max.Z = child.box.max.Z; expanded = true;
+            if (child.box.Max.Z > box.Max.Z) {
+                box.Max.Z = child.box.Max.Z; expanded = true;
             }
 
             if (expanded && parent != null) {
@@ -554,17 +554,17 @@ namespace SimpleScene.Util.ssBVH
 
         internal void childRefit(SSBVHNodeAdaptor<GO> nAda, bool recurse=true) {
             SSAABB oldbox = box;           
-            box.min.X = left.box.min.X; box.max.X = left.box.max.X;
-            box.min.Y = left.box.min.Y; box.max.Y = left.box.max.Y;
-            box.min.Z = left.box.min.Z; box.max.Z = left.box.max.Z;
+            box.Min.X = left.box.Min.X; box.Max.X = left.box.Max.X;
+            box.Min.Y = left.box.Min.Y; box.Max.Y = left.box.Max.Y;
+            box.Min.Z = left.box.Min.Z; box.Max.Z = left.box.Max.Z;
 
-            if (right.box.min.X < box.min.X) { box.min.X = right.box.min.X; }            
-            if (right.box.min.Y < box.min.Y) { box.min.Y = right.box.min.Y; }            
-            if (right.box.min.Z < box.min.Z) { box.min.Z = right.box.min.Z; }
+            if (right.box.Min.X < box.Min.X) { box.Min.X = right.box.Min.X; }            
+            if (right.box.Min.Y < box.Min.Y) { box.Min.Y = right.box.Min.Y; }            
+            if (right.box.Min.Z < box.Min.Z) { box.Min.Z = right.box.Min.Z; }
 
-            if (right.box.max.X > box.max.X) { box.max.X = right.box.max.X; }
-            if (right.box.max.Y > box.max.Y) { box.max.Y = right.box.max.Y; }            
-            if (right.box.max.Z > box.max.Z) { box.max.Z = right.box.max.Z; }
+            if (right.box.Max.X > box.Max.X) { box.Max.X = right.box.Max.X; }
+            if (right.box.Max.Y > box.Max.Y) { box.Max.Y = right.box.Max.Y; }            
+            if (right.box.Max.Z > box.Max.Z) { box.Max.Z = right.box.Max.Z; }
             
             if (recurse && parent != null) { parent.childRefit(nAda); }
         }
