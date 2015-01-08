@@ -30,6 +30,7 @@ namespace SimpleScene
 		public bool drawGLSL = true;
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
+        public bool usePoissonSampling = true;
 
 		public bool renderBoundingSpheres;
 		public bool renderCollisionShells;

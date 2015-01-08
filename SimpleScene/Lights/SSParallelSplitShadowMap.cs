@@ -63,37 +63,28 @@ namespace SimpleScene
                                               float cameraNearZ, float cameraFarZ) {
             base.PrepareForRenderBase(renderConfig, objects);
 
-            #if false
-            Util3d.Projections.ParallelShadowmapProjections(
-                objects, m_light,
-                renderConfig.invCameraViewMat,
-                renderConfig.projectionMatrix,
-                fov, aspect, cameraNearZ, cameraFarZ,
-                c_numberOfSplits, m_shadowProjMatrices, m_viewSplits);
-
-            for (int i = 0; i < c_numberOfSplits; ++i) {
-                m_shadowProjBiasMatrices[i] = m_shadowProjMatrices[i] * c_biasMatrix;
-            }
-            #else 
-            ParallelShadowmapProjections(objects,
+            ComputerProjections(
+                objects,
                 renderConfig.invCameraViewMat,
                 renderConfig.projectionMatrix,
                 fov, aspect, cameraNearZ, cameraFarZ);
-            #endif
 
             // update info for the regular draw pass later
             renderConfig.MainShader.Activate();
             renderConfig.MainShader.UniNumShadowMaps = c_numberOfSplits;
+            renderConfig.MainShader.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
+            if (renderConfig.usePoissonSampling) {
+                renderConfig.MainShader.UpdatePoissonScaling(m_poissonScaling);
+            }
             renderConfig.MainShader.UpdateShadowMapBiasVPs(m_shadowProjBiasMatrices);
             renderConfig.MainShader.UpdatePssmSplits(m_viewSplits);
-            renderConfig.MainShader.UpdatePoissonScaling(m_poissonScaling);
 
             // setup for render shadowmap pass
             renderConfig.PssmShader.Activate();
             renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowProjMatrices);
         }
 
-        void ParallelShadowmapProjections(
+        void ComputerProjections(
             List<SSObject> objects,
             Matrix4 cameraView,
             Matrix4 cameraProj,
@@ -202,7 +193,7 @@ namespace SimpleScene
                 }
             }
 
-            Vector2 masterSize = m_resultLightBB [0].Diff().Xy;
+            Vector2 masterSize = m_resultLightBB [3].Diff().Xy;
             for (int i = 0; i < c_numberOfSplits; ++i) {
                 // Finish the view matrix
                 // Use center of AABB in regular coordinates to get the view matrix  
@@ -228,7 +219,8 @@ namespace SimpleScene
                 m_shadowProjBiasMatrices[i] = m_shadowProjMatrices[i] * c_biasMatrix;
 
                 // Finish assigning Poisson scaling
-                m_poissonScaling [i] = Vector2.Divide(diff.Xy, masterSize);
+                //m_poissonScaling [i] = Vector2.Divide(diff.Xy, masterSize);
+                m_poissonScaling [i] = new Vector2 (1f);
             }
         }
     }

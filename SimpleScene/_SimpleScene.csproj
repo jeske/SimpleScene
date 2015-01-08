@@ -105,7 +105,6 @@
     <Compile Include="Core\SSMainShaderProgram.cs" />
     <Compile Include="Core\SSShaderProgram.cs" />
     <Compile Include="Objects\SSObjectHUDQuad.cs" />
-    <Compile Include="Util\Projections.cs" />
     <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
     <Compile Include="Objects\SSObjectBillboard.cs" />
     <Compile Include="Core\SSTextureWithAlpha.cs" />
