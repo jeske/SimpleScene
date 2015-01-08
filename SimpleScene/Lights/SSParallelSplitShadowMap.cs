@@ -132,7 +132,7 @@ namespace SimpleScene
             #if true
             // Optional scene-dependent optimization
             for (int i = 0; i < c_numberOfSplits; ++i) {
-                m_objsLightBB[i] = new SSAABB();
+                m_objsLightBB[i] = new SSAABB(float.PositiveInfinity, float.NegativeInfinity);
                 m_splitFrustums[i] = new FrustumCuller(ref m_frustumViewProjMatrices[i]);
                 m_shrink[i] = false;
             }

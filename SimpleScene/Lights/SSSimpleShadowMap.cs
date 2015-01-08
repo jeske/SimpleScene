@@ -25,7 +25,7 @@ namespace SimpleScene
             base.PrepareForRenderBase(renderConfig, objects);
 
             ComputerProjections(objects, m_light,
-                                      renderConfig.invCameraViewMat, renderConfig.projectionMatrix);
+                                renderConfig.invCameraViewMat, renderConfig.projectionMatrix);
 
             // update info for the regular draw pass later
             Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
@@ -69,7 +69,7 @@ namespace SimpleScene
             SSAABB frustumLightBB = SSAABB.FromFrustum(ref lightTransform, ref cameraViewProj);
 
             bool shrink = false;
-            SSAABB objsLightBB = new SSAABB ();
+            SSAABB objsLightBB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
             #if true
             // (optional) scene dependent optimization
             // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
@@ -93,7 +93,7 @@ namespace SimpleScene
             #endif
 
             // optimize the light-frustum-projection bounding box by the object-bounding-box
-            SSAABB resultLightBB = new SSAABB();
+            SSAABB resultLightBB = new SSAABB(float.PositiveInfinity, float.NegativeInfinity);
             if (shrink) {
                 // shrink the XY & far-Z coordinates..
                 resultLightBB.Min.Xy = Vector2.ComponentMax(frustumLightBB.Min.Xy, objsLightBB.Min.Xy);

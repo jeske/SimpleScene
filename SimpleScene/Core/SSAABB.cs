@@ -112,7 +112,7 @@ namespace SimpleScene
         };
 
         public static SSAABB FromFrustum(ref Matrix4 axisTransform, ref Matrix4 modelViewProj) {
-            SSAABB ret = new SSAABB();
+            SSAABB ret = new SSAABB(float.PositiveInfinity, float.NegativeInfinity);
             Matrix4 inverse = modelViewProj;
             inverse.Invert();
             for (int i = 0; i < c_homogenousCorners.Length; ++i) {

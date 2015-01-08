@@ -200,7 +200,7 @@ namespace SimpleScene
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;
-            UniLightingMode = LightingMode.BlinnPhong;
+            UniLightingMode = LightingMode.ShadowMapDebug;
             UniPoissonSamplingEnabled = true;
             UniNumPoissonSamples = 8;
 
