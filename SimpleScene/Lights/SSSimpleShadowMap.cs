@@ -10,6 +10,8 @@ namespace SimpleScene
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
+        public FrustumCuller FrustumCuller;
+
         private Matrix4 m_shadowProjMatrix;
         private Matrix4 m_shadowViewMatrix;
 
@@ -122,24 +124,34 @@ namespace SimpleScene
             }  
 
             // Finish the view matrix
-            // Use center of AABB in regular coordinates to get the view matrix  
-            Vector3 targetLightSpace = resultLightBB.Center();                
+            // Use center of AABB in regular coordinates to get the view matrix
+            fromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
+                               out m_shadowViewMatrix, out m_shadowProjMatrix);
+        }
+
+        protected static void fromLightAlignedBB(ref SSAABB bb, 
+                                                 ref Matrix4 lightTransform, 
+                                                 ref Vector3 lightY,
+                                                 out Matrix4 viewMatrix,
+                                                 out Matrix4 projMatrix)
+        {
+            Vector3 targetLightSpace = bb.Center();                
             Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, 
                                                  targetLightSpace.Y, 
-                                                 resultLightBB.Min.Z);
+                                                 bb.Min.Z);
             Vector3 viewTarget = Vector3.Transform(targetLightSpace, lightTransform.Inverted()); 
             Vector3 viewEye = Vector3.Transform(eyeLightSpace, lightTransform.Inverted());
             Vector3 viewUp = lightY;
-            m_shadowViewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);
+            viewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 
             // Finish the projection matrix
-            Vector3 diff = resultLightBB.Diff();
+            Vector3 diff = bb.Diff();
             float width, height, nearZ, farZ;
             width = diff.X;
             height = diff.Y;
             nearZ = 1f;
             farZ = 1f + diff.Z;
-            m_shadowProjMatrix = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
+            projMatrix = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
         }
     }
 }
