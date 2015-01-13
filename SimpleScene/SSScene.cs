@@ -31,7 +31,7 @@ namespace SimpleScene
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
 
-        public bool usePoissonSampling = true;
+        public bool usePoissonSampling = false;
         public int numPoissonSamples = 8;
         public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 
@@ -187,7 +187,7 @@ namespace SimpleScene
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
                     light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, fov, aspect, nearZ, farZ);
-                    renderPass(false);
+                    renderPass(false, light.ShadowMap.FrustumCuller);
                     light.ShadowMap.FinishRender(m_renderConfig);
                 }
             }

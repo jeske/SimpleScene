@@ -10,8 +10,6 @@ namespace SimpleScene
     {
         // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 
-        public FrustumCuller FrustumCuller;
-
         private Matrix4 m_shadowProjMatrix;
         private Matrix4 m_shadowViewMatrix;
 
@@ -65,7 +63,7 @@ namespace SimpleScene
                 0f,       0f,       0f,       0f
             );
 
-            // Step 0: AABB of frustum corners in light coordinates
+            // Find AABB of frustum corners in light coordinates
             Matrix4 cameraViewProj = cameraView * cameraProj;
             SSAABB frustumLightBB = SSAABB.FromFrustum(ref lightTransform, ref cameraViewProj);
 
@@ -73,7 +71,7 @@ namespace SimpleScene
             SSAABB objsLightBB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
             #if true
             // (optional) scene dependent optimization
-            // Step 1: trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
+            // Trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
             FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);
 
             foreach (var obj in objects) {
@@ -93,7 +91,7 @@ namespace SimpleScene
             }
             #endif
 
-            // optimize the light-frustum-projection bounding box by the object-bounding-box
+            // Optimize the light-frustum-projection bounding box by the object-bounding-box
             SSAABB resultLightBB = new SSAABB(float.PositiveInfinity, float.NegativeInfinity);
             if (shrink) {
                 // shrink the XY & far-Z coordinates..
@@ -104,7 +102,12 @@ namespace SimpleScene
                 resultLightBB = frustumLightBB;
             }
 
-            // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
+            // View and projection matrices, used by the scene later
+            fromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
+                               out m_shadowViewMatrix, out m_shadowProjMatrix);
+
+            // Now extend Z of the result AABB to cover shadow-casters closer to the light inside the
+            // original box
             foreach (var obj in objects) {
                 if (obj.renderState.toBeDeleted || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
@@ -123,10 +126,12 @@ namespace SimpleScene
                 }
             }  
 
-            // Finish the view matrix
-            // Use center of AABB in regular coordinates to get the view matrix
+            // Generate frustum culler from the BB extended towards light to include shadow casters
+            Matrix4 frustumView, frustumProj;
             fromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
-                               out m_shadowViewMatrix, out m_shadowProjMatrix);
+                               out frustumView, out frustumProj);
+            Matrix4 frustumMatrix = frustumView * frustumProj;
+            FrustumCuller = new FrustumCuller (ref frustumMatrix);
         }
 
         protected static void fromLightAlignedBB(ref SSAABB bb, 

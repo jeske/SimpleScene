@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using System.Collections.Generic;
+using Util3d;
 
 namespace SimpleScene
 {
@@ -10,6 +11,8 @@ namespace SimpleScene
         public const int c_maxNumberOfShadowMaps = 1;
 
         private static int s_numberOfShadowMaps = 0;
+
+        public FrustumCuller FrustumCuller = null;
 
         private readonly int m_frameBufferID;
         private readonly int m_textureID;
