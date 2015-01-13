@@ -169,7 +169,28 @@ namespace SimpleScene
                 }
             }
 
-            // extend Z of the AABB to cover shadow-casters closer to the light inside the original box
+            Vector2 masterSize = m_resultLightBB [3].Diff().Xy;
+            for (int i = 0; i < c_numberOfSplits; ++i) {
+                // Finish the view matrix
+                // Use center of AABB in regular coordinates to get the view matrix  
+                Matrix4 shadowView, shadowProj;
+                fromLightAlignedBB(ref m_resultLightBB [i], ref lightTransform, ref lightY,
+                                   out shadowView, out shadowProj);
+                m_shadowProjMatrices[i] = shadowView * shadowProj * c_cropMatrices[i];
+                m_shadowProjBiasMatrices[i] = m_shadowProjMatrices[i] * c_biasMatrix;
+
+                // Finish assigning Poisson scaling
+                //m_poissonScaling [i] = Vector2.Divide(diff.Xy, masterSize);
+                m_poissonScaling [i] = new Vector2 (1f);
+            }
+
+            // Combine all splits' BB into one and extend it to include shadow casters closer to light
+            SSAABB castersLightBB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
+            for (int i = 0; i < c_numberOfSplits; ++i) {
+                castersLightBB.Combine(ref m_resultLightBB [i]);
+            }
+
+            // extend Z of the AABB to cover shadow-casters closer to the light
             foreach (var obj in objects) {
                 if (obj.renderState.toBeDeleted || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
@@ -179,48 +200,23 @@ namespace SimpleScene
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
 
-                    for (int i = 0; i < c_numberOfSplits; ++i) {
-                        if (localMin.Z < m_resultLightBB[i].Min.Z) {
-                            if (OpenTKHelper.RectsOverlap(m_resultLightBB[i].Min.Xy,
-                                                          m_resultLightBB[i].Max.Xy,
-                                                          localMin.Xy,
-                                                          localMax.Xy)) {
-                                m_resultLightBB [i].Min.Z = localMin.Z;
-                            }
+                    if (localMin.Z < castersLightBB.Min.Z) {
+                        if (OpenTKHelper.RectsOverlap(castersLightBB.Min.Xy,
+                                                      castersLightBB.Max.Xy,
+                                                      localMin.Xy,
+                                                      localMax.Xy)) {
+                            castersLightBB.Min.Z = localMin.Z;
                         }
                     }
                 }
             }
 
-            Vector2 masterSize = m_resultLightBB [3].Diff().Xy;
-            for (int i = 0; i < c_numberOfSplits; ++i) {
-                // Finish the view matrix
-                // Use center of AABB in regular coordinates to get the view matrix  
-                Vector3 targetLightSpace = m_resultLightBB[i].Center();
-                Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, 
-                                                     targetLightSpace.Y, 
-                                                     m_resultLightBB[i].Min.Z);
-                Vector3 viewTarget = Vector3.Transform(targetLightSpace, lightTransform.Inverted()); 
-                Vector3 viewEye = Vector3.Transform(eyeLightSpace, lightTransform.Inverted());
-
-                Vector3 viewUp = lightY;
-                Matrix4 shadowView = Matrix4.LookAt(viewEye, viewTarget, viewUp);
-
-                // Finish the projection matrix
-                Vector3 diff = m_resultLightBB [i].Diff();
-                float width, height, shadowNearZ, shadowFarZ;
-                width = diff.X;
-                height = diff.Y;
-                shadowNearZ = 1f;
-                shadowFarZ = 1f + diff.Z;
-                Matrix4 shadowProj = Matrix4.CreateOrthographic(width, height, shadowNearZ, shadowFarZ);
-                m_shadowProjMatrices[i] = shadowView * shadowProj * c_cropMatrices[i];
-                m_shadowProjBiasMatrices[i] = m_shadowProjMatrices[i] * c_biasMatrix;
-
-                // Finish assigning Poisson scaling
-                //m_poissonScaling [i] = Vector2.Divide(diff.Xy, masterSize);
-                m_poissonScaling [i] = new Vector2 (1f);
-            }
+            // Generate frustum culler from the BB extended towards light to include shadow casters
+            Matrix4 frustumView, frustumProj;
+            fromLightAlignedBB(ref castersLightBB, ref lightTransform, ref lightY,
+                               out frustumView, out frustumProj);
+            Matrix4 frustumMatrix = frustumView * frustumProj;
+            FrustumCuller = new FrustumCuller (ref frustumMatrix);
         }
     }
 }

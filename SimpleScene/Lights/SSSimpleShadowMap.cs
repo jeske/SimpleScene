@@ -133,31 +133,5 @@ namespace SimpleScene
             Matrix4 frustumMatrix = frustumView * frustumProj;
             FrustumCuller = new FrustumCuller (ref frustumMatrix);
         }
-
-        protected static void fromLightAlignedBB(ref SSAABB bb, 
-                                                 ref Matrix4 lightTransform, 
-                                                 ref Vector3 lightY,
-                                                 out Matrix4 viewMatrix,
-                                                 out Matrix4 projMatrix)
-        {
-            Vector3 targetLightSpace = bb.Center();                
-            Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, 
-                                                 targetLightSpace.Y, 
-                                                 bb.Min.Z);
-            Vector3 viewTarget = Vector3.Transform(targetLightSpace, lightTransform.Inverted()); 
-            Vector3 viewEye = Vector3.Transform(eyeLightSpace, lightTransform.Inverted());
-            Vector3 viewUp = lightY;
-            viewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);
-
-            // Finish the projection matrix
-            Vector3 diff = bb.Diff();
-            float width, height, nearZ, farZ;
-            width = diff.X;
-            height = diff.Y;
-            nearZ = 1f;
-            farZ = 1f + diff.Z;
-            projMatrix = Matrix4.CreateOrthographic(width, height, nearZ, farZ);
-        }
     }
 }
-

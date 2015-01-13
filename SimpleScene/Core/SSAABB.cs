@@ -17,6 +17,11 @@ namespace SimpleScene
             Max = new Vector3(max);
         }
 
+        public void Combine(ref SSAABB other) {
+            Min = Vector3.ComponentMin(Min, other.Min);
+            Max = Vector3.ComponentMax(Max, other.Max);
+        }
+
         public bool IntersectsSphere(Vector3 origin, float radius) {
             if ( 
                 (origin.X + radius < Min.X) ||

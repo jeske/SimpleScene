@@ -33,12 +33,12 @@ namespace SimpleScene
 
         public bool usePoissonSampling = false;
         public int numPoissonSamples = 8;
-        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
+        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
-		public bool renderBoundingSpheres;
-		public bool renderCollisionShells;
+        public bool renderBoundingSpheres = false;
+        public bool renderCollisionShells = false;
 
-		public bool frustumCulling;
+        public bool frustumCulling = true;
 
 		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMat = Matrix4.Identity;
