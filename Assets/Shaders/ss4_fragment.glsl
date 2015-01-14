@@ -152,6 +152,18 @@ float simpleLighting() {
 
 }
 
+bool shadowMapTest(vec2 uv, float distanceToTexel, float depthOffset)
+{
+    vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
+    float nearestOccluder = shadowMapTexel.x;               
+    if (nearestOccluder < depthOffset
+     || nearestOccluder < (distanceToTexel - depthOffset)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 float shadowMapLighting(out vec4 debugOutputColor)  {  
 
 	vec3 lightDir = gl_LightSource[0].position.xyz;
@@ -206,18 +218,12 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                     for (int p = 0; p < numPoissonSamples; ++p) {
                         int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
                         vec2 uvSample = uv + poissonDisk[pIndex] / 700.0f / scale;
-                        vec4 shadowMapTexel = texture2D(shadowMapTexture, uvSample);
-                        float nearestOccluder = shadowMapTexel.x;
-                        if (nearestOccluder < depthOffset
-                         || nearestOccluder < (distanceToTexel - depthOffset)) {
+                        if (shadowMapTest(uvSample, distanceToTexel, depthOffset)) {
                             litFactor -= litReductionPerSample;
                         }
                     }
-                } else {
-                    vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
-                    float nearestOccluder = shadowMapTexel.x;               
-                    if (nearestOccluder < depthOffset
-                     || nearestOccluder < (distanceToTexel - depthOffset)) {
+                } else { // no Poisson sampling
+                    if (shadowMapTest(uv, distanceToTexel, depthOffset)) {
                         litFactor = 1.0f - maxLitReductionByShade;
                     }
                 }
