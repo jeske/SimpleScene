@@ -63,7 +63,7 @@ namespace SimpleScene
                                               float cameraNearZ, float cameraFarZ) {
             base.PrepareForRenderBase(renderConfig, objects);
 
-            ComputerProjections(
+            ComputeProjections(
                 objects,
                 renderConfig.invCameraViewMat,
                 renderConfig.projectionMatrix,
@@ -83,7 +83,7 @@ namespace SimpleScene
             renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowProjMatrices);
         }
 
-        void ComputerProjections(
+        void ComputeProjections(
             List<SSObject> objects,
             Matrix4 cameraView,
             Matrix4 cameraProj,

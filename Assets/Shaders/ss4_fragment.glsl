@@ -207,15 +207,17 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                         int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
                         vec2 uvSample = uv + poissonDisk[pIndex] / 700.0f / scale;
                         vec4 shadowMapTexel = texture2D(shadowMapTexture, uvSample);
-                        float nearestOccluder = shadowMapTexel.x;               
-                        if (nearestOccluder < (distanceToTexel - depthOffset)) {
+                        float nearestOccluder = shadowMapTexel.x;
+                        if (nearestOccluder < depthOffset
+                         || nearestOccluder < (distanceToTexel - depthOffset)) {
                             litFactor -= litReductionPerSample;
                         }
                     }
                 } else {
                     vec4 shadowMapTexel = texture2D(shadowMapTexture, uv);
                     float nearestOccluder = shadowMapTexel.x;               
-                    if (nearestOccluder < (distanceToTexel - depthOffset)) {
+                    if (nearestOccluder < depthOffset
+                     || nearestOccluder < (distanceToTexel - depthOffset)) {
                         litFactor = 1.0f - maxLitReductionByShade;
                     }
                 }
