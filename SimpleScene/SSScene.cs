@@ -31,9 +31,9 @@ namespace SimpleScene
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
 
-        public bool usePoissonSampling = false;
+        public bool usePoissonSampling = true;
         public int numPoissonSamples = 8;
-        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
+        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 
         public bool renderBoundingSpheres = false;
         public bool renderCollisionShells = false;

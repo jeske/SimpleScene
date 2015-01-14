@@ -137,7 +137,8 @@ namespace SimpleScene
             }
             foreach (var obj in objects) {
                 // pass through all shadow casters and receivers
-                if (obj.renderState.toBeDeleted || !obj.renderState.visible || obj.boundingSphere == null) {
+                if (obj.renderState.toBeDeleted  || obj.boundingSphere == null
+                 || !obj.renderState.visible || !obj.renderState.receivesShadows) {
                     continue;
                 } else {
                     for (int i = 0; i < c_numberOfSplits; ++i) {
@@ -174,8 +175,8 @@ namespace SimpleScene
                 // Finish the view matrix
                 // Use center of AABB in regular coordinates to get the view matrix  
                 Matrix4 shadowView, shadowProj;
-                fromLightAlignedBB(ref m_resultLightBB [i], ref lightTransform, ref lightY,
-                                   out shadowView, out shadowProj);
+                viewProjFromLightAlignedBB(ref m_resultLightBB [i], ref lightTransform, ref lightY,
+                                           out shadowView, out shadowProj);
                 m_shadowProjMatrices[i] = shadowView * shadowProj * c_cropMatrices[i];
                 m_shadowProjBiasMatrices[i] = m_shadowProjMatrices[i] * c_biasMatrix;
 
@@ -192,7 +193,8 @@ namespace SimpleScene
 
             // extend Z of the AABB to cover shadow-casters closer to the light
             foreach (var obj in objects) {
-                if (obj.renderState.toBeDeleted || !obj.renderState.visible || !obj.renderState.castsShadow) {
+                if (obj.renderState.toBeDeleted || obj.boundingSphere == null 
+                 || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
                 } else {
                     Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
@@ -213,8 +215,8 @@ namespace SimpleScene
 
             // Generate frustum culler from the BB extended towards light to include shadow casters
             Matrix4 frustumView, frustumProj;
-            fromLightAlignedBB(ref castersLightBB, ref lightTransform, ref lightY,
-                               out frustumView, out frustumProj);
+            viewProjFromLightAlignedBB(ref castersLightBB, ref lightTransform, ref lightY,
+                                       out frustumView, out frustumProj);
             Matrix4 frustumMatrix = frustumView * frustumProj;
             FrustumCuller = new FrustumCuller (ref frustumMatrix);
         }

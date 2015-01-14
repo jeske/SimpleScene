@@ -161,11 +161,11 @@ namespace SimpleScene
             }
         }
 
-        protected static void fromLightAlignedBB(ref SSAABB bb, 
-                                                 ref Matrix4 lightTransform, 
-                                                 ref Vector3 lightY,
-                                                 out Matrix4 viewMatrix,
-                                                 out Matrix4 projMatrix)
+        protected static void viewProjFromLightAlignedBB(ref SSAABB bb, 
+                                                         ref Matrix4 lightTransform, 
+                                                         ref Vector3 lightY,
+                                                         out Matrix4 viewMatrix,
+                                                         out Matrix4 projMatrix)
         {
             Vector3 targetLightSpace = bb.Center();                
             Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, 

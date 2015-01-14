@@ -24,7 +24,7 @@ namespace SimpleScene
             float fov, float aspect, float nearZ, float farZ) {
             base.PrepareForRenderBase(renderConfig, objects);
 
-            ComputerProjections(objects, m_light,
+            ComputeProjections(objects, m_light,
                                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix);
 
             // update info for the regular draw pass later
@@ -43,7 +43,7 @@ namespace SimpleScene
             SSShaderProgram.DeactivateAll();
 		}
 
-        private void ComputerProjections(List<SSObject> objects,
+        private void ComputeProjections(List<SSObject> objects,
                                          SSLight light,
                                          Matrix4 cameraView, Matrix4 cameraProj)
         {
@@ -76,7 +76,8 @@ namespace SimpleScene
 
             foreach (var obj in objects) {
                 // pass through all shadow casters and receivers
-                if (obj.renderState.toBeDeleted || !obj.renderState.visible || obj.boundingSphere == null) {
+                if (obj.renderState.toBeDeleted || obj.boundingSphere == null 
+                 || !obj.renderState.visible || !obj.renderState.receivesShadows) {
                     continue;
                 } else if (cameraFrustum.isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
                     // determine AABB in light coordinates of the objects so far
@@ -103,13 +104,14 @@ namespace SimpleScene
             }
 
             // View and projection matrices, used by the scene later
-            fromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
-                               out m_shadowViewMatrix, out m_shadowProjMatrix);
+            viewProjFromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
+                                       out m_shadowViewMatrix, out m_shadowProjMatrix);
 
             // Now extend Z of the result AABB to cover shadow-casters closer to the light inside the
             // original box
             foreach (var obj in objects) {
-                if (obj.renderState.toBeDeleted || !obj.renderState.visible || !obj.renderState.castsShadow) {
+                if (obj.renderState.toBeDeleted || obj.boundingSphere == null
+                 || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
                 }
                 Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
@@ -128,8 +130,8 @@ namespace SimpleScene
 
             // Generate frustum culler from the BB extended towards light to include shadow casters
             Matrix4 frustumView, frustumProj;
-            fromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
-                               out frustumView, out frustumProj);
+            viewProjFromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
+                                       out frustumView, out frustumProj);
             Matrix4 frustumMatrix = frustumView * frustumProj;
             FrustumCuller = new FrustumCuller (ref frustumMatrix);
         }
