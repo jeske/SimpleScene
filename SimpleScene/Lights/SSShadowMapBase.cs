@@ -167,6 +167,7 @@ namespace SimpleScene
                                                          out Matrix4 viewMatrix,
                                                          out Matrix4 projMatrix)
         {
+            // Use center of AABB in regular coordinates to get the view matrix
             Vector3 targetLightSpace = bb.Center();                
             Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, 
                 targetLightSpace.Y, 

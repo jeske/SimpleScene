@@ -39,8 +39,8 @@ namespace SimpleScene
         #endregion
 
         #region Temp Use Variables
-        private Matrix4[] m_shadowProjMatrices = new Matrix4[c_numberOfSplits];
-        private Matrix4[] m_shadowProjBiasMatrices = new Matrix4[c_numberOfSplits];
+        private Matrix4[] m_shadowViewProjMatrices = new Matrix4[c_numberOfSplits];
+        private Matrix4[] m_shadowViewProjBiasMatrices = new Matrix4[c_numberOfSplits];
         private Vector2[] m_poissonScaling = new Vector2[c_numberOfSplits];
         private float[] m_viewSplits = new float[c_numberOfSplits];
 
@@ -75,12 +75,12 @@ namespace SimpleScene
             if (renderConfig.usePoissonSampling) {
                 renderConfig.MainShader.UpdatePoissonScaling(m_poissonScaling);
             }
-            renderConfig.MainShader.UpdateShadowMapBiasVPs(m_shadowProjBiasMatrices);
+            renderConfig.MainShader.UpdateShadowMapBiasVPs(m_shadowViewProjBiasMatrices);
             renderConfig.MainShader.UpdatePssmSplits(m_viewSplits);
 
             // setup for render shadowmap pass
             renderConfig.PssmShader.Activate();
-            renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowProjMatrices);
+            renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowViewProjMatrices);
         }
 
         void ComputeProjections(
@@ -172,13 +172,13 @@ namespace SimpleScene
 
             Vector2 masterSize = m_resultLightBB [3].Diff().Xy;
             for (int i = 0; i < c_numberOfSplits; ++i) {
-                // Finish the view matrix
-                // Use center of AABB in regular coordinates to get the view matrix  
+                // Obtain view + projection + crop matrix, need it later
                 Matrix4 shadowView, shadowProj;
                 viewProjFromLightAlignedBB(ref m_resultLightBB [i], ref lightTransform, ref lightY,
                                            out shadowView, out shadowProj);
-                m_shadowProjMatrices[i] = shadowView * shadowProj * c_cropMatrices[i];
-                m_shadowProjBiasMatrices[i] = m_shadowProjMatrices[i] * c_biasMatrix;
+                m_shadowViewProjMatrices[i] = shadowView * shadowProj * c_cropMatrices[i];
+                // obtain view + projection + clio + bias
+                m_shadowViewProjBiasMatrices[i] = m_shadowViewProjMatrices[i] * c_biasMatrix;
 
                 // Finish assigning Poisson scaling
                 //m_poissonScaling [i] = Vector2.Divide(diff.Xy, masterSize);
