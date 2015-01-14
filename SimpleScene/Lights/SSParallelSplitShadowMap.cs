@@ -170,7 +170,6 @@ namespace SimpleScene
                 }
             }
 
-            Vector2 masterSize = m_resultLightBB [3].Diff().Xy;
             for (int i = 0; i < c_numberOfSplits; ++i) {
                 // Obtain view + projection + crop matrix, need it later
                 Matrix4 shadowView, shadowProj;
@@ -180,15 +179,11 @@ namespace SimpleScene
                 // obtain view + projection + clio + bias
                 m_shadowViewProjBiasMatrices[i] = m_shadowViewProjMatrices[i] * c_biasMatrix;
 
-                // Finish assigning Poisson scaling
-                Vector3 diff = m_resultLightBB [i].Diff();
-
                 // There is, currently, no mathematically derived solution to how much Poisson spread scaling
                 // you need for each split. Current improvisation combines 1) increasing spread for the near 
                 // splits; reducing spread for the far splits and 2) reducing spread for splits with larger 
                 // light-aligned areas; increasing spread for splits with smaller light-aligned areas
-                m_poissonScaling [i] = Vector2.Divide(diff.Xy, masterSize);
-                m_poissonScaling [i] *= (0.75f * (float)Math.Pow(1.5, i));
+                m_poissonScaling [i] = m_resultLightBB [i].Diff().Xy / (100f * (float)Math.Pow(3.0, i - 1));
             }
 
             // Combine all splits' BB into one and extend it to include shadow casters closer to light
