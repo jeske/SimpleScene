@@ -106,7 +106,7 @@ namespace SimpleScene
 
         }
 
-        public void SetupShadowMap(List<SSLight> lights) {
+        public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
 			int count=0;
             assertActive();

@@ -20,7 +20,7 @@ namespace SimpleScene
         private readonly int m_textureWidth;
         private readonly int m_textureHeight;
 
-        protected SSLight m_light;
+        protected SSLightBase m_light;
 
         /// <summary>
         /// Used for lookups into the a texture previous used by the framebuffer
@@ -40,7 +40,7 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
-        public SSLight Light {
+        public SSLightBase Light {
             set { m_light = value; }
         }
 

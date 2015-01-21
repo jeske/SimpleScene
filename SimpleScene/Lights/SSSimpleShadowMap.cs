@@ -44,15 +44,16 @@ namespace SimpleScene
 		}
 
         private void ComputeProjections(List<SSObject> objects,
-                                         SSLight light,
-                                         Matrix4 cameraView, Matrix4 cameraProj)
+                                        SSLightBase light,
+                                        Matrix4 cameraView, Matrix4 cameraProj)
         {
-            if (light.Type != SSLight.LightType.Directional) {
+            if (light.GetType() != typeof(SSDirectionalLight)) {
                 throw new NotSupportedException();
             }
+            SSDirectionalLight dirLight = (SSDirectionalLight)light;
 
             // light-aligned unit vectors
-            Vector3 lightZ = light.Direction.Normalized();
+            Vector3 lightZ = dirLight.Direction.Normalized();
             Vector3 lightX, lightY;
             OpenTKHelper.TwoPerpAxes(lightZ, out lightX, out lightY);
             // transform matrix from regular space into light aligned space

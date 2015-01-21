@@ -59,11 +59,11 @@ namespace SimpleScene
         private SSCamera m_activeCamera = null;
         private SSRenderConfig m_renderConfig = new SSRenderConfig();
         private List<SSObject> m_objects = new List<SSObject>();
-        private List<SSLight> m_lights = new List<SSLight>();
+        private List<SSLightBase> m_lights = new List<SSLightBase>();
 
         public List <SSObject> Objects { get { return m_objects; } }
 
-		public List<SSLight> Lights { get { return m_lights; } }
+        public List<SSLightBase> Lights { get { return m_lights; } }
 
         public SSCamera ActiveCamera { 
             get { return m_activeCamera; }
@@ -128,7 +128,7 @@ namespace SimpleScene
             m_objects.Remove(obj);
         }
 
-        public void AddLight(SSLight light) {
+        public void AddLight(SSLightBase light) {
             if (m_lights.Contains(light)) {
                 return;
             }
@@ -140,7 +140,7 @@ namespace SimpleScene
             }
         }
 
-        public void RemoveLight(SSLight light) {
+        public void RemoveLight(SSLightBase light) {
             if (!m_lights.Contains(light)) {
                 throw new Exception ("Light not found.");
             }

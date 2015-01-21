@@ -89,12 +89,13 @@ namespace SimpleScene
             Matrix4 cameraProj,
             float fov, float aspect, float cameraNearZ, float cameraFarZ) 
         {
-            if (m_light.Type != SSLight.LightType.Directional) {
+            if (m_light.GetType() != typeof(SSDirectionalLight)) {
                 throw new NotSupportedException();
             }
+            SSDirectionalLight dirLight = (SSDirectionalLight)m_light;
 
             // light-aligned unit vectors
-            Vector3 lightZ = m_light.Direction.Normalized();
+            Vector3 lightZ = dirLight.Direction.Normalized();
             Vector3 lightX, lightY;
             OpenTKHelper.TwoPerpAxes(lightZ, out lightX, out lightY);
             // transform matrix from regular space into light aligned space
