@@ -16,7 +16,7 @@ namespace SimpleScene
 
     // TODO: update shadowmap mvp when position of SSLight changes
 
-	public class SSLight : SSObjectBase
+	public class SSLight
 	{
         // Light type is somewhat of a placeholder for now.
         // Currently need a way to find objects "between" AABB and the light
@@ -31,10 +31,7 @@ namespace SimpleScene
 
         private SSShadowMapBase m_shadowMap = null;
 
-        public Vector3 Direction {
-            get { return Pos; }
-            set { Pos = value; }
-        }
+        public Vector3 Direction;
 
         public SSShadowMapBase ShadowMap {
             get { return m_shadowMap; }
@@ -51,8 +48,7 @@ namespace SimpleScene
         public SSLight(LightName lightName)
         {
             this.m_lightName = lightName;
-            this._pos = new Vector3 (0f, 0f, 1f);
-			this.calcMatFromState ();
+            this.Direction = new Vector3 (0f, 0f, 1f);
 		}
 
 		~SSLight() { 
@@ -63,19 +59,6 @@ namespace SimpleScene
 			// s_avaiableLightNames.Enqueue (m_lightName);
 		}
 
-		public void SetupLight_alt(ref SSRenderConfig renderConfig) {
-			GL.MatrixMode (MatrixMode.Modelview);			
-			GL.LoadMatrix (ref this.worldMat);
-
-			GL.Enable (EnableCap.Lighting);
-			GL.ShadeModel (ShadingModel.Smooth);
-
-			GL.Light (m_lightName, LightParameter.Position, new Vector4(this._pos,1.0f));
-
-			int idx = m_lightName - c_firstName;
-			GL.Enable (EnableCap.Light0 + idx);
-
-		}
 		public void SetupLight(ref SSRenderConfig renderConfig) {
 			// we only use the invCameraViewMatrix, because we specify the pos/dir later below...
 			Matrix4 modelViewMatrix = renderConfig.invCameraViewMat;
@@ -92,7 +75,7 @@ namespace SimpleScene
 			GL.Light (m_lightName, LightParameter.Specular, this.Specular); // specular light color (R,G,B,A)
 
             float w = (Type == LightType.Directional ? 0.0f : 1.0f);
-            GL.Light (m_lightName, LightParameter.Position, new Vector4(Pos, w)); 
+            GL.Light (m_lightName, LightParameter.Position, new Vector4(Direction, w)); 
 
 			int idx = m_lightName - c_firstName;
 			GL.Enable (EnableCap.Light0 + idx);
@@ -102,6 +85,21 @@ namespace SimpleScene
 			int idx = m_lightName - c_firstName;
 			GL.Disable (EnableCap.Light0 + idx);
 		}
+
+        #if false
+        public void SetupLight_alt(ref SSRenderConfig renderConfig) {
+        GL.MatrixMode (MatrixMode.Modelview);           
+        GL.LoadMatrix (ref this.worldMat);
+
+        GL.Enable (EnableCap.Lighting);
+        GL.ShadeModel (ShadingModel.Smooth);
+
+        GL.Light (m_lightName, LightParameter.Position, new Vector4(this._pos,1.0f));
+
+        int idx = m_lightName - c_firstName;
+        GL.Enable (EnableCap.Light0 + idx);
+        }
+        #endif
 	}
 }
 
