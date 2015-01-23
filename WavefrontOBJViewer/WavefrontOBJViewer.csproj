@@ -55,6 +55,7 @@
     <Compile Include="Main_setupInput.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\testest.tmx" />
     <None Include="TODO.txt" />
     <None Include="TODO_BUG_hid_removal.txt" />
     <CopyAsset Include="Assets\drone2\Drone2.mtl">
@@ -87,9 +88,7 @@
     <None Include="Assets\skybox\skybox_readme.txt" />
     <None Include="Assets\drone2\drone2_readme.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\skybox\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
       <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>

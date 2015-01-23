@@ -29,7 +29,7 @@ namespace WavefrontOBJViewer
 			};
 
 
-			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
+			var lightPos = new Vector3 (50.0f, 40.0f, 10.0f);
 			// 0. Add Lights
 			var light = new SSLight ();
 			light.Pos = lightPos;
@@ -74,7 +74,7 @@ namespace WavefrontOBJViewer
 			// last. Add Camera
 
 			scene.AddObject (scene.ActiveCamera = 
-					new SSCameraThirdPerson (droneObj));
+					new SSCameraThirdPerson (drone2Obj));
 		}
 
 		public void setupEnvironment() {
