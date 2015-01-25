@@ -62,7 +62,16 @@
     <None Include="Assets\untitled.obj" />
     <None Include="Assets\testest.tmx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\GDIviaAGGTest\GDIviaAGGTest.csproj">
+      <Project>{1cf3fb58-7d5b-4329-b96e-77b99a60ab36}</Project>
+      <Name>GDIviaAGGTest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4a7a056c-cb90-4f29-95de-eac471a6cbd7}</Project>
+      <Name>_SimpleScene</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="TODO.txt" />
   </ItemGroup>

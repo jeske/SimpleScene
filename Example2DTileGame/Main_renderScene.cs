@@ -19,7 +19,7 @@ namespace Example2DTileGame
 	{
 
 		FPSCalculator fpsCalc = new FPSCalculator();
-        SSCamera camera;
+        SSCameraThirdPerson camera;
 		float animateSecondsOffset;
 		/// <summary>
 		/// Called when it is time to render the next frame. Add your rendering code here.
