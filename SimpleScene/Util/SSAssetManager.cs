@@ -54,13 +54,21 @@ namespace SimpleScene
 				handler_list += ":" + handler.ToString();
 			}
 
-			return String.Format("[SSNoSuchAssetException:{0},{1}",
+			return String.Format("[SSNoSuchAssetException, failed to find '{0}' looked in '{1}']",
 			                     resource_name, handler_list);
 		}
 
+        public override string Message
+        {
+            get
+            {
+                return this.ToString();
+            }
+        }
+
 		public SSNoSuchAssetException(string resource_name, ISSAssetArchiveHandler[] handlers_arr) {
 			this.resource_name = resource_name;
-			this.handlers_arr = handlers_arr;
+			this.handlers_arr = handlers_arr;            
 		}
 	}
 

@@ -32,8 +32,10 @@ namespace Example2DTileGame
             scene.BaseShader = shaderPgm;
             shaderPgm.Activate();
 
+            // make and position the camera
             camera = new SSCameraThirdPerson();
-
+            camera.basePos = new Vector3(0,30,0);   // the ground plane is in (X,Z) so Y+30 is units "above" the ground                           
+                   
             scene.AddObject(camera);
             scene.ActiveCamera = camera;
 
@@ -67,9 +69,11 @@ namespace Example2DTileGame
                 for (int j = 0; j < mapWidth; j++)
                 {
 
-                       SSObject plane =
-                             new SSObjectMesh(
-                                SSAssetManager.GetInstance<SSMesh_wfOBJ>("./", "plane.obj"));
+                       var meshname = ((i % 2) == 1) ? "tile_brick.obj" : "tile_grass.obj";
+                       var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./mapTileModels", meshname);
+
+                       SSObject plane = new SSObjectMesh(mesh);
+
                         scene.AddObject(plane);
                         map[i,j] = plane;
                         map[i,j].Pos = new Vector3(i * 2, 0.0f, j * 2);
