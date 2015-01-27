@@ -20,15 +20,17 @@ namespace SimpleScene
 {
 	public class SSMainShaderProgram : SSShaderProgram
 	{
-        private static string c_ctx = "./Shaders";
+        public enum LightingMode { BlinnPhong = 0, BumpMapBlinnPhong = 1, ShadowMapDebug = 2 };
+
+        private static readonly string c_ctx = "./Shaders";
 
         #region Shaders
-        private readonly SSShader m_vertexShader;  
+        private readonly SSShader m_vertexShader;
         private readonly SSShader m_fragmentShader;
         private readonly SSShader m_geometryShader;
         #endregion
 
-		#region Uniform Locations
+        #region Uniform Locations
         private readonly int u_winScale;
         private readonly int u_animateSecondsOffset;
         private readonly int u_showWireframes;
@@ -39,9 +41,14 @@ namespace SimpleScene
         private readonly int u_bumpTexEnabled;
 
         private readonly int u_numShadowMaps;
-        private readonly int u_shadowMapTextures;
-        private readonly int u_shadowMapVPs;
+        private readonly int u_shadowMapTexture;
+        private readonly int[] u_shadowMapVPs = new int[SSParallelSplitShadowMap.c_numberOfSplits];
+        private readonly int[] u_poissonScaling = new int[SSParallelSplitShadowMap.c_numberOfSplits];
         private readonly int u_objectWorldTransform;
+        private readonly int u_shadowMapViewSplits;
+        private readonly int u_poissonSamplingEnabled;
+        private readonly int u_numPoissonSamples;
+        private readonly int u_lightingMode;
 		#endregion
 
         #region Uniform Modifiers
@@ -82,39 +89,58 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public void SetupShadowMap(List<SSLight> lights) {
+        public int UniNumShadowMaps {
+            set { assertActive(); GL.Uniform1(u_numShadowMaps, value); }
+        }
+
+        public bool UniPoissonSamplingEnabled {
+            set { assertActive(); GL.Uniform1(u_poissonSamplingEnabled, value ? 1 : 0); }
+        }
+
+        public int UniNumPoissonSamples {
+            set { assertActive(); GL.Uniform1(u_numPoissonSamples, value); }
+        }
+
+        public LightingMode UniLightingMode {
+            set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
+
+        }
+
+        public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
 			int count=0;
             assertActive();
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
-                    // TODO: multiple shadowmaps per light?
-                    if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
+                    // TODO: multiple lights with shadowmaps?
+                    if (count >= SSShadowMapBase.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    GL.Uniform1(u_shadowMapTextures + count, 
+                    GL.Uniform1(u_shadowMapTexture, 
                                 (int)light.ShadowMap.TextureUnit - (int)TextureUnit.Texture0);
 					count ++;
                 }
             }
-
-			GL.Uniform1(u_numShadowMaps, count);
         }
 
-        public void UpdateShadowMapMVPs(List<SSLight> lights) {
-            // pass update mvp matrices for shadowmap lookup
+        public void UpdateShadowMapBiasVPs(Matrix4[] vps) {
             assertActive();
-            int count = 0;
-            foreach (var light in lights) {
-                if (light.ShadowMap != null) {
-                    if (count >= SSShadowMap.c_maxNumberOfShadowMaps) {
-                        throw new Exception ("Unsupported number of shadow maps: " + count);
-                    }
-                    Matrix4 temp = light.ShadowMap.DepthBiasVP; // to pass by reference
-                    GL.UniformMatrix4(u_shadowMapVPs + count, false, ref temp);
-                    ++count;
-                }
+            for (int i = 0; i < vps.Length; ++i) {
+                // update shadowmap view-projection-crop-bias matrices for shadowmap lookup
+                GL.UniformMatrix4(u_shadowMapVPs [i], false, ref vps [i]);
             }
+        }
+
+        public void UpdatePoissonScaling(Vector2[] scales) {
+            assertActive();
+            for (int i = 0; i < scales.Length; ++i) {
+                GL.Uniform2(u_poissonScaling [i], scales [i]);
+            }
+        }
+
+        public void UpdatePssmSplits(float[] splits) {
+            assertActive();
+            GL.Uniform4(u_shadowMapViewSplits, splits [0], splits [1], splits [2], splits [3]);
         }
         #endregion
 
@@ -156,13 +182,28 @@ namespace SimpleScene
             u_winScale = getUniLoc("WIN_SCALE");
             u_showWireframes = getUniLoc("showWireframes");
             u_numShadowMaps = getUniLoc("numShadowMaps");
-            u_shadowMapTextures = getUniLoc("shadowMapTextures");
-            u_shadowMapVPs = getUniLoc("shadowMapVPs");
+            u_shadowMapTexture = getUniLoc("shadowMapTexture");
+            u_poissonSamplingEnabled = getUniLoc("poissonSamplingEnabled");
+            u_numPoissonSamples = getUniLoc("numPoissonSamples");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
+            u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
+            u_lightingMode = getUniLoc("lightingMode");
+
+            // TODO: debug passing things through arrays
+            for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
+                var str = "shadowMapVPs" + i;
+                u_shadowMapVPs[i] = getUniLoc(str);
+                str = "poissonScale" + i;
+                u_poissonScaling[i] = getUniLoc(str);
+            }
 
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
-            
+            UniNumShadowMaps = 0;
+            UniLightingMode = LightingMode.ShadowMapDebug;
+            UniPoissonSamplingEnabled = true;
+            UniNumPoissonSamples = 8;
+
             // uniform locations for texture setup only
             int GLun_diffTex = getUniLoc("diffTex");
             int GLun_specTex = getUniLoc("specTex");

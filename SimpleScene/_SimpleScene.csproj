@@ -36,6 +36,7 @@
     <AssemblyName>_SimpleScene</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Server|AnyCPU' ">
     <Optimize>false</Optimize>
@@ -44,6 +45,7 @@
     <AssemblyName>_SimpleScene</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -70,7 +72,6 @@
     <Compile Include="Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="Core\SSRay.cs" />
     <Compile Include="Core\SSTexture.cs" />
-    <Compile Include="Lights\SSLight.cs" />
     <Compile Include="Meshes\SSAbstractMesh.cs" />
     <Compile Include="Meshes\SSIndexBuffer.cs" />
     <Compile Include="Meshes\SSVertexBuffer.cs" />
@@ -100,21 +101,23 @@
     <Compile Include="Util\IcoSphereCreator.cs" />
     <Compile Include="Objects\SSObjectSphere.cs" />
     <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
-    <Compile Include="Lights\SSShadowMap.cs" />
     <Compile Include="Core\SSMainShaderProgram.cs" />
     <Compile Include="Core\SSShaderProgram.cs" />
     <Compile Include="Objects\SSObjectHUDQuad.cs" />
-    <Compile Include="Util\Projections.cs" />
     <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
     <Compile Include="Objects\SSObjectBillboard.cs" />
     <Compile Include="Core\SSTextureWithAlpha.cs" />
     <Compile Include="Objects\SSObjectSunFlare.cs" />
+    <Compile Include="Lights\SSSimpleShadowMap.cs" />
+    <Compile Include="Lights\SSParallelSplitShadowMap.cs" />
+    <Compile Include="Core\SSPssmShaderProgram.cs" />
+    <Compile Include="Lights\SSShadowMapBase.cs" />
+    <Compile Include="Lights\SSLightBase.cs" />
+    <Compile Include="Lights\SSDirectionalLight.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
-  <ItemGroup>
-    <Folder Include="Assets\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="..\Assets\Shaders\ss1_fragment.glsl">
       <Link>Assets\Shaders\ss1_fragment.glsl</Link>
@@ -133,6 +136,15 @@
     </None>
     <None Include="..\Assets\Shaders\ss4_vertex.glsl">
       <Link>Assets\Shaders\ss4_vertex.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Shadowmap\pssm_fragment.glsl">
+      <Link>Assets\Shaders\Shadowmap\pssm_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Shadowmap\pssm_geometry.glsl">
+      <Link>Assets\Shaders\Shadowmap\pssm_geometry.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Shadowmap\pssm_vertex.glsl">
+      <Link>Assets\Shaders\Shadowmap\pssm_vertex.glsl</Link>
     </None>
   </ItemGroup>
 </Project>

@@ -9,16 +9,27 @@ using OpenTK;
 namespace SimpleScene
 {
     public struct SSAABB : IEquatable<SSAABB> {
-        public Vector3 min,max;
+        public Vector3 Min;
+        public Vector3 Max;
 
-        public bool intersectsSphere(Vector3 origin, float radius) {
+        public SSAABB(float min = float.PositiveInfinity, float max = float.NegativeInfinity) {
+            Min = new Vector3(min);
+            Max = new Vector3(max);
+        }
+
+        public void Combine(ref SSAABB other) {
+            Min = Vector3.ComponentMin(Min, other.Min);
+            Max = Vector3.ComponentMax(Max, other.Max);
+        }
+
+        public bool IntersectsSphere(Vector3 origin, float radius) {
             if ( 
-                (origin.X + radius < min.X) ||
-                (origin.Y + radius < min.Y) ||
-                (origin.Z + radius < min.Z) ||
-                (origin.X - radius > max.X) ||
-                (origin.Y - radius > max.Y) ||
-                (origin.Z - radius > max.Z)
+                (origin.X + radius < Min.X) ||
+                (origin.Y + radius < Min.Y) ||
+                (origin.Z + radius < Min.Z) ||
+                (origin.X - radius > Max.X) ||
+                (origin.Y - radius > Max.Y) ||
+                (origin.Z - radius > Max.Z)
                ) {
                return false;
             } else {
@@ -26,55 +37,96 @@ namespace SimpleScene
             }
         }
 
-        public bool intersectsAABB(SSAABB box) {
-            return ( (max.X > box.min.X) && (min.X < box.max.X) &&
-                     (max.Y > box.min.Y) && (min.Y < box.max.Y) &&
-                     (max.Z > box.min.Z) && (min.Z < box.max.Z));
+        public bool IntersectsAABB(SSAABB box) {
+            return ( (Max.X > box.Min.X) && (Min.X < box.Max.X) &&
+                     (Max.Y > box.Min.Y) && (Min.Y < box.Max.Y) &&
+                     (Max.Z > box.Min.Z) && (Min.Z < box.Max.Z));
         }
 
         public bool Equals(SSAABB other) {
             return 
-                (min.X == other.min.X) &&
-                (min.Y == other.min.Y) &&
-                (min.Z == other.min.Z) &&
-                (max.X == other.max.X) &&
-                (max.Y == other.max.Y) &&
-                (max.Z == other.max.Z);
+                (Min.X == other.Min.X) &&
+                (Min.Y == other.Min.Y) &&
+                (Min.Z == other.Min.Z) &&
+                (Max.X == other.Max.X) &&
+                (Max.Y == other.Max.Y) &&
+                (Max.Z == other.Max.Z);
         }
 
-        internal void expandToFit(SSAABB b) {
-            if (b.min.X < this.min.X) { this.min.X = b.min.X; }            
-            if (b.min.Y < this.min.Y) { this.min.Y = b.min.Y; }            
-            if (b.min.Z < this.min.Z) { this.min.Z = b.min.Z; }
+        public void UpdateMin(Vector3 localMin) {
+            Min = Vector3.ComponentMin(Min, localMin);
+        }
+
+        public void UpdateMax(Vector3 localMax) {
+            Max = Vector3.ComponentMax(Max, localMax);
+        }
+
+        public Vector3 Center() {
+            return (Min + Max) / 2f;
+        }
+
+        public Vector3 Diff() {
+            return Max - Min;
+        }
+
+        internal void ExpandToFit(SSAABB b) {
+            if (b.Min.X < this.Min.X) { this.Min.X = b.Min.X; }            
+            if (b.Min.Y < this.Min.Y) { this.Min.Y = b.Min.Y; }            
+            if (b.Min.Z < this.Min.Z) { this.Min.Z = b.Min.Z; }
             
-            if (b.max.X > this.max.X) { this.max.X = b.max.X; }
-            if (b.max.Y > this.max.Y) { this.max.Y = b.max.Y; }
-            if (b.max.Z > this.max.Z) { this.max.Z = b.max.Z; }                        
+            if (b.Max.X > this.Max.X) { this.Max.X = b.Max.X; }
+            if (b.Max.Y > this.Max.Y) { this.Max.Y = b.Max.Y; }
+            if (b.Max.Z > this.Max.Z) { this.Max.Z = b.Max.Z; }                        
         }
 
-        internal SSAABB expandedBy(SSAABB b) {
+        internal SSAABB ExpandedBy(SSAABB b) {
             SSAABB newbox = this;
-            if (b.min.X < newbox.min.X) { newbox.min.X = b.min.X; }            
-            if (b.min.Y < newbox.min.Y) { newbox.min.Y = b.min.Y; }            
-            if (b.min.Z < newbox.min.Z) { newbox.min.Z = b.min.Z; }
+            if (b.Min.X < newbox.Min.X) { newbox.Min.X = b.Min.X; }            
+            if (b.Min.Y < newbox.Min.Y) { newbox.Min.Y = b.Min.Y; }            
+            if (b.Min.Z < newbox.Min.Z) { newbox.Min.Z = b.Min.Z; }
             
-            if (b.max.X > newbox.max.X) { newbox.max.X = b.max.X; }
-            if (b.max.Y > newbox.max.Y) { newbox.max.Y = b.max.Y; }
-            if (b.max.Z > newbox.max.Z) { newbox.max.Z = b.max.Z; }   
+            if (b.Max.X > newbox.Max.X) { newbox.Max.X = b.Max.X; }
+            if (b.Max.Y > newbox.Max.Y) { newbox.Max.Y = b.Max.Y; }
+            if (b.Max.Z > newbox.Max.Z) { newbox.Max.Z = b.Max.Z; }   
 
             return newbox;
         }
 
-        public static SSAABB fromSphere(Vector3 pos, float radius) {
+        public static SSAABB FromSphere(Vector3 pos, float radius) {
             SSAABB box;
-            box.min.X = pos.X - radius;
-            box.max.X = pos.X + radius;
-            box.min.Y = pos.Y - radius;
-            box.max.Y = pos.Y + radius;
-            box.min.Z = pos.Z - radius;
-            box.max.Z = pos.Z + radius;
+            box.Min.X = pos.X - radius;
+            box.Max.X = pos.X + radius;
+            box.Min.Y = pos.Y - radius;
+            box.Max.Y = pos.Y + radius;
+            box.Min.Z = pos.Z - radius;
+            box.Max.Z = pos.Z + radius;
 
             return box;
+        }
+
+        private static readonly Vector4[] c_homogenousCorners = {
+            new Vector4(-1f, -1f, -1f, 1f),
+            new Vector4(-1f, 1f, -1f, 1f),
+            new Vector4(1f, 1f, -1f, 1f),
+            new Vector4(1f, -1f, -1f, 1f),
+
+            new Vector4(-1f, -1f, 1f, 1f),
+            new Vector4(-1f, 1f, 1f, 1f),
+            new Vector4(1f, 1f, 1f, 1f),
+            new Vector4(1f, -1f, 1f, 1f),
+        };
+
+        public static SSAABB FromFrustum(ref Matrix4 axisTransform, ref Matrix4 modelViewProj) {
+            SSAABB ret = new SSAABB(float.PositiveInfinity, float.NegativeInfinity);
+            Matrix4 inverse = modelViewProj;
+            inverse.Invert();
+            for (int i = 0; i < c_homogenousCorners.Length; ++i) {
+                Vector4 corner = Vector4.Transform(c_homogenousCorners [i], inverse);
+                Vector3 transfPt = Vector3.Transform(corner.Xyz / corner.W, axisTransform);
+                ret.UpdateMin(transfPt);
+                ret.UpdateMax(transfPt);
+            }
+            return ret;
         }
 
     }

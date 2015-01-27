@@ -25,15 +25,20 @@ namespace SimpleScene
 		public SSRenderStats renderStats;
 
 		public SSMainShaderProgram MainShader;
+        public SSPssmShaderProgram PssmShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
 
-		public bool renderBoundingSpheres;
-		public bool renderCollisionShells;
+        public bool usePoissonSampling = true;
+        public int numPoissonSamples = 8;
+        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 
-		public bool frustumCulling;
+        public bool renderBoundingSpheres = false;
+        public bool renderCollisionShells = false;
+
+        public bool frustumCulling = true;
 
 		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMat = Matrix4.Identity;
@@ -54,17 +59,18 @@ namespace SimpleScene
         private SSCamera m_activeCamera = null;
         private SSRenderConfig m_renderConfig = new SSRenderConfig();
         private List<SSObject> m_objects = new List<SSObject>();
-        private List<SSLight> m_lights = new List<SSLight>();
+        private List<SSLightBase> m_lights = new List<SSLightBase>();
 
         public List <SSObject> Objects { get { return m_objects; } }
 
+        public List<SSLightBase> Lights { get { return m_lights; } }
 
         public SSCamera ActiveCamera { 
             get { return m_activeCamera; }
             set { m_activeCamera = value; }
         }
 
-        public SSMainShaderProgram BaseShader {
+        public SSMainShaderProgram MainShader {
             get { return m_renderConfig.MainShader; }
             set { 
                 m_renderConfig.MainShader = value;
@@ -74,6 +80,11 @@ namespace SimpleScene
                     m_renderConfig.MainShader.Deactivate();
                 }
             }
+        }
+
+        public SSPssmShaderProgram PssmShader {
+            get { return m_renderConfig.PssmShader; }
+            set { m_renderConfig.PssmShader = value; }
         }
 
         public bool FrustumCulling {
@@ -117,27 +128,27 @@ namespace SimpleScene
             m_objects.Remove(obj);
         }
 
-        public void AddLight(SSLight light) {
+        public void AddLight(SSLightBase light) {
             if (m_lights.Contains(light)) {
                 return;
             }
             m_lights.Add(light);
-            if (BaseShader != null) {
-                BaseShader.Activate();
-                BaseShader.SetupShadowMap(m_lights);
-                BaseShader.Deactivate();
+            if (MainShader != null) {
+                MainShader.Activate();
+                MainShader.SetupShadowMap(m_lights);
+                MainShader.Deactivate();
             }
         }
 
-        public void RemoveLight(SSLight light) {
+        public void RemoveLight(SSLightBase light) {
             if (!m_lights.Contains(light)) {
                 throw new Exception ("Light not found.");
             }
             m_lights.Remove(light);
-            if (BaseShader != null) {
-                BaseShader.Activate();
-                BaseShader.SetupShadowMap(m_lights);
-                BaseShader.Deactivate();
+            if (MainShader != null) {
+                MainShader.Activate();
+                MainShader.SetupShadowMap(m_lights);
+                MainShader.Deactivate();
             }
         }
 
@@ -171,31 +182,19 @@ namespace SimpleScene
         }
 
         #region Render Pass Logic
-		public void RenderShadowMap() {
-		    var frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
-            var cameraFrustum = new Util3d.FrustumCuller (ref frustumMatrix);
-
+        public void RenderShadowMap(float fov, float aspect, float nearZ, float farZ) {
 			// Shadow Map Pass(es)
             foreach (var light in m_lights) {
                 if (light.ShadowMap != null) {
-					light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, cameraFrustum, this.ActiveCamera);
-
-					var lightFrustum = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
-
-                    renderPass(false, new Util3d.FrustumCuller(ref lightFrustum));
+                    light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, fov, aspect, nearZ, farZ);
+                    renderPass(false, light.ShadowMap.FrustumCuller);
                     light.ShadowMap.FinishRender(m_renderConfig);
                 }
-            }
-
-            // update mvps shadowmaps in the main shader
-            if (m_renderConfig.MainShader != null) {
-                m_renderConfig.MainShader.Activate();
-                m_renderConfig.MainShader.UpdateShadowMapMVPs(m_lights);
             }
 		}
 
         public void Render() {
-			setupLights ();
+			setupLighting ();
             
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
@@ -203,12 +202,14 @@ namespace SimpleScene
         }
 
         
-        private void setupLights() {
-            // setup the projection matrix
-
+        private void setupLighting() {
             GL.Enable(EnableCap.Lighting);
             foreach (var light in m_lights) {
                 light.SetupLight(ref m_renderConfig);
+            }
+            if (MainShader != null) {
+                MainShader.Activate();
+                MainShader.UniLightingMode = m_renderConfig.lightingMode;
             }
         }
 

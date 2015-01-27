@@ -81,7 +81,7 @@ namespace SimpleScene.Util.ssBVH
             return traverse( box => OpenTKHelper.intersectRayAABox1(ray,box,ref tnear, ref tfar) );
         }
         public List<ssBVHNode<GO>> traverse(SSAABB volume) {
-            return traverse( box => box.intersectsAABB(volume) );            
+            return traverse( box => box.IntersectsAABB(volume) );            
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace SimpleScene.Util.ssBVH
         }
 
         public void addObject(GO newOb) {
-            SSAABB box = SSAABB.fromSphere(nAda.objectpos(newOb),nAda.radius(newOb));
+            SSAABB box = SSAABB.FromSphere(nAda.objectpos(newOb),nAda.radius(newOb));
             float boxSAH = rootBVH.SAH(ref box);
             rootBVH.addObject(nAda,newOb, ref box, boxSAH);
         }

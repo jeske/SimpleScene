@@ -13,32 +13,37 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 		public void setupScene() {
-			scene.BaseShader = shaderPgm;
+			scene.MainShader = mainShader;
+			scene.PssmShader = pssmShader;
 			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += (obj, renderConfig) => {
-				shaderPgm.Activate();
+				mainShader.Activate();
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					shaderPgm.UniShowWireframes = true;			
+					mainShader.UniShowWireframes = true;			
 
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					shaderPgm.UniShowWireframes = false;
+					mainShader.UniShowWireframes = false;
 
 				}
 			};
 
 
-			var lightPos = new Vector3 (5.0f, 40.0f, 10.0f);
 			// 0. Add Lights
 			var light = new SSLight ();
-			light.Pos = lightPos;
+			light.Type = SSLight.LightType.Directional;
+			light.Direction = new Vector3(0f, 0f, -1f);
 			scene.AddLight(light);
 
-			// 1. Add Objects
-			SSObject triObj;
-			scene.AddObject (triObj = new SSObjectTriangle () );
-			triObj.Pos = lightPos;
+			#if false
+			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture4);
+			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
+			smapDebug.Scale = new Vector3(0.3f);
+			smapDebug.Pos = new Vector3(50f, 200, 0f);
+			hudScene.AddObject(smapDebug);
+			#endif
+
 
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 						
@@ -46,13 +51,13 @@ namespace WavefrontOBJViewer
 			SSObject droneObj = new SSObjectMesh (mesh);
 			scene.AddObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
-			droneObj.ambientMatColor = new Color4(0.2f,0.2f,0.2f,0.2f);
+			droneObj.ambientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
 			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.shininessMatColor = 10.0f;
-			droneObj.EulerDegAngleOrient(-40.0f,0.0f);
-			droneObj.Pos = new OpenTK.Vector3(-5,0,0);
+			//droneObj.EulerDegAngleOrient(-40.0f,0.0f);
+			droneObj.Pos = new OpenTK.Vector3(0,0,-15f);
 			droneObj.Name = "drone 1";
 
 			// add second drone
@@ -67,14 +72,65 @@ namespace WavefrontOBJViewer
 			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.shininessMatColor = 10.0f;
-			drone2Obj.Pos = new OpenTK.Vector3(20,0,0);
-			drone2Obj.EulerDegAngleOrient(20.0f,0.0f);
+			drone2Obj.EulerDegAngleOrient(-40f, 0f);
+			drone2Obj.Pos = new OpenTK.Vector3(0f, 0f, 0f);
 			drone2Obj.Name = "drone 2";
 
-			// last. Add Camera
+			// last for the main scene. Add Camera
 
-			scene.AddObject (scene.ActiveCamera = 
-					new SSCameraThirdPerson (droneObj));
+			var camera = new SSCameraThirdPerson (droneObj);
+			camera.followDistance = 30.0f;
+			scene.ActiveCamera = camera;
+			scene.AddObject (camera);
+
+
+			// setup a sun billboard object and a sun flare spriter renderer
+			{
+				var sunDisk = new SSMeshDisk ();
+				var sunBillboard = new SSObjectBillboard (sunDisk, true);
+				sunBillboard.Color = new Vector4 (1f, 1f, 0.8f, 1f);
+				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
+				sunBillboard.Scale = new Vector3 (600f);
+				sunBillboard.renderState.frustumCulling = false;
+				sunBillboard.renderState.lighted = false;
+				sunBillboard.renderState.castsShadow = false;
+				sunDiskScene.AddObject(sunBillboard);
+
+				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun_flare.png");
+				const float flareTexBigOffset = 0.8889f;
+				const float flareTexSmallOffset = 0.125f;
+				Vector2[] flareTexCoords = {
+					new Vector2(0f, 0f),
+					new Vector2(1f, 0f),
+					new Vector2(1f, flareTexBigOffset),
+					new Vector2(0f, flareTexBigOffset),
+
+					new Vector2(0f, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset, 1f),
+					new Vector2(0f, 1f),
+
+					new Vector2(flareTexSmallOffset, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset*2f, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset*2f, 1f),
+					new Vector2(flareTexSmallOffset, 1f),
+
+					new Vector2(flareTexSmallOffset*2f, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset*3f, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset*3f, 1f),
+					new Vector2(flareTexSmallOffset*2f, 1f),
+
+					new Vector2(flareTexSmallOffset*3f, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset*4f, flareTexBigOffset),
+					new Vector2(flareTexSmallOffset*4f, 1f),
+					new Vector2(flareTexSmallOffset*3f, 1f),
+				};
+				float[] spriteScales = { 20f, 1f, 2f, 1f, 1f };
+				var sunFlare = new SSObjectSunFlare (sunDiskScene, sunBillboard, flareTex, flareTexCoords, spriteScales);
+				sunFlare.Scale = new Vector3 (2f);
+				sunFlare.renderState.lighted = false;
+				sunFlareScene.AddObject(sunFlare);
+			}
 		}
 
 		public void setupEnvironment() {
@@ -133,7 +189,6 @@ namespace WavefrontOBJViewer
 			hudScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
-
 		}
 	}
 }

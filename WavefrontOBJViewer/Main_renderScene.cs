@@ -42,8 +42,8 @@ namespace WavefrontOBJViewer
 			if (animateSecondsOffset > 1000.0f) {
 				animateSecondsOffset -= 1000.0f;
 			}
-			shaderPgm.Activate();
-			shaderPgm.UniAnimateSecondsOffset = (float)animateSecondsOffset;
+			mainShader.Activate();
+			mainShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
 
 			/////////////////////////////////////////
@@ -54,6 +54,45 @@ namespace WavefrontOBJViewer
 
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
+			float nearPlane = 1.0f;
+			float farPlane = 500.0f;
+
+			// setup the inverse matrix of the active camera...
+			Matrix4 mainSceneView = scene.ActiveCamera.worldMat.Inverted();
+			// setup the view projection. technically only need to do this on window resize..
+			Matrix4 mainSceneProj = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, nearPlane, farPlane);
+			// create a matrix of just the camera rotation only (it needs to stay at the origin)
+			Matrix4 rotationOnlyView = Matrix4.CreateFromQuaternion (mainSceneView.ExtractRotation ());
+			// create an orthographic projection matrix looking down the +Z matrix; for hud scene and sun flare scene
+			Matrix4 screenProj = Matrix4.CreateOrthographicOffCenter (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
+
+			/////////////////////////////////////////
+			// render the "shadowMap" 
+			// 
+			#if false
+			scene.ProjectionMatrix = mainSceneProj;
+			scene.InvCameraViewMatrix = mainSceneView;
+
+			// clear some basics 
+			GL.Disable(EnableCap.Lighting);
+			GL.Disable(EnableCap.Blend);
+			GL.Disable(EnableCap.Texture2D);
+			GL.Disable(EnableCap.Lighting);
+			GL.ShadeModel(ShadingModel.Flat);
+			GL.Disable(EnableCap.ColorMaterial);
+
+			GL.Enable(EnableCap.CullFace);
+			GL.CullFace(CullFaceMode.Front);
+			GL.Enable(EnableCap.DepthTest);
+			GL.Enable(EnableCap.DepthClamp);
+			GL.DepthMask(true);
+
+			scene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
+			#endif
+
+			// setup the view-bounds.
+			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, 
+						ClientRectangle.Width, ClientRectangle.Height);
 
 			/////////////////////////////////////////
 			// render the "environment" scene
@@ -62,12 +101,9 @@ namespace WavefrontOBJViewer
 			//  test, because it's more efficient when it doesn't have to write every pixel
 			{
 				// setup infinite projection for cubemap
-				Matrix4 projMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
-				environmentScene.ProjectionMatrix = projMatrix;
-
-				// create a matrix of just the camera rotation only (it needs to stay at the origin)
-				var rotOnly = Matrix4.CreateFromQuaternion(scene.ActiveCamera.worldMat.ExtractRotation()).Inverted ();
-				environmentScene.InvCameraViewMatrix = rotOnly;
+				environmentScene.ProjectionMatrix 
+					= Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
+				environmentScene.InvCameraViewMatrix = rotationOnlyView;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -80,11 +116,8 @@ namespace WavefrontOBJViewer
 			/////////////////////////////////////////
 			// rendering the "main" 3d scene....
 			{
-				// setup the inverse matrix of the active camera...
-				scene.InvCameraViewMatrix = scene.ActiveCamera.worldMat.Inverted ();
-
-				// setup the view projection. technically only need to do this on window resize..
-				scene.ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);
+				scene.InvCameraViewMatrix = mainSceneView;
+				scene.ProjectionMatrix = mainSceneProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -96,15 +129,46 @@ namespace WavefrontOBJViewer
 				// scene.renderConfig.renderBoundingSpheres = true;
 				scene.Render ();
 			}
+
+			/////////////////////////////////////////
+			// rendering the sun billboard scene....
+			{
+				sunDiskScene.InvCameraViewMatrix = rotationOnlyView;
+				sunDiskScene.ProjectionMatrix = mainSceneProj;
+
+				GL.Enable(EnableCap.CullFace);
+				GL.CullFace(CullFaceMode.Back);
+				GL.Enable(EnableCap.DepthTest);
+
+				// make sure the sun shows up even if it's beyond the far plane...
+				GL.Enable(EnableCap.DepthClamp);      // this clamps Z values to far plane.
+				GL.DepthFunc(DepthFunction.Lequal);   // this makes to objects clamped to far plane are visible
+
+				GL.DepthMask(true);
+
+				sunDiskScene.Render();
+			}
+
 			////////////////////////////////////////
-			//  render HUD scene
+			//  render the sun flare scene
+			{
+				// Note that a default identity view matrix is used and doesn't need to be changed	
+				sunFlareScene.ProjectionMatrix = screenProj;
+
+				GL.Enable (EnableCap.CullFace);
+				GL.CullFace (CullFaceMode.Back);
+				GL.Disable(EnableCap.DepthTest);
+				GL.Disable(EnableCap.DepthClamp);
+				GL.DepthMask(false);
+
+				sunFlareScene.Render ();
+			}
+
+			////////////////////////////////////////
+			//  render the HUD scene
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed
-
-				// setup an orthographic projection looking down the +Z axis, same as:
-				// GL.Ortho (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);			
-				hudScene.ProjectionMatrix 
-				= Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
+				hudScene.ProjectionMatrix = screenProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -113,8 +177,8 @@ namespace WavefrontOBJViewer
 				GL.DepthMask(false);
 
 				hudScene.Render ();
-
 			}
+
 			SwapBuffers();
 		}
 
@@ -135,8 +199,8 @@ namespace WavefrontOBJViewer
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
 
 			// setup WIN_SCALE for our shader...
-			shaderPgm.Activate();
-			shaderPgm.UniWinScale = ClientRectangle;
+			mainShader.Activate();
+			mainShader.UniWinScale = ClientRectangle;
 		}
 
 	}

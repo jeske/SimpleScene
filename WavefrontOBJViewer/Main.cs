@@ -27,13 +27,16 @@ namespace WavefrontOBJViewer
 	{
 
 		SSScene scene = new SSScene();
+		SSScene sunDiskScene = new SSScene ();
+		SSScene sunFlareScene = new SSScene ();
 		SSScene hudScene = new SSScene();
 		SSScene environmentScene = new SSScene();
 
 		bool mouseButtonDown = false;
 		SSObject activeModel;
 		
-		SSMainShaderProgram shaderPgm;
+		SSMainShaderProgram mainShader;
+		SSPssmShaderProgram pssmShader;
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public WavefrontOBJViewer()
@@ -110,7 +113,8 @@ namespace WavefrontOBJViewer
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../../Assets"));
 
-				game.shaderPgm = new SSMainShaderProgram(); // before scene
+				game.mainShader = new SSMainShaderProgram(); // before scene
+				game.pssmShader = new SSPssmShaderProgram ();
 				
 				game.setupInput ();
 

@@ -184,12 +184,12 @@ namespace SimpleScene
             dirfrac.Z = 1.0f / ray.dir.Z;
             // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
             // r.org is origin of ray
-            float t1 = (box.min.X - ray.pos.X)*dirfrac.X;
-            float t2 = (box.max.X - ray.pos.X)*dirfrac.X;
-            float t3 = (box.min.Y - ray.pos.Y)*dirfrac.Y;
-            float t4 = (box.max.Y - ray.pos.Y)*dirfrac.Y;
-            float t5 = (box.min.Z - ray.pos.Z)*dirfrac.Z;
-            float t6 = (box.max.Z - ray.pos.Z)*dirfrac.Z;
+            float t1 = (box.Min.X - ray.pos.X)*dirfrac.X;
+            float t2 = (box.Max.X - ray.pos.X)*dirfrac.X;
+            float t3 = (box.Min.Y - ray.pos.Y)*dirfrac.Y;
+            float t4 = (box.Max.Y - ray.pos.Y)*dirfrac.Y;
+            float t5 = (box.Min.Z - ray.pos.Z)*dirfrac.Z;
+            float t6 = (box.Max.Z - ray.pos.Z)*dirfrac.Z;
 
             float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
             float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
@@ -224,12 +224,12 @@ namespace SimpleScene
 
             for (int i = 0; i < 3; i++){ //we test slabs in every direction
                 if (ray.dir[i] == 0){ // ray parallel to planes in this direction
-                    if ((ray.pos[i] < box.min[i]) || (ray.pos[i] > box.max[i])) {
+                    if ((ray.pos[i] < box.Min[i]) || (ray.pos[i] > box.Max[i])) {
                         return false; // parallel AND outside box : no intersection possible
                     }
                 } else { // ray not parallel to planes in this direction
-                    T_1[i] = (box.min[i] - ray.pos[i]) / ray.dir[i];
-                    T_2[i] = (box.max[i] - ray.pos[i]) / ray.dir[i];
+                    T_1[i] = (box.Min[i] - ray.pos[i]) / ray.dir[i];
+                    T_2[i] = (box.Max[i] - ray.pos[i]) / ray.dir[i];
 
                     if(T_1[i] > T_2[i]){ // we want T_1 to hold values for intersection with near plane
                         var swp = T_2; // swap

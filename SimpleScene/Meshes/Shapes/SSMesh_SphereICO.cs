@@ -22,9 +22,8 @@ namespace SimpleScene
 
 		SSTexture texture;
 
-		public SSMesh_SphereICO (int divisions, SSMainShaderProgram shaderPgm, SSTexture texture)
+		public SSMesh_SphereICO (int divisions, SSTexture texture)
 		{
-			this.shaderPgm = shaderPgm;
 			this.texture = texture;
 
 			this._Create(divisions);
@@ -128,21 +127,26 @@ namespace SimpleScene
 
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
-			shaderPgm.Activate ();
-
             // note that the texture state was previously reset by the calling SSObject
             // note that the shader state was previously reset by the calling SSObject
 
-			GL.ActiveTexture(TextureUnit.Texture0);
-			if (texture != null) {
-				GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-				shaderPgm.UniDiffTexEnabled = true;
-			} else {
-				GL.BindTexture(TextureTarget.Texture2D, 0);
-				shaderPgm.UniDiffTexEnabled = false;
-			}
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            if (!renderConfig.drawingShadowMap) {
+                if (renderConfig.MainShader == null) {
+                    return;
+                } else {
+                    renderConfig.MainShader.Activate();
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    if (texture != null) {
+                        GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
+                        renderConfig.MainShader.UniDiffTexEnabled = true;
+                    } else {
+                        GL.BindTexture(TextureTarget.Texture2D, 0);
+                        renderConfig.MainShader.UniDiffTexEnabled = false;
+                    }
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                }
+            }
 
             ibo.DrawElements(PrimitiveType.Triangles);
 		}

@@ -120,8 +120,8 @@ namespace SimpleScene.Util.ssBVH
             }
 
             Vector3 nudgeVect = new Vector3 (nudge);
-            Vector3 scale = n.box.max - n.box.min - 2f * nudgeVect;
-            Matrix4 mat = Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(n.box.min + nudgeVect);
+            Vector3 scale = n.box.Max - n.box.Min - 2f * nudgeVect;
+            Matrix4 mat = Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(n.box.Min + nudgeVect);
 
             GL.PushMatrix();
             GL.MultMatrix(ref mat);
