@@ -114,6 +114,7 @@
     <Compile Include="Lights\SSShadowMapBase.cs" />
     <Compile Include="Lights\SSLightBase.cs" />
     <Compile Include="Lights\SSDirectionalLight.cs" />
+    <Compile Include="Meshes\ParticleSystem\ParticleSystem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -146,5 +147,8 @@
     <None Include="..\Assets\Shaders\Shadowmap\pssm_vertex.glsl">
       <Link>Assets\Shaders\Shadowmap\pssm_vertex.glsl</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Meshes\ParticleSystem\" />
   </ItemGroup>
 </Project>
