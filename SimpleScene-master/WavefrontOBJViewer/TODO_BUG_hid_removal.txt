@@ -1,0 +1,64 @@
+dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/login) is setuid or setgid
+Last login: Tue Sep  3 23:45:54 on ttys000
+[~]$ clear; cd "/Users/jeske/PROJECTS/WavefrontOBJViewer/WavefrontOBJViewer/bin/Debug"; PKG_CONFIG_PATH="/Applications/Xamarin Studio.app/Contents/MacOS/lib/pkgconfig:/Library/Frameworks/Mono.framework/Versions/3.2.1/share/pkgconfig:/Library/Frameworks/Mono.framework/Versions/3.2.1/lib/pkgconfig" PKG_CONFIG_LIBDIR="" PATH="/Applications/Xamarin Studio.app/Contents/MacOS:/usr/bin:/bin:/usr/sbin:/sbin" MONO_GAC_PREFIX="/Applications/Xamarin Studio.app/Contents/MacOS" XBUILD_FRAMEWORK_FOLDERS_PATH="" "/Library/Frameworks/Mono.framework/Versions/3.2.1/bin/mono" --debug "/Users/jeske/PROJECTS/WavefrontOBJViewer/WavefrontOBJViewer/bin/Debug/OpenTKTest.exe" ; echo; read -p 'Press any key to continue...' -n1; exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Unhandled Exception:
+System.EntryPointNotFoundException: IOHIDDeviceUnscheduleWithRunLoop
+at (wrapper managed-to-native) OpenTK.Platform.MacOS.HIDInput/NativeMethods.IOHIDDeviceUnscheduleWithRunLoop (intptr,intptr,intptr) <IL 0x00011, 0x0007b>
+at OpenTK.Platform.MacOS.HIDInput.DeviceRemoved (intptr,intptr,intptr,intptr) [0x000ee] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/HIDInput.cs:196
+at (wrapper native-to-managed) OpenTK.Platform.MacOS.HIDInput.DeviceRemoved (intptr,intptr,intptr,intptr) <IL 0x00024, 0x00063>
+at (wrapper managed-to-native) OpenTK.Platform.MacOS.Carbon.API.ReceiveNextEvent (uint,intptr,double,bool,intptr&) <0x00003>
+at OpenTK.Platform.MacOS.Carbon.API.ProcessEvents () [0x0001f] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/CarbonBindings/CarbonAPI.cs:569
+at OpenTK.Platform.MacOS.Carbon.Application.ProcessEvents () [0x00001] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/Application.cs:169
+at OpenTK.Platform.MacOS.CarbonGLNative.ProcessEvents () [0x00000] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/CarbonGLNative.cs:690
+at OpenTK.NativeWindow.ProcessEvents (bool) [0x00025] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/NativeWindow.cs:946
+at OpenTK.NativeWindow.ProcessEvents () [0x00003] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/NativeWindow.cs:183
+at OpenTK.GameWindow.Run (double,double) [0x000bd] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/GameWindow.cs:411
+at OpenTK.GameWindow.Run (double) [0x0000c] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/GameWindow.cs:360
+at WavefrontOBJViewer.Game.Main () [0x00008] in /Users/jeske/PROJECTS/WavefrontOBJViewer/WavefrontOBJViewer/Main.cs:140
+
+[ERROR] FATAL UNHANDLED EXCEPTION: System.EntryPointNotFoundException: IOHIDDeviceUnscheduleWithRunLoop
+at (wrapper managed-to-native) OpenTK.Platform.MacOS.HIDInput/NativeMethods.IOHIDDeviceUnscheduleWithRunLoop (intptr,intptr,intptr) <IL 0x00011, 0x0007b>
+at OpenTK.Platform.MacOS.HIDInput.DeviceRemoved (intptr,intptr,intptr,intptr) [0x000ee] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/HIDInput.cs:196
+at (wrapper native-to-managed) OpenTK.Platform.MacOS.HIDInput.DeviceRemoved (intptr,intptr,intptr,intptr) <IL 0x00024, 0x00063>
+at (wrapper managed-to-native) OpenTK.Platform.MacOS.Carbon.API.ReceiveNextEvent (uint,intptr,double,bool,intptr&) <0x00003>
+at OpenTK.Platform.MacOS.Carbon.API.ProcessEvents () [0x0001f] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/CarbonBindings/CarbonAPI.cs:569
+at OpenTK.Platform.MacOS.Carbon.Application.ProcessEvents () [0x00001] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/Application.cs:169
+at OpenTK.Platform.MacOS.CarbonGLNative.ProcessEvents () [0x00000] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/Platform/MacOS/CarbonGLNative.cs:690
+at OpenTK.NativeWindow.ProcessEvents (bool) [0x00025] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/NativeWindow.cs:946
+at OpenTK.NativeWindow.ProcessEvents () [0x00003] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/NativeWindow.cs:183
+at OpenTK.GameWindow.Run (double,double) [0x000bd] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/GameWindow.cs:411
+at OpenTK.GameWindow.Run (double) [0x0000c] in /Users/jeske/PROJECTS/OpenTK/opentk.git/Source/OpenTK/GameWindow.cs:360
+at WavefrontOBJViewer.Game.Main () [0x00008] in /Users/jeske/PROJECTS/WavefrontOBJViewer/WavefrontOBJViewer/Main.cs:140
+
+
+Press any key to continue...

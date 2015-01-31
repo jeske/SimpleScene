@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SimpleScene</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>SimpleScene</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>SimpleScene</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Client|AnyCPU' ">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug-Client</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AssemblyName>_SimpleScene</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>
+    </DefineConstants>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Server|AnyCPU' ">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug-Server</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AssemblyName>_SimpleScene</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="OpenTK">
+      <HintPath>..\Libs\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="AGG">
+      <HintPath>..\Libs\AGG.dll</HintPath>
+    </Reference>
+    <Reference Include="MatterHackers.VectorMath">
+      <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\SSAABB.cs" />
+    <Compile Include="Objects\SSObjectGDISurface.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SSObject.cs" />
+    <Compile Include="SSScene.cs" />
+    <Compile Include="SSVertexFormats.cs" />
+    <Compile Include="Cameras\SSCamera.cs" />
+    <Compile Include="Cameras\SSCameraThirdPerson.cs" />
+    <Compile Include="Core\SSRay.cs" />
+    <Compile Include="Core\SSTexture.cs" />
+    <Compile Include="Lights\SSLight.cs" />
+    <Compile Include="Meshes\SSAbstractMesh.cs" />
+    <Compile Include="Meshes\SSIndexBuffer.cs" />
+    <Compile Include="Meshes\SSVertexBuffer.cs" />
+    <Compile Include="Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
+    <Compile Include="Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
+    <Compile Include="Objects\SSObjectCube.cs" />
+    <Compile Include="Objects\SSObjectGDISurface_Text.cs" />
+    <Compile Include="Objects\SSObjectMesh.cs" />
+    <Compile Include="Objects\SSObjectRay.cs" />
+    <Compile Include="Objects\SSObjectTriangle.cs" />
+    <Compile Include="Util\OpenTKHelper.cs" />
+    <Compile Include="Util\RunningAverage.cs" />
+    <Compile Include="Util\SSAssetManager.cs" />
+    <Compile Include="Util\ssBVH\ssBVH.cs" />
+    <Compile Include="Util\ssBVH\ssBVH_Node.cs" />
+    <Compile Include="Util\ssBVH\ssBVH_SSObject.cs" />
+    <Compile Include="Util\VertexSoup.cs" />
+    <Compile Include="Util\WavefrontObjLoader.cs" />
+    <Compile Include="Util\WhoCalls.cs" />
+    <Compile Include="Util\Extensions.cs" />
+    <Compile Include="Util\FPSCalculator.cs" />
+    <Compile Include="Util\FrustumCuller.cs" />
+    <Compile Include="Core\SSShader.cs" />
+    <Compile Include="Objects\SSObject2DSurface_AGG.cs" />
+    <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
+    <Compile Include="Util\GDIviaAGG.cs" />
+    <Compile Include="Util\IcoSphereCreator.cs" />
+    <Compile Include="Objects\SSObjectSphere.cs" />
+    <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
+    <Compile Include="Lights\SSShadowMap.cs" />
+    <Compile Include="Core\SSMainShaderProgram.cs" />
+    <Compile Include="Core\SSShaderProgram.cs" />
+    <Compile Include="Objects\SSObjectHUDQuad.cs" />
+    <Compile Include="Util\Projections.cs" />
+    <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
+    <Compile Include="Objects\SSObjectBillboard.cs" />
+    <Compile Include="Core\SSTextureWithAlpha.cs" />
+    <Compile Include="Objects\SSObjectSunFlare.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="..\Assets\Shaders\ss1_fragment.glsl">
+      <Link>Assets\Shaders\ss1_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss1_vertex.glsl">
+      <Link>Assets\Shaders\ss1_vertex.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4__readme.txt">
+      <Link>Assets\Shaders\ss4__readme.txt</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4_fragment.glsl">
+      <Link>Assets\Shaders\ss4_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4_geometry.glsl">
+      <Link>Assets\Shaders\ss4_geometry.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\ss4_vertex.glsl">
+      <Link>Assets\Shaders\ss4_vertex.glsl</Link>
+    </None>
+  </ItemGroup>
+</Project>

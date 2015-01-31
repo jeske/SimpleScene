@@ -72,14 +72,17 @@ namespace Example2DTileGame
 		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
 			scene.Update ((float)e.Time);
-       
+            camera.Update((float)e.Time);
             scene.Render();
 			hudScene.Update ((float)e.Time);
 
-            if (Keyboard[Key.D])
-            {
-               
-            } 
+            // Check to see if any input to move camera is happening (W, A, S, D)
+            moveCamera ();
+            // Move the player
+            movePlayer ();
+            // Is there any collision?
+            //collide (); TODO - get working better
+
 
 			if (Keyboard[Key.Escape])
 				Exit();
@@ -112,9 +115,10 @@ namespace Example2DTileGame
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../../Assets"));
 
                 game.shaderPgm = new SSMainShaderProgram();
-				game.setupInput ();
-                game.readMap();
+				game.setupInput  ();
+                game.readMap ();
 				game.setupScene ();
+                game.setupPlayer ();
 				game.setupHUD ();
                 
 				// game.VSync = VSyncMode.Off;

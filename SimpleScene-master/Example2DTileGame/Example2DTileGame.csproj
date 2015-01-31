@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B6644693-B5BD-4B6F-951F-9C6E3E76C19F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Example2DTileGame</RootNamespace>
+    <AssemblyName>Example2DTileGame</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OpenTK">
+      <HintPath>..\Libs\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.cs" />
+    <Compile Include="Main_readMap.cs" />
+    <Compile Include="Main_renderScene.cs" />
+    <Compile Include="Main_setupInput.cs" />
+    <Compile Include="Main_setupScene.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TileScene\SSScene2DTiled.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\mapTileModels\tile_brick.mtl" />
+    <None Include="Assets\mapTileModels\tile_brick.obj" />
+    <None Include="Assets\mapTileModels\tile_grass.mtl" />
+    <None Include="Assets\mapTileModels\tile_grass.obj" />
+    <None Include="Assets\plane.mtl" />
+    <None Include="Assets\plane.obj" />
+    <None Include="Assets\plane2.mtl" />
+    <None Include="Assets\plane2.obj" />
+    <None Include="Assets\untitled.mtl" />
+    <None Include="Assets\untitled.obj" />
+    <None Include="Assets\testest.tmx" />
+    <None Include="Assets\mapTileModels\tileplane_1.blend" />
+    <None Include="Assets\mapTileModels\tileplane_brick.blend" />
+    <None Include="Assets\mapTileModels\tileplane_grass.blend" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GDIviaAGGTest\GDIviaAGGTest.csproj">
+      <Project>{1cf3fb58-7d5b-4329-b96e-77b99a60ab36}</Project>
+      <Name>GDIviaAGGTest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4a7a056c-cb90-4f29-95de-eac471a6cbd7}</Project>
+      <Name>_SimpleScene</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\maptextures\jrpgbrick.png" />
+    <Content Include="Assets\maptextures\jrpgfield.png" />
+    <Content Include="Assets\maptextures\jrpggrass.png" />
+    <Content Include="Assets\maptextures\jrpgpath.png" />
+    <Content Include="Assets\maptextures\jrpgtree.png" />
+    <Content Include="TODO.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

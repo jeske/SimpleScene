@@ -1,0 +1,350 @@
+************
+*  NOTES
+
+- OpenGL Tutorials
+  http://www.mbsoftworks.sk/index.php?page=tutorials&series=1
+
+- OpenGL Common Mistakes:
+  - http://www.opengl.org/wiki/Common_Mistakes
+
+
+************************
+*
+*  GDI via AGG
+*
+
+Q: what is the intent of Graphics2D? GDI like or not?
+Q: why do I have to add a 0.5,0.5 offset transform to get clear pixels?
+Q: why the dependence on RGBA_Byte as a color? (howto do single byte/bit color?)
+Q: Why a separate iterator and vertex() call, instead of merging them into the iterator response (or faster delegate)
+
+************************
+*
+*  TODO NEXT
+*
+
+- BUG: fixed-function "flat shaded cube" is lit wrong, why?
+
+- compute better bounding spheres (offset origin, more optimal sphere)
+
+- add generic "HUD projection sprites" in 3d view
+
+- rethink how bounding spheres work (for performance)
+  - right now they are independently repeating the same matrix updates everytime the object moves
+  - can they just copy the matrix, instead of recreating it?
+  - do they need to be subclasses of SSObject? How about SSCollisionShape without a matrix?
+
+- ADD: working world-space hierarchy transform dependency 
+  - (parent an object under the light?)
+  - TODO: make sure boundingSphere radius is adjusted for object scale changes, or frustum culling will break
+
+- TODO: move view projection matrix from Scene to Camera
+
+- gui2d: async-pipeline texture uploads
+  - switch 2d GUI to Pixel Buffer Object Async texture uploads
+  - http://www.songho.ca/opengl/gl_pbo.html
+  - http://www.songho.ca/opengl/gl_pbo.html#unpack
+  - http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
+  - make gui2d repaint 2-stage (a) 2d paint+refresh textures; (b) draw 3d surfaces
+    - consider a small "deferred object render queue" when waiting for texture d/l
+  
+- decouple 3d render resolution from window resolution (render to texture?)
+  http://www.opentk.com/node/397
+
+- add threaded window handling (so it renders during window move/resize)
+  - https://github.com/opentk/opentk/blob/develop/Source/Examples/OpenTK/GameWindow/GameWindowThreaded.cs
+
+- move screen projection computation so it only happens on win-resize
+  - ( currently in OnRenderFrame )
+
+- ADD: render HALs
+  - fallback (GL3/GLSL330, GL2/GLSL120+geom, GL2/GLSL120, GL1.2)
+  - VBO abstraction, to hide the details of which VBO layout API we're using
+
+- wavefront OBJ file-format bug/todo items
+   - handle any-case for tokens
+   - handle multi-line faces continued with "\"
+   - handle negative vertex indices in face specification
+   - handle "s" smoothing group
+   - handle "Tr"/"d" material transparency/alpha
+   - ADD: computation/constraint/warning of missing surface normals 
+
+- add HAL abstraction 
+  - VBO abstraction, to hide the details of which VBO layout API we're using
+  - for GL2 / GL3 style of VBO/matrix/shader communication
+    - shaders have to be per-HAL version
+
+- add FPS graph (like Three.js) (include "render-timer simulated-fps", for when it's FPS capped)
+- add Texture/video memory consumption visual
+
+- improve mouse-click 3d object picking performance...
+  - color-buffer picking
+    - http://ogldev.atspace.co.uk/www/tutorial29/tutorial29.html
+  - BVH (model-local, and scene-wide)
+    - http://www.3dmuve.com/3dmblog/?p=182
+    - http://www.cs.utah.edu/~thiago/papers/rotations.pdf
+  - poly reduction
+    - http://www.melax.com/polychop
+    - file:///Users/jeske/Downloads/gdmag.pdf
+  - bounding hull computation
+  
+- FIX: bug where window resize mousedown is also trapped by mouse-input framework
+- FIX: camera mouse rotation bug that allows it to get "off axis" 
+ 
+- texture memory usage profiling...
+  http://stackoverflow.com/questions/4552372/determining-available-video-memory
+
+************************
+*
+*  abstract vertex decl
+*
+
+- make an abstract mesh setup, which can handle rendering differently
+  based on mode or api (GL-immediate, GL-120-VBO, GL-330-VBO, DX, etc)
+
+  // more like this...
+  
+  var pbl = new PrimitiveBufferLayout(stride);
+  pbl.AddElementVertex(offset);
+  pbl.AddElementNormal(offset);
+  pbl.AddElementColor(offset,type);
+  var pb = new PrimitiveBuffer(pbl,PrimitiveType.Triangles,verticies,indicies);
+
+************************
+*
+*  Structural ideas...
+*
+
+- add basic animation import (FBX?)
+  http://code.blender.org/index.php/2013/08/fbx-binary-file-format-specification/
+
+- asset archive improvements
+  - zip archives
+  - reuse singleton instance of asset... (load mesh though asset loader?)
+  
+- implement Bunny LOD (UV aware?)
+
+- experiment with Axiom/Artemis component organization
+  - http://axiom3d.net/wiki/index.php/Main_Page
+  - https://github.com/thelinuxlich/artemis_CSharp
+
+- write "streaming loader", so the model is not buffered in the loader
+
+- simple b-rep editing (Radial Edge, or X-Maps)
+
+- HUD GUI
+  - import/release Gui2d
+  - experiment with 3d ui widgets
+    - https://www.youtube.com/watch?v=oDulGQnjsDQ
+
+************************
+*
+*  Poser/DAZ/CR2
+*
+
+- write CR2 loader
+  - implement "d-former" compatible bones
+  - http://dj1.willowmail.com/~jeske/Projects/PoserCR2/kuroyumes/poserfilespec/introduction.html
+
+************************
+*
+*  Visual GL2 ideas...
+*
+
+- projected textures
+  - http://www.3dkingdoms.com/weekly/weekly.php?a=20
+
+- sorting renderer
+  - alpha-sorted, shader-sorted
+
+- simple shadow-maps
+
+- heightmap terrain
+  - height-based-texture-blending, terrain style (civ5)
+  - ROAM, geomipmapping
+
+- particle system
+  - fire, smoke, snow, rain
+
+- animation (keyframe, skeletal, blending)
+
+- Forward Lighting
+  - support all 8? hardcoded lights
+  - ADD bump map channel
+     - http://www.gamedev.net/page/resources/_/technical/opengl/creating-a-glsl-library-r2428    
+ 
+- support "3d insets" (sub-scene cameras, render to region/texture)
+  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=19
+
+- Improve precise picking / collision performance
+  - implement per model BVH  ( or Quad or Octree ? )
+    http://www.3dmuve.com/3dmblog/?p=182
+  - implement ray-to-triangle intersection (slow)
+  - ?? implement bounding ellipsoid 
+      - http://stackoverflow.com/questions/1768197/bounding-ellipse
+  - maybe based on BunnyLOD poly reduction?
+
+- object-space fragment shader experiments
+  - ship-impact (x,y,z,t)
+  - shields - animated per-pixel object space highlight   
+    http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=26
+
+- voxel engine example
+  - https://sites.google.com/site/letsmakeavoxelengine/home
+
+************************
+*
+*  GL3/4 ideas...
+*
+
+- Deferred Lighting
+  - g-buffer shadows
+  - SSAO, bloom, other screen space techniques
+
+- screen-space "warp" shader
+
+- tesselation
+  - "distortion" geometry shader
+
+************************
+*
+*  other 3D Visual ideas...
+*
+
+- projected texture support "projected AOE mouse cursor"
+
+- "clean 3d Font rendering" with vector textures
+  http://www.gamedev.net/topic/491938-signed-distance-bitmap-font-tool/
+  http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
+  http://stackoverflow.com/questions/5262951/what-is-state-of-the-art-for-text-rendering-in-opengl-as-of-version-4-1
+
+- volumetric fog
+  http://www.nothings.org/computer/vfog/
+  http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2012/10/Wenzel-Real-time_Atmospheric_Effects_in_Games.pdf
+  http://http.download.nvidia.com/developer/SDK/Individual_Samples/DEMOS/Direct3D9/src/FogPolygonVolumes3/docs/FogPolygonVolumes3.pdf
+  http://cs.gmu.edu/~jchen/cs662/fog.pdf
+
+- HDR skybox
+
+- compressed textures
+    http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
+  
+- switch to non-console app (put text-output in GUI?)
+ 
+- Skybox tweaks
+    - use MIRROR UV addressing mode, to minimize edge seams
+    - (done) set the UV coordinates of the box 1/2 texel inside the edge of the face
+
+- Setup shader-based skybox cubemap
+    - docs : http://www.opengl.org/wiki/Cubemap_Texture
+    - cubemap shader tutorials: 
+       http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
+       http://antongerdelan.net/opengl/cubemaps.html
+
+
+- compute mesh bounding sphere/box...
+  .. use sphere, then (optionally) box to do CPU frustrum culling
+
+
+- experiment with occlusion queries
+  - http://http.developer.nvidia.com/GPUGems/gpugems_ch29.html
+  - .. for lens flare
+  - .. for avoiding drawing occluded objects
+
+- support open-gl non-robust mode (for unretained assets)
+
+- add ZIP asset archive support
+
+- add triangle fans?
+
+************************
+*
+*  OpenTK investigations...
+*
+
+- BUG: OpenTK: why is windows mouse-wheel direction the opposite of mac trackpad two-finger? 
+  - do we need to read the natural config paramater? did we get the direction wrong?
+
+- extend to separate pinch-zoom vs double-finger gestures  (pinch zoom = precise scroll wheel)
+
+- OpenTK window features
+  - windowed-fullscreen
+  - live-resize
+  - decoupled 3d/2d/frame resolution 
+
+- OpenTK Mac OpenGL 3.3/4.0 (cocoa window support)
+  - https://github.com/Ollhax/opentk/commit/ee70e4a276e2fbc3135ee787ce6f9860d37011b8
+
+************************
+*
+*  3D research ideas / learning
+*
+
+- implement editable boundary-rep
+
+- performance test on very large mesh vs Blender, Maya, 3dsmax
+
+- 3dviewport like "Xoliul's Shader" features
+  http://viewportshader.com/
+  http://blenderartists.org/forum/showthread.php?254243-Viewport-FX&p=2415138&viewfull=1#post2415138
+
+
+************************
+*
+*  DONE
+*
+
+- (done) GLSL multi-texture shading ( GL 2.2 / GLSL 1.2 )
+  - http://www.lighthouse3d.com/tutorials/glsl-tutorial/
+  - http://www.learnopengles.com/android-lesson-two-ambient-and-diffuse-lighting/
+  - (done) diffuse
+  - (done) ambient/glow
+  - (done) single-pass wireframe
+
+- (done) FIX camera/object transform
+  - (done) NEED: working camera rotation
+  - (done) NEED: working object rotation
+  - (done) NEED: working object translation
+
+- (done) add basic light
+- (done) mouse camera rotation
+- (done) fix green ship (why is it green?!?)
+- (done) space aura skybox - https://www.youtube.com/watch?v=QLPYOn7RS8Y
+- (done) add HUD projection, simple GDI text display
+
+- (done) ADD: starfield...
+- (done) FIX the skybox ! !
+    - Blender environment map orientation...
+     | -X | -Y | +X |
+     | -Z | +Z | +Y |
+- Lighting
+  - (done) FIX point light transform... it should not change as camera moves! 
+  - (done) FIX specular light (where is it?)
+  - (done) FIX specular light constants
+
+- (done) mouse-to-ray picking 
+  - http://www.opentk.com/node/1276#comment-13029
+  - http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=21
+- read up on Duality component organization
+  - http://www.fetzenet.de/blog/?page_id=697
+  - https://github.com/AdamsLair/duality
+- (done) FIX center of drone2 model, to reduce it's bounding sphere. 
+- (done) add HUD FPS text... 
+- (done) add VBO/IBO support (get us better framerate!!)
+- (done) FIX: HUD projection pixel-alignment (@ odd and even window sizes)
+- (done) add support for Alpha in GDI textures
+  - (done) PORT HZG to this thing now!!! 
+  - (done) restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
+  - (done) rip out Brume, stick in SimpleScene, and hack hack hack
+- (done) ADD shader toggle for single-pass-wireframe
+* (done) WRITE ARTICLE : Cross-Platform 3d in C# OpenTK
+- (done) add key to cycle wireframe modes
+- (done) PORT HZG to this thing now!!! 
+  - (done) restructure this as SimpleScene library, with WavefrontOBJViewer as an "Example" in a folder.
+  - (done) rip out Brume, stick in SimpleScene, and hack hack hack
+- (done) add CPU frustrum culling based on bounding sphere
+  - http://www.lighthouse3d.com/tutorials/view-frustum-culling/
+  - http://mathinsight.org/distance_point_plane
+- (done) implement mesh-triangle intersection
+- (done) INVESTIGATE: skybox projection (it's a little fisheye.... skybox aspect ratio was off)
+- (done) PreciseCollisionDetection needs to produce precise ray-distance

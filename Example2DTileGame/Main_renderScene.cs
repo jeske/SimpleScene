@@ -42,7 +42,7 @@ namespace Example2DTileGame
 			// clear the render buffer....
 			GL.Enable (EnableCap.DepthTest);
 			GL.DepthMask (true);
-			GL.ClearColor (0.0f, 0.0f, 0.0f, 0.0f); // black
+			GL.ClearColor (1.0f, 1.0f, 1.0f, 1.0f); // white
 			//GL.ClearColor (System.Drawing.Color.Black);
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 

@@ -16,30 +16,45 @@ namespace Example2DTileGame
 
 		SSObjectGDISurface_Text fpsDisplay;
 		SSObjectGDISurface_Text wireframeDisplay;
-        public static int mapWidth = 20;
-        public static int mapHeight = 20;
-        public static int mapDepth = 35;
+        public static int mapWidth = 1; // for now
+        public static int mapHeight = 0;
+        public static int mapDepth = 1; // for now
+
+        private static int maxHeight = 256;
+        private static int baseHeight = 0;
+
         SSObject mapObject;
+
         SSObject player;
 
-        public static SSObject[,] map = new SSObject[mapWidth, mapHeight];
+        // Positions for the camera
+        float CameraX = 50.0f,
+              CameraY = 10.0f,
+              CameraZ = 10.0f;
+
+        float PlayerX = 0.0f,
+              PlayerY = 1.0f, // So we aren't stuck in the ground
+              PlayerZ = 0.0f;
+
+        public static SSObject[,] map = new SSObject[mapWidth, mapDepth];
+        public SSObject[,] heightMap = new SSObject[baseHeight, maxHeight];
         
         /// <summary>
         /// Setup the scene (to be rendered)
         /// </summary>
-		public void setupScene() {
+		public void setupScene() {             
 
             scene.BaseShader = shaderPgm;
             shaderPgm.Activate();
 
             // make and position the camera
             camera = new SSCameraThirdPerson();
-            camera.basePos = new Vector3(0,30,0);   // the ground plane is in (X,Z) so Y+30 is units "above" the ground                           
+            camera.basePos = new Vector3(CameraX, CameraY, CameraZ);   // the ground plane is in (X,Z) so Y+30 is units "above" the ground                           
                    
             scene.AddObject(camera);
             scene.ActiveCamera = camera;
 
-            var lightPos = new Vector3(50.0f, 70.0f, 10.0f);
+            var lightPos = new Vector3(50.0f, 50.0f, 10.0f);
             var light = new SSLight();
 
             light.Pos = lightPos;
@@ -63,38 +78,42 @@ namespace Example2DTileGame
         public void setupMap()
         {
 
-
-           for (int i = 0; i < mapWidth; i++)
+            for (int i = 0; i < mapWidth; i++)
             {
-                for (int j = 0; j < mapWidth; j++)
+                for (int j = 0; j < mapDepth; j++)
                 {
 
-                       var meshname = ((i % 2) == 1) ? "tile_brick.obj" : "tile_grass.obj";
-                       var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./mapTileModels", meshname);
+                    var mapMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./mapTileModels", "map.obj");
+                    map[i, j] = new SSObjectMesh(mapMesh);
 
-                       SSObject plane = new SSObjectMesh(mesh);
+                    map[i, j].Pos = new Vector3(i * 20, 0, j * 20);
 
-                        scene.AddObject(plane);
-                        map[i,j] = plane;
-                        map[i,j].Pos = new Vector3(i * 2, 0.0f, j * 2);
+                    map[i, j].ambientMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+                    map[i, j].diffuseMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+                    map[i, j].specularMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
 
-                        // Set matrix colors I think?
-                        map[i,j].ambientMatColor = new Color4(0.3f, 0.3f, 0.3f, 0.3f);
-                        map[i,j].diffuseMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
-                        map[i,j].specularMatColor = new Color4(0.3f, 0.3f, 0.3f, 0.3f);
-                        map[i,j].renderState.lighted = true;
-                    
+                    map[i, j].renderState.lighted = true;
+
+
+                    if (i == 5 && j == 5)
+                    {
+                        map[i, j].Pos.Y.Equals(5.0f);
+                    }                   
+
+                    scene.AddObject(map[i, j]);
                     
                 }
-            } 
+            }
+
+
         }
 
-        /*public void setupPlayer()
+        public void setupPlayer()
         {
-            SSObject player =
-                new SSObjectMesh(
-                    SSAssetManager.GetInstance<SSMesh_wfOBJ>("./", "untitled.obj"));
-            player.Pos = new Vector3(1.0f, 1.0f, 1.0f); // Default location
+            player = new SSObjectMesh(SSAssetManager.GetInstance<SSMesh_wfOBJ>
+                ("./mapTileModels", "player.obj"));
+
+            player.Pos = new Vector3(PlayerX, PlayerY, PlayerZ); // Default location
             player.ambientMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
             player.diffuseMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
             player.specularMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -103,7 +122,7 @@ namespace Example2DTileGame
 
             scene.AddObject(player);
             
-        }*/
+        }
 
 		public void setupHUD() {
 			hudScene.ProjectionMatrix = Matrix4.Identity;
@@ -125,5 +144,15 @@ namespace Example2DTileGame
 			fpsDisplay.Scale = new Vector3 (1.0f);
 			
 		}
+
+        /// <summary>
+        /// Get player
+        /// </summary>
+        /// <returns></returns>
+        public SSObject getPlayer()
+        {
+            return player;
+        }
+
 	}
 }

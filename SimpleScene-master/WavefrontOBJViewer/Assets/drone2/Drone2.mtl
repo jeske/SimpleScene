@@ -1,0 +1,15 @@
+# Blender MTL File: 'drone2-adjust.blend'
+# Material Count: 1
+
+newmtl blinn8SG
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.651734 0.632244 0.632244
+Ks 0.814042 0.814042 0.814042
+Ni 1.000000
+d 0.000000
+illum 2
+map_Kd drone2_color.png
+map_Bump drone2_bump.png
+map_Ka drone2_glow.png
+map_Ks drone2_spec.png

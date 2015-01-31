@@ -1,0 +1,31 @@
+# git ignore file
+
+# global ignores for files in any directory
+
+*.userprefs
+
+# blender auto-save files...
+*.blend1
+*.blend2
+*.blend3
+*.blend4
+*.blend5
+
+
+# output directories
+
+WavefrontOBJViewer/bin/**
+WavefrontOBJViewer/obj/**
+SimpleScene/bin/**
+SimpleScene/obj/**
+GDIviaAGGTest/bin/**
+GDIviaAGGTest/obj/**
+Example2DTileGame/obj/**
+Example2DTileGame/bin/**
+
+
+
+
+
+
+
