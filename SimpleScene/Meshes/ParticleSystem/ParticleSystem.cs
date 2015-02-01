@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Collections.Generic;
 using OpenTK;
+using OpenTK.Graphics;
 
 
 namespace SimpleScene
@@ -12,132 +13,120 @@ namespace SimpleScene
         public Vector3 Pos = new Vector3(0f);
         public Vector3 Vel = new Vector3(0f);
 
-        virtual public void WriteParticle (ParticleSystem<Particle>ps, int idx)
-        {
-            ps.WriteLife(idx, Life);
-            ps.WritePosition(idx, Pos);
-            ps.WriteVelocity(idx, Vel);
-        }
+        public static readonly Color4 c_defaultColor = Color4.White;
+        public const float c_defaultMass = 1f;
 
-        virtual public void ReadParticle(ParticleSystem<Particle>ps, int idx)
-        {
-            Life = ps.ReadLife(idx);
-            Pos = ps.ReadPosition(idx);
-            Vel = ps.ReadVelocity(idx);
-        }
+        public Color4 Color = c_defaultColor;
+        public float Mass = c_defaultMass;
+        // TODO scale
     }
 
-    public delegate void ParticleReceiver<P>(P newParticle);
+    public delegate void ParticleReceiver(Particle newParticle);
 
-    public class ColoredParticle : Particle
+    public abstract class ParticleEmitter
     {
-        public Color Color = Color.White;
+        public float MinEmissionInterval = 1.0f;
+        public float MaxEmissionInterval = 1.0f;
 
-        public override void WriteParticle (ParticleSystem<Particle> ps, int idx)
-        {
-            base.WriteParticle(ps, idx);
-            ps.WriteColor(idx, Color);
-        }
-
-        public override void ReadParticle (ParticleSystem<Particle> ps, int idx)
-        {
-            base.ReadParticle(ps, idx);
-            Color = ps.ReadColor(idx);
-        }
+        public abstract void EmitParticles (int numParticles, ParticleReceiver receiver);
     }
 
-    public class ParticleWithMass : Particle
+    public abstract class ParticleEffector
     {
-        public float Mass = 1f;
-    }
-
-    public abstract class ParticleEmitter<P> where P: Particle
-    {
-        public float MinEmitInterval = 1.0f;
-        public float MaxEmitInterval = 1.0f;
-
-        public abstract void EmitParticles (int numParticles, ParticleReceiver<P> receiver);
-    }
-
-    public abstract class ParticleEffector<P> where P: Particle
-    {
-        public abstract void EffectParticle (P particle);
+        public abstract void EffectParticle (Particle particle);
         // For example, particle.Vel += new Vector3(1f, 0f, 0f) simulates acceleration on the X axis
         // Multiple effectors will combine their acceleration effect to determine the final velocity of
         // the particle.
     }
 
-    public class ParticleSystem<P>
-        where P : Particle
+    public class ParticleSystem
     {
-        protected List<ParticleEmitter<P>> m_emitters = new List<ParticleEmitter<P>> ();
-        protected List<ParticleEffector<P>> m_effectors = new List<ParticleEffector<P>> ();
+        protected List<ParticleEmitter> m_emitters = new List<ParticleEmitter> ();
+        protected List<ParticleEffector> m_effectors = new List<ParticleEffector> ();
 
         protected readonly int m_capacity;
+        protected int m_numParticles = 0;
 
-        #region Required Particle Parameters
+        #region Required and Changing Particle Data
         protected readonly float[] m_lives;  // unused particles will be hacked to not draw
         protected readonly Vector3[] m_positions;
-        protected readonly Vector3[] m_velocities;
         #endregion
 
-        #region Optional Particle Parameters
-        protected int[] m_colors = null;
-        protected float[] m_masses = null;
+        #region Optional or Often Uniform Particle Data
+        protected Vector3[] m_velocities = new Vector3[1];
+        protected int[] m_colors = new int[1];
+        protected float[] m_masses = new float[1];
         #endregion
-
-        internal void WriteLife(int idx, float life)
-        {
-            m_lives [idx] = life;
-        }
-
-        internal float ReadLife(int idx) 
-        {
-            return m_lives [idx];
-        }
-
-        internal void WritePosition(int idx, Vector3 position)
-        {
-            m_positions [idx] = position;
-        }
-
-        internal Vector3 ReadPosition(int idx)
-        {
-            return m_positions[idx];
-        }
-
-        internal void WriteVelocity(int idx, Vector3 velocity)
-        {
-            m_velocities [idx] = velocity;
-        }
-
-        internal Vector3 ReadVelocity(int idx)
-        {
-            return m_velocities[idx];
-        }
-
-        internal void WriteColor(int idx, Color color)
-        {
-            if (m_colors == null) {
-                m_colors = new int[m_capacity];
-            }
-            m_colors [idx] = color.ToArgb();
-        }
-
-        internal Color ReadColor(int idx)
-        {
-            return Color.FromArgb (m_colors [idx]);
-        }
 
         public ParticleSystem (int capacity)
         {
             m_capacity = capacity;
             m_lives = new float[m_capacity];
             m_positions = new Vector3[m_capacity];
-            m_velocities = new Vector3[m_capacity];
+
+            m_velocities [0] = new Vector3 (0f);
+            m_colors [0] = Particle.c_defaultColor.ToArgb();
+            m_masses [0] = Particle.c_defaultMass;
         }
 
+        public void Simulate(float timeDelta)
+        {
+            // TODO update particles:
+            // - run through emitters
+            // - run through effectors
+        }
 
+        protected T readData<T>(T[] array, int idx)
+        {
+            if (idx >= array.Length) {
+                return array [0];
+            } else {
+                return array [idx];
+            }
+        }
+
+        protected virtual Particle readParticle (int idx) {
+            Particle p = new Particle ();
+            p.Life = m_lives [idx];
+            p.Pos = m_positions [idx];
+
+            p.Vel = readData(m_velocities, idx);
+            p.Mass = readData(m_masses, idx);
+
+            int colorData = readData(m_colors, idx);
+            p.Color = new Color4 (
+                (colorData & 0xFF00) >> 8,        // R
+                (colorData & 0xFF0000) >> 16,     // G
+                (colorData & 0xFF000000) >> 24,   // B
+                colorData & 0xFF);                // A
+            return p;
+        }
+
+        protected void writeDataIfNeeded<T>(T[] array, int idx, T value) where T : IEquatable<T>
+        {
+            bool write = true;
+            if (idx > 1 && array.Length == 1) {
+                T masterVal = array [0];
+                if (masterVal.Equals(value)) {
+                    write = false;
+                } else {
+                    array = new T[m_capacity];
+                    array [0] = masterVal;
+                }
+            }
+            if (write) {
+                array [idx] = value;
+            }
+        }
+
+        protected virtual void writeParticle(int idx, Particle p) {
+            m_lives [idx] = p.Life;
+            m_positions [idx] = p.Pos;
+
+            writeDataIfNeeded(m_velocities, idx, p.Vel);
+            writeDataIfNeeded(m_colors, idx, p.Color.ToArgb());
+            writeDataIfNeeded(m_masses, idx, p.Mass);
+        }
     }
 }
 
