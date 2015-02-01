@@ -26,7 +26,7 @@ namespace Example2DTileGame
         {
 
             // Follow player
-            camera.basePos.Xz = player.Pos.Xz;         
+           // camera.basePos.Xz = player.Pos.Xz;         
 
         }
         

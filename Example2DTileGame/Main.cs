@@ -26,7 +26,7 @@ namespace Example2DTileGame
 	{
 
 		SSScene scene = new SSScene();
-		SSScene hudScene = new SSScene();		
+        SSScene hudScene = new SSScene(); 
 
 		bool mouseButtonDown = false;	
 		
@@ -73,6 +73,7 @@ namespace Example2DTileGame
 		{
 			scene.Update ((float)e.Time);
             camera.Update((float)e.Time);
+            wireFrame.Render(ref renderConfig);
             scene.Render();
 			hudScene.Update ((float)e.Time);
 
