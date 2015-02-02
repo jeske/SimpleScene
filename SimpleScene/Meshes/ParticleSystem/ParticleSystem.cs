@@ -7,7 +7,7 @@ using OpenTK.Graphics;
 
 namespace SimpleScene
 {
-	public struct Particle
+    public class Particle
     {
 		public static readonly Color4 c_defaultColor = Color4.White;
 		public const float c_defaultMass = 1f;
@@ -15,18 +15,26 @@ namespace SimpleScene
         public float Life = 0f;
         public Vector3 Pos = new Vector3(0f);
         public Vector3 Vel = new Vector3(0f);
+        public Vector3 Scale = new Vector3(1f);
         public Color4 Color = c_defaultColor;
 		public float Mass = c_defaultMass;
         // TODO scale
 
-		Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
+        public Particle() 
+        {
+        }
+
+        #if false
+        public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
 		{
+        // TODO: scale
 			Life = life;
 			Pos = pos;
 			Vel = vel;
 			Color = color;
 			Mass = mass;
 		}
+        #endif
     }
 
     public delegate void ParticleReceiver(Particle newParticle);

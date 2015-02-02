@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices; // for Marshall.SizeOf()
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -6,7 +7,6 @@ using OpenTK.Graphics.OpenGL;
 namespace SimpleScene
 {
 	public interface ISSVertexLayout {
-        int sizeOf();
 		void bindGLAttributes();
 	}
 
@@ -23,8 +23,9 @@ namespace SimpleScene
         private readonly BufferUsageHint m_usageHint;
         private int m_VBOid = 0;
         private int m_numVertices = 0;
-        // dummy vertex for calling bindGLAttributes() and sizeOf()
-        private static readonly VB m_dummy = new VB();
+        // dummy vertex for calling bindGLAttributes()
+        private static readonly VB c_dummy = new VB();
+        private static readonly int c_vertexSz = Marshal.SizeOf(c_dummy);
 
         public int NumVertices { get { return m_numVertices; } }
 
@@ -73,7 +74,7 @@ namespace SimpleScene
             // bind for use and setup for drawing
             bindPrivate();
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            m_dummy.bindGLAttributes();
+            c_dummy.bindGLAttributes();
         }
 
         public void DrawUnbind() {
@@ -91,7 +92,7 @@ namespace SimpleScene
         private void updatePrivate(VB[] vertices) {
             m_numVertices = vertices.Length;
             GL.BufferData(BufferTarget.ArrayBuffer,
-               (IntPtr)(m_numVertices * m_dummy.sizeOf()),
+                (IntPtr)(m_numVertices * c_vertexSz),
                vertices,
                m_usageHint);
         }
