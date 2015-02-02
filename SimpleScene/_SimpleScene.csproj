@@ -67,14 +67,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SSObject.cs" />
     <Compile Include="SSScene.cs" />
-    <Compile Include="SSVertexFormats.cs" />
     <Compile Include="Cameras\SSCamera.cs" />
     <Compile Include="Cameras\SSCameraThirdPerson.cs" />
     <Compile Include="Core\SSRay.cs" />
     <Compile Include="Core\SSTexture.cs" />
     <Compile Include="Meshes\SSAbstractMesh.cs" />
-    <Compile Include="Meshes\SSIndexBuffer.cs" />
-    <Compile Include="Meshes\SSVertexBuffer.cs" />
     <Compile Include="Meshes\wfOBJ\SSMesh_wfOBJ.cs" />
     <Compile Include="Meshes\wfOBJ\VertexSoup_VertexFormatBinder.cs" />
     <Compile Include="Objects\SSObjectCube.cs" />
@@ -115,6 +112,10 @@
     <Compile Include="Lights\SSLightBase.cs" />
     <Compile Include="Lights\SSDirectionalLight.cs" />
     <Compile Include="Meshes\ParticleSystem\ParticleSystem.cs" />
+    <Compile Include="Meshes\Buffers\SSArrayBuffer.cs" />
+    <Compile Include="Meshes\Buffers\SSIndexBuffer.cs" />
+    <Compile Include="Meshes\Buffers\SSVertexBuffer.cs" />
+    <Compile Include="Meshes\Buffers\SSVertexFormats.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
