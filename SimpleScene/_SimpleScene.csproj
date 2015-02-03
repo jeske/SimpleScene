@@ -116,6 +116,7 @@
     <Compile Include="Meshes\Buffers\SSIndexBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSVertexBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSVertexFormats.cs" />
+    <Compile Include="Meshes\Buffers\SSAttributeBuffer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

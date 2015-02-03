@@ -6,16 +6,11 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public interface ISSAttributeBuffer
-    {
-        void DescribteAttribute (int attrLoc);
-    }
-
-    public abstract class SSArrayBuffer<V> 
-        where V: struct
+    public abstract class SSArrayBuffer<Element> 
+        where Element: struct
     {
         // dummy vertex for calling bindGLAttributes()
-        protected static readonly V c_dummyElement = new V();
+        protected static readonly Element c_dummyElement = new Element();
         protected static readonly int c_elementSz = Marshal.SizeOf(c_dummyElement);
 
         private readonly BufferUsageHint m_usageHint;
@@ -27,13 +22,14 @@ namespace SimpleScene
         public SSArrayBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw) 
         {
             m_usageHint = hint;
+            // TODO: pre-allocate buffer? will that help if updating buffer partially?
         }
 
-        public SSArrayBuffer (V[] vertices, 
+        public SSArrayBuffer (Element[] elements, 
                               BufferUsageHint hint = BufferUsageHint.StaticDraw) 
             : this(hint) 
         {
-            UpdateBufferData(vertices);
+            UpdateBufferData(elements);
         }
 
         public void Delete() {
@@ -42,7 +38,7 @@ namespace SimpleScene
             m_numElements = 0;
         }
 
-        public void UpdateBufferData(V[] vertices)
+        public void UpdateBufferData(Element[] vertices)
         {
             genBufferPrivate();
             bindPrivate();
@@ -66,7 +62,7 @@ namespace SimpleScene
             }
         }
 
-        protected void updatePrivate(V[] vertices) {
+        protected void updatePrivate(Element[] vertices) {
             m_numElements = vertices.Length;
             GL.BufferData(BufferTarget.ArrayBuffer,
                 (IntPtr)(m_numElements * c_elementSz),

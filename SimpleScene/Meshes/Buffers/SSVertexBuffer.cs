@@ -15,14 +15,14 @@ namespace SimpleScene
     }
 
     // http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
-    public class SSVertexBuffer<V> : SSArrayBuffer<V>, ISSVertexBuffer
-        where V : struct, ISSVertexLayout 
+    public class SSVertexBuffer<Vertex> : SSArrayBuffer<Vertex>, ISSVertexBuffer
+        where Vertex : struct, ISSVertexLayout 
     {
         public SSVertexBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw)
             : base(hint)
         { }
 
-        public SSVertexBuffer (V[] vertices, 
+        public SSVertexBuffer (Vertex[] vertices, 
                                BufferUsageHint hint = BufferUsageHint.StaticDraw) 
             : base(vertices, hint)
         { }
@@ -33,7 +33,7 @@ namespace SimpleScene
             if (doBind) DrawUnbind();
         }
 
-        public void UpdateAndDrawArrays(V[] vertices,
+        public void UpdateAndDrawArrays(Vertex[] vertices,
                                         PrimitiveType primType,
                                         bool doBind = true)
         {
