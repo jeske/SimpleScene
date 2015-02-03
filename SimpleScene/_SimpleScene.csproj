@@ -111,12 +111,14 @@
     <Compile Include="Lights\SSShadowMapBase.cs" />
     <Compile Include="Lights\SSLightBase.cs" />
     <Compile Include="Lights\SSDirectionalLight.cs" />
-    <Compile Include="Meshes\ParticleSystem\ParticleSystem.cs" />
     <Compile Include="Meshes\Buffers\SSArrayBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSIndexBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSVertexBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSVertexFormats.cs" />
     <Compile Include="Meshes\Buffers\SSAttributeBuffer.cs" />
+    <Compile Include="Meshes\Buffers\SSAttributeFormats.cs" />
+    <Compile Include="Meshes\ParticleSystem\SSParticleSystem.cs" />
+    <Compile Include="Util\Interpolate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
