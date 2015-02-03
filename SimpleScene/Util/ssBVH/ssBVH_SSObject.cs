@@ -9,6 +9,7 @@ using System.Text;
 using System.Drawing;
 
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene;
 
@@ -82,6 +83,7 @@ namespace SimpleScene.Util.ssBVH
 
         public SSBVHRender(ssBVH<SSObject> bvh) {
             this.bvh = bvh;
+            this.MainColor = Color4.Red;
         }
 
         private static readonly SSVertex_Pos[] vertices = {
@@ -136,12 +138,10 @@ namespace SimpleScene.Util.ssBVH
             if (renderConfig.drawingShadowMap) return;
 			base.Render(ref renderConfig);
 			SSShaderProgram.DeactivateAll();
-            GL.Color4(Color.Red);          
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
    			
-            GL.Color4(Color.Red);
             GL.MatrixMode(MatrixMode.Modelview);
             ibo.Bind();
             vbo.DrawBind();

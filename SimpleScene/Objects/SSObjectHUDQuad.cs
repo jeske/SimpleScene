@@ -29,7 +29,6 @@ namespace SimpleScene
 
 			// draw quad...
 			GL.Begin(PrimitiveType.Triangles);
-            GL.Color3(1.0f, 1.0f, 1.0f); 
 
 			float w=500;
 			float h=500;

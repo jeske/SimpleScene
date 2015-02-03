@@ -69,8 +69,6 @@ namespace SimpleScene
 
 			// Step 2: setup our material mode and paramaters...
 
-			GL.Color3(System.Drawing.Color.White);  // clear the vertex color to white..
-
             SSMainShaderProgram shaderPgm = renderConfig.MainShader;
 
             if (renderConfig.drawingShadowMap) { 

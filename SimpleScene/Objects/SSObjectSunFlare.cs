@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
@@ -131,8 +132,8 @@ namespace SimpleScene
             GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
 
             // modulate color alpha with the intensity fraction
-            Vector4 color = m_sun.Color;
-            color.W = intensityFraction;
+            Color4 color = m_sun.MainColor;
+            color.A = intensityFraction;
             GL.Color4(color);
             //GL.Color3(0f, 1f, 0f);
 

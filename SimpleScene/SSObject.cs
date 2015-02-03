@@ -14,11 +14,13 @@ namespace SimpleScene
 
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
-	    public Color4 ambientMatColor = new Color4(0.001f,0.001f,0.001f,1.0f);
-		public Color4 diffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
-		public Color4 specularMatColor = new Color4(0.8f,0.8f,0.8f,1.0f);
-		public Color4 emissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
-		public float shininessMatColor = 10.0f;
+        public Color4 MainColor = Color4.White;
+
+	    public Color4 AmbientMatColor = new Color4(0.001f,0.001f,0.001f,1.0f);
+		public Color4 DiffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public Color4 SpecularMatColor = new Color4(0.8f,0.8f,0.8f,1.0f);
+		public Color4 EmissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
+		public float ShininessMatColor = 10.0f;
 
 		public string Name = "";
 
@@ -64,14 +66,14 @@ namespace SimpleScene
         protected void setMaterialState()
         {
             GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
-            GL.Color3(System.Drawing.Color.White);
+            GL.Color4(this.MainColor);
 
             // setup the base color values...
-            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, ambientMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, diffuseMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Specular, specularMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Emission, emissionMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Shininess, shininessMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, AmbientMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, DiffuseMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Specular, SpecularMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Emission, EmissionMatColor);
+            GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
         }
 
         protected void setDefaultShaderState(SSMainShaderProgram pgm) {
