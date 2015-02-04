@@ -38,20 +38,20 @@ namespace SimpleScene
             m_numElements = 0;
         }
 
-        public void UpdateBufferData(Element[] vertices)
+        public void UpdateBufferData(Element[] elements)
         {
             genBufferPrivate();
-            bindPrivate();
-            updatePrivate(vertices);
-            unbindPrivate();
+            bind();
+            updatePrivate(elements);
+            unbind();
         }
 
-        protected void bindPrivate() {
+        protected void bind() {
             // bind for use
             GL.BindBuffer(BufferTarget.ArrayBuffer, m_bufferIdx);
         }
 
-        protected void unbindPrivate() {
+        protected void unbind() {
             // unbind from use
             GL.BindBuffer (BufferTarget.ArrayBuffer, 0);
         }

@@ -12,7 +12,7 @@ namespace SimpleScene
 
     public interface ISSAttributeBuffer
     {
-        void PrepareAttribute (int attrLoc);
+        void PrepareAttribute (int attrLoc, int instancesPerValue);
         void DisableAttribute (int attrLoc);
     }
 
@@ -30,21 +30,21 @@ namespace SimpleScene
         {
         }
 
-        public void PrepareAttribute (int attrLoc)
+        public void PrepareAttribute (int attrLoc, int instancesPerValue)
         {
             GL.EnableVertexAttribArray(attrLoc);
-            bindPrivate();
+            bind();
             GL.VertexAttribPointer(
                 attrLoc, c_elementSz, 
                 c_dummyElement.AttributeType(), c_dummyElement.IsNormalized(),
                 0, IntPtr.Zero);
-            unbindPrivate();
+            unbind();
+            GL.VertexAttribDivisor(attrLoc, instancesPerValue);
         }
 
         public void DisableAttribute(int attrLoc)
         {
             GL.DisableVertexAttribArray(attrLoc);
-
         }
     }
 }

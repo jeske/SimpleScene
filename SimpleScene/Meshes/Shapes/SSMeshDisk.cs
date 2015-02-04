@@ -65,7 +65,6 @@ namespace SimpleScene
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-
             if (m_texture != null) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.ActiveTexture(TextureUnit.Texture0);
@@ -83,7 +82,6 @@ namespace SimpleScene
                 yield return new Vector3 (m_vertices[i].Position);
             }
         }
-
     }
 }
 

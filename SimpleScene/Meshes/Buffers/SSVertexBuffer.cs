@@ -33,6 +33,16 @@ namespace SimpleScene
             if (doBind) DrawUnbind();
         }
 
+        /// <summary>
+        /// Draws the arrays instanced. Attribute arrays must be prepared prior to use.
+        /// </summary>
+        public void DrawInstanced(PrimitiveType primType, int numInstances)
+        {
+            DrawBind();
+            GL.DrawArraysInstanced(primType, 0, NumElements, numInstances);
+            DrawUnbind();
+        }
+
         public void UpdateAndDrawArrays(Vertex[] vertices,
                                         PrimitiveType primType,
                                         bool doBind = true)
@@ -46,7 +56,7 @@ namespace SimpleScene
 
         public void DrawBind() {
             // bind for use and setup for drawing
-            bindPrivate();
+            bind();
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             c_dummyElement.BindGlAttributes();
         }
@@ -54,7 +64,7 @@ namespace SimpleScene
         public void DrawUnbind() {
             // unbind from use and undo draw settings
             GL.PopClientAttrib();
-            unbindPrivate();
+            unbind();
         }
 
         protected void drawPrivate(PrimitiveType primType) {

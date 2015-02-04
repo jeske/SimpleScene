@@ -83,6 +83,14 @@ namespace SimpleScene
         public virtual void Reset() { }
     }
 
+    /// <summary>
+    /// Particle system simulates a number of particles.
+    /// Particles are emitted by SSParticleEmitter's, which are responsible for assigning particle properties
+    /// (inial position, velocity, color, etc.)
+    /// Particles' position is updated during simulation to advance by their individual velocity
+    /// For more advanced effects on particles (simulate gravity, fields, etc.) SSParticleEffector's are used
+    /// </summary>
+
     public class SSParticleSystem
     {
         protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
@@ -95,6 +103,7 @@ namespace SimpleScene
         protected readonly float[] m_lives;  // unused particles will be hacked to not draw
         protected int m_nextIdxToWrite;      // change to UintPtr?
         protected int m_nextIdxToOverwrite;
+        protected int m_activeBlockLength;
         #endregion
 
         #region particle data sent to the GPU
@@ -109,10 +118,23 @@ namespace SimpleScene
         // TODO Scale
         #endregion
 
+        public int Capacity { get { return m_capacity; } }
+        public int ActiveBlockLength { get { return m_activeBlockLength; } }
+        public SSAttributePos[] Positions { get { return m_positions; } }
+        public SSAttributeColor[] Colors { get { return m_colors; } }
+
+        public SSParticleSystem (int capacity)
+        {
+            m_capacity = capacity;
+            m_lives = new float[m_capacity];
+            Reset();
+        }
+
         public void Reset()
         {
             m_nextIdxToWrite = 0;
             m_nextIdxToOverwrite = 0;
+            m_activeBlockLength = 0;
 
             m_positions [0].Position = new Vector3 (0f);
             m_colors [0].Color = SSParticle.c_defaultColor.ToArgb();
@@ -133,14 +155,6 @@ namespace SimpleScene
             foreach (SSParticleEmitter e in m_emitters) {
                 e.EmitParticles(e.ParticlesPerEmission, writeNewParticle);
             }
-        }
-
-        public SSParticleSystem (int capacity)
-        {
-            m_capacity = capacity;
-            m_lives = new float[m_capacity];
-
-
         }
 
         public void AddEmitter(SSParticleEmitter emitter)
@@ -179,6 +193,12 @@ namespace SimpleScene
                             m_nextIdxToWrite = i;
                         }
                         --m_numParticles;
+                        if (m_numParticles == 0) {
+                            // reset write and overwrite locations for better packing
+                            m_nextIdxToWrite = 0;
+                            m_nextIdxToOverwrite = 0;
+                            m_activeBlockLength = 0;
+                        }
                     }
                     writeParticle(i, p);
                 }
@@ -187,8 +207,9 @@ namespace SimpleScene
 
         protected virtual void writeNewParticle(SSParticle newParticle)
         {
+            int writeIdx;
             if (m_numParticles == m_capacity) {
-                writeParticle(m_nextIdxToOverwrite, newParticle);
+                writeIdx = m_nextIdxToOverwrite;
                 m_nextIdxToOverwrite = nextIdx(m_nextIdxToWrite);
             } else {
                 SSParticle p = new SSParticle();
@@ -199,9 +220,13 @@ namespace SimpleScene
                     }
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
                 }
-                writeParticle(m_nextIdxToWrite, newParticle);
+                writeIdx = m_nextIdxToWrite;
                 m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
                 m_numParticles++;
+            }
+            writeParticle(writeIdx, newParticle);
+            if (writeIdx > m_activeBlockLength) {
+                m_activeBlockLength = writeIdx;
             }
         }
 
