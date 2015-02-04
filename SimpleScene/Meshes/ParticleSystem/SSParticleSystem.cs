@@ -272,8 +272,11 @@ namespace SimpleScene
                 if (masterVal.Equals(value)) {
                     write = false;
                 } else {
+                    // allocate the array to keep track of different values
                     array = new T[m_capacity];
-                    array [0] = masterVal;
+                    for (int i = 0; i < m_capacity; ++i) {
+                        array [i] = masterVal;
+                    }
                 }
             }
             if (write) {
