@@ -24,15 +24,14 @@ namespace Example2DTileGame
         private static int baseHeight = 0;
 
         SSObject mapObject;
-        WireFrame wireFrame;
         SSObject player;
 
         SSRenderConfig renderConfig;
 
         // Positions for the camera
-        float CameraX = 50.0f,
+        float CameraX = 0.0f,
               CameraY = 10.0f,
-              CameraZ = 10.0f;
+              CameraZ = 0.0f;
 
         float PlayerX = 0.0f,
               PlayerY = 1.0f, // So we aren't stuck in the ground
@@ -47,7 +46,6 @@ namespace Example2DTileGame
 		public void setupScene() {
             renderConfig = new SSRenderConfig();
 
-            wireFrame = new WireFrame();
             scene.BaseShader = shaderPgm;
             shaderPgm.Activate();
            
@@ -81,12 +79,23 @@ namespace Example2DTileGame
         /// </summary>
         public void setupMap()
         {
-        
+
+            mapObject = new SSObjectMesh(SSAssetManager.GetInstance<SSMesh_wfOBJ>("./mapTileModels", "map.obj"));
+            mapObject.Pos = new Vector3(0, 0, 0); // Origin
+
+            SSLineObject line = new SSLineObject(mapObject.Pos);
+
+            line.Pos = new Vector3(0, 0, 0);
+            line.renderState.lighted = true;
+            line.ambientMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+            line.diffuseMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+            line.specularMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+            scene.AddObject(line);
         }
 
         public void setupPlayer()
-        {
-            /*player = new SSObjectMesh(SSAssetManager.GetInstance<SSMesh_wfOBJ>
+        {/*
+            player = new SSObjectMesh(SSAssetManager.GetInstance<SSMesh_wfOBJ>
                 ("./mapTileModels", "player.obj"));
 
             player.Pos = new Vector3(PlayerX, PlayerY, PlayerZ); // Default location
@@ -96,9 +105,10 @@ namespace Example2DTileGame
 
             player.renderState.lighted = true;
 
-            scene.AddObject(player);*/
+            scene.AddObject(player);
             
-        }
+       */
+        } 
 
 		public void setupHUD() {
 			hudScene.ProjectionMatrix = Matrix4.Identity;

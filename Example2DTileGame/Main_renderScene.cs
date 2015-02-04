@@ -68,8 +68,7 @@ namespace Example2DTileGame
 				Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 1.0f, 500.0f);				
 				//projection = Matrix4.CreateTranslation (0, 0, -5) * projection;
 				scene.ProjectionMatrix = projection;
-                // render lines
-                wireFrame.Render(ref renderConfig);
+                
 				// render 3d content...
 				scene.Render ();
 			}

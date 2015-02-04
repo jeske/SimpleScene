@@ -73,7 +73,7 @@ namespace Example2DTileGame
 		{
 			scene.Update ((float)e.Time);
             camera.Update((float)e.Time);
-            wireFrame.Render(ref renderConfig);
+      
             scene.Render();
 			hudScene.Update ((float)e.Time);
 
