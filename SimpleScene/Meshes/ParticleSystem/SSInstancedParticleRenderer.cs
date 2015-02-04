@@ -75,21 +75,22 @@ namespace SimpleScene
             }
 
             // prepare attribute arrays for draw
-            int posAttrLoc = 0; // TODO
-            int colorAttrLoc = 0; // TODO
-
             int numActive = m_ps.ActiveBlockLength;
 
             int posLength = m_ps.Positions.Length;
             int posInstancesPerValue = posLength < numActive ? numActive : 1;
-            m_posBuffer.PrepareAttribute(posAttrLoc, posInstancesPerValue);
+            int posAttrLoc = renderConfig.MainShader.AttrInstancePos;
+            m_posBuffer.PrepareAttribute(posInstancesPerValue, posAttrLoc);
 
             int colLength = m_ps.Colors.Length;
             int colorInstancesPerValue = colLength < numActive ? numActive : 1;
-            m_colorBuffer.PrepareAttribute(colorAttrLoc, colorInstancesPerValue);
+            //int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
+            m_colorBuffer.PrepareAttribute(colorInstancesPerValue);
 
             // do the draw
+            renderConfig.MainShader.UniInstanceDrawEnabled = true;
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, numActive);
+            renderConfig.MainShader.UniInstanceDrawEnabled = false;
         }
     }
 }

@@ -72,5 +72,9 @@ public class SSShaderProgram {
     protected int getUniLoc(string name) {
         return GL.GetUniformLocation(m_programID, name);
     }
+
+    protected int getAttrLoc(string name) {
+        return GL.GetAttribLocation(m_programID, name);
+    }
     #endregion
 }

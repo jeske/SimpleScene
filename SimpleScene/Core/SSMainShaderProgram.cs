@@ -49,6 +49,10 @@ namespace SimpleScene
         private readonly int u_poissonSamplingEnabled;
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
+        private readonly int u_instanceDrawEnabled;
+
+        //private readonly int a_instanceColor;
+        private readonly int a_instancePos;
 		#endregion
 
         #region Uniform Modifiers
@@ -103,8 +107,21 @@ namespace SimpleScene
 
         public LightingMode UniLightingMode {
             set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
-
         }
+
+        public bool UniInstanceDrawEnabled {
+            set { assertActive(); GL.Uniform1(u_instanceDrawEnabled, value ? 1 : 0); } 
+        }
+
+        public int AttrInstancePos {
+            get { return a_instancePos; }
+        }
+
+        #if false
+        public int AttrInstanceColor {
+            get { return a_instanceColor; }
+        }
+        #endif
 
         public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
@@ -188,6 +205,11 @@ namespace SimpleScene
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
             u_lightingMode = getUniLoc("lightingMode");
+            u_instanceDrawEnabled = getUniLoc("instanceDrawEnabled");
+
+            // attributes
+            a_instancePos = getAttrLoc("instancePos");
+            //a_instanceColor = getAttrLoc("instanceColor");
 
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {

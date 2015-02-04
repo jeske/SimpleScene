@@ -19,9 +19,12 @@ namespace SimpleScene
             Position = pos;
         }
 
-        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
-
-        public bool IsNormalized() { return false; }
+        public void PrepareAttribute(int attrLoc) {
+            GL.VertexAttribPointer(
+                attrLoc, Marshal.SizeOf(this),
+                VertexAttribPointerType.Float, false,
+                0, IntPtr.Zero);
+        }
 
         public bool Equals(SSAttributePos other)
         {
@@ -38,9 +41,9 @@ namespace SimpleScene
             Color = color;
         }
 
-        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedInt; }
-
-        public bool IsNormalized() { return true; }
+        public void PrepareAttribute(int attrLoc) {
+            GL.ColorPointer(4, ColorPointerType.Int, 0, IntPtr.Zero);
+        }
 
         public bool Equals (SSAttributeColor other)
         {

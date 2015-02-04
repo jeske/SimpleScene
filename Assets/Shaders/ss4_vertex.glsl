@@ -11,6 +11,11 @@ uniform mat4 shadowMapVPs2;
 uniform mat4 shadowMapVPs3;
 uniform mat4 objWorldTransform;
 
+// instanced drawing
+uniform bool instanceDrawEnabled;
+attribute vec3 instancePos;
+//attribute vec4 instanceColor;
+
 // in eye-space/camera space
 varying vec3 vertexNormal;
 varying vec3 n;  // vertex normal
@@ -22,7 +27,7 @@ varying vec3 vertexPosition_objectspace;
 varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 void main()
-{
+{   
 	gl_TexCoord[0] =  gl_MultiTexCoord0;  // output base UV coordinates
 
     vertexPosition_objectspace = gl_Vertex.xyz;
@@ -34,8 +39,15 @@ void main()
 	lightPosition = (gl_LightSource[0].position - vertexPosition_viewspace).xyz;
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
-	gl_Position = ftransform();  
-
+    if (instanceDrawEnabled) {
+        // TODO more instance attributes
+        // gl_FrontColor = instanceColor;
+        // gl_BackColor = instanceColor;
+        gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(instancePos, 0f));
+    } else {
+        gl_Position = ftransform();
+    }
+    
     // shadowmap transform
     vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1);
     for (int i = 0; i < numShadowMaps; ++i) {
