@@ -7,22 +7,44 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public class SSAttributeFormats
+    ///////////////////////////////////////////////////////
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSAttributePos : ISSAttributeLayout, IEquatable<SSAttributePos>
     {
-        ///////////////////////////////////////////////////////
+        public Vector3 Position;
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct SSAttributePos : ISSAttributeLayout
+        public SSAttributePos(Vector3 pos) 
         {
-            public Vector3 Position;
+            Position = pos;
+        }
 
-            public SSAttributePos(float x, float y, float z) {
-                Position = new Vector3 (x, y, z);
-            }
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
 
-            public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
+        public bool IsNormalized() { return false; }
 
-            public bool IsNormalized() { return false; }
+        public bool Equals(SSAttributePos other)
+        {
+            return this.Position == other.Position;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSAttributeColor : ISSAttributeLayout, IEquatable<SSAttributeColor>
+    {
+        public Int32 Color;
+
+        public SSAttributeColor(Int32 color) {
+            Color = color;
+        }
+
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedInt; }
+
+        public bool IsNormalized() { return true; }
+
+        public bool Equals (SSAttributeColor other)
+        {
+            return this.Color == other.Color;
         }
     }
 }

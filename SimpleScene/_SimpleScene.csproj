@@ -119,7 +119,7 @@
     <Compile Include="Meshes\Buffers\SSAttributeFormats.cs" />
     <Compile Include="Meshes\ParticleSystem\SSParticleSystem.cs" />
     <Compile Include="Util\Interpolate.cs" />
-    <Compile Include="Meshes\ParticleSystem\SSInstancedMesh.cs" />
+    <Compile Include="Meshes\ParticleSystem\SSInstancedParticleRenderer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

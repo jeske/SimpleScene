@@ -18,7 +18,7 @@ namespace SimpleScene
         public Vector3 Scale = new Vector3(1f);
         public Color4 Color = c_defaultColor;
 		public float Mass = c_defaultMass;
-        // TODO scale
+        // TODO orientation, scale
 
         #if false
         public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
@@ -39,6 +39,8 @@ namespace SimpleScene
 
         public float MinEmissionInterval = 1.0f;
         public float MaxEmissionInterval = 1.0f;
+        public float MinLife = 10f;
+        public float MaxLife = 10f;
         public int ParticlesPerEmission = 1;
 
         private float m_timeSinceLastEmission;
@@ -49,11 +51,11 @@ namespace SimpleScene
             Reset();
         }
 
-        public delegate void SSParticleReceiver(SSParticle newParticle);
+        public delegate void ReceiverHandler(SSParticle newParticle);
 
-        public abstract void EmitParticles (int particleCount, SSParticleReceiver receiver);
+        public abstract void EmitParticles (int particleCount, ReceiverHandler receiver);
 
-        public void Simulate(float deltaT, SSParticleReceiver receiver) 
+        public void Simulate(float deltaT, ReceiverHandler receiver) 
         {
             m_timeSinceLastEmission += deltaT;
             if (m_timeSinceLastEmission > m_nextEmission) {
@@ -73,10 +75,10 @@ namespace SimpleScene
 
     public abstract class SSParticleEffector
     {
-        public abstract void EffectParticle (SSParticle particle);
-        // For example, particle.Vel += new Vector3(1f, 0f, 0f) simulates acceleration on the X axis
-        // Multiple effectors will combine their acceleration effect to determine the final velocity of
-        // the particle.
+        public abstract void Simulate (SSParticle particle, float deltaT);
+        // For example, particle.Vel += new Vector3(1f, 0f, 0f) * dT simulates 
+        // acceleration on the X axis. Multiple effectors will combine their 
+        // acceleration effect to determine the final velocity of the particle.
     }
 
     public class SSParticleSystem
@@ -87,33 +89,74 @@ namespace SimpleScene
         protected readonly int m_capacity;
         protected int m_numParticles = 0;
 
-        #region Required and Changing Particle Data
+        #region required particle data
         protected readonly float[] m_lives;  // unused particles will be hacked to not draw
-        protected readonly Vector3[] m_positions;
         #endregion
 
-        #region Optional or Often Uniform Particle Data
+        #region particle data sent to the GPU
+        protected SSAttributePos[] m_positions = new SSAttributePos[1];
+        protected SSAttributeColor[] m_colors = new SSAttributeColor[1];
+        #endregion
+
+        #region particle data used for the simulation only
         protected Vector3[] m_velocities = new Vector3[1];
-        protected int[] m_colors = new int[1];
         protected float[] m_masses = new float[1];
+        // TODO Orientation
+        // TODO Scale
         #endregion
 
         public SSParticleSystem (int capacity)
         {
             m_capacity = capacity;
             m_lives = new float[m_capacity];
-            m_positions = new Vector3[m_capacity];
+
+            m_positions [0].Position = new Vector3 (0f);
+            m_colors [0].Color = SSParticle.c_defaultColor.ToArgb();
 
             m_velocities [0] = new Vector3 (0f);
-            m_colors [0] = SSParticle.c_defaultColor.ToArgb();
             m_masses [0] = SSParticle.c_defaultMass;
+        }
+
+        public void AddEmitter(SSParticleEmitter emitter)
+        {
+            m_emitters.Add(emitter);
+        }
+
+        public void AddEffector(SSParticleEffector effector)
+        {
+            m_effectors.Add(effector);
+        }
+
+        protected virtual void NewParticleReceiver(SSParticle newParticle)
+        {
+            // TODO Implement
         }
 
         public void Simulate(float timeDelta)
         {
-            // TODO update particles:
-            // - run through emitters
-            // - run through effectors
+            foreach (SSParticleEmitter emitter in m_emitters) {
+                emitter.Simulate(timeDelta, NewParticleReceiver);
+            }
+
+            SSParticle p = new SSParticle();
+            for (int i = 0; i < m_numParticles; ++i) {
+                readParticle(i, p);
+                if (p.Life > 0f) {
+                    // Alive particle
+                    p.Life -= timeDelta;
+                    if (p.Life > 0f) {
+                        // Still alive. Update position and run through effectors
+                        p.Pos += p.Vel * timeDelta;
+                        foreach (SSParticleEffector effector in m_effectors) {
+                            effector.Simulate(p, timeDelta);
+                        }
+                    } else {
+                        // Particle just died. Hack to not draw?
+                        p.Pos = new Vector3 (float.PositiveInfinity);
+                    }
+                    writeParticle(i, p);
+                }
+            }
         }
 
         protected T readData<T>(T[] array, int idx)
@@ -125,21 +168,20 @@ namespace SimpleScene
             }
         }
 
-        protected virtual SSParticle readParticle (int idx) {
-            SSParticle p = new SSParticle ();
+        protected virtual void readParticle (int idx, SSParticle p) {
             p.Life = m_lives [idx];
-            p.Pos = m_positions [idx];
+            if (p.Life <= 0f) return;
 
+            p.Pos = readData(m_positions, idx).Position;
+            int colorData = readData(m_colors, idx).Color;
+            p.Color = new Color4(
+                (byte)((colorData & 0xFF00) >> 8),        // R
+                (byte)((colorData & 0xFF0000) >> 16),     // G
+                (byte)((colorData & 0xFF000000) >> 24),   // B
+                (byte)(colorData & 0xFF)                  // A
+            );
             p.Vel = readData(m_velocities, idx);
             p.Mass = readData(m_masses, idx);
-
-            int colorData = readData(m_colors, idx);
-            p.Color = new Color4 (
-                (colorData & 0xFF00) >> 8,        // R
-                (colorData & 0xFF0000) >> 16,     // G
-                (colorData & 0xFF000000) >> 24,   // B
-                colorData & 0xFF);                // A
-            return p;
         }
 
         protected void writeDataIfNeeded<T>(T[] array, int idx, T value) where T : IEquatable<T>
@@ -161,10 +203,11 @@ namespace SimpleScene
 
         protected virtual void writeParticle(int idx, SSParticle p) {
             m_lives [idx] = p.Life;
-            m_positions [idx] = p.Pos;
-
+            writeDataIfNeeded(m_positions, idx, 
+                              new SSAttributePos(p.Pos));
+            writeDataIfNeeded(m_colors, idx, 
+                              new SSAttributeColor(p.Color.ToArgb()));
             writeDataIfNeeded(m_velocities, idx, p.Vel);
-            writeDataIfNeeded(m_colors, idx, p.Color.ToArgb());
             writeDataIfNeeded(m_masses, idx, p.Mass);
         }
     }
