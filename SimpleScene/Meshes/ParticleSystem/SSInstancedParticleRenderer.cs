@@ -84,13 +84,17 @@ namespace SimpleScene
 
             int colLength = m_ps.Colors.Length;
             int colorInstancesPerValue = colLength < numActive ? numActive : 1;
-            //int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
-            m_colorBuffer.PrepareAttribute(colorInstancesPerValue);
+            int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
+            m_colorBuffer.PrepareAttribute(colorInstancesPerValue, colorAttrLoc);
 
             // do the draw
             renderConfig.MainShader.UniInstanceDrawEnabled = true;
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, numActive);
             renderConfig.MainShader.UniInstanceDrawEnabled = false;
+
+            // undo attribute state
+            m_posBuffer.DisableAttribute(colorAttrLoc);
+            m_colorBuffer.DisableAttribute(posAttrLoc);
         }
     }
 }

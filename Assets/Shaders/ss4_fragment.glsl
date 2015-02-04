@@ -20,6 +20,7 @@ uniform int lightingMode;
 
 uniform int showWireframes;
 uniform float animateSecondsOffset;
+uniform bool instanceDrawEnabled;
 
 // eye-space/cameraspace coordinates
 varying vec3 f_VV;
@@ -27,6 +28,7 @@ varying vec3 f_vertexNormal;
 varying vec3 f_lightPosition;
 varying vec3 f_eyeVec;
 varying vec3 f_vertexPosition_objectspace;
+varying vec4 f_instanceColor;
 
 // tangent space vectors for bump mapping
 varying vec3 surfaceLightVector;   
@@ -357,12 +359,17 @@ void main()
     
     if (lightingMode == 0) {
         outputColor = BlinnPhongLighting(outputColor);
+        if (instanceDrawEnabled) {
+            outputColor *= f_instanceColor;
+        }
     } else if (lightingMode == 1) {
         outputColor = BumpMapBlinnPhongLighting(outputColor);
+        if (instanceDrawEnabled) {
+            outputColor *= f_instanceColor;
+        }
     } else { // lightingMode == 2
         outputColor = shadowMapTestLighting(outputColor);
     }
-
 
     // ---- object space shader effect tests ----
     // outputColor = linearTest(outputColor);

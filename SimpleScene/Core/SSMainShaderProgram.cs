@@ -51,7 +51,7 @@ namespace SimpleScene
         private readonly int u_lightingMode;
         private readonly int u_instanceDrawEnabled;
 
-        //private readonly int a_instanceColor;
+        private readonly int a_instanceColor;
         private readonly int a_instancePos;
 		#endregion
 
@@ -117,11 +117,9 @@ namespace SimpleScene
             get { return a_instancePos; }
         }
 
-        #if false
         public int AttrInstanceColor {
             get { return a_instanceColor; }
         }
-        #endif
 
         public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
@@ -209,7 +207,7 @@ namespace SimpleScene
 
             // attributes
             a_instancePos = getAttrLoc("instancePos");
-            //a_instanceColor = getAttrLoc("instanceColor");
+            a_instanceColor = getAttrLoc("instanceColor");
 
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
@@ -219,6 +217,7 @@ namespace SimpleScene
                 u_poissonScaling[i] = getUniLoc(str);
             }
 
+            UniInstanceDrawEnabled = false;
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;

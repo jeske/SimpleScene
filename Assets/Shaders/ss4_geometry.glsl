@@ -4,7 +4,6 @@
 #extension GL_EXT_gpu_shader4 : enable
 #extension GL_EXT_geometry_shader4 : enable
 
-
 // not supported until GLSL 150
 // ... see GL.Ext.ProgramParameter(..) call
 // layout(triangles) in;
@@ -17,6 +16,8 @@ noperspective varying vec3 dist;
 const int MAX_NUM_SHADOWMAPS = 4;
 uniform int numShadowMaps;
 
+uniform bool instanceDrawEnabled;
+
 // these are pass-through variables
 varying in vec3 VV[3];
 varying in vec3 vertexNormal[3];
@@ -24,6 +25,7 @@ varying in vec3 lightPosition[3];
 varying in vec3 eyeVec[3];
 varying in vec3 vertexPosition_objectspace[3];
 varying in vec4 shadowMapCoords[3][MAX_NUM_SHADOWMAPS];
+varying in vec4 varInstanceColor[3];
 
 // non-uniform blocks are not supported until GLSL 330?
 varying out vec3 f_VV;
@@ -32,6 +34,7 @@ varying out vec3 f_lightPosition;
 varying out vec3 f_eyeVec;
 varying out vec3 f_vertexPosition_objectspace;
 varying out vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+varying out vec4 f_instanceColor;
 
 varying out vec3 surfaceLightVector;
 varying out vec3 surfaceViewVector;
@@ -98,6 +101,9 @@ void main(void)
 		f_eyeVec = eyeVec[i];
         f_vertexPosition_objectspace = vertexPosition_objectspace[i];
         f_shadowMapCoords = shadowMapCoords[i];
+        if (instanceDrawEnabled) { 
+            f_instanceColor = varInstanceColor[i];
+        }
 		       
 		gl_TexCoord[0] = gl_TexCoordIn[i][0];
 		gl_FrontColor = gl_FrontColorIn[i];

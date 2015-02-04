@@ -19,18 +19,9 @@ namespace SimpleScene
             Position = pos;
         }
 
-        public void PrepareAttribute(int instancesPerValue, int attrLoc) {
-            GL.EnableVertexAttribArray(attrLoc);
-            GL.VertexAttribPointer(
-                attrLoc, Marshal.SizeOf(this),
-                VertexAttribPointerType.Float, false,
-                0, IntPtr.Zero);
-            GL.VertexAttribDivisor(attrLoc, instancesPerValue); 
-        }
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
 
-        public void DisableAttribute(int attrLoc) {
-            GL.DisableVertexAttribArray(attrLoc);
-        }
+        public bool IsNormalized() { return false; }
 
         public bool Equals(SSAttributePos other)
         {
@@ -43,21 +34,14 @@ namespace SimpleScene
     {
         public Int32 Color;
 
-        public SSAttributeColor(Int32 color) 
-        {
+        public SSAttributeColor(Int32 color) {
             Color = color;
         }
 
-        public void PrepareAttribute(int instancesPerValue, int attrLoc) 
-        {
-            GL.EnableClientState(ArrayCap.ColorArray);
-            GL.ColorPointer(4, ColorPointerType.Int, 0, IntPtr.Zero);
-        }
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedInt; }
 
-        public void DisableAttribute(int attrLoc)
-        {
-            GL.DisableVertexAttribArray(attrLoc);
-        }
+        public bool IsNormalized() { return true; }
+
         public bool Equals (SSAttributeColor other)
         {
             return this.Color == other.Color;
