@@ -79,6 +79,8 @@ namespace SimpleScene
         // For example, particle.Vel += new Vector3(1f, 0f, 0f) * dT simulates 
         // acceleration on the X axis. Multiple effectors will combine their 
         // acceleration effect to determine the final velocity of the particle.
+
+        public virtual void Reset() { }
     }
 
     public class SSParticleSystem
@@ -91,6 +93,8 @@ namespace SimpleScene
 
         #region required particle data
         protected readonly float[] m_lives;  // unused particles will be hacked to not draw
+        protected int m_nextIdxToWrite;      // change to UintPtr?
+        protected int m_nextIdxToOverwrite;
         #endregion
 
         #region particle data sent to the GPU
@@ -105,16 +109,38 @@ namespace SimpleScene
         // TODO Scale
         #endregion
 
-        public SSParticleSystem (int capacity)
+        public void Reset()
         {
-            m_capacity = capacity;
-            m_lives = new float[m_capacity];
+            m_nextIdxToWrite = 0;
+            m_nextIdxToOverwrite = 0;
 
             m_positions [0].Position = new Vector3 (0f);
             m_colors [0].Color = SSParticle.c_defaultColor.ToArgb();
 
             m_velocities [0] = new Vector3 (0f);
             m_masses [0] = SSParticle.c_defaultMass;
+
+            foreach (SSParticleEmitter emitter in m_emitters) {
+                emitter.Reset();
+            }
+            foreach (SSParticleEffector effector in m_effectors) {
+                effector.Reset();
+            }
+        }
+
+        public void EmitAll()
+        {
+            foreach (SSParticleEmitter e in m_emitters) {
+                e.EmitParticles(e.ParticlesPerEmission, writeNewParticle);
+            }
+        }
+
+        public SSParticleSystem (int capacity)
+        {
+            m_capacity = capacity;
+            m_lives = new float[m_capacity];
+
+
         }
 
         public void AddEmitter(SSParticleEmitter emitter)
@@ -127,15 +153,10 @@ namespace SimpleScene
             m_effectors.Add(effector);
         }
 
-        protected virtual void NewParticleReceiver(SSParticle newParticle)
-        {
-            // TODO Implement
-        }
-
         public void Simulate(float timeDelta)
         {
             foreach (SSParticleEmitter emitter in m_emitters) {
-                emitter.Simulate(timeDelta, NewParticleReceiver);
+                emitter.Simulate(timeDelta, writeNewParticle);
             }
 
             SSParticle p = new SSParticle();
@@ -153,10 +174,44 @@ namespace SimpleScene
                     } else {
                         // Particle just died. Hack to not draw?
                         p.Pos = new Vector3 (float.PositiveInfinity);
+                        if (m_numParticles == m_capacity) {
+                            // released slot will be the next one to be written to
+                            m_nextIdxToWrite = i;
+                        }
+                        --m_numParticles;
                     }
                     writeParticle(i, p);
                 }
             }
+        }
+
+        protected virtual void writeNewParticle(SSParticle newParticle)
+        {
+            if (m_numParticles == m_capacity) {
+                writeParticle(m_nextIdxToOverwrite, newParticle);
+                m_nextIdxToOverwrite = nextIdx(m_nextIdxToWrite);
+            } else {
+                SSParticle p = new SSParticle();
+                while (true) {
+                    readParticle(m_nextIdxToWrite, p);
+                    if (p.Life <= 0f) {
+                        break;
+                    }
+                    m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
+                }
+                writeParticle(m_nextIdxToWrite, newParticle);
+                m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
+                m_numParticles++;
+            }
+        }
+
+        protected int nextIdx(int idx) 
+        {
+            ++idx;
+            if (idx == m_capacity) {
+                idx = 0;
+            }
+            return idx;
         }
 
         protected T readData<T>(T[] array, int idx)
