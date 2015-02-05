@@ -64,15 +64,25 @@ namespace SimpleScene
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref modelViewMat);
 
-            SSShaderProgram.DeactivateAll(); // disable shaders
-
             GL.Enable (EnableCap.AlphaTest);
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Disable(EnableCap.Lighting);
 
+            #if true
+            // draw using the main shader
+            renderConfig.MainShader.Activate();
+            renderConfig.MainShader.UniAmbTexEnabled = true;
+            renderConfig.MainShader.UniDiffTexEnabled = false;
+            renderConfig.MainShader.UniSpecTexEnabled = false;
+            renderConfig.MainShader.UniBumpTexEnabled = false;
+            GL.ActiveTexture(TextureUnit.Texture2);
+            #else
+            // TODO: Try drawing without shader
+            GL.ActiveTexture(TextureUnit.Texture0);
+            #endif
+
             if (m_texture != null) {
-                GL.ActiveTexture(TextureUnit.Texture0);
                 GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             } else {
