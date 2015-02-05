@@ -64,17 +64,16 @@ namespace SimpleScene
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref modelViewMat);
 
-            // Configure texture and related
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.ColorMaterial);
+            SSShaderProgram.DeactivateAll(); // disable shaders
+
             GL.Enable (EnableCap.AlphaTest);
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Disable(EnableCap.Lighting);
 
-            //if (m_texture != null) {
             if (m_texture != null) {
-                GL.Enable(EnableCap.Texture2D);
                 GL.ActiveTexture(TextureUnit.Texture0);
+                GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             } else {
                 GL.Disable(EnableCap.Texture2D);

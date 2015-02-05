@@ -1,6 +1,7 @@
 ﻿using System;
 using SimpleScene.Util;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace SimpleScene
 {
@@ -37,6 +38,12 @@ namespace SimpleScene
             set { VelocityComponentMin = VelocityComponentMax = value; }
         }
 
+        public Color4 ColorComponentMin = Color4.White;
+        public Color4 ColorComponentMax = Color4.White;
+        public Color4 Color {
+            set { ColorComponentMin = ColorComponentMax = value; }
+        }
+
         private float m_timeSinceLastEmission;
         private float m_nextEmission;
 
@@ -44,6 +51,13 @@ namespace SimpleScene
         {
             Reset();
         }
+
+        public virtual void Reset()
+        {
+            m_timeSinceLastEmission = 0f;
+            m_nextEmission = float.NegativeInfinity;
+        }
+
         public void EmitParticles(ReceiverHandler receiver)
         {
             int numToEmit = s_rand.Next(MinParticlesPerEmission, MaxParticlesPerEmission);
@@ -61,12 +75,6 @@ namespace SimpleScene
             }
         }
 
-        public virtual void Reset()
-        {
-            m_timeSinceLastEmission = 0f;
-            m_nextEmission = float.NegativeInfinity;
-        }
-
         /// <summary>
         /// Override by the derived classes to describe how new particles are emitted
         /// </summary>
@@ -82,11 +90,21 @@ namespace SimpleScene
         {
             p.Life = Interpolate.Lerp(MinLife, MaxLife, 
                 (float)s_rand.NextDouble());
+
             p.Vel.X = Interpolate.Lerp(VelocityComponentMin.X, VelocityComponentMax.X, 
                 (float)s_rand.NextDouble());
             p.Vel.Y = Interpolate.Lerp(VelocityComponentMin.Y, VelocityComponentMax.Y, 
                 (float)s_rand.NextDouble());
             p.Vel.Z = Interpolate.Lerp(VelocityComponentMin.Z, VelocityComponentMax.Z, 
+                (float)s_rand.NextDouble());
+
+            p.Color.R = Interpolate.Lerp(ColorComponentMin.R, ColorComponentMax.R,
+                (float)s_rand.NextDouble());
+            p.Color.G = Interpolate.Lerp(ColorComponentMin.G, ColorComponentMax.G,
+                (float)s_rand.NextDouble());
+            p.Color.B = Interpolate.Lerp(ColorComponentMin.B, ColorComponentMax.B,
+                (float)s_rand.NextDouble());
+            p.Color.A = Interpolate.Lerp(ColorComponentMin.A, ColorComponentMax.A,
                 (float)s_rand.NextDouble());
         }
     }
