@@ -60,13 +60,13 @@ namespace SimpleScene
         #endregion
 
         #region particle data sent to the GPU
-        protected SSAttributePos[] m_positions = new SSAttributePos[1];
-        protected SSAttributeColor[] m_colors = new SSAttributeColor[1];
+        protected SSAttributePos[] m_positions;
+        protected SSAttributeColor[] m_colors;
         #endregion
 
         #region particle data used for the simulation only
-        protected Vector3[] m_velocities = new Vector3[1];
-        protected float[] m_masses = new float[1];
+        protected Vector3[] m_velocities;
+        protected float[] m_masses;
         // TODO Orientation
         // TODO Scale
         // TODO Texture Coord
@@ -90,10 +90,16 @@ namespace SimpleScene
             m_nextIdxToOverwrite = 0;
             m_activeBlockLength = 0;
 
+            m_positions = new SSAttributePos[1];
             m_positions [0].Position = new Vector3 (0f);
+
+            m_colors = new SSAttributeColor[1];
             m_colors [0].Color = SSParticle.c_defaultColor.ToArgb();
 
+            m_velocities = new Vector3[1];
             m_velocities [0] = new Vector3 (0f);
+
+            m_masses = new float[1];
             m_masses [0] = SSParticle.c_defaultMass;
 
             foreach (SSParticleEmitter emitter in m_emitters) {
@@ -186,8 +192,8 @@ namespace SimpleScene
                 m_numParticles++;
             }
             writeParticle(writeIdx, newParticle);
-            if (writeIdx > m_activeBlockLength) {
-                m_activeBlockLength = writeIdx;
+            if (writeIdx + 1 >= m_activeBlockLength) {
+                m_activeBlockLength = writeIdx + 1;
             }
         }
 
@@ -228,7 +234,7 @@ namespace SimpleScene
         protected void writeDataIfNeeded<T>(T[] array, int idx, T value) where T : IEquatable<T>
         {
             bool write = true;
-            if (idx > 1 && array.Length == 1) {
+            if (idx > 0 && array.Length == 1) {
                 T masterVal = array [0];
                 if (masterVal.Equals(value)) {
                     write = false;

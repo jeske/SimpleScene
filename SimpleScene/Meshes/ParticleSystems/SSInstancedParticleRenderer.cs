@@ -38,6 +38,9 @@ namespace SimpleScene
                 = new SSAttributeBuffer<SSAttributePos> (BufferUsageHint.StreamDraw);
             m_colorBuffer
                 = new SSAttributeBuffer<SSAttributeColor> (BufferUsageHint.StreamDraw);
+
+            // test
+            this.boundingSphere = new SSObjectSphere (10f);
         }
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -69,13 +72,16 @@ namespace SimpleScene
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             //if (m_texture != null) {
-            if (true) {
+            if (m_texture != null) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             } else {
                 GL.Disable(EnableCap.Texture2D);
             }
+
+            s_billboardVbo.DrawArrays(PrimitiveType.Triangles);
+            return;
 
             // prepare attribute arrays for draw
             int numActive = m_ps.ActiveBlockLength;
@@ -98,6 +104,8 @@ namespace SimpleScene
             // undo attribute state
             m_posBuffer.DisableAttribute(colorAttrLoc);
             m_colorBuffer.DisableAttribute(posAttrLoc);
+
+            //this.boundingSphere.Render(ref renderConfig);
         }
     }
 }
