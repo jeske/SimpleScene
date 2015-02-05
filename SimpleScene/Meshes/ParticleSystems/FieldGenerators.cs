@@ -76,7 +76,7 @@ namespace HZG.Utils
         protected readonly float m_radius;
         protected readonly Vector3 m_center;
 
-        public ParticlesSphereGenerator (float radius, Vector3 center)
+        public ParticlesSphereGenerator (Vector3 center, float radius)
         {
             m_radius = radius;
             m_center = center;
@@ -98,12 +98,53 @@ namespace HZG.Utils
                         return;
                     }
                     float theta = (float)(2.0 * Math.PI * m_rand.NextDouble());
-                    float alpha = (float)(Math.PI * (-0.5 + m_rand.NextDouble()));
+                    float alpha = (float)(Math.PI * (m_rand.NextDouble() - 0.5));
                     float r = m_radius * (float)m_rand.NextDouble();
                     float z = r * (float)Math.Sin(alpha);
                     float r_xy = r * (float)Math.Cos(alpha);
                     float x = r_xy * (float)Math.Cos(theta);
                     float y = r_xy * (float)Math.Sin(theta);
+                    accepted = newPartDel(i, m_center + new Vector3(x, y, z));
+                }
+            }
+        }
+    }
+
+    public class ParticlesBoxGenerator : ParticlesFieldGenerator
+    {
+        protected readonly Vector3 m_center;
+        protected readonly Vector3 m_dimmensions;
+
+        public ParticlesBoxGenerator(Vector3 center, float cubeDiameter) 
+        {
+            m_dimmensions = new Vector3 (cubeDiameter);
+            m_center = center;
+        }
+
+        public ParticlesBoxGenerator(Vector3 center, Vector3 dimmensions)
+        {
+            m_dimmensions = dimmensions;
+            m_center = center;
+        }
+
+        public override void Generate (int numParticles, NewParticleDelegate newPartDel)
+        {
+            int numTries = 0;
+            for (int i = 0; i < numParticles; ++i) {
+                bool accepted = false;
+                while (!accepted) {
+                    ++numTries;
+                    if (numTries > numParticles * c_maxTriesFactor) {
+                        // This is somewhat of a hack to add a failsafe for the random strategy of 
+                        // fitting things in. Currently we just give up if we tried too many time with 
+                        // no luck. This can happen when trying to fit too much into a small space.
+                        // In the future a smarter packing strategy may be employed before giving up.
+                        // TODO: print something
+                        return;
+                    }
+                    float x = (float)(m_dimmensions.X * (m_rand.NextDouble() - 0.5));
+                    float y = (float)(m_dimmensions.Y * (m_rand.NextDouble() - 0.5));
+                    float z = (float)(m_dimmensions.Z * (m_rand.NextDouble() - 0.5));
                     accepted = newPartDel(i, m_center + new Vector3(x, y, z));
                 }
             }
@@ -166,7 +207,7 @@ namespace HZG.Utils
                         // fitting things in. Currently we just give up if we tried too many time with 
                         // no luck. This can happen when trying to fit too much into a small space.
                         // In the future a smarter packing strategy may be employed before giving up.
-                        // todo: print something
+                        // TODO: print something
                         return;
                     }
                     m_ringTheta = m_sectionStart + (float)m_rand.NextDouble() * (m_sectionEnd - m_sectionStart);
