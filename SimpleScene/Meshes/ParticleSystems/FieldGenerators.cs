@@ -56,6 +56,8 @@ namespace HZG.Utils
     /// </summary>
     public abstract class ParticlesFieldGenerator 
     {
+        static protected int c_maxTriesFactor = 10; // 10 * numObjects means exhausted all tries to generate
+
         public delegate bool NewParticleDelegate(int id, Vector3 pos); // return true for "accept"
 
         protected Random m_rand = new Random();
@@ -69,10 +71,48 @@ namespace HZG.Utils
                                       NewParticleDelegate newPartDel); // density is in particles per cubic unit
     }
 
+    public class ParticlesSphereGenerator : ParticlesFieldGenerator
+    {
+        protected readonly float m_radius;
+        protected readonly Vector3 m_center;
+
+        public ParticlesSphereGenerator (float radius, Vector3 center)
+        {
+            m_radius = radius;
+            m_center = center;
+        }
+
+        public override void Generate (int numParticles, NewParticleDelegate newPartDel)
+        {
+            int numTries = 0;
+            for (int i = 0; i < numParticles; ++i) {
+                bool accepted = false;
+                while (!accepted) {
+                    ++numTries;
+                    if (numTries > numParticles * c_maxTriesFactor) {
+                        // This is somewhat of a hack to add a failsafe for the random strategy of 
+                        // fitting things in. Currently we just give up if we tried too many time with 
+                        // no luck. This can happen when trying to fit too much into a small space.
+                        // In the future a smarter packing strategy may be employed before giving up.
+                        // todo: print something
+                        return;
+                    }
+                    float theta = (float)(2.0 * Math.PI * m_rand.NextDouble());
+                    float alpha = (float)(Math.PI * (-0.5 + m_rand.NextDouble()));
+                    float r = m_radius * (float)m_rand.NextDouble();
+                    float z = r * (float)Math.Sin(alpha);
+                    float r_xy = r * (float)Math.Cos(alpha);
+                    float x = r_xy * (float)Math.Cos(theta);
+                    float y = r_xy * (float)Math.Sin(theta);
+                    accepted = newPartDel(i, m_center + new Vector3(x, y, z));
+                }
+            }
+        }
+    }
+
     public class ParticlesRingGenerator : ParticlesFieldGenerator
     {
         static protected float c_eps = 0.001f;
-        static protected int c_maxTriesFactor = 10; // 10 * numObjects:
                                                     // means iterated too much while trying to validate
         protected readonly ParticlesPlaneGenerator m_planeGenerator;
         protected readonly Vector3 m_ringCenter;
