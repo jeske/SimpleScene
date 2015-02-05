@@ -123,6 +123,8 @@
     <Compile Include="Meshes\ParticleSystems\ParticlesFieldGenerators.cs" />
     <Compile Include="Meshes\ParticleSystems\ParticlesPlaneGenerators.cs" />
     <Compile Include="Meshes\ParticleSystems\BodiesFieldGenerators.cs" />
+    <Compile Include="Meshes\ParticleSystems\ParticleEmitters.cs" />
+    <Compile Include="Meshes\ParticleSystems\ParticleEffectors.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
