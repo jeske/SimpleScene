@@ -144,9 +144,16 @@ namespace SimpleScene
                             // released slot will be the next one to be written to
                             m_nextIdxToWrite = i;
                         }
+                        if (i == m_activeBlockLength-1) {
+                            // reduction in the active particles block
+                            while (p.Life < 0f) {
+                                --m_activeBlockLength;
+                                readParticle(m_activeBlockLength - 1, p);
+                            }
+                        }
                         --m_numParticles;
                         if (m_numParticles == 0) {
-                            // reset write and overwrite locations for better packing
+                            // all particles gone. reset write and overwrite locations for better packing
                             m_nextIdxToWrite = 0;
                             m_nextIdxToOverwrite = 0;
                             m_activeBlockLength = 0;
