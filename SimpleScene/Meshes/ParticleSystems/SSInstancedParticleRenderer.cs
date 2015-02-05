@@ -79,6 +79,7 @@ namespace SimpleScene
             GL.ActiveTexture(TextureUnit.Texture2);
             #else
             // TODO: Try drawing without shader
+            SSShaderProgram.DeactivateAll();
             GL.ActiveTexture(TextureUnit.Texture0);
             #endif
 
@@ -89,19 +90,17 @@ namespace SimpleScene
                 GL.Disable(EnableCap.Texture2D);
             }
 
-            s_billboardVbo.DrawArrays(PrimitiveType.Triangles);
-            return;
+            //s_billboardVbo.DrawArrays(PrimitiveType.Triangles);
+            //return;
 
             // prepare attribute arrays for draw
             int numActive = m_ps.ActiveBlockLength;
 
-            int posLength = m_ps.Positions.Length;
-            int posInstancesPerValue = posLength < numActive ? numActive : 1;
+            int posInstancesPerValue = m_ps.Positions.Length < numActive ? numActive : 1;
             int posAttrLoc = renderConfig.MainShader.AttrInstancePos;
             m_posBuffer.PrepareAttribute(posInstancesPerValue, posAttrLoc);
 
-            int colLength = m_ps.Colors.Length;
-            int colorInstancesPerValue = colLength < numActive ? numActive : 1;
+            int colorInstancesPerValue = m_ps.Colors.Length < numActive ? numActive : 1;
             int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
             m_colorBuffer.PrepareAttribute(colorInstancesPerValue, colorAttrLoc);
 
