@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 
+using SimpleScene.Util;
+
 namespace SimpleScene
 {
     public class SSParticle
@@ -105,7 +107,7 @@ namespace SimpleScene
         public void EmitAll()
         {
             foreach (SSParticleEmitter e in m_emitters) {
-                e.EmitParticles(e.ParticlesPerEmission, writeNewParticle);
+                e.EmitParticles(writeNewParticle);
             }
         }
 

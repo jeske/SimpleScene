@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public abstract class SSInstancedParticleRenderer : SSObject
+    public class SSInstancedParticleRenderer : SSObject
     {
         private static readonly SSVertex_PosTex1[] c_billboardVertices = {
             // CCW quad; no indexing
