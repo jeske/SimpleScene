@@ -117,9 +117,10 @@
     <Compile Include="Meshes\Buffers\SSVertexFormats.cs" />
     <Compile Include="Meshes\Buffers\SSAttributeBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSAttributeFormats.cs" />
-    <Compile Include="Meshes\ParticleSystem\SSParticleSystem.cs" />
     <Compile Include="Util\Interpolate.cs" />
-    <Compile Include="Meshes\ParticleSystem\SSInstancedParticleRenderer.cs" />
+    <Compile Include="Meshes\ParticleSystems\SSParticleSystem.cs" />
+    <Compile Include="Meshes\ParticleSystems\SSInstancedParticleRenderer.cs" />
+    <Compile Include="Meshes\ParticleSystems\FieldGenerators.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -154,6 +155,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Meshes\ParticleSystem\" />
+    <Folder Include="Meshes\ParticleSystems\" />
   </ItemGroup>
 </Project>

@@ -18,7 +18,7 @@ namespace SimpleScene
         public Vector3 Scale = new Vector3(1f);
         public Color4 Color = c_defaultColor;
 		public float Mass = c_defaultMass;
-        // TODO orientation, scale
+        // TODO texture coord, orientation, scale
 
         #if false
         public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
@@ -118,6 +118,7 @@ namespace SimpleScene
         protected float[] m_masses = new float[1];
         // TODO Orientation
         // TODO Scale
+        // TODO Texture Coord
         #endregion
 
         public int Capacity { get { return m_capacity; } }

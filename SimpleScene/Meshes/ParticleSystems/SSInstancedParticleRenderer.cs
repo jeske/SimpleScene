@@ -34,8 +34,10 @@ namespace SimpleScene
         {
             m_ps = ps;
             m_texture = texture;
-            m_posBuffer = new SSAttributeBuffer<SSAttributePos> (BufferUsageHint.StreamDraw);
-            m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (BufferUsageHint.StreamDraw);
+            m_posBuffer 
+                = new SSAttributeBuffer<SSAttributePos> (BufferUsageHint.StreamDraw);
+            m_colorBuffer
+                = new SSAttributeBuffer<SSAttributeColor> (BufferUsageHint.StreamDraw);
         }
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -66,7 +68,8 @@ namespace SimpleScene
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            if (m_texture != null) {
+            //if (m_texture != null) {
+            if (true) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
