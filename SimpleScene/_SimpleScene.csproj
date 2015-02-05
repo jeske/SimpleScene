@@ -120,7 +120,9 @@
     <Compile Include="Util\Interpolate.cs" />
     <Compile Include="Meshes\ParticleSystems\SSParticleSystem.cs" />
     <Compile Include="Meshes\ParticleSystems\SSInstancedParticleRenderer.cs" />
-    <Compile Include="Meshes\ParticleSystems\FieldGenerators.cs" />
+    <Compile Include="Meshes\ParticleSystems\ParticlesFieldGenerators.cs" />
+    <Compile Include="Meshes\ParticleSystems\ParticlesPlaneGenerators.cs" />
+    <Compile Include="Meshes\ParticleSystems\BodiesFieldGenerators.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
