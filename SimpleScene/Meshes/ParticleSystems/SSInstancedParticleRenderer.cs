@@ -45,6 +45,9 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
+            int numActive = m_ps.ActiveBlockLength;
+            if (numActive <= 0) return;
+
             base.Render(ref renderConfig);
 
             // update buffers
@@ -95,7 +98,6 @@ namespace SimpleScene
             //return;
 
             // prepare attribute arrays for draw
-            int numActive = m_ps.ActiveBlockLength;
 
             int posInstancesPerValue = m_ps.Positions.Length < numActive ? numActive : 1;
             int posAttrLoc = renderConfig.MainShader.AttrInstancePos;
@@ -103,7 +105,9 @@ namespace SimpleScene
 
             int colorInstancesPerValue = m_ps.Colors.Length < numActive ? numActive : 1;
             int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
+            #if false
             m_colorBuffer.PrepareAttribute(colorInstancesPerValue, colorAttrLoc);
+            #endif
 
             // do the draw
             renderConfig.MainShader.UniInstanceDrawEnabled = true;

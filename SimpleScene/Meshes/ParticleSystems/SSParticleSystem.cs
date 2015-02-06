@@ -179,7 +179,7 @@ namespace SimpleScene
             int writeIdx;
             if (m_numParticles == m_capacity) {
                 writeIdx = m_nextIdxToOverwrite;
-                m_nextIdxToOverwrite = nextIdx(m_nextIdxToWrite);
+                m_nextIdxToOverwrite = nextIdx(m_nextIdxToOverwrite);
             } else {
                 while (isAlive(m_nextIdxToWrite)) {
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);

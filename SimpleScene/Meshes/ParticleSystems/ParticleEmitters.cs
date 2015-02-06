@@ -23,7 +23,7 @@ namespace SimpleScene
         public float MinLife = 1f;
         public float MaxLife = 1f;
         public float Life {
-            set { MinEmissionInterval = MaxEmissionInterval = value; }
+            set { MinLife = MaxLife = value; }
         }
 
         public int MinParticlesPerEmission = 1;
