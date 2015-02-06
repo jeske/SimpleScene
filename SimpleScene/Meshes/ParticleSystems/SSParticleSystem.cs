@@ -154,7 +154,7 @@ namespace SimpleScene
                         }
                         if (i == m_activeBlockLength-1) {
                             // reduction in the active particles block
-                            while (m_activeBlockLength > 0 && m_lives[m_activeBlockLength - 1] <= 0f) {
+                            while (m_activeBlockLength > 0 && isDead(m_activeBlockLength - 1)) {
                                 --m_activeBlockLength;
                             }
                         }
@@ -178,11 +178,7 @@ namespace SimpleScene
                 writeIdx = m_nextIdxToOverwrite;
                 m_nextIdxToOverwrite = nextIdx(m_nextIdxToWrite);
             } else {
-                while (true) {
-                    float life = m_lives [m_nextIdxToWrite];
-                    if (life <= 0f) {
-                        break;
-                    }
+                while (!isDead(m_nextIdxToWrite)) {
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
                 }
                 writeIdx = m_nextIdxToWrite;
@@ -202,6 +198,10 @@ namespace SimpleScene
                 idx = 0;
             }
             return idx;
+        }
+
+        protected bool isDead(int idx) {
+            return m_lives [idx] <= 0f;
         }
 
         protected T readData<T>(T[] array, int idx)
