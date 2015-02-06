@@ -21,6 +21,9 @@ namespace SimpleScene
 		public float Mass = c_defaultMass;
         // TODO texture coord, orientation, scale
 
+        public bool IsDead { get { return Life <= 0f; } }
+        public bool IsAlive { get { return !IsDead; } }
+
         #if false
         public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
 		{
@@ -135,11 +138,11 @@ namespace SimpleScene
 
             SSParticle p = new SSParticle();
             for (int i = 0; i < m_numParticles; ++i) {
-                readParticle(i, p);
-                if (p.Life > 0f) {
+                if (isAlive(i)) {
                     // Alive particle
+                    readParticle(i, p);
                     p.Life -= timeDelta;
-                    if (p.Life > 0f) {
+                    if (p.IsAlive) {
                         // Still alive. Update position and run through effectors
                         p.Pos += p.Vel * timeDelta;
                         foreach (SSParticleEffector effector in m_effectors) {
@@ -178,7 +181,7 @@ namespace SimpleScene
                 writeIdx = m_nextIdxToOverwrite;
                 m_nextIdxToOverwrite = nextIdx(m_nextIdxToWrite);
             } else {
-                while (!isDead(m_nextIdxToWrite)) {
+                while (isAlive(m_nextIdxToWrite)) {
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
                 }
                 writeIdx = m_nextIdxToWrite;
@@ -202,6 +205,10 @@ namespace SimpleScene
 
         protected bool isDead(int idx) {
             return m_lives [idx] <= 0f;
+        }
+
+        protected bool isAlive(int idx) {
+            return !isDead(idx);
         }
 
         protected T readData<T>(T[] array, int idx)
@@ -233,7 +240,7 @@ namespace SimpleScene
                 } else {
                     // allocate the array to keep track of different values
                     array = new T[m_capacity];
-                    for (int i = 0; i < m_capacity; ++i) {
+                    for (int i = 0; i < m_activeBlockLength; ++i) {
                         array [i] = masterVal;
                     }
                 }
