@@ -179,10 +179,9 @@ namespace SimpleScene
                 writeIdx = m_nextIdxToOverwrite;
                 m_nextIdxToOverwrite = nextIdx(m_nextIdxToWrite);
             } else {
-                SSParticle p = new SSParticle();
                 while (true) {
-                    readParticle(m_nextIdxToWrite, p);
-                    if (p.Life <= 0f) {
+                    float life = m_lives [m_nextIdxToWrite];
+                    if (life < 0f) {
                         break;
                     }
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
@@ -231,7 +230,7 @@ namespace SimpleScene
             p.Mass = readData(m_masses, idx);
         }
 
-        protected void writeDataIfNeeded<T>(T[] array, int idx, T value) where T : IEquatable<T>
+        protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
         {
             bool write = true;
             if (idx > 0 && array.Length == 1) {
@@ -253,12 +252,12 @@ namespace SimpleScene
 
         protected virtual void writeParticle(int idx, SSParticle p) {
             m_lives [idx] = p.Life;
-            writeDataIfNeeded(m_positions, idx, 
+            writeDataIfNeeded(ref m_positions, idx, 
                               new SSAttributePos(p.Pos));
-            writeDataIfNeeded(m_colors, idx, 
+            writeDataIfNeeded(ref m_colors, idx, 
                               new SSAttributeColor(p.Color.ToArgb()));
-            writeDataIfNeeded(m_velocities, idx, p.Vel);
-            writeDataIfNeeded(m_masses, idx, p.Mass);
+            writeDataIfNeeded(ref m_velocities, idx, p.Vel);
+            writeDataIfNeeded(ref m_masses, idx, p.Mass);
         }
     }
 }

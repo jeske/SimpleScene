@@ -32,9 +32,9 @@ namespace SimpleScene
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSAttributeColor : ISSAttributeLayout, IEquatable<SSAttributeColor>
     {
-        public Int32 Color;
+        public int Color;
 
-        public SSAttributeColor(Int32 color) {
+        public SSAttributeColor(int color) {
             Color = color;
         }
 

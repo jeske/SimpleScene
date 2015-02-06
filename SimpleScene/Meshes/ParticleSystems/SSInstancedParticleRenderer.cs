@@ -66,11 +66,13 @@ namespace SimpleScene
 
             GL.Enable (EnableCap.AlphaTest);
             GL.Enable (EnableCap.Blend);
+            GL.AlphaFunc(AlphaFunction.Greater, 0.2f);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Disable(EnableCap.Lighting);
 
             #if true
             // draw using the main shader
+            // TODO: debug with bump mapped lighting mode
             renderConfig.MainShader.Activate();
             renderConfig.MainShader.UniAmbTexEnabled = true;
             renderConfig.MainShader.UniDiffTexEnabled = false;
@@ -82,7 +84,6 @@ namespace SimpleScene
             SSShaderProgram.DeactivateAll();
             GL.ActiveTexture(TextureUnit.Texture0);
             #endif
-
             if (m_texture != null) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);

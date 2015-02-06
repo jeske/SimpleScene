@@ -131,6 +131,7 @@ namespace SimpleScene
             SSParticle newParticle = new SSParticle();
             ParticlesFieldGenerator.NewParticleDelegate fieldReceiver = (id, pos) => {
                 configureNewParticle(newParticle);
+                newParticle.Pos = pos;
                 particleReceiver(newParticle);
                 return true;
             };
