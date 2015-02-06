@@ -154,9 +154,8 @@ namespace SimpleScene
                         }
                         if (i == m_activeBlockLength-1) {
                             // reduction in the active particles block
-                            while (p.Life <= 0f) {
+                            while (m_activeBlockLength > 0 && m_lives[m_activeBlockLength - 1] <= 0f) {
                                 --m_activeBlockLength;
-                                readParticle(m_activeBlockLength - 1, p);
                             }
                         }
                         --m_numParticles;
