@@ -21,6 +21,8 @@ namespace SimpleScene
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
 
+        public int NumComponents() { return 3; }
+
         public bool IsNormalized() { return false; }
 
         public bool Equals(SSAttributePos other)
@@ -38,7 +40,9 @@ namespace SimpleScene
             Color = color;
         }
 
-        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedInt; }
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedByte; }
+
+        public int NumComponents() { return 4; }
 
         public bool IsNormalized() { return true; }
 

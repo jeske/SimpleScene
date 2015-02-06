@@ -7,6 +7,7 @@ namespace SimpleScene
     public interface ISSAttributeLayout
     {
         VertexAttribPointerType AttributeType ();
+        int NumComponents();
         bool IsNormalized ();
     }
 
@@ -34,9 +35,8 @@ namespace SimpleScene
         {
             GL.EnableVertexAttribArray(attrLoc);
             bind();
-            GL.VertexAttribPointer(
-                attrLoc, c_elementSz, 
-                c_dummyElement.AttributeType(), c_dummyElement.IsNormalized(),
+            GL.VertexAttribPointer(attrLoc, 
+                c_dummyElement.NumComponents(), c_dummyElement.AttributeType(), c_dummyElement.IsNormalized(),
                 0, IntPtr.Zero);
             unbind();
             GL.VertexAttribDivisor(attrLoc, instancesPerValue);
