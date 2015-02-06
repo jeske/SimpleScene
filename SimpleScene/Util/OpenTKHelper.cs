@@ -4,6 +4,7 @@
 using System;
 
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace SimpleScene
 {
@@ -61,6 +62,30 @@ namespace SimpleScene
 		 
 			return new Vector3(vec.X,vec.Y,vec.Z);
 		}
+
+        /// <summary>
+        /// Need this because Color4.toArgb() is bugged in the currently used OpenTK version
+        /// </summary>
+        public static int Color4toArgb(Color4 color)
+        {
+            uint value =
+                (uint)(color.A / Byte.MaxValue) << 24 |
+                (uint)(color.R / Byte.MaxValue) << 16 |
+                (uint)(color.G / Byte.MaxValue) << 8 |
+                (uint)(color.B / Byte.MaxValue);
+
+            return unchecked((int)value);
+        }
+
+        public static Color4 ArgbToColor4(int argb)
+        {
+            return new Color4 (
+                (argb & 0xFF0000) >> 16,    // R
+                (argb & 0xFF00) >> 8,       // G
+                (argb & 0xFF),              // B
+                (argb & 0xFF000000) >> 24   // A
+            );
+        }
 
         
         /// <summary>

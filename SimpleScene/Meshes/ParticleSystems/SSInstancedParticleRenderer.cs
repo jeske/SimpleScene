@@ -91,8 +91,8 @@ namespace SimpleScene
                 GL.Disable(EnableCap.Texture2D);
             }
 
-            //s_billboardVbo.DrawArrays(PrimitiveType.Triangles);
-            //return;
+            s_billboardVbo.DrawArrays(PrimitiveType.Triangles);
+            return;
 
             // prepare attribute arrays for draw
             int numActive = m_ps.ActiveBlockLength;
