@@ -150,8 +150,8 @@ namespace SimpleScene
                         }
                     } else {
                         // Particle just died. Hack to not draw?
-                        p.Pos = new Vector3 (float.PositiveInfinity);
-                        if (m_numParticles == m_capacity) {
+                        p.Pos = new Vector3 (0f);
+                        if (m_numParticles == m_capacity || i < m_nextIdxToWrite) {
                             // released slot will be the next one to be written to
                             m_nextIdxToWrite = i;
                         }
