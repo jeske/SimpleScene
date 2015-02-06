@@ -154,7 +154,7 @@ namespace SimpleScene
                         }
                         if (i == m_activeBlockLength-1) {
                             // reduction in the active particles block
-                            while (p.Life < 0f) {
+                            while (p.Life <= 0f) {
                                 --m_activeBlockLength;
                                 readParticle(m_activeBlockLength - 1, p);
                             }
@@ -181,7 +181,7 @@ namespace SimpleScene
             } else {
                 while (true) {
                     float life = m_lives [m_nextIdxToWrite];
-                    if (life < 0f) {
+                    if (life <= 0f) {
                         break;
                     }
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
