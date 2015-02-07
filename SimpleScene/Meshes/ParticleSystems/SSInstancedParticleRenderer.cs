@@ -55,6 +55,8 @@ namespace SimpleScene
 
             // update buffers
             m_posBuffer.UpdateBufferData(m_ps.Positions);
+            m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
+            m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
             m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
             // override matrix setup to get rid of any rotation in view
@@ -98,7 +100,7 @@ namespace SimpleScene
             SSMainShaderProgram mainShader = renderConfig.MainShader;
             prepareAttribute(m_posBuffer, mainShader.AttrInstancePos, m_ps.Positions);
             prepareAttribute(m_masterScaleBuffer, mainShader.AttrInstanceMasterScale, m_ps.MasterScales);
-            //prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
+            prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
             prepareAttribute(m_colorBuffer, mainShader.AttrInstanceColor, m_ps.Colors);
 
             // do the draw

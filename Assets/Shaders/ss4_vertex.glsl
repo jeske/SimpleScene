@@ -43,12 +43,11 @@ void main()
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
     if (instanceDrawEnabled) {
-        // TODO more instance attributes
+        // TODO orientation, texture offset
         varInstanceColor = instanceColor;
-        //varInstanceColor = vec4(instanceMasterScale);
-        //vec3 combinedPos = instanceMasterScale * instanceComponentScale * instancePos;
-        vec3 combinedPos = instancePos;// * vec3(instanceMasterScale);
-        gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(combinedPos, 0f));
+        vec3 combinedPos = instanceMasterScale * instanceComponentScale * gl_Vertex.xyz
+                         + instancePos;
+        gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1f);
     } else {
         gl_Position = ftransform();
     }
