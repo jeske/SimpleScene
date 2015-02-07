@@ -56,7 +56,6 @@ namespace SimpleScene
 
             // override matrix setup to get rid of any rotation in view
             // http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
-
             Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
             modelView = OpenTKHelper.BillboardMatrix(ref modelView);
             GL.MatrixMode(MatrixMode.Modelview);
@@ -100,7 +99,7 @@ namespace SimpleScene
 
             int colorInstancesPerValue = m_ps.Colors.Length < numActive ? numActive : 1;
             int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
-            #if false
+            #if true
             m_colorBuffer.PrepareAttribute(colorInstancesPerValue, colorAttrLoc);
             #endif
 
