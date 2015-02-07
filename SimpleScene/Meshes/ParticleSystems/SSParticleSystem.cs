@@ -50,7 +50,6 @@ namespace SimpleScene
     public class SSParticleSystem
     {
         // TODO bounding sphere or cube
-
         protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
         protected List<SSParticleEffector> m_effectors = new List<SSParticleEffector> ();
 

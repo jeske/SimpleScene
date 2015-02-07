@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DRAW_USING_MAIN_SHADER
+
+using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -7,7 +9,7 @@ namespace SimpleScene
 {
     public class SSInstancedParticleRenderer : SSObject
     {
-        public BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
+        public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
         private static readonly SSVertex_PosTex1[] c_billboardVertices = {
             // CCW quad; no indexing
@@ -20,6 +22,9 @@ namespace SimpleScene
             new SSVertex_PosTex1(-.5f, +.5f, 0f, 0f, 1f),
         };
         protected static readonly SSVertexBuffer<SSVertex_PosTex1> s_billboardVbo;
+
+        public bool AlphaBlendingEnabled = true;
+        public bool BillboardingEnabled = true;
 
         protected SSParticleSystem m_ps;
         protected SSIndexBuffer m_ibo;
@@ -59,20 +64,24 @@ namespace SimpleScene
             m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
             m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
-            // override matrix setup to get rid of any rotation in view
-            // http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
-            Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
-            modelView = OpenTKHelper.BillboardMatrix(ref modelView);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadMatrix(ref modelView);
+            if (BillboardingEnabled) {
+                Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
+                modelView = OpenTKHelper.BillboardMatrix(ref modelView);
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.LoadMatrix(ref modelView);
+            }
 
-            GL.Enable (EnableCap.AlphaTest);
-            GL.Enable (EnableCap.Blend);
-            GL.AlphaFunc(AlphaFunction.Greater, 0.2f);
-            GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Disable(EnableCap.Lighting);
+            if (AlphaBlendingEnabled) {
+                GL.Enable(EnableCap.AlphaTest);
+                GL.Enable(EnableCap.Blend);
+                GL.AlphaFunc(AlphaFunction.Greater, 0.2f);
+                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                GL.Disable(EnableCap.Lighting);
 
-            #if true
+                // TODO invoke depth sort
+            }
+
+            #if DRAW_USING_MAIN_SHADER
             // draw using the main shader
             // TODO: debug with bump mapped lighting mode
             renderConfig.MainShader.Activate();
@@ -97,22 +106,30 @@ namespace SimpleScene
             //return;
 
             // prepare attribute arrays for draw
+            #if DRAW_USING_MAIN_SHADER
             SSMainShaderProgram mainShader = renderConfig.MainShader;
             prepareAttribute(m_posBuffer, mainShader.AttrInstancePos, m_ps.Positions);
             prepareAttribute(m_masterScaleBuffer, mainShader.AttrInstanceMasterScale, m_ps.MasterScales);
             prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
             prepareAttribute(m_colorBuffer, mainShader.AttrInstanceColor, m_ps.Colors);
+            #else
+            throw new NotImplementedException();
+            #endif
 
             // do the draw
             renderConfig.MainShader.UniInstanceDrawEnabled = true;
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
             renderConfig.MainShader.UniInstanceDrawEnabled = false;
 
+            #if DRAW_USING_MAIN_SHADER
             // undo attribute state
             m_posBuffer.DisableAttribute(mainShader.AttrInstancePos);
             m_masterScaleBuffer.DisableAttribute(mainShader.AttrInstanceMasterScale);
             m_componentScaleBuffer.DisableAttribute(mainShader.AttrInstanceComponentScale);
             m_colorBuffer.DisableAttribute(mainShader.AttrInstanceColor);
+            #else
+            throw new NotImplementedException();
+            #endif
 
             //this.boundingSphere.Render(ref renderConfig);
         }
