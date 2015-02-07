@@ -14,22 +14,34 @@ namespace SimpleScene
 
         protected static Random s_rand = new Random ();
 
-        public float MinEmissionInterval = 1.0f;
-        public float MaxEmissionInterval = 1.0f;
+        public float EmissionIntervalMin = 1.0f;
+        public float EmissionIntervalMax = 1.0f;
         public float EmissionInterval {
-            set { MinEmissionInterval = MaxEmissionInterval = value; }
+            set { EmissionIntervalMin = EmissionIntervalMax = value; }
         }
 
-        public float MinLife = 1f;
-        public float MaxLife = 1f;
+        public float LifeMin = 1f;
+        public float LifeMax = 1f;
         public float Life {
-            set { MinLife = MaxLife = value; }
+            set { LifeMin = LifeMax = value; }
         }
 
-        public int MinParticlesPerEmission = 1;
-        public int MaxParticlesPerEmission = 1;
+        public int ParticlesPerEmissionMin = 1;
+        public int ParticlesPerEmissionMax = 1;
         public int ParticlesPerEmission {
-            set { MinParticlesPerEmission = MaxParticlesPerEmission = value; }
+            set { ParticlesPerEmissionMin = ParticlesPerEmissionMax = value; }
+        }
+
+        public float MasterScaleMin = 1f;
+        public float MasterScaleMax = 1f;
+        public float MasterScale {
+            set { MasterScaleMin = MasterScaleMax = value; }
+        }
+
+        public Vector3 ComponentScaleMin = new Vector3(1f);
+        public Vector3 ComponentScaleMax = new Vector3(1f);
+        public Vector3 ComponentScale {
+            set { ComponentScaleMin = ComponentScaleMax = value; }
         }
 
         public Vector3 VelocityComponentMin = new Vector3 (1f);
@@ -60,7 +72,7 @@ namespace SimpleScene
 
         public void EmitParticles(ReceiverHandler receiver)
         {
-            int numToEmit = s_rand.Next(MinParticlesPerEmission, MaxParticlesPerEmission);
+            int numToEmit = s_rand.Next(ParticlesPerEmissionMin, ParticlesPerEmissionMax);
             emitParticles(numToEmit, receiver);
         }
 
@@ -70,7 +82,7 @@ namespace SimpleScene
             if (m_timeSinceLastEmission > m_nextEmission) {
                 EmitParticles(receiver);
                 m_timeSinceLastEmission = 0f;
-                m_nextEmission = Interpolate.Lerp(MinEmissionInterval, MaxEmissionInterval, 
+                m_nextEmission = Interpolate.Lerp(EmissionIntervalMin, EmissionIntervalMax, 
                     (float)s_rand.NextDouble());
             }
         }
@@ -88,7 +100,7 @@ namespace SimpleScene
         /// <param name="p">particle to setup</param>
         protected void configureNewParticle(SSParticle p)
         {
-            p.Life = Interpolate.Lerp(MinLife, MaxLife, 
+            p.Life = Interpolate.Lerp(LifeMin, LifeMax, 
                 (float)s_rand.NextDouble());
 
             p.Vel.X = Interpolate.Lerp(VelocityComponentMin.X, VelocityComponentMax.X, 

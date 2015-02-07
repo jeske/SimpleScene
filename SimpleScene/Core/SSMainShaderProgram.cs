@@ -51,8 +51,10 @@ namespace SimpleScene
         private readonly int u_lightingMode;
         private readonly int u_instanceDrawEnabled;
 
-        private readonly int a_instanceColor;
         private readonly int a_instancePos;
+        private readonly int a_instanceMasterScale;
+        private readonly int a_instanceComponentScale;
+        private readonly int a_instanceColor;
 		#endregion
 
         #region Uniform Modifiers
@@ -115,6 +117,14 @@ namespace SimpleScene
 
         public int AttrInstancePos {
             get { return a_instancePos; }
+        }
+
+        public int AttrInstanceMasterScale {
+            get { return a_instanceMasterScale; }
+        }
+
+        public int AttrInstanceComponentScale {
+            get { return a_instanceComponentScale; }
         }
 
         public int AttrInstanceColor {
@@ -207,6 +217,8 @@ namespace SimpleScene
 
             // attributes
             a_instancePos = getAttrLoc("instancePos");
+            a_instanceMasterScale = getAttrLoc("instanceMasterScale");
+            a_instanceComponentScale = getAttrLoc("instanceComponentScale");
             a_instanceColor = getAttrLoc("instanceColor");
 
             // TODO: debug passing things through arrays

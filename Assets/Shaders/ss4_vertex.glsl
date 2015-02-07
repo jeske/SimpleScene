@@ -14,6 +14,8 @@ uniform mat4 objWorldTransform;
 // instanced drawing
 uniform bool instanceDrawEnabled;
 attribute vec3 instancePos;
+attribute float instanceMasterScale;
+attribute vec3 instanceComponentScale;
 attribute vec4 instanceColor;
 
 // in eye-space/camera space
@@ -42,8 +44,9 @@ void main()
 
     if (instanceDrawEnabled) {
         // TODO more instance attributes
-        varInstanceColor = vec4(instanceColor[0], instanceColor[1], instanceColor[2], instanceColor[3]);
-        gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(instancePos, 0f));
+        varInstanceColor = instanceColor;
+        vec3 combinedPos = instanceMasterScale * instanceComponentScale * instancePos;
+        gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(combinedPos, 0f));
     } else {
         gl_Position = ftransform();
     }

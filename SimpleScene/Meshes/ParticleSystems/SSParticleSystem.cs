@@ -15,11 +15,13 @@ namespace SimpleScene
 
         public float Life = 0f;
         public Vector3 Pos = new Vector3(0f);
+        public float MasterScale = 1f;
+        public Vector3 ComponentScale = new Vector3(1f);
         public Vector3 Vel = new Vector3(0f);
-        public Vector3 Scale = new Vector3(1f);
         public Color4 Color = c_defaultColor;
 		public float Mass = c_defaultMass;
-        // TODO texture coord, orientation, scale
+
+        // TODO texture coord, orientation
 
         public bool IsDead { get { return Life <= 0f; } }
         public bool IsAlive { get { return !IsDead; } }
@@ -65,13 +67,14 @@ namespace SimpleScene
         #region particle data sent to the GPU
         protected SSAttributePos[] m_positions;
         protected SSAttributeColor[] m_colors;
+        protected SSAttributeMasterScale[] m_masterScales;
+        protected SSAttributeComponentScale[] m_componentScales;
         #endregion
 
         #region particle data used for the simulation only
         protected Vector3[] m_velocities;
         protected float[] m_masses;
         // TODO Orientation
-        // TODO Scale
         // TODO Texture Coord
         #endregion
 
@@ -79,6 +82,8 @@ namespace SimpleScene
         public int ActiveBlockLength { get { return m_activeBlockLength; } }
         public SSAttributePos[] Positions { get { return m_positions; } }
         public SSAttributeColor[] Colors { get { return m_colors; } }
+        public SSAttributeMasterScale[] MasterScales { get { return m_masterScales; } }
+        public SSAttributeComponentScale[] ComponentScales { get { return m_componentScales; } }
 
         public SSParticleSystem (int capacity)
         {
@@ -94,16 +99,13 @@ namespace SimpleScene
             m_activeBlockLength = 0;
 
             m_positions = new SSAttributePos[1];
-            m_positions [0].Position = new Vector3 (0f);
-
+            m_masterScales = new SSAttributeMasterScale[1];
+            m_componentScales = new SSAttributeComponentScale[1];
             m_colors = new SSAttributeColor[1];
-            m_colors [0].Color = OpenTKHelper.Color4toRgba(SSParticle.c_defaultColor);
-
             m_velocities = new Vector3[1];
-            m_velocities [0] = new Vector3 (0f);
-
             m_masses = new float[1];
-            m_masses [0] = SSParticle.c_defaultMass;
+
+            writeParticle(0, new SSParticle ()); // fill in default values
 
             foreach (SSParticleEmitter emitter in m_emitters) {
                 emitter.Reset();
@@ -225,6 +227,8 @@ namespace SimpleScene
             if (p.Life <= 0f) return;
 
             p.Pos = readData(m_positions, idx).Position;
+            p.MasterScale = readData(m_masterScales, idx).Scale;
+            p.ComponentScale = readData(m_componentScales, idx).Scale;
             p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
             p.Vel = readData(m_velocities, idx);
             p.Mass = readData(m_masses, idx);
@@ -253,7 +257,11 @@ namespace SimpleScene
         protected virtual void writeParticle(int idx, SSParticle p) {
             m_lives [idx] = p.Life;
             writeDataIfNeeded(ref m_positions, idx, 
-                              new SSAttributePos(p.Pos));
+                new SSAttributePos(p.Pos));
+            writeDataIfNeeded(ref m_masterScales, idx,
+                new SSAttributeMasterScale (p.MasterScale));
+            writeDataIfNeeded(ref m_componentScales, idx,
+                new SSAttributeComponentScale (p.ComponentScale));
             writeDataIfNeeded(ref m_colors, idx, 
                 new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);

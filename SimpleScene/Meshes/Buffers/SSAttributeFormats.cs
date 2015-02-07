@@ -20,9 +20,7 @@ namespace SimpleScene
         }
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
-
         public Int32 ComponentNum() { return 3; }
-
         public bool IsNormalized() { return false; }
 
         public bool Equals(SSAttributePos other)
@@ -41,14 +39,52 @@ namespace SimpleScene
         }
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedByte; }
-
         public Int32 ComponentNum() { return 4; }
-
         public bool IsNormalized() { return true; }
 
         public bool Equals (SSAttributeColor other)
         {
             return this.Color == other.Color;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSAttributeMasterScale : ISSAttributeLayout, IEquatable<SSAttributeMasterScale>
+    {
+        public float Scale;
+
+        public SSAttributeMasterScale(float scale)
+        {
+            Scale = scale;
+        }
+
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
+        public Int32 ComponentNum() { return 1; }
+        public bool IsNormalized() { return false; }
+
+        public bool Equals(SSAttributeMasterScale other)
+        {
+            return this.Scale == other.Scale;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSAttributeComponentScale : ISSAttributeLayout, IEquatable<SSAttributeComponentScale>
+    {
+        public Vector3 Scale;
+
+        public SSAttributeComponentScale(Vector3 scale)
+        {
+            Scale = scale;
+        }
+
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
+        public Int32 ComponentNum() { return 3; }
+        public bool IsNormalized() { return false; }
+
+        public bool Equals(SSAttributeComponentScale other)
+        {
+            return this.Scale == other.Scale;
         }
     }
 }
