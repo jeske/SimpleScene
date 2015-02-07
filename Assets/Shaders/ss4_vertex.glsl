@@ -42,7 +42,7 @@ void main()
 
     if (instanceDrawEnabled) {
         // TODO more instance attributes
-        varInstanceColor = instanceColor;
+        varInstanceColor = vec4(instanceColor[0], instanceColor[1], instanceColor[2], instanceColor[3]);
         gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(instancePos, 0f));
     } else {
         gl_Position = ftransform();

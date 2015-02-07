@@ -64,30 +64,28 @@ namespace SimpleScene
 		}
 
         /// <summary>
-        /// Need this because Color4.toArgb() is bugged in the currently used OpenTK version
+        /// Used when packing into 4-byte formats that gets unpacked and normalized into vec4 for the shader
         /// </summary>
-        public static int Color4toArgb(Color4 color)
+        public static UInt32 Color4toRgba(Color4 color)
         {
             const float maxByteF = (float)byte.MaxValue;
             color.R = color.R * maxByteF;
             color.G = color.G * maxByteF;
             color.B = color.B * maxByteF;
             color.A = color.A * maxByteF;
-            uint value = (uint)color.A << 24 
-                       | (uint)color.R << 16 
-                       | (uint)color.G << 8 
-                       | (uint)color.B;
-            return unchecked((int)value);
+            return (UInt32)color.A << 24 
+                 | (UInt32)color.B << 16 
+                 | (UInt32)color.G << 8 
+                 | (UInt32)color.R;
         }
 
-        public static Color4 ArgbToColor4(int argb)
+        public static Color4 RgbaToColor4(UInt32 argb)
         {
-            uint uval = (uint)argb;
             return new Color4 (
-                (byte)((uval & 0xFF0000) >> 16),    // R
-                (byte)((uval & 0xFF00) >> 8),       // G
-                (byte)((uval & 0xFF)),              // B
-                (byte)((uval & 0xFF000000) >> 24)   // A
+                (byte)((argb & 0xFF)),              // R
+                (byte)((argb & 0xFF00) >> 8),       // G
+                (byte)((argb & 0xFF0000) >> 16),    // B
+                (byte)((argb & 0xFF000000) >> 24)   // A
             );
         }
 

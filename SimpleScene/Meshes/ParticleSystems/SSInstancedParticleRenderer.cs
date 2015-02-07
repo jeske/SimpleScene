@@ -95,12 +95,12 @@ namespace SimpleScene
 
             int posInstancesPerValue = m_ps.Positions.Length < numActive ? numActive : 1;
             int posAttrLoc = renderConfig.MainShader.AttrInstancePos;
-            m_posBuffer.PrepareAttribute(posInstancesPerValue, posAttrLoc);
+            m_posBuffer.PrepareAttribute(posAttrLoc, posInstancesPerValue);
 
             int colorInstancesPerValue = m_ps.Colors.Length < numActive ? numActive : 1;
             int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
             #if true
-            m_colorBuffer.PrepareAttribute(colorInstancesPerValue, colorAttrLoc);
+            m_colorBuffer.PrepareAttribute(colorAttrLoc, colorInstancesPerValue);
             #endif
 
             // do the draw

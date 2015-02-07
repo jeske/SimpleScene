@@ -97,7 +97,7 @@ namespace SimpleScene
             m_positions [0].Position = new Vector3 (0f);
 
             m_colors = new SSAttributeColor[1];
-            m_colors [0].Color = SSParticle.c_defaultColor.ToArgb();
+            m_colors [0].Color = OpenTKHelper.Color4toRgba(SSParticle.c_defaultColor);
 
             m_velocities = new Vector3[1];
             m_velocities [0] = new Vector3 (0f);
@@ -225,7 +225,7 @@ namespace SimpleScene
             if (p.Life <= 0f) return;
 
             p.Pos = readData(m_positions, idx).Position;
-            p.Color = OpenTKHelper.ArgbToColor4(readData(m_colors, idx).Color);
+            p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
             p.Vel = readData(m_velocities, idx);
             p.Mass = readData(m_masses, idx);
         }
@@ -255,7 +255,7 @@ namespace SimpleScene
             writeDataIfNeeded(ref m_positions, idx, 
                               new SSAttributePos(p.Pos));
             writeDataIfNeeded(ref m_colors, idx, 
-                new SSAttributeColor(OpenTKHelper.Color4toArgb(p.Color)));
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);
             writeDataIfNeeded(ref m_masses, idx, p.Mass);
         }

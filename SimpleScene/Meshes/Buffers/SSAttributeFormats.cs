@@ -21,7 +21,7 @@ namespace SimpleScene
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
 
-        public int NumComponents() { return 3; }
+        public Int32 ComponentNum() { return 3; }
 
         public bool IsNormalized() { return false; }
 
@@ -34,15 +34,15 @@ namespace SimpleScene
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSAttributeColor : ISSAttributeLayout, IEquatable<SSAttributeColor>
     {
-        public int Color;
+        public UInt32 Color;
 
-        public SSAttributeColor(int color) {
+        public SSAttributeColor(UInt32 color) {
             Color = color;
         }
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.UnsignedByte; }
 
-        public int NumComponents() { return 4; }
+        public Int32 ComponentNum() { return 4; }
 
         public bool IsNormalized() { return true; }
 
