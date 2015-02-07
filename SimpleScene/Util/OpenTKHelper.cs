@@ -322,7 +322,22 @@ namespace SimpleScene
         {
             // return true when two rectangles overlap in 2D
             return !(r1Max.X < r2Min.X || r2Max.X < r1Min.X
-                || r1Max.Y < r2Min.Y || r2Max.Y < r1Min.Y);
+                     || r1Max.Y < r2Min.Y || r2Max.Y < r1Min.Y);
+        }
+
+        /// <summary>
+        /// Override matrix setup to get rid of any rotation in view
+        /// http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
+        /// </summary>
+        public static Matrix4 BillboardMatrix(ref Matrix4 modelViewMat)
+        {
+            Vector3 trans = modelViewMat.ExtractTranslation();
+            Vector3 scale = modelViewMat.ExtractScale();
+            return new Matrix4 (
+                scale.X, 0f, 0f, 0f,
+                0f, scale.Y, 0f, 0f,
+                0f, 0f, scale.Z, 0f,
+                trans.X, trans.Y, trans.Z, 1f);
         }
 	}
 }
