@@ -7,6 +7,8 @@ namespace SimpleScene
 {
     public class SSInstancedParticleRenderer : SSObject
     {
+        public BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
+
         private static readonly SSVertex_PosTex1[] c_billboardVertices = {
             // CCW quad; no indexing
             new SSVertex_PosTex1(-.5f, -.5f, 0f, 0f, 0f),
@@ -22,6 +24,8 @@ namespace SimpleScene
         protected SSParticleSystem m_ps;
         protected SSIndexBuffer m_ibo;
         protected SSAttributeBuffer<SSAttributePos> m_posBuffer;
+        protected SSAttributeBuffer<SSAttributeMasterScale> m_masterScaleBuffer;
+        protected SSAttributeBuffer<SSAttributeComponentScale> m_componentScaleBuffer;
         protected SSAttributeBuffer<SSAttributeColor> m_colorBuffer;
         protected SSTexture m_texture;
 
@@ -34,10 +38,10 @@ namespace SimpleScene
         {
             m_ps = ps;
             m_texture = texture;
-            m_posBuffer 
-                = new SSAttributeBuffer<SSAttributePos> (BufferUsageHint.StreamDraw);
-            m_colorBuffer
-                = new SSAttributeBuffer<SSAttributeColor> (BufferUsageHint.StreamDraw);
+            m_posBuffer = new SSAttributeBuffer<SSAttributePos> (c_usageHint);
+            m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeMasterScale> (c_usageHint);
+            m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeComponentScale> (c_usageHint);
+            m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (c_usageHint);
 
             // test
             this.boundingSphere = new SSObjectSphere (10f);
@@ -45,8 +49,7 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
-            int numActive = m_ps.ActiveBlockLength;
-            if (numActive <= 0) return;
+            if (m_ps.ActiveBlockLength <= 0) return;
 
             base.Render(ref renderConfig);
 
@@ -92,27 +95,33 @@ namespace SimpleScene
             //return;
 
             // prepare attribute arrays for draw
-
-            int posInstancesPerValue = m_ps.Positions.Length < numActive ? numActive : 1;
-            int posAttrLoc = renderConfig.MainShader.AttrInstancePos;
-            m_posBuffer.PrepareAttribute(posAttrLoc, posInstancesPerValue);
-
-            int colorInstancesPerValue = m_ps.Colors.Length < numActive ? numActive : 1;
-            int colorAttrLoc = renderConfig.MainShader.AttrInstanceColor;
-            #if true
-            m_colorBuffer.PrepareAttribute(colorAttrLoc, colorInstancesPerValue);
-            #endif
+            SSMainShaderProgram mainShader = renderConfig.MainShader;
+            prepareAttribute(m_posBuffer, mainShader.AttrInstancePos, m_ps.Positions);
+            prepareAttribute(m_masterScaleBuffer, mainShader.AttrInstanceMasterScale, m_ps.MasterScales);
+            //prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
+            prepareAttribute(m_colorBuffer, mainShader.AttrInstanceColor, m_ps.Colors);
 
             // do the draw
             renderConfig.MainShader.UniInstanceDrawEnabled = true;
-            s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, numActive);
+            s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
             renderConfig.MainShader.UniInstanceDrawEnabled = false;
 
             // undo attribute state
-            m_posBuffer.DisableAttribute(colorAttrLoc);
-            m_colorBuffer.DisableAttribute(posAttrLoc);
+            m_posBuffer.DisableAttribute(mainShader.AttrInstancePos);
+            m_masterScaleBuffer.DisableAttribute(mainShader.AttrInstanceMasterScale);
+            m_componentScaleBuffer.DisableAttribute(mainShader.AttrInstanceComponentScale);
+            m_colorBuffer.DisableAttribute(mainShader.AttrInstanceColor);
 
             //this.boundingSphere.Render(ref renderConfig);
+        }
+
+        void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
+            where A : struct, ISSAttributeLayout 
+            where AB : SSAttributeBuffer<A>
+        {
+            int numActive = m_ps.ActiveBlockLength;
+            int numInstancesPerValue = array.Length < numActive ? numActive : 1;
+            attrBuff.PrepareAttribute(attrLoc, numInstancesPerValue);
         }
     }
 }

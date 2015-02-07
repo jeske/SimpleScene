@@ -88,6 +88,14 @@ namespace SimpleScene
         }
 
         /// <summary>
+        /// Convenience function.
+        /// </summary>
+        static protected float nextFloat()
+        {
+            return (float)s_rand.NextDouble();
+        }
+
+        /// <summary>
         /// Override by the derived classes to describe how new particles are emitted
         /// </summary>
         /// <param name="particleCount">Particle count.</param>
@@ -98,26 +106,24 @@ namespace SimpleScene
         /// To be used by derived classes for shared particle setup
         /// </summary>
         /// <param name="p">particle to setup</param>
-        protected void configureNewParticle(SSParticle p)
+        protected virtual void configureNewParticle(SSParticle p)
         {
-            p.Life = Interpolate.Lerp(LifeMin, LifeMax, 
-                (float)s_rand.NextDouble());
+            p.Life = Interpolate.Lerp(LifeMin, LifeMax, nextFloat());
 
-            p.Vel.X = Interpolate.Lerp(VelocityComponentMin.X, VelocityComponentMax.X, 
-                (float)s_rand.NextDouble());
-            p.Vel.Y = Interpolate.Lerp(VelocityComponentMin.Y, VelocityComponentMax.Y, 
-                (float)s_rand.NextDouble());
-            p.Vel.Z = Interpolate.Lerp(VelocityComponentMin.Z, VelocityComponentMax.Z, 
-                (float)s_rand.NextDouble());
+            p.ComponentScale.X = Interpolate.Lerp(ComponentScaleMin.X, ComponentScaleMax.X, nextFloat());
+            p.ComponentScale.Y = Interpolate.Lerp(ComponentScaleMin.Y, ComponentScaleMax.Y, nextFloat());
+            p.ComponentScale.Z = Interpolate.Lerp(ComponentScaleMin.Z, ComponentScaleMax.Z, nextFloat());
 
-            p.Color.R = Interpolate.Lerp(ColorComponentMin.R, ColorComponentMax.R,
-                (float)s_rand.NextDouble());
-            p.Color.G = Interpolate.Lerp(ColorComponentMin.G, ColorComponentMax.G,
-                (float)s_rand.NextDouble());
-            p.Color.B = Interpolate.Lerp(ColorComponentMin.B, ColorComponentMax.B,
-                (float)s_rand.NextDouble());
-            p.Color.A = Interpolate.Lerp(ColorComponentMin.A, ColorComponentMax.A,
-                (float)s_rand.NextDouble());
+            p.Vel.X = Interpolate.Lerp(VelocityComponentMin.X, VelocityComponentMax.X, nextFloat());
+            p.Vel.Y = Interpolate.Lerp(VelocityComponentMin.Y, VelocityComponentMax.Y, nextFloat());
+            p.Vel.Z = Interpolate.Lerp(VelocityComponentMin.Z, VelocityComponentMax.Z, nextFloat());
+
+            p.MasterScale = Interpolate.Lerp(MasterScaleMin, MasterScaleMax, nextFloat());
+
+            p.Color.R = Interpolate.Lerp(ColorComponentMin.R, ColorComponentMax.R, nextFloat());
+            p.Color.G = Interpolate.Lerp(ColorComponentMin.G, ColorComponentMax.G, nextFloat());
+            p.Color.B = Interpolate.Lerp(ColorComponentMin.B, ColorComponentMax.B, nextFloat());
+            p.Color.A = Interpolate.Lerp(ColorComponentMin.A, ColorComponentMax.A, nextFloat());
         }
     }
 
