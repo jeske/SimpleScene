@@ -14,7 +14,6 @@ namespace Example2DTileGame
     public class SSLineObject : SSObject
     {
         #region Variables
-        Vector3 mapPosition;
         float squareWidth = 4;
 
         Vector3[,] mapArray = new Vector3[50, 50]; // W x D map (X & Z)
@@ -25,14 +24,17 @@ namespace Example2DTileGame
         float vHeight = 0;
         float currentHeight;
 
+        int R = 25, G = 25, B = 25; // Default values for color
 
         struct LineData
         {
             public Vector3 Pos;
+            public Color4 Color;
 
-            public LineData(Vector3 pos)
+            public LineData(Vector3 pos, Color4 color)
             {
                 this.Pos = pos;
+                this.Color = color; 
             }
         }
 
@@ -55,11 +57,9 @@ namespace Example2DTileGame
             GL.Begin(PrimitiveType.Lines);
             foreach (LineData v in vectorList)
             {
+                currentHeight = v.Pos.Y; // Current height of each point
 
-                #region Color coding
-
-                #endregion
-                // Draw each point added
+                GL.Color4(v.Color);
                 GL.Vertex3(v.Pos);
 
             }
@@ -79,23 +79,26 @@ namespace Example2DTileGame
                 GL.Disable(EnableCap.Texture2D);                
                 GL.Disable(EnableCap.Lighting);
                 //!important!                
-                GL.Color3(1f, 1f, 1f);
                 drawWireFrame(); // Draw it               
         }
 
         /// <summary>
         /// Adds points into array-list
         /// </summary>
-        public void AddToArray(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 Middle)
+        public void AddToArray(Vector3 p0, Vector3 p1, 
+            Vector3 p2, Vector3 p3, Vector3 Middle, Color4 lineColor)
         {
-            vectorList.Add(new LineData(p0)); vectorList.Add(new LineData(p1));
-            vectorList.Add(new LineData(p0)); vectorList.Add(new LineData(p2));
-            vectorList.Add(new LineData(p2)); vectorList.Add(new LineData(p3));
-            vectorList.Add(new LineData(p3)); vectorList.Add(new LineData(p1));
-            vectorList.Add(new LineData(p0)); vectorList.Add(new LineData(Middle));
-            vectorList.Add(new LineData(p1)); vectorList.Add(new LineData(Middle));
-            vectorList.Add(new LineData(p2)); vectorList.Add(new LineData(Middle));
-            vectorList.Add(new LineData(p3)); vectorList.Add(new LineData(Middle));
+
+            #region Vector adding
+            vectorList.Add(new LineData(p0, lineColor)); vectorList.Add(new LineData(p1, lineColor));
+            vectorList.Add(new LineData(p0, lineColor)); vectorList.Add(new LineData(p2, lineColor));
+            vectorList.Add(new LineData(p2, lineColor)); vectorList.Add(new LineData(p3, lineColor));
+            vectorList.Add(new LineData(p3, lineColor)); vectorList.Add(new LineData(p1, lineColor));
+            vectorList.Add(new LineData(p0, lineColor)); vectorList.Add(new LineData(Middle, lineColor));
+            vectorList.Add(new LineData(p1, lineColor)); vectorList.Add(new LineData(Middle, lineColor));
+            vectorList.Add(new LineData(p2, lineColor)); vectorList.Add(new LineData(Middle, lineColor));
+            vectorList.Add(new LineData(p3, lineColor)); vectorList.Add(new LineData(Middle, lineColor));
+            #endregion
         }
 
         /// <summary>
@@ -123,10 +126,28 @@ namespace Example2DTileGame
                     p2 = new Vector3(squareCX, vHeight, squareCY + squareWidth);
                     p3 = new Vector3(squareCX + squareWidth, vHeight, squareCY + squareWidth);
 
+                    currentHeight = rand.Next(0, 10);
                     // Determines height
-                    middle = new Vector3(squareCX + Middle, rand.Next(0, 10), squareCY + Middle);
+                    middle = new Vector3(squareCX + Middle, currentHeight, squareCY + Middle);
+                    Color4 color;
 
-                    AddToArray(p0, p1, p2, p3, middle);
+                    #region Color switch
+                    color = new Color4(0f, 0f, 0f, 1f);
+                    float heightFactor = 0.1f * (float)currentHeight;
+                    color.G += heightFactor;
+                    color.B += heightFactor;
+                    color.R += heightFactor;
+
+                    if(heightFactor == 0)
+                    {
+                        color.G = 0.1f;
+                        color.B = 0.1f;
+                        color.R = 0.1f;
+                    }
+                    
+                    #endregion
+
+                    AddToArray(p0, p1, p2, p3, middle, color);
 
                 }
 
