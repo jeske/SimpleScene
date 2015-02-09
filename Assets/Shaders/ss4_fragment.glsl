@@ -49,25 +49,25 @@ uniform vec2 poissonScale3;
 
 varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
-const float maxLitReductionByShade = 0.7f;
+const float maxLitReductionByShade = 0.7;
 
 vec2 poissonDisk[16] = vec2[] (
-    vec2(-0.04770581f, 0.1478396f),
-    vec2(0.3363894f, 0.4504989f),
-    vec2(-0.2229154f, 0.66614f),
-    vec2(0.2214093f, -0.218469f),
-    vec2(0.6464681f, 0.0007115538f),
-    vec2(-0.4084882f, -0.2793796f),
-    vec2(-0.6255119f, 0.1134195f),
-    vec2(0.5613756f, -0.4556728f),
-    vec2(0.7622108f, 0.4088926f),
-    vec2(-0.01734736f, -0.7944852f),
-    vec2(-0.8065997f, -0.4794133f),
-    vec2(0.4379586f, 0.8250926f),
-    vec2(0.3348362f, -0.9189008f),
-    vec2(-0.3919142f, -0.9179187f),
-    vec2(0.02141847f, 0.9828521f),
-    vec2(-0.6499051f, 0.5785806f)
+    vec2(-0.04770581, 0.1478396),
+    vec2(0.3363894, 0.4504989),
+    vec2(-0.2229154, 0.66614),
+    vec2(0.2214093, -0.218469),
+    vec2(0.6464681, 0.0007115538),
+    vec2(-0.4084882, -0.2793796),
+    vec2(-0.6255119, 0.1134195),
+    vec2(0.5613756, -0.4556728),
+    vec2(0.7622108, 0.4088926),
+    vec2(-0.01734736, -0.7944852),
+    vec2(-0.8065997, -0.4794133),
+    vec2(0.4379586, 0.8250926),
+    vec2(0.3348362, -0.9189008),
+    vec2(-0.3919142, -0.9179187),
+    vec2(0.02141847, 0.9828521),
+    vec2(-0.6499051, 0.5785806)
 );
 
 //float rand(vec2 co){
@@ -82,9 +82,9 @@ float rand(vec4 seed4) {
 vec4 linearTest(vec4 outputColor) {
        float PI = 3.14159265358979323846264;
        vec4 effectColor = vec4(0.9);
-	   float speedDivisor = 4.0f;
-	   float pulseSpeedDivisor = 0.8f;
-	   float pulseWidthDivisor = 3.0f;
+	   float speedDivisor = 4.0;
+	   float pulseSpeedDivisor = 0.8;
+	   float pulseWidthDivisor = 3.0;
 
 	   float intensity = sin(mod (((f_vertexPosition_objectspace.z / pulseWidthDivisor) + (animateSecondsOffset / pulseSpeedDivisor)), PI));
 
@@ -119,8 +119,8 @@ vec4 gridTest(vec4 outputColor) {
        float PI = 3.14159265358979323846264;
        vec4 effectColor = vec4(0.9);
        vec3 vp = f_vertexPosition_objectspace;
-	   float speedDivisor = 2.0f;
-	   float pulseSpeedDivisor = 1.0f;
+	   float speedDivisor = 2.0;
+	   float pulseSpeedDivisor = 1.0;
 
 	   float intensity = sin(mod ((animateSecondsOffset / pulseSpeedDivisor), PI));
 
@@ -198,14 +198,14 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
         
         for (int i = 0; i < numShadowMaps; ++i) {
             if ((smapIndexMask & (1 << i)) != 0) {
-				if      (i == 0) { debugOutputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }
-                else if (i == 1) { debugOutputColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }
-                else if (i == 2) { debugOutputColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }
-                else             { debugOutputColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }
+				if      (i == 0) { debugOutputColor = vec4(1.0, 0.0, 0.0, 1.0); }
+                else if (i == 1) { debugOutputColor = vec4(0.0, 1.0, 0.0, 1.0); }
+                else if (i == 2) { debugOutputColor = vec4(0.0, 0.0, 1.0, 1.0); }
+                else             { debugOutputColor = vec4(1.0, 1.0, 0.0, 1.0); }
                 
                 vec4 coord = f_shadowMapCoords[i];
                 vec2 uv = coord.xy;
-                float distanceToTexel = clamp(coord.z, 0.0f, 1.0f);
+                float distanceToTexel = clamp(coord.z, 0.0, 1.0);
 
                 if (poissonSamplingEnabled) {
                     vec2 scale;
@@ -219,14 +219,14 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                                                 / float(numPoissonSamples);
                     for (int p = 0; p < numPoissonSamples; ++p) {
                         int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
-                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0f / scale;
+                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0 / scale;
                         if (shadowMapTest(uvSample, distanceToTexel, depthOffset)) {
                             litFactor -= litReductionPerSample;
                         }
                     }
                 } else { // no Poisson sampling
                     if (shadowMapTest(uv, distanceToTexel, depthOffset)) {
-                        litFactor = 1.0f - maxLitReductionByShade;
+                        litFactor = 1.0 - maxLitReductionByShade;
                     }
                 }
                 debugOutputColor *= litFactor;               
@@ -235,7 +235,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
         }
     } else {
 		// surface away from the light
-	    debugOutputColor = vec4(0.5f, 0.0f, 0.5f, 1.0f);  
+	    debugOutputColor = vec4(0.5, 0.0, 0.5, 1.0);  
 		return litFactor;
     }
 	
@@ -315,16 +315,12 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
 	    // specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 		float matShininess = 1.0; // gl_FrontMaterial.shininess;
 
-
 		// load texels...
-
 		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
 
 		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
-
-
 
 	   // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
        vec3 bump_normal = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
@@ -341,11 +337,10 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
        outputColor += litFactor * diffuseColor * max(diffuseIllumination, glowFactor);
 
 	   if (dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
-
           // specular...
           vec3 R = reflect(-lVec,bump_normal);
-          float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0,1), matShininess);
-          outputColor += specTex * litFactor * specularStrength * shininess;      
+          float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0, 1), matShininess);
+          outputColor += specTex * litFactor * specularStrength * shininess;
        }
 	   return outputColor;
 }
@@ -383,7 +378,7 @@ void main()
 		float nearD = min(min(f_dist[0],f_dist[1]),f_dist[2]);
         float curIntensity = max(max(outputColor.r,outputColor.g),outputColor.b);
 		float edgeIntensity = exp2((-1 / edgeWidth)*nearD*nearD * 2);		
-        vec4 edgeColor = vec4(vec3( (curIntensity < 0.4) ? 0.6 : 0.3 ),1.0);
+        vec4 edgeColor = vec4(vec3( (curIntensity < 0.4) ? 0.6 : 0.3 ), 1.0);
 		// vec4 edgeColor = vec4( clamp( (1.7 - length(outputColor.rgb) ),0.3,0.7) );			
         outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
     }

@@ -43,17 +43,18 @@ void main()
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
     if (instanceDrawEnabled) {
+        // TODO fix scale
         // TODO orientation, texture offset
         varInstanceColor = instanceColor;
-        vec3 combinedPos = instanceMasterScale * instanceComponentScale * gl_Vertex.xyz
+        vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale)  
                          + instancePos;
-        gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1f);
+        gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
     } else {
         gl_Position = ftransform();
     }
     
     // shadowmap transform
-    vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1);
+    vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1.0);
     for (int i = 0; i < numShadowMaps; ++i) {
         mat4 vp;
 
