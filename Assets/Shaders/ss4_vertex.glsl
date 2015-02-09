@@ -37,7 +37,7 @@ void main()
 	gl_Position = ftransform();  
 
     // shadowmap transform
-    vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1);
+    vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1.0);
     for (int i = 0; i < numShadowMaps; ++i) {
         mat4 vp;
 
