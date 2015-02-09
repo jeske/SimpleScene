@@ -64,8 +64,8 @@ namespace SimpleScene
             m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
             m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
+            Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
             if (BillboardingEnabled) {
-                Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelView);
@@ -78,7 +78,7 @@ namespace SimpleScene
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.Disable(EnableCap.Lighting);
 
-                // TODO invoke depth sort
+                m_ps.SortByDepth(ref modelView);
             }
 
             #if DRAW_USING_MAIN_SHADER
