@@ -21,7 +21,10 @@ namespace Example2DTileGame
         bool isGenerating = true;
         int x = 0;
 
-        float vHeight = 0;
+        float vHeight1 = 0;
+        float vHeight2 = 0;
+        float vHeight3 = 0;
+        float vHeight4 = 0;
         float currentHeight;
 
         int R = 25, G = 25, B = 25; // Default values for color
@@ -57,8 +60,7 @@ namespace Example2DTileGame
             GL.Begin(PrimitiveType.Lines);
             foreach (LineData v in vectorList)
             {
-                currentHeight = v.Pos.Y; // Current height of each point
-
+                
                 GL.Color4(v.Color);
                 GL.Vertex3(v.Pos);
 
@@ -88,7 +90,6 @@ namespace Example2DTileGame
         public void AddToArray(Vector3 p0, Vector3 p1, 
             Vector3 p2, Vector3 p3, Vector3 Middle, Color4 lineColor)
         {
-
             #region Vector adding
             vectorList.Add(new LineData(p0, lineColor)); vectorList.Add(new LineData(p1, lineColor));
             vectorList.Add(new LineData(p0, lineColor)); vectorList.Add(new LineData(p2, lineColor));
@@ -106,13 +107,19 @@ namespace Example2DTileGame
         /// </summary>
         public void Smoothing()
         {
+            // Get height, 
+            // Average height,
+            // Set height equal to average of points around 
 
+         
         }
 
         public SSLineObject (Vector3 mapPos) : base()
         {
             Random rand = new Random();
             Console.WriteLine("Set points");
+
+
             for (int i = 0; i < mapArray.GetLength(0); i++)
             {
                 for (int j = 0; j < mapArray.GetLength(1); j++)
@@ -121,12 +128,19 @@ namespace Example2DTileGame
                     float squareCX = i * squareWidth;
                     float squareCY = j * squareWidth;
 
-                    p0 = new Vector3(squareCX, vHeight, squareCY);
-                    p1 = new Vector3(squareCX + squareWidth, vHeight, squareCY);
-                    p2 = new Vector3(squareCX, vHeight, squareCY + squareWidth);
-                    p3 = new Vector3(squareCX + squareWidth, vHeight, squareCY + squareWidth);
-
+                    // So I can control individual heights
+                    vHeight1 = rand.Next(0, 5);
+                    vHeight2 = rand.Next(0, 5);
+                    vHeight3 = rand.Next(0, 5);
+                    vHeight4 = rand.Next(0, 5);
+                    // 'Peak'
                     currentHeight = rand.Next(0, 10);
+                    Smoothing();
+                    p0 = new Vector3(squareCX, vHeight1, squareCY);
+                    p1 = new Vector3(squareCX + squareWidth, vHeight2, squareCY);
+                    p2 = new Vector3(squareCX, vHeight3, squareCY + squareWidth);
+                    p3 = new Vector3(squareCX + squareWidth, vHeight4, squareCY + squareWidth);
+
                     // Determines height
                     middle = new Vector3(squareCX + Middle, currentHeight, squareCY + Middle);
                     Color4 color;
@@ -148,6 +162,7 @@ namespace Example2DTileGame
                     #endregion
 
                     AddToArray(p0, p1, p2, p3, middle, color);
+
 
                 }
 
