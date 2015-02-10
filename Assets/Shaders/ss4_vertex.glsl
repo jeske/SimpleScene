@@ -29,6 +29,60 @@ varying vec3 vertexPosition_objectspace;
 varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
 varying vec4 varInstanceColor;
 
+// returns a quaternion representing rotation
+// http://github.com/opentk/opentk/blob/c29509838d340bd292bc0113fe65a2e4b5aed0e8/Source/OpenTK/Math/Matrix4.cs
+vec4 extractRotationQuat(mat4 input, bool row_normalise)
+{
+    vec3 row0 = input[0].xyz;
+    vec3 row1 = input[1].xyz;
+    vec3 row2 = input[2].xyz;
+    if (row_normalise) {
+        row0 = normalize(row0);
+        row1 = normalize(row1);
+        row2 = normalize(row2);
+    }
+    // code below adapted from Blender
+    vec4 q;
+    float trace = 0.25 * (row0[0] + row1[1] + row2[2] + 1.0);
+    if (trace > 0) {
+        float sq = sqrt(trace);
+        q.w = sq;
+        sq = 1.0 / (4.0 * sq);
+        q.x = (row1[2] - row2[1]) * sq;
+        q.y = (row2[0] - row0[2]) * sq;
+        q.z = (row0[1] - row1[0]) * sq;
+    } else if (row0[0] > row1[1] && row0[0] > row2[2]) {
+        float sq = 2.0 * sqrt(1.0 + row0[0] - row1[1] - row2[2]);
+        q.x = 0.25 * sq;
+        sq = 1.0 / sq;
+        q.w = (row2[1] - row1[2]) * sq;
+        q.y = (row1[0] + row0[1]) * sq;
+        q.z = (row2[0] + row0[2]) * sq;
+    } else if (row1[1] > row2[2]) {
+        float sq = 2.0 * sqrt(1.0 + row1[1] - row0[0] - row2[2]);
+        q.y = 0.25 * sq;
+        sq = 1.0 / sq;
+        q.w = (row2[0] - row0[2]) * sq;
+        q.x = (row1[0] + row0[1]) * sq;
+        q.z = (row2[1] + row1[2]) * sq;
+    } else {
+        float sq = 2.0 * sqrt(1.0 + row2[2] - row0[0] - row1[1]);
+        q.z = 0.25 * sq;
+        sq = 1.0 / sq;
+        q.w = (row1[0] - row0[1]) * sq;
+        q.x = (row2[0] + row0[2]) * sq;
+        q.y = (row2[1] + row1[2]) * sq;
+    }
+    q = normalize(q);
+    return q;
+}
+
+// http://www.opengl.org/discussion_boards/showthread.php/160134-Quaternion-functions-for-GLSL
+vec3 quatTransform(vec4 q, vec3 v)
+{
+    return v + 2.0*cross(cross(v, q.xyz ) + q.w*v, q.xyz);
+}
+
 void main()
 {   
 	gl_TexCoord[0] =  gl_MultiTexCoord0;  // output base UV coordinates
@@ -46,9 +100,17 @@ void main()
         // TODO fix scale
         // TODO orientation, texture offset
         varInstanceColor = instanceColor;
-        vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale)  
-                         + instancePos;
+        
+        vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, true);
+        rotation *= -1; // inverse rotation
+
+        vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
+        combinedPos = quatTransform(rotation, combinedPos);
+        combinedPos += instancePos;
+        //vec3 combinedPos = instancePos + gl.Vertex.xyz;
         gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
+
+        //gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(combinedPos.x, combinedPos.y, 0.0, 0.0));
     } else {
         gl_Position = ftransform();
     }

@@ -74,7 +74,7 @@ namespace SimpleScene
             if (AlphaBlendingEnabled) {
                 GL.Enable(EnableCap.AlphaTest);
                 GL.Enable(EnableCap.Blend);
-                GL.AlphaFunc(AlphaFunction.Greater, 0.2f);
+                GL.AlphaFunc(AlphaFunction.Greater, 0.1f);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.Disable(EnableCap.Lighting);
 
