@@ -60,12 +60,6 @@ namespace SimpleScene
 
             base.Render(ref renderConfig);
 
-            // update buffers
-            m_posBuffer.UpdateBufferData(m_ps.Positions);
-            m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
-            m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
-            m_colorBuffer.UpdateBufferData(m_ps.Colors);
-
             Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
             if (Billboarding == BillboardingType.Global) {
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);
@@ -76,11 +70,20 @@ namespace SimpleScene
             if (AlphaBlendingEnabled) {
                 GL.Enable(EnableCap.AlphaTest);
                 GL.Enable(EnableCap.Blend);
-                GL.AlphaFunc(AlphaFunction.Greater, 0.1f);
+                GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.Disable(EnableCap.Lighting);
 
+                // Must be called before updating buffers
                 m_ps.SortByDepth(ref modelView);
+            }
+
+            // update buffers
+            {
+                m_posBuffer.UpdateBufferData(m_ps.Positions);
+                m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
+                m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
+                m_colorBuffer.UpdateBufferData(m_ps.Colors);
             }
 
             #if DRAW_USING_MAIN_SHADER

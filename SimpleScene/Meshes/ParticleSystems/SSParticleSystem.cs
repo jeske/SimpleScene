@@ -24,9 +24,6 @@ namespace SimpleScene
 
         // TODO texture coord, orientation
 
-        public bool IsDead { get { return Life <= 0f; } }
-        public bool IsAlive { get { return !IsDead; } }
-
         #if false
         public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
 		{
@@ -50,6 +47,7 @@ namespace SimpleScene
 
     public class SSParticleSystem
     {
+        protected static readonly SSAttributePos c_notAPosition = new SSAttributePos(new Vector3 (float.NaN));
         protected static Random s_rand = new Random(); // for quicksorting
 
         // TODO bounding sphere or cube
@@ -138,30 +136,27 @@ namespace SimpleScene
 
         public void Simulate(float timeDelta)
         {
-            foreach (SSParticleEmitter emitter in m_emitters) {
-                emitter.Simulate(timeDelta, storeNewParticle);
-            }
-
-            SSParticle p = new SSParticle();
-            for (int i = 0; i < m_numParticles; ++i) {
+            SSParticle p = new SSParticle ();
+            for (int i = 0; i < m_activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Alive particle
-                    readParticle(i, p);
-                    p.Life -= timeDelta;
-                    if (p.IsAlive) {
+                    m_lives [i] -= timeDelta;
+                    if (isAlive(i)) {
                         // Still alive. Update position and run through effectors
+                        readParticle(i, p);
                         p.Pos += p.Vel * timeDelta;
                         foreach (SSParticleEffector effector in m_effectors) {
                             effector.Simulate(p, timeDelta);
                         }
+                        writeParticle(i, p);
                     } else {
                         // Particle just died. Hack to not draw?
-                        p.Pos = new Vector3 (0f);
+                        writeDataIfNeeded(ref m_positions, i, c_notAPosition);
                         if (m_numParticles == m_capacity || i < m_nextIdxToWrite) {
                             // released slot will be the next one to be written to
                             m_nextIdxToWrite = i;
                         }
-                        if (i == m_activeBlockLength-1) {
+                        if (i == m_activeBlockLength - 1) {
                             // reduction in the active particles block
                             while (m_activeBlockLength > 0 && isDead(m_activeBlockLength - 1)) {
                                 --m_activeBlockLength;
@@ -175,9 +170,25 @@ namespace SimpleScene
                             m_activeBlockLength = 0;
                         }
                     }
-                    writeParticle(i, p);
                 }
             }
+
+            foreach (SSParticleEmitter emitter in m_emitters) {
+                emitter.Simulate(timeDelta, storeNewParticle);
+            }
+
+            #if false
+            SSAttributeColor[] debugColors = {
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Red)),
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Green)),
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Blue)),
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Yellow))
+            };
+
+            for (int i = 0; i < m_activeBlockLength; ++i) {
+                writeDataIfNeeded(ref m_colors, i, debugColors[i]);
+            }
+            #endif
         }
 
         public void SortByDepth(ref Matrix4 viewMatrix)
@@ -201,7 +212,7 @@ namespace SimpleScene
 
             if (m_numParticles < m_capacity) {
                 // update pointers to reflect dead particles that just got sorted to the back
-                m_nextIdxToWrite = m_nextIdxToOverwrite = m_numParticles - 1;
+                m_nextIdxToWrite = m_numParticles - 1;
                 m_activeBlockLength = m_numParticles;
             }
         }
@@ -254,15 +265,16 @@ namespace SimpleScene
 
         protected virtual void readParticle (int idx, SSParticle p) {
             p.Life = m_lives [idx];
-            if (p.Life <= 0f) return;
-
             p.Pos = readData(m_positions, idx).Position;
+            p.ViewDepth = readData(m_viewDepths, idx);
+
+            if (p.Life <= 0f) return; // the rest does not matter
+
             p.MasterScale = readData(m_masterScales, idx).Scale;
             p.ComponentScale = readData(m_componentScales, idx).Scale;
             p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
             p.Vel = readData(m_velocities, idx);
             p.Mass = readData(m_masses, idx);
-            p.ViewDepth = readData(m_viewDepths, idx);
         }
 
         protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
