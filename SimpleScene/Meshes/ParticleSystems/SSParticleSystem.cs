@@ -176,19 +176,6 @@ namespace SimpleScene
             foreach (SSParticleEmitter emitter in m_emitters) {
                 emitter.Simulate(timeDelta, storeNewParticle);
             }
-
-            #if false
-            SSAttributeColor[] debugColors = {
-                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Red)),
-                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Green)),
-                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Blue)),
-                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Yellow))
-            };
-
-            for (int i = 0; i < m_activeBlockLength; ++i) {
-                writeDataIfNeeded(ref m_colors, i, debugColors[i]);
-            }
-            #endif
         }
 
         public void SortByDepth(ref Matrix4 viewMatrix)
@@ -215,6 +202,19 @@ namespace SimpleScene
                 m_nextIdxToWrite = m_numParticles - 1;
                 m_activeBlockLength = m_numParticles;
             }
+
+            #if false
+            SSAttributeColor[] debugColors = {
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Red)),
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Green)),
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Blue)),
+                new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Yellow))
+            };
+
+            for (int i = 0; i < m_activeBlockLength; ++i) {
+                writeDataIfNeeded(ref m_colors, i, debugColors[i]);
+            }
+            #endif
         }
 
         protected virtual void storeNewParticle(SSParticle newParticle)
@@ -334,7 +334,7 @@ namespace SimpleScene
                 float iDepth = readData(m_viewDepths, i);
                 float rightDepth = readData(m_viewDepths, rightIdx);
                 // or <= ?
-                if (iDepth <= rightDepth) {
+                if (iDepth < rightDepth) {
                     particleSwap(i, store);
                     store++;
                 }
