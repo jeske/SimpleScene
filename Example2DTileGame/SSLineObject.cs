@@ -16,16 +16,13 @@ namespace Example2DTileGame
         #region Variables
         float squareWidth = 4;
 
-        Vector3[,] mapArray = new Vector3[50, 50]; // W x D map (X & Z)
+        float[,] mapArray = new float[11, 11]; // W x D map (X & Z)
 
         bool isGenerating = true;
         int x = 0;
 
-        float vHeight1 = 0;
-        float vHeight2 = 0;
-        float vHeight3 = 0;
-        float vHeight4 = 0;
-        float currentHeight;
+        float baseHeight = 0;
+        float peakHeight = 0;
 
         int R = 25, G = 25, B = 25; // Default values for color
 
@@ -102,59 +99,96 @@ namespace Example2DTileGame
             #endregion
         }
 
-        /// <summary>
-        /// Relax the map
-        /// </summary>
-        public void Smoothing()
-        {
-            // Get height, 
-            // Average height,
-            // Set height equal to average of points around 
-
-         
-        }
-
         public SSLineObject (Vector3 mapPos) : base()
         {
-            Random rand = new Random();
             Console.WriteLine("Set points");
+            Random rand = new Random();
+            float avgHeight = 0;
+            float totalHeight = 0;
 
 
-            for (int i = 0; i < mapArray.GetLength(0); i++)
+            ///////////////////////
+            //Gather height data//
+            /////////////////////
             {
-                for (int j = 0; j < mapArray.GetLength(1); j++)
+                for (int i = 0; i < mapArray.GetLength(0) - 1; i++)
+                {
+                    for (int j = 0; j < mapArray.GetLength(1) - 1; j++)
+                    {
+                        // Stores a random height in every position of the
+                        // mapArray[,]
+                        baseHeight = rand.Next(0, 4); // Base heights                       
+                        mapArray[i, j] = baseHeight; // Store heights
+
+                    }
+                }
+            }
+            
+            ///////////////////
+            //Relax the data//
+            /////////////////
+            {
+                float h1;
+                float h2;
+                float h3;
+                float h4;
+
+                for (int n = 0; n < 3; n++)
+                {
+                    for (int i = 0; i < mapArray.GetLength(0) - 1; i ++)
+                    {
+                        for (int j = 0; j < mapArray.GetLength(1) - 1; j ++)
+                        {
+                            h1 = mapArray[i, j];
+                            h2 = mapArray[i + 1, j];
+                            h3 = mapArray[i, j + 1];
+                            h4 = mapArray[i + 1, j + 1];
+                            // TODO -
+                            // Get total heights [X]
+                            // Get average of heights around the squares...[]
+                            // Set points equal to average of points[]
+                            totalHeight = h1 + h2 + h3 + h4;
+                            avgHeight = totalHeight / 4;
+                            peakHeight = 0;
+                            mapArray[i, j] = avgHeight;
+
+                           
+                            
+                        }
+                    }
+                }
+            }
+
+            //////////////////////////
+            //Generate the map mesh//
+            ////////////////////////            
+            for (int i = 0; i < mapArray.GetLength(0) - 1; i++)
+            {
+                for (int j = 0; j < mapArray.GetLength(1) - 1; j++)
                 {
                     float Middle = squareWidth / 2; // Middle point of the square
                     float squareCX = i * squareWidth;
                     float squareCY = j * squareWidth;
 
-                    // So I can control individual heights
-                    vHeight1 = rand.Next(0, 5);
-                    vHeight2 = rand.Next(0, 5);
-                    vHeight3 = rand.Next(0, 5);
-                    vHeight4 = rand.Next(0, 5);
-                    // 'Peak'
-                    currentHeight = rand.Next(0, 10);
-                    Smoothing();
-                    p0 = new Vector3(squareCX, vHeight1, squareCY);
-                    p1 = new Vector3(squareCX + squareWidth, vHeight2, squareCY);
-                    p2 = new Vector3(squareCX, vHeight3, squareCY + squareWidth);
-                    p3 = new Vector3(squareCX + squareWidth, vHeight4, squareCY + squareWidth);
+                    p0 = new Vector3(squareCX, mapArray[i, j], squareCY);
+                    p1 = new Vector3(squareCX + squareWidth, mapArray[i + 1, j], squareCY);
+                    p2 = new Vector3(squareCX, mapArray[i, j + 1], squareCY + squareWidth);
+                    p3 = new Vector3(squareCX + squareWidth, mapArray[i + 1, j + 1], squareCY + squareWidth);
 
                     // Determines height
-                    middle = new Vector3(squareCX + Middle, currentHeight, squareCY + Middle);
+                    middle = new Vector3(squareCX + Middle, peakHeight, squareCY + Middle);
                     Color4 color;
 
                     #region Color switch
                     color = new Color4(0f, 0f, 0f, 1f);
-                    float heightFactor = 0.1f * (float)currentHeight;
+                    float heightFactor = 0.1f * (float)peakHeight;
                     color.G += heightFactor;
                     color.B += heightFactor;
                     color.R += heightFactor;
 
                     if(heightFactor == 0)
                     {
-                        color.G = 0.1f;
+                        color.G = 1.0f;
                         color.B = 0.1f;
                         color.R = 0.1f;
                     }
