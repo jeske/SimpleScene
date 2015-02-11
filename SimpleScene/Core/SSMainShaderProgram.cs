@@ -50,6 +50,7 @@ namespace SimpleScene
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
         private readonly int u_instanceDrawEnabled;
+        private readonly int u_instanceBillboardingEnabled;
 
         private readonly int a_instancePos;
         private readonly int a_instanceMasterScale;
@@ -113,6 +114,10 @@ namespace SimpleScene
 
         public bool UniInstanceDrawEnabled {
             set { assertActive(); GL.Uniform1(u_instanceDrawEnabled, value ? 1 : 0); } 
+        }
+
+        public bool UniInstanceBillboardingEnabled {
+            set { assertActive(); GL.Uniform1(u_instanceBillboardingEnabled, value ? 1 : 0); } 
         }
 
         public int AttrInstancePos {
@@ -214,6 +219,7 @@ namespace SimpleScene
             u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
             u_lightingMode = getUniLoc("lightingMode");
             u_instanceDrawEnabled = getUniLoc("instanceDrawEnabled");
+            u_instanceBillboardingEnabled = getUniLoc("instanceBillboardingEnabled");
 
             // attributes
             a_instancePos = getAttrLoc("instancePos");
@@ -230,6 +236,7 @@ namespace SimpleScene
             }
 
             UniInstanceDrawEnabled = false;
+            UniInstanceBillboardingEnabled = false;
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;

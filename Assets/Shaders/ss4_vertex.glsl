@@ -13,6 +13,7 @@ uniform mat4 objWorldTransform;
 
 // instanced drawing
 uniform bool instanceDrawEnabled;
+uniform bool instanceBillboardingEnabled;
 attribute vec3 instancePos;
 attribute float instanceMasterScale;
 attribute vec3 instanceComponentScale;
@@ -101,11 +102,12 @@ void main()
         // TODO orientation, texture offset
         varInstanceColor = instanceColor;
         
-        vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, true);
-        rotation *= -1; // inverse rotation
-
         vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
-        combinedPos = quatTransform(rotation, combinedPos);
+        if (instanceBillboardingEnabled) {
+            vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, true);
+            rotation *= -1; // inverse rotation
+            combinedPos = quatTransform(rotation, combinedPos);
+        }
         combinedPos += instancePos;
         //vec3 combinedPos = instancePos + gl.Vertex.xyz;
         gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);

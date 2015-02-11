@@ -9,6 +9,8 @@ namespace SimpleScene
 {
     public class SSInstancedParticleRenderer : SSObject
     {
+        public enum BillboardingType { None, Instanced, Global };
+
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
         private static readonly SSVertex_PosTex1[] c_billboardVertices = {
@@ -24,7 +26,7 @@ namespace SimpleScene
         protected static readonly SSVertexBuffer<SSVertex_PosTex1> s_billboardVbo;
 
         public bool AlphaBlendingEnabled = true;
-        public bool BillboardingEnabled = true;
+        public BillboardingType Billboarding = BillboardingType.Instanced;
 
         protected SSParticleSystem m_ps;
         protected SSIndexBuffer m_ibo;
@@ -65,7 +67,7 @@ namespace SimpleScene
             m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
             Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
-            if (BillboardingEnabled) {
+            if (Billboarding == BillboardingType.Global) {
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelView);
@@ -117,7 +119,10 @@ namespace SimpleScene
             #endif
 
             // do the draw
+            // TODO configure instance billboarding
+            bool instanceBB = (Billboarding == BillboardingType.Instanced);
             renderConfig.MainShader.UniInstanceDrawEnabled = true;
+            renderConfig.MainShader.UniInstanceBillboardingEnabled = instanceBB;
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
             renderConfig.MainShader.UniInstanceDrawEnabled = false;
 
