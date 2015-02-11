@@ -104,7 +104,9 @@ void main()
         
         vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
         if (instanceBillboardingEnabled) {
-            vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, true);
+            // this could have been done on the CPU side but only if we don't want
+            // per-instance scale
+            vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
             rotation *= -1; // inverse rotation
             combinedPos = quatTransform(rotation, combinedPos);
         }
