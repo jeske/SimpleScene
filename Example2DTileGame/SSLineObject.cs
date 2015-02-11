@@ -16,7 +16,11 @@ namespace Example2DTileGame
         #region Variables
         float squareWidth = 4;
 
-        float[,] mapArray = new float[11, 11]; // W x D map (X & Z)
+        static int arrayW = 50;
+        static int arrayH = 50;
+
+        float[,] mapArray = new float[arrayW, arrayH]; // Holds base-heights
+        float[,] peakArray = new float[arrayW, arrayH];
 
         bool isGenerating = true;
         int x = 0;
@@ -117,8 +121,10 @@ namespace Example2DTileGame
                     {
                         // Stores a random height in every position of the
                         // mapArray[,]
+                        peakHeight = rand.Next(0, 10); // Peak heights
+                        peakArray[i, j] = peakHeight; // Store peak heights
                         baseHeight = rand.Next(0, 4); // Base heights                       
-                        mapArray[i, j] = baseHeight; // Store heights
+                        mapArray[i, j] = baseHeight; // Store base heights
 
                     }
                 }
@@ -132,27 +138,27 @@ namespace Example2DTileGame
                 float h2;
                 float h3;
                 float h4;
+                float peakH;
 
-                for (int n = 0; n < 3; n++)
+                for (int n = 0; n < 6; n++)
                 {
                     for (int i = 0; i < mapArray.GetLength(0) - 1; i ++)
                     {
                         for (int j = 0; j < mapArray.GetLength(1) - 1; j ++)
                         {
-                            h1 = mapArray[i, j];
-                            h2 = mapArray[i + 1, j];
-                            h3 = mapArray[i, j + 1];
-                            h4 = mapArray[i + 1, j + 1];
                             // TODO -
                             // Get total heights [X]
-                            // Get average of heights around the squares...[]
-                            // Set points equal to average of points[]
-                            totalHeight = h1 + h2 + h3 + h4;
-                            avgHeight = totalHeight / 4;
-                            peakHeight = 0;
-                            mapArray[i, j] = avgHeight;
+                            // Get average of heights around the squares...[X]
+                            // Set points equal to average of points[X]
+                            h1 = peakArray[i, j];
+                            h2 = peakArray[i + 1, j];
+                            h3 = peakArray[i, j + 1];
+                            h4 = peakArray[i + 1, j + 1];
 
-                           
+                            totalHeight = h1 + h2 + h3 + h4; // Total peak height
+                            avgHeight = totalHeight / 4; // Average peak height around
+
+                            mapArray[i, j] = avgHeight;                           
                             
                         }
                     }
@@ -170,30 +176,32 @@ namespace Example2DTileGame
                     float squareCX = i * squareWidth;
                     float squareCY = j * squareWidth;
 
+                    Color4 color;
+
+                    #region Color switch
+                    color = new Color4(0f, 0f, 0f, 1f);
+                    float heightFactor = 0.1f * (float)peakArray[i, j];
+                    color.G += heightFactor;
+                    color.B += heightFactor;
+                    color.R += heightFactor;
+
+                    if (heightFactor == 0)
+                    {
+                        color.G = 0.5f;
+                        color.B = 0.1f;
+                        color.R = 0.1f;
+                    }
+
+                    #endregion
+
                     p0 = new Vector3(squareCX, mapArray[i, j], squareCY);
                     p1 = new Vector3(squareCX + squareWidth, mapArray[i + 1, j], squareCY);
                     p2 = new Vector3(squareCX, mapArray[i, j + 1], squareCY + squareWidth);
                     p3 = new Vector3(squareCX + squareWidth, mapArray[i + 1, j + 1], squareCY + squareWidth);
 
                     // Determines height
-                    middle = new Vector3(squareCX + Middle, peakHeight, squareCY + Middle);
-                    Color4 color;
+                    middle = new Vector3(squareCX + Middle, peakArray[i, j], squareCY + Middle);
 
-                    #region Color switch
-                    color = new Color4(0f, 0f, 0f, 1f);
-                    float heightFactor = 0.1f * (float)peakHeight;
-                    color.G += heightFactor;
-                    color.B += heightFactor;
-                    color.R += heightFactor;
-
-                    if(heightFactor == 0)
-                    {
-                        color.G = 1.0f;
-                        color.B = 0.1f;
-                        color.R = 0.1f;
-                    }
-                    
-                    #endregion
 
                     AddToArray(p0, p1, p2, p3, middle, color);
 
