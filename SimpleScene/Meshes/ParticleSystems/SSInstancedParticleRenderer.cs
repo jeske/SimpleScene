@@ -26,6 +26,7 @@ namespace SimpleScene
         protected static readonly SSVertexBuffer<SSVertex_PosTex1> s_billboardVbo;
 
         public bool AlphaBlendingEnabled = true;
+        public bool DepthMaskEnabled = false;
         public BillboardingType Billboarding = BillboardingType.Instanced;
 
         protected SSParticleSystem m_ps;
@@ -62,15 +63,29 @@ namespace SimpleScene
 
             Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
             if (Billboarding == BillboardingType.Global) {
+                // Setup "global" billboarding. (entire particle system is rendered as a camera-facing
+                // billboard and will show the same position of particles from all angles)
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelView);
             }
 
+            // Saving and restoring state is not ideal.
+            // We have to choose to either sort things by "material" properties (not implemented yet)
+            // -or- assume some state defaults for each scene (currently done). The latter poses
+            // difficulties if it is desired to render a particle system in the scene with the rest of the
+            // objects, and what you see below is a workaround to maintain a "main" depth mask state for 
+            // the scene.
+            bool prevDepthMask = GL.GetBoolean(GetPName.DepthWritemask);
+            if (prevDepthMask != DepthMaskEnabled) {
+                GL.DepthMask(DepthMaskEnabled);
+            }
+
             if (AlphaBlendingEnabled) {
-                GL.Enable(EnableCap.AlphaTest);
+                //GL.Enable(EnableCap.AlphaTest);
+                //GL.AlphaFunc(AlphaFunction.Greater, 0.1f);
+
                 GL.Enable(EnableCap.Blend);
-                GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.Disable(EnableCap.Lighting);
 
@@ -79,12 +94,10 @@ namespace SimpleScene
             }
 
             // update buffers
-            {
-                m_posBuffer.UpdateBufferData(m_ps.Positions);
-                m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
-                m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
-                m_colorBuffer.UpdateBufferData(m_ps.Colors);
-            }
+            m_posBuffer.UpdateBufferData(m_ps.Positions);
+            m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
+            m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
+            m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
             #if DRAW_USING_MAIN_SHADER
             // draw using the main shader
@@ -94,21 +107,21 @@ namespace SimpleScene
             renderConfig.MainShader.UniDiffTexEnabled = false;
             renderConfig.MainShader.UniSpecTexEnabled = false;
             renderConfig.MainShader.UniBumpTexEnabled = false;
+            // texture slot setup
             GL.ActiveTexture(TextureUnit.Texture2);
             #else
             // TODO: Try drawing without shader
             SSShaderProgram.DeactivateAll();
             GL.ActiveTexture(TextureUnit.Texture0);
             #endif
+
+            // texture binding setup
             if (m_texture != null) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             } else {
                 GL.Disable(EnableCap.Texture2D);
             }
-
-            //s_billboardVbo.DrawArrays(PrimitiveType.Triangles);
-            //return;
 
             // prepare attribute arrays for draw
             #if DRAW_USING_MAIN_SHADER
@@ -138,6 +151,11 @@ namespace SimpleScene
             #else
             throw new NotImplementedException();
             #endif
+
+            // Restore previous depth mask. This is not ideal; see setup before the draw
+            if (prevDepthMask != DepthMaskEnabled) {
+                GL.DepthMask(prevDepthMask);
+            }
 
             //this.boundingSphere.Render(ref renderConfig);
         }
