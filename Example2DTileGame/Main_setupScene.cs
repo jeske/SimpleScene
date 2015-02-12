@@ -37,8 +37,7 @@ namespace Example2DTileGame
               PlayerY = 1.0f, // So we aren't stuck in the ground
               PlayerZ = 0.0f;
 
-        public static SSObject[,] map = new SSObject[mapWidth, mapDepth];
-        public SSObject[,] heightMap = new SSObject[baseHeight, maxHeight];
+        public static SSObject[,] map = new SSObject[mapWidth, mapDepth];        
         
         /// <summary>
         /// Setup the scene (to be rendered)
@@ -80,12 +79,9 @@ namespace Example2DTileGame
         public void setupMap()
         {
 
-            mapObject = new SSObjectMesh(SSAssetManager.GetInstance<SSMesh_wfOBJ>("./mapTileModels", "map.obj"));
-            mapObject.Pos = new Vector3(0, 0, 0); // Origin
+            SSObjectMapMesh line = new SSObjectMapMesh();
 
-            SSLineObject line = new SSLineObject(mapObject.Pos);
-
-            line.Pos = new Vector3(0, 0, 0);
+            line.Pos = new Vector3(0, 0, 0); // places the origin of the map mesh into the world at (0,0,0)
             line.renderState.lighted = true;
             line.ambientMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
             line.diffuseMatColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);

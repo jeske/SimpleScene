@@ -52,7 +52,7 @@
     <Compile Include="Main_setupInput.cs" />
     <Compile Include="Main_setupScene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SSLineObject.cs" />
+    <Compile Include="SSObjectMapMesh.cs" />
     <Compile Include="TileScene\SSScene2DTiled.cs" />
   </ItemGroup>
   <ItemGroup>
