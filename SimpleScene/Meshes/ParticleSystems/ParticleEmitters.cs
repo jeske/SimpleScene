@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using SimpleScene.Util;
 using OpenTK;
 using OpenTK.Graphics;
@@ -57,6 +58,9 @@ namespace SimpleScene
         public Color4 Color {
             set { ColorComponentMin = ColorComponentMax = value; }
         }
+
+        public RectangleF[] SpriteRectangles = { c_defaultParticle.SpriteRect };
+        public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
         private float m_timeSinceLastEmission;
         private float m_nextEmission;
@@ -126,6 +130,9 @@ namespace SimpleScene
             p.Color.G = Interpolate.Lerp(ColorComponentMin.G, ColorComponentMax.G, nextFloat());
             p.Color.B = Interpolate.Lerp(ColorComponentMin.B, ColorComponentMax.B, nextFloat());
             p.Color.A = Interpolate.Lerp(ColorComponentMin.A, ColorComponentMax.A, nextFloat());
+
+            p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length - 1)];
+            p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length - 1)];
         }
     }
 
