@@ -95,8 +95,6 @@ vec3 quatTransform(vec4 q, vec3 v)
 
 void main()
 {   
-	gl_TexCoord[0] =  gl_MultiTexCoord0;  // output base UV coordinates
-
     vertexPosition_objectspace = gl_Vertex.xyz;
 
 	// transform into eye-space
@@ -122,8 +120,14 @@ void main()
         combinedPos += instancePos;
         //vec3 combinedPos = instancePos + gl.Vertex.xyz;
         gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
+        gl_TexCoord[0].xy = gl_MultiTexCoord0.xy
+                          * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
+        gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
+        gl_TexCoord[0].zw = gl_MultiTexCoord0.zw;
+        
     } else {
         gl_Position = ftransform();
+        gl_TexCoord[0] = gl_MultiTexCoord0;  // output base UV coordinates
     }
     
     // shadowmap transform

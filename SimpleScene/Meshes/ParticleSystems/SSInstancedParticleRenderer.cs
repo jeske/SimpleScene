@@ -9,6 +9,8 @@ namespace SimpleScene
 {
     public class SSInstancedParticleRenderer : SSObject
     {
+        // TODO Draw any ibo/vbo mesh
+
         public enum BillboardingType { None, Instanced, Global };
 
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
@@ -29,11 +31,17 @@ namespace SimpleScene
         public BillboardingType Billboarding = BillboardingType.Instanced;
 
         protected SSParticleSystem m_ps;
-        protected SSIndexBuffer m_ibo;
+
         protected SSAttributeBuffer<SSAttributePos> m_posBuffer;
         protected SSAttributeBuffer<SSAttributeMasterScale> m_masterScaleBuffer;
         protected SSAttributeBuffer<SSAttributeComponentScale> m_componentScaleBuffer;
         protected SSAttributeBuffer<SSAttributeColor> m_colorBuffer;
+
+        protected SSAttributeBuffer<SSAttributeByte> m_spriteIndexBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetUBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetVBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeUBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeVBuffer;
         protected SSTexture m_texture;
 
         static SSInstancedParticleRenderer()
@@ -50,6 +58,12 @@ namespace SimpleScene
             m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeComponentScale> (c_usageHint);
             m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (c_usageHint);
 
+            m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (c_usageHint);
+            m_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
+            m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
+            m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
+            m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
+
             // test
             this.boundingSphere = new SSObjectSphere (10f);
         }
@@ -61,6 +75,22 @@ namespace SimpleScene
             base.Render(ref renderConfig);
 
             Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
+            // Update buffers early for better streaming
+            if (AlphaBlendingEnabled) {
+                // Must be called before updating buffers
+                m_ps.SortByDepth(ref modelView);
+            }
+            m_posBuffer.UpdateBufferData(m_ps.Positions);
+            m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
+            m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
+            m_colorBuffer.UpdateBufferData(m_ps.Colors);
+
+            m_spriteIndexBuffer.UpdateBufferData(m_ps.SpriteIndices);
+            m_spriteOffsetUBuffer.UpdateBufferData(m_ps.SpriteOffsetsU);
+            m_spriteOffsetVBuffer.UpdateBufferData(m_ps.SpriteOffsetsV);
+            m_spriteSizeUBuffer.UpdateBufferData(m_ps.SpriteSizesU);
+            m_spriteSizeVBuffer.UpdateBufferData(m_ps.SpriteSizesV);
+
             if (Billboarding == BillboardingType.Global) {
                 // Setup "global" billboarding. (entire particle system is rendered as a camera-facing
                 // billboard and will show the same position of particles from all angles)
@@ -79,16 +109,7 @@ namespace SimpleScene
                 // Fixes flicker issues for particles with "fighting" view depth values
                 // Also assumes the particle system is the last to be drawn in a scene
                 GL.DepthFunc(DepthFunction.Lequal);
-
-                // Must be called before updating buffers
-                m_ps.SortByDepth(ref modelView);
             }
-
-            // update buffers
-            m_posBuffer.UpdateBufferData(m_ps.Positions);
-            m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
-            m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
-            m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
             #if DRAW_USING_MAIN_SHADER
             // draw using the main shader
@@ -122,6 +143,12 @@ namespace SimpleScene
             prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
             prepareAttribute(m_colorBuffer, mainShader.AttrInstanceColor, m_ps.Colors);
 
+            prepareAttribute(m_spriteIndexBuffer, mainShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
+            prepareAttribute(m_spriteOffsetUBuffer, mainShader.AttrInstanceSpriteOffsetU, m_ps.SpriteOffsetsU);
+            prepareAttribute(m_spriteOffsetVBuffer, mainShader.AttrInstanceSpriteOffsetV, m_ps.SpriteOffsetsV);
+            prepareAttribute(m_spriteSizeUBuffer, mainShader.AttrInstanceSpriteSizeU, m_ps.SpriteSizesU);
+            prepareAttribute(m_spriteSizeVBuffer, mainShader.AttrInstanceSpriteSizeV, m_ps.SpriteSizesV);
+
             mainShader.UniInstanceDrawEnabled = true;
             mainShader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
             #else
@@ -138,6 +165,12 @@ namespace SimpleScene
             m_masterScaleBuffer.DisableAttribute(mainShader.AttrInstanceMasterScale);
             m_componentScaleBuffer.DisableAttribute(mainShader.AttrInstanceComponentScale);
             m_colorBuffer.DisableAttribute(mainShader.AttrInstanceColor);
+
+            m_spriteIndexBuffer.DisableAttribute(mainShader.AttrInstanceSpriteIndex);
+            m_spriteOffsetUBuffer.DisableAttribute(mainShader.AttrInstanceSpriteOffsetU);
+            m_spriteOffsetVBuffer.DisableAttribute(mainShader.AttrInstanceSpriteOffsetV);
+            m_spriteSizeUBuffer.DisableAttribute(mainShader.AttrInstanceSpriteSizeU);
+            m_spriteSizeVBuffer.DisableAttribute(mainShader.AttrInstanceSpriteSizeV);
             #else
             throw new NotImplementedException();
             #endif

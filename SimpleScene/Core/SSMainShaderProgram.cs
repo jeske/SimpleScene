@@ -56,6 +56,12 @@ namespace SimpleScene
         private readonly int a_instanceMasterScale;
         private readonly int a_instanceComponentScale;
         private readonly int a_instanceColor;
+
+        private readonly int a_instanceSpriteIndex;
+        private readonly int a_instanceSpriteOffsetU;
+        private readonly int a_instanceSpriteOffsetV;
+        private readonly int a_instanceSpriteSizeU;
+        private readonly int a_instanceSpriteSizeV;
 		#endregion
 
         #region Uniform Modifiers
@@ -134,6 +140,26 @@ namespace SimpleScene
 
         public int AttrInstanceColor {
             get { return a_instanceColor; }
+        }
+
+        public int AttrInstanceSpriteIndex {
+            get { return a_instanceSpriteIndex; }
+        }
+
+        public int AttrInstanceSpriteOffsetU {
+            get { return a_instanceSpriteOffsetU; }
+        }
+
+        public int AttrInstanceSpriteOffsetV {
+            get { return a_instanceSpriteOffsetV; }
+        }
+
+        public int AttrInstanceSpriteSizeU {
+            get { return a_instanceSpriteSizeU; }
+        }
+
+        public int AttrInstanceSpriteSizeV {
+            get { return a_instanceSpriteSizeV; }
         }
 
         public void SetupShadowMap(List<SSLightBase> lights) {
@@ -226,6 +252,12 @@ namespace SimpleScene
             a_instanceMasterScale = getAttrLoc("instanceMasterScale");
             a_instanceComponentScale = getAttrLoc("instanceComponentScale");
             a_instanceColor = getAttrLoc("instanceColor");
+
+            a_instanceSpriteIndex = getAttrLoc("instanceSpriteIndex");
+            a_instanceSpriteOffsetU = getAttrLoc("instanceSpriteOffsetU");
+            a_instanceSpriteOffsetV = getAttrLoc("instanceSpriteOffsetV");
+            a_instanceSpriteSizeU = getAttrLoc("instanceSpriteSizeU");
+            a_instanceSpriteSizeV = getAttrLoc("instanceSpriteSizeV");
 
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {

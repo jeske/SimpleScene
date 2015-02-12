@@ -24,9 +24,9 @@ namespace SimpleScene
         // when not -1 (255) means use sprite location preset as a source of UV for the current particle
         public byte SpriteIndex = byte.MaxValue;
         // when not NaN means the values are used as a sorce of UV for the current particles
-        public Vector2 SpriteUvOffset = new Vector2(float.NaN);
-        public Vector2 SpriteUvSize = new Vector2(float.NaN);
-        // ^ if both indexed and custom uv values are specified they are added
+        public Vector2 SpriteUvOffset = new Vector2(0f);
+        public Vector2 SpriteUvSize = new Vector2(1f);
+        // ^ if both indexed and custom uv values are specified they will be added in the shader
 
         // TODO orientation
 
