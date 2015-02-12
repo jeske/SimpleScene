@@ -72,10 +72,13 @@ namespace SimpleScene
             if (AlphaBlendingEnabled) {
                 //GL.Enable(EnableCap.AlphaTest);
                 //GL.AlphaFunc(AlphaFunction.Greater, 0.1f);
-
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.Disable(EnableCap.Lighting);
+
+                // Fixes flicker issues for particles with "fighting" view depth values
+                // Also assumes the particle system is the last to be drawn in a scene
+                GL.DepthFunc(DepthFunction.Lequal);
 
                 // Must be called before updating buffers
                 m_ps.SortByDepth(ref modelView);
@@ -118,20 +121,19 @@ namespace SimpleScene
             prepareAttribute(m_masterScaleBuffer, mainShader.AttrInstanceMasterScale, m_ps.MasterScales);
             prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
             prepareAttribute(m_colorBuffer, mainShader.AttrInstanceColor, m_ps.Colors);
+
+            mainShader.UniInstanceDrawEnabled = true;
+            mainShader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
             #else
             throw new NotImplementedException();
             #endif
 
             // do the draw
-            // TODO configure instance billboarding
-            bool instanceBB = (Billboarding == BillboardingType.Instanced);
-            renderConfig.MainShader.UniInstanceDrawEnabled = true;
-            renderConfig.MainShader.UniInstanceBillboardingEnabled = instanceBB;
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
-            renderConfig.MainShader.UniInstanceDrawEnabled = false;
 
             #if DRAW_USING_MAIN_SHADER
-            // undo attribute state
+            renderConfig.MainShader.UniInstanceDrawEnabled = false;
+
             m_posBuffer.DisableAttribute(mainShader.AttrInstancePos);
             m_masterScaleBuffer.DisableAttribute(mainShader.AttrInstanceMasterScale);
             m_componentScaleBuffer.DisableAttribute(mainShader.AttrInstanceComponentScale);
