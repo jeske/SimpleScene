@@ -13,11 +13,11 @@ namespace SimpleScene
     {
         public const int c_maxSupportedSpritePresets = 8;
 
-        public float Life = 0f;
+        public float Life = 1f;
         public Vector3 Pos = new Vector3(0f);
         public float MasterScale = 1f;
         public Vector3 ComponentScale = new Vector3(1f);
-        public Vector3 Vel = new Vector3(0f);
+        public Vector3 Vel = new Vector3(1f);
         public Color4 Color = Color4.White;
         public float Mass = 1.0f;
         public float ViewDepth = float.PositiveInfinity;
@@ -133,6 +133,9 @@ namespace SimpleScene
             m_viewDepths = new float[1];
 
             writeParticle(0, new SSParticle ()); // fill in default values
+            for (int i = 0; i < m_capacity; ++i) {
+                m_lives [i] = 0f;
+            }
 
             foreach (SSParticleEmitter emitter in m_emitters) {
                 emitter.Reset();

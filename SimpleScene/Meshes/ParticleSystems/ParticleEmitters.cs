@@ -12,6 +12,8 @@ namespace SimpleScene
     {
         public delegate void ReceiverHandler(SSParticle newParticle);
 
+        protected readonly static SSParticle c_defaultParticle = new SSParticle();
+
         protected static Random s_rand = new Random ();
 
         public float EmissionIntervalMin = 1.0f;
@@ -20,38 +22,38 @@ namespace SimpleScene
             set { EmissionIntervalMin = EmissionIntervalMax = value; }
         }
 
-        public float LifeMin = 1f;
-        public float LifeMax = 1f;
-        public float Life {
-            set { LifeMin = LifeMax = value; }
-        }
-
         public int ParticlesPerEmissionMin = 1;
         public int ParticlesPerEmissionMax = 1;
         public int ParticlesPerEmission {
             set { ParticlesPerEmissionMin = ParticlesPerEmissionMax = value; }
         }
 
-        public float MasterScaleMin = 1f;
-        public float MasterScaleMax = 1f;
-        public float MasterScale {
-            set { MasterScaleMin = MasterScaleMax = value; }
+        public float LifeMin = c_defaultParticle.Life;
+        public float LifeMax = c_defaultParticle.Life;
+        public float Life {
+            set { LifeMin = LifeMax = value; }
         }
 
-        public Vector3 ComponentScaleMin = new Vector3(1f);
-        public Vector3 ComponentScaleMax = new Vector3(1f);
-        public Vector3 ComponentScale {
-            set { ComponentScaleMin = ComponentScaleMax = value; }
-        }
-
-        public Vector3 VelocityComponentMin = new Vector3 (1f);
-        public Vector3 VelocityComponentMax = new Vector3 (1f);
+        public Vector3 VelocityComponentMin = c_defaultParticle.Vel;
+        public Vector3 VelocityComponentMax = c_defaultParticle.Vel;
         public Vector3 Velocity {
             set { VelocityComponentMin = VelocityComponentMax = value; }
         }
 
-        public Color4 ColorComponentMin = Color4.White;
-        public Color4 ColorComponentMax = Color4.White;
+        public float MasterScaleMin = c_defaultParticle.MasterScale;
+        public float MasterScaleMax = c_defaultParticle.MasterScale;
+        public float MasterScale {
+            set { MasterScaleMin = MasterScaleMax = value; }
+        }
+
+        public Vector3 ComponentScaleMin = c_defaultParticle.ComponentScale;
+        public Vector3 ComponentScaleMax = c_defaultParticle.ComponentScale;
+        public Vector3 ComponentScale {
+            set { ComponentScaleMin = ComponentScaleMax = value; }
+        }
+
+        public Color4 ColorComponentMin = c_defaultParticle.Color;
+        public Color4 ColorComponentMax = c_defaultParticle.Color;
         public Color4 Color {
             set { ColorComponentMin = ColorComponentMax = value; }
         }
