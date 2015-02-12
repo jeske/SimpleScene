@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using OpenTK;
 using OpenTK.Graphics;
+using System.Drawing;
 
 using SimpleScene.Util;
 
@@ -24,10 +25,8 @@ namespace SimpleScene
         // when not -1 (255) means use sprite location preset as a source of UV for the current particle
         public byte SpriteIndex = byte.MaxValue;
         // when not NaN means the values are used as a sorce of UV for the current particles
-        public Vector2 SpriteUvOffset = new Vector2(0f);
-        public Vector2 SpriteUvSize = new Vector2(1f);
+        public RectangleF SpriteRect = new RectangleF (0f, 0f, 1f, 1f);
         // ^ if both indexed and custom uv values are specified they will be added in the shader
-
         // TODO orientation
 
         public byte EffectorMask = byte.MaxValue;
@@ -302,10 +301,10 @@ namespace SimpleScene
             p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
 
             p.SpriteIndex = readData(m_spriteIndices, idx).Value;
-            p.SpriteUvOffset.X = readData(m_spriteOffsetsU, idx).Value;
-            p.SpriteUvOffset.Y = readData(m_spriteOffsetsV, idx).Value;
-            p.SpriteUvSize.X = readData(m_spriteSizesU, idx).Value;
-            p.SpriteUvSize.Y = readData(m_spriteSizesV, idx).Value;
+            p.SpriteRect.X = readData(m_spriteOffsetsU, idx).Value;
+            p.SpriteRect.Y = readData(m_spriteOffsetsV, idx).Value;
+            p.SpriteRect.Width = readData(m_spriteSizesU, idx).Value;
+            p.SpriteRect.Height = readData(m_spriteSizesV, idx).Value;
 
             p.Vel = readData(m_velocities, idx);
             p.Mass = readData(m_masses, idx);
@@ -343,10 +342,10 @@ namespace SimpleScene
                 new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
 
             writeDataIfNeeded(ref m_spriteIndices, idx, new SSAttributeByte(p.SpriteIndex));
-            writeDataIfNeeded(ref m_spriteOffsetsU, idx, new SSAttributeFloat(p.SpriteUvOffset.X));
-            writeDataIfNeeded(ref m_spriteOffsetsV, idx, new SSAttributeFloat(p.SpriteUvOffset.Y));
-            writeDataIfNeeded(ref m_spriteSizesU, idx, new SSAttributeFloat(p.SpriteUvSize.X));
-            writeDataIfNeeded(ref m_spriteSizesV, idx, new SSAttributeFloat(p.SpriteUvSize.Y));
+            writeDataIfNeeded(ref m_spriteOffsetsU, idx, new SSAttributeFloat(p.SpriteRect.X));
+            writeDataIfNeeded(ref m_spriteOffsetsV, idx, new SSAttributeFloat(p.SpriteRect.Y));
+            writeDataIfNeeded(ref m_spriteSizesU, idx, new SSAttributeFloat(p.SpriteRect.Width));
+            writeDataIfNeeded(ref m_spriteSizesV, idx, new SSAttributeFloat(p.SpriteRect.Height));
 
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);
             writeDataIfNeeded(ref m_masses, idx, p.Mass);
