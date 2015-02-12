@@ -26,7 +26,6 @@ namespace SimpleScene
         protected static readonly SSVertexBuffer<SSVertex_PosTex1> s_billboardVbo;
 
         public bool AlphaBlendingEnabled = true;
-        public bool DepthMaskEnabled = false;
         public BillboardingType Billboarding = BillboardingType.Instanced;
 
         protected SSParticleSystem m_ps;
@@ -68,17 +67,6 @@ namespace SimpleScene
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelView);
-            }
-
-            // Saving and restoring state is not ideal.
-            // We have to choose to either sort things by "material" properties (not implemented yet)
-            // -or- assume some state defaults for each scene (currently done). The latter poses
-            // difficulties if it is desired to render a particle system in the scene with the rest of the
-            // objects, and what you see below is a workaround to maintain a "main" depth mask state for 
-            // the scene.
-            bool prevDepthMask = GL.GetBoolean(GetPName.DepthWritemask);
-            if (prevDepthMask != DepthMaskEnabled) {
-                GL.DepthMask(DepthMaskEnabled);
             }
 
             if (AlphaBlendingEnabled) {
@@ -151,11 +139,6 @@ namespace SimpleScene
             #else
             throw new NotImplementedException();
             #endif
-
-            // Restore previous depth mask. This is not ideal; see setup before the draw
-            if (prevDepthMask != DepthMaskEnabled) {
-                GL.DepthMask(prevDepthMask);
-            }
 
             //this.boundingSphere.Render(ref renderConfig);
         }

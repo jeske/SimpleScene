@@ -335,7 +335,7 @@ namespace SimpleScene
                 float iDepth = readData(m_viewDepths, i);
                 float rightDepth = readData(m_viewDepths, rightIdx);
                 // or <= ?
-                if (iDepth < rightDepth) {
+                if (iDepth <= rightDepth) {
                     particleSwap(i, store);
                     store++;
                 }
