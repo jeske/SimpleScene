@@ -27,20 +27,9 @@ namespace SimpleScene
         // when not NaN means the values are used as a sorce of UV for the current particles
         public RectangleF SpriteRect = new RectangleF (0f, 0f, 1f, 1f);
         // ^ if both indexed and custom uv values are specified they will be added in the shader
-        // TODO orientation
+        // TODO orientation, effector mask
 
         public byte EffectorMask = byte.MaxValue;
-        #if false
-        public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
-		{
-        // TODO: scale
-			Life = life;
-			Pos = pos;
-			Vel = vel;
-			Color = color;
-			Mass = mass;
-		}
-        #endif
     }
 
     /// <summary>
