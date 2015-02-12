@@ -204,6 +204,7 @@ namespace SimpleScene
             }
 
             #if false
+            // set color based on the index of the particle in the arrays
             SSAttributeColor[] debugColors = {
                 new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Red)),
                 new SSAttributeColor(OpenTKHelper.Color4toRgba(Color4.Green)),
@@ -228,13 +229,13 @@ namespace SimpleScene
                     m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
                 }
                 writeIdx = m_nextIdxToWrite;
+                if (writeIdx + 1 >= m_activeBlockLength) {
+                    m_activeBlockLength = writeIdx + 1;
+                }
                 m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
                 m_numParticles++;
             }
             writeParticle(writeIdx, newParticle);
-            if (writeIdx + 1 >= m_activeBlockLength) {
-                m_activeBlockLength = writeIdx + 1;
-            }
         }
 
         protected int nextIdx(int idx) 
