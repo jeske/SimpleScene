@@ -14,10 +14,19 @@ uniform mat4 objWorldTransform;
 // instanced drawing
 uniform bool instanceDrawEnabled;
 uniform bool instanceBillboardingEnabled;
+
 attribute vec3 instancePos;
 attribute float instanceMasterScale;
 attribute vec3 instanceComponentScale;
 attribute vec4 instanceColor;
+
+attribute float instanceSpriteIndex;
+attribute float instanceSpriteOffsetU;
+attribute float instanceSpriteOffsetV;
+attribute float instanceSpriteSizeU;
+attribute float instanceSpriteSizeV;
+
+// todo: uniform sprite rect presets
 
 // in eye-space/camera space
 varying vec3 vertexNormal;
@@ -113,8 +122,6 @@ void main()
         combinedPos += instancePos;
         //vec3 combinedPos = instancePos + gl.Vertex.xyz;
         gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
-
-        //gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(combinedPos.x, combinedPos.y, 0.0, 0.0));
     } else {
         gl_Position = ftransform();
     }

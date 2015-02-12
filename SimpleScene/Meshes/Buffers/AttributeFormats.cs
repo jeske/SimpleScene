@@ -87,5 +87,45 @@ namespace SimpleScene
             return this.Scale == other.Scale;
         }
     }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSAttributeByte : ISSAttributeLayout, IEquatable<SSAttributeByte>
+    {
+        public byte Value;
+
+        public SSAttributeByte(byte data)
+        {
+            Value = data;
+        }
+
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Byte; }
+        public Int32 ComponentNum() { return 1; }
+        public bool IsNormalized() { return false; }
+
+        public bool Equals(SSAttributeByte other)
+        {
+            return this.Value == other.Value;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSAttributeFloat : ISSAttributeLayout, IEquatable<SSAttributeFloat>
+    {
+        public float Value;
+
+        public SSAttributeFloat(float data)
+        {
+            Value = data;
+        }
+
+        public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
+        public Int32 ComponentNum() { return 1; }
+        public bool IsNormalized() { return false; }
+
+        public bool Equals(SSAttributeFloat other)
+        {
+            return this.Value == other.Value;
+        }
+    }
 }
 

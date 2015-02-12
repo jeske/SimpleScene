@@ -22,7 +22,7 @@ namespace SimpleScene
 	}     
 
 	public class SSRenderConfig {
-		public SSRenderStats renderStats;
+        public SSRenderStats renderStats;
 
 		public SSMainShaderProgram MainShader;
         public SSPssmShaderProgram PssmShader;

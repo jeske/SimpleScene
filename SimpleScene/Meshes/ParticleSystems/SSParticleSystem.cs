@@ -10,20 +10,27 @@ namespace SimpleScene
 {
     public class SSParticle
     {
-		public static readonly Color4 c_defaultColor = Color4.White;
-		public const float c_defaultMass = 1f;
+        public const int c_maxSupportedSpritePresets = 8;
 
         public float Life = 0f;
         public Vector3 Pos = new Vector3(0f);
         public float MasterScale = 1f;
         public Vector3 ComponentScale = new Vector3(1f);
         public Vector3 Vel = new Vector3(0f);
-        public Color4 Color = c_defaultColor;
-		public float Mass = c_defaultMass;
+        public Color4 Color = Color4.White;
+        public float Mass = 1.0f;
         public float ViewDepth = float.PositiveInfinity;
 
-        // TODO texture coord, orientation
+        // when not -1 (255) means use sprite location preset as a source of UV for the current particle
+        public byte SpriteIndex = byte.MaxValue;
+        // when not NaN means the values are used as a sorce of UV for the current particles
+        public Vector2 SpriteUvOffset = new Vector2(float.NaN);
+        public Vector2 SpriteUvSize = new Vector2(float.NaN);
+        // ^ if both indexed and custom uv values are specified they are added
 
+        // TODO orientation
+
+        public byte EffectorMask = byte.MaxValue;
         #if false
         public Particle (float life, Vector3 pos, Vector3 vel, Color4 color, float mass) 
 		{
@@ -54,6 +61,7 @@ namespace SimpleScene
         protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
         protected List<SSParticleEffector> m_effectors = new List<SSParticleEffector> ();
 
+
         protected readonly int m_capacity;
         protected int m_numParticles = 0;
 
@@ -69,6 +77,12 @@ namespace SimpleScene
         protected SSAttributeColor[] m_colors;
         protected SSAttributeMasterScale[] m_masterScales;
         protected SSAttributeComponentScale[] m_componentScales;
+
+        protected SSAttributeByte[] m_spriteIndices;
+        protected SSAttributeFloat[] m_spriteOffsetsU;
+        protected SSAttributeFloat[] m_spriteOffsetsV;
+        protected SSAttributeFloat[] m_spriteSizesU;
+        protected SSAttributeFloat[] m_spriteSizesV;
         #endregion
 
         #region particle data used for the simulation only
@@ -85,6 +99,11 @@ namespace SimpleScene
         public SSAttributeColor[] Colors { get { return m_colors; } }
         public SSAttributeMasterScale[] MasterScales { get { return m_masterScales; } }
         public SSAttributeComponentScale[] ComponentScales { get { return m_componentScales; } }
+        public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
+        public SSAttributeFloat[] SpriteOffsetsU { get { return m_spriteOffsetsU; ; } }
+        public SSAttributeFloat[] SpriteOffsetsV { get { return m_spriteOffsetsV; } }
+        public SSAttributeFloat[] SpriteSizesU { get { return m_spriteSizesU; } }
+        public SSAttributeFloat[] SpriteSizesV { get { return m_spriteSizesV; } }
 
         public SSParticleSystem (int capacity)
         {
@@ -103,6 +122,13 @@ namespace SimpleScene
             m_masterScales = new SSAttributeMasterScale[1];
             m_componentScales = new SSAttributeComponentScale[1];
             m_colors = new SSAttributeColor[1];
+
+            m_spriteIndices = new SSAttributeByte[1];
+            m_spriteOffsetsU = new SSAttributeFloat[1];
+            m_spriteOffsetsV = new SSAttributeFloat[1];
+            m_spriteSizesU = new SSAttributeFloat[1];
+            m_spriteSizesV = new SSAttributeFloat[1];
+
             m_velocities = new Vector3[1];
             m_masses = new float[1];
             m_viewDepths = new float[1];
@@ -274,6 +300,13 @@ namespace SimpleScene
             p.MasterScale = readData(m_masterScales, idx).Scale;
             p.ComponentScale = readData(m_componentScales, idx).Scale;
             p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
+
+            p.SpriteIndex = readData(m_spriteIndices, idx).Value;
+            p.SpriteUvOffset.X = readData(m_spriteOffsetsU, idx).Value;
+            p.SpriteUvOffset.Y = readData(m_spriteOffsetsV, idx).Value;
+            p.SpriteUvSize.X = readData(m_spriteSizesU, idx).Value;
+            p.SpriteUvSize.Y = readData(m_spriteSizesV, idx).Value;
+
             p.Vel = readData(m_velocities, idx);
             p.Mass = readData(m_masses, idx);
         }
@@ -308,6 +341,13 @@ namespace SimpleScene
                 new SSAttributeComponentScale (p.ComponentScale));
             writeDataIfNeeded(ref m_colors, idx, 
                 new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
+
+            writeDataIfNeeded(ref m_spriteIndices, idx, new SSAttributeByte(p.SpriteIndex));
+            writeDataIfNeeded(ref m_spriteOffsetsU, idx, new SSAttributeFloat(p.SpriteUvOffset.X));
+            writeDataIfNeeded(ref m_spriteOffsetsV, idx, new SSAttributeFloat(p.SpriteUvOffset.Y));
+            writeDataIfNeeded(ref m_spriteSizesU, idx, new SSAttributeFloat(p.SpriteUvSize.X));
+            writeDataIfNeeded(ref m_spriteSizesV, idx, new SSAttributeFloat(p.SpriteUvSize.Y));
+
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);
             writeDataIfNeeded(ref m_masses, idx, p.Mass);
             writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth); 
