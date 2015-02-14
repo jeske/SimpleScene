@@ -20,7 +20,9 @@ uniform int lightingMode;
 
 uniform int showWireframes;
 uniform float animateSecondsOffset;
+#if INSTANCE_DRAW
 uniform bool instanceDrawEnabled;
+#endif
 
 // eye-space/cameraspace coordinates
 varying vec3 f_VV;
@@ -354,14 +356,18 @@ void main()
     
     if (lightingMode == 0) {
         outputColor = BlinnPhongLighting(outputColor);
+        #if INSTANCE_DRAW
         if (instanceDrawEnabled) {
             outputColor *= f_instanceColor;
         }
+        #endif
     } else if (lightingMode == 1) {
         outputColor = BumpMapBlinnPhongLighting(outputColor);
+        #if INSTANCE_DRAW
         if (instanceDrawEnabled) {
             outputColor *= f_instanceColor;
         }
+        #endif
     } else { // lightingMode == 2
         outputColor = shadowMapTestLighting(outputColor);
     }

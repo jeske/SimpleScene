@@ -12,6 +12,8 @@ uniform mat4 shadowMapVPs3;
 uniform mat4 objWorldTransform;
 
 // instanced drawing
+#define INSTANCE_DRAW true
+#if INSTANCE_DRAW
 uniform bool instanceDrawEnabled;
 uniform bool instanceBillboardingEnabled;
 
@@ -25,6 +27,8 @@ attribute float instanceSpriteOffsetU;
 attribute float instanceSpriteOffsetV;
 attribute float instanceSpriteSizeU;
 attribute float instanceSpriteSizeV;
+varying vec4 varInstanceColor;
+#endif
 
 // todo: uniform sprite rect presets
 
@@ -37,7 +41,6 @@ varying vec3 eyeVec;
 
 varying vec3 vertexPosition_objectspace;
 varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
-varying vec4 varInstanceColor;
 
 // returns a quaternion representing rotation
 // http://github.com/opentk/opentk/blob/c29509838d340bd292bc0113fe65a2e4b5aed0e8/Source/OpenTK/Math/Matrix4.cs
@@ -104,6 +107,7 @@ void main()
 	lightPosition = (gl_LightSource[0].position - vertexPosition_viewspace).xyz;
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
+    #if INSTANCE_DRAW
     if (instanceDrawEnabled) {
         // TODO fix scale
         // TODO orientation, texture offset
@@ -125,7 +129,9 @@ void main()
         gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
         gl_TexCoord[0].zw = gl_MultiTexCoord0.zw;
         
-    } else {
+    } else
+    #endif
+    {
         gl_Position = ftransform();
         gl_TexCoord[0] = gl_MultiTexCoord0;  // output base UV coordinates
     }

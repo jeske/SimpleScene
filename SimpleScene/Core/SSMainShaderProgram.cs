@@ -8,6 +8,9 @@
 // http://www.geeks3d.com/20091013/shader-library-phong-shader-with-multiple-lights-glsl/
 // http://en.wikibooks.org/wiki/GLSL_Programming/GLUT/Specular_Highlights
 
+//#define INSTANCE_DRAW
+
+
 using System;
 
 using OpenTK;
@@ -49,6 +52,8 @@ namespace SimpleScene
         private readonly int u_poissonSamplingEnabled;
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
+
+        #if INSTANCE_DRAW
         private readonly int u_instanceDrawEnabled;
         private readonly int u_instanceBillboardingEnabled;
 
@@ -62,7 +67,9 @@ namespace SimpleScene
         private readonly int a_instanceSpriteOffsetV;
         private readonly int a_instanceSpriteSizeU;
         private readonly int a_instanceSpriteSizeV;
-		#endregion
+        #endif
+
+        #endregion
 
         #region Uniform Modifiers
 
@@ -118,6 +125,7 @@ namespace SimpleScene
             set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
         }
 
+        #if INSTANCE_DRAW
         public bool UniInstanceDrawEnabled {
             set { assertActive(); GL.Uniform1(u_instanceDrawEnabled, value ? 1 : 0); } 
         }
@@ -161,6 +169,7 @@ namespace SimpleScene
         public int AttrInstanceSpriteSizeV {
             get { return a_instanceSpriteSizeV; }
         }
+        #endif
 
         public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
@@ -244,6 +253,7 @@ namespace SimpleScene
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
             u_lightingMode = getUniLoc("lightingMode");
+            #if INSTANCE_DRAW
             u_instanceDrawEnabled = getUniLoc("instanceDrawEnabled");
             u_instanceBillboardingEnabled = getUniLoc("instanceBillboardingEnabled");
 
@@ -259,6 +269,10 @@ namespace SimpleScene
             a_instanceSpriteSizeU = getAttrLoc("instanceSpriteSizeU");
             a_instanceSpriteSizeV = getAttrLoc("instanceSpriteSizeV");
 
+            UniInstanceDrawEnabled = false;
+            UniInstanceBillboardingEnabled = false;
+            #endif
+
             // TODO: debug passing things through arrays
             for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
                 var str = "shadowMapVPs" + i;
@@ -267,8 +281,6 @@ namespace SimpleScene
                 u_poissonScaling[i] = getUniLoc(str);
             }
 
-            UniInstanceDrawEnabled = false;
-            UniInstanceBillboardingEnabled = false;
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;

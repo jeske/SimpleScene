@@ -34,7 +34,9 @@ varying out vec3 f_lightPosition;
 varying out vec3 f_eyeVec;
 varying out vec3 f_vertexPosition_objectspace;
 varying out vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+#if INSTANCE_DRAW
 varying out vec4 f_instanceColor;
+#endif
 
 varying out vec3 surfaceLightVector;
 varying out vec3 surfaceViewVector;
@@ -101,7 +103,9 @@ void main(void)
 		f_eyeVec = eyeVec[i];
         f_vertexPosition_objectspace = vertexPosition_objectspace[i];
         f_shadowMapCoords = shadowMapCoords[i];
+        #if INSTANCE_DRAW
         f_instanceColor = varInstanceColor[i];
+        #endif
 		       
 		gl_TexCoord[0] = gl_TexCoordIn[i][0];
 		gl_FrontColor = gl_FrontColorIn[i];
