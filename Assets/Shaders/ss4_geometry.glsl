@@ -34,7 +34,7 @@ varying out vec3 f_lightPosition;
 varying out vec3 f_eyeVec;
 varying out vec3 f_vertexPosition_objectspace;
 varying out vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
-#if INSTANCE_DRAW
+#ifdef INSTANCE_DRAW
 varying out vec4 f_instanceColor;
 #endif
 
@@ -103,7 +103,7 @@ void main(void)
 		f_eyeVec = eyeVec[i];
         f_vertexPosition_objectspace = vertexPosition_objectspace[i];
         f_shadowMapCoords = shadowMapCoords[i];
-        #if INSTANCE_DRAW
+        #ifdef INSTANCE_DRAW
         f_instanceColor = varInstanceColor[i];
         #endif
 		       

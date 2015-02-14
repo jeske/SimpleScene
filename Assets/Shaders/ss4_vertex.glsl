@@ -13,7 +13,7 @@ uniform mat4 objWorldTransform;
 
 // instanced drawing
 #define INSTANCE_DRAW true
-#if INSTANCE_DRAW
+#ifdef INSTANCE_DRAW
 uniform bool instanceDrawEnabled;
 uniform bool instanceBillboardingEnabled;
 
@@ -44,11 +44,11 @@ varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
 
 // returns a quaternion representing rotation
 // http://github.com/opentk/opentk/blob/c29509838d340bd292bc0113fe65a2e4b5aed0e8/Source/OpenTK/Math/Matrix4.cs
-vec4 extractRotationQuat(mat4 input, bool row_normalise)
+vec4 extractRotationQuat(mat4 src, bool row_normalise)
 {
-    vec3 row0 = input[0].xyz;
-    vec3 row1 = input[1].xyz;
-    vec3 row2 = input[2].xyz;
+    vec3 row0 = src[0].xyz;
+    vec3 row1 = src[1].xyz;
+    vec3 row2 = src[2].xyz;
     if (row_normalise) {
         row0 = normalize(row0);
         row1 = normalize(row1);
@@ -107,7 +107,7 @@ void main()
 	lightPosition = (gl_LightSource[0].position - vertexPosition_viewspace).xyz;
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
 
-    #if INSTANCE_DRAW
+    #ifdef INSTANCE_DRAW
     if (instanceDrawEnabled) {
         // TODO fix scale
         // TODO orientation, texture offset

@@ -20,7 +20,7 @@ uniform int lightingMode;
 
 uniform int showWireframes;
 uniform float animateSecondsOffset;
-#if INSTANCE_DRAW
+#ifdef INSTANCE_DRAW
 uniform bool instanceDrawEnabled;
 #endif
 
@@ -356,14 +356,14 @@ void main()
     
     if (lightingMode == 0) {
         outputColor = BlinnPhongLighting(outputColor);
-        #if INSTANCE_DRAW
+        #ifdef INSTANCE_DRAW
         if (instanceDrawEnabled) {
             outputColor *= f_instanceColor;
         }
         #endif
     } else if (lightingMode == 1) {
         outputColor = BumpMapBlinnPhongLighting(outputColor);
-        #if INSTANCE_DRAW
+        #ifdef INSTANCE_DRAW
         if (instanceDrawEnabled) {
             outputColor *= f_instanceColor;
         }
