@@ -10,7 +10,7 @@ attribute float instanceMasterScale;
 attribute vec3 instanceComponentScale;
 attribute vec4 instanceColor;
 
-attribute float instanceSpriteIndex;
+//attribute float instanceSpriteIndex;
 attribute float instanceSpriteOffsetU;
 attribute float instanceSpriteOffsetV;
 attribute float instanceSpriteSizeU;

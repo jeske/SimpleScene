@@ -161,8 +161,6 @@ namespace SimpleScene
              
             #if DRAW_USING_MAIN_SHADER
             shader.UniInstanceDrawEnabled = false;
-            #else
-            renderConfig.MainShader.Activate();
             #endif
             m_posBuffer.DisableAttribute(shader.AttrInstancePos);
             m_masterScaleBuffer.DisableAttribute(shader.AttrInstanceMasterScale);

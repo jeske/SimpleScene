@@ -33,6 +33,8 @@ namespace SimpleScene
 
         public void PrepareAttribute (int attrLoc, int instancesPerValue)
         {
+            if (attrLoc == -1) return;
+
             GL.EnableVertexAttribArray(attrLoc);
             bind();
             GL.VertexAttribPointer(attrLoc, 
@@ -44,7 +46,9 @@ namespace SimpleScene
 
         public void DisableAttribute(int attrLoc)
         {
-            GL.DisableVertexAttribArray(attrLoc);
+            if (attrLoc != -1) {
+                GL.DisableVertexAttribArray(attrLoc);
+            }
         }
     }
 }
