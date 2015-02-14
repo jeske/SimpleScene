@@ -12,7 +12,8 @@ uniform mat4 shadowMapVPs3;
 uniform mat4 objWorldTransform;
 
 // instanced drawing
-#define INSTANCE_DRAW true
+// #define INSTANCE_DRAW 
+
 #ifdef INSTANCE_DRAW
 uniform bool instanceDrawEnabled;
 uniform bool instanceBillboardingEnabled;
