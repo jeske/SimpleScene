@@ -26,6 +26,7 @@ namespace SimpleScene
 
 		public SSMainShaderProgram MainShader;
         public SSPssmShaderProgram PssmShader;
+        public SSInstanceShaderProgram InstanceShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
@@ -70,6 +71,7 @@ namespace SimpleScene
             set { m_activeCamera = value; }
         }
 
+        #region convenience pass-through parameters
         public SSMainShaderProgram MainShader {
             get { return m_renderConfig.MainShader; }
             set { 
@@ -86,6 +88,12 @@ namespace SimpleScene
             get { return m_renderConfig.PssmShader; }
             set { m_renderConfig.PssmShader = value; }
         }
+
+        public SSInstanceShaderProgram InstanceShader {
+            get { return m_renderConfig.InstanceShader; }
+            set { m_renderConfig.InstanceShader = value; }
+        }
+        #endregion
 
         public bool FrustumCulling {
             get { return m_renderConfig.frustumCulling; }

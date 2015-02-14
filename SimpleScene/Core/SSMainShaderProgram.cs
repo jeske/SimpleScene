@@ -288,6 +288,7 @@ namespace SimpleScene
             GL.Uniform1(GLun_ambiTex, 2); // Texture.Texture2
             GL.Uniform1(GLun_bumpTex, 3); // Texture.Texture3
 
+            // errors?
             checkErrors();
 		}
 	}

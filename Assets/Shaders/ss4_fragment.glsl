@@ -379,7 +379,8 @@ void main()
         float curIntensity = max(max(outputColor.r,outputColor.g),outputColor.b);
 		float edgeIntensity = exp2((-1 / edgeWidth)*nearD*nearD * 2);		
         vec4 edgeColor = vec4(vec3( (curIntensity < 0.4) ? 0.6 : 0.3 ), 1.0);
-		// vec4 edgeColor = vec4( clamp( (1.7 - length(outputColor.rgb) ),0.3,0.7) );			
+		// vec4 edgeColor = vec4( clamp( (1.7 - length(outputColor.rgb) ),0.3,0.7) );
+        
         outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
     }
 

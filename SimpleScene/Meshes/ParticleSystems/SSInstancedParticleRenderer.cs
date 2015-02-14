@@ -1,4 +1,4 @@
-﻿#define DRAW_USING_MAIN_SHADER
+﻿//#define DRAW_USING_MAIN_SHADER
 
 using System;
 using OpenTK;
@@ -114,18 +114,20 @@ namespace SimpleScene
             #if DRAW_USING_MAIN_SHADER
             // draw using the main shader
             // TODO: debug with bump mapped lighting mode
-            renderConfig.MainShader.Activate();
-            renderConfig.MainShader.UniAmbTexEnabled = true;
-            renderConfig.MainShader.UniDiffTexEnabled = false;
-            renderConfig.MainShader.UniSpecTexEnabled = false;
-            renderConfig.MainShader.UniBumpTexEnabled = false;
+            SSMainShaderProgram shader = renderConfig.MainShader;
+            shader.UniAmbTexEnabled = true;
+            shader.UniDiffTexEnabled = false;
+            shader.UniSpecTexEnabled = false;
+            shader.UniBumpTexEnabled = false;
             // texture slot setup
             GL.ActiveTexture(TextureUnit.Texture2);
             #else
-            // TODO: Try drawing without shader
-            SSShaderProgram.DeactivateAll();
+            // draw using the instancing shader
+            SSInstanceShaderProgram shader = renderConfig.InstanceShader;
+            // texture slot setup
             GL.ActiveTexture(TextureUnit.Texture0);
             #endif
+            GL.Disable(EnableCap.ColorMaterial);
 
             // texture binding setup
             if (m_texture != null) {
@@ -135,46 +137,43 @@ namespace SimpleScene
                 GL.Disable(EnableCap.Texture2D);
             }
 
-            // prepare attribute arrays for draw
+            shader.Activate();
+            // prepare uniforms
             #if DRAW_USING_MAIN_SHADER
-            SSMainShaderProgram mainShader = renderConfig.MainShader;
-            prepareAttribute(m_posBuffer, mainShader.AttrInstancePos, m_ps.Positions);
-            prepareAttribute(m_masterScaleBuffer, mainShader.AttrInstanceMasterScale, m_ps.MasterScales);
-            prepareAttribute(m_componentScaleBuffer, mainShader.AttrInstanceComponentScale, m_ps.ComponentScales);
-            prepareAttribute(m_colorBuffer, mainShader.AttrInstanceColor, m_ps.Colors);
-
-            prepareAttribute(m_spriteIndexBuffer, mainShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
-            prepareAttribute(m_spriteOffsetUBuffer, mainShader.AttrInstanceSpriteOffsetU, m_ps.SpriteOffsetsU);
-            prepareAttribute(m_spriteOffsetVBuffer, mainShader.AttrInstanceSpriteOffsetV, m_ps.SpriteOffsetsV);
-            prepareAttribute(m_spriteSizeUBuffer, mainShader.AttrInstanceSpriteSizeU, m_ps.SpriteSizesU);
-            prepareAttribute(m_spriteSizeVBuffer, mainShader.AttrInstanceSpriteSizeV, m_ps.SpriteSizesV);
-
-            mainShader.UniInstanceDrawEnabled = true;
-            mainShader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
-            #else
-            throw new NotImplementedException();
+            shader.UniInstanceDrawEnabled = true;
             #endif
+            shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
+
+            // prepare attribute arrays for draw
+            prepareAttribute(m_posBuffer, shader.AttrInstancePos, m_ps.Positions);
+            prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, m_ps.MasterScales);
+            prepareAttribute(m_componentScaleBuffer, shader.AttrInstanceComponentScale, m_ps.ComponentScales);
+            prepareAttribute(m_colorBuffer, shader.AttrInstanceColor, m_ps.Colors);
+
+            prepareAttribute(m_spriteIndexBuffer, shader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
+            prepareAttribute(m_spriteOffsetUBuffer, shader.AttrInstanceSpriteOffsetU, m_ps.SpriteOffsetsU);
+            prepareAttribute(m_spriteOffsetVBuffer, shader.AttrInstanceSpriteOffsetV, m_ps.SpriteOffsetsV);
+            prepareAttribute(m_spriteSizeUBuffer, shader.AttrInstanceSpriteSizeU, m_ps.SpriteSizesU);
+            prepareAttribute(m_spriteSizeVBuffer, shader.AttrInstanceSpriteSizeV, m_ps.SpriteSizesV);
 
             // do the draw
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
-
+             
             #if DRAW_USING_MAIN_SHADER
-            renderConfig.MainShader.UniInstanceDrawEnabled = false;
-
-            m_posBuffer.DisableAttribute(mainShader.AttrInstancePos);
-            m_masterScaleBuffer.DisableAttribute(mainShader.AttrInstanceMasterScale);
-            m_componentScaleBuffer.DisableAttribute(mainShader.AttrInstanceComponentScale);
-            m_colorBuffer.DisableAttribute(mainShader.AttrInstanceColor);
-
-            m_spriteIndexBuffer.DisableAttribute(mainShader.AttrInstanceSpriteIndex);
-            m_spriteOffsetUBuffer.DisableAttribute(mainShader.AttrInstanceSpriteOffsetU);
-            m_spriteOffsetVBuffer.DisableAttribute(mainShader.AttrInstanceSpriteOffsetV);
-            m_spriteSizeUBuffer.DisableAttribute(mainShader.AttrInstanceSpriteSizeU);
-            m_spriteSizeVBuffer.DisableAttribute(mainShader.AttrInstanceSpriteSizeV);
+            shader.UniInstanceDrawEnabled = false;
             #else
-            throw new NotImplementedException();
+            renderConfig.MainShader.Activate();
             #endif
+            m_posBuffer.DisableAttribute(shader.AttrInstancePos);
+            m_masterScaleBuffer.DisableAttribute(shader.AttrInstanceMasterScale);
+            m_componentScaleBuffer.DisableAttribute(shader.AttrInstanceComponentScale);
+            m_colorBuffer.DisableAttribute(shader.AttrInstanceColor);
 
+            m_spriteIndexBuffer.DisableAttribute(shader.AttrInstanceSpriteIndex);
+            m_spriteOffsetUBuffer.DisableAttribute(shader.AttrInstanceSpriteOffsetU);
+            m_spriteOffsetVBuffer.DisableAttribute(shader.AttrInstanceSpriteOffsetV);
+            m_spriteSizeUBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeU);
+            m_spriteSizeVBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeV);
             //this.boundingSphere.Render(ref renderConfig);
         }
 
