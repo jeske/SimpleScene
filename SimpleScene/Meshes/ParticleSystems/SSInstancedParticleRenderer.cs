@@ -127,7 +127,7 @@ namespace SimpleScene
             // texture slot setup
             GL.ActiveTexture(TextureUnit.Texture0);
             #endif
-            GL.Disable(EnableCap.ColorMaterial);
+            //GL.Disable(EnableCap.ColorMaterial);
 
             // texture binding setup
             if (m_texture != null) {
@@ -142,7 +142,7 @@ namespace SimpleScene
             #if DRAW_USING_MAIN_SHADER
             shader.UniInstanceDrawEnabled = true;
             #endif
-            shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
+            //shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
 
             // prepare attribute arrays for draw
             prepareAttribute(m_posBuffer, shader.AttrInstancePos, m_ps.Positions);

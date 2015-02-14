@@ -84,7 +84,7 @@ namespace SimpleScene
 
             // uniform(s)
             u_instanceBillboardingEnabled = getUniLoc("instanceBillboardingEnabled");
-            UniInstanceBillboardingEnabled = false;
+            //UniInstanceBillboardingEnabled = false;
 
             // attributes
             a_instancePos = getAttrLoc("instancePos");

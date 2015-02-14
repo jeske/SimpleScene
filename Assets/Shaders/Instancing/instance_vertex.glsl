@@ -3,7 +3,7 @@
 #version 120
 
 //uniform bool instanceBillboardingEnabled;
-const bool instanceBillboardingEnabled = false;
+const bool instanceBillboardingEnabled = true;
 
 attribute vec3 instancePos;
 attribute float instanceMasterScale;

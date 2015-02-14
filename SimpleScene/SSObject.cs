@@ -104,18 +104,17 @@ namespace SimpleScene
                     // Currently drawing pssm...
                     renderConfig.PssmShader.UniObjectWorldTransform = this.worldMat;
                 }
-                return; // skip the rest of setup...
-            }
-
-            setDefaultShaderState(renderConfig.MainShader);
-            setMaterialState();
-
-            GL.Disable(EnableCap.Blend);
-            if (this.renderState.lighted) {
-                GL.Enable(EnableCap.Lighting);
-                GL.ShadeModel(ShadingModel.Flat);
             } else {
-                GL.Disable(EnableCap.Lighting);
+                setDefaultShaderState(renderConfig.MainShader);
+                setMaterialState();
+
+                GL.Disable(EnableCap.Blend);
+                if (this.renderState.lighted) {
+                    GL.Enable(EnableCap.Lighting);
+                    GL.ShadeModel(ShadingModel.Flat);
+                } else {
+                    GL.Disable(EnableCap.Lighting);
+                }
             }
 		}
 
