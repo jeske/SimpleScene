@@ -46,12 +46,15 @@ namespace SimpleScene
         {
             if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
                 m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "pssm_vertex.glsl");
+                m_vertexShader.LoadShader();
                 attach(m_vertexShader);
 
                 m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "pssm_fragment.glsl");
+                m_fragmentShader.LoadShader();
                 attach(m_fragmentShader);
 
                 m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "pssm_geometry.glsl");
+                m_geometryShader.LoadShader();
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3 * SSParallelSplitShadowMap.c_numberOfSplits);

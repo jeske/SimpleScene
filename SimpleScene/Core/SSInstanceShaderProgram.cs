@@ -74,9 +74,11 @@ namespace SimpleScene
         public SSInstanceShaderProgram()
         {
             m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "instance_vertex.glsl");
+            m_vertexShader.LoadShader();
             attach(m_vertexShader);
 
             m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "instance_fragment.glsl");
+            m_fragmentShader.LoadShader();
             attach(m_fragmentShader);
 
             link();

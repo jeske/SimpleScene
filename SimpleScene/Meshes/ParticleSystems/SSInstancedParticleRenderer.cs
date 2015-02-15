@@ -1,6 +1,4 @@
-﻿//#define DRAW_USING_MAIN_SHADER
-
-using System;
+﻿using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -75,6 +73,13 @@ namespace SimpleScene
             base.Render(ref renderConfig);
 
             Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
+            if (Billboarding == BillboardingType.Global) {
+                // Setup "global" billboarding. (entire particle system is rendered as a camera-facing
+                // billboard and will show the same position of particles from all angles)
+                modelView = OpenTKHelper.BillboardMatrix(ref modelView);
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.LoadMatrix(ref modelView);
+            }
             // Update buffers early for better streaming
             if (AlphaBlendingEnabled) {
                 // Must be called before updating buffers
@@ -91,14 +96,6 @@ namespace SimpleScene
             m_spriteSizeUBuffer.UpdateBufferData(m_ps.SpriteSizesU);
             m_spriteSizeVBuffer.UpdateBufferData(m_ps.SpriteSizesV);
 
-            if (Billboarding == BillboardingType.Global) {
-                // Setup "global" billboarding. (entire particle system is rendered as a camera-facing
-                // billboard and will show the same position of particles from all angles)
-                modelView = OpenTKHelper.BillboardMatrix(ref modelView);
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.LoadMatrix(ref modelView);
-            }
-
             if (AlphaBlendingEnabled) {
                 //GL.Enable(EnableCap.AlphaTest);
                 //GL.AlphaFunc(AlphaFunction.Greater, 0.1f);
@@ -111,7 +108,7 @@ namespace SimpleScene
                 GL.DepthFunc(DepthFunction.Lequal);
             }
 
-            #if DRAW_USING_MAIN_SHADER
+            #if MAIN_SHADER_INSTANCING
             // draw using the main shader
             // TODO: debug with bump mapped lighting mode
             SSMainShaderProgram shader = renderConfig.MainShader;
@@ -139,10 +136,10 @@ namespace SimpleScene
 
             shader.Activate();
             // prepare uniforms
-            #if DRAW_USING_MAIN_SHADER
+            #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = true;
             #endif
-            //shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
+            shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
@@ -160,7 +157,7 @@ namespace SimpleScene
             // do the draw
             s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
              
-            #if DRAW_USING_MAIN_SHADER
+            #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = false;
             #endif
 

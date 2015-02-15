@@ -1,5 +1,4 @@
 ﻿// Copyright(C) David W. Jeske, 2014, All Rights Reserved.
-
 #version 120
 
 // shadow-map related

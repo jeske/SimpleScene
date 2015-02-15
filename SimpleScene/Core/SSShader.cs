@@ -23,11 +23,9 @@ namespace SimpleScene
 			this.type = type;
 			this.shaderProgramText = shaderProgramText;
 			this.shaderName = shaderName;
-
-			this.loadShader();
 		}
 		
-		private void loadShader() {			
+        public void LoadShader() {			
 			ShaderID = GL.CreateShader(this.type);
 			GL.ShaderSource(ShaderID, this.shaderProgramText);
 			GL.CompileShader(ShaderID);	
@@ -68,7 +66,11 @@ namespace SimpleScene
 				}
 			}
 		}
-		
+
+        public void Prepend(string prefix)
+        {
+            shaderProgramText = prefix + shaderProgramText;
+        }
 	}
 
     public class SSVertexShader : SSShader

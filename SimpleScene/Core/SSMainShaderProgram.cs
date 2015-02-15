@@ -8,7 +8,7 @@
 // http://www.geeks3d.com/20091013/shader-library-phong-shader-with-multiple-lights-glsl/
 // http://en.wikibooks.org/wiki/GLSL_Programming/GLUT/Specular_Highlights
 
-//#define INSTANCE_DRAW
+//#define MAIN_SHADER_INSTANCING
 
 
 using System;
@@ -53,7 +53,7 @@ namespace SimpleScene
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
 
-        #if INSTANCE_DRAW
+        #if MAIN_SHADER_INSTANCING
         private readonly int u_instanceDrawEnabled;
         private readonly int u_instanceBillboardingEnabled;
 
@@ -125,7 +125,7 @@ namespace SimpleScene
             set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
         }
 
-        #if INSTANCE_DRAW
+        #if MAIN_SHADER_INSTANCING
         public bool UniInstanceDrawEnabled {
             set { assertActive(); GL.Uniform1(u_instanceDrawEnabled, value ? 1 : 0); } 
         }
@@ -214,24 +214,36 @@ namespace SimpleScene
 			// we use this method of detecting the extension because we are in a GL2.2 context
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
-
                 m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "ss4_vertex.glsl");
+                #if MAIN_SHADER_INSTANCING
+                m_vertexShader.Prepend("#define INSTANCE_DRAW\n");
+                #endif
+                m_vertexShader.LoadShader();
                 attach(m_vertexShader);
 
                 m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "ss4_fragment.glsl");
+                #if MAIN_SHADER_INSTANCING
+                m_fragmentShader.Prepend("#define INSTANCE_DRAW\n");
+                #endif
+                m_fragmentShader.LoadShader();
                 attach(m_fragmentShader);
 
-                m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "ss4_geometry.glsl");		
+                m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "ss4_geometry.glsl");
+                #if MAIN_SHADER_INSTANCING
+                m_geometryShader.Prepend("#define INSTANCE_DRAW\n");
+                #endif
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
+                m_geometryShader.LoadShader();
                 attach(m_geometryShader);
-
 			} else {
                 m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "ss1_vertex.glsl");
+                m_vertexShader.LoadShader();
                 attach(m_vertexShader);
 
                 m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "ss1_fragment.glsl");
+                m_fragmentShader.LoadShader();
                 attach(m_fragmentShader);
 			}
             link();
@@ -253,7 +265,7 @@ namespace SimpleScene
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
             u_lightingMode = getUniLoc("lightingMode");
-            #if INSTANCE_DRAW
+            #if MAIN_SHADER_INSTANCING
             u_instanceDrawEnabled = getUniLoc("instanceDrawEnabled");
             u_instanceBillboardingEnabled = getUniLoc("instanceBillboardingEnabled");
 
@@ -268,9 +280,6 @@ namespace SimpleScene
             a_instanceSpriteOffsetV = getAttrLoc("instanceSpriteOffsetV");
             a_instanceSpriteSizeU = getAttrLoc("instanceSpriteSizeU");
             a_instanceSpriteSizeV = getAttrLoc("instanceSpriteSizeV");
-
-            UniInstanceDrawEnabled = false;
-            UniInstanceBillboardingEnabled = false;
             #endif
 
             // TODO: debug passing things through arrays
@@ -287,6 +296,10 @@ namespace SimpleScene
             UniLightingMode = LightingMode.ShadowMapDebug;
             UniPoissonSamplingEnabled = true;
             UniNumPoissonSamples = 8;
+            #if MAIN_SHADER_INSTANCING
+            UniInstanceDrawEnabled = false;
+            UniInstanceBillboardingEnabled = false;
+            #endif
 
             // uniform locations for texture setup only
             int GLun_diffTex = getUniLoc("diffTex");
