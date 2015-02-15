@@ -35,6 +35,7 @@ namespace SimpleScene
         {
             if (attrLoc == -1) return;
 
+            //GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             GL.EnableVertexAttribArray(attrLoc);
             bind();
             GL.VertexAttribPointer(attrLoc, 
@@ -48,6 +49,7 @@ namespace SimpleScene
         {
             if (attrLoc != -1) {
                 GL.DisableVertexAttribArray(attrLoc);
+                //GL.PopClientAttrib();
             }
         }
     }

@@ -145,6 +145,7 @@ namespace SimpleScene
             //shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
 
             // prepare attribute arrays for draw
+            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             prepareAttribute(m_posBuffer, shader.AttrInstancePos, m_ps.Positions);
             prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, m_ps.MasterScales);
             prepareAttribute(m_componentScaleBuffer, shader.AttrInstanceComponentScale, m_ps.ComponentScales);
@@ -162,6 +163,9 @@ namespace SimpleScene
             #if DRAW_USING_MAIN_SHADER
             shader.UniInstanceDrawEnabled = false;
             #endif
+
+            GL.PopClientAttrib();
+            #if false
             m_posBuffer.DisableAttribute(shader.AttrInstancePos);
             m_masterScaleBuffer.DisableAttribute(shader.AttrInstanceMasterScale);
             m_componentScaleBuffer.DisableAttribute(shader.AttrInstanceComponentScale);
@@ -172,6 +176,7 @@ namespace SimpleScene
             m_spriteOffsetVBuffer.DisableAttribute(shader.AttrInstanceSpriteOffsetV);
             m_spriteSizeUBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeU);
             m_spriteSizeVBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeV);
+            #endif
             //this.boundingSphere.Render(ref renderConfig);
         }
 
