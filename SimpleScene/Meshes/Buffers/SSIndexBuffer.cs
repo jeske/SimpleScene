@@ -19,17 +19,20 @@ namespace SimpleScene
 		}
 
         public SSIndexBuffer(UInt16[] indices, ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.StaticDraw) 
-        : this(vbo, hint) {
+        : this(vbo, hint) 
+        {
             UpdateBufferData(indices);
         }
 
-		public void Delete() {
+		public void Delete() 
+        {
 			GL.DeleteBuffer (m_IBOid);
             m_IBOid = 0;
             m_numIndices = 0;
 		}
 
-        public void UpdateBufferData(UInt16[] indices) {
+        public void UpdateBufferData(UInt16[] indices) 
+        {
             if (m_IBOid == 0) {
                 m_IBOid = GL.GenBuffer();
             }
@@ -42,7 +45,8 @@ namespace SimpleScene
             Unbind();
         }
 
-        public void DrawElements(PrimitiveType primType, bool doBind = true) {
+        public void DrawElements(PrimitiveType primType, bool doBind = true) 
+        {
             if (doBind) {
                 m_vbo.DrawBind();
                 Bind();
@@ -55,6 +59,21 @@ namespace SimpleScene
                 Unbind();
                 m_vbo.DrawUnbind();
             }
+        }
+
+        public void DrawElementsInstanced(int instanceCount, PrimitiveType primType)
+        {
+            m_vbo.DrawBind();
+            Bind();
+            GL.DrawElementsInstanced(
+                primType,
+                m_numIndices,
+                DrawElementsType.UnsignedShort,
+                IntPtr.Zero,
+                instanceCount
+            );
+            Unbind();
+            m_vbo.DrawUnbind();
         }
 
         public void Bind() {
