@@ -31,8 +31,7 @@ namespace WavefrontOBJViewer
 
 
 			// 0. Add Lights
-			var light = new SSLight ();
-			light.Type = SSLight.LightType.Directional;
+			var light = new SSDirectionalLight (LightName.Light0);
 			light.Direction = new Vector3(0f, 0f, -1f);
 			scene.AddLight(light);
 
