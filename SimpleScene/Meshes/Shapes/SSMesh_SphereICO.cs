@@ -151,12 +151,13 @@ namespace SimpleScene
             ibo.DrawElements(PrimitiveType.Triangles);
 		}
 
-
-		public override IEnumerable<Vector3> EnumeratePoints ()
+        public override float Radius ()
 		{
+            float radSq = 0f;
 			foreach (var point in geom.Positions) {
-				yield return point;
+                radSq = Math.Max(radSq, point.LengthSquared);
 			}
+            return (float)Math.Sqrt(radSq);
 		}
 
 	}

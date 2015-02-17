@@ -48,10 +48,7 @@ namespace SimpleScene
         private void _setupMesh() {
             if (_mesh != null) {
                 // compute and setup bounding sphere
-                float radius = 0f;
-                foreach(var point in _mesh.EnumeratePoints()) {
-	                radius = Math.Max(radius,point.Length);
-                }
+                float radius = _mesh.Radius();
 
                 // TODO: fix this confusion -> currently boundingSphere is object-space radius, world-space position
                 //  this affects collision intersect, bounding-sphere rendering, and the SSObjectBVHNodeAdaptor

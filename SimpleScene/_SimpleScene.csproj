@@ -126,7 +126,7 @@
     <Compile Include="Meshes\Buffers\AttributeFormats.cs" />
     <Compile Include="Meshes\Buffers\VertexFormats.cs" />
     <Compile Include="Core\SSInstanceShaderProgram.cs" />
-    <Compile Include="Meshes\SSBufferedMesh.cs" />
+    <Compile Include="Meshes\SSIndexedMesh.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

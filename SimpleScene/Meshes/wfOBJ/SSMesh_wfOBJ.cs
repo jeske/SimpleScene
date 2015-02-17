@@ -138,14 +138,18 @@ namespace SimpleScene
 			GL.Disable(EnableCap.Lighting);
 		}
 
-		public override IEnumerable<Vector3> EnumeratePoints ()
+        public override float Radius ()
 		{
+            float maxRadSq = 0f;
+            Vector3 maxCoponent = new Vector3(0f);
 		    foreach (var subset in geometrySubsets) {
 				foreach (var vtx in subset.vertices) {
-				    yield return vtx.Position;
+                    maxRadSq = Math.Max(maxRadSq, vtx.Position.LengthSquared);
 				}
 			}
+            return (float)Math.Sqrt(maxRadSq);
 		}
+
 		public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {
 			foreach(var subset in geometrySubsets) {
 				for(int idx=0;idx < subset.indicies.Length;idx+=3) {

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public class SSBufferedMesh<V> : SSAbstractMesh
+    public abstract class SSIndexedMesh<V> : SSAbstractMesh
         where V : struct, ISSVertexLayout
     {
         protected SSVertexBuffer<V> m_vbo;
@@ -13,17 +14,17 @@ namespace SimpleScene
         /// <summary>
         /// Initialize based on buffer usage. Default to dynamic draw.
         /// </summary>
-        public SSBufferedMesh (BufferUsageHint vertUsage = BufferUsageHint.DynamicDraw, 
-                               BufferUsageHint indexUsage = BufferUsageHint.DynamicDraw)
+        public SSIndexedMesh (BufferUsageHint vertUsage = BufferUsageHint.DynamicDraw, 
+                              BufferUsageHint indexUsage = BufferUsageHint.DynamicDraw)
         {
             m_vbo = new SSVertexBuffer<V> (vertUsage);
             m_ibo = new SSIndexBuffer (m_vbo, indexUsage);
         }
 
         /// <summary>
-        /// Initialize given arrays of vertices and/or indices
+        /// Initialize given arrays of vertices and/or indices.
         /// </summary>
-        public SSBufferedMesh(V[] vertices,
+        public SSIndexedMesh(V[] vertices,
                               UInt16[] indices)
         {
             if (vertices == null) {
@@ -57,11 +58,6 @@ namespace SimpleScene
         public void UpdateIndices (UInt16[] indices)
         {
             m_ibo.UpdateBufferData(indices);
-        }
-
-        public override System.Collections.Generic.IEnumerable<Vector3> EnumeratePoints ()
-        {
-            throw new NotImplementedException();
         }
 
         private void init(BufferUsageHint vertUsage, BufferUsageHint indexUsage)
