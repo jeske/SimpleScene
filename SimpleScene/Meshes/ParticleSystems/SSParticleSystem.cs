@@ -44,7 +44,7 @@ namespace SimpleScene
 
     public class SSParticleSystem
     {
-        protected static readonly SSAttributePos c_notAPosition = new SSAttributePos(new Vector3 (float.NaN));
+        protected static readonly SSAttributeVec3 c_notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
         protected static Random s_rand = new Random(); // for quicksorting
 
         // TODO bounding sphere or cube
@@ -63,11 +63,11 @@ namespace SimpleScene
         #endregion
 
         #region particle data sent to the GPU
-        protected SSAttributePos[] m_positions;
-        protected SSAttributeOrientation[] m_orientations;
+        protected SSAttributeVec3[] m_positions;
+        protected SSAttributeVec3[] m_orientations;
         protected SSAttributeColor[] m_colors;
-        protected SSAttributeMasterScale[] m_masterScales;
-        protected SSAttributeComponentScale[] m_componentScales;
+        protected SSAttributeFloat[] m_masterScales;
+        protected SSAttributeVec2[] m_componentScales;
 
         protected SSAttributeByte[] m_spriteIndices;
         protected SSAttributeFloat[] m_spriteOffsetsU;
@@ -87,11 +87,11 @@ namespace SimpleScene
 
         public int Capacity { get { return m_capacity; } }
         public int ActiveBlockLength { get { return m_activeBlockLength; } }
-        public SSAttributePos[] Positions { get { return m_positions; } }
-        public SSAttributeOrientation[] Orientations { get { return m_orientations; } }
+        public SSAttributeVec3[] Positions { get { return m_positions; } }
+        public SSAttributeVec3[] Orientations { get { return m_orientations; } }
         public SSAttributeColor[] Colors { get { return m_colors; } }
-        public SSAttributeMasterScale[] MasterScales { get { return m_masterScales; } }
-        public SSAttributeComponentScale[] ComponentScales { get { return m_componentScales; } }
+        public SSAttributeFloat[] MasterScales { get { return m_masterScales; } }
+        public SSAttributeVec2[] ComponentScales { get { return m_componentScales; } }
         public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
         public SSAttributeFloat[] SpriteOffsetsU { get { return m_spriteOffsetsU; ; } }
         public SSAttributeFloat[] SpriteOffsetsV { get { return m_spriteOffsetsV; } }
@@ -111,10 +111,10 @@ namespace SimpleScene
             m_nextIdxToOverwrite = 0;
             m_activeBlockLength = 0;
 
-            m_positions = new SSAttributePos[1];
-            m_orientations = new SSAttributeOrientation[1];
-            m_masterScales = new SSAttributeMasterScale[1];
-            m_componentScales = new SSAttributeComponentScale[1];
+            m_positions = new SSAttributeVec3[1];
+            m_orientations = new SSAttributeVec3[1];
+            m_masterScales = new SSAttributeFloat[1];
+            m_componentScales = new SSAttributeVec2[1];
             m_colors = new SSAttributeColor[1];
 
             m_spriteIndices = new SSAttributeByte[1];
@@ -210,7 +210,7 @@ namespace SimpleScene
             for (int i = 0; i < m_activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
-                    Vector3 pos = readData(m_positions, i).Position;
+                    Vector3 pos = readData(m_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
                     writeDataIfNeeded(ref m_viewDepths, i, pos.Z);
                 } else {
@@ -291,13 +291,13 @@ namespace SimpleScene
 
         protected virtual void readParticle (int idx, SSParticle p) {
             p.Life = m_lives [idx];
-            p.Pos = readData(m_positions, idx).Position;
-            p.Orientation = readData(m_orientations, idx).Euler;
+            p.Pos = readData(m_positions, idx).Value;
+            p.Orientation = readData(m_orientations, idx).Value;
             p.ViewDepth = readData(m_viewDepths, idx);
 
             if (p.Life <= 0f) return; // the rest does not matter
 
-            p.MasterScale = readData(m_masterScales, idx).Scale;
+            p.MasterScale = readData(m_masterScales, idx).Value;
             p.ComponentScale = readData(m_componentScales, idx).Scale;
             p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
 
@@ -335,13 +335,13 @@ namespace SimpleScene
         protected virtual void writeParticle(int idx, SSParticle p) {
             m_lives [idx] = p.Life;
             writeDataIfNeeded(ref m_positions, idx, 
-                new SSAttributePos(p.Pos));
+                new SSAttributeVec3(p.Pos));
             writeDataIfNeeded(ref m_orientations, idx,
-                new SSAttributeOrientation (p.Orientation));
+                new SSAttributeVec3 (p.Orientation));
             writeDataIfNeeded(ref m_masterScales, idx,
-                new SSAttributeMasterScale (p.MasterScale));
+                new SSAttributeFloat (p.MasterScale));
             writeDataIfNeeded(ref m_componentScales, idx,
-                new SSAttributeComponentScale (p.ComponentScale));
+                new SSAttributeVec2 (p.ComponentScale));
             writeDataIfNeeded(ref m_colors, idx, 
                 new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
 

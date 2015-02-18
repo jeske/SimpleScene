@@ -30,10 +30,10 @@ namespace SimpleScene
 
         protected SSParticleSystem m_ps;
 
-        protected SSAttributeBuffer<SSAttributePos> m_posBuffer;
-        protected SSAttributeBuffer<SSAttributeOrientation> m_orientationBuffer;
-        protected SSAttributeBuffer<SSAttributeMasterScale> m_masterScaleBuffer;
-        protected SSAttributeBuffer<SSAttributeComponentScale> m_componentScaleBuffer;
+        protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
+        protected SSAttributeBuffer<SSAttributeVec3> m_orientationBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> m_masterScaleBuffer;
+        protected SSAttributeBuffer<SSAttributeVec2> m_componentScaleBuffer;
         protected SSAttributeBuffer<SSAttributeColor> m_colorBuffer;
 
         protected SSAttributeBuffer<SSAttributeByte> m_spriteIndexBuffer;
@@ -49,10 +49,10 @@ namespace SimpleScene
             Mesh = mesh;
             m_ps = ps;
             m_texture = texture;
-            m_posBuffer = new SSAttributeBuffer<SSAttributePos> (c_usageHint);
-            m_orientationBuffer = new SSAttributeBuffer<SSAttributeOrientation> (c_usageHint);
-            m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeMasterScale> (c_usageHint);
-            m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeComponentScale> (c_usageHint);
+            m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (c_usageHint);
+            m_orientationBuffer = new SSAttributeBuffer<SSAttributeVec3> (c_usageHint);
+            m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
+            m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeVec2> (c_usageHint);
             m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (c_usageHint);
 
             m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (c_usageHint);
