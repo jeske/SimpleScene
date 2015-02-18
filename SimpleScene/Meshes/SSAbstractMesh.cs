@@ -13,7 +13,7 @@ namespace SimpleScene
 
         public virtual float Radius()
         {
-            return 0f;
+            return 1f;
         }
 
         public virtual bool TraverseTriangles<T>(T state, traverseFn<T> fn) 
