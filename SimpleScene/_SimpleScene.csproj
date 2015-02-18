@@ -161,8 +161,15 @@
     <None Include="..\Assets\Shaders\Shadowmap\pssm_vertex.glsl">
       <Link>Assets\Shaders\Shadowmap\pssm_vertex.glsl</Link>
     </None>
+    <None Include="..\Assets\Shaders\Instancing\instance_fragment.glsl">
+      <Link>Assets\Shaders\Instancing\instance_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Instancing\instance_vertex.glsl">
+      <Link>Assets\Shaders\Instancing\instance_vertex.glsl</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Meshes\ParticleSystems\" />
+    <Folder Include="Assets\Shaders\Instancing\" />
   </ItemGroup>
 </Project>
