@@ -11,21 +11,18 @@ using Util.IcoSphere;
 
 namespace SimpleScene
 {
-	public class SSMesh_SphereICO : SSAbstractMesh
+    public class SSMesh_SphereICO : SSIndexedMesh<SSVertex_PosNormDiffTex1>
 	{
 		SSMainShaderProgram shaderPgm;
 
 		MeshGeometry3D geom;
 
-		SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;
-		SSIndexBuffer ibo;
-
 		SSTexture texture;
 
 		public SSMesh_SphereICO (int divisions, SSTexture texture)
+            : base(BufferUsageHint.StaticDraw, BufferUsageHint.StaticDraw)
 		{
 			this.texture = texture;
-
 			this._Create(divisions);
 		}
 
@@ -117,14 +114,10 @@ namespace SimpleScene
 				indexList.Add(idx3);
 			}
 
-			var vertexArr = vertexSoup.verticies.ToArray();
-			var idxArr = indexList.ToArray();
+            UpdateVertices(vertexSoup.verticies.ToArray());
+            UpdateIndices(indexList.ToArray());
 
-			// upload to GL
-			vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(vertexArr);
-			ibo = new SSIndexBuffer (idxArr, vbo);
 		}
-
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
             // note that the texture state was previously reset by the calling SSObject
@@ -148,7 +141,7 @@ namespace SimpleScene
                 }
             }
 
-            ibo.DrawElements(PrimitiveType.Triangles);
+            base.RenderMesh(ref renderConfig);
 		}
 
         public override float Radius ()
