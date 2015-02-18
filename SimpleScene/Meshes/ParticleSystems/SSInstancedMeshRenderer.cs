@@ -31,6 +31,7 @@ namespace SimpleScene
         protected SSParticleSystem m_ps;
 
         protected SSAttributeBuffer<SSAttributePos> m_posBuffer;
+        protected SSAttributeBuffer<SSAttributeOrientation> m_orientationBuffer;
         protected SSAttributeBuffer<SSAttributeMasterScale> m_masterScaleBuffer;
         protected SSAttributeBuffer<SSAttributeComponentScale> m_componentScaleBuffer;
         protected SSAttributeBuffer<SSAttributeColor> m_colorBuffer;
@@ -49,6 +50,7 @@ namespace SimpleScene
             m_ps = ps;
             m_texture = texture;
             m_posBuffer = new SSAttributeBuffer<SSAttributePos> (c_usageHint);
+            m_orientationBuffer = new SSAttributeBuffer<SSAttributeOrientation> (c_usageHint);
             m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeMasterScale> (c_usageHint);
             m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeComponentScale> (c_usageHint);
             m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (c_usageHint);
@@ -83,6 +85,7 @@ namespace SimpleScene
                 m_ps.SortByDepth(ref modelView);
             }
             m_posBuffer.UpdateBufferData(m_ps.Positions);
+            m_orientationBuffer.UpdateBufferData(m_ps.Orientations);
             m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
             m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
             m_colorBuffer.UpdateBufferData(m_ps.Colors);
@@ -141,6 +144,7 @@ namespace SimpleScene
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             prepareAttribute(m_posBuffer, shader.AttrInstancePos, m_ps.Positions);
+            prepareAttribute(m_orientationBuffer, shader.AttrInstanceOrientation, m_ps.Orientations);
             prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, m_ps.MasterScales);
             prepareAttribute(m_componentScaleBuffer, shader.AttrInstanceComponentScale, m_ps.ComponentScales);
             prepareAttribute(m_colorBuffer, shader.AttrInstanceColor, m_ps.Colors);

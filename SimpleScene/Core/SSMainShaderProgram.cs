@@ -58,6 +58,7 @@ namespace SimpleScene
         private readonly int u_instanceBillboardingEnabled;
 
         private readonly int a_instancePos;
+        private readonly int a_instanceOrientation;
         private readonly int a_instanceMasterScale;
         private readonly int a_instanceComponentScale;
         private readonly int a_instanceColor;
@@ -136,6 +137,10 @@ namespace SimpleScene
 
         public int AttrInstancePos {
             get { return a_instancePos; }
+        }
+
+        public int AttrInstanceOrientation {
+            get { return a_instanceOrientation; }
         }
 
         public int AttrInstanceMasterScale {
@@ -271,6 +276,7 @@ namespace SimpleScene
 
             // attributes
             a_instancePos = getAttrLoc("instancePos");
+            a_instanceOrientation = getAttrLoc("instanceOrientation");
             a_instanceMasterScale = getAttrLoc("instanceMasterScale");
             a_instanceComponentScale = getAttrLoc("instanceComponentScale");
             a_instanceColor = getAttrLoc("instanceColor");

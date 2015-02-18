@@ -15,9 +15,11 @@ namespace SimpleScene
 
         public float Life = 1f;
         public Vector3 Pos = new Vector3(0f);
+        public Vector3 Vel = new Vector3(1f);
+        public Vector3 Orientation;      // TODO: Quaternion?
+        public Vector3 AngularVelocity;
         public float MasterScale = 1f;
         public Vector3 ComponentScale = new Vector3(1f);
-        public Vector3 Vel = new Vector3(1f);
         public Color4 Color = Color4.White;
         public float Mass = 1.0f;
         public float ViewDepth = float.PositiveInfinity;
@@ -62,6 +64,7 @@ namespace SimpleScene
 
         #region particle data sent to the GPU
         protected SSAttributePos[] m_positions;
+        protected SSAttributeOrientation[] m_orientations;
         protected SSAttributeColor[] m_colors;
         protected SSAttributeMasterScale[] m_masterScales;
         protected SSAttributeComponentScale[] m_componentScales;
@@ -75,6 +78,7 @@ namespace SimpleScene
 
         #region particle data used for the simulation only
         protected Vector3[] m_velocities;
+        protected Vector3[] m_angularVelocities;
         protected float[] m_masses;
         protected float[] m_viewDepths;
         // TODO Orientation
@@ -84,6 +88,7 @@ namespace SimpleScene
         public int Capacity { get { return m_capacity; } }
         public int ActiveBlockLength { get { return m_activeBlockLength; } }
         public SSAttributePos[] Positions { get { return m_positions; } }
+        public SSAttributeOrientation[] Orientations { get { return m_orientations; } }
         public SSAttributeColor[] Colors { get { return m_colors; } }
         public SSAttributeMasterScale[] MasterScales { get { return m_masterScales; } }
         public SSAttributeComponentScale[] ComponentScales { get { return m_componentScales; } }
@@ -107,6 +112,7 @@ namespace SimpleScene
             m_activeBlockLength = 0;
 
             m_positions = new SSAttributePos[1];
+            m_orientations = new SSAttributeOrientation[1];
             m_masterScales = new SSAttributeMasterScale[1];
             m_componentScales = new SSAttributeComponentScale[1];
             m_colors = new SSAttributeColor[1];
@@ -118,6 +124,7 @@ namespace SimpleScene
             m_spriteSizesV = new SSAttributeFloat[1];
 
             m_velocities = new Vector3[1];
+            m_angularVelocities = new Vector3[1];
             m_masses = new float[1];
             m_viewDepths = new float[1];
 
@@ -162,6 +169,7 @@ namespace SimpleScene
                         // Still alive. Update position and run through effectors
                         readParticle(i, p);
                         p.Pos += p.Vel * timeDelta;
+                        p.Orientation += p.AngularVelocity * timeDelta;
                         foreach (SSParticleEffector effector in m_effectors) {
                             effector.Simulate(p, timeDelta);
                         }
@@ -284,6 +292,7 @@ namespace SimpleScene
         protected virtual void readParticle (int idx, SSParticle p) {
             p.Life = m_lives [idx];
             p.Pos = readData(m_positions, idx).Position;
+            p.Orientation = readData(m_orientations, idx).Euler;
             p.ViewDepth = readData(m_viewDepths, idx);
 
             if (p.Life <= 0f) return; // the rest does not matter
@@ -299,6 +308,7 @@ namespace SimpleScene
             p.SpriteRect.Height = readData(m_spriteSizesV, idx).Value;
 
             p.Vel = readData(m_velocities, idx);
+            p.AngularVelocity = readData(m_angularVelocities, idx);
             p.Mass = readData(m_masses, idx);
         }
 
@@ -326,6 +336,8 @@ namespace SimpleScene
             m_lives [idx] = p.Life;
             writeDataIfNeeded(ref m_positions, idx, 
                 new SSAttributePos(p.Pos));
+            writeDataIfNeeded(ref m_orientations, idx,
+                new SSAttributeOrientation (p.Orientation));
             writeDataIfNeeded(ref m_masterScales, idx,
                 new SSAttributeMasterScale (p.MasterScale));
             writeDataIfNeeded(ref m_componentScales, idx,
@@ -340,6 +352,7 @@ namespace SimpleScene
             writeDataIfNeeded(ref m_spriteSizesV, idx, new SSAttributeFloat(p.SpriteRect.Height));
 
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);
+            writeDataIfNeeded(ref m_angularVelocities, idx, p.AngularVelocity);
             writeDataIfNeeded(ref m_masses, idx, p.Mass);
             writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth); 
         }
