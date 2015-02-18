@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public class SSMeshDisk : SSBufferedMesh<SSVertex_PosTex1>
+    public class SSMeshDisk : SSIndexedMesh<SSVertex_PosTex1>
     {
         private SSTexture m_texture;
 
