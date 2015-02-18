@@ -50,11 +50,11 @@ namespace WavefrontOBJViewer
 			SSObject droneObj = new SSObjectMesh (mesh);
 			scene.AddObject (this.activeModel = droneObj);
 			droneObj.renderState.lighted = true;
-			droneObj.ambientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-			droneObj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj.shininessMatColor = 10.0f;
+			droneObj.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+			droneObj.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.ShininessMatColor = 10.0f;
 			//droneObj.EulerDegAngleOrient(-40.0f,0.0f);
 			droneObj.Pos = new OpenTK.Vector3(0,0,-15f);
 			droneObj.Name = "drone 1";
@@ -66,11 +66,11 @@ namespace WavefrontOBJViewer
 			);
 			scene.AddObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
-			drone2Obj.ambientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			drone2Obj.diffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj.specularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			drone2Obj.emissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			drone2Obj.shininessMatColor = 10.0f;
+			drone2Obj.AmbientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			drone2Obj.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			drone2Obj.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			drone2Obj.ShininessMatColor = 10.0f;
 			drone2Obj.EulerDegAngleOrient(-40f, 0f);
 			drone2Obj.Pos = new OpenTK.Vector3(0f, 0f, 0f);
 			drone2Obj.Name = "drone 2";
@@ -87,7 +87,7 @@ namespace WavefrontOBJViewer
 			{
 				var sunDisk = new SSMeshDisk ();
 				var sunBillboard = new SSObjectBillboard (sunDisk, true);
-				sunBillboard.Color = new Vector4 (1f, 1f, 0.8f, 1f);
+				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
 				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
 				sunBillboard.Scale = new Vector3 (600f);
 				sunBillboard.renderState.frustumCulling = false;
