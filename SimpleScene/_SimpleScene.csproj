@@ -127,7 +127,8 @@
     <Compile Include="Core\SSInstanceShaderProgram.cs" />
     <Compile Include="Meshes\SSIndexedMesh.cs" />
     <Compile Include="Meshes\ParticleSystems\SSInstancedMeshRenderer.cs" />
-    <Compile Include="Meshes\Shapes\SSMeshQuad.cs" />
+    <Compile Include="Meshes\Shapes\SSTexturedQuad.cs" />
+    <Compile Include="Meshes\Shapes\SSTexturedCube.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
