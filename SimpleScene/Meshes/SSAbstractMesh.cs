@@ -11,7 +11,10 @@ namespace SimpleScene
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
 		public abstract void RenderMesh (ref SSRenderConfig renderConfig);
 
-        public abstract float Radius ();
+        public virtual float Radius()
+        {
+            return 0f;
+        }
 
         public virtual bool TraverseTriangles<T>(T state, traverseFn<T> fn) 
         {

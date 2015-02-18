@@ -69,11 +69,6 @@ namespace SimpleScene
 
             base.RenderMesh(ref renderConfig);
         }
-
-        public override float Radius ()
-        {
-            return 1f;
-        }
     }
 }
 

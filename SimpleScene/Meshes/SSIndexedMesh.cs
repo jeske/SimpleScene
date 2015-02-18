@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public abstract class SSIndexedMesh<V> : SSAbstractMesh
+    public class SSIndexedMesh<V> : SSAbstractMesh
         where V : struct, ISSVertexLayout
     {
         protected SSVertexBuffer<V> m_vbo;
@@ -58,11 +58,6 @@ namespace SimpleScene
         public void UpdateIndices (UInt16[] indices)
         {
             m_ibo.UpdateBufferData(indices);
-        }
-
-        private void init(BufferUsageHint vertUsage, BufferUsageHint indexUsage)
-        {
-
         }
     }
 }

@@ -15,8 +15,7 @@ namespace SimpleScene
         #region Instance-Specific Drawing Constructs
         private SSVertex_PosTex1[] m_vertices;
 
-        private SSVertexBuffer<SSVertex_PosTex1> m_vbo;
-        private SSIndexBuffer m_ibo;
+        SSIndexedMesh<SSVertex_PosTex1> m_mesh;
         private SSTexture m_texture;
         private Vector2[] m_textureCoords;
         private Vector2[] m_spriteScales;
@@ -114,7 +113,7 @@ namespace SimpleScene
                 m_vertices [baseIdx+3].Position.X = center.X - tileVec.X;
                 m_vertices [baseIdx+3].Position.Y = center.Y + tileVec.Y;
             }
-            m_vbo.UpdateBufferData(m_vertices);
+            m_mesh.UpdateVertices(m_vertices);
 
             // now, actually draw
             base.Render(ref renderConfig);
@@ -138,7 +137,7 @@ namespace SimpleScene
             GL.Color4(color);
             //GL.Color3(0f, 1f, 0f);
 
-            m_ibo.DrawElements(PrimitiveType.Triangles);
+            m_mesh.RenderMesh(ref renderConfig);
         }
 
         private void init(SSScene sunScene,
@@ -175,8 +174,7 @@ namespace SimpleScene
                 indices [baseLoc + 4] = (UInt16)(baseVal + 3);
                 indices [baseLoc + 5] = (UInt16)(baseVal + 2);
             }
-            m_vbo = new SSVertexBuffer<SSVertex_PosTex1> (BufferUsageHint.DynamicDraw);
-            m_ibo = new SSIndexBuffer (indices, m_vbo);
+            m_mesh = new SSIndexedMesh<SSVertex_PosTex1> (null, indices);
 
             int vertSz = m_numElements * 4;
             m_vertices = new SSVertex_PosTex1[vertSz];
