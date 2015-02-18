@@ -41,6 +41,18 @@ namespace SimpleScene
             set { VelocityComponentMin = VelocityComponentMax = value; }
         }
 
+        public Vector3 OrientationMin = c_defaultParticle.Orientation;
+        public Vector3 OrientationMax = c_defaultParticle.Orientation;
+        public Vector3 Orientation {
+            set { OrientationMin = OrientationMax = value; }
+        }
+
+        public Vector3 AngularVelocityMin = c_defaultParticle.AngularVelocity;
+        public Vector3 AngularVelocityMax = c_defaultParticle.AngularVelocity;
+        public Vector3 AngularVelocity {
+            set { AngularVelocityMin = AngularVelocityMax = value; }
+        }
+
         public float MasterScaleMin = c_defaultParticle.MasterScale;
         public float MasterScaleMax = c_defaultParticle.MasterScale;
         public float MasterScale {
@@ -119,6 +131,14 @@ namespace SimpleScene
             p.ComponentScale.X = Interpolate.Lerp(ComponentScaleMin.X, ComponentScaleMax.X, nextFloat());
             p.ComponentScale.Y = Interpolate.Lerp(ComponentScaleMin.Y, ComponentScaleMax.Y, nextFloat());
             p.ComponentScale.Z = Interpolate.Lerp(ComponentScaleMin.Z, ComponentScaleMax.Z, nextFloat());
+
+            p.Orientation.X = Interpolate.Lerp(OrientationMin.X, OrientationMax.X, nextFloat());
+            p.Orientation.Y = Interpolate.Lerp(OrientationMin.Y, OrientationMax.Y, nextFloat());
+            p.Orientation.Z = Interpolate.Lerp(OrientationMin.Z, OrientationMax.Z, nextFloat());
+
+            p.AngularVelocity.X = Interpolate.Lerp(AngularVelocityMin.X, AngularVelocityMax.X, nextFloat());
+            p.AngularVelocity.Y = Interpolate.Lerp(AngularVelocityMin.Y, AngularVelocityMax.Y, nextFloat());
+            p.AngularVelocity.Z = Interpolate.Lerp(AngularVelocityMin.Z, AngularVelocityMax.Z, nextFloat());
 
             p.Vel.X = Interpolate.Lerp(VelocityComponentMin.X, VelocityComponentMax.X, nextFloat());
             p.Vel.Y = Interpolate.Lerp(VelocityComponentMin.Y, VelocityComponentMax.Y, nextFloat());

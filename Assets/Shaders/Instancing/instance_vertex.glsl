@@ -6,6 +6,7 @@ uniform bool instanceBillboardingEnabled;
 //const bool instanceBillboardingEnabled = true;
 
 attribute vec3 instancePos;
+attribute vec3 instanceOrientation;
 attribute float instanceMasterScale;
 attribute vec3 instanceComponentScale;
 attribute vec4 instanceColor;
@@ -72,13 +73,38 @@ vec3 quatTransform(vec4 q, vec3 v)
     return v + 2.0*cross(cross(v, q.xyz ) + q.w*v, q.xyz);
 }
 
+mat3 orientX(float angle)
+{
+    return mat3(1.0, 0.0, 0.0,
+                0, cos(angle), -sin(angle),
+                0.0, sin(angle), cos(angle));
+}
+
+mat3 orientY(float angle)
+{
+    return mat3(cos(angle), 0.0, sin(angle),
+                0.0, 1.0, 0.0,
+                -sin(angle), 0.0, cos(angle));
+}
+
+mat3 orientZ(float angle)
+{
+    return mat3(cos(angle), -sin(angle), 0.0,
+                sin(angle), cos(angle), 0.0,
+                0.0, 0.0, 1.0);
+}
+
 void main()
 {
     vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
+    combinedPos = orientZ(instanceOrientation.z) * combinedPos;
     if (instanceBillboardingEnabled) {
         vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
         rotation *= -1; // inverse rotation
         combinedPos = quatTransform(rotation, combinedPos);
+    } else {
+        combinedPos = orientY(instanceOrientation) * orientX(instanceOrientation.x)
+                    * combinedPos;
     }
     combinedPos += instancePos;
 
