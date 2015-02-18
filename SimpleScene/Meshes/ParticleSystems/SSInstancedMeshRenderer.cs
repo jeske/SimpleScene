@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public class SSInstancedParticleRenderer : SSObject
+    public class SSInstancedMeshRenderer : SSObject
     {
         // TODO Draw any ibo/vbo mesh
 
@@ -13,20 +13,9 @@ namespace SimpleScene
 
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
-        private static readonly SSVertex_PosTex1[] c_billboardVertices = {
-            // CCW quad; no indexing
-            new SSVertex_PosTex1(-.5f, -.5f, 0f, 0f, 1f),
-            new SSVertex_PosTex1(+.5f, -.5f, 0f, 1f, 1f),
-            new SSVertex_PosTex1(+.5f, +.5f, 0f, 1f, 0f),
-
-            new SSVertex_PosTex1(-.5f, -.5f, 0f, 0f, 1f),
-            new SSVertex_PosTex1(+.5f, +.5f, 0f, 1f, 0f),
-            new SSVertex_PosTex1(-.5f, +.5f, 0f, 0f, 0f),
-        };
-        protected static readonly SSVertexBuffer<SSVertex_PosTex1> s_billboardVbo;
-
         public bool AlphaBlendingEnabled = true;
         public BillboardingType Billboarding = BillboardingType.Instanced;
+        public SSIndexedMesh<SSVertex_PosTex1> Mesh;
 
         protected SSParticleSystem m_ps;
 
@@ -42,13 +31,10 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeVBuffer;
         protected SSTexture m_texture;
 
-        static SSInstancedParticleRenderer()
+        public SSInstancedMeshRenderer (SSParticleSystem ps, SSTexture texture, 
+                                        SSIndexedMesh<SSVertex_PosTex1> mesh = null)
         {
-            s_billboardVbo = new SSVertexBuffer<SSVertex_PosTex1> (c_billboardVertices);
-        }
-
-        public SSInstancedParticleRenderer (SSParticleSystem ps, SSTexture texture)
-        {
+            Mesh = mesh;
             m_ps = ps;
             m_texture = texture;
             m_posBuffer = new SSAttributeBuffer<SSAttributePos> (c_usageHint);
@@ -155,7 +141,7 @@ namespace SimpleScene
             prepareAttribute(m_spriteSizeVBuffer, shader.AttrInstanceSpriteSizeV, m_ps.SpriteSizesV);
 
             // do the draw
-            s_billboardVbo.DrawInstanced(PrimitiveType.Triangles, m_ps.ActiveBlockLength);
+            Mesh.RenderInstanced(m_ps.ActiveBlockLength, PrimitiveType.Triangles);
              
             #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = false;
