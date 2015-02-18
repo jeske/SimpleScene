@@ -15,7 +15,7 @@ namespace SimpleScene
     }
 
     // http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
-    public class SSVertexBuffer<Vertex> : SSArrayBuffer<Vertex>, ISSVertexBuffer
+    public class SSVertexBuffer<Vertex> : SSArrayBuffer<Vertex>, ISSVertexBuffer, ISSInstancable
         where Vertex : struct, ISSVertexLayout 
     {
         public SSVertexBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw)
@@ -36,7 +36,7 @@ namespace SimpleScene
         /// <summary>
         /// Draws the arrays instanced. Attribute arrays must be prepared prior to use.
         /// </summary>
-        public void DrawInstanced(PrimitiveType primType, int numInstances)
+        public void RenderInstanced(int numInstances, PrimitiveType primType)
         {
             DrawBind();
             GL.DrawArraysInstanced(primType, 0, NumElements, numInstances);

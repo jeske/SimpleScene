@@ -5,6 +5,17 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
+    public interface ISSInstancable
+    {
+        /// <summary>
+        /// Render a number of instances of the mesh. Attribute arrays must be prepared prior to use.
+        /// </summary>
+        void RenderInstanced(int instanceCount, PrimitiveType primType);
+    }
+
+    /// <summary>
+    /// Renders particle system with attribute buffers and an ISSInstancable object
+    /// </summary>
     public class SSInstancedMeshRenderer : SSObject
     {
         // TODO Draw any ibo/vbo mesh
@@ -15,7 +26,7 @@ namespace SimpleScene
 
         public bool AlphaBlendingEnabled = true;
         public BillboardingType Billboarding = BillboardingType.Instanced;
-        public SSIndexedMesh<SSVertex_PosTex1> Mesh;
+        public ISSInstancable Mesh;
 
         protected SSParticleSystem m_ps;
 
@@ -32,7 +43,7 @@ namespace SimpleScene
         protected SSTexture m_texture;
 
         public SSInstancedMeshRenderer (SSParticleSystem ps, SSTexture texture, 
-                                        SSIndexedMesh<SSVertex_PosTex1> mesh = null)
+                                        ISSInstancable mesh = null)
         {
             Mesh = mesh;
             m_ps = ps;
@@ -143,11 +154,11 @@ namespace SimpleScene
             // do the draw
             Mesh.RenderInstanced(m_ps.ActiveBlockLength, PrimitiveType.Triangles);
              
+            GL.PopClientAttrib();
             #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = false;
             #endif
 
-            GL.PopClientAttrib();
             #if false
             m_posBuffer.DisableAttribute(shader.AttrInstancePos);
             m_masterScaleBuffer.DisableAttribute(shader.AttrInstanceMasterScale);
