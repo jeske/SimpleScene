@@ -103,7 +103,7 @@ void main()
         rotation *= -1; // inverse rotation
         combinedPos = quatTransform(rotation, combinedPos);
     } else {
-        combinedPos = orientY(instanceOrientation) * orientX(instanceOrientation.x)
+        combinedPos = orientY(instanceOrientation.y) * orientX(instanceOrientation.x)
                     * combinedPos;
     }
     combinedPos += instancePos;
