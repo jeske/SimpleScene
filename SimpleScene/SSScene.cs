@@ -11,9 +11,9 @@ using OpenTK.Graphics.OpenGL;
 namespace SimpleScene
 {
 	public enum WireframeMode {
-		None,
-		GLSL_SinglePass,
-		GL_Lines,
+		None = 0,
+		GLSL_SinglePass = 1,
+		GL_Lines = 2,
 	};
 
 	public struct SSRenderStats {

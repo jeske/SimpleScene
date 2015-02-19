@@ -14,59 +14,72 @@ using SimpleScene;
 
 namespace WavefrontOBJViewer
 {
-	partial class WavefrontOBJViewer : OpenTK.GameWindow {
-
+	partial class WavefrontOBJViewer : OpenTK.GameWindow 
+	{
 		SSObject selectedObject = null;
 
-		public void setupInput() {
-			// hook mouse drag input...
-			this.MouseDown += (object sender, MouseButtonEventArgs e) => {
-				this.mouseButtonDown = true;
+		public void setupInput()
+		{
+			this.MouseDown += mouseDownHandler;
+			this.MouseUp += mouseUpHandler;
+			this.MouseMove += mouseMoveHandler;
+			this.MouseWheel += mouseWheelHandler;
+			this.KeyUp += keyUpHandler;
+		}
 
-				// cast ray for mouse click
-				var clientRect = new System.Drawing.Size(ClientRectangle.Width, ClientRectangle.Height);
-				Vector2 mouseLoc = new Vector2(e.X,e.Y);
+		void mouseDownHandler(object sender, MouseButtonEventArgs e)
+		{
+			this.mouseButtonDown = true;
 
-				SSRay ray = OpenTKHelper.MouseToWorldRay(
-					this.scene.ProjectionMatrix,this.scene.InvCameraViewMatrix, clientRect, mouseLoc);
+			// cast ray for mouse click
+			var clientRect = new System.Drawing.Size(ClientRectangle.Width, ClientRectangle.Height);
+			Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
-				// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
-				// scene.addObject(new SSObjectRay(ray));
+			SSRay ray = OpenTKHelper.MouseToWorldRay(
+				this.scene.ProjectionMatrix,this.scene.InvCameraViewMatrix, clientRect, mouseLoc);
 
-				selectedObject = scene.Intersect(ref ray);
+			// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
+			// scene.addObject(new SSObjectRay(ray));
 
-			};
-			this.MouseUp += (object sender, MouseButtonEventArgs e) => { 
-				this.mouseButtonDown = false;
-			};
-			this.MouseMove += (object sender, MouseMoveEventArgs e) => {
-				if (this.mouseButtonDown) {
+			selectedObject = scene.Intersect(ref ray);
+		}
 
-					// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-					this.scene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
-					// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
-				}
-			};
-			this.MouseWheel += (object sender, MouseWheelEventArgs e) => { 
-				// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
-				SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
-				if (ctp != null) {
-					ctp.followDistance += -e.DeltaPrecise;
-				} 
-			};
+		void mouseUpHandler(object sender, MouseButtonEventArgs e)
+		{ 
+			this.mouseButtonDown = false;
+		}
 
-			this.KeyPress += (object sender, KeyPressEventArgs e) => {
-				switch (e.KeyChar) {
-				case 'w':
-					scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode(scene.DrawWireFrameMode);
-					updateWireframeDisplayText (scene.DrawWireFrameMode);
+		void mouseMoveHandler(object sender, MouseMoveEventArgs e)
+		{
+			if (this.mouseButtonDown) {
 
-					// if we need single-pass wireframes, set the GLSL uniform variable
-					mainShader.Activate();
-					mainShader.UniShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
-					break;
-				}
-			};
+				// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
+				this.scene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+				// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
+			}
+		}
+
+		void mouseWheelHandler(object sender, MouseWheelEventArgs e)
+		{
+			// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
+			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
+			if (ctp != null) {
+				ctp.followDistance += -e.DeltaPrecise;
+			} 
+		}
+
+		void keyUpHandler(object sender, KeyboardKeyEventArgs e)
+		{
+			#if false
+			switch (e.Key) {
+			case Key.F:
+				System.Console.WriteLine("Toggling wireframe");
+
+				scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode(scene.DrawWireFrameMode);
+				updateWireframeDisplayText (scene.DrawWireFrameMode);
+				break;
+			}
+			#endif
 		}
 	}
 }

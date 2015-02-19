@@ -18,19 +18,7 @@ namespace WavefrontOBJViewer
 			scene.PssmShader = pssmShader;
 			scene.InstanceShader = instancingShader;
 			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
-			scene.BeforeRenderObject += (obj, renderConfig) => {
-				mainShader.Activate();
-				if (obj == selectedObject) {
-					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					mainShader.UniShowWireframes = true;			
-
-				} else {
-					renderConfig.drawWireframeMode = WireframeMode.None;
-					mainShader.UniShowWireframes = false;
-
-				}
-			};
-
+			scene.BeforeRenderObject += beforeRenderObjectHandler;
 
 			// 0. Add Lights
 			var light = new SSDirectionalLight (LightName.Light0);
@@ -161,6 +149,20 @@ namespace WavefrontOBJViewer
 			}
 		}
 
+		private void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
+		{
+			mainShader.Activate();
+			if (obj == selectedObject ) {
+				renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
+				mainShader.UniShowWireframes = true;
+
+			} else {
+				renderConfig.drawWireframeMode = WireframeMode.None;
+				mainShader.UniShowWireframes = false;
+
+			}
+		}
+
 		public void setupEnvironment() {
 
 			// add skybox cube
@@ -177,7 +179,6 @@ namespace WavefrontOBJViewer
 			skyboxStars.renderState.lighted = false;
 
 		}
-
 
 		SSObjectGDISurface_Text fpsDisplay;
 
