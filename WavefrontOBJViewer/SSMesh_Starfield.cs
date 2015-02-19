@@ -43,11 +43,6 @@ namespace WavefrontOBJViewer
             }
 		}
 
-		public override float Radius()
-		{
-			return 1f;
-		}
-
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {
 			SSShaderProgram.DeactivateAll ();
 
