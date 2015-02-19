@@ -24,6 +24,7 @@ namespace SimpleScene
 
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
+        public bool SimulateOnUpdate = true;
         public bool AlphaBlendingEnabled = true;
         public BillboardingType Billboarding = BillboardingType.Instanced;
         public ISSInstancable Mesh;
@@ -185,6 +186,13 @@ namespace SimpleScene
             int numActive = m_ps.ActiveBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
             attrBuff.PrepareAttribute(attrLoc, numInstancesPerValue);
+        }
+
+        public override void Update (float fElapsedMS)
+        {
+            if (SimulateOnUpdate) {
+                m_ps.Simulate(fElapsedMS);
+            }
         }
     }
 }

@@ -26,6 +26,8 @@ namespace WavefrontOBJViewer
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
 
+		SSParticleSystem ps = null;
+
 		SSScene scene = new SSScene();
 		SSScene sunDiskScene = new SSScene ();
 		SSScene sunFlareScene = new SSScene ();
@@ -37,6 +39,7 @@ namespace WavefrontOBJViewer
 		
 		SSMainShaderProgram mainShader;
 		SSPssmShaderProgram pssmShader;
+		SSInstanceShaderProgram instancingShader;
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public WavefrontOBJViewer()
@@ -115,6 +118,7 @@ namespace WavefrontOBJViewer
 
 				game.mainShader = new SSMainShaderProgram(); // before scene
 				game.pssmShader = new SSPssmShaderProgram ();
+				game.instancingShader = new SSInstanceShaderProgram ();
 				
 				game.setupInput ();
 

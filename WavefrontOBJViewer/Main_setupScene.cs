@@ -16,6 +16,7 @@ namespace WavefrontOBJViewer
 		public void setupScene() {
 			scene.MainShader = mainShader;
 			scene.PssmShader = pssmShader;
+			scene.InstanceShader = instancingShader;
 			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += (obj, renderConfig) => {
 				mainShader.Activate();
@@ -112,6 +113,51 @@ namespace WavefrontOBJViewer
 				sunFlare.Scale = new Vector3 (2f);
 				sunFlare.renderState.lighted = false;
 				sunFlareScene.AddObject(sunFlare);
+			}
+
+			// particle system test
+			// particle systems should be drawn last (if it requires alpha blending)
+			{
+				// setup an emitter
+				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
+				var emitter = new SSParticlesFieldEmitter (box);
+				emitter.ParticlesPerEmission = 1000;
+				emitter.EmissionInterval = 10000f;
+				emitter.Life = 1000f;
+				emitter.ColorComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
+				emitter.ColorComponentMax = new Color4 (1f, 1f, 1f, 1f);
+				emitter.VelocityComponentMax = new Vector3 (.3f);
+				emitter.VelocityComponentMin = new Vector3 (-.3f);
+				emitter.AngularVelocityMin = new Vector3 (-0.5f);
+				emitter.AngularVelocityMax = new Vector3 (0.5f);
+				RectangleF[] uvRects = new RectangleF[18*6];
+				float tileWidth = 1f / 18f;
+				float tileHeight = 1f / 6f;
+				for (int r = 0; r < 6; ++r) {
+					for (int c = 0; c < 18; ++c) {
+						uvRects [r*18 + c] = new RectangleF (tileWidth * (float)r, 
+							tileHeight * (float)c,
+							tileWidth, 
+							tileHeight);
+					}
+				}
+				emitter.SpriteRectangles = uvRects;
+
+
+				// make a particle system
+				ps = new SSParticleSystem (1000);
+				ps.AddEmitter(emitter);
+				ps.EmitAll();
+
+				// test a renderer
+				//var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "planet-14.png");
+				//var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun.png");
+				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
+				var renderer = new SSInstancedMeshRenderer (ps, tex, SSTexturedCube.Instance);
+				renderer.Pos = new Vector3 (0f, 0f, -20f);
+				renderer.AlphaBlendingEnabled = false;
+				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+				scene.AddObject(renderer);
 			}
 		}
 
