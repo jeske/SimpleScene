@@ -120,12 +120,10 @@ namespace SimpleScene
             set { m_renderConfig.renderBoundingSpheres = value; }
         }
 
-
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
         public event BeforeRenderObjectHandler BeforeRenderObject;
         #endregion
-
 
         public void AddObject(SSObject obj) {
             m_objects.Add(obj);

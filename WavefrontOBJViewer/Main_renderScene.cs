@@ -123,6 +123,7 @@ namespace WavefrontOBJViewer
 				GL.CullFace (CullFaceMode.Back);
 				GL.Enable (EnableCap.DepthTest);
 				GL.Enable (EnableCap.DepthClamp);
+				GL.DepthFunc(DepthFunction.Lequal);
 				GL.DepthMask (true);
 				
 				// render 3d content...

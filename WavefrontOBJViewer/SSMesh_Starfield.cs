@@ -45,11 +45,11 @@ namespace WavefrontOBJViewer
 
 		public override float Radius()
 		{
-			return 0f;
+			return 1f;
 		}
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {
-			GL.UseProgram(0);
+			SSShaderProgram.DeactivateAll ();
 
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
@@ -69,9 +69,6 @@ namespace WavefrontOBJViewer
 			GL.End();
 
 			GL.Disable(EnableCap.Blend);
-
-
-
 		}	
 
 	}
