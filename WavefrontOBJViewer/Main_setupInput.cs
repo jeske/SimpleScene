@@ -42,6 +42,7 @@ namespace WavefrontOBJViewer
 			// scene.addObject(new SSObjectRay(ray));
 
 			selectedObject = scene.Intersect(ref ray);
+			updateWireframeDisplayText ();
 		}
 
 		void mouseUpHandler(object sender, MouseButtonEventArgs e)
@@ -70,16 +71,20 @@ namespace WavefrontOBJViewer
 
 		void keyUpHandler(object sender, KeyboardKeyEventArgs e)
 		{
-			#if false
 			switch (e.Key) {
-			case Key.F:
-				System.Console.WriteLine("Toggling wireframe");
-
-				scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode(scene.DrawWireFrameMode);
-				updateWireframeDisplayText (scene.DrawWireFrameMode);
+			case Key.Number1:
+				System.Console.WriteLine ("Toggling wireframe");
+				if (autoWireframeMode == true) {
+					autoWireframeMode = false;
+				} else {
+					scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode (scene.DrawWireFrameMode);
+					if (scene.DrawWireFrameMode == WireframeMode.None) {
+						autoWireframeMode = true; // rollover completes toggling modes
+					}
+				}
+				updateWireframeDisplayText ();
 				break;
 			}
-			#endif
 		}
 	}
 }

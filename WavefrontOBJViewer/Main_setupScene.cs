@@ -13,6 +13,8 @@ namespace WavefrontOBJViewer
 {
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
+		private bool autoWireframeMode = true;
+
 		public void setupScene() {
 			scene.MainShader = mainShader;
 			scene.PssmShader = pssmShader;
@@ -149,20 +151,6 @@ namespace WavefrontOBJViewer
 			}
 		}
 
-		private void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
-		{
-			mainShader.Activate();
-			if (obj == selectedObject ) {
-				renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-				mainShader.UniShowWireframes = true;
-
-			} else {
-				renderConfig.drawWireframeMode = WireframeMode.None;
-				mainShader.UniShowWireframes = false;
-
-			}
-		}
-
 		public void setupEnvironment() {
 
 			// add skybox cube
@@ -184,12 +172,8 @@ namespace WavefrontOBJViewer
 
 		SSObjectGDISurface_Text wireframeDisplay;
 
-		public void updateWireframeDisplayText(WireframeMode mode) {
-			wireframeDisplay.Label = String.Format ("press 'w' to toggle wireframe mode: [{0}]", 
-				mode);
-		}
-
-		public void setupHUD() {
+		public void setupHUD() 
+		{
 			hudScene.ProjectionMatrix = Matrix4.Identity;
 
 			// HUD Triangle...
@@ -210,7 +194,7 @@ namespace WavefrontOBJViewer
 			hudScene.AddObject (wireframeDisplay);
 			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
 			wireframeDisplay.Scale = new Vector3 (1.0f);
-			updateWireframeDisplayText (scene.DrawWireFrameMode);
+			updateWireframeDisplayText ();
 
 			// HUD text....
 			var testDisplay = new SSObject2DSurface_AGGText ();
@@ -218,6 +202,41 @@ namespace WavefrontOBJViewer
 			hudScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
+		}
+
+		private void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
+		{
+			// TODO not activate 
+			mainShader.Activate ();
+			if (autoWireframeMode) {
+				if (obj == selectedObject) {
+					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
+					mainShader.UniShowWireframes = true;
+
+				} else {
+					renderConfig.drawWireframeMode = WireframeMode.None;
+					mainShader.UniShowWireframes = false;
+				}
+			} else {
+				mainShader.UniShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
+			}
+		}
+
+		private void updateWireframeDisplayText() 
+		{
+			string selectionInfo;
+			WireframeMode techinqueInfo;
+			if (autoWireframeMode) {
+				selectionInfo = "selected";
+				techinqueInfo = (selectedObject == null ? WireframeMode.None : WireframeMode.GLSL_SinglePass);
+			} else {
+				selectionInfo = "all";
+				techinqueInfo = scene.DrawWireFrameMode;
+			}
+			wireframeDisplay.Label = String.Format (
+				"press '1' to toggle wireframe mode: [{0}:{1}]",
+				selectionInfo, techinqueInfo.ToString()
+			);
 		}
 	}
 }
