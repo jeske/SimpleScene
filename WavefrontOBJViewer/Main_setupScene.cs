@@ -2,6 +2,7 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
+using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics;
@@ -96,36 +97,18 @@ namespace WavefrontOBJViewer
 				sunDiskScene.AddObject(sunBillboard);
 
 				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun_flare.png");
-				const float flareTexBigOffset = 0.8889f;
-				const float flareTexSmallOffset = 0.125f;
-				Vector2[] flareTexCoords = {
-					new Vector2(0f, 0f),
-					new Vector2(1f, 0f),
-					new Vector2(1f, flareTexBigOffset),
-					new Vector2(0f, flareTexBigOffset),
-
-					new Vector2(0f, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset, 1f),
-					new Vector2(0f, 1f),
-
-					new Vector2(flareTexSmallOffset, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset*2f, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset*2f, 1f),
-					new Vector2(flareTexSmallOffset, 1f),
-
-					new Vector2(flareTexSmallOffset*2f, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset*3f, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset*3f, 1f),
-					new Vector2(flareTexSmallOffset*2f, 1f),
-
-					new Vector2(flareTexSmallOffset*3f, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset*4f, flareTexBigOffset),
-					new Vector2(flareTexSmallOffset*4f, 1f),
-					new Vector2(flareTexSmallOffset*3f, 1f),
+				const float bigOffset = 0.8889f;
+				const float smallOffset = 0.125f;
+				RectangleF[] flareSpriteRects = {
+					new RectangleF(0f, 0f, 1f, bigOffset),
+					new RectangleF(0f, bigOffset, smallOffset, smallOffset),
+					new RectangleF(smallOffset, bigOffset, smallOffset, smallOffset),
+					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
+					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
 				};
 				float[] spriteScales = { 20f, 1f, 2f, 1f, 1f };
-				var sunFlare = new SSObjectSunFlare (sunDiskScene, sunBillboard, flareTex, flareTexCoords, spriteScales);
+				var sunFlare = new SSObjectSunFlare (sunDiskScene, sunBillboard, flareTex, 
+													 flareSpriteRects, spriteScales);
 				sunFlare.Scale = new Vector3 (2f);
 				sunFlare.renderState.lighted = false;
 				sunFlareScene.AddObject(sunFlare);

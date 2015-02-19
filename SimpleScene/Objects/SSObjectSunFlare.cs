@@ -17,7 +17,6 @@ namespace SimpleScene
 
         SSIndexedMesh<SSVertex_PosTex1> m_mesh;
         private SSTexture m_texture;
-        private Vector2[] m_textureCoords;
         private Vector2[] m_spriteScales;
         private int m_numElements;
         #endregion
@@ -43,22 +42,22 @@ namespace SimpleScene
         public SSObjectSunFlare (SSScene sunScene,
                                  SSObjectBillboard sun,
                                  SSTexture texture,
-                                 Vector2[] texCoords,
+                                 RectangleF[] spriteRects,
                                  Vector2[] spriteScales = null)
         {
-            init(sunScene, sun, texture, texCoords, spriteScales);
+            init(sunScene, sun, texture, spriteRects, spriteScales);
         }
 
         public SSObjectSunFlare(SSScene sunScene,
                                 SSObjectBillboard sun,
                                 SSTexture texture,
-                                Vector2[] texCoords,
+                                RectangleF[] spriteRects,
                                 float[] spriteScales) {
             Vector2[] spriteScalesV2 = new Vector2[spriteScales.Length];
             for (int i = 0; i < spriteScalesV2.Length; ++i) {
                 spriteScalesV2 [i] = new Vector2 (spriteScales [i]);
             }
-            init(sunScene, sun, texture, texCoords, spriteScalesV2);
+            init(sunScene, sun, texture, spriteRects, spriteScalesV2);
         }
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -143,25 +142,27 @@ namespace SimpleScene
         private void init(SSScene sunScene,
                           SSObjectBillboard sun,
                           SSTexture texture,
-                          Vector2[] texCoords,
+                          RectangleF[] spriteRects,
                           Vector2[] spriteScales)
         {
             m_sun = sun;
             m_sunScene = sunScene;
             m_texture = texture;
-            m_textureCoords = texCoords;
+            m_numElements = spriteRects.Length;
             if (spriteScales == null) {
-                m_numElements = m_textureCoords.Length / 4;
                 m_spriteScales = new Vector2[m_numElements];
                 for (int i = 0; i < m_numElements; ++i) {
                     m_spriteScales [i] = new Vector2(1f);
                 }
             } else {
                 m_spriteScales = spriteScales;
-                if (m_spriteScales.Length != m_textureCoords.Length / 4) {
+                if (m_spriteScales.Length != m_numElements) {
                     throw new Exception ("texture coordinate array size does not match that of sprite scale array");
+                    m_spriteScales = new Vector2[m_numElements];
+                    for (int i = 0; i < m_numElements; ++i) {
+                        m_spriteScales [i] = new Vector2(1f);
+                    }
                 }
-                m_numElements = m_spriteScales.Length;
             }
             UInt16[] indices = new UInt16[m_numElements*6];
             for (int i = 0; i < m_numElements; ++i) {
@@ -176,11 +177,14 @@ namespace SimpleScene
             }
             m_mesh = new SSIndexedMesh<SSVertex_PosTex1> (null, indices);
 
-            int vertSz = m_numElements * 4;
-            m_vertices = new SSVertex_PosTex1[vertSz];
-            for (int i = 0; i < vertSz; ++i) {
-                Vector2 texCoord = m_textureCoords [i];
-                m_vertices [i] = new SSVertex_PosTex1 (0f, 0f, 0f, texCoord.X, texCoord.Y);
+            m_vertices = new SSVertex_PosTex1[m_numElements * 4];
+            for (int r = 0; r < spriteRects.Length; ++r) {
+                RectangleF rect = spriteRects [r];
+                int baseIdx = r * 4;
+                m_vertices [baseIdx]   = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Left, rect.Bottom);
+                m_vertices [baseIdx+1] = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Right, rect.Bottom);
+                m_vertices [baseIdx+2] = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Right, rect.Top);
+                m_vertices [baseIdx+3] = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Left, rect.Top);
             }
         }
     }
