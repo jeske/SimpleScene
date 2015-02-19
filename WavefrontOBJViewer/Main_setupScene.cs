@@ -145,7 +145,7 @@ namespace WavefrontOBJViewer
 
 
 				// make a particle system
-				ps = new SSParticleSystem (1000);
+				SSParticleSystem ps = new SSParticleSystem (1000);
 				ps.AddEmitter(emitter);
 				ps.EmitAll();
 

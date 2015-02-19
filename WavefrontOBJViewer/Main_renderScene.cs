@@ -123,7 +123,7 @@ namespace WavefrontOBJViewer
 				GL.CullFace (CullFaceMode.Back);
 				GL.Enable (EnableCap.DepthTest);
 				GL.Enable (EnableCap.DepthClamp);
-				GL.DepthFunc(DepthFunction.Lequal);
+				GL.DepthFunc(DepthFunction.Less);
 				GL.DepthMask (true);
 				
 				// render 3d content...
@@ -132,7 +132,7 @@ namespace WavefrontOBJViewer
 			}
 
 			/////////////////////////////////////////
-			// rendering the sun billboard scene....
+			// rendering the sun dsk scene....
 			{
 				sunDiskScene.InvCameraViewMatrix = rotationOnlyView;
 				sunDiskScene.ProjectionMatrix = mainSceneProj;
@@ -202,6 +202,8 @@ namespace WavefrontOBJViewer
 			// setup WIN_SCALE for our shader...
 			mainShader.Activate();
 			mainShader.UniWinScale = ClientRectangle;
+
+			saveClientWindowLocation ();
 		}
 
 	}
