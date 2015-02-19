@@ -124,8 +124,36 @@ namespace WavefrontOBJViewer
 			scene.Update ((float)e.Time);
 			hudScene.Update ((float)e.Time);
 
-			if (Keyboard[Key.Escape])
-				Exit();
+			driveCamera ((float)e.Time);
+		}
+
+		private void driveCamera(float deltaT)
+		{
+			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
+			float cameraVelocity = (ctp.FollowDistance + 1f) * -0.01f;
+			if (Keyboard [Key.W]) {
+				ctp.BasePos += ctp.Dir * cameraVelocity;
+			}
+			if (Keyboard [Key.S]) {
+				ctp.BasePos -= ctp.Dir * cameraVelocity;
+			}
+
+			if (Keyboard [Key.A]) {
+				ctp.BasePos += ctp.Right * cameraVelocity;
+			}
+			if (Keyboard [Key.D]) {
+				ctp.BasePos -= ctp.Right * cameraVelocity;
+			}
+
+			if (Keyboard [Key.Space]) {
+				ctp.BasePos -= ctp.Up * cameraVelocity;
+			}
+			if (Keyboard [Key.C] || Keyboard[Key.ControlLeft]) {
+				ctp.BasePos += ctp.Up * cameraVelocity;
+			}
+
+
+
 		}
 
 		private void restoreClientWindowLocation() {

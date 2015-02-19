@@ -69,8 +69,8 @@ namespace WavefrontOBJViewer
 
 			// last for the main scene. Add Camera
 
-			var camera = new SSCameraThirdPerson (droneObj);
-			camera.followDistance = 30.0f;
+			var camera = new SSCameraThirdPerson (null);
+			camera.FollowDistance = 50.0f;
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 
@@ -144,7 +144,7 @@ namespace WavefrontOBJViewer
 				//var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun.png");
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
 				var renderer = new SSInstancedMeshRenderer (ps, tex, SSTexturedCube.Instance);
-				renderer.Pos = new Vector3 (0f, 0f, -20f);
+				renderer.Pos = new Vector3 (0f, 0f, -30f);
 				renderer.AlphaBlendingEnabled = false;
 				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 				scene.AddObject(renderer);
