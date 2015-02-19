@@ -47,7 +47,7 @@ namespace SimpleScene
 
         public void RenderInstanced(int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
-            m_ibo.DrawElementsInstanced(instanceCount, primType);
+            m_ibo.RenderInstanced(instanceCount, primType);
         }
 
         public void UpdateVertices (V[] vertices)

@@ -3,7 +3,7 @@
 using OpenTK.Graphics.OpenGL;
 namespace SimpleScene
 {
-	public class SSIndexBuffer
+	public class SSIndexBuffer : ISSInstancable
 	{
         private readonly ISSVertexBuffer m_vbo;
         private readonly BufferUsageHint m_usageHint;
@@ -61,7 +61,7 @@ namespace SimpleScene
             }
         }
 
-        public void DrawElementsInstanced(int instanceCount, PrimitiveType primType)
+		public void RenderInstanced(int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
             m_vbo.DrawBind();
             Bind();
