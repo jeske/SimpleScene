@@ -53,7 +53,6 @@ namespace SimpleScene
         protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
         protected List<SSParticleEffector> m_effectors = new List<SSParticleEffector> ();
 
-
         protected readonly int m_capacity;
         protected int m_numParticles = 0;
 
