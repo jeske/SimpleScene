@@ -85,8 +85,11 @@ namespace SimpleScene
         // TODO Texture Coord
         #endregion
 
+        protected float m_radius = 0f;
+
         public int Capacity { get { return m_capacity; } }
         public int ActiveBlockLength { get { return m_activeBlockLength; } }
+        public float Radius { get { return m_radius; } }
         public SSAttributeVec3[] Positions { get { return m_positions; } }
         public SSAttributeVec3[] Orientations { get { return m_orientations; } }
         public SSAttributeColor[] Colors { get { return m_colors; } }
@@ -160,7 +163,12 @@ namespace SimpleScene
 
         public void Simulate(float timeDelta)
         {
-            SSParticle p = new SSParticle ();
+            foreach (SSParticleEmitter emitter in m_emitters) {
+                emitter.Simulate(timeDelta, storeNewParticle);
+            }
+
+			m_radius = 0f;
+			SSParticle p = new SSParticle ();
             for (int i = 0; i < m_activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Alive particle
@@ -174,6 +182,10 @@ namespace SimpleScene
                             effector.Simulate(p, timeDelta);
                         }
                         writeParticle(i, p);
+						float distFromOrogin = p.Pos.Length;
+						if (distFromOrogin > m_radius) {
+							m_radius = distFromOrogin;
+						}
                     } else {
                         // Particle just died. Hack to not draw?
                         writeDataIfNeeded(ref m_positions, i, c_notAPosition);
@@ -186,8 +198,7 @@ namespace SimpleScene
                             while (m_activeBlockLength > 0 && isDead(m_activeBlockLength - 1)) {
                                 --m_activeBlockLength;
                             }
-                        }
-                        --m_numParticles;
+                        }                        --m_numParticles;
                         if (m_numParticles == 0) {
                             // all particles gone. reset write and overwrite locations for better packing
                             m_nextIdxToWrite = 0;
@@ -196,10 +207,6 @@ namespace SimpleScene
                         }
                     }
                 }
-            }
-
-            foreach (SSParticleEmitter emitter in m_emitters) {
-                emitter.Simulate(timeDelta, storeNewParticle);
             }
         }
 

@@ -61,14 +61,13 @@ namespace SimpleScene
             m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
             m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
             m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
-
-            // test
-            this.boundingSphere = new SSObjectSphere (10f);
         }
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
             if (m_ps.ActiveBlockLength <= 0) return;
+
+			this.boundingSphere = new SSObjectSphere (m_ps.Radius);
 
             base.Render(ref renderConfig);
 
