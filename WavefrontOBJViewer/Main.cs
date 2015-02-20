@@ -130,26 +130,27 @@ namespace WavefrontOBJViewer
 		private void driveCamera(float deltaT)
 		{
 			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
-			float cameraVelocity = (ctp.FollowDistance + 1f) * -0.01f;
-			if (Keyboard [Key.W]) {
-				ctp.BasePos += ctp.Dir * cameraVelocity;
+			KeyboardState state = OpenTK.Input.Keyboard.GetState ();
+			float cameraDisplacement = (ctp.FollowDistance + 5f) * deltaT * -0.5f;
+			if (state.IsKeyDown(Key.W)) {
+				ctp.BasePos += ctp.Dir * cameraDisplacement;
 			}
-			if (Keyboard [Key.S]) {
-				ctp.BasePos -= ctp.Dir * cameraVelocity;
-			}
-
-			if (Keyboard [Key.A]) {
-				ctp.BasePos += ctp.Right * cameraVelocity;
-			}
-			if (Keyboard [Key.D]) {
-				ctp.BasePos -= ctp.Right * cameraVelocity;
+			if (state.IsKeyDown(Key.S)) {
+				ctp.BasePos -= ctp.Dir * cameraDisplacement;
 			}
 
-			if (Keyboard [Key.Space]) {
-				ctp.BasePos -= ctp.Up * cameraVelocity;
+			if (state.IsKeyDown(Key.A)) {
+				ctp.BasePos += ctp.Right * cameraDisplacement;
 			}
-			if (Keyboard [Key.C] || Keyboard[Key.ControlLeft]) {
-				ctp.BasePos += ctp.Up * cameraVelocity;
+			if (state.IsKeyDown(Key.D)) {
+				ctp.BasePos -= ctp.Right * cameraDisplacement;
+			}
+
+			if (state.IsKeyDown(Key.Space)) {
+				ctp.BasePos -= ctp.Up * cameraDisplacement;
+			}
+			if (state.IsKeyDown(Key.C) || state.IsKeyDown(Key.ControlLeft)) {
+				ctp.BasePos += ctp.Up * cameraDisplacement;
 			}
 
 
