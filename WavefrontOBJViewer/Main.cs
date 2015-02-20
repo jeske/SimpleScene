@@ -131,30 +131,27 @@ namespace WavefrontOBJViewer
 		{
 			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
 			KeyboardState state = OpenTK.Input.Keyboard.GetState ();
-			float cameraDisplacement = (ctp.FollowDistance + 5f) * deltaT * -0.33f;
+			float cameraDisplacement = (ctp.followDistance + 5f) * deltaT * -0.33f;
 			if (state.IsKeyDown(Key.W)) {
-				ctp.BasePos += ctp.Dir * cameraDisplacement;
+				ctp.basePos += ctp.Dir * cameraDisplacement;
 			}
 			if (state.IsKeyDown(Key.S)) {
-				ctp.BasePos -= ctp.Dir * cameraDisplacement;
+				ctp.basePos -= ctp.Dir * cameraDisplacement;
 			}
 
 			if (state.IsKeyDown(Key.A)) {
-				ctp.BasePos += ctp.Right * cameraDisplacement;
+				ctp.basePos += ctp.Right * cameraDisplacement;
 			}
 			if (state.IsKeyDown(Key.D)) {
-				ctp.BasePos -= ctp.Right * cameraDisplacement;
+				ctp.basePos -= ctp.Right * cameraDisplacement;
 			}
 
 			if (state.IsKeyDown(Key.Space)) {
-				ctp.BasePos -= ctp.Up * cameraDisplacement;
+				ctp.basePos -= ctp.Up * cameraDisplacement;
 			}
 			if (state.IsKeyDown(Key.C) || state.IsKeyDown(Key.ControlLeft)) {
-				ctp.BasePos += ctp.Up * cameraDisplacement;
+				ctp.basePos += ctp.Up * cameraDisplacement;
 			}
-
-
-
 		}
 
 		private void restoreClientWindowLocation() {

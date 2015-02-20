@@ -70,7 +70,7 @@ namespace WavefrontOBJViewer
 			// last for the main scene. Add Camera
 
 			var camera = new SSCameraThirdPerson (null);
-			camera.FollowDistance = 50.0f;
+			camera.followDistance = 50.0f;
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 
