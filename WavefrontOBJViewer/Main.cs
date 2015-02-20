@@ -130,26 +130,26 @@ namespace WavefrontOBJViewer
 		private void driveCamera(float deltaT)
 		{
 			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
-			float cameraVelocity = (ctp.FollowDistance + 1f) * -0.01f;
+			float cameraVelocity = (ctp.followDistance + 1f) * -0.01f;
 			if (Keyboard [Key.W]) {
-				ctp.BasePos += ctp.Dir * cameraVelocity;
+				ctp.basePos += ctp.Dir * cameraVelocity;
 			}
 			if (Keyboard [Key.S]) {
-				ctp.BasePos -= ctp.Dir * cameraVelocity;
+				ctp.basePos -= ctp.Dir * cameraVelocity;
 			}
 
 			if (Keyboard [Key.A]) {
-				ctp.BasePos += ctp.Right * cameraVelocity;
+				ctp.basePos += ctp.Right * cameraVelocity;
 			}
 			if (Keyboard [Key.D]) {
-				ctp.BasePos -= ctp.Right * cameraVelocity;
+				ctp.basePos -= ctp.Right * cameraVelocity;
 			}
 
 			if (Keyboard [Key.Space]) {
-				ctp.BasePos -= ctp.Up * cameraVelocity;
+				ctp.basePos -= ctp.Up * cameraVelocity;
 			}
 			if (Keyboard [Key.C] || Keyboard[Key.ControlLeft]) {
-				ctp.BasePos += ctp.Up * cameraVelocity;
+				ctp.basePos += ctp.Up * cameraVelocity;
 			}
 
 
