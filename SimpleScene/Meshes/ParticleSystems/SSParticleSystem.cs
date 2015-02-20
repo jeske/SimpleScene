@@ -47,6 +47,8 @@ namespace SimpleScene
         protected static readonly SSAttributeVec3 c_notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
         protected static Random s_rand = new Random(); // for quicksorting
 
+        public float SimulationStep = .010f; // in seconds
+
         // TODO bounding sphere or cube
         protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
         protected List<SSParticleEffector> m_effectors = new List<SSParticleEffector> ();
@@ -85,7 +87,8 @@ namespace SimpleScene
         // TODO Texture Coord
         #endregion
 
-        protected float m_radius = 0f;
+        protected float m_radius;
+        protected float m_timeDeltaAccumulator;
 
         public int Capacity { get { return m_capacity; } }
         public int ActiveBlockLength { get { return m_activeBlockLength; } }
@@ -113,6 +116,10 @@ namespace SimpleScene
             m_nextIdxToWrite = 0;
             m_nextIdxToOverwrite = 0;
             m_activeBlockLength = 0;
+			m_numParticles = 0;
+
+			m_radius = 0f;
+			m_timeDeltaAccumulator = 0f;
 
             m_positions = new SSAttributeVec3[1];
             m_orientations = new SSAttributeVec3[1];
@@ -151,6 +158,16 @@ namespace SimpleScene
             }
         }
 
+        public void Simulate(float timeDelta)
+        {
+            timeDelta += m_timeDeltaAccumulator;
+            while (timeDelta >= SimulationStep) {
+                simulateStep();
+                timeDelta -= SimulationStep;
+            }
+            m_timeDeltaAccumulator = timeDelta;
+        }
+
         public void AddEmitter(SSParticleEmitter emitter)
         {
             m_emitters.Add(emitter);
@@ -159,55 +176,6 @@ namespace SimpleScene
         public void AddEffector(SSParticleEffector effector)
         {
             m_effectors.Add(effector);
-        }
-
-        public void Simulate(float timeDelta)
-        {
-            foreach (SSParticleEmitter emitter in m_emitters) {
-                emitter.Simulate(timeDelta, storeNewParticle);
-            }
-
-			m_radius = 0f;
-			SSParticle p = new SSParticle ();
-            for (int i = 0; i < m_activeBlockLength; ++i) {
-                if (isAlive(i)) {
-                    // Alive particle
-                    m_lives [i] -= timeDelta;
-                    if (isAlive(i)) {
-                        // Still alive. Update position and run through effectors
-                        readParticle(i, p);
-                        p.Pos += p.Vel * timeDelta;
-                        p.Orientation += p.AngularVelocity * timeDelta;
-                        foreach (SSParticleEffector effector in m_effectors) {
-                            effector.Simulate(p, timeDelta);
-                        }
-                        writeParticle(i, p);
-						float distFromOrogin = p.Pos.Length;
-						if (distFromOrogin > m_radius) {
-							m_radius = distFromOrogin;
-						}
-                    } else {
-                        // Particle just died. Hack to not draw?
-                        writeDataIfNeeded(ref m_positions, i, c_notAPosition);
-                        if (m_numParticles == m_capacity || i < m_nextIdxToWrite) {
-                            // released slot will be the next one to be written to
-                            m_nextIdxToWrite = i;
-                        }
-                        if (i == m_activeBlockLength - 1) {
-                            // reduction in the active particles block
-                            while (m_activeBlockLength > 0 && isDead(m_activeBlockLength - 1)) {
-                                --m_activeBlockLength;
-                            }
-                        }                        --m_numParticles;
-                        if (m_numParticles == 0) {
-                            // all particles gone. reset write and overwrite locations for better packing
-                            m_nextIdxToWrite = 0;
-                            m_nextIdxToOverwrite = 0;
-                            m_activeBlockLength = 0;
-                        }
-                    }
-                }
-            }
         }
 
         public void SortByDepth(ref Matrix4 viewMatrix)
@@ -248,6 +216,55 @@ namespace SimpleScene
                 writeDataIfNeeded(ref m_colors, i, debugColors[i]);
             }
             #endif
+        }
+
+        virtual protected void simulateStep()
+        {
+            foreach (SSParticleEmitter emitter in m_emitters) {
+                emitter.Simulate(SimulationStep, storeNewParticle);
+            }
+
+            m_radius = 0f;
+            SSParticle p = new SSParticle ();
+            for (int i = 0; i < m_activeBlockLength; ++i) {
+                if (isAlive(i)) {
+                    // Alive particle
+                    m_lives [i] -= SimulationStep;
+                    if (isAlive(i)) {
+                        // Still alive. Update position and run through effectors
+                        readParticle(i, p);
+                        p.Pos += p.Vel * SimulationStep;
+                        p.Orientation += p.AngularVelocity * SimulationStep;
+                        foreach (SSParticleEffector effector in m_effectors) {
+                            effector.Simulate(p, SimulationStep);
+                        }
+                        writeParticle(i, p);
+                        float distFromOrogin = p.Pos.Length;
+                        if (distFromOrogin > m_radius) {
+                            m_radius = distFromOrogin;
+                        }
+                    } else {
+                        // Particle just died. Hack to not draw?
+                        writeDataIfNeeded(ref m_positions, i, c_notAPosition);
+                        if (m_numParticles == m_capacity || i < m_nextIdxToWrite) {
+                            // released slot will be the next one to be written to
+                            m_nextIdxToWrite = i;
+                        }
+                        if (i == m_activeBlockLength - 1) {
+                            // reduction in the active particles block
+                            while (m_activeBlockLength > 0 && isDead(m_activeBlockLength - 1)) {
+                                --m_activeBlockLength;
+                            }
+                        }                        --m_numParticles;
+                        if (m_numParticles == 0) {
+                            // all particles gone. reset write and overwrite locations for better packing
+                            m_nextIdxToWrite = 0;
+                            m_nextIdxToOverwrite = 0;
+                            m_activeBlockLength = 0;
+                        }
+                    }
+                }
+            }
         }
 
         protected virtual void storeNewParticle(SSParticle newParticle)

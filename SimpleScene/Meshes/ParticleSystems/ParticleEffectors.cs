@@ -11,5 +11,12 @@ namespace SimpleScene
 
         public virtual void Reset() { }
     }
+
+
+    public class SSCustomForceParticleEffector
+    {
+
+    }
+
 }
 
