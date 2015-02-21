@@ -17,48 +17,56 @@ namespace SimpleScene.Util
 	/// For modeling Attack-Delay-Sustain-Release levels of anyting
 	/// https://en.wikipedia.org/wiki/Synthesizer#ADSR_envelope
 	/// </summary>
-	class ADSREnvelope
+	public class ADSREnvelope
 	{
-		public float attackDuration = 1f;
-		public float decayDuration = 1f;
-		public float sustainDuration = 1f;
-		public float releaseDuration = 1f;
+		public float AttackDuration = 1f;
+		public float DecayDuration = 1f;
+		public float SustainDuration = 1f;
+		public float ReleaseDuration = 1f;
 
-		public InterpolationType attackCurve = InterpolationType.Linear;
-		public InterpolationType decayCurve = InterpolationType.Linear;
-		public InterpolationType releaseCurve = InterpolationType.Linear;
+		public float TotalDuration {
+			get { return AttackDuration + DecayDuration + SustainDuration + ReleaseDuration; }
+		}
 
-		public float amplitude = 1f;
-		public float sustainLevel = 0.5f;
+		public InterpolationType AttackCurve = InterpolationType.Linear;
+		public InterpolationType DecayCurve = InterpolationType.Linear;
+		public InterpolationType ReleaseCurve = InterpolationType.Linear;
+
+		public float Amplitude = 1f;
+		public float SustainLevel = 0.5f;
 
 		public float ComputeLevel(float time)
 		{
-			if (time < attackDuration) {
-				if (attackCurve != InterpolationType.Linear) {
+            if (time < 0f) {
+                return 0f;
+            }
+
+			if (time < AttackDuration) {
+				if (AttackCurve != InterpolationType.Linear) {
 					throw new NotImplementedException();
 				}
-				return Interpolate.Lerp(0f, amplitude, time/attackDuration);
+				return Interpolate.Lerp(0f, Amplitude, time/AttackDuration);
 			}
-			time -= attackDuration;
+			time -= AttackDuration;
 
-			if (time < decayDuration) {
-				if (decayCurve != InterpolationType.Linear) {
+			if (time < DecayDuration) {
+				if (DecayCurve != InterpolationType.Linear) {
 					throw new NotImplementedException();
 				}
-				return Interpolate.Lerp(amplitude, sustainLevel, time/decayDuration);
+				return Interpolate.Lerp(Amplitude, SustainLevel, time/DecayDuration);
 			}
-			time -= decayDuration;
+			time -= DecayDuration;
 
-			if (time < sustainDuration) {
-				return sustainLevel;
+			if (time < SustainDuration) {
+				return SustainLevel;
 			}
-			time -= sustainDuration;
+			time -= SustainDuration;
 
-			if (time < releaseDuration) {
-				if (releaseCurve != InterpolationType.Linear) {
+			if (time < ReleaseDuration) {
+				if (ReleaseCurve != InterpolationType.Linear) {
 					throw new NotImplementedException();
 				}
-				return Interpolate.Lerp(sustainLevel, 0f, time/sustainDuration);
+				return Interpolate.Lerp(SustainLevel, 0f, time/SustainDuration);
 			}
 
 			return 0f;

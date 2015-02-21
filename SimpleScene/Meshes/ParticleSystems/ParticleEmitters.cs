@@ -17,6 +17,8 @@ namespace SimpleScene
 
         protected static Random s_rand = new Random ();
 
+        public float EmissionDelay = 0f; // TODO
+
         public float EmissionIntervalMin = 1.0f;
         public float EmissionIntervalMax = 1.0f;
         public float EmissionInterval {
@@ -74,6 +76,9 @@ namespace SimpleScene
         public RectangleF[] SpriteRectangles = { c_defaultParticle.SpriteRect };
         public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
+		public byte[] EffectorMasks = { c_defaultParticle.EffectorMask };
+
+        private float m_initialDelay;
         private float m_timeSinceLastEmission;
         private float m_nextEmission;
 
@@ -84,8 +89,9 @@ namespace SimpleScene
 
         public virtual void Reset()
         {
-            m_timeSinceLastEmission = 0f;
-            m_nextEmission = float.NegativeInfinity;
+            m_initialDelay = EmissionDelay;
+            m_timeSinceLastEmission = float.PositiveInfinity;
+            m_nextEmission = 0f;
         }
 
         public void EmitParticles(ReceiverHandler receiver)
@@ -96,6 +102,14 @@ namespace SimpleScene
 
         public void Simulate(float deltaT, ReceiverHandler receiver) 
         {
+            if (m_initialDelay > 0f) {
+                // if initial delay is needed
+                m_initialDelay -= deltaT;
+                if (m_initialDelay > 0f) {
+                    return;
+                }
+            }
+
             m_timeSinceLastEmission += deltaT;
             if (m_timeSinceLastEmission > m_nextEmission) {
                 EmitParticles(receiver);

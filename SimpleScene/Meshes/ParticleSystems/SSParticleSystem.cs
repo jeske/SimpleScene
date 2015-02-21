@@ -82,6 +82,7 @@ namespace SimpleScene
         protected Vector3[] m_angularVelocities;
         protected float[] m_masses;
         protected float[] m_viewDepths;
+        protected byte[] m_effectorMasks;
         // TODO Orientation
         // TODO Texture Coord
         #endregion
@@ -136,6 +137,7 @@ namespace SimpleScene
             m_angularVelocities = new Vector3[1];
             m_masses = new float[1];
             m_viewDepths = new float[1];
+            m_effectorMasks = new byte[1];
 
             writeParticle(0, new SSParticle ()); // fill in default values
             for (int i = 0; i < m_capacity; ++i) {
@@ -333,6 +335,7 @@ namespace SimpleScene
             p.Vel = readData(m_velocities, idx);
             p.AngularVelocity = readData(m_angularVelocities, idx);
             p.Mass = readData(m_masses, idx);
+            p.EffectorMask = readData(m_effectorMasks, idx);
         }
 
         protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
@@ -377,7 +380,8 @@ namespace SimpleScene
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);
             writeDataIfNeeded(ref m_angularVelocities, idx, p.AngularVelocity);
             writeDataIfNeeded(ref m_masses, idx, p.Mass);
-            writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth); 
+            writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth);
+            writeDataIfNeeded(ref m_effectorMasks, idx, p.EffectorMask);
         }
 
         // The alternative to re-implementing quicksort appears to be implementing IList interface with
