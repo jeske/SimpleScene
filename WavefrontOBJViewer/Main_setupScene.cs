@@ -111,6 +111,7 @@ namespace WavefrontOBJViewer
 				// setup an emitter
 				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
 				var emitter = new SSParticlesFieldEmitter (box);
+				//emitter.EmissionDelay = 5f;
 				emitter.ParticlesPerEmission = 1000;
 				emitter.EmissionInterval = 10000f;
 				emitter.Life = 1000f;
@@ -133,11 +134,16 @@ namespace WavefrontOBJViewer
 				}
 				emitter.SpriteRectangles = uvRects;
 
+				var explosions = new SSExpolosionsEffector ();
+				explosions.EffectDelay = 5f;
+				explosions.CenterMin = new Vector3 (-10f, -10f, -10f);
+				explosions.CenterMax = new Vector3 (10f, 10f, 10f);
 
 				// make a particle system
 				SSParticleSystem ps = new SSParticleSystem (1000);
 				ps.AddEmitter(emitter);
-				ps.EmitAll();
+				ps.AddEffector (explosions);
+				//ps.EmitAll();
 
 				// test a renderer
 				//var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "planet-14.png");

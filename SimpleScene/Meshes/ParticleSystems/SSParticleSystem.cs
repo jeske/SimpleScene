@@ -171,11 +171,13 @@ namespace SimpleScene
 
         public void AddEmitter(SSParticleEmitter emitter)
         {
+            emitter.Reset();
             m_emitters.Add(emitter);
         }
 
         public void AddEffector(SSParticleEffector effector)
         {
+            effector.Reset();
             m_effectors.Add(effector);
         }
 
@@ -224,6 +226,9 @@ namespace SimpleScene
             foreach (SSParticleEmitter emitter in m_emitters) {
                 emitter.Simulate(SimulationStep, storeNewParticle);
             }
+			foreach (SSParticleEffector effector in m_effectors) {
+				effector.SimulateSelf (SimulationStep);
+			}
 
             m_radius = 0f;
             SSParticle p = new SSParticle ();
@@ -237,7 +242,7 @@ namespace SimpleScene
                         p.Pos += p.Vel * SimulationStep;
                         p.Orientation += p.AngularVelocity * SimulationStep;
                         foreach (SSParticleEffector effector in m_effectors) {
-                            effector.Simulate(p, SimulationStep);
+							effector.SimulateParticleEffect(p, SimulationStep);
                         }
                         writeParticle(i, p);
                         float distFromOrogin = p.Pos.Length;

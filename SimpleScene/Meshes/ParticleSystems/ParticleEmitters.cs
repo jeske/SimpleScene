@@ -82,11 +82,6 @@ namespace SimpleScene
         private float m_timeSinceLastEmission;
         private float m_nextEmission;
 
-        public SSParticleEmitter()
-        {
-            Reset();
-        }
-
         public virtual void Reset()
         {
             m_initialDelay = EmissionDelay;
