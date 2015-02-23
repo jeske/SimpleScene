@@ -22,6 +22,9 @@ namespace SimpleScene
         public Vector3 ComponentScale = new Vector3(1f);
         public Color4 Color = Color4.White;
         public float Mass = 1.0f;
+		public float RotationalInnertia = 1.0f;
+		public float Drag = 1.0f;
+		public float RotationalDrag = 1.0f;
         public float ViewDepth = float.PositiveInfinity;
 
         // when not -1 (255) means use sprite location preset as a source of UV for the current particle
@@ -81,6 +84,9 @@ namespace SimpleScene
         protected Vector3[] m_velocities;
         protected Vector3[] m_angularVelocities;
         protected float[] m_masses;
+		protected float[] m_rotationalInnertias;
+		protected float[] m_drags;
+		protected float[] m_rotationalDrags;
         protected float[] m_viewDepths;
         protected byte[] m_effectorMasks;
         // TODO Orientation
@@ -136,6 +142,9 @@ namespace SimpleScene
             m_velocities = new Vector3[1];
             m_angularVelocities = new Vector3[1];
             m_masses = new float[1];
+			m_rotationalInnertias = new float[1];
+			m_drags = new float[1];
+			m_rotationalDrags = new float[1];
             m_viewDepths = new float[1];
             m_effectorMasks = new byte[1];
 
@@ -239,6 +248,8 @@ namespace SimpleScene
                     if (isAlive(i)) {
                         // Still alive. Update position and run through effectors
                         readParticle(i, p);
+						p.Vel -= p.Drag * p.Vel / p.Mass;
+						p.AngularVelocity -= p.RotationalDrag * p.AngularVelocity / p.RotationalInnertia;
                         p.Pos += p.Vel * SimulationStep;
                         p.Orientation += p.AngularVelocity * SimulationStep;
                         foreach (SSParticleEffector effector in m_effectors) {
@@ -340,6 +351,9 @@ namespace SimpleScene
             p.Vel = readData(m_velocities, idx);
             p.AngularVelocity = readData(m_angularVelocities, idx);
             p.Mass = readData(m_masses, idx);
+			p.RotationalInnertia = readData (m_rotationalInnertias, idx);
+			p.Drag = readData (m_drags, idx);
+			p.RotationalDrag = readData (m_rotationalDrags, idx);
             p.EffectorMask = readData(m_effectorMasks, idx);
         }
 
@@ -385,6 +399,9 @@ namespace SimpleScene
             writeDataIfNeeded(ref m_velocities, idx, p.Vel);
             writeDataIfNeeded(ref m_angularVelocities, idx, p.AngularVelocity);
             writeDataIfNeeded(ref m_masses, idx, p.Mass);
+			writeDataIfNeeded(ref m_rotationalInnertias, idx, p.RotationalInnertia);
+			writeDataIfNeeded(ref m_drags, idx, p.Drag);
+			writeDataIfNeeded(ref m_rotationalDrags, idx, p.RotationalDrag);
             writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth);
             writeDataIfNeeded(ref m_effectorMasks, idx, p.EffectorMask);
         }
