@@ -135,6 +135,8 @@ namespace WavefrontOBJViewer
 				emitter.SpriteRectangles = uvRects;
 
 				var explosions = new SSExpolosionsEffector ();
+				explosions.EffectInterval = 2f;
+				explosions.ExplosiveForce = 1000f;
 				explosions.EffectDelay = 5f;
 				explosions.CenterMin = new Vector3 (-10f, -10f, -10f);
 				explosions.CenterMax = new Vector3 (10f, 10f, 10f);

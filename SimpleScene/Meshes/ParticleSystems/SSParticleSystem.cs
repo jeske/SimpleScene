@@ -16,15 +16,15 @@ namespace SimpleScene
         public float Life = 1f;
         public Vector3 Pos = new Vector3(0f);
         public Vector3 Vel = new Vector3(1f);
-        public Vector3 Orientation;      // TODO: Quaternion?
+        public Vector3 Orientation;
         public Vector3 AngularVelocity;
         public float MasterScale = 1f;
         public Vector3 ComponentScale = new Vector3(1f);
         public Color4 Color = Color4.White;
         public float Mass = 1.0f;
 		public float RotationalInnertia = 1.0f;
-		public float Drag = 1.0f;
-		public float RotationalDrag = 1.0f;
+		public float Drag = 0.05f;
+		public float RotationalDrag = 0.0f;
         public float ViewDepth = float.PositiveInfinity;
 
         // when not -1 (255) means use sprite location preset as a source of UV for the current particle

@@ -66,7 +66,7 @@ namespace WavefrontOBJViewer
 				SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../../Assets"));
 
 				game.mainShader = new SSMainShaderProgram(); // before scene
-				game.pssmShader = new SSPssmShaderProgram ();
+				//game.pssmShader = new SSPssmShaderProgram ();
 				game.instancingShader = new SSInstanceShaderProgram ();
 
 				game.setupInput ();

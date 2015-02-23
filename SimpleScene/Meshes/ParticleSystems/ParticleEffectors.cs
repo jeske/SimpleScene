@@ -175,6 +175,8 @@ namespace SimpleScene
 
 				// TODO inverse square law or something similar
 				float acc = m_adsr.ComputeLevel(bi.TimeElapsed) * bi.MaxForceMagnitude / particle.Mass;
+				Vector3 dist = particle.Pos - bi.Center;
+				acc /= (0.1f + dist.LengthSquared);
 				Vector3 dir = (particle.Pos - bi.Center).Normalized ();
 				particle.Vel += (acc * dir);
 			}
