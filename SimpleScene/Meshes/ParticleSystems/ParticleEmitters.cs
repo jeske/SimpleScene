@@ -17,7 +17,7 @@ namespace SimpleScene
 
         protected static Random s_rand = new Random ();
 
-        public float EmissionDelay = 0f; // TODO
+        public float EmissionDelay = 0f;
 
         public float EmissionIntervalMin = 1.0f;
         public float EmissionIntervalMax = 1.0f;
