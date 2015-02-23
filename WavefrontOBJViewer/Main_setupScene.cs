@@ -112,8 +112,8 @@ namespace WavefrontOBJViewer
 				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
 				var emitter = new SSParticlesFieldEmitter (box);
 				//emitter.EmissionDelay = 5f;
-				emitter.ParticlesPerEmission = 1000;
-				emitter.EmissionInterval = 10000f;
+				emitter.ParticlesPerEmission = 1;
+				emitter.EmissionInterval = 0.5f;
 				emitter.Life = 1000f;
 				emitter.ColorComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
 				emitter.ColorComponentMax = new Color4 (1f, 1f, 1f, 1f);
@@ -121,6 +121,8 @@ namespace WavefrontOBJViewer
 				emitter.VelocityComponentMin = new Vector3 (-.3f);
 				emitter.AngularVelocityMin = new Vector3 (-0.5f);
 				emitter.AngularVelocityMax = new Vector3 (0.5f);
+				emitter.DragMin = 0f;
+				emitter.DragMax = .1f;
 				RectangleF[] uvRects = new RectangleF[18*6];
 				float tileWidth = 1f / 18f;
 				float tileHeight = 1f / 6f;
@@ -135,11 +137,12 @@ namespace WavefrontOBJViewer
 				emitter.SpriteRectangles = uvRects;
 
 				var explosions = new SSExpolosionsEffector ();
-				explosions.EffectInterval = 2f;
-				explosions.ExplosiveForce = 1000f;
+				explosions.EffectInterval = 3f;
+				explosions.ExplosiveForceMin = 1000f;
+				explosions.ExplosiveForceMax = 2000f;
 				explosions.EffectDelay = 5f;
-				explosions.CenterMin = new Vector3 (-10f, -10f, -10f);
-				explosions.CenterMax = new Vector3 (10f, 10f, 10f);
+				explosions.CenterMin = new Vector3 (-30f, -30f, -30f);
+				explosions.CenterMax = new Vector3 (30f, 30f, 30f);
 
 				// make a particle system
 				SSParticleSystem ps = new SSParticleSystem (1000);

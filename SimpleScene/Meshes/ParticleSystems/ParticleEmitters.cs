@@ -73,6 +73,30 @@ namespace SimpleScene
             set { ColorComponentMin = ColorComponentMax = value; }
         }
 
+		public float MassMin = c_defaultParticle.Mass;
+		public float MassMax = c_defaultParticle.Mass;
+		public float Mass {
+			set { MassMin = MassMax = value; }
+		}
+
+		public float RotationalInnertiaMin = c_defaultParticle.RotationalInnertia;
+		public float RotationalInnertiaMax = c_defaultParticle.RotationalInnertia;
+		public float RotationalInnertia {
+			set { RotationalInnertiaMin = RotationalInnertiaMax = value; }
+		}
+
+		public float DragMin = c_defaultParticle.Drag;
+		public float DragMax = c_defaultParticle.Drag;
+		public float Drag {
+			set { DragMin = DragMax = value; }
+		}
+
+		public float RotationalDragMin = c_defaultParticle.RotationalDrag;
+		public float RotationalDragMax = c_defaultParticle.RotationalDrag;
+		public float RotationalDrag {
+			set { RotationalDragMin = RotationalDragMax = value; }
+		}
+
         public RectangleF[] SpriteRectangles = { c_defaultParticle.SpriteRect };
         public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
@@ -154,6 +178,11 @@ namespace SimpleScene
             p.Vel.Z = Interpolate.Lerp(VelocityComponentMin.Z, VelocityComponentMax.Z, nextFloat());
 
             p.MasterScale = Interpolate.Lerp(MasterScaleMin, MasterScaleMax, nextFloat());
+
+			p.Mass = Interpolate.Lerp (MassMin, MassMax, nextFloat ());
+			p.RotationalInnertia = Interpolate.Lerp (RotationalInnertiaMin, RotationalInnertiaMax, nextFloat ());
+			p.Drag = Interpolate.Lerp (DragMin, DragMax, nextFloat ());
+			p.RotationalDrag = Interpolate.Lerp (RotationalDragMin, RotationalDragMax, nextFloat ());
 
             p.Color.R = Interpolate.Lerp(ColorComponentMin.R, ColorComponentMax.R, nextFloat());
             p.Color.G = Interpolate.Lerp(ColorComponentMin.G, ColorComponentMax.G, nextFloat());
