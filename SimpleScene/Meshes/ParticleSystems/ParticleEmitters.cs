@@ -223,5 +223,34 @@ namespace SimpleScene
             m_fieldGenerator.Generate(particleCount, fieldReceiver);
         }
     }
+
+	public class SSBodiesFieldEmitter : SSParticleEmitter
+	{
+		protected BodiesFieldGenerator m_bodiesGenerator;
+
+		public SSBodiesFieldEmitter(BodiesFieldGenerator fieldGenerator)
+		{
+			m_bodiesGenerator = fieldGenerator;
+		}
+
+		public void SetSeed(int seed)
+		{
+			m_bodiesGenerator.SetSeed(seed);
+		}
+
+		protected override void emitParticles (int particleCount, ReceiverHandler particleReceiver)
+		{
+			SSParticle newParticle = new SSParticle();
+			BodiesFieldGenerator.NewBodyDelegate bodyReceiver = (id, scale, pos, orient) => {
+				configureNewParticle(newParticle);
+				newParticle.Pos = pos;
+				newParticle.MasterScale *= scale;
+				newParticle.Orientation += OpenTKHelper.ToEuler(ref orient);
+				particleReceiver(newParticle);
+				return true;
+			};
+			m_bodiesGenerator.Generate(particleCount, bodyReceiver);
+		}
+	}
 }
 

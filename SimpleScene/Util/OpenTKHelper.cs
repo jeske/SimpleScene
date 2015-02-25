@@ -64,6 +64,18 @@ namespace SimpleScene
 		}
 
         /// <summary>
+        /// Converts quaternion representation to Euler angles
+        /// http://math.stackexchange.com/questions/687964/getting-euler-tait-bryan-angles-from-quaternion-representation
+        /// </summary>
+		public static Vector3 ToEuler(ref Quaternion q)
+        {
+			float phi = (float)Math.Atan2(q.Z*q.W + q.X*q.Y, 0.5f - q.Y*q.Y - q.Z*q.Z);
+			float theta = (float)Math.Asin(2f * (q.X*q.Z - q.Y*q.W));
+			float gamma = (float)Math.Atan2(q.Y*q.Z + q.X*q.W, 0.5f - q.Z * q.Z - q.W * q.W);
+            return new Vector3 (phi, theta, gamma);
+        }
+
+        /// <summary>
         /// Used when packing into 4-byte formats that gets unpacked and normalized into vec4 for the shader
         /// </summary>
         public static UInt32 Color4toRgba(Color4 color)

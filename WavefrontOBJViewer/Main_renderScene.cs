@@ -17,7 +17,6 @@ namespace WavefrontOBJViewer
 
 	partial class WavefrontOBJViewer : OpenTK.GameWindow
 	{
-
 		FPSCalculator fpsCalc = new FPSCalculator();
 		float animateSecondsOffset;
 		/// <summary>

@@ -40,6 +40,10 @@ namespace WavefrontOBJViewer
 		SSPssmShaderProgram pssmShader;
 		SSInstanceShaderProgram instancingShader;
 
+        SSInstancedMeshRenderer asteroidRingRenderer;
+		Vector2 ringAngularPosition = new Vector2 (0f);
+		Vector2 ringAngularVelocity = new Vector2 (0.005f, 0.001f);
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -125,6 +129,9 @@ namespace WavefrontOBJViewer
 			hudScene.Update ((float)e.Time);
 
 			driveCamera ((float)e.Time);
+
+			ringAngularPosition += (float)e.Time * ringAngularVelocity;
+			asteroidRingRenderer.EulerDegAngleOrient(ringAngularPosition.X, ringAngularPosition.Y);
 		}
 
 		private void driveCamera(float deltaT)

@@ -109,22 +109,25 @@ namespace WavefrontOBJViewer
 			{
 				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("Mesh/_standin/simpleasteroid",
 					              "asteroid.obj");
-				var ringGen = new ParticlesRingGenerator (
-					new ParticlesOvalGenerator (120f, 50f),
-					Vector3.Zero, Vector3.UnitY, 250f);
-				var ringEmitter = new SSParticlesFieldEmitter (ringGen);
-				ringEmitter.ParticlesPerEmission = 100000;
+				var ringGen = new BodiesRingGenerator (
+					120f, 50f,
+					Vector3.Zero, Vector3.UnitY, 250f,
+					0f, (float)Math.PI*2f,
+					1f, 3f, 1f
+				);
+				var ringEmitter = new SSBodiesFieldEmitter (ringGen);
+				ringEmitter.ParticlesPerEmission = 10000;
 
-				var ps = new SSParticleSystem(100000);
+				var ps = new SSParticleSystem(10000);
 				ps.AddEmitter(ringEmitter);
 				ps.EmitAll();
 
-				var renderer = new SSInstancedMeshRenderer (ps, null, roidmesh);
-				renderer.SimulateOnUpdate = false;
-				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
-				renderer.AlphaBlendingEnabled = false;
-				renderer.Name = "instanced asteroid renderer";
-				scene.AddObject (renderer);
+				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, roidmesh);
+				asteroidRingRenderer.SimulateOnUpdate = false;
+				asteroidRingRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+				asteroidRingRenderer.AlphaBlendingEnabled = false;
+				asteroidRingRenderer.Name = "instanced asteroid renderer";
+				scene.AddObject (asteroidRingRenderer);
 			}
 
 			// particle system test
