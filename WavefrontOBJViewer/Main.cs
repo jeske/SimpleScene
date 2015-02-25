@@ -41,7 +41,6 @@ namespace WavefrontOBJViewer
 		SSInstanceShaderProgram instancingShader;
 
         SSInstancedMeshRenderer asteroidRingRenderer;
-		Vector2 ringAngularPosition = new Vector2 (0f);
 		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);
 
 		/// <summary>
@@ -58,6 +57,7 @@ namespace WavefrontOBJViewer
 			// RenderFrame events (as fast as the computer can handle).
 			using (WavefrontOBJViewer game = new WavefrontOBJViewer())
 			{
+				game.Title = "WavefrontOBJViewer";
 				Console.WriteLine("GL Version = {0}",GL.GetString(StringName.Version));
 				Console.WriteLine("GL Shader Version = {0}", GL.GetString(StringName.ShadingLanguageVersion));
 
