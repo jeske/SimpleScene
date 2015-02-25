@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using System.Collections.Generic;
 using Util3d;
+using SimpleScene.Util;
 
 namespace SimpleScene
 {
@@ -21,6 +22,7 @@ namespace SimpleScene
         private readonly int m_textureHeight;
 
         protected SSLightBase m_light;
+		protected bool m_isValid = false;
 
         /// <summary>
         /// Used for lookups into the a texture previous used by the framebuffer
@@ -40,13 +42,20 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
+		public bool IsValid {
+			get { return m_isValid; }
+		}
+
         public SSLightBase Light {
             set { m_light = value; }
         }
 
         public SSShadowMapBase (TextureUnit texUnit, int textureWidth, int textureHeight)
         {
-            validateVersion();
+			if (!OpenTKHelper.areFramebuffersSupported()) {
+				m_isValid = false;
+				return;
+			}
             #if false
             if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
                 throw new Exception ("Unsupported number of shadow maps: " 
@@ -89,8 +98,8 @@ namespace SimpleScene
 			GL.DrawBuffer(DrawBufferMode.None); 
             GL.ReadBuffer(ReadBufferMode.None);
 
-            assertFramebufferOK();
             unbindFramebuffer();
+			m_isValid = !assertFramebufferOK();
         }
 
         ~SSShadowMapBase() {
@@ -127,7 +136,9 @@ namespace SimpleScene
             GL.DrawBuffer(DrawBufferMode.None); 
             GL.ReadBuffer(ReadBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
-            assertFramebufferOK();
+			if (!assertFramebufferOK ()) {
+				throw new Exception ("framebuffer operation failed");
+			}
 
             if (renderConfig.MainShader != null) {
                 renderConfig.MainShader.Activate();
@@ -145,20 +156,14 @@ namespace SimpleScene
             GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
 
-        protected void assertFramebufferOK() {
+		protected bool assertFramebufferOK() {
             var currCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (currCode != FramebufferErrorCode.FramebufferComplete) {
-                throw new Exception("Frame buffer operation failed: " + currCode.ToString());
-            }
-        }
-
-        protected void validateVersion() {
-            string version_string = GL.GetString(StringName.Version);
-            Version version = new Version(version_string[0], version_string[2]); // todo: improve
-            Version versionRequired = new Version(2, 2);
-            if (version < versionRequired) {
-                throw new Exception("framebuffers not supported by the GL backend used");
-            }
+			if (currCode != FramebufferErrorCode.FramebufferComplete) {
+				Console.WriteLine ("Frame buffer operation failed: " + currCode.ToString ());
+				return false;
+			} else {
+				return true;
+			}
         }
 
         protected static void viewProjFromLightAlignedBB(ref SSAABB bb, 

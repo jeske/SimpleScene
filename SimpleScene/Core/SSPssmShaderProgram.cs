@@ -60,7 +60,7 @@ namespace SimpleScene
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3 * SSParallelSplitShadowMap.c_numberOfSplits);
                 attach(m_geometryShader);
             } else {
-                throw new NotImplementedException ();
+				Console.WriteLine ("PSSM shader not supported");
             }
             link();
             Activate();
@@ -78,7 +78,7 @@ namespace SimpleScene
 
             GL.Uniform1(u_numShadowMaps, SSParallelSplitShadowMap.c_numberOfSplits);
 
-            checkErrors();
+			m_isValid = checkGlValid();
         }
     }
 }

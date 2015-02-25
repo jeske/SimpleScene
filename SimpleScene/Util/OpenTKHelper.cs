@@ -5,6 +5,7 @@ using System;
 
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
@@ -353,6 +354,22 @@ namespace SimpleScene
                 0f, 0f, scale.Z, 0f,
                 trans.X, trans.Y, trans.Z, 1f);
         }
+
+		public static bool areFramebuffersSupported() {
+			string version_string = GL.GetString(StringName.Version);
+			// TODO improve in time for OpenGL 10.0 backends
+			int major = version_string [0] - '0';
+			int minor = version_string [2] - '0';
+			Version version = new Version(major, minor); // todo: improve
+			if (version < new Version(3, 0)) {
+				var str = GL.GetString(StringName.Extensions).ToLower();
+				if (!str.Contains ("framebuffer_object")) {
+					Console.WriteLine ("framebuffers not supported by the GL version ");
+					return false;
+				}
+			} 
+			return true;
+		}
 	}
 }
 

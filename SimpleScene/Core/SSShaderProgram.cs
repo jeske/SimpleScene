@@ -10,13 +10,14 @@ public class SSShaderProgram {
     private static SSShaderProgram s_activeProgram = null;
 
     protected readonly int m_programID;
+	protected bool m_isValid = false;
 
     static SSShaderProgram() {
         DeactivateAll ();
     }
 
     internal SSShaderProgram() {
-        m_programID = GL.CreateProgram();
+		m_programID = GL.CreateProgram();
     }
 
     ~SSShaderProgram() {
@@ -27,6 +28,13 @@ public class SSShaderProgram {
     public bool IsActive {
         get { return s_activeProgram == this; }
     }
+
+	/// <summary>
+	/// Should return 'true' if any failure occured during compilation or linking
+	/// </summary>
+	public bool IsValid {
+		get { return m_isValid; }
+	}
 
     #region user interface
     public void Activate() {
@@ -53,11 +61,14 @@ public class SSShaderProgram {
         }
     }
 
-    protected void checkErrors() {
+	protected bool checkGlValid() {
         ErrorCode glerr;
-        if ((glerr = GL.GetError ()) != ErrorCode.NoError) {
-            throw new Exception (String.Format ("GL Error: {0}", glerr));
-        }
+		if ((glerr = GL.GetError ()) != ErrorCode.NoError) {
+			Console.WriteLine (String.Format ("GL Error: {0}", glerr));
+			return false;
+		} else {
+			return true;
+		}
     }
 
     protected void link() {

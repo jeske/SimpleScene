@@ -113,7 +113,7 @@ namespace SimpleScene
             GL.Uniform1(uniPrimaryTex, 0); // Texture.Texture0
 
             // errors?
-            checkErrors();
+			m_isValid = checkGlValid();
         }
     }
 }

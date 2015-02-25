@@ -25,6 +25,16 @@ namespace WavefrontOBJViewer
 			// 0. Add Lights
 			var light = new SSDirectionalLight (LightName.Light0);
 			light.Direction = new Vector3(0f, 0f, -1f);
+			if (OpenTKHelper.areFramebuffersSupported ()) {
+				if (scene.PssmShader != null && scene.PssmShader.IsValid) {
+					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture5);
+				} else {
+					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture5);
+				}
+			}
+			if (!light.ShadowMap.IsValid) {
+				light.ShadowMap = null;
+			}
 			scene.AddLight(light);
 
 			#if false
