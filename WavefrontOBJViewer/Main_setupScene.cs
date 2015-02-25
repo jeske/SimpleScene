@@ -105,6 +105,28 @@ namespace WavefrontOBJViewer
 				sunFlareScene.AddObject(sunFlare);
 			}
 
+			// instanced asteroid ring
+			{
+				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("Mesh/_standin/simpleasteroid",
+					              "asteroid.obj");
+				var ringGen = new ParticlesRingGenerator (
+					new ParticlesOvalGenerator (120f, 50f),
+					Vector3.Zero, Vector3.UnitY, 250f);
+				var ringEmitter = new SSParticlesFieldEmitter (ringGen);
+				ringEmitter.ParticlesPerEmission = 100000;
+
+				var ps = new SSParticleSystem(100000);
+				ps.AddEmitter(ringEmitter);
+				ps.EmitAll();
+
+				var renderer = new SSInstancedMeshRenderer (ps, null, roidmesh);
+				renderer.SimulateOnUpdate = false;
+				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+				renderer.AlphaBlendingEnabled = false;
+				renderer.Name = "instanced asteroid renderer";
+				scene.AddObject (renderer);
+			}
+
 			// particle system test
 			// particle systems should be drawn last (if it requires alpha blending)
 			{
@@ -158,6 +180,7 @@ namespace WavefrontOBJViewer
 				renderer.Pos = new Vector3 (0f, 0f, -30f);
 				renderer.AlphaBlendingEnabled = false;
 				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+				renderer.Name = "cube particle renderer";
 				scene.AddObject(renderer);
 			}
 		}

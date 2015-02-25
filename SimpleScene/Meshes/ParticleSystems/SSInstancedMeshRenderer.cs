@@ -130,8 +130,6 @@ namespace SimpleScene
             if (m_texture != null) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
-            } else {
-                GL.Disable(EnableCap.Texture2D);
             }
 
             shader.Activate();

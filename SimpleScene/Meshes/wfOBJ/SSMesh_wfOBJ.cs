@@ -12,7 +12,7 @@ using Util3d;
 
 namespace SimpleScene
 {
-    public class SSMesh_wfOBJ : SSAbstractMesh {
+	public class SSMesh_wfOBJ : SSAbstractMesh, ISSInstancable {
  
 		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
 		SSAssetManager.Context ctx;
@@ -58,6 +58,21 @@ namespace SimpleScene
         }
 #endregion
 
+		public void RenderInstanced(int instanceCount, PrimitiveType primType)
+		{
+			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
+				GL.ActiveTexture (TextureUnit.Texture0);
+				if (subset.diffuseTexture != null) {
+					GL.BindTexture (TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+				}
+				if (subset.ambientTexture != null || subset.specularTexture != null
+				 || subset.bumpTexture != null) {
+					throw new NotImplementedException ();
+				}
+				subset.ibo.RenderInstanced(instanceCount, primType);
+			}
+		}
+
 		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
 
@@ -77,7 +92,7 @@ namespace SimpleScene
                 return;
             }
 
-			if (shaderPgm == null) {
+ 			if (shaderPgm == null) {
 				SSShaderProgram.DeactivateAll ();
 
 				// fixed function single-texture
@@ -226,7 +241,7 @@ namespace SimpleScene
 
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {		
-            foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
+             foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
                 if (renderConfig.drawingShadowMap) {
                     _renderSendVBOTriangles(subset);
                 } else {
@@ -237,7 +252,6 @@ namespace SimpleScene
                         } else {
                             _renderSendTriangles(subset);
                         }
-    			
                     }
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();

@@ -55,7 +55,7 @@ namespace WavefrontOBJViewer
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
 			float nearPlane = 1.0f;
-			float farPlane = 500.0f;
+			float farPlane = 5000.0f;
 
 			// setup the inverse matrix of the active camera...
 			Matrix4 mainSceneView = scene.ActiveCamera.worldMat.Inverted();

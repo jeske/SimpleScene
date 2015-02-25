@@ -232,6 +232,7 @@ namespace SimpleScene
 
         virtual protected void simulateStep()
         {
+            m_radius = 0f;
             foreach (SSParticleEmitter emitter in m_emitters) {
                 emitter.Simulate(SimulationStep, storeNewParticle);
             }
@@ -239,7 +240,6 @@ namespace SimpleScene
 				effector.SimulateSelf (SimulationStep);
 			}
 
-            m_radius = 0f;
             SSParticle p = new SSParticle ();
             for (int i = 0; i < m_activeBlockLength; ++i) {
                 if (isAlive(i)) {
@@ -302,6 +302,11 @@ namespace SimpleScene
                 m_numParticles++;
             }
             writeParticle(writeIdx, newParticle);
+
+			float distFromOrogin = newParticle.Pos.Length;
+			if (distFromOrogin > m_radius) {
+				m_radius = distFromOrogin;
+			}
         }
 
         protected int nextIdx(int idx) 
