@@ -65,6 +65,7 @@ namespace SimpleScene
             ++s_numberOfShadowMaps;
 
             m_frameBufferID = GL.Ext.GenFramebuffer();
+			if(!assertFramebufferOK ()) return;
             m_textureID = GL.GenTexture();
             m_textureWidth = textureWidth;
             m_textureHeight = textureHeight;
@@ -90,16 +91,17 @@ namespace SimpleScene
                 m_textureWidth, m_textureHeight, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-            GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
-                FramebufferAttachment.DepthAttachment,
-                m_textureID, 0);
-
-			GL.DrawBuffer(DrawBufferMode.None); 
+			GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+			if(!assertFramebufferOK ()) return;
+			GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
+				FramebufferAttachment.DepthAttachment,
+				m_textureID, 0);
+			if(!assertFramebufferOK ()) return;
+			GL.DrawBuffer(DrawBufferMode.None);
             GL.ReadBuffer(ReadBufferMode.None);
 
             unbindFramebuffer();
-			m_isValid = !assertFramebufferOK();
+			assertFramebufferOK ();
         }
 
         ~SSShadowMapBase() {
@@ -130,15 +132,15 @@ namespace SimpleScene
         protected void PrepareForRenderBase(SSRenderConfig renderConfig,
                                             List<SSObject> objects) {
             GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+			if (!assertFramebufferOK ()) {
+				throw new Exception ("failed to bind framebuffer for drawing");
+			}
             GL.Viewport(0, 0, m_textureWidth, m_textureHeight);
 
             // turn off reading and writing to color data
             GL.DrawBuffer(DrawBufferMode.None); 
             GL.ReadBuffer(ReadBufferMode.None);
             GL.Clear(ClearBufferMask.DepthBufferBit);
-			if (!assertFramebufferOK ()) {
-				throw new Exception ("framebuffer operation failed");
-			}
 
             if (renderConfig.MainShader != null) {
                 renderConfig.MainShader.Activate();
@@ -160,10 +162,12 @@ namespace SimpleScene
             var currCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
 			if (currCode != FramebufferErrorCode.FramebufferComplete) {
 				Console.WriteLine ("Frame buffer operation failed: " + currCode.ToString ());
-				return false;
+				m_isValid = false;
+				DeleteData ();
 			} else {
-				return true;
+				m_isValid = true;
 			}
+			return m_isValid;
         }
 
         protected static void viewProjFromLightAlignedBB(ref SSAABB bb, 
