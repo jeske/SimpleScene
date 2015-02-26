@@ -174,11 +174,13 @@ namespace SimpleScene
 				BlastInfo bi = m_blasts [i];
 
 				// TODO inverse square law or something similar
-				float acc = m_adsr.ComputeLevel(bi.TimeElapsed) * bi.MaxForceMagnitude / particle.Mass;
 				Vector3 dist = particle.Pos - bi.Center;
-				acc /= (0.1f + dist.LengthSquared);
-				Vector3 dir = (particle.Pos - bi.Center).Normalized ();
-				particle.Vel += (acc * dir);
+				if (dist != Vector3.Zero) {
+					float acc = m_adsr.ComputeLevel (bi.TimeElapsed) * bi.ForceMagnitude 
+							  / dist.LengthSquared / particle.Mass;
+					Vector3 dir = (particle.Pos - bi.Center).Normalized ();
+					particle.Vel += (acc * dir);
+				}
 			}
 		}
 
@@ -188,14 +190,14 @@ namespace SimpleScene
 			bi.Center.X = Interpolate.Lerp (CenterMin.X, CenterMax.X, nextFloat ());
 			bi.Center.Y = Interpolate.Lerp (CenterMin.Y, CenterMax.Y, nextFloat ());
 			bi.Center.Z = Interpolate.Lerp (CenterMin.Z, CenterMax.Z, nextFloat ());
-			bi.MaxForceMagnitude = Interpolate.Lerp (ExplosiveForceMin, ExplosiveForceMax, nextFloat ());
+			bi.ForceMagnitude = Interpolate.Lerp (ExplosiveForceMin, ExplosiveForceMax, nextFloat ());
 			bi.TimeElapsed = 0f;
 			m_blasts.Add (bi);
 		}
 
 		protected class BlastInfo {
 			public Vector3 Center;
-			public float MaxForceMagnitude;
+			public float ForceMagnitude;
 			public float TimeElapsed;
 		}
     }
