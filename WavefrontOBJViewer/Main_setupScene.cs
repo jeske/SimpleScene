@@ -120,8 +120,7 @@ namespace WavefrontOBJViewer
 
 			// instanced asteroid ring
 			{
-				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("Mesh/_standin/simpleasteroid",
-					              "asteroid.obj");
+				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
 				var ringGen = new BodiesRingGenerator (
 					120f, 50f,
 					Vector3.Zero, Vector3.UnitY, 250f,
