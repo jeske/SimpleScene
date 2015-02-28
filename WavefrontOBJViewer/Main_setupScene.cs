@@ -173,7 +173,7 @@ namespace WavefrontOBJViewer
 				}
 				emitter.SpriteRectangles = uvRects;
 
-				var explosions = new SSExpolosionsEffector ();
+				var explosions = new SSPeriodicExplosiveForceEffector ();
 				explosions.EffectInterval = 3f;
 				explosions.ExplosiveForceMin = 1000f;
 				explosions.ExplosiveForceMax = 2000f;

@@ -52,6 +52,16 @@ namespace SimpleScene
         public virtual void Reset() { }
     }
 
+	public class SSMasterScaleEffector
+	{
+		public SortedList<float,float> Keyframes;
+
+		public void effectParticle(SSParticle particle, float deltaT)
+		{
+
+		}
+	};
+
 	public abstract class SSPeriodicEffector : SSParticleEffector
 	{
 		public float EffectDelay = 0f;
@@ -120,8 +130,7 @@ namespace SimpleScene
 		protected abstract void activatePeriodic();
 	}
 
-
-	public class SSExpolosionsEffector : SSPeriodicEffector
+	public class SSPeriodicExplosiveForceEffector : SSPeriodicEffector
     {
 		public float ExplosiveForceMin = 0.1f;
 		public float ExplosiveForceMax = 0.1f;
@@ -138,7 +147,7 @@ namespace SimpleScene
 		protected ADSREnvelope m_adsr;
 		protected List<BlastInfo> m_blasts;
 
-		public SSExpolosionsEffector()
+		public SSPeriodicExplosiveForceEffector()
 		{
 			m_adsr = new ADSREnvelope ();
 			m_adsr.Amplitude = 1f;

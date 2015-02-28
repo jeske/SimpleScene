@@ -50,7 +50,11 @@ namespace SimpleScene
         protected static readonly SSAttributeVec3 c_notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
         protected static Random s_rand = new Random(); // for quicksorting
 
-        public float SimulationStep = .010f; // in seconds
+		/// <summary>
+		/// Defines a unit step for the thic particle system's simulation. 
+		/// Higher values result in a more quanitized simulation but more processing
+		/// </summary>
+        public float SimulationStep = .010f;
 
         // TODO bounding sphere or cube
         protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
@@ -117,7 +121,15 @@ namespace SimpleScene
             Reset();
         }
 
-        public void Reset()
+		/// <summary>
+		/// This class tries faithfully to be resettable. One of the benefits may be being able to reset a
+		/// particle system if working in a game editor.
+		/// 
+		/// Overriding this may be a good idea if you want dervied class to reset its member additions in 
+		/// sync with the basic particle system reset. Should you chose to do so make sure to call
+		/// this base function.
+		/// </summary>
+		public virtual void Reset()
         {
             m_nextIdxToWrite = 0;
             m_nextIdxToOverwrite = 0;
@@ -161,14 +173,14 @@ namespace SimpleScene
             }
         }
 
-        public void EmitAll()
+		public virtual void EmitAll()
         {
             foreach (SSParticleEmitter e in m_emitters) {
                 e.EmitParticles(storeNewParticle);
             }
         }
 
-        public void Simulate(float timeDelta)
+		public virtual void Simulate(float timeDelta)
         {
             timeDelta += m_timeDeltaAccumulator;
             while (timeDelta >= SimulationStep) {
@@ -178,13 +190,13 @@ namespace SimpleScene
             m_timeDeltaAccumulator = timeDelta;
         }
 
-        public void AddEmitter(SSParticleEmitter emitter)
+		public virtual void AddEmitter(SSParticleEmitter emitter)
         {
             emitter.Reset();
             m_emitters.Add(emitter);
         }
 
-        public void AddEffector(SSParticleEffector effector)
+		public virtual void AddEffector(SSParticleEffector effector)
         {
             effector.Reset();
             m_effectors.Add(effector);
@@ -230,7 +242,7 @@ namespace SimpleScene
             #endif
         }
 
-        virtual protected void simulateStep()
+		protected virtual void simulateStep()
         {
             m_radius = 0f;
             foreach (SSParticleEmitter emitter in m_emitters) {
