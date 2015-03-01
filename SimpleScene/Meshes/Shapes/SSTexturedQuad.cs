@@ -4,8 +4,12 @@ namespace SimpleScene
 {
     public static class SSTexturedQuad
     {
-        public static readonly SSVertexBuffer<SSVertex_PosTex1> Instance
-            = new SSVertexBuffer<SSVertex_PosTex1>(c_vertices);
+		public static readonly SSVertexBuffer<SSVertex_PosTex1> Instance;
+
+		static SSTexturedQuad()
+		{
+			Instance = new SSVertexBuffer<SSVertex_PosTex1>(c_vertices);
+		}
 
         private static readonly SSVertex_PosTex1[] c_vertices = {
             // CCW quad; no indexing

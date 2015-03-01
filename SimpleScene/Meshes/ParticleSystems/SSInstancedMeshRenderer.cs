@@ -44,23 +44,25 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeVBuffer;
         protected SSTexture m_texture;
 
-        public SSInstancedMeshRenderer (SSParticleSystem ps, SSTexture texture, 
-                                        ISSInstancable mesh = null)
+        public SSInstancedMeshRenderer (SSParticleSystem ps, 
+										SSTexture texture, 
+										ISSInstancable mesh = null,
+										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
             Mesh = mesh;
             m_ps = ps;
             m_texture = texture;
-            m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (c_usageHint);
-            m_orientationBuffer = new SSAttributeBuffer<SSAttributeVec3> (c_usageHint);
-            m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
-            m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeVec2> (c_usageHint);
-            m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (c_usageHint);
+			m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+			m_orientationBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+			m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+			m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
 
-            m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (c_usageHint);
-            m_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
-            m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
-            m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
-            m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (c_usageHint);
+			m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
+			m_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
         }
 
         public override void Render (ref SSRenderConfig renderConfig)

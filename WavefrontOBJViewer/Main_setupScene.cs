@@ -134,7 +134,8 @@ namespace WavefrontOBJViewer
 				ps.AddEmitter(ringEmitter);
 				ps.EmitAll();
 
-				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, roidmesh);
+				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
+																	roidmesh, BufferUsageHint.StaticDraw);
 				asteroidRingRenderer.SimulateOnUpdate = false;
 				asteroidRingRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 				asteroidRingRenderer.AlphaBlendingEnabled = false;
@@ -197,6 +198,19 @@ namespace WavefrontOBJViewer
 				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 				renderer.Name = "cube particle renderer";
 				scene.AddObject(renderer);
+			}
+
+			{
+				AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 10f);
+				aes.Explode (Vector3.Zero);
+
+				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
+				var renderer = new SSInstancedMeshRenderer (aes, tex, SSTexturedQuad.Instance);
+				renderer.Scale = new Vector3 (100f);
+				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
+				renderer.AlphaBlendingEnabled = true;
+				renderer.SimulateOnUpdate = true;
+				scene.AddObject (renderer);
 			}
 		}
 
