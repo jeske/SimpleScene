@@ -101,6 +101,12 @@ namespace SimpleScene
         public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
 		public byte[] EffectorMasks = { c_defaultParticle.EffectorMask };
+		public byte EffectorMask {
+			set { 
+				EffectorMasks = new byte[1]; 
+				EffectorMasks [0] = value;
+			}
+		}
 
         private float m_initialDelay;
         private float m_timeSinceLastEmission;
@@ -151,7 +157,13 @@ namespace SimpleScene
         /// </summary>
         /// <param name="particleCount">Particle count.</param>
         /// <param name="receiver">Receiver.</param>
-        protected abstract void emitParticles (int particleCount, ReceiverHandler receiver);
+		protected virtual void emitParticles (int particleCount, ReceiverHandler receiver)
+		{
+			SSParticle newParticle = new SSParticle();
+			for (int i = 0; i < particleCount; ++i) {
+				configureNewParticle (newParticle);
+			}
+		}
 
         /// <summary>
         /// To be used by derived classes for shared particle setup
@@ -193,6 +205,20 @@ namespace SimpleScene
             p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length - 1)];
         }
     }
+
+	/// <summary>
+	/// Emits particles at the origin
+	/// </summary>
+	public class SSFixedPositionEmitter : SSParticleEmitter
+	{
+		public Vector3 Position = Vector3.Zero;
+
+		protected override void configureNewParticle (SSParticle p)
+		{
+			base.configureNewParticle (p);
+			p.Pos = Position;
+		}
+	}
 
     /// <summary>
     /// Emits via an instance of ParticlesFieldGenerator

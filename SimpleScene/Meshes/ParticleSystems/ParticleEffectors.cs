@@ -18,7 +18,7 @@ namespace SimpleScene
 			return (float)s_rand.NextDouble();
 		}
 
-		public byte EffectorMask = new SSParticle().EffectorMask; // initialize to a default
+		public byte EffectorMask = byte.MaxValue; // initialize to a default
 
 		/// <summary>
 		/// Allows effector to do some housekeeping, once per frame
@@ -99,11 +99,6 @@ namespace SimpleScene
 
 	public class SSMasterScaleKeyframesEffector : SSKeyframesEffector<float>
 	{
-		public SSMasterScaleKeyframesEffector() 
-		{
-			Keyframes.Add (0f, 1f); // One keyframe of default master scale
-		}
-
 		protected override float computeValue (IInterpolater interpolater, 
 											   float prevKeyframe, float nextKeyframe, float ammount)
 		{
@@ -119,11 +114,6 @@ namespace SimpleScene
 
 	public class SSColorKeyframesEffector : SSKeyframesEffector<Color4>
 	{
-		public SSColorKeyframesEffector()
-		{
-			Keyframes.Add (0f, Color4.White);
-		}
-
 		protected override Color4 computeValue (IInterpolater interpolater, Color4 prevKeyframe, Color4 nextKeyframe, float ammount)
 		{
 			return new Color4 (
