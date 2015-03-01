@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SimpleScene.Util;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace SimpleScene
 {
@@ -28,8 +29,10 @@ namespace SimpleScene
 		/// <summary>
 		/// Essentially wrapper for effectParticle() with some masking logic for advanced particle-effector
 		/// relantionships
+		/// 
+		/// Override with caution.
 		/// </summary>
-		public void SimulateParticleEffect (SSParticle particle, float deltaT)
+		public virtual void SimulateParticleEffect (SSParticle particle, float deltaT)
 		{
 			if ((particle.EffectorMask & this.EffectorMask) != 0) {
 				effectParticle (particle, deltaT);
@@ -52,13 +55,88 @@ namespace SimpleScene
         public virtual void Reset() { }
     }
 
-	public class SSMasterScaleEffector
+	public abstract class SSKeyframesEffector<T> : SSParticleEffector
 	{
-		public SortedList<float,float> Keyframes;
+		public SortedList<float,T> Keyframes = new SortedList<float, T> ();
+		public IInterpolater[] Interpolaters = {}; // defaults to using LERP
 
-		public void effectParticle(SSParticle particle, float deltaT)
+		protected float m_timeSinceReset;
+
+		public override void Reset()
 		{
+			m_timeSinceReset = 0f;
+		}
 
+		protected override sealed void effectParticle(SSParticle particle, float deltaT)
+		{
+			m_timeSinceReset += deltaT;
+			float lastKey = Keyframes.Keys [Keyframes.Count - 1];
+			if (m_timeSinceReset > lastKey) {
+				applyValue(particle, Keyframes [lastKey]);
+			} else {
+				float prevKey = Keyframes.Keys [0];
+				for (int i = 1; i < Keyframes.Keys.Count; ++i) {
+					float key = Keyframes.Keys [i];
+					if (m_timeSinceReset < key) {
+						IInterpolater interpolater = 
+							i < Interpolaters.Length ? Interpolaters [i] 
+													 : Interpolaters[Interpolaters.Length - 1];
+						float progression = (m_timeSinceReset - prevKey) / (key - prevKey);
+						T value = computeValue (interpolater, Keyframes [prevKey], Keyframes [key], progression);
+						applyValue(particle, value);
+						break;
+					}
+					prevKey = key;
+				}
+			}
+		}
+
+		protected abstract T computeValue (IInterpolater interpolater, 
+										   T prevFrame, T nextKeyframe, float ammount);
+
+		protected abstract void applyValue (SSParticle particle, T value);
+	}
+
+	public class SSMasterScaleKeyframesEffector : SSKeyframesEffector<float>
+	{
+		public SSMasterScaleKeyframesEffector() 
+		{
+			Keyframes.Add (0f, 1f); // One keyframe of default master scale
+		}
+
+		protected override float computeValue (IInterpolater interpolater, 
+											   float prevKeyframe, float nextKeyframe, float ammount)
+		{
+			return interpolater.Compute (prevKeyframe, nextKeyframe, ammount);
+
+		}
+
+		protected override void applyValue(SSParticle particle, float value)
+		{
+			particle.MasterScale = value;
+		}
+	};
+
+	public class SSColorKeyframesEffector : SSKeyframesEffector<Color4>
+	{
+		public SSColorKeyframesEffector()
+		{
+			Keyframes.Add (0f, Color4.White);
+		}
+
+		protected override Color4 computeValue (IInterpolater interpolater, Color4 prevKeyframe, Color4 nextKeyframe, float ammount)
+		{
+			return new Color4 (
+				interpolater.Compute (prevKeyframe.R, nextKeyframe.R, ammount),
+				interpolater.Compute (prevKeyframe.G, nextKeyframe.G, ammount),
+				interpolater.Compute (prevKeyframe.B, nextKeyframe.B, ammount),
+				interpolater.Compute (prevKeyframe.A, nextKeyframe.A, ammount)
+			);
+		}
+
+		protected override void applyValue (SSParticle particle, Color4 value)
+		{
+			particle.Color = value;
 		}
 	};
 

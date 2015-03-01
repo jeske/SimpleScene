@@ -3,15 +3,26 @@ using System;
 
 namespace SimpleScene.Util
 {
-	public enum InterpolationType { Linear }; // TODO add quadratic etc
-
-    class Interpolate {
+	public static class Interpolate {
         static public float Lerp(float start, float finish, float ammount)
         {
             // TODO: template this?
             return start + (finish - start) * ammount;
         }
     }
+
+	public interface IInterpolater 
+	{
+		float Compute (float start, float finish, float ammount);
+	}
+
+	public class LerpInterpolater : IInterpolater
+	{
+		public float Compute(float start, float finish, float ammount)
+		{
+			return Interpolate.Lerp(start, finish, ammount);
+		}
+	}
 
 	/// <summary>
 	/// For modeling Attack-Delay-Sustain-Release levels of anyting
@@ -28,9 +39,9 @@ namespace SimpleScene.Util
 			get { return AttackDuration + DecayDuration + SustainDuration + ReleaseDuration; }
 		}
 
-		public InterpolationType AttackCurve = InterpolationType.Linear;
-		public InterpolationType DecayCurve = InterpolationType.Linear;
-		public InterpolationType ReleaseCurve = InterpolationType.Linear;
+		IInterpolater AttackInterpolater = new LerpInterpolater();
+		IInterpolater DecayInterpolater = new LerpInterpolater();
+		IInterpolater ReleaseInterpolater = new LerpInterpolater();
 
 		public float Amplitude = 1f;
 		public float SustainLevel = 0.5f;
@@ -42,18 +53,12 @@ namespace SimpleScene.Util
             }
 
 			if (time < AttackDuration) {
-				if (AttackCurve != InterpolationType.Linear) {
-					throw new NotImplementedException();
-				}
-				return Interpolate.Lerp(0f, Amplitude, time/AttackDuration);
+				return AttackInterpolater.Compute (0f, Amplitude, time / AttackDuration);
 			}
 			time -= AttackDuration;
 
 			if (time < DecayDuration) {
-				if (DecayCurve != InterpolationType.Linear) {
-					throw new NotImplementedException();
-				}
-				return Interpolate.Lerp(Amplitude, SustainLevel, time/DecayDuration);
+				return DecayInterpolater.Compute (Amplitude, SustainLevel, time / DecayDuration);
 			}
 			time -= DecayDuration;
 
@@ -63,12 +68,8 @@ namespace SimpleScene.Util
 			time -= SustainDuration;
 
 			if (time < ReleaseDuration) {
-				if (ReleaseCurve != InterpolationType.Linear) {
-					throw new NotImplementedException();
-				}
-				return Interpolate.Lerp(SustainLevel, 0f, time/SustainDuration);
+				ReleaseInterpolater.Compute (SustainLevel, 0f, time / SustainDuration);
 			}
-
 			return 0f;
 		}
 	}
