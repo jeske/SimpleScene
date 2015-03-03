@@ -56,6 +56,7 @@ namespace SimpleScene
 		// TODO flying sparks sprites
 		#endregion
 
+		protected readonly float m_flashDuration;
 		protected readonly SSFixedPositionEmitter m_flashEmitter;
 		protected readonly SSColorKeyframesEffector m_flashColorEffector;
 		protected readonly SSMasterScaleKeyframesEffector m_flashScaleEffector;
@@ -65,21 +66,22 @@ namespace SimpleScene
 		{
 			{
 				// flash
+				m_flashDuration = duration * 0.2f;
 				m_flashEmitter = new SSFixedPositionEmitter ();
 				m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
 				m_flashEmitter.ParticlesPerEmission = 1;
 				m_flashEmitter.Velocity = Vector3.Zero;
+				m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
+				m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
 				m_flashEmitter.Life = duration;
 				//AddEmitter (m_flashEmitter);
 
 				m_flashColorEffector = new SSColorKeyframesEffector ();
-				m_flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
-				m_flashColorEffector.Keyframes.Add (duration, new Color4 (1f, 1f, 1f, 0f));
+				// keyframes configured during Explode()
 				AddEffector (m_flashColorEffector);
 
 				m_flashScaleEffector = new SSMasterScaleKeyframesEffector ();
-				m_flashScaleEffector.Keyframes.Add (0f, 1f);
-				m_flashScaleEffector.Keyframes.Add (duration, 1.5f);
+				// keyframes configured during Explode()
 				AddEffector (m_flashScaleEffector);
 
 				m_flashEmitter.EffectorMask = m_flashColorEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
@@ -87,10 +89,17 @@ namespace SimpleScene
 			}
 		}
 
-		public void Explode(Vector3 position)
+		public void Explode(Vector3 position, float size)
 		{
 			m_flashColorEffector.Reset ();
-			m_flashScaleEffector.Reset ();
+			m_flashScaleEffector.Keyframes.Clear ();
+			m_flashScaleEffector.Keyframes.Add (0f, size);
+			m_flashScaleEffector.Keyframes.Add (m_flashDuration, size * 1.5f);
+
+			m_flashColorEffector.Reset ();
+			m_flashColorEffector.Keyframes.Clear ();
+			m_flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
+			m_flashColorEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
 
 			m_flashEmitter.Position = position;
 			m_flashEmitter.EmitParticles (storeNewParticle);

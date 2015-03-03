@@ -207,8 +207,6 @@ namespace WavefrontOBJViewer
 
 					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
 					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
-					float scale = 10f;
-					aesRenderer.Scale = new Vector3(scale);
 					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 					aesRenderer.AlphaBlendingEnabled = true;
 					aesRenderer.SimulateOnUpdate = true;
@@ -216,8 +214,9 @@ namespace WavefrontOBJViewer
 					aesRenderer.Pos = renderer.Pos;
 					scene.AddObject (aesRenderer);
 
-					periodicExplosiveForce.ExplosionEventHandlers += 
-						(pos, force) => { aes.Explode(pos / scale); };
+					periodicExplosiveForce.ExplosionEventHandlers += (pos, force) => { 
+						aes.Explode(pos, force/periodicExplosiveForce.ExplosiveForceMin * 5f); 
+					};
 				}
 
 			}
