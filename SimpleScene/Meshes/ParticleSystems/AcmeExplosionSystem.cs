@@ -35,10 +35,10 @@ namespace SimpleScene
 		/// Override to match your flash effect sprites (one RectangleF per available sprite)
 		/// </summary>
 		public static readonly RectangleF[] c_flashSpritesDefault = {
-			new RectangleF(0.5f,  0.5f,  0.25f, 0.25f),
-			new RectangleF(0.5f,  0.75f, 0.25f, 0.25f),
-			new RectangleF(0.75f, 0.75f, 0.25f, 0.25f),
-			new RectangleF(0.75f, 0.5f,  0.25f, 0.25f),
+			new RectangleF(0.5f,  0f,    0.25f, 0.25f),
+			new RectangleF(0.75f, 0f,    0.25f, 0.25f),
+			new RectangleF(0.5f,  0.25f, 0.25f, 0.25f),
+			new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
 		};
 
 		/// <summary>
@@ -57,6 +57,8 @@ namespace SimpleScene
 		#endregion
 
 		protected readonly SSFixedPositionEmitter m_flashEmitter;
+		protected readonly SSColorKeyframesEffector m_flashColorEffector;
+		protected readonly SSMasterScaleKeyframesEffector m_flashScaleEffector;
 
 		public AcmeExplosionSystem (int capacity, float duration=1f, RectangleF[] flashSprites = null)
 			: base(capacity)
@@ -64,29 +66,32 @@ namespace SimpleScene
 			{
 				// flash
 				m_flashEmitter = new SSFixedPositionEmitter ();
-				var flashColorEffector = new SSColorKeyframesEffector ();
-				var flashScaleEffector = new SSMasterScaleKeyframesEffector ();
-				m_flashEmitter.EffectorMask = flashColorEffector.EffectorMask = flashScaleEffector.EffectorMask 
-					= (byte)ComponentMask.Flash;
-
 				m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
 				m_flashEmitter.ParticlesPerEmission = 1;
 				m_flashEmitter.Velocity = Vector3.Zero;
 				m_flashEmitter.Life = duration;
 				//AddEmitter (m_flashEmitter);
 
-				flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
-				flashColorEffector.Keyframes.Add (duration, new Color4 (1f, 1f, 1f, 0f));
-				AddEffector (flashColorEffector);
+				m_flashColorEffector = new SSColorKeyframesEffector ();
+				m_flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
+				m_flashColorEffector.Keyframes.Add (duration, new Color4 (1f, 1f, 1f, 0f));
+				AddEffector (m_flashColorEffector);
 
-				flashScaleEffector.Keyframes.Add (0f, 1f);
-				flashScaleEffector.Keyframes.Add (duration, 1.5f);
-				AddEffector (flashScaleEffector);
+				m_flashScaleEffector = new SSMasterScaleKeyframesEffector ();
+				m_flashScaleEffector.Keyframes.Add (0f, 1f);
+				m_flashScaleEffector.Keyframes.Add (duration, 1.5f);
+				AddEffector (m_flashScaleEffector);
+
+				m_flashEmitter.EffectorMask = m_flashColorEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
+					= (byte)ComponentMask.Flash;
 			}
 		}
 
 		public void Explode(Vector3 position)
 		{
+			m_flashColorEffector.Reset ();
+			m_flashScaleEffector.Reset ();
+
 			m_flashEmitter.Position = position;
 			m_flashEmitter.EmitParticles (storeNewParticle);
 		}

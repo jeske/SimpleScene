@@ -119,7 +119,7 @@ namespace WavefrontOBJViewer
 			}
 
 			// instanced asteroid ring
-			if (false)
+			//if (false)
 			{
 				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
 				var ringGen = new BodiesRingGenerator (
@@ -146,7 +146,7 @@ namespace WavefrontOBJViewer
 
 			// particle system test
 			// particle systems should be drawn last (if it requires alpha blending)
-			if (false)
+			//if (false)
 			{
 				// setup an emitter
 				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
@@ -176,18 +176,18 @@ namespace WavefrontOBJViewer
 				}
 				emitter.SpriteRectangles = uvRects;
 
-				var explosions = new SSPeriodicExplosiveForceEffector ();
-				explosions.EffectInterval = 3f;
-				explosions.ExplosiveForceMin = 1000f;
-				explosions.ExplosiveForceMax = 2000f;
-				explosions.EffectDelay = 5f;
-				explosions.CenterMin = new Vector3 (-30f, -30f, -30f);
-				explosions.CenterMax = new Vector3 (30f, 30f, 30f);
+				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
+				periodicExplosiveForce.EffectInterval = 3f;
+				periodicExplosiveForce.ExplosiveForceMin = 1000f;
+				periodicExplosiveForce.ExplosiveForceMax = 2000f;
+				periodicExplosiveForce.EffectDelay = 5f;
+				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
+				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
 
 				// make a particle system
 				SSParticleSystem ps = new SSParticleSystem (1000);
 				ps.AddEmitter(emitter);
-				ps.AddEffector (explosions);
+				ps.AddEffector (periodicExplosiveForce);
 				//ps.EmitAll();
 
 				// test a renderer
@@ -200,20 +200,26 @@ namespace WavefrontOBJViewer
 				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 				renderer.Name = "cube particle renderer";
 				scene.AddObject(renderer);
-			}
 
-			{
-				AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 30f);
-				aes.Explode (Vector3.Zero);
+				// test explositons
+				{
+					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, periodicExplosiveForce.EffectIntervalMin);
 
-				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
-				var renderer = new SSInstancedMeshRenderer (aes, tex, SSTexturedQuad.Instance);
-				renderer.Scale = new Vector3 (100f);
-				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
-				renderer.AlphaBlendingEnabled = true;
-				renderer.SimulateOnUpdate = true;
-				renderer.Name = "acme expolsion renderer";
-				scene.AddObject (renderer);
+					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
+					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
+					float scale = 10f;
+					aesRenderer.Scale = new Vector3(scale);
+					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
+					aesRenderer.AlphaBlendingEnabled = true;
+					aesRenderer.SimulateOnUpdate = true;
+					aesRenderer.Name = "acme expolsion renderer";
+					aesRenderer.Pos = renderer.Pos;
+					scene.AddObject (aesRenderer);
+
+					periodicExplosiveForce.ExplosionEventHandlers += 
+						(pos, force) => { aes.Explode(pos / scale); };
+				}
+
 			}
 		}
 

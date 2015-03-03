@@ -200,6 +200,10 @@ namespace SimpleScene
 
 	public class SSPeriodicExplosiveForceEffector : SSPeriodicEffector
     {
+		public delegate void ExplosiveHandlerType (Vector3 position, float explosiveForce);
+
+		public ExplosiveHandlerType ExplosionEventHandlers = null;
+
 		public float ExplosiveForceMin = 0.1f;
 		public float ExplosiveForceMax = 0.1f;
 		public float ExplosiveForce {
@@ -270,6 +274,7 @@ namespace SimpleScene
 			bi.ForceMagnitude = Interpolate.Lerp (ExplosiveForceMin, ExplosiveForceMax, nextFloat ());
 			bi.TimeElapsed = 0f;
 			m_blasts.Add (bi);
+			ExplosionEventHandlers (bi.Center, bi.ForceMagnitude);
 		}
 
 		protected class BlastInfo {
