@@ -81,7 +81,9 @@ namespace SimpleScene
 				AddEffector (m_flashColorEffector);
 
 				m_flashScaleEffector = new SSMasterScaleKeyframesEffector ();
-				// keyframes configured during Explode()
+				m_flashScaleEffector.Keyframes.Add (0f, 1f);
+				m_flashScaleEffector.Keyframes.Add (m_flashDuration, 1.5f);
+
 				AddEffector (m_flashScaleEffector);
 
 				m_flashEmitter.EffectorMask = m_flashColorEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
@@ -89,12 +91,10 @@ namespace SimpleScene
 			}
 		}
 
-		public void Explode(Vector3 position, float size)
+		public void ShowExplosion(Vector3 position, float size)
 		{
-			m_flashColorEffector.Reset ();
-			m_flashScaleEffector.Keyframes.Clear ();
-			m_flashScaleEffector.Keyframes.Add (0f, size);
-			m_flashScaleEffector.Keyframes.Add (m_flashDuration, size * 1.5f);
+			m_flashScaleEffector.Reset ();
+			m_flashScaleEffector.Amplification = size;
 
 			m_flashColorEffector.Reset ();
 			m_flashColorEffector.Keyframes.Clear ();

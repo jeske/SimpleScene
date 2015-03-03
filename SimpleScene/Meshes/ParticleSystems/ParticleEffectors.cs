@@ -99,10 +99,12 @@ namespace SimpleScene
 
 	public class SSMasterScaleKeyframesEffector : SSKeyframesEffector<float>
 	{
+		public float Amplification = 1.0f;
+
 		protected override float computeValue (IInterpolater interpolater, 
 											   float prevKeyframe, float nextKeyframe, float ammount)
 		{
-			return interpolater.Compute (prevKeyframe, nextKeyframe, ammount);
+			return Amplification * interpolater.Compute (prevKeyframe, nextKeyframe, ammount);
 
 		}
 

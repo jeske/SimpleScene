@@ -215,7 +215,7 @@ namespace WavefrontOBJViewer
 					scene.AddObject (aesRenderer);
 
 					periodicExplosiveForce.ExplosionEventHandlers += (pos, force) => { 
-						aes.Explode(pos, force/periodicExplosiveForce.ExplosiveForceMin * 5f); 
+						aes.ShowExplosion(pos, force/periodicExplosiveForce.ExplosiveForceMin * 5f); 
 					};
 				}
 
