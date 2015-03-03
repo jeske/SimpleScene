@@ -119,6 +119,7 @@ namespace WavefrontOBJViewer
 			}
 
 			// instanced asteroid ring
+			if (false)
 			{
 				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
 				var ringGen = new BodiesRingGenerator (
@@ -145,6 +146,7 @@ namespace WavefrontOBJViewer
 
 			// particle system test
 			// particle systems should be drawn last (if it requires alpha blending)
+			if (false)
 			{
 				// setup an emitter
 				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
@@ -201,7 +203,7 @@ namespace WavefrontOBJViewer
 			}
 
 			{
-				AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 10f);
+				AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 30f);
 				aes.Explode (Vector3.Zero);
 
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
@@ -210,6 +212,7 @@ namespace WavefrontOBJViewer
 				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 				renderer.AlphaBlendingEnabled = true;
 				renderer.SimulateOnUpdate = true;
+				renderer.Name = "acme expolsion renderer";
 				scene.AddObject (renderer);
 			}
 		}

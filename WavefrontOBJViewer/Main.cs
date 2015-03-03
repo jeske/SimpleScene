@@ -141,7 +141,7 @@ namespace WavefrontOBJViewer
 
 			//ringAngularPosition += (float)e.Time * ringAngularVelocity;
 			//asteroidRingRenderer.EulerDegAngleOrient(ringAngularPosition.X, ringAngularPosition.Y);
-			asteroidRingRenderer.EulerDegAngleOrient (ringAngularVelocity.X, ringAngularVelocity.Y);
+			//asteroidRingRenderer.EulerDegAngleOrient (ringAngularVelocity.X, ringAngularVelocity.Y);
 		}
 
 		private void driveCamera(float deltaT)

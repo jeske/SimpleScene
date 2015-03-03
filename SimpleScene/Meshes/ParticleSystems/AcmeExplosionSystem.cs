@@ -72,6 +72,7 @@ namespace SimpleScene
 				m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
 				m_flashEmitter.ParticlesPerEmission = 1;
 				m_flashEmitter.Velocity = Vector3.Zero;
+				m_flashEmitter.Life = duration;
 				//AddEmitter (m_flashEmitter);
 
 				flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));

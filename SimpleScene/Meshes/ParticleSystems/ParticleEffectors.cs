@@ -58,7 +58,7 @@ namespace SimpleScene
 	public abstract class SSKeyframesEffector<T> : SSParticleEffector
 	{
 		public SortedList<float,T> Keyframes = new SortedList<float, T> ();
-		public IInterpolater[] Interpolaters = {}; // defaults to using LERP
+		public IInterpolater[] Interpolaters = { new LinearInterpolater() }; // default to using LERP for everything
 
 		protected float m_timeSinceReset;
 

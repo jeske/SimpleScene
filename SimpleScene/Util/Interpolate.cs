@@ -16,7 +16,7 @@ namespace SimpleScene.Util
 		float Compute (float start, float finish, float ammount);
 	}
 
-	public class LerpInterpolater : IInterpolater
+	public class LinearInterpolater : IInterpolater
 	{
 		public float Compute(float start, float finish, float ammount)
 		{
@@ -39,9 +39,9 @@ namespace SimpleScene.Util
 			get { return AttackDuration + DecayDuration + SustainDuration + ReleaseDuration; }
 		}
 
-		IInterpolater AttackInterpolater = new LerpInterpolater();
-		IInterpolater DecayInterpolater = new LerpInterpolater();
-		IInterpolater ReleaseInterpolater = new LerpInterpolater();
+		IInterpolater AttackInterpolater = new LinearInterpolater();
+		IInterpolater DecayInterpolater = new LinearInterpolater();
+		IInterpolater ReleaseInterpolater = new LinearInterpolater();
 
 		public float Amplitude = 1f;
 		public float SustainLevel = 0.5f;

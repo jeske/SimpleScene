@@ -7,6 +7,8 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>WavefrontOBJViewer</RootNamespace>
     <AssemblyName>WavefrontOBJViewer</AssemblyName>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -84,9 +86,20 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox_readme.txt" />
     <None Include="Assets\drone2\drone2_readme.txt" />
+    <None Include="Assets\simpleasteroid\asteroid.mtl" />
+    <None Include="Assets\simpleasteroid\asteroid.obj" />
+    <None Include="Assets\simpleasteroid\asteroid.png" />
+    <None Include="Assets\simpleasteroid\readme.txt" />
+    <None Include="Assets\explosions\fig7.png" />
+    <None Include="Assets\explosions\fix7.txt" />
+    <None Include="Assets\elements.png" />
+    <None Include="Assets\sun_flare.png" />
+    <None Include="Assets\sun_flare.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\skybox\" />
+    <Folder Include="Assets\simpleasteroid\" />
+    <Folder Include="Assets\explosions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">

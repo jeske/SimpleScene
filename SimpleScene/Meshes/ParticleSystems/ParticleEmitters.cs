@@ -162,6 +162,7 @@ namespace SimpleScene
 			SSParticle newParticle = new SSParticle();
 			for (int i = 0; i < particleCount; ++i) {
 				configureNewParticle (newParticle);
+				receiver (newParticle);
 			}
 		}
 
