@@ -116,13 +116,15 @@ namespace SimpleScene
 
 	public class SSColorKeyframesEffector : SSKeyframesEffector<Color4>
 	{
+		public Color4 ColorMask = new Color4 (1.0f, 1.0f, 1.0f, 1.0f);
+
 		protected override Color4 computeValue (IInterpolater interpolater, Color4 prevKeyframe, Color4 nextKeyframe, float ammount)
 		{
 			return new Color4 (
-				interpolater.Compute (prevKeyframe.R, nextKeyframe.R, ammount),
-				interpolater.Compute (prevKeyframe.G, nextKeyframe.G, ammount),
-				interpolater.Compute (prevKeyframe.B, nextKeyframe.B, ammount),
-				interpolater.Compute (prevKeyframe.A, nextKeyframe.A, ammount)
+				ColorMask.R * interpolater.Compute (prevKeyframe.R, nextKeyframe.R, ammount),
+				ColorMask.G * interpolater.Compute (prevKeyframe.G, nextKeyframe.G, ammount),
+				ColorMask.B * interpolater.Compute (prevKeyframe.B, nextKeyframe.B, ammount),
+				ColorMask.A * interpolater.Compute (prevKeyframe.A, nextKeyframe.A, ammount)
 			);
 		}
 

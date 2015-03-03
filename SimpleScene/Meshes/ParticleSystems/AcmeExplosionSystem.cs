@@ -58,7 +58,7 @@ namespace SimpleScene
 
 		protected readonly float m_flashDuration;
 		protected readonly SSFixedPositionEmitter m_flashEmitter;
-		protected readonly SSColorKeyframesEffector m_flashColorEffector;
+		protected readonly SSColorKeyframesEffector m_flashAlphaEffector;
 		protected readonly SSMasterScaleKeyframesEffector m_flashScaleEffector;
 
 		public AcmeExplosionSystem (int capacity, float duration=1f, RectangleF[] flashSprites = null)
@@ -76,30 +76,28 @@ namespace SimpleScene
 				m_flashEmitter.Life = duration;
 				//AddEmitter (m_flashEmitter);
 
-				m_flashColorEffector = new SSColorKeyframesEffector ();
-				// keyframes configured during Explode()
-				AddEffector (m_flashColorEffector);
+				m_flashAlphaEffector = new SSColorKeyframesEffector ();
+				m_flashAlphaEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
+				m_flashAlphaEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
+				AddEffector (m_flashAlphaEffector);
 
 				m_flashScaleEffector = new SSMasterScaleKeyframesEffector ();
 				m_flashScaleEffector.Keyframes.Add (0f, 1f);
 				m_flashScaleEffector.Keyframes.Add (m_flashDuration, 1.5f);
-
 				AddEffector (m_flashScaleEffector);
 
-				m_flashEmitter.EffectorMask = m_flashColorEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
+				m_flashEmitter.EffectorMask = m_flashAlphaEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
 					= (byte)ComponentMask.Flash;
 			}
 		}
 
-		public void ShowExplosion(Vector3 position, float size)
+		public void ShowExplosion(Vector3 position, float size, Color4 color = new Color4())
 		{
 			m_flashScaleEffector.Reset ();
 			m_flashScaleEffector.Amplification = size;
 
-			m_flashColorEffector.Reset ();
-			m_flashColorEffector.Keyframes.Clear ();
-			m_flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
-			m_flashColorEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
+			m_flashAlphaEffector.Reset ();
+			m_flashAlphaEffector.ColorMask = color;
 
 			m_flashEmitter.Position = position;
 			m_flashEmitter.EmitParticles (storeNewParticle);
