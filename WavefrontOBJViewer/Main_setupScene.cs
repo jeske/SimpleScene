@@ -141,6 +141,8 @@ namespace WavefrontOBJViewer
 				asteroidRingRenderer.SimulateOnUpdate = false;
 				asteroidRingRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 				asteroidRingRenderer.AlphaBlendingEnabled = false;
+				asteroidRingRenderer.DepthRead = true;
+				asteroidRingRenderer.DepthWrite = true;
 				asteroidRingRenderer.Name = "instanced asteroid renderer";
 				scene.AddObject (asteroidRingRenderer);
 			}
@@ -198,6 +200,8 @@ namespace WavefrontOBJViewer
 				renderer.Pos = new Vector3 (0f, 0f, -30f);
 				renderer.AlphaBlendingEnabled = false;
 				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+				renderer.DepthRead = true;
+				renderer.DepthWrite = true;
 				renderer.Name = "cube particle renderer";
 				scene.AddObject(renderer);
 
@@ -210,6 +214,8 @@ namespace WavefrontOBJViewer
 					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
 					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 					aesRenderer.AlphaBlendingEnabled = true;
+					aesRenderer.DepthRead = true;
+					aesRenderer.DepthWrite = false;
 					aesRenderer.SimulateOnUpdate = true;
 					aesRenderer.Name = "acme expolsion renderer";
 					aesRenderer.Pos = renderer.Pos;

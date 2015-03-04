@@ -26,6 +26,8 @@ namespace SimpleScene
 
         public bool SimulateOnUpdate = true;
         public bool AlphaBlendingEnabled = true;
+		public bool DepthRead = true;
+		public bool DepthWrite = true;
         public BillboardingType Billboarding = BillboardingType.Instanced;
         public ISSInstancable Mesh;
 
@@ -99,8 +101,8 @@ namespace SimpleScene
             m_spriteSizeVBuffer.UpdateBufferData(m_ps.SpriteSizesV);
 
             if (AlphaBlendingEnabled) {
-                //GL.Enable(EnableCap.AlphaTest);
-                //GL.AlphaFunc(AlphaFunction.Greater, 0.1f);
+				//GL.Enable(EnableCap.AlphaTest);
+				//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 GL.Disable(EnableCap.Lighting);
@@ -109,6 +111,13 @@ namespace SimpleScene
                 // Also assumes the particle system is the last to be drawn in a scene
                 GL.DepthFunc(DepthFunction.Lequal);
             }
+			if (DepthRead) {
+				GL.Enable (EnableCap.DepthTest);
+			} else {
+				GL.Disable (EnableCap.DepthTest);
+			}
+
+			GL.DepthMask (DepthWrite);
 
             #if MAIN_SHADER_INSTANCING
             // draw using the main shader
