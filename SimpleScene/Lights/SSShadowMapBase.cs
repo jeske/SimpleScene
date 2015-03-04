@@ -64,8 +64,10 @@ namespace SimpleScene
             #endif
             ++s_numberOfShadowMaps;
 
-            m_frameBufferID = GL.Ext.GenFramebuffer();
-			if(!assertFramebufferOK ()) return;
+			m_frameBufferID = GL.Ext.GenFramebuffer();
+			if (m_frameBufferID < 0) {
+				throw new Exception ("gen fb failed");
+			}
             m_textureID = GL.GenTexture();
             m_textureWidth = textureWidth;
             m_textureHeight = textureHeight;
@@ -87,21 +89,29 @@ namespace SimpleScene
                 (int)TextureWrapMode.ClampToEdge);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0,
-                PixelInternalFormat.DepthComponent16,
+				PixelInternalFormat.DepthComponent24,
                 m_textureWidth, m_textureHeight, 0,
-                PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+				PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+			GL.BindTexture (TextureTarget.Texture2D, 0);
 
 			GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-			if(!assertFramebufferOK ()) return;
-			GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
-				FramebufferAttachment.DepthAttachment,
-				m_textureID, 0);
-			if(!assertFramebufferOK ()) return;
-			GL.DrawBuffer(DrawBufferMode.None);
-            GL.ReadBuffer(ReadBufferMode.None);
 
+			GL.DrawBuffer(DrawBufferMode.None);
+			GL.ReadBuffer(ReadBufferMode.None);
+			GL.Viewport (0, 0, m_textureWidth, m_textureHeight);
+
+			GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,FramebufferAttachment.DepthAttachment,
+				m_textureID, 0);
+			GL.Ext.FramebufferTexture (FramebufferTarget.Framebuffer, FramebufferAttachment.Color,
+				(int)All.None, 0);
+
+
+			if(!assertFramebufferOK ()) return;
+
+		
             unbindFramebuffer();
 			assertFramebufferOK ();
+
         }
 
         ~SSShadowMapBase() {
