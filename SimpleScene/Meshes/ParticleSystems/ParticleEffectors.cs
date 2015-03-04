@@ -8,6 +8,8 @@ namespace SimpleScene
 {
     public abstract class SSParticleEffector
     {
+		public enum MatchFunction { And, Equals };
+
 		protected static Random s_rand = new Random ();
 
 		/// <summary>
@@ -18,12 +20,22 @@ namespace SimpleScene
 			return (float)s_rand.NextDouble();
 		}
 
-		public byte EffectorMask = byte.MaxValue; // initialize to a default
+		public ushort EffectorMask = ushort.MaxValue; // initialize to a default
+		public MatchFunction MaskMathFunction = MatchFunction.And;
+
+		protected float m_timeSinceReset = 0f;
+
+		public float TimeSinceReset {
+			get { return m_timeSinceReset; }
+		}
 
 		/// <summary>
 		/// Allows effector to do some housekeeping, once per frame
 		/// </summary>
-		public virtual void SimulateSelf (float deltaT) { }
+		public virtual void SimulateSelf (float deltaT) 
+		{ 
+			m_timeSinceReset += deltaT;
+		}
 
 
 		/// <summary>
@@ -32,9 +44,15 @@ namespace SimpleScene
 		/// 
 		/// Override with caution.
 		/// </summary>
-		public virtual void SimulateParticleEffect (SSParticle particle, float deltaT)
+		public void SimulateParticleEffect (SSParticle particle, float deltaT)
 		{
-			if ((particle.EffectorMask & this.EffectorMask) != 0) {
+			bool match;
+			if (MaskMathFunction == MatchFunction.And) {
+				match = ((particle.EffectorMask & this.EffectorMask) != 0);
+			} else { // Equals
+				match = (particle.EffectorMask == this.EffectorMask);
+			}
+			if (match) {
 				effectParticle (particle, deltaT);
 			}
 		}
@@ -52,20 +70,16 @@ namespace SimpleScene
 		/// <summary>
 		/// Effectors should initialize/reset their variables here
 		/// </summary>
-        public virtual void Reset() { }
+        public virtual void Reset() 
+		{ 
+			m_timeSinceReset = 0f;
+		}
     }
 
 	public abstract class SSKeyframesEffector<T> : SSParticleEffector
 	{
 		public SortedList<float,T> Keyframes = new SortedList<float, T> ();
 		public IInterpolater[] Interpolaters = { new LinearInterpolater() }; // default to using LERP for everything
-
-		protected float m_timeSinceReset;
-
-		public override void Reset()
-		{
-			m_timeSinceReset = 0f;
-		}
 
 		protected override sealed void effectParticle(SSParticle particle, float deltaT)
 		{
@@ -157,6 +171,7 @@ namespace SimpleScene
 
 		public override void Reset()
 		{
+			base.Reset ();
 			m_initialDelay = EffectDelay;
 			m_timeSinceLastEffect = float.PositiveInfinity;
 			m_activationsDone = 0;
@@ -166,6 +181,8 @@ namespace SimpleScene
 
 		public override sealed void SimulateSelf(float deltaT)
 		{
+			base.SimulateSelf (deltaT);
+
 			if (m_initialDelay > 0f) {
 				// if initial delay is needed
 				m_initialDelay -= deltaT;

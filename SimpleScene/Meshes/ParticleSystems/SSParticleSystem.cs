@@ -34,7 +34,7 @@ namespace SimpleScene
         // ^ if both indexed and custom uv values are specified they will be added in the shader
         // TODO orientation, effector mask
 
-        public byte EffectorMask = byte.MaxValue;
+		public ushort EffectorMask = ushort.MaxValue;
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace SimpleScene
 		protected float[] m_drags;
 		protected float[] m_rotationalDrags;
         protected float[] m_viewDepths;
-        protected byte[] m_effectorMasks;
+		protected ushort[] m_effectorMasks;
         // TODO Orientation
         // TODO Texture Coord
         #endregion
@@ -158,7 +158,7 @@ namespace SimpleScene
 			m_drags = new float[1];
 			m_rotationalDrags = new float[1];
             m_viewDepths = new float[1];
-            m_effectorMasks = new byte[1];
+			m_effectorMasks = new ushort[1];
 
             writeParticle(0, new SSParticle ()); // fill in default values
             for (int i = 0; i < m_capacity; ++i) {

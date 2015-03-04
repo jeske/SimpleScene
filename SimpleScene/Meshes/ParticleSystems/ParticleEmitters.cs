@@ -100,10 +100,10 @@ namespace SimpleScene
         public RectangleF[] SpriteRectangles = { c_defaultParticle.SpriteRect };
         public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
-		public byte[] EffectorMasks = { c_defaultParticle.EffectorMask };
-		public byte EffectorMask {
+		public ushort[] EffectorMasks = { c_defaultParticle.EffectorMask };
+		public ushort EffectorMask {
 			set { 
-				EffectorMasks = new byte[1]; 
+				EffectorMasks = new ushort[1]; 
 				EffectorMasks [0] = value;
 			}
 		}
