@@ -94,16 +94,15 @@ namespace SimpleScene
 				PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 			GL.BindTexture (TextureTarget.Texture2D, 0);
 
-			GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+			GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, m_frameBufferID);
 
 			GL.DrawBuffer(DrawBufferMode.None);
-			GL.ReadBuffer(ReadBufferMode.None);
 			GL.Viewport (0, 0, m_textureWidth, m_textureHeight);
 
-			GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,FramebufferAttachment.DepthAttachment,
-				m_textureID, 0);
-			GL.Ext.FramebufferTexture (FramebufferTarget.Framebuffer, FramebufferAttachment.Color,
-				(int)All.None, 0);
+			GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt,FramebufferAttachment.DepthAttachment,
+				TextureTarget.Texture2D, m_textureID, 0);
+			//GL.Ext.FramebufferTexture (FramebufferTarget.FramebufferExt, FramebufferAttachment.Color,
+			//(int)All.None, 0);
 
 
 			if(!assertFramebufferOK ()) return;
