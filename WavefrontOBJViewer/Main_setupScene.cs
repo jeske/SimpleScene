@@ -133,6 +133,7 @@ namespace WavefrontOBJViewer
 
 				var ps = new SSParticleSystem(10000);
 				ps.AddEmitter(ringEmitter);
+				Console.WriteLine ("Packing 10k asteroids into a ring. This should take a few seconds...");
 				ps.EmitAll();
 
 				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
@@ -177,22 +178,21 @@ namespace WavefrontOBJViewer
 				emitter.SpriteRectangles = uvRects;
 
 				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
-				periodicExplosiveForce.EffectInterval = 3f;
+				periodicExplosiveForce.EffectInterval = 10f;
 				periodicExplosiveForce.ExplosiveForceMin = 1000f;
 				periodicExplosiveForce.ExplosiveForceMax = 2000f;
 				periodicExplosiveForce.EffectDelay = 5f;
-				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
-				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
+				//periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
+				//periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
+				periodicExplosiveForce.CenterMin = new Vector3 (-10f, -10f, -10f);
+				periodicExplosiveForce.CenterMax = new Vector3 (10f, 10f, 10f);
 
 				// make a particle system
 				SSParticleSystem ps = new SSParticleSystem (1000);
 				ps.AddEmitter(emitter);
 				ps.AddEffector (periodicExplosiveForce);
-				//ps.EmitAll();
 
 				// test a renderer
-				//var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "planet-14.png");
-				//var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun.png");
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
 				var renderer = new SSInstancedMeshRenderer (ps, tex, SSTexturedCube.Instance);
 				renderer.Pos = new Vector3 (0f, 0f, -30f);
@@ -203,11 +203,11 @@ namespace WavefrontOBJViewer
 
 				// test explositons
 				{
-					//AcmeExplosionSystem aes = new AcmeExplosionSystem (100, periodicExplosiveForce.EffectIntervalMin);
-					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 10f);
+					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, periodicExplosiveForce.EffectIntervalMin);
+					//AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 4f);
 
-					//var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
+					//var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
 					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
 					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 					aesRenderer.AlphaBlendingEnabled = true;
