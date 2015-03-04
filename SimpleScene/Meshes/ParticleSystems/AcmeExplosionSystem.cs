@@ -18,11 +18,15 @@ namespace SimpleScene
 			Shockwave = 0x40,
 		};
 
+		#region effects' color presets
+		public static readonly Color4 c_defaultFlashColor = Color4.Yellow;
+		#endregion
+
 		#region define sprite and size locations variables
 		// default to fig7.png asset by Mike McClelland
 
 		/// <summary>
-		/// Override to match your flame and smoke effect sprites (one RectangleF per available sprite)
+		/// Default locations of flame sprites in fig7.png
 		/// </summary>
 		public static readonly RectangleF[] c_flamesSpriteSpritesDefault = {
 			new RectangleF(0f,    0f,    0.25f, 0.25f),
@@ -32,7 +36,7 @@ namespace SimpleScene
 		};
 
 		/// <summary>
-		/// Override to match your flash effect sprites (one RectangleF per available sprite)
+		/// Default locations of flash sprites in fig7.png
 		/// </summary>
 		public static readonly RectangleF[] c_flashSpritesDefault = {
 			new RectangleF(0.5f,  0f,    0.25f, 0.25f),
@@ -42,7 +46,7 @@ namespace SimpleScene
 		};
 
 		/// <summary>
-		/// Override to match your smoke trails sprites (one RectangleF per available sprite)
+		/// Default locations of smoke trails sprites in fig7.png
 		/// </summary>
 		public static readonly RectangleF[] c_smokeTrailsSpritesDefault = {
 			new RectangleF(0f, 0.5f,   0.5f, 0.125f),
@@ -56,17 +60,17 @@ namespace SimpleScene
 		// TODO flying sparks sprites
 		#endregion
 
-		protected readonly float m_flashDuration;
 		protected readonly SSFixedPositionEmitter m_flashEmitter;
-		protected readonly SSColorKeyframesEffector m_flashAlphaEffector;
+		protected readonly SSColorKeyframesEffector m_flashColorEffector;
 		protected readonly SSMasterScaleKeyframesEffector m_flashScaleEffector;
 
-		public AcmeExplosionSystem (int capacity, float duration=1f, RectangleF[] flashSprites = null)
+		public AcmeExplosionSystem (int capacity, float duration=10f, 
+									RectangleF[] flashSprites = null)
 			: base(capacity)
 		{
 			{
 				// flash
-				m_flashDuration = duration * 0.2f;
+				float flashDuration = duration * 0.2f;
 				m_flashEmitter = new SSFixedPositionEmitter ();
 				m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
 				m_flashEmitter.ParticlesPerEmission = 1;
@@ -76,28 +80,28 @@ namespace SimpleScene
 				m_flashEmitter.Life = duration;
 				//AddEmitter (m_flashEmitter);
 
-				m_flashAlphaEffector = new SSColorKeyframesEffector ();
-				m_flashAlphaEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
-				m_flashAlphaEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
-				AddEffector (m_flashAlphaEffector);
+				m_flashColorEffector = new SSColorKeyframesEffector ();
+				m_flashColorEffector.ColorMask = c_defaultFlashColor;
+				m_flashColorEffector.Keyframes.Add (0f, new Color4(1f, 1f, 1f, 1f));
+				m_flashColorEffector.Keyframes.Add (flashDuration, new Color4 (1f, 1f, 1f, 0f));
+				AddEffector (m_flashColorEffector);
 
 				m_flashScaleEffector = new SSMasterScaleKeyframesEffector ();
 				m_flashScaleEffector.Keyframes.Add (0f, 1f);
-				m_flashScaleEffector.Keyframes.Add (m_flashDuration, 1.5f);
+				m_flashScaleEffector.Keyframes.Add (flashDuration, 1.5f);
 				AddEffector (m_flashScaleEffector);
 
-				m_flashEmitter.EffectorMask = m_flashAlphaEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
+				m_flashEmitter.EffectorMask = m_flashColorEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
 					= (byte)ComponentMask.Flash;
 			}
 		}
 
-		public void ShowExplosion(Vector3 position, float size, Color4 color = new Color4())
+		public void ShowExplosion(Vector3 position, float size)
 		{
 			m_flashScaleEffector.Reset ();
 			m_flashScaleEffector.Amplification = size;
 
-			m_flashAlphaEffector.Reset ();
-			m_flashAlphaEffector.ColorMask = color;
+			m_flashColorEffector.Reset ();
 
 			m_flashEmitter.Position = position;
 			m_flashEmitter.EmitParticles (storeNewParticle);

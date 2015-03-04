@@ -222,8 +222,8 @@ namespace WavefrontOBJViewer
 			}
 		}
 
-		public void setupEnvironment() {
-
+		public void setupEnvironment() 
+		{
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
 			SSObject skyboxCube = new SSObjectMesh(mesh);
