@@ -212,7 +212,17 @@ namespace SimpleScene
 	/// </summary>
 	public class SSFixedPositionEmitter : SSParticleEmitter
 	{
-		public Vector3 Position = Vector3.Zero;
+		public Vector3 Position;
+
+		public SSFixedPositionEmitter (Vector3 position)
+		{
+			Position = position;
+		}
+
+		public SSFixedPositionEmitter()
+		{
+			Position = Vector3.Zero;
+		}
 
 		protected override void configureNewParticle (SSParticle p)
 		{

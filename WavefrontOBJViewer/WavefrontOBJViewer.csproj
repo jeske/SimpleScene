@@ -53,6 +53,7 @@
     <Compile Include="SSMesh_Starfield.cs" />
     <Compile Include="Main_renderScene.cs" />
     <Compile Include="Main_setupInput.cs" />
+    <Compile Include="AcmeExplosionSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
