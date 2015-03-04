@@ -23,7 +23,7 @@ namespace SimpleScene
         public Color4 Color = Color4.White;
         public float Mass = 1.0f;
 		public float RotationalInnertia = 1.0f;
-		public float Drag = 0.05f;
+		public float Drag = 0.0f;
 		public float RotationalDrag = 0.0f;
         public float ViewDepth = float.PositiveInfinity;
 

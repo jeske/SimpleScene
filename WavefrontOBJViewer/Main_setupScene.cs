@@ -203,7 +203,8 @@ namespace WavefrontOBJViewer
 
 				// test explositons
 				{
-					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, periodicExplosiveForce.EffectIntervalMin);
+					//AcmeExplosionSystem aes = new AcmeExplosionSystem (100, periodicExplosiveForce.EffectIntervalMin);
+					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 10f);
 
 					//var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
 					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");

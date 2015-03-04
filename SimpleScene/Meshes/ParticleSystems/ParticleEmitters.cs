@@ -204,6 +204,8 @@ namespace SimpleScene
 
             p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length - 1)];
             p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length - 1)];
+
+			p.EffectorMask = EffectorMasks [s_rand.Next (0, EffectorMasks.Length - 1)];
         }
     }
 
@@ -228,6 +230,62 @@ namespace SimpleScene
 		{
 			base.configureNewParticle (p);
 			p.Pos = Position;
+		}
+	}
+
+	/// <summary>
+	/// Emitter that sends things moving away from the center in different directions 
+	/// </summary>
+	public class SSRadialEmitter : SSParticleEmitter
+	{
+		public Vector3 Center = Vector3.Zero;
+
+		#region spawn radius
+		public float RMin = 0f;
+		public float RMax = 0f;
+		public float R {
+			set { RMin = RMax = value; }
+		}
+		#endregion
+
+		#region theta of the spawn and velocity
+		public float ThetaMin = 0f;
+		public float ThetaMax = 2f * (float)Math.PI;
+		public float Theta {
+			set { ThetaMin = ThetaMax = value; }
+		}
+		#endregion
+
+		#region phi of the spawn and velocity
+		public float PhiMin = -0.5f * (float)Math.PI;
+		public float PhiMax = +0.5f * (float)Math.PI;
+		public float Phi {
+			set { PhiMin = PhiMax = value; }
+		}
+		#endregion
+
+		#region magnitude of the spawns' velocity
+		public float VelocityMagnitudeMin = 1f;
+		public float VelocityMagnitudeMax = 1f;
+		public float VelocityMagnitude {
+			set { VelocityMagnitudeMin = VelocityMagnitudeMax = value; }
+		}
+		#endregion
+
+		protected override void configureNewParticle (SSParticle p)
+		{
+			base.configureNewParticle (p);
+			float r = Interpolate.Lerp (RMin, RMax, nextFloat());
+			float theta = Interpolate.Lerp (ThetaMin, ThetaMax, nextFloat ());
+			float phi = Interpolate.Lerp (PhiMin, PhiMax, nextFloat ());
+			float xy = (float)Math.Cos (phi);
+			float x = xy * (float)Math.Cos (theta);
+			float y = xy * (float)Math.Sin (theta);
+			float z = (float)Math.Sin (phi);
+			Vector3 xyz = new Vector3 (x, y, z);
+			p.Pos = Center + r * xyz;
+			float velocityMag = Interpolate.Lerp (VelocityMagnitudeMin, VelocityMagnitudeMax, nextFloat ());
+			p.Vel = velocityMag * xyz;
 		}
 	}
 

@@ -104,13 +104,13 @@ namespace SimpleScene
 		protected override float computeValue (IInterpolater interpolater, 
 											   float prevKeyframe, float nextKeyframe, float ammount)
 		{
-			return Amplification * interpolater.Compute (prevKeyframe, nextKeyframe, ammount);
+			return interpolater.Compute (prevKeyframe, nextKeyframe, ammount);
 
 		}
 
 		protected override void applyValue(SSParticle particle, float value)
 		{
-			particle.MasterScale = value;
+			particle.MasterScale = Amplification * value;
 		}
 	};
 
@@ -121,15 +121,19 @@ namespace SimpleScene
 		protected override Color4 computeValue (IInterpolater interpolater, Color4 prevKeyframe, Color4 nextKeyframe, float ammount)
 		{
 			return new Color4 (
-				ColorMask.R * interpolater.Compute (prevKeyframe.R, nextKeyframe.R, ammount),
-				ColorMask.G * interpolater.Compute (prevKeyframe.G, nextKeyframe.G, ammount),
-				ColorMask.B * interpolater.Compute (prevKeyframe.B, nextKeyframe.B, ammount),
-				ColorMask.A * interpolater.Compute (prevKeyframe.A, nextKeyframe.A, ammount)
+				interpolater.Compute (prevKeyframe.R, nextKeyframe.R, ammount),
+				interpolater.Compute (prevKeyframe.G, nextKeyframe.G, ammount),
+				interpolater.Compute (prevKeyframe.B, nextKeyframe.B, ammount),
+				interpolater.Compute (prevKeyframe.A, nextKeyframe.A, ammount)
 			);
 		}
 
 		protected override void applyValue (SSParticle particle, Color4 value)
 		{
+			value.R *= ColorMask.R;
+			value.G *= ColorMask.G;
+			value.B *= ColorMask.B;
+			value.A *= ColorMask.A;
 			particle.Color = value;
 		}
 	};
