@@ -78,12 +78,28 @@ namespace SimpleScene
 
 	public abstract class SSKeyframesEffector<T> : SSParticleEffector
 	{
+		/// <summary>
+		/// When not NaN will be used to adjust keyframe control to individual particles' Lifes instead
+		/// of time since last reset
+		/// </summary>
+		public float ParticleLifetime = float.NaN;
+
+		/// <summary>
+		/// Pairs of time elapsed matched to keyframe values
+		/// </summary>
 		public SortedList<float,T> Keyframes = new SortedList<float, T> ();
+
+		/// <summary>
+		/// Used to interpolate values between keyframes. If there are not enough of these to cover all
+		/// keyframe inbetweens the last interpolater will be used repeatedly.
+		/// </summary>
 		public IInterpolater[] Interpolaters = { new LinearInterpolater() }; // default to using LERP for everything
 
 		protected override sealed void effectParticle(SSParticle particle, float deltaT)
 		{
 			m_timeSinceReset += deltaT;
+			float timeElapsed = float.IsNaN (ParticleLifetime) ? m_timeSinceReset
+															   : ParticleLifetime - particle.Life;
 			float lastKey = Keyframes.Keys [Keyframes.Count - 1];
 			if (m_timeSinceReset > lastKey) {
 				applyValue(particle, Keyframes [lastKey]);

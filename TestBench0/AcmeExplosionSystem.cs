@@ -130,6 +130,7 @@ namespace SimpleScene
 			flamesSmokeColorEffector.Keyframes.Add (0.75f*m_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
 			flamesSmokeColorEffector.Keyframes.Add (m_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
 			flamesSmokeColorEffector.ColorMask = FlameColor;
+			flamesSmokeColorEffector.ParticleLifetime = m_flameSmokeDuration;
 			AddEffector (flamesSmokeColorEffector);
 
 			var flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
@@ -138,6 +139,7 @@ namespace SimpleScene
 			flameSmokeScaleEffector.Keyframes.Add (0.75f * m_flameSmokeDuration, 1f);
 			flameSmokeScaleEffector.Keyframes.Add (m_flameSmokeDuration, 1.2f);
 			flameSmokeScaleEffector.Amplification = intensity;
+			flameSmokeScaleEffector.ParticleLifetime = m_flameSmokeDuration;
 			AddEffector (flameSmokeScaleEffector);
 
 			m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
@@ -156,6 +158,7 @@ namespace SimpleScene
 			flashColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
 			flashColorEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
 			flashColorEffector.ColorMask = FlashColor;
+			flashColorEffector.ParticleLifetime = m_flashDuration;
 			AddEffector (flashColorEffector);
 
 			var flashScaleEffector = new SSMasterScaleKeyframesEffector ();
@@ -163,6 +166,7 @@ namespace SimpleScene
 			flashScaleEffector.Keyframes.Add (0f, 1f);
 			flashScaleEffector.Keyframes.Add (m_flashDuration, 1.5f);
 			flashScaleEffector.Amplification = intensity;
+			flashScaleEffector.ParticleLifetime = m_flashDuration;
 			AddEffector (flashScaleEffector);
 
 			m_flashEmitter.EffectorMask = flashColorEffector.EffectorMask = flashScaleEffector.EffectorMask 
