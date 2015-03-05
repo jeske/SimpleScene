@@ -34,12 +34,14 @@ namespace SimpleScene
         protected SSParticleSystem m_ps;
 
         protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
-        protected SSAttributeBuffer<SSAttributeVec3> m_orientationBuffer;
+		protected SSAttributeBuffer<SSAttributeVec2> m_orientationXYBuffer;
+		protected SSAttributeBuffer<SSAttributeFloat> m_orientationZBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_masterScaleBuffer;
-        protected SSAttributeBuffer<SSAttributeVec2> m_componentScaleBuffer;
+        protected SSAttributeBuffer<SSAttributeVec2> m_componentScaleXYBuffer;
+		protected SSAttributeBuffer<SSAttributeFloat> m_componentScaleZBuffer;
         protected SSAttributeBuffer<SSAttributeColor> m_colorBuffer;
 
-        protected SSAttributeBuffer<SSAttributeByte> m_spriteIndexBuffer;
+		//protected SSAttributeBuffer<SSAttributeByte> m_spriteIndexBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetUBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetVBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeUBuffer;
@@ -55,12 +57,14 @@ namespace SimpleScene
             m_ps = ps;
             m_texture = texture;
 			m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
-			m_orientationBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+			m_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+			m_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_componentScaleBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+			m_componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+			m_componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
 
-			m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
+			//m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
 			m_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
@@ -89,12 +93,14 @@ namespace SimpleScene
                 m_ps.SortByDepth(ref modelView);
             }
             m_posBuffer.UpdateBufferData(m_ps.Positions);
-            m_orientationBuffer.UpdateBufferData(m_ps.Orientations);
+			m_orientationXYBuffer.UpdateBufferData(m_ps.OrientationsXY);
+			m_orientationZBuffer.UpdateBufferData (m_ps.OrientationsZ);
             m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
-            m_componentScaleBuffer.UpdateBufferData(m_ps.ComponentScales);
+            m_componentScaleXYBuffer.UpdateBufferData(m_ps.ComponentScalesXY);
+			m_componentScaleZBuffer.UpdateBufferData (m_ps.ComponentScalesZ);
             m_colorBuffer.UpdateBufferData(m_ps.Colors);
 
-            m_spriteIndexBuffer.UpdateBufferData(m_ps.SpriteIndices);
+			//m_spriteIndexBuffer.UpdateBufferData(m_ps.SpriteIndices);
             m_spriteOffsetUBuffer.UpdateBufferData(m_ps.SpriteOffsetsU);
             m_spriteOffsetVBuffer.UpdateBufferData(m_ps.SpriteOffsetsV);
             m_spriteSizeUBuffer.UpdateBufferData(m_ps.SpriteSizesU);
@@ -153,12 +159,14 @@ namespace SimpleScene
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             prepareAttribute(m_posBuffer, shader.AttrInstancePos, m_ps.Positions);
-            prepareAttribute(m_orientationBuffer, shader.AttrInstanceOrientation, m_ps.Orientations);
+			prepareAttribute(m_orientationXYBuffer, shader.AttrInstanceOrientationXY, m_ps.OrientationsXY);
+			prepareAttribute(m_orientationZBuffer, shader.AttrInstanceOrientationZ, m_ps.OrientationsZ);
             prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, m_ps.MasterScales);
-            prepareAttribute(m_componentScaleBuffer, shader.AttrInstanceComponentScale, m_ps.ComponentScales);
+			prepareAttribute(m_componentScaleXYBuffer, shader.AttrInstanceComponentScaleXY, m_ps.ComponentScalesXY);
+			prepareAttribute(m_componentScaleZBuffer, shader.AttrInstanceComponentScaleZ, m_ps.ComponentScalesZ);
             prepareAttribute(m_colorBuffer, shader.AttrInstanceColor, m_ps.Colors);
 
-            prepareAttribute(m_spriteIndexBuffer, shader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
+			//prepareAttribute(m_spriteIndexBuffer, shader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
             prepareAttribute(m_spriteOffsetUBuffer, shader.AttrInstanceSpriteOffsetU, m_ps.SpriteOffsetsU);
             prepareAttribute(m_spriteOffsetVBuffer, shader.AttrInstanceSpriteOffsetV, m_ps.SpriteOffsetsV);
             prepareAttribute(m_spriteSizeUBuffer, shader.AttrInstanceSpriteSizeU, m_ps.SpriteSizesU);

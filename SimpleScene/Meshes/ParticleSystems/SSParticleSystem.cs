@@ -28,7 +28,8 @@ namespace SimpleScene
         public float ViewDepth = float.PositiveInfinity;
 
         // when not -1 (255) means use sprite location preset as a source of UV for the current particle
-        public byte SpriteIndex = byte.MaxValue;
+		//public byte SpriteIndex = byte.MaxValue;
+
         // when not NaN means the values are used as a sorce of UV for the current particles
         public RectangleF SpriteRect = new RectangleF (0f, 0f, 1f, 1f);
         // ^ if both indexed and custom uv values are specified they will be added in the shader
@@ -72,12 +73,14 @@ namespace SimpleScene
 
         #region particle data sent to the GPU
         protected SSAttributeVec3[] m_positions;
-        protected SSAttributeVec3[] m_orientations;
+		protected SSAttributeVec2[] m_orientationsXY;
+		protected SSAttributeFloat[] m_orientationsZ;
         protected SSAttributeColor[] m_colors;
         protected SSAttributeFloat[] m_masterScales;
-        protected SSAttributeVec2[] m_componentScales;
+        protected SSAttributeVec2[] m_componentScalesXY;
+		protected SSAttributeFloat[] m_componentScalesZ;
 
-        protected SSAttributeByte[] m_spriteIndices;
+		//protected SSAttributeByte[] m_spriteIndices;
         protected SSAttributeFloat[] m_spriteOffsetsU;
         protected SSAttributeFloat[] m_spriteOffsetsV;
         protected SSAttributeFloat[] m_spriteSizesU;
@@ -92,7 +95,8 @@ namespace SimpleScene
 		protected float[] m_drags;
 		protected float[] m_rotationalDrags;
         protected float[] m_viewDepths;
-		protected ushort[] m_effectorMasks;
+		protected byte[] m_effectorMasksLow;
+		protected byte[] m_effectorMasksHigh;
         // TODO Orientation
         // TODO Texture Coord
         #endregion
@@ -104,11 +108,13 @@ namespace SimpleScene
         public int ActiveBlockLength { get { return m_activeBlockLength; } }
         public float Radius { get { return m_radius; } }
         public SSAttributeVec3[] Positions { get { return m_positions; } }
-        public SSAttributeVec3[] Orientations { get { return m_orientations; } }
+		public SSAttributeVec2[] OrientationsXY { get { return m_orientationsXY; } }
+		public SSAttributeFloat[] OrientationsZ { get { return m_orientationsZ; } }
         public SSAttributeColor[] Colors { get { return m_colors; } }
         public SSAttributeFloat[] MasterScales { get { return m_masterScales; } }
-        public SSAttributeVec2[] ComponentScales { get { return m_componentScales; } }
-        public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
+        public SSAttributeVec2[] ComponentScalesXY { get { return m_componentScalesXY; } }
+		public SSAttributeFloat[] ComponentScalesZ { get { return m_componentScalesZ; } }
+		//public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
         public SSAttributeFloat[] SpriteOffsetsU { get { return m_spriteOffsetsU; ; } }
         public SSAttributeFloat[] SpriteOffsetsV { get { return m_spriteOffsetsV; } }
         public SSAttributeFloat[] SpriteSizesU { get { return m_spriteSizesU; } }
@@ -140,12 +146,14 @@ namespace SimpleScene
 			m_timeDeltaAccumulator = 0f;
 
             m_positions = new SSAttributeVec3[1];
-            m_orientations = new SSAttributeVec3[1];
+			m_orientationsXY = new SSAttributeVec2[1];
+			m_orientationsZ = new SSAttributeFloat[1];
             m_masterScales = new SSAttributeFloat[1];
-            m_componentScales = new SSAttributeVec2[1];
+            m_componentScalesXY = new SSAttributeVec2[1];
+			m_componentScalesZ = new SSAttributeFloat[1];
             m_colors = new SSAttributeColor[1];
 
-            m_spriteIndices = new SSAttributeByte[1];
+			//m_spriteIndices = new SSAttributeByte[1];
             m_spriteOffsetsU = new SSAttributeFloat[1];
             m_spriteOffsetsV = new SSAttributeFloat[1];
             m_spriteSizesU = new SSAttributeFloat[1];
@@ -158,7 +166,8 @@ namespace SimpleScene
 			m_drags = new float[1];
 			m_rotationalDrags = new float[1];
             m_viewDepths = new float[1];
-			m_effectorMasks = new ushort[1];
+			m_effectorMasksLow = new byte[1];
+			m_effectorMasksHigh = new byte[1];
 
             writeParticle(0, new SSParticle ()); // fill in default values
             for (int i = 0; i < m_capacity; ++i) {
@@ -350,16 +359,18 @@ namespace SimpleScene
         protected virtual void readParticle (int idx, SSParticle p) {
             p.Life = m_lives [idx];
             p.Pos = readData(m_positions, idx).Value;
-            p.Orientation = readData(m_orientations, idx).Value;
+			p.Orientation.Xy = readData(m_orientationsXY, idx).Value;
+			p.Orientation.Z = readData (m_orientationsZ, idx).Value;
             p.ViewDepth = readData(m_viewDepths, idx);
 
             if (p.Life <= 0f) return; // the rest does not matter
 
             p.MasterScale = readData(m_masterScales, idx).Value;
-            p.ComponentScale = readData(m_componentScales, idx).Scale;
+			p.ComponentScale.Xy = readData(m_componentScalesXY, idx).Value;
+			p.ComponentScale.Z = readData (m_componentScalesZ, idx).Value;
             p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
 
-            p.SpriteIndex = readData(m_spriteIndices, idx).Value;
+			//p.SpriteIndex = readData(m_spriteIndices, idx).Value;
             p.SpriteRect.X = readData(m_spriteOffsetsU, idx).Value;
             p.SpriteRect.Y = readData(m_spriteOffsetsV, idx).Value;
             p.SpriteRect.Width = readData(m_spriteSizesU, idx).Value;
@@ -371,7 +382,8 @@ namespace SimpleScene
 			p.RotationalInnertia = readData (m_rotationalInnertias, idx);
 			p.Drag = readData (m_drags, idx);
 			p.RotationalDrag = readData (m_rotationalDrags, idx);
-            p.EffectorMask = readData(m_effectorMasks, idx);
+			p.EffectorMask = (ushort)((int)readData (m_effectorMasksHigh, idx) << 8
+							 	    | (int)readData (m_effectorMasksLow, idx));
         }
 
         protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
@@ -396,18 +408,15 @@ namespace SimpleScene
 
         protected virtual void writeParticle(int idx, SSParticle p) {
             m_lives [idx] = p.Life;
-            writeDataIfNeeded(ref m_positions, idx, 
-                new SSAttributeVec3(p.Pos));
-            writeDataIfNeeded(ref m_orientations, idx,
-                new SSAttributeVec3 (p.Orientation));
-            writeDataIfNeeded(ref m_masterScales, idx,
-                new SSAttributeFloat (p.MasterScale));
-            writeDataIfNeeded(ref m_componentScales, idx,
-                new SSAttributeVec2 (p.ComponentScale));
-            writeDataIfNeeded(ref m_colors, idx, 
-                new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
+			writeDataIfNeeded(ref m_positions, idx, new SSAttributeVec3(p.Pos));
+			writeDataIfNeeded(ref m_orientationsXY, idx, new SSAttributeVec2 (p.Orientation.Xy));
+			writeDataIfNeeded(ref m_orientationsZ, idx, new SSAttributeFloat (p.Orientation.Z));
+			writeDataIfNeeded(ref m_masterScales, idx, new SSAttributeFloat (p.MasterScale));
+			writeDataIfNeeded(ref m_componentScalesXY, idx, new SSAttributeVec2 (p.ComponentScale.Xy));
+			writeDataIfNeeded(ref m_componentScalesZ, idx, new SSAttributeFloat (p.ComponentScale.Z));
+            writeDataIfNeeded(ref m_colors, idx, new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
 
-            writeDataIfNeeded(ref m_spriteIndices, idx, new SSAttributeByte(p.SpriteIndex));
+			//writeDataIfNeeded(ref m_spriteIndices, idx, new SSAttributeByte(p.SpriteIndex));
             writeDataIfNeeded(ref m_spriteOffsetsU, idx, new SSAttributeFloat(p.SpriteRect.X));
             writeDataIfNeeded(ref m_spriteOffsetsV, idx, new SSAttributeFloat(p.SpriteRect.Y));
             writeDataIfNeeded(ref m_spriteSizesU, idx, new SSAttributeFloat(p.SpriteRect.Width));
@@ -420,7 +429,8 @@ namespace SimpleScene
 			writeDataIfNeeded(ref m_drags, idx, p.Drag);
 			writeDataIfNeeded(ref m_rotationalDrags, idx, p.RotationalDrag);
             writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth);
-            writeDataIfNeeded(ref m_effectorMasks, idx, p.EffectorMask);
+			writeDataIfNeeded(ref m_effectorMasksHigh, idx, (byte)((p.EffectorMask & 0xFF00) >> 8));
+			writeDataIfNeeded(ref m_effectorMasksLow, idx, (byte)(p.EffectorMask & 0xFF));
         }
 
         // The alternative to re-implementing quicksort appears to be implementing IList interface with

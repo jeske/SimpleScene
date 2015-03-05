@@ -14,9 +14,9 @@ namespace SimpleScene
     {
         public Vector3 Value;
 
-        public SSAttributeVec3(Vector3 pos) 
+        public SSAttributeVec3(Vector3 value) 
         {
-            Value = pos;
+            Value = value;
         }
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
@@ -32,20 +32,20 @@ namespace SimpleScene
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSAttributeVec2 : ISSAttributeLayout, IEquatable<SSAttributeVec2>
     {
-        public Vector3 Scale;
+		public Vector2 Value;
 
-        public SSAttributeVec2(Vector3 scale)
+		public SSAttributeVec2(Vector2 value)
         {
-            Scale = scale;
+			Value = value;
         }
 
         public VertexAttribPointerType AttributeType() { return VertexAttribPointerType.Float; }
-        public Int32 ComponentNum() { return 3; }
+		public Int32 ComponentNum() { return 2; }
         public bool IsNormalized() { return false; }
 
         public bool Equals(SSAttributeVec2 other)
         {
-            return this.Scale == other.Scale;
+			return this.Value == other.Value;
         }
     }
 

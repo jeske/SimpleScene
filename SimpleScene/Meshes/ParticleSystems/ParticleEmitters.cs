@@ -103,7 +103,7 @@ namespace SimpleScene
 		}
 
         public RectangleF[] SpriteRectangles = { c_defaultParticle.SpriteRect };
-        public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
+		//public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
 		public ushort[] EffectorMasks = { c_defaultParticle.EffectorMask };
 		public ushort EffectorMask {
@@ -213,7 +213,7 @@ namespace SimpleScene
             p.Color.B = Interpolate.Lerp(ColorComponentMin.B, ColorComponentMax.B, nextFloat());
             p.Color.A = Interpolate.Lerp(ColorComponentMin.A, ColorComponentMax.A, nextFloat());
 
-            p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length - 1)];
+			//p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length - 1)];
             p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length - 1)];
 
 			p.EffectorMask = EffectorMasks [s_rand.Next (0, EffectorMasks.Length - 1)];

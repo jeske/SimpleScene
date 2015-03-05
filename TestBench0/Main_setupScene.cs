@@ -190,24 +190,25 @@ namespace TestBench0
 				//periodicExplosiveForce.CenterMax = new Vector3 (10f, 10f, 10f);
 
 				// make a particle system
-				SSParticleSystem ps = new SSParticleSystem (1000);
-				ps.AddEmitter(emitter);
-				ps.AddEffector (periodicExplosiveForce);
+				SSParticleSystem cubesPs = new SSParticleSystem (1000);
+				cubesPs.AddEmitter(emitter);
+				cubesPs.AddEffector (periodicExplosiveForce);
 
 				// test a renderer
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
-				var renderer = new SSInstancedMeshRenderer (ps, tex, SSTexturedCube.Instance);
-				renderer.Pos = new Vector3 (0f, 0f, -30f);
-				renderer.AlphaBlendingEnabled = false;
-				renderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
-				renderer.DepthRead = true;
-				renderer.DepthWrite = true;
-				renderer.Name = "cube particle renderer";
-				scene.AddObject(renderer);
+				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, tex, SSTexturedCube.Instance);
+				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
+				cubesRenderer.AlphaBlendingEnabled = false;
+				cubesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+				cubesRenderer.DepthRead = true;
+				cubesRenderer.DepthWrite = true;
+				cubesRenderer.Name = "cube particle renderer";
+				scene.AddObject(cubesRenderer);
 
 				// test explositons
+				//if (false)
 				{
-					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 3f);
+					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 5f);
 
 					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
 					//var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
@@ -218,7 +219,7 @@ namespace TestBench0
 					aesRenderer.DepthWrite = false;
 					aesRenderer.SimulateOnUpdate = true;
 					aesRenderer.Name = "acme expolsion renderer";
-					aesRenderer.Pos = renderer.Pos;
+					aesRenderer.Pos = cubesRenderer.Pos;
 					scene.AddObject (aesRenderer);
 
 					periodicExplosiveForce.ExplosionEventHandlers += (pos, force) => { 

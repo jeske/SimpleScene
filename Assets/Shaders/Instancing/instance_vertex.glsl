@@ -6,9 +6,11 @@ uniform bool instanceBillboardingEnabled;
 //const bool instanceBillboardingEnabled = true;
 
 attribute vec3 instancePos;
-attribute vec3 instanceOrientation;
+attribute vec2 instanceOrientationXY;
+attribute float instanceOrientationZ;
 attribute float instanceMasterScale;
-attribute vec3 instanceComponentScale;
+attribute vec2 instanceComponentScaleXY;
+attribute float instanceComponentScaleZ;
 attribute vec4 instanceColor;
 
 //attribute float instanceSpriteIndex;
@@ -96,14 +98,16 @@ mat3 orientZ(float angle)
 
 void main()
 {
+    vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
+                            
     vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
-    combinedPos = orientZ(instanceOrientation.z) * combinedPos;
+    combinedPos = orientZ(instanceOrientationZ) * combinedPos;
     if (instanceBillboardingEnabled) {
         vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
         rotation *= -1; // inverse rotation
         combinedPos = quatTransform(rotation, combinedPos);
     } else {
-        combinedPos = orientY(instanceOrientation.y) * orientX(instanceOrientation.x)
+        combinedPos = orientY(instanceOrientationXY.y) * orientX(instanceOrientationXY.x)
                     * combinedPos;
     }
     combinedPos += instancePos;

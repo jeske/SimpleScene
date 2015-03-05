@@ -170,7 +170,7 @@ namespace SimpleScene
 		{
 			// flame/smoke
 			#if true
-			m_flameSmokeEmitter.ComponentScale = new Vector3(intensity);
+			m_flameSmokeEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 			m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
 			m_flameSmokeEmitter.VelocityMagnitudeMax = 0.30f * intensity;
 			//m_flameSmokeEmitter.VelocityMagnitude = 0f;

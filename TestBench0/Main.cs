@@ -140,7 +140,9 @@ namespace TestBench0
 			driveCamera ((float)e.Time);
 
 			//ringAngularPosition += (float)e.Time * ringAngularVelocity;
-			asteroidRingRenderer.EulerDegAngleOrient (ringAngularVelocity.X, ringAngularVelocity.Y);
+			if (asteroidRingRenderer != null) {
+				asteroidRingRenderer.EulerDegAngleOrient (ringAngularVelocity.X, ringAngularVelocity.Y);
+			}
 		}
 
 		private void driveCamera(float deltaT)

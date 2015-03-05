@@ -18,9 +18,11 @@ namespace SimpleScene
         private readonly int u_instanceBillboardingEnabled;
 
         private readonly int a_instancePos;
-        private readonly int a_instanceOrientation;
+		private readonly int a_instanceOrientationXY;
+		private readonly int a_instanceOrientationZ;
         private readonly int a_instanceMasterScale;
-        private readonly int a_instanceComponentScale;
+		private readonly int a_instanceComponentScaleXY;
+		private readonly int a_instanceComponentScaleZ;
         private readonly int a_instanceColor;
 
         private readonly int a_instanceSpriteIndex;
@@ -40,17 +42,25 @@ namespace SimpleScene
             get { return a_instancePos; }
         }
 
-        public int AttrInstanceOrientation {
-            get { return a_instanceOrientation; }
+		public int AttrInstanceOrientationXY {
+			get { return a_instanceOrientationXY; }
         }
+
+		public int AttrInstanceOrientationZ {
+			get { return a_instanceOrientationZ; }
+		}
 
         public int AttrInstanceMasterScale {
             get { return a_instanceMasterScale; }
         }
 
-        public int AttrInstanceComponentScale {
-            get { return a_instanceComponentScale; }
+		public int AttrInstanceComponentScaleXY {
+            get { return a_instanceComponentScaleXY; }
         }
+
+		public int AttrInstanceComponentScaleZ {
+			get { return a_instanceComponentScaleZ; }
+		}
 
         public int AttrInstanceColor {
             get { return a_instanceColor; }
@@ -95,9 +105,11 @@ namespace SimpleScene
 
             // attributes
             a_instancePos = getAttrLoc("instancePos");
-            a_instanceOrientation = getAttrLoc("instanceOrientation");
+			a_instanceOrientationXY = getAttrLoc("instanceOrientationXY");
+			a_instanceOrientationZ = getAttrLoc ("instanceOrientationZ");
             a_instanceMasterScale = getAttrLoc("instanceMasterScale");
-            a_instanceComponentScale = getAttrLoc("instanceComponentScale");
+			a_instanceComponentScaleXY = getAttrLoc("instanceComponentScaleXY");
+			a_instanceComponentScaleZ = getAttrLoc("instanceComponentScaleZ");
             a_instanceColor = getAttrLoc("instanceColor");
 
             a_instanceSpriteIndex = getAttrLoc("instanceSpriteIndex");

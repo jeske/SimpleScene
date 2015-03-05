@@ -315,7 +315,9 @@ namespace SimpleScene
 			bi.ForceMagnitude = Interpolate.Lerp (ExplosiveForceMin, ExplosiveForceMax, nextFloat ());
 			bi.TimeElapsed = 0f;
 			m_blasts.Add (bi);
-			ExplosionEventHandlers (bi.Center, bi.ForceMagnitude);
+			if (ExplosionEventHandlers != null) {
+				ExplosionEventHandlers (bi.Center, bi.ForceMagnitude);
+			}
 		}
 
 		protected class BlastInfo {
