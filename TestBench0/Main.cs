@@ -18,13 +18,13 @@ using SimpleScene;
 
 // http://www.opentk.com/book/export/html/1039
 
-namespace WavefrontOBJViewer
+namespace TestBench0
 {
 
 	// here we setup a basic "game window" and hook some input functions
 
 
-	partial class WavefrontOBJViewer : OpenTK.GameWindow
+	partial class TestBench0 : OpenTK.GameWindow
 	{
 
 		SSScene scene = new SSScene();
@@ -55,9 +55,9 @@ namespace WavefrontOBJViewer
 			// The 'using' idiom guarantees proper resource cleanup.
 			// We request 30 UpdateFrame events per second, and unlimited
 			// RenderFrame events (as fast as the computer can handle).
-			using (WavefrontOBJViewer game = new WavefrontOBJViewer())
+			using (TestBench0 game = new TestBench0())
 			{
-				game.Title = "WavefrontOBJViewer";
+				game.Title = "TestBench0";
 				Console.WriteLine("GL Version = {0}",GL.GetString(StringName.Version));
 				Console.WriteLine("GL Shader Version = {0}", GL.GetString(StringName.ShadingLanguageVersion));
 
@@ -94,12 +94,12 @@ namespace WavefrontOBJViewer
 		}
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
-		public WavefrontOBJViewer()
+		public TestBench0()
 			: base(
 				#if false
 				800, 600, 
 				GraphicsMode.Default, // color format
-				"WavefrontOBJLoader",
+				"TestBench0",
 				GameWindowFlags.Default,  // windowed mode 
 				DisplayDevice.Default,    // primary monitor
 				2, 2,  // opengl version

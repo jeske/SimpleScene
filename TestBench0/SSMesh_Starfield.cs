@@ -6,7 +6,7 @@ using System.Drawing;
 
 using SimpleScene;
 
-namespace WavefrontOBJViewer
+namespace TestBench0
 {
 
 	// TODO: this would be more attractive with some varied star-textures

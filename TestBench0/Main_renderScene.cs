@@ -12,10 +12,10 @@ using OpenTK.Input;
 
 using SimpleScene;
 
-namespace WavefrontOBJViewer
+namespace TestBench0
 {
 
-	partial class WavefrontOBJViewer : OpenTK.GameWindow
+	partial class TestBench0 : OpenTK.GameWindow
 	{
 		FPSCalculator fpsCalc = new FPSCalculator();
 		float animateSecondsOffset;

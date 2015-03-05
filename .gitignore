@@ -14,8 +14,8 @@
 
 # output directories
 
-WavefrontOBJViewer/bin/**
-WavefrontOBJViewer/obj/**
+TestBench0/bin/**
+TestBench0/obj/**
 SimpleScene/bin/**
 SimpleScene/obj/**
 GDIviaAGGTest/bin/**

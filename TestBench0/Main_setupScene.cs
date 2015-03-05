@@ -9,9 +9,9 @@ using OpenTK.Graphics;
 
 using SimpleScene;
 
-namespace WavefrontOBJViewer
+namespace TestBench0
 {
-	partial class WavefrontOBJViewer : OpenTK.GameWindow
+	partial class TestBench0 : OpenTK.GameWindow
 	{
 		private bool autoWireframeMode = true;
 
