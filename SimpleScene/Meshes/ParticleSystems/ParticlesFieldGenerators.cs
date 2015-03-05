@@ -30,13 +30,19 @@ namespace SimpleScene
 
     public class ParticlesSphereGenerator : ParticlesFieldGenerator
     {
-        protected readonly float m_radius;
-        protected readonly Vector3 m_center;
+		public float Radius;
+		public Vector3 Center;
+
+		public ParticlesSphereGenerator()
+		{
+			Radius = 1f;
+			Center = Vector3.Zero;
+		}
 
         public ParticlesSphereGenerator (Vector3 center, float radius)
         {
-            m_radius = radius;
-            m_center = center;
+            Radius = radius;
+            Center = center;
         }
 
         public override void Generate (int numParticles, NewParticleDelegate newPartDel)
@@ -56,12 +62,12 @@ namespace SimpleScene
                     }
                     float theta = (float)(2.0 * Math.PI * m_rand.NextDouble());
                     float alpha = (float)(Math.PI * (m_rand.NextDouble() - 0.5));
-                    float r = m_radius * (float)m_rand.NextDouble();
+                    float r = Radius * (float)m_rand.NextDouble();
                     float z = r * (float)Math.Sin(alpha);
                     float r_xy = r * (float)Math.Cos(alpha);
                     float x = r_xy * (float)Math.Cos(theta);
                     float y = r_xy * (float)Math.Sin(theta);
-                    accepted = newPartDel(i, m_center + new Vector3(x, y, z));
+                    accepted = newPartDel(i, Center + new Vector3(x, y, z));
                 }
             }
         }

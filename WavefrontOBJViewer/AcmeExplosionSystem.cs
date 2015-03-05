@@ -72,7 +72,8 @@ namespace SimpleScene
 		protected readonly SSRadialEmitter m_flameSmokeEmitter;
 
 		protected readonly float m_flashDuration;
-		protected readonly SSFixedPositionEmitter m_flashEmitter;
+		protected readonly ParticlesSphereGenerator m_flashSphereGen;
+		protected readonly SSParticlesFieldEmitter m_flashEmitter;
 
 		protected int m_explosionIndexMask = 0x1;
 
@@ -105,9 +106,10 @@ namespace SimpleScene
 				// flash
 				{
 					m_flashDuration = 0.1f * m_duration;
-					m_flashEmitter = new SSFixedPositionEmitter ();
+					m_flashSphereGen = new ParticlesSphereGenerator ();
+					m_flashEmitter = new SSParticlesFieldEmitter (m_flashSphereGen);
 					m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
-					m_flashEmitter.ParticlesPerEmission = 1;
+					m_flashEmitter.ParticlesPerEmission = 5;
 					m_flashEmitter.Velocity = Vector3.Zero;
 					m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 					m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
@@ -165,7 +167,8 @@ namespace SimpleScene
 
 			m_flashEmitter.EffectorMask = flashColorEffector.EffectorMask = flashScaleEffector.EffectorMask 
 				= (ushort)(shiftedIndexMask | (int)ComponentMask.Flash);
-			m_flashEmitter.Position = position;
+			m_flashSphereGen.Center = position;
+			m_flashSphereGen.Radius = 0.5f * intensity;
 			m_flashEmitter.EmitParticles (storeNewParticle);
 			#endif
 
