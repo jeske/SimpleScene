@@ -211,7 +211,7 @@ namespace SimpleScene
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
             GL.LineWidth(1.5f);
             GL.Color4(0.8f, 0.5f, 0.5f, 0.5f);		
-            subset.ibo.DrawElements(PrimitiveType.Lines);
+            subset.ibo_wireframe.DrawElements(PrimitiveType.Lines);
 		}
 
 		private void _renderSendLines(SSMeshOBJSubsetData subset) {
