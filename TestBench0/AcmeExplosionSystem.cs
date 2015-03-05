@@ -70,12 +70,14 @@ namespace SimpleScene
 
 		protected readonly float m_flameSmokeDuration;
 		protected readonly SSRadialEmitter m_flameSmokeEmitter;
+		protected readonly SSColorKeyframesEffector m_flamesSmokeColorEffector;
+		protected readonly SSMasterScaleKeyframesEffector m_flameSmokeScaleEffector;
 
 		protected readonly float m_flashDuration;
 		protected readonly ParticlesSphereGenerator m_flashSphereGen;
 		protected readonly SSParticlesFieldEmitter m_flashEmitter;
-
-		protected int m_explosionIndexMask = 0x1;
+		protected readonly SSColorKeyframesEffector m_flashColorEffector;
+		protected readonly SSMasterScaleKeyframesEffector m_flashScaleEffector;
 
 		public AcmeExplosionSystem (
 			int capacity, 
@@ -90,110 +92,99 @@ namespace SimpleScene
 
 				// flame/smoke
 				{
-					m_flameSmokeDuration = m_duration;
+					m_flameSmokeDuration = m_duration * 0.5f;
 					m_flameSmokeEmitter = new SSRadialEmitter ();
 					m_flameSmokeEmitter.SpriteRectangles = (flameSmokeSprites != null ? flameSmokeSprites : c_flameSmokeSpritesDefault);
-					m_flameSmokeEmitter.ParticlesPerEmission = 6;
+					m_flameSmokeEmitter.ParticlesPerEmissionMin = 1;
+					m_flameSmokeEmitter.ParticlesPerEmissionMax = 3;
+					m_flameSmokeEmitter.EmissionIntervalMin = 0f;
+					m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * m_flameSmokeDuration;
+					m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 					m_flameSmokeEmitter.Life = m_flameSmokeDuration;
 					m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 					m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
-					m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.05f);
-					m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.05f);
+					m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
+					m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
 					m_flameSmokeEmitter.RMin = 0f;
 					m_flameSmokeEmitter.RMax = 1f;
+					AddEmitter (m_flameSmokeEmitter);
+
+					m_flamesSmokeColorEffector = new SSColorKeyframesEffector ();
+					m_flamesSmokeColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
+					m_flamesSmokeColorEffector.Keyframes.Add (0.5f*m_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
+					m_flamesSmokeColorEffector.Keyframes.Add (m_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
+					m_flamesSmokeColorEffector.ColorMask = FlameColor;
+					m_flamesSmokeColorEffector.ParticleLifetime = m_flameSmokeDuration;
+					AddEffector (m_flamesSmokeColorEffector);
+
+					m_flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
+					m_flameSmokeScaleEffector.Keyframes.Add (0f, 0.1f);
+					m_flameSmokeScaleEffector.Keyframes.Add (0.5f * m_flameSmokeDuration, 1f);
+					m_flameSmokeScaleEffector.Keyframes.Add (m_flameSmokeDuration, 1.2f);
+					m_flameSmokeScaleEffector.ParticleLifetime = m_flameSmokeDuration;
+					AddEffector (m_flameSmokeScaleEffector);
+
+					m_flameSmokeEmitter.EffectorMask = m_flameSmokeScaleEffector.EffectorMask = m_flamesSmokeColorEffector.EffectorMask
+						= (byte)ComponentMask.FlameSmoke;
 				}
 
 				// flash
 				{
-					m_flashDuration = 0.1f * m_duration;
+					m_flashDuration = 0.15f * m_duration;
 					m_flashSphereGen = new ParticlesSphereGenerator ();
 					m_flashEmitter = new SSParticlesFieldEmitter (m_flashSphereGen);
 					m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
-					m_flashEmitter.ParticlesPerEmission = 5;
+					m_flashEmitter.ParticlesPerEmissionMin = 1;
+					m_flashEmitter.ParticlesPerEmissionMax = 2;
+					m_flashEmitter.EmissionIntervalMin = 0f;
+					m_flashEmitter.EmissionIntervalMax = 0.2f * m_flashDuration;
+					m_flashEmitter.Life = m_flashDuration;
 					m_flashEmitter.Velocity = Vector3.Zero;
 					m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 					m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
-					m_flashEmitter.Life = m_flashDuration;
+					m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
+					AddEmitter (m_flashEmitter);
+
+					m_flashColorEffector = new SSColorKeyframesEffector ();
+					m_flashColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
+					m_flashColorEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
+					m_flashColorEffector.ColorMask = FlashColor;
+					m_flashColorEffector.ParticleLifetime = m_flashDuration;
+					AddEffector (m_flashColorEffector);
+
+					m_flashScaleEffector = new SSMasterScaleKeyframesEffector ();
+					m_flashScaleEffector.ParticleLifetime = m_flashDuration;
+					m_flashScaleEffector.Keyframes.Add (0f, 1f);
+					m_flashScaleEffector.Keyframes.Add (m_flashDuration, 1.5f);
+					AddEffector (m_flashScaleEffector);
+
+					m_flashEmitter.EffectorMask = m_flashColorEffector.EffectorMask = m_flashScaleEffector.EffectorMask 
+						= (byte)ComponentMask.Flash;
 				}
 			}
 		}
 
+		// TODO Reset/reconfigure
+
 		public virtual void ShowExplosion(Vector3 position, float intensity)
 		{
-			int shiftedIndexMask = m_explosionIndexMask << 8;
-
 			// flame/smoke
 			#if true
-			var flamesSmokeColorEffector = new SSColorKeyframesEffector ();
-			flamesSmokeColorEffector.MaskMathFunction = SSParticleEffector.MatchFunction.Equals;
-			flamesSmokeColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-			flamesSmokeColorEffector.Keyframes.Add (0.75f*m_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
-			flamesSmokeColorEffector.Keyframes.Add (m_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
-			flamesSmokeColorEffector.ColorMask = FlameColor;
-			flamesSmokeColorEffector.ParticleLifetime = m_flameSmokeDuration;
-			AddEffector (flamesSmokeColorEffector);
-
-			var flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
-			flameSmokeScaleEffector.MaskMathFunction = SSParticleEffector.MatchFunction.Equals;
-			flameSmokeScaleEffector.Keyframes.Add (0f, 0.1f);
-			flameSmokeScaleEffector.Keyframes.Add (0.75f * m_flameSmokeDuration, 1f);
-			flameSmokeScaleEffector.Keyframes.Add (m_flameSmokeDuration, 1.2f);
-			flameSmokeScaleEffector.Amplification = intensity;
-			flameSmokeScaleEffector.ParticleLifetime = m_flameSmokeDuration;
-			AddEffector (flameSmokeScaleEffector);
-
+			m_flameSmokeEmitter.ComponentScale = new Vector3(intensity);
 			m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
 			m_flameSmokeEmitter.VelocityMagnitudeMax = 0.30f * intensity;
 			//m_flameSmokeEmitter.VelocityMagnitude = 0f;
 			m_flameSmokeEmitter.Center = position;
-			m_flameSmokeEmitter.EffectorMask = flameSmokeScaleEffector.EffectorMask = flamesSmokeColorEffector.EffectorMask
-				= (ushort)(shiftedIndexMask | (int)ComponentMask.FlameSmoke);
-			m_flameSmokeEmitter.EmitParticles (storeNewParticle);
+			m_flameSmokeEmitter.TotalEmissionsLeft = 3;
 			#endif
 
 			// flash
 			#if true
-			var flashColorEffector = new SSColorKeyframesEffector ();
-			flashColorEffector.MaskMathFunction = SSParticleEffector.MatchFunction.Equals;
-			flashColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-			flashColorEffector.Keyframes.Add (m_flashDuration, new Color4 (1f, 1f, 1f, 0f));
-			flashColorEffector.ColorMask = FlashColor;
-			flashColorEffector.ParticleLifetime = m_flashDuration;
-			AddEffector (flashColorEffector);
-
-			var flashScaleEffector = new SSMasterScaleKeyframesEffector ();
-			flashScaleEffector.MaskMathFunction = SSParticleEffector.MatchFunction.Equals;
-			flashScaleEffector.Keyframes.Add (0f, 1f);
-			flashScaleEffector.Keyframes.Add (m_flashDuration, 1.5f);
-			flashScaleEffector.Amplification = intensity;
-			flashScaleEffector.ParticleLifetime = m_flashDuration;
-			AddEffector (flashScaleEffector);
-
-			m_flashEmitter.EffectorMask = flashColorEffector.EffectorMask = flashScaleEffector.EffectorMask 
-				= (ushort)(shiftedIndexMask | (int)ComponentMask.Flash);
+			m_flashEmitter.ComponentScale = new Vector3(intensity);
 			m_flashSphereGen.Center = position;
-			m_flashSphereGen.Radius = 0.5f * intensity;
-			m_flashEmitter.EmitParticles (storeNewParticle);
+			m_flashSphereGen.Radius = 0.3f * intensity;
+			m_flashEmitter.TotalEmissionsLeft = 2;
 			#endif
-
-			m_explosionIndexMask <<= 1;
-			if (m_explosionIndexMask == 0x100) {
-				m_explosionIndexMask = 0x1;
-			}
-
-		}
-
-		public override void Simulate (float timeDelta)
-		{
-			base.Simulate (timeDelta);
-
-			// remove old effectors
-			for (int i = 0; i < m_effectors.Count; ++i) {
-				if (m_effectors [i].TimeSinceReset >= m_duration) {
-					m_effectors.RemoveAt (i);
-					i--;
-				}
-			}
 		}
 	}
 }

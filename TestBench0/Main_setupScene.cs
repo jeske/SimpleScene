@@ -180,7 +180,7 @@ namespace TestBench0
 				emitter.SpriteRectangles = uvRects;
 
 				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
-				periodicExplosiveForce.EffectInterval = 3f;
+				periodicExplosiveForce.EffectInterval = 1f;
 				periodicExplosiveForce.ExplosiveForceMin = 1000f;
 				periodicExplosiveForce.ExplosiveForceMax = 2000f;
 				periodicExplosiveForce.EffectDelay = 3f;
@@ -207,7 +207,7 @@ namespace TestBench0
 
 				// test explositons
 				{
-					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 10f);
+					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 3f);
 
 					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
 					//var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");

@@ -31,6 +31,11 @@ namespace SimpleScene
             set { ParticlesPerEmissionMin = ParticlesPerEmissionMax = value; }
         }
 
+		/// <summary>
+		/// When >= 0 indices emissions left. When -1 means emit infinitely (default)
+		/// </summary>
+		public int TotalEmissionsLeft = -1;
+
         public float LifeMin = c_defaultParticle.Life;
         public float LifeMax = c_defaultParticle.Life;
         public float Life {
@@ -127,6 +132,8 @@ namespace SimpleScene
 
         public void Simulate(float deltaT, ReceiverHandler receiver) 
         {
+			if (TotalEmissionsLeft == 0) return;
+
             if (m_initialDelay > 0f) {
                 // if initial delay is needed
                 m_initialDelay -= deltaT;
@@ -137,10 +144,14 @@ namespace SimpleScene
 
             m_timeSinceLastEmission += deltaT;
             if (m_timeSinceLastEmission > m_nextEmission) {
+				if (TotalEmissionsLeft > 0 && --TotalEmissionsLeft == 0) {
+					Reset ();
+				} else {
+					m_timeSinceLastEmission = 0f;
+					m_nextEmission = Interpolate.Lerp(EmissionIntervalMin, EmissionIntervalMax, 
+						(float)s_rand.NextDouble());
+				}
                 EmitParticles(receiver);
-                m_timeSinceLastEmission = 0f;
-                m_nextEmission = Interpolate.Lerp(EmissionIntervalMin, EmissionIntervalMax, 
-                    (float)s_rand.NextDouble());
             }
         }
 
@@ -295,6 +306,10 @@ namespace SimpleScene
     public class SSParticlesFieldEmitter : SSParticleEmitter
     {
         protected ParticlesFieldGenerator m_fieldGenerator;
+
+		public ParticlesFieldGenerator Field  {
+			get { return m_fieldGenerator; }
+		}
 
         public SSParticlesFieldEmitter(ParticlesFieldGenerator fieldGenerator)
         {

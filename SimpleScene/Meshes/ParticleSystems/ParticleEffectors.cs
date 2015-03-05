@@ -101,17 +101,17 @@ namespace SimpleScene
 			float timeElapsed = float.IsNaN (ParticleLifetime) ? m_timeSinceReset
 															   : ParticleLifetime - particle.Life;
 			float lastKey = Keyframes.Keys [Keyframes.Count - 1];
-			if (m_timeSinceReset > lastKey) {
+			if (timeElapsed > lastKey) {
 				applyValue(particle, Keyframes [lastKey]);
 			} else {
 				float prevKey = Keyframes.Keys [0];
 				for (int i = 1; i < Keyframes.Keys.Count; ++i) {
 					float key = Keyframes.Keys [i];
-					if (m_timeSinceReset < key) {
+					if (timeElapsed < key) {
 						IInterpolater interpolater = 
 							i < Interpolaters.Length ? Interpolaters [i] 
 													 : Interpolaters[Interpolaters.Length - 1];
-						float progression = (m_timeSinceReset - prevKey) / (key - prevKey);
+						float progression = (timeElapsed - prevKey) / (key - prevKey);
 						T value = computeValue (interpolater, Keyframes [prevKey], Keyframes [key], progression);
 						applyValue(particle, value);
 						break;
