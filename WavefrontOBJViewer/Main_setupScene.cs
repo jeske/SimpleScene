@@ -40,7 +40,7 @@ namespace WavefrontOBJViewer
 			#endif
 			scene.AddLight(light);
 
-			#if false
+			#if true
 			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture4);
 			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
 			smapDebug.Scale = new Vector3(0.3f);

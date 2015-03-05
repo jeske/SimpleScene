@@ -68,7 +68,7 @@ namespace WavefrontOBJViewer
 			/////////////////////////////////////////
 			// render the "shadowMap" 
 			// 
-			#if false
+			#if true
 			scene.ProjectionMatrix = mainSceneProj;
 			scene.InvCameraViewMatrix = mainSceneView;
 
