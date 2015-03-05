@@ -29,6 +29,8 @@ namespace TestBench0
 
 		void mouseDownHandler(object sender, MouseButtonEventArgs e)
 		{
+			if (!base.Focused) return;
+
 			this.mouseButtonDown = true;
 
 			// cast ray for mouse click
@@ -62,6 +64,8 @@ namespace TestBench0
 
 		void mouseWheelHandler(object sender, MouseWheelEventArgs e)
 		{
+			if (!base.Focused) return;
+
 			// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
 			if (ctp != null) {
@@ -71,6 +75,8 @@ namespace TestBench0
 
 		void keyUpHandler(object sender, KeyboardKeyEventArgs e)
 		{
+			if (!base.Focused) return;
+
 			switch (e.Key) {
 			case Key.Number1:
 				System.Console.WriteLine ("Toggling wireframe");
