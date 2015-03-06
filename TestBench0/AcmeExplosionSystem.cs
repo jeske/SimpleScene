@@ -141,7 +141,7 @@ namespace SimpleScene
 					m_flashEmitter.Life = m_flashDuration;
 					m_flashEmitter.Velocity = Vector3.Zero;
 					m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
-					m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
+					m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
 					m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 					AddEmitter (m_flashEmitter);
 
@@ -180,7 +180,7 @@ namespace SimpleScene
 
 			// flash
 			#if true
-			m_flashEmitter.ComponentScale = new Vector3(intensity);
+			m_flashEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 			m_flashSphereGen.Center = position;
 			m_flashSphereGen.Radius = 0.3f * intensity;
 			m_flashEmitter.TotalEmissionsLeft = 2;
