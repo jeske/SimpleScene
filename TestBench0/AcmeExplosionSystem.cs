@@ -183,7 +183,7 @@ namespace SimpleScene
 
 					m_flyingSparksEmitter = new SSRadialEmitter ();
 					m_flyingSparksEmitter.SpriteRectangles = (flyingSparksSprites != null ? flyingSparksSprites : c_flyingSparksSpritesDefault);
-					m_flyingSparksEmitter.ParticlesPerEmission = 4;
+					m_flyingSparksEmitter.ParticlesPerEmission = 16;
 					m_flyingSparksEmitter.EmissionIntervalMin = 0f;
 					m_flyingSparksEmitter.EmissionIntervalMax = 0.1f * flyingSparksDuration;
 					m_flyingSparksEmitter.Life = flyingSparksDuration;
@@ -224,10 +224,10 @@ namespace SimpleScene
 			// flying sparks
 			#if true
 			m_flyingSparksEmitter.Center = position;
-			m_flyingSparksEmitter.RadiusOffset = intensity * 3f;
+			m_flyingSparksEmitter.RadiusOffset = 0f;
 			m_flyingSparksEmitter.VelocityMagnitudeMin = intensity / DurationScale;
 			m_flyingSparksEmitter.VelocityMagnitudeMax = intensity / DurationScale;
-			m_flyingSparksEmitter.TotalEmissionsLeft = 4;
+			m_flyingSparksEmitter.TotalEmissionsLeft = 1;
 			#endif
 		}
 	}
