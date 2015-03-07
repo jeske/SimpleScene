@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright(C) David W. Jeske, 2013
+// Released to the public domain. Use, modify and relicense at will.
+
+
+using System;
 using System.Drawing;
 using System.Collections.Generic;
 using OpenTK;
@@ -190,8 +194,7 @@ namespace SimpleScene
 					m_flyingSparksEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 					m_flyingSparksEmitter.ComponentScale = new Vector3 (10f, 1f, 1f);
 					m_flyingSparksEmitter.OrientAwayFromCenterZ = true;
-					m_flyingSparksEmitter.ColorComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
-					m_flyingSparksEmitter.ColorComponentMax = new Color4 (1f, 1f, 1f, 1f);
+					m_flyingSparksEmitter.Phi = 0f;
 					AddEmitter (m_flyingSparksEmitter);
 
 					m_flyingSparksEmitter.EffectorMask = (ushort)ComponentMask.FlyingSparks;
@@ -228,6 +231,16 @@ namespace SimpleScene
 			m_flyingSparksEmitter.VelocityMagnitudeMin = intensity / DurationScale;
 			m_flyingSparksEmitter.VelocityMagnitudeMax = intensity / DurationScale;
 			m_flyingSparksEmitter.TotalEmissionsLeft = 1;
+			m_flyingSparksEmitter.Color = OpenTKHelper.RandomDebugColor();
+
+			// TODO OpenTK debug colors
+
+			Color4[] c_debugColorPresets = { 
+				Color4.Red, 
+				Color4.Green, 
+				Color4.Blue 
+			};
+
 			#endif
 		}
 	}

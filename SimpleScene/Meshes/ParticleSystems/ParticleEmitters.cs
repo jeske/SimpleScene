@@ -72,11 +72,39 @@ namespace SimpleScene
             set { ComponentScaleMin = ComponentScaleMax = value; }
         }
 
-        public Color4 ColorComponentMin = c_defaultParticle.Color;
-        public Color4 ColorComponentMax = c_defaultParticle.Color;
-        public Color4 Color {
-            set { ColorComponentMin = ColorComponentMax = value; }
-        }
+		#region final color = random color preset + random component offset
+		/// <summary>
+		/// Just set all particles to be this color! (Simplify color picking) 
+		/// </summary>
+		/// <value>The color.</value>
+		public Color4 Color {
+			set { 
+				ColorOffsetComponentMin = ColorOffsetComponentMax = OpenTKHelper.Color4Zero;
+				if (ColorPresets == null || ColorPresets.Length != 1) {
+					// avoid reallocation if used frequently
+					ColorPresets = new Color4[1];
+				}
+				ColorPresets [0] = value;
+			}
+		}
+
+		/// <summary>
+		/// Color presets. Values selected at random when picking a color before being added to a random
+		/// offset to form the final value
+		/// </summary>
+		public Color4[] ColorPresets = { new Color4(1f, 1f, 1f, 1f) };
+
+		/// <summary>
+		/// Minimum value, split into components, for a color offset that gets added to preset to
+		/// form the final color value
+		/// </summary>
+		public Color4 ColorOffsetComponentMin = OpenTKHelper.Color4Zero;
+		/// <summary>
+		/// Maximum value, split into components, for a color offset that gets added to preset to
+		/// form the final color value
+		/// </summary>
+		public Color4 ColorOffsetComponentMax = OpenTKHelper.Color4Zero;
+		#endregion
 
 		public float MassMin = c_defaultParticle.Mass;
 		public float MassMax = c_defaultParticle.Mass;
@@ -208,10 +236,23 @@ namespace SimpleScene
 			p.Drag = Interpolate.Lerp (DragMin, DragMax, nextFloat ());
 			p.RotationalDrag = Interpolate.Lerp (RotationalDragMin, RotationalDragMax, nextFloat ());
 
-            p.Color.R = Interpolate.Lerp(ColorComponentMin.R, ColorComponentMax.R, nextFloat());
-            p.Color.G = Interpolate.Lerp(ColorComponentMin.G, ColorComponentMax.G, nextFloat());
-            p.Color.B = Interpolate.Lerp(ColorComponentMin.B, ColorComponentMax.B, nextFloat());
-            p.Color.A = Interpolate.Lerp(ColorComponentMin.A, ColorComponentMax.A, nextFloat());
+			// color presets
+			Color4 randPreset;
+			if (ColorPresets != null && ColorPresets.Length > 0) {
+				randPreset = ColorPresets [s_rand.Next (0, ColorPresets.Length - 1)];
+			} else {
+				randPreset = new Color4(0f, 0f, 0f, 0f);
+			}
+
+			// color offsets
+			Color4 randOffset;
+			randOffset.R = Interpolate.Lerp(ColorOffsetComponentMin.R, ColorOffsetComponentMax.R, nextFloat());
+			randOffset.G = Interpolate.Lerp(ColorOffsetComponentMin.G, ColorOffsetComponentMax.G, nextFloat());
+			randOffset.B = Interpolate.Lerp(ColorOffsetComponentMin.B, ColorOffsetComponentMax.B, nextFloat());
+			randOffset.A = Interpolate.Lerp(ColorOffsetComponentMin.A, ColorOffsetComponentMax.A, nextFloat());
+
+			// color presets + offsets
+			p.Color = OpenTKHelper.Color4Add(ref randPreset, ref randOffset);
 
 			//p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length - 1)];
             p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length - 1)];

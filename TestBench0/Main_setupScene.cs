@@ -158,8 +158,8 @@ namespace TestBench0
 				emitter.ParticlesPerEmission = 1;
 				emitter.EmissionInterval = 0.5f;
 				emitter.Life = 1000f;
-				emitter.ColorComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
-				emitter.ColorComponentMax = new Color4 (1f, 1f, 1f, 1f);
+				emitter.ColorOffsetComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
+				emitter.ColorOffsetComponentMax = new Color4 (1f, 1f, 1f, 1f);
 				emitter.VelocityComponentMax = new Vector3 (.3f);
 				emitter.VelocityComponentMin = new Vector3 (-.3f);
 				emitter.AngularVelocityMin = new Vector3 (-0.5f);

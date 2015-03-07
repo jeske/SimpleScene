@@ -11,6 +11,10 @@ namespace SimpleScene
 {
 	public static class OpenTKHelper
 	{
+		/// <summary>
+		/// Randomizer to be used for debugging purposes only.
+		/// </summary>
+		public static readonly Random s_debugRandom = new Random();
 
 	    // MouseToWorldRay
 	    //
@@ -369,6 +373,31 @@ namespace SimpleScene
 				}
 			} 
 			return true;
+		}
+
+		public static Color4 Color4Add (ref Color4 left, ref Color4 right) 
+		{
+			return new Color4 (left.R + right.R,
+							   left.G + right.G,
+							   left.B + right.B,
+							   left.A + right.A);
+		}
+
+		public static readonly Color4 Color4Zero = new Color4 (0f, 0f, 0f, 0f);
+
+		public static Color4[] Color4DebugPresets = {
+			Color4.Red,
+			Color4.Green,
+			Color4.Blue
+		};
+
+		/// <summary>
+		/// Convenience function for picking a debug color
+		/// </summary>
+		public static Color4 Color4RandomDebugColor()
+		{
+			int idx = s_debugRandom.Next (0, Color4DebugPresets.Length);
+			return Color4DebugPresets [idx];
 		}
 	}
 }
