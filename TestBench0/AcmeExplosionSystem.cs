@@ -19,11 +19,7 @@ namespace SimpleScene
 		public static SSTexture GetDefaultTexture()
 		{
 			return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-		}
-
-		public static SSTexture GetDebugTexture()
-		{
-			return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+			//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
 		}
 
 		#region define sprite and size locations variables
@@ -207,7 +203,7 @@ namespace SimpleScene
 		public virtual void ShowExplosion(Vector3 position, float intensity)
 		{
 			// flame/smoke
-			#if false
+			#if true
 			m_flameSmokeEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 			m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
 			m_flameSmokeEmitter.VelocityMagnitudeMax = 0.30f * intensity;
@@ -217,7 +213,7 @@ namespace SimpleScene
 			#endif
 
 			// flash
-			#if false
+			#if true
 			m_flashEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 			m_flashSphereGen.Center = position;
 			m_flashSphereGen.Radius = 0.3f * intensity;
