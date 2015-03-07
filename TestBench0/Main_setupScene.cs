@@ -180,14 +180,12 @@ namespace TestBench0
 				emitter.SpriteRectangles = uvRects;
 
 				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
-				periodicExplosiveForce.EffectInterval = 1f;
+				periodicExplosiveForce.EffectInterval = 3f;
 				periodicExplosiveForce.ExplosiveForceMin = 1000f;
 				periodicExplosiveForce.ExplosiveForceMax = 2000f;
-				periodicExplosiveForce.EffectDelay = 3f;
+				periodicExplosiveForce.EffectDelay = 5f;
 				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
 				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
-				//periodicExplosiveForce.CenterMin = new Vector3 (-10f, -10f, -10f);
-				//periodicExplosiveForce.CenterMax = new Vector3 (10f, 10f, 10f);
 
 				// make a particle system
 				SSParticleSystem cubesPs = new SSParticleSystem (1000);
@@ -208,10 +206,9 @@ namespace TestBench0
 				// test explositons
 				//if (false)
 				{
-					AcmeExplosionSystem aes = new AcmeExplosionSystem (100, 5f);
+					AcmeExplosionSystem aes = new AcmeExplosionSystem (100);
 
-					var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-					//var fix7tex = SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+					var fix7tex = AcmeExplosionSystem.GetDebugTexture ();
 					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
 					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 					aesRenderer.AlphaBlendingEnabled = true;

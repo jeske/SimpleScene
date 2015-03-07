@@ -254,7 +254,7 @@ namespace SimpleScene
 		#region spawn radius
 		public float RMin = 0f;
 		public float RMax = 0f;
-		public float R {
+		public float RadiusOffset {
 			set { RMin = RMax = value; }
 		}
 		#endregion
@@ -283,6 +283,10 @@ namespace SimpleScene
 		}
 		#endregion
 
+		#region special behaviors
+		public bool OrientAwayFromCenterZ = false;
+		#endregion
+
 		protected override void configureNewParticle (SSParticle p)
 		{
 			base.configureNewParticle (p);
@@ -297,6 +301,10 @@ namespace SimpleScene
 			p.Pos = Center + r * xyz;
 			float velocityMag = Interpolate.Lerp (VelocityMagnitudeMin, VelocityMagnitudeMax, nextFloat ());
 			p.Vel = velocityMag * xyz;
+
+			if (OrientAwayFromCenterZ) {
+				p.Orientation.Z = -theta;
+			}
 		}
 	}
 
