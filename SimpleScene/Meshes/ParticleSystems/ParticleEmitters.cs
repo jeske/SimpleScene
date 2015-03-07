@@ -239,7 +239,7 @@ namespace SimpleScene
 			// color presets
 			Color4 randPreset;
 			if (ColorPresets != null && ColorPresets.Length > 0) {
-				randPreset = ColorPresets [s_rand.Next (0, ColorPresets.Length - 1)];
+				randPreset = ColorPresets [s_rand.Next (0, ColorPresets.Length)];
 			} else {
 				randPreset = new Color4(0f, 0f, 0f, 0f);
 			}
@@ -254,10 +254,10 @@ namespace SimpleScene
 			// color presets + offsets
 			p.Color = OpenTKHelper.Color4Add(ref randPreset, ref randOffset);
 
-			//p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length - 1)];
-            p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length - 1)];
+			//p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length)];
+            p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length)];
 
-			p.EffectorMask = EffectorMasks [s_rand.Next (0, EffectorMasks.Length - 1)];
+			p.EffectorMask = EffectorMasks [s_rand.Next (0, EffectorMasks.Length)];
         }
     }
 
