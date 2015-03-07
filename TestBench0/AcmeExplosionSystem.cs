@@ -75,7 +75,7 @@ namespace SimpleScene
 		#endregion
 
 		#region component settings
-		public float DurationScale = 3f;
+		public float TimeScale = 1f;
 		public float FlameSmokeDuration = 2.5f;
 		public float FlashDuration = 0.75f;
 		public float FlyingSparksDuration = 2.5f;
@@ -109,7 +109,7 @@ namespace SimpleScene
 			{
 				// flame/smoke
 				{
-					float flameSmokeDuration = DurationScale * FlameSmokeDuration;
+					float flameSmokeDuration = FlameSmokeDuration;
 
 					m_flameSmokeEmitter = new SSRadialEmitter ();
 					m_flameSmokeEmitter.SpriteRectangles = (flameSmokeSprites != null ? flameSmokeSprites : c_flameSmokeSpritesDefault);
@@ -148,7 +148,7 @@ namespace SimpleScene
 
 				// flash
 				{
-					float flashDuration = DurationScale * FlashDuration;
+					float flashDuration = FlashDuration;
 
 					m_flashSphereGen = new ParticlesSphereGenerator ();
 					m_flashEmitter = new SSParticlesFieldEmitter (m_flashSphereGen);
@@ -183,7 +183,7 @@ namespace SimpleScene
 
 				// flying sparks
 				{
-					float flyingSparksDuration = DurationScale * FlyingSparksDuration;
+					float flyingSparksDuration = FlyingSparksDuration;
 
 					m_flyingSparksEmitter = new SSRadialEmitter ();
 					m_flyingSparksEmitter.SpriteRectangles = (flyingSparksSprites != null ? flyingSparksSprites : c_flyingSparksSpritesDefault);
@@ -228,20 +228,17 @@ namespace SimpleScene
 			#if true
 			m_flyingSparksEmitter.Center = position;
 			m_flyingSparksEmitter.RadiusOffset = 0f;
-			m_flyingSparksEmitter.VelocityMagnitudeMin = intensity / DurationScale;
-			m_flyingSparksEmitter.VelocityMagnitudeMax = intensity / DurationScale;
+			m_flyingSparksEmitter.VelocityMagnitudeMin = intensity / TimeScale;
+			m_flyingSparksEmitter.VelocityMagnitudeMax = intensity / TimeScale;
 			m_flyingSparksEmitter.TotalEmissionsLeft = 1;
-			m_flyingSparksEmitter.Color = OpenTKHelper.RandomDebugColor();
-
-			// TODO OpenTK debug colors
-
-			Color4[] c_debugColorPresets = { 
-				Color4.Red, 
-				Color4.Green, 
-				Color4.Blue 
-			};
-
+			m_flyingSparksEmitter.Color = OpenTKHelper.Color4RandomDebugColor();
 			#endif
+		}
+
+		public override void Simulate(float timeDelta)
+		{
+			timeDelta *= TimeScale;
+			base.Simulate(timeDelta);
 		}
 	}
 }
