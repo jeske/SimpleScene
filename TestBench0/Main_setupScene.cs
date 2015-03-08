@@ -207,10 +207,11 @@ namespace TestBench0
 				//if (false)
 				{
 					AcmeExplosionSystem aes = new AcmeExplosionSystem (100);
-
 					var fix7tex = AcmeExplosionSystem.GetDefaultTexture ();
 					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
-					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
+
+					//aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
+					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 					aesRenderer.AlphaBlendingEnabled = true;
 					aesRenderer.DepthRead = true;
 					aesRenderer.DepthWrite = false;

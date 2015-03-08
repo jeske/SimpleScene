@@ -18,8 +18,8 @@ namespace SimpleScene
 	{
 		public static SSTexture GetDefaultTexture()
 		{
-			return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-			//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+			//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
+			return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
 		}
 
 		#region define sprite and size locations variables
@@ -71,7 +71,7 @@ namespace SimpleScene
 		#endregion
 
 		#region component settings
-		public float TimeScale = 1f;
+		public float TimeScale = 0.33f;
 		public float FlameSmokeDuration = 2.5f;
 		public float FlashDuration = 0.75f;
 		public float FlyingSparksDuration = 2.5f;
@@ -183,14 +183,15 @@ namespace SimpleScene
 
 					m_flyingSparksEmitter = new SSRadialEmitter ();
 					m_flyingSparksEmitter.SpriteRectangles = (flyingSparksSprites != null ? flyingSparksSprites : c_flyingSparksSpritesDefault);
+					//m_flyingSparksEmitter.SpriteRectangles = c_flameSmokeSpritesDefault;
 					m_flyingSparksEmitter.ParticlesPerEmission = 16;
 					m_flyingSparksEmitter.EmissionIntervalMin = 0f;
 					m_flyingSparksEmitter.EmissionIntervalMax = 0.1f * flyingSparksDuration;
 					m_flyingSparksEmitter.Life = flyingSparksDuration;
 					m_flyingSparksEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
-					m_flyingSparksEmitter.ComponentScale = new Vector3 (10f, 1f, 1f);
-					m_flyingSparksEmitter.OrientAwayFromCenterZ = true;
-					m_flyingSparksEmitter.Phi = 0f;
+					m_flyingSparksEmitter.ComponentScale = new Vector3 (5f, 1f, 1f);
+					m_flyingSparksEmitter.OrientAwayFromCenter = true;
+					//m_flyingSparksEmitter.Phi = 0f;
 					AddEmitter (m_flyingSparksEmitter);
 
 					m_flyingSparksEmitter.EffectorMask = (ushort)ComponentMask.FlyingSparks;
@@ -203,7 +204,7 @@ namespace SimpleScene
 		public virtual void ShowExplosion(Vector3 position, float intensity)
 		{
 			// flame/smoke
-			#if true
+			#if false
 			m_flameSmokeEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 			m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
 			m_flameSmokeEmitter.VelocityMagnitudeMax = 0.30f * intensity;
@@ -213,7 +214,7 @@ namespace SimpleScene
 			#endif
 
 			// flash
-			#if true
+			#if false
 			m_flashEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 			m_flashSphereGen.Center = position;
 			m_flashSphereGen.Radius = 0.3f * intensity;

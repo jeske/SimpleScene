@@ -325,7 +325,7 @@ namespace SimpleScene
 		#endregion
 
 		#region special behaviors
-		public bool OrientAwayFromCenterZ = false;
+		public bool OrientAwayFromCenter = false;
 		#endregion
 
 		protected override void configureNewParticle (SSParticle p)
@@ -343,8 +343,9 @@ namespace SimpleScene
 			float velocityMag = Interpolate.Lerp (VelocityMagnitudeMin, VelocityMagnitudeMax, nextFloat ());
 			p.Vel = velocityMag * xyz;
 
-			if (OrientAwayFromCenterZ) {
+			if (OrientAwayFromCenter) {
 				p.Orientation.Z = -theta;
+				p.Orientation.Y = phi;
 			}
 		}
 	}
