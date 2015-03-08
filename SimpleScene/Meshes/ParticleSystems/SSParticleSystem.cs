@@ -368,7 +368,7 @@ namespace SimpleScene
             p.MasterScale = readData(m_masterScales, idx).Value;
 			p.ComponentScale.Xy = readData(m_componentScalesXY, idx).Value;
 			p.ComponentScale.Z = readData (m_componentScalesZ, idx).Value;
-            p.Color = OpenTKHelper.RgbaToColor4(readData(m_colors, idx).Color);
+			p.Color = Color4Helper.RgbaToColor4(readData(m_colors, idx).Color);
 
 			//p.SpriteIndex = readData(m_spriteIndices, idx).Value;
             p.SpriteRect.X = readData(m_spriteOffsetsU, idx).Value;
@@ -414,7 +414,7 @@ namespace SimpleScene
 			writeDataIfNeeded(ref m_masterScales, idx, new SSAttributeFloat (p.MasterScale));
 			writeDataIfNeeded(ref m_componentScalesXY, idx, new SSAttributeVec2 (p.ComponentScale.Xy));
 			writeDataIfNeeded(ref m_componentScalesZ, idx, new SSAttributeFloat (p.ComponentScale.Z));
-            writeDataIfNeeded(ref m_colors, idx, new SSAttributeColor(OpenTKHelper.Color4toRgba(p.Color)));
+			writeDataIfNeeded(ref m_colors, idx, new SSAttributeColor(Color4Helper.Color4toRgba(p.Color)));
 
 			//writeDataIfNeeded(ref m_spriteIndices, idx, new SSAttributeByte(p.SpriteIndex));
             writeDataIfNeeded(ref m_spriteOffsetsU, idx, new SSAttributeFloat(p.SpriteRect.X));

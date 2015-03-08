@@ -133,6 +133,7 @@
     <Compile Include="Meshes\Shapes\SSTexturedQuad.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedCube.cs" />
     <Compile Include="Util\Prefs.cs" />
+    <Compile Include="Util\Color4Helper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

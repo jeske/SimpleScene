@@ -227,7 +227,7 @@ namespace SimpleScene
 			m_flyingSparksEmitter.VelocityMagnitudeMin = intensity / TimeScale;
 			m_flyingSparksEmitter.VelocityMagnitudeMax = intensity / TimeScale;
 			m_flyingSparksEmitter.TotalEmissionsLeft = 1;
-			m_flyingSparksEmitter.Color = OpenTKHelper.Color4RandomDebugColor();
+			m_flyingSparksEmitter.Color = Color4Helper.RandomDebugColor();
 			#endif
 		}
 

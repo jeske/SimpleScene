@@ -79,7 +79,7 @@ namespace SimpleScene
 		/// <value>The color.</value>
 		public Color4 Color {
 			set { 
-				ColorOffsetComponentMin = ColorOffsetComponentMax = OpenTKHelper.Color4Zero;
+				ColorOffsetComponentMin = ColorOffsetComponentMax = Color4Helper.Zero;
 				if (ColorPresets == null || ColorPresets.Length != 1) {
 					// avoid reallocation if used frequently
 					ColorPresets = new Color4[1];
@@ -98,12 +98,12 @@ namespace SimpleScene
 		/// Minimum value, split into components, for a color offset that gets added to preset to
 		/// form the final color value
 		/// </summary>
-		public Color4 ColorOffsetComponentMin = OpenTKHelper.Color4Zero;
+		public Color4 ColorOffsetComponentMin = Color4Helper.Zero;
 		/// <summary>
 		/// Maximum value, split into components, for a color offset that gets added to preset to
 		/// form the final color value
 		/// </summary>
-		public Color4 ColorOffsetComponentMax = OpenTKHelper.Color4Zero;
+		public Color4 ColorOffsetComponentMax = Color4Helper.Zero;
 		#endregion
 
 		public float MassMin = c_defaultParticle.Mass;
@@ -252,7 +252,7 @@ namespace SimpleScene
 			randOffset.A = Interpolate.Lerp(ColorOffsetComponentMin.A, ColorOffsetComponentMax.A, nextFloat());
 
 			// color presets + offsets
-			p.Color = OpenTKHelper.Color4Add(ref randPreset, ref randOffset);
+			p.Color = Color4Helper.Add(ref randPreset, ref randOffset);
 
 			//p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length)];
             p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length)];
