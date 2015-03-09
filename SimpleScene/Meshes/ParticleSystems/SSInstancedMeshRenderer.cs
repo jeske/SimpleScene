@@ -24,6 +24,8 @@ namespace SimpleScene
 
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
+		public SSParticleSystem ParticleSystem;
+
         public bool SimulateOnUpdate = true;
         public bool AlphaBlendingEnabled = true;
 		public bool DepthRead = true;
@@ -31,7 +33,6 @@ namespace SimpleScene
         public BillboardingType Billboarding = BillboardingType.Instanced;
         public ISSInstancable Mesh;
 
-        protected SSParticleSystem m_ps;
 
         protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> m_orientationXYBuffer;
@@ -54,7 +55,7 @@ namespace SimpleScene
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
             Mesh = mesh;
-            m_ps = ps;
+            ParticleSystem = ps;
             m_texture = texture;
 			m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
 			m_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
@@ -73,9 +74,9 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
-            if (m_ps.ActiveBlockLength <= 0) return;
+            if (ParticleSystem.ActiveBlockLength <= 0) return;
 
-			this.boundingSphere = new SSObjectSphere (m_ps.Radius);
+			this.boundingSphere = new SSObjectSphere (ParticleSystem.Radius);
 
             base.Render(ref renderConfig);
 
@@ -90,21 +91,21 @@ namespace SimpleScene
             // Update buffers early for better streaming
             if (AlphaBlendingEnabled) {
                 // Must be called before updating buffers
-                m_ps.SortByDepth(ref modelView);
+                ParticleSystem.SortByDepth(ref modelView);
             }
-            m_posBuffer.UpdateBufferData(m_ps.Positions);
-			m_orientationXYBuffer.UpdateBufferData(m_ps.OrientationsXY);
-			m_orientationZBuffer.UpdateBufferData (m_ps.OrientationsZ);
-            m_masterScaleBuffer.UpdateBufferData(m_ps.MasterScales);
-            m_componentScaleXYBuffer.UpdateBufferData(m_ps.ComponentScalesXY);
-			m_componentScaleZBuffer.UpdateBufferData (m_ps.ComponentScalesZ);
-            m_colorBuffer.UpdateBufferData(m_ps.Colors);
+            m_posBuffer.UpdateBufferData(ParticleSystem.Positions);
+			m_orientationXYBuffer.UpdateBufferData(ParticleSystem.OrientationsXY);
+			m_orientationZBuffer.UpdateBufferData (ParticleSystem.OrientationsZ);
+            m_masterScaleBuffer.UpdateBufferData(ParticleSystem.MasterScales);
+            m_componentScaleXYBuffer.UpdateBufferData(ParticleSystem.ComponentScalesXY);
+			m_componentScaleZBuffer.UpdateBufferData (ParticleSystem.ComponentScalesZ);
+            m_colorBuffer.UpdateBufferData(ParticleSystem.Colors);
 
 			//m_spriteIndexBuffer.UpdateBufferData(m_ps.SpriteIndices);
-            m_spriteOffsetUBuffer.UpdateBufferData(m_ps.SpriteOffsetsU);
-            m_spriteOffsetVBuffer.UpdateBufferData(m_ps.SpriteOffsetsV);
-            m_spriteSizeUBuffer.UpdateBufferData(m_ps.SpriteSizesU);
-            m_spriteSizeVBuffer.UpdateBufferData(m_ps.SpriteSizesV);
+            m_spriteOffsetUBuffer.UpdateBufferData(ParticleSystem.SpriteOffsetsU);
+            m_spriteOffsetVBuffer.UpdateBufferData(ParticleSystem.SpriteOffsetsV);
+            m_spriteSizeUBuffer.UpdateBufferData(ParticleSystem.SpriteSizesU);
+            m_spriteSizeVBuffer.UpdateBufferData(ParticleSystem.SpriteSizesV);
 
             if (AlphaBlendingEnabled) {
 				//GL.Enable(EnableCap.AlphaTest);
@@ -158,22 +159,22 @@ namespace SimpleScene
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            prepareAttribute(m_posBuffer, shader.AttrInstancePos, m_ps.Positions);
-			prepareAttribute(m_orientationXYBuffer, shader.AttrInstanceOrientationXY, m_ps.OrientationsXY);
-			prepareAttribute(m_orientationZBuffer, shader.AttrInstanceOrientationZ, m_ps.OrientationsZ);
-            prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, m_ps.MasterScales);
-			prepareAttribute(m_componentScaleXYBuffer, shader.AttrInstanceComponentScaleXY, m_ps.ComponentScalesXY);
-			prepareAttribute(m_componentScaleZBuffer, shader.AttrInstanceComponentScaleZ, m_ps.ComponentScalesZ);
-            prepareAttribute(m_colorBuffer, shader.AttrInstanceColor, m_ps.Colors);
+            prepareAttribute(m_posBuffer, shader.AttrInstancePos, ParticleSystem.Positions);
+			prepareAttribute(m_orientationXYBuffer, shader.AttrInstanceOrientationXY, ParticleSystem.OrientationsXY);
+			prepareAttribute(m_orientationZBuffer, shader.AttrInstanceOrientationZ, ParticleSystem.OrientationsZ);
+            prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, ParticleSystem.MasterScales);
+			prepareAttribute(m_componentScaleXYBuffer, shader.AttrInstanceComponentScaleXY, ParticleSystem.ComponentScalesXY);
+			prepareAttribute(m_componentScaleZBuffer, shader.AttrInstanceComponentScaleZ, ParticleSystem.ComponentScalesZ);
+            prepareAttribute(m_colorBuffer, shader.AttrInstanceColor, ParticleSystem.Colors);
 
 			//prepareAttribute(m_spriteIndexBuffer, shader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
-            prepareAttribute(m_spriteOffsetUBuffer, shader.AttrInstanceSpriteOffsetU, m_ps.SpriteOffsetsU);
-            prepareAttribute(m_spriteOffsetVBuffer, shader.AttrInstanceSpriteOffsetV, m_ps.SpriteOffsetsV);
-            prepareAttribute(m_spriteSizeUBuffer, shader.AttrInstanceSpriteSizeU, m_ps.SpriteSizesU);
-            prepareAttribute(m_spriteSizeVBuffer, shader.AttrInstanceSpriteSizeV, m_ps.SpriteSizesV);
+            prepareAttribute(m_spriteOffsetUBuffer, shader.AttrInstanceSpriteOffsetU, ParticleSystem.SpriteOffsetsU);
+            prepareAttribute(m_spriteOffsetVBuffer, shader.AttrInstanceSpriteOffsetV, ParticleSystem.SpriteOffsetsV);
+            prepareAttribute(m_spriteSizeUBuffer, shader.AttrInstanceSpriteSizeU, ParticleSystem.SpriteSizesU);
+            prepareAttribute(m_spriteSizeVBuffer, shader.AttrInstanceSpriteSizeV, ParticleSystem.SpriteSizesV);
 
             // do the draw
-            Mesh.RenderInstanced(m_ps.ActiveBlockLength, PrimitiveType.Triangles);
+            Mesh.RenderInstanced(ParticleSystem.ActiveBlockLength, PrimitiveType.Triangles);
              
             GL.PopClientAttrib();
             #if MAIN_SHADER_INSTANCING
@@ -195,14 +196,14 @@ namespace SimpleScene
             //this.boundingSphere.Render(ref renderConfig);
 
 			// affects next frame
-			m_ps.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
+			ParticleSystem.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
         }
 
         void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
             where A : struct, ISSAttributeLayout 
             where AB : SSAttributeBuffer<A>
         {
-            int numActive = m_ps.ActiveBlockLength;
+            int numActive = ParticleSystem.ActiveBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
             attrBuff.PrepareAttribute(attrLoc, numInstancesPerValue);
         }
@@ -210,7 +211,7 @@ namespace SimpleScene
         public override void Update (float fElapsedMS)
         {
             if (SimulateOnUpdate) {
-                m_ps.Simulate(fElapsedMS);
+                ParticleSystem.Simulate(fElapsedMS);
             }
         }
     }
