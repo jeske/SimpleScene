@@ -10,7 +10,12 @@ namespace SimpleScene
 		public static Color4[] DebugPresets = {
 			Color4.Red,
 			Color4.Green,
-			Color4.Blue
+			Color4.Blue,
+			Color4.Magenta,
+			Color4.Lime,
+			Color4.Yellow,
+			Color4.White,
+			Color4.Cyan
 		};
 
 		public static Color4 Add (ref Color4 left, ref Color4 right) 
