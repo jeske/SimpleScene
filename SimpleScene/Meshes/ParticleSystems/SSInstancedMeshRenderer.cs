@@ -193,6 +193,9 @@ namespace SimpleScene
             m_spriteSizeVBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeV);
             #endif
             //this.boundingSphere.Render(ref renderConfig);
+
+			// affects next frame
+			m_ps.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
         }
 
         void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 

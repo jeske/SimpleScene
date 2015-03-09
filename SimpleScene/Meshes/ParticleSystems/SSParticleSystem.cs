@@ -199,6 +199,8 @@ namespace SimpleScene
             m_timeDeltaAccumulator = timeDelta;
         }
 
+		public virtual void UpdateCamera(ref Matrix4 modelView, ref Matrix4 projection) { }
+
 		public virtual void AddEmitter(SSParticleEmitter emitter)
         {
             emitter.Reset();
