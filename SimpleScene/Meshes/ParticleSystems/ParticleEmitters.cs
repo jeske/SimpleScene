@@ -405,7 +405,7 @@ namespace SimpleScene
 				configureNewParticle(newParticle);
 				newParticle.Pos = pos;
 				newParticle.MasterScale *= scale;
-				newParticle.Orientation += OpenTKHelper.ToEuler(ref orient);
+				newParticle.Orientation += OpenTKHelper.QuaternionToEuler(ref orient);
 				particleReceiver(newParticle);
 				return true;
 			};

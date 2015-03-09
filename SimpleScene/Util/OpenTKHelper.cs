@@ -72,7 +72,7 @@ namespace SimpleScene
         /// Converts quaternion representation to Euler angles
         /// http://math.stackexchange.com/questions/687964/getting-euler-tait-bryan-angles-from-quaternion-representation
         /// </summary>
-		public static Vector3 ToEuler(ref Quaternion q)
+		public static Vector3 QuaternionToEuler(ref Quaternion q)
         {
 			float phi = (float)Math.Atan2(q.Z*q.W + q.X*q.Y, 0.5f - q.Y*q.Y - q.Z*q.Z);
 			float theta = (float)Math.Asin(2f * (q.X*q.Z - q.Y*q.W));

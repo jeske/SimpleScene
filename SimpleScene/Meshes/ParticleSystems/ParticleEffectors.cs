@@ -327,5 +327,25 @@ namespace SimpleScene
 		}
     }
 
+	public class SSBillboardEffector : SSParticleEffector
+	{
+		public Matrix4 modelViewMatrix = Matrix4.Identity;
+
+		public bool BillboardX = true;
+		public bool BillboardY = true;
+
+		protected override void effectParticle (SSParticle particle, float deltaT)
+		{
+			Quaternion quat = modelViewMatrix.ExtractRotation();
+			Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
+			if (BillboardX) {
+				particle.Orientation.X = -euler.X;
+			}
+			if (BillboardY) {
+				particle.Orientation.Y = -euler.Y;
+			}
+
+		}
+	}
 }
 

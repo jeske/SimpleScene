@@ -93,6 +93,9 @@ namespace SimpleScene
 		protected readonly SSParticlesFieldEmitter m_flashEmitter;
 
 		protected readonly SSRadialEmitter m_flyingSparksEmitter;
+		protected readonly SSBillboardEffector m_flyingSparksBillboarder;
+
+		protected readonly SSBillboardEffector m_sharedBillboarder;
 
 		public AcmeExplosionSystem (
 			int capacity, 
@@ -194,8 +197,18 @@ namespace SimpleScene
 					//m_flyingSparksEmitter.Phi = 0f;
 					AddEmitter (m_flyingSparksEmitter);
 
-					m_flyingSparksEmitter.EffectorMask = (ushort)ComponentMask.FlyingSparks;
+					m_flyingSparksBillboarder = new SSBillboardEffector ();
+					m_flyingSparksBillboarder.BillboardX = true;
+					m_flyingSparksBillboarder.BillboardY = false;
+					AddEffector (m_flyingSparksBillboarder);
+
+					m_flyingSparksEmitter.EffectorMask = m_flyingSparksBillboarder.EffectorMask 
+						= (ushort)ComponentMask.FlyingSparks;
 				}
+
+				m_sharedBillboarder = new SSBillboardEffector ();
+				m_sharedBillboarder.EffectorMask = (ushort)ComponentMask.Flash | (ushort)ComponentMask.FlameSmoke;
+				AddEffector (m_sharedBillboarder);
 			}
 		}
 
@@ -236,6 +249,12 @@ namespace SimpleScene
 		{
 			timeDelta *= TimeScale;
 			base.Simulate(timeDelta);
+		}
+
+		public override void UpdateCamera (ref Matrix4 modelView, ref Matrix4 projection)
+		{
+			m_flyingSparksBillboarder.modelViewMatrix = modelView;
+			m_sharedBillboarder.modelViewMatrix = modelView;
 		}
 	}
 }
