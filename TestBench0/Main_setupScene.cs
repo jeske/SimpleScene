@@ -206,24 +206,14 @@ namespace TestBench0
 				// test explositons
 				//if (false)
 				{
-					AcmeExplosionSystem aes = new AcmeExplosionSystem (100);
-					var fix7tex = AcmeExplosionSystem.GetDefaultTexture ();
-					var aesRenderer = new SSInstancedMeshRenderer (aes, fix7tex, SSTexturedQuad.Instance);
-
-					aesRenderer.Billboarding = SSInstancedMeshRenderer.BillboardingType.Global;
-					aesRenderer.AlphaBlendingEnabled = true;
-					aesRenderer.DepthRead = true;
-					aesRenderer.DepthWrite = false;
-					aesRenderer.SimulateOnUpdate = true;
-					aesRenderer.Name = "acme expolsion renderer";
-					aesRenderer.Pos = cubesRenderer.Pos;
-					scene.AddObject (aesRenderer);
+					AcmeExplosionRenderer aer = new AcmeExplosionRenderer (100);
+					aer.Pos = cubesRenderer.Pos;
+					scene.AddObject (aer);
 
 					periodicExplosiveForce.ExplosionEventHandlers += (pos, force) => { 
-						aes.ShowExplosion(pos, force/periodicExplosiveForce.ExplosiveForceMin * 5f); 
+						aer.ShowExplosion(pos, force/periodicExplosiveForce.ExplosiveForceMin * 5f); 
 					};
 				}
-
 			}
 		}
 
