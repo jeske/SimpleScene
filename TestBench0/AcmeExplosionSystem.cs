@@ -18,7 +18,7 @@ namespace SimpleScene
 				   AcmeExplosionSystem.GetDefaultTexture(),
 				   SSTexturedQuad.Instance)
 		{
-			Billboarding = SSInstancedMeshRenderer.BillboardingType.Global;
+			Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 			AlphaBlendingEnabled = true;
 			DepthRead = true;
 			DepthWrite = false;
@@ -118,7 +118,7 @@ namespace SimpleScene
 			protected readonly SSRadialEmitter m_flyingSparksEmitter;
 			//protected readonly SSBillboardEffector m_flyingSparksBillboarder;
 
-			//protected readonly SSBillboardEffector m_sharedBillboarder;
+			protected readonly SSBillboardEffector m_sharedBillboarder;
 
 			public AcmeExplosionSystem (
 				int capacity, 
@@ -237,6 +237,9 @@ namespace SimpleScene
 						//= m_flyingSparksBillboarder.EffectorMask 
 							= (ushort)ComponentMask.FlyingSparks;
 					}
+
+					m_sharedBillboarder = new SSBillboardEffector();
+					m_sharedBillboarder.EffectorMask = (ushort)ComponentMask.FlameSmoke | (ushort)ComponentMask.Flash;
 				}
 			}
 
@@ -282,6 +285,7 @@ namespace SimpleScene
 			public override void UpdateCamera (ref Matrix4 modelView, ref Matrix4 projection)
 			{
 				//m_flyingSparksBillboarder.modelViewMatrix = modelView;
+				m_sharedBillboarder.modelViewMatrix = modelView;
 			}
 		}
 
