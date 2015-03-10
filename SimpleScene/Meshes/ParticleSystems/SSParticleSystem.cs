@@ -16,8 +16,8 @@ namespace SimpleScene
         public float Life = 1f;
         public Vector3 Pos = new Vector3(0f);
         public Vector3 Vel = new Vector3(1f);
-        public Vector3 Orientation;
-        public Vector3 AngularVelocity;
+		public Vector3 Orientation = new Vector3(0f);
+		public Vector3 AngularVelocity = new Vector3 (0f);
         public float MasterScale = 1f;
         public Vector3 ComponentScale = new Vector3(1f);
         public Color4 Color = Color4.White;

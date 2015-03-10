@@ -184,8 +184,9 @@ namespace TestBench0
 				periodicExplosiveForce.ExplosiveForceMin = 1000f;
 				periodicExplosiveForce.ExplosiveForceMax = 2000f;
 				periodicExplosiveForce.EffectDelay = 5f;
-				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
-				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
+				//periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
+				//periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
+				periodicExplosiveForce.Center = new Vector3 (10f);
 
 				// make a particle system
 				SSParticleSystem cubesPs = new SSParticleSystem (1000);

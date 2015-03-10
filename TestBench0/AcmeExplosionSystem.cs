@@ -40,8 +40,8 @@ namespace SimpleScene
 		{
 			public static SSTexture GetDefaultTexture()
 			{
-				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
+				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
 			}
 
 			#region define sprite and size locations variables
@@ -94,7 +94,7 @@ namespace SimpleScene
 			#endregion
 
 			#region timing settings
-			public float TimeScale = 1f;
+			public float TimeScale = 0.3f;
 			public float FlameSmokeDuration = 2.5f;
 			public float FlashDuration = 0.5f;
 			public float FlyingSparksDuration = 2.5f;
@@ -141,10 +141,10 @@ namespace SimpleScene
 						m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * flameSmokeDuration;
 						m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						m_flameSmokeEmitter.Life = flameSmokeDuration;
-						m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
-						m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
-						m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
-						m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
+						//m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
+						//m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
+						//m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
+						//m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
 						m_flameSmokeEmitter.RMin = 0f;
 						m_flameSmokeEmitter.RMax = 1f;
 						AddEmitter (m_flameSmokeEmitter);
@@ -181,8 +181,8 @@ namespace SimpleScene
 						m_flashEmitter.EmissionIntervalMax = 0.2f * flashDuration;
 						m_flashEmitter.Life = flashDuration;
 						m_flashEmitter.Velocity = Vector3.Zero;
-						m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
-						m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
+						//m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
+						//m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
 						m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						AddEmitter (m_flashEmitter);
 
