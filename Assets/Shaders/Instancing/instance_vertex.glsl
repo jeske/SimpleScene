@@ -101,9 +101,9 @@ void main()
     vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
                             
     vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
+    combinedPos = orientZ(instanceOrientationZ) * combinedPos;
     combinedPos = orientX(instanceOrientationXY.x) * combinedPos;
     combinedPos = orientY(instanceOrientationXY.y) * combinedPos;
-    combinedPos = orientZ(instanceOrientationZ) * combinedPos;
     if (instanceBillboardingEnabled) {
         vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
         rotation *= -1; // inverse rotation
