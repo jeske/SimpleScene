@@ -89,29 +89,38 @@ namespace SimpleScene
                 (int)TextureWrapMode.ClampToEdge);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0,
-				PixelInternalFormat.DepthComponent24,
+				PixelInternalFormat.DepthComponent32f,
                 m_textureWidth, m_textureHeight, 0,
 				PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
-			GL.BindTexture (TextureTarget.Texture2D, 0);
+			// done creating texture, unbind
+			GL.BindTexture (TextureTarget.Texture2D, 0); 
 
-			GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, m_frameBufferID);
 
-			GL.DrawBuffer(DrawBufferMode.None);
-			GL.Viewport (0, 0, m_textureWidth, m_textureHeight);
+			// ----------------------------
+			// now bind the texture to framebuffer..
+			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, m_frameBufferID);
+			GL.Ext.BindFramebuffer(FramebufferTarget.ReadFramebuffer, m_frameBufferID);
 
-			GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt,FramebufferAttachment.DepthAttachment,
+			GL.Ext.FramebufferTexture2D(FramebufferTarget.DrawFramebuffer,FramebufferAttachment.DepthAttachment,
 				TextureTarget.Texture2D, m_textureID, 0);
 			//GL.Ext.FramebufferTexture (FramebufferTarget.FramebufferExt, FramebufferAttachment.Color,
 			//(int)All.None, 0);
 
+			GL.Viewport (0, 0, m_textureWidth, m_textureHeight);
+			GL.DrawBuffer (DrawBufferMode.None);
+			GL.ReadBuffer (ReadBufferMode.None);
 
-			if(!assertFramebufferOK ()) return;
+			if (!assertFramebufferOK (FramebufferTarget.DrawFramebuffer)) {
+				throw new Exception ("failed to create-and-bind shadowmap FBO");
+			}
 
-		
+			// leave in a sane state...
             unbindFramebuffer();
-			assertFramebufferOK ();
-
-        }
+			GL.ActiveTexture(TextureUnit.Texture0);
+			if (!assertFramebufferOK (FramebufferTarget.DrawFramebuffer)) {
+				throw new Exception ("failed to ubind shadowmap FBO");
+			}        
+		}
 
         ~SSShadowMapBase() {
             //DeleteData();
@@ -135,21 +144,27 @@ namespace SimpleScene
             float fov, float aspect, float nearZ, float farZ);
 
         protected void unbindFramebuffer() {
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+			GL.Ext.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
+
         }
 
         protected void PrepareForRenderBase(SSRenderConfig renderConfig,
                                             List<SSObject> objects) {
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-			if (!assertFramebufferOK ()) {
-				throw new Exception ("failed to bind framebuffer for drawing");
-			}
+			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, m_frameBufferID);
+			// GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt,FramebufferAttachment.DepthAttachment,
+			//	TextureTarget.Texture2D, m_textureID, 0);
+
             GL.Viewport(0, 0, m_textureWidth, m_textureHeight);
 
             // turn off reading and writing to color data
-            GL.DrawBuffer(DrawBufferMode.None); 
-            GL.ReadBuffer(ReadBufferMode.None);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.DrawBuffer(DrawBufferMode.None);     
+
+			if (!assertFramebufferOK (FramebufferTarget.DrawFramebuffer)) {
+				throw new Exception ("failed to bind framebuffer for drawing");
+			}
+
+			GL.Clear(ClearBufferMask.DepthBufferBit);
 
             if (renderConfig.MainShader != null) {
                 renderConfig.MainShader.Activate();
@@ -167,8 +182,8 @@ namespace SimpleScene
             GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
 
-		protected bool assertFramebufferOK() {
-            var currCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+		protected bool assertFramebufferOK(FramebufferTarget target) {
+            var currCode = GL.Ext.CheckFramebufferStatus(target);
 			if (currCode != FramebufferErrorCode.FramebufferComplete) {
 				Console.WriteLine ("Frame buffer operation failed: " + currCode.ToString ());
 				m_isValid = false;

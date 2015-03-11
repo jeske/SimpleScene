@@ -34,14 +34,13 @@ namespace TestBench0
 				}
 			}
 			if (!light.ShadowMap.IsValid) {
-
 				light.ShadowMap = null;
 			}
 			#endif
 			scene.AddLight(light);
 
 			#if true
-			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture4);
+			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture5);
 			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
 			smapDebug.Scale = new Vector3(0.3f);
 			smapDebug.Pos = new Vector3(50f, 200, 0f);

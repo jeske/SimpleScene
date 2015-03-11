@@ -20,9 +20,10 @@ namespace SimpleScene
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Lighting);
 
+			GL.Enable(EnableCap.Texture2D);
 			GL.ActiveTexture(TextureUnit.Texture0);
-            GL.Enable(EnableCap.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, GLu_textureID);
+			GL.BindTexture(TextureTarget.Texture2D, 0);  // reset first
+            GL.BindTexture(TextureTarget.Texture2D, GLu_textureID);  // now bind the shadowmap texture id
 
 			// GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
 			// GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
