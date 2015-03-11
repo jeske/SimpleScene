@@ -19,6 +19,7 @@ namespace SimpleScene
 				   SSTexturedQuad.Instance)
 		{
 			Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+			//Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 			AlphaBlendingEnabled = true;
 			DepthRead = true;
 			DepthWrite = false;
@@ -116,9 +117,9 @@ namespace SimpleScene
 			protected readonly SSParticlesFieldEmitter m_flashEmitter;
 
 			protected readonly SSRadialEmitter m_flyingSparksEmitter;
-			//protected readonly SSBillboardEffector m_flyingSparksBillboarder;
+			protected readonly RadialOrientator m_flyingSparksOrientator;
 
-			protected readonly SSBillboardEffector m_sharedBillboarder;
+			//protected readonly SparksOrientator m_sharedBillboarder;
 
 			public AcmeExplosionSystem (
 				int capacity, 
@@ -218,6 +219,7 @@ namespace SimpleScene
 						m_flyingSparksEmitter.ComponentScale = new Vector3 (5f, 1f, 1f);
 						m_flyingSparksEmitter.OrientAwayFromCenter = true;
 						m_flyingSparksEmitter.Color = FlyingSparksColor;
+						//m_flyingSparksEmitter.Phi = (float)Math.PI/4f;
 						AddEmitter (m_flyingSparksEmitter);
 
 						var flyingSparksColorEffector = new SSColorKeyframesEffector ();
@@ -227,19 +229,18 @@ namespace SimpleScene
 						flyingSparksColorEffector.ParticleLifetime = flyingSparksDuration;
 						AddEffector (flyingSparksColorEffector);
 
-						//m_flyingSparksBillboarder = new SSBillboardEffector ();
-						//m_flyingSparksBillboarder.BillboardX = true;
-						//m_flyingSparksBillboarder.BillboardY = false;
-						//AddEffector (m_flyingSparksBillboarder);
+						m_flyingSparksOrientator = new RadialOrientator();
+						AddEffector (m_flyingSparksOrientator);
 
 						m_flyingSparksEmitter.EffectorMask 
 							= flyingSparksColorEffector.EffectorMask
-						//= m_flyingSparksBillboarder.EffectorMask 
+							= m_flyingSparksOrientator.EffectorMask 
 							= (ushort)ComponentMask.FlyingSparks;
 					}
 
-					m_sharedBillboarder = new SSBillboardEffector();
-					m_sharedBillboarder.EffectorMask = (ushort)ComponentMask.FlameSmoke | (ushort)ComponentMask.Flash;
+					//m_sharedBillboarder = new SSBillboardEffector();
+					//m_sharedBillboarder.EffectorMask = (ushort)ComponentMask.FlameSmoke | (ushort)ComponentMask.Flash;
+					//AddEffector(m_sharedBillboarder);
 				}
 			}
 
@@ -273,6 +274,8 @@ namespace SimpleScene
 				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 5f;
 				m_flyingSparksEmitter.TotalEmissionsLeft = 1;
 				//m_flyingSparksEmitter.Color = Color4Helper.RandomDebugColor();
+
+				m_flyingSparksOrientator.center = position;
 				#endif
 			}
 
@@ -284,12 +287,46 @@ namespace SimpleScene
 
 			public override void UpdateCamera (ref Matrix4 modelView, ref Matrix4 projection)
 			{
-				//m_flyingSparksBillboarder.modelViewMatrix = modelView;
-				m_sharedBillboarder.modelViewMatrix = modelView;
+				m_flyingSparksOrientator.modelViewMatrix = modelView;
+				//m_sharedBillboarder.modelViewMatrix = modelView;
 			}
 		}
 
+		public class RadialOrientator : SSParticleEffector
+		{
+			public Matrix4 modelViewMatrix = Matrix4.Identity;
+			public Vector3 center = Vector3.Zero;
 
+			protected override void effectParticle (SSParticle particle, float deltaT)
+			{
+				// undo instanced billboarding
+				// TODO redundant; optimize
+				//Quaternion quat = modelViewMatrix.ExtractRotation();
+				//Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
+				//particle.Orientation.X = euler.X;
+				//particle.Orientation.Y = euler.Y;
+				//particle.Orientation.Z = euler.Z;
+
+				//Vector3 dir = Vector3.Transform (particle.Vel, modelViewMatrix);
+				Vector3 dir = particle.Vel;
+
+				// orient to look right
+				float x = dir.X;
+				float y = dir.Y;
+				float z = dir.Z;
+				float xy = dir.Xy.Length;
+				float phi = (float)Math.Atan (z / xy);
+				float theta = (float)Math.Atan2 (y, x);
+
+				//particle.Orientation.Y += phi;
+				//particle.Orientation.Z -= theta;
+				particle.Orientation.X = 0f;
+				particle.Orientation.Y = phi;
+				particle.Orientation.Z = -theta;
+				//particle.Orientation.Y = phi;
+				//particle.Orientation.X = 0f;
+			}
+		} 
 	}
 }
 
