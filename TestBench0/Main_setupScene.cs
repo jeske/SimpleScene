@@ -99,7 +99,7 @@ namespace TestBench0
 				sunBillboard.renderState.castsShadow = false;
 				sunDiskScene.AddObject(sunBillboard);
 
-				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun_flare.png");
+				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
 				const float bigOffset = 0.8889f;
 				const float smallOffset = 0.125f;
 				RectangleF[] flareSpriteRects = {
