@@ -20,7 +20,7 @@ namespace SimpleScene
     {
         // TODO Draw any ibo/vbo mesh
 
-        public enum BillboardingType { None, Instanced, Global };
+        public enum BillboardingType { None, Global };
 
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
@@ -30,7 +30,7 @@ namespace SimpleScene
         public bool AlphaBlendingEnabled = true;
 		public bool DepthRead = true;
 		public bool DepthWrite = true;
-        public BillboardingType Billboarding = BillboardingType.Instanced;
+		public BillboardingType Billboarding = BillboardingType.None;
         public ISSInstancable Mesh;
 
 
@@ -155,7 +155,6 @@ namespace SimpleScene
             #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = true;
             #endif
-            shader.UniInstanceBillboardingEnabled = (Billboarding == BillboardingType.Instanced);
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);

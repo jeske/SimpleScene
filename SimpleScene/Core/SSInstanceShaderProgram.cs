@@ -14,9 +14,7 @@ namespace SimpleScene
         //private readonly SSShader m_geometryShader;
         #endregion
 
-        #region Uniform Locations
-        private readonly int u_instanceBillboardingEnabled;
-
+		#region attribute Locations
         private readonly int a_instancePos;
 		private readonly int a_instanceOrientationXY;
 		private readonly int a_instanceOrientationZ;
@@ -30,12 +28,6 @@ namespace SimpleScene
         private readonly int a_instanceSpriteOffsetV;
         private readonly int a_instanceSpriteSizeU;
         private readonly int a_instanceSpriteSizeV;
-        #endregion
-
-        #region Uniform Modifiers
-        public bool UniInstanceBillboardingEnabled {
-            set { assertActive(); GL.Uniform1(u_instanceBillboardingEnabled, value ? 1 : 0); } 
-        }
         #endregion
 
         public int AttrInstancePos {
@@ -100,10 +92,8 @@ namespace SimpleScene
             Activate ();
 
             // uniform(s)
-            u_instanceBillboardingEnabled = getUniLoc("instanceBillboardingEnabled");
-            //UniInstanceBillboardingEnabled = false;
 
-            // attributes
+			// attributes
             a_instancePos = getAttrLoc("instancePos");
 			a_instanceOrientationXY = getAttrLoc("instanceOrientationXY");
 			a_instanceOrientationZ = getAttrLoc ("instanceOrientationZ");

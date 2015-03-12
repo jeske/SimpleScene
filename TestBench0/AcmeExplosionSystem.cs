@@ -19,7 +19,6 @@ namespace SimpleScene
 				   SSTexturedQuad.DoubleFaceInstance)
 		{
 			Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
-			//Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
 			AlphaBlendingEnabled = true;
 			DepthRead = true;
 			DepthWrite = false;
@@ -295,6 +294,9 @@ namespace SimpleScene
 		{
 			protected float m_orientationX = 0f;
 
+			/// <summary>
+			/// Compute orientation around X once per frame to orient the sprites towards the viewer
+			/// </summary>
 			public void UpdateModelView(ref Matrix4 modelViewMatrix)
 			{
 				Quaternion quat = modelViewMatrix.ExtractRotation();
@@ -311,9 +313,6 @@ namespace SimpleScene
 
 			protected override void effectParticle (SSParticle particle, float deltaT)
 			{
-				// undo instanced billboarding
-				// TODO redundant; optimize
-
 				Vector3 dir = particle.Vel;
 
 				// orient to look right

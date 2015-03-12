@@ -48,8 +48,6 @@ namespace SimpleScene
             set { VelocityComponentMin = VelocityComponentMax = value; }
         }
 
-
-
 		private Vector3 m_orientationMin = c_defaultParticle.Orientation;
 		private Vector3 m_orientationMax = c_defaultParticle.Orientation;
 

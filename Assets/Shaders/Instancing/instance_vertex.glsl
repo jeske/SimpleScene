@@ -2,9 +2,6 @@
 
 #version 120
 
-uniform bool instanceBillboardingEnabled;
-//const bool instanceBillboardingEnabled = true;
-
 attribute vec3 instancePos;
 attribute vec2 instanceOrientationXY;
 attribute float instanceOrientationZ;
@@ -106,7 +103,6 @@ void main()
     vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
 
     vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
-    //if (instanceBillboardingEnabled) {
     if (isNaN(instanceOrientationXY.x) || isNaN(instanceOrientationXY.y)) { // billboardXY?
         combinedPos = orientZ(instanceOrientationZ) * combinedPos;
         vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
