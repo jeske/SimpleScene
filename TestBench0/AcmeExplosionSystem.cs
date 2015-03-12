@@ -16,7 +16,7 @@ namespace SimpleScene
 		public AcmeExplosionRenderer(int capacity)
 			: base(new AcmeExplosionSystem(capacity),
 				   AcmeExplosionSystem.GetDefaultTexture(),
-				   SSTexturedQuad.Instance)
+				   SSTexturedQuad.DoubleFaceInstance)
 		{
 			Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
 			//Billboarding = SSInstancedMeshRenderer.BillboardingType.Instanced;
@@ -41,8 +41,8 @@ namespace SimpleScene
 		{
 			public static SSTexture GetDefaultTexture()
 			{
-				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
+				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
 			}
 
 			#region define sprite and size locations variables
@@ -95,7 +95,8 @@ namespace SimpleScene
 			#endregion
 
 			#region timing settings
-			public float TimeScale = 0.3f;
+			//public float TimeScale = 0.3f;
+			public float TimeScale = 1f;
 			public float FlameSmokeDuration = 2.5f;
 			public float FlashDuration = 0.5f;
 			public float FlyingSparksDuration = 2.5f;
@@ -118,8 +119,6 @@ namespace SimpleScene
 
 			protected readonly SSRadialEmitter m_flyingSparksEmitter;
 			protected readonly RadialOrientator m_flyingSparksOrientator;
-
-			//protected readonly SparksOrientator m_sharedBillboarder;
 
 			public AcmeExplosionSystem (
 				int capacity, 
@@ -144,17 +143,17 @@ namespace SimpleScene
 						m_flameSmokeEmitter.Life = flameSmokeDuration;
 						m_flameSmokeEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
 						m_flameSmokeEmitter.BillboardXY = true;
-						//m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
-						//m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
-						//m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
-						//m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
+						m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
+						m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
+						m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
+						m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
 						m_flameSmokeEmitter.RMin = 0f;
 						m_flameSmokeEmitter.RMax = 1f;
 						AddEmitter (m_flameSmokeEmitter);
 
 						var flamesSmokeColorEffector = new SSColorKeyframesEffector ();
 						flamesSmokeColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-						flamesSmokeColorEffector.Keyframes.Add (0.5f*flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
+						flamesSmokeColorEffector.Keyframes.Add (0.1f*flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
 						flamesSmokeColorEffector.Keyframes.Add (flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
 						flamesSmokeColorEffector.ColorMask = FlameColor;
 						flamesSmokeColorEffector.ParticleLifetime = flameSmokeDuration;
@@ -162,7 +161,7 @@ namespace SimpleScene
 
 						var flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
 						flameSmokeScaleEffector.Keyframes.Add (0f, 0.1f);
-						flameSmokeScaleEffector.Keyframes.Add (0.5f * flameSmokeDuration, 1f);
+						flameSmokeScaleEffector.Keyframes.Add (0.25f * flameSmokeDuration, 1f);
 						flameSmokeScaleEffector.Keyframes.Add (flameSmokeDuration, 1.2f);
 						flameSmokeScaleEffector.ParticleLifetime = flameSmokeDuration;
 						AddEffector (flameSmokeScaleEffector);
@@ -184,8 +183,8 @@ namespace SimpleScene
 						m_flashEmitter.EmissionIntervalMax = 0.2f * flashDuration;
 						m_flashEmitter.Life = flashDuration;
 						m_flashEmitter.Velocity = Vector3.Zero;
-						//m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
-						//m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
+						m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
+						m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
 						m_flashEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
 						m_flashEmitter.BillboardXY = true;
 						m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
@@ -224,8 +223,8 @@ namespace SimpleScene
 						m_flyingSparksEmitter.OrientAwayFromCenter = true;
 						m_flyingSparksEmitter.Color = FlyingSparksColor;
 						//m_flyingSparksEmitter.Phi = (float)Math.PI/4f;
-						m_flyingSparksEmitter.Phi = 0;
-						m_flyingSparksEmitter.Theta = 0;
+						//m_flyingSparksEmitter.Phi = 0;
+						//m_flyingSparksEmitter.Theta = 0;
 						AddEmitter (m_flyingSparksEmitter);
 
 						var flyingSparksColorEffector = new SSColorKeyframesEffector ();
@@ -243,10 +242,6 @@ namespace SimpleScene
 							= m_flyingSparksOrientator.EffectorMask 
 							= (ushort)ComponentMask.FlyingSparks;
 					}
-
-					//m_sharedBillboarder = new SSBillboardEffector();
-					//m_sharedBillboarder.EffectorMask = (ushort)ComponentMask.FlameSmoke | (ushort)ComponentMask.Flash;
-					//AddEffector(m_sharedBillboarder);
 				}
 			}
 
@@ -280,8 +275,6 @@ namespace SimpleScene
 				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 5f;
 				m_flyingSparksEmitter.TotalEmissionsLeft = 1;
 				//m_flyingSparksEmitter.Color = Color4Helper.RandomDebugColor();
-
-				m_flyingSparksOrientator.center = position;
 				#endif
 			}
 
@@ -293,47 +286,34 @@ namespace SimpleScene
 
 			public override void UpdateCamera (ref Matrix4 modelView, ref Matrix4 projection)
 			{
-				m_flyingSparksOrientator.modelViewMatrix = modelView;
+				m_flyingSparksOrientator.UpdateModelView(ref modelView);
 				//m_sharedBillboarder.modelViewMatrix = modelView;
 			}
 		}
 
 		public class RadialOrientator : SSParticleEffector
 		{
-			public Matrix4 modelViewMatrix = Matrix4.Identity;
-			public Vector3 center = Vector3.Zero;
+			protected float m_orientationX = 0f;
+
+			public void UpdateModelView(ref Matrix4 modelViewMatrix)
+			{
+				Quaternion quat = modelViewMatrix.ExtractRotation();
+				// x-orient
+				Vector3 test1 = new Vector3(0f, 1f, 0f);
+				Vector3 test2 = Vector3.Transform(test1, quat);
+				float dot = Vector3.Dot(test1, test2);
+				float angle = (float)Math.Acos(dot);
+				if (test2.Z < 0f) {
+					angle = -angle;
+				} 
+				m_orientationX = angle;
+			}
 
 			protected override void effectParticle (SSParticle particle, float deltaT)
 			{
-				#if true
 				// undo instanced billboarding
 				// TODO redundant; optimize
-				Quaternion quat = modelViewMatrix.ExtractRotation();
-				{
-					// x-orient
-					Vector3 test1 = new Vector3(0f, 1f, 0f);
-					Vector3 test2 = Vector3.Transform(test1, quat);
-					float dot = Vector3.Dot(test1, test2);
-					float angle = (float)Math.Acos(dot);
-					if (test2.Z < 0f) {
-						angle = -angle;
-					} 
-					particle.Orientation.X = angle;
-				}
 
-
-
-
-
-				particle.Orientation.Y = 0f;
-				particle.Orientation.Z = 0f;
-				#else
-				particle.Orientation.X = 0f;
-				particle.Orientation.Y = 0f;
-				particle.Orientation.Z = 0f;
-				#endif
-
-				//Vector3 dir = Vector3.Transform (particle.Vel, modelViewMatrix);
 				Vector3 dir = particle.Vel;
 
 				// orient to look right
@@ -344,8 +324,9 @@ namespace SimpleScene
 				float phi = (float)Math.Atan (z / xy);
 				float theta = (float)Math.Atan2 (y, x);
 
-				particle.Orientation.Y += phi;
-				particle.Orientation.Z += -theta;
+				particle.Orientation.Y = phi;
+				particle.Orientation.Z = -theta;
+				particle.Orientation.X = m_orientationX;
 			}
 		} 
 	}

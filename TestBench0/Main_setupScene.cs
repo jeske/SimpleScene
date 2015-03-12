@@ -118,7 +118,7 @@ namespace TestBench0
 			}
 
 			// instanced asteroid ring
-			if (false)
+			//if (false)
 			{
 				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
 				var ringGen = new BodiesRingGenerator (
@@ -183,9 +183,9 @@ namespace TestBench0
 				periodicExplosiveForce.ExplosiveForceMin = 1000f;
 				periodicExplosiveForce.ExplosiveForceMax = 2000f;
 				periodicExplosiveForce.EffectDelay = 5f;
-				//periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
-				//periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
-				periodicExplosiveForce.Center = new Vector3 (10f);
+				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
+				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
+				//periodicExplosiveForce.Center = new Vector3 (10f);
 
 				// make a particle system
 				SSParticleSystem cubesPs = new SSParticleSystem (1000);
@@ -202,7 +202,7 @@ namespace TestBench0
 				cubesRenderer.DepthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
 				scene.AddObject(cubesRenderer);
-				cubesRenderer.renderState.visible = false;
+				//cubesRenderer.renderState.visible = false;
 
 				// test explositons
 				//if (false)

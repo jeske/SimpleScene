@@ -48,11 +48,32 @@ namespace SimpleScene
             set { VelocityComponentMin = VelocityComponentMax = value; }
         }
 
-        public Vector3 OrientationMin = c_defaultParticle.Orientation;
-        public Vector3 OrientationMax = c_defaultParticle.Orientation;
+
+
+		private Vector3 m_orientationMin = c_defaultParticle.Orientation;
+		private Vector3 m_orientationMax = c_defaultParticle.Orientation;
+
+		public Vector3 OrientationMin {
+			get { return m_orientationMin; }
+			set {
+				m_orientationMin = value;
+				if (BillboardXY) {
+					m_orientationMin.X = m_orientationMin.Y = float.NaN; // maintain BillboardXY state
+				}
+			}
+		}
+		public Vector3 OrientationMax {
+			get { return m_orientationMax; }
+			set {
+				m_orientationMax = value;
+				if (BillboardXY) {
+					m_orientationMax.X = m_orientationMax.Y = float.NaN; // maintain BillboardXY state
+				}
+			}
+		}
         public Vector3 Orientation {
             set { 
-				OrientationMin = OrientationMax = value; 
+				m_orientationMin = m_orientationMax = value; 
 				if (BillboardXY) {
 					BillboardXY = true; // maintain BillboardXY state
 				}
@@ -62,25 +83,25 @@ namespace SimpleScene
 		public bool BillboardXY {
 			set { 
 				if (value) { 
-					OrientationMin.X = OrientationMax.X = OrientationMin.Y = OrientationMax.Y = float.NaN;
+					m_orientationMin.X = m_orientationMax.X = m_orientationMin.Y = m_orientationMax.Y = float.NaN;
 				} else {
-					if (float.IsNaN (OrientationMin.X)) {
-						OrientationMin.X = 0f;
+					if (float.IsNaN (m_orientationMin.X)) {
+						m_orientationMin.X = 0f;
 					}
-					if (float.IsNaN (OrientationMax.X)) {
-						OrientationMax.X = 0f;
+					if (float.IsNaN (m_orientationMax.X)) {
+						m_orientationMax.X = 0f;
 					}
-					if (float.IsNaN (OrientationMin.Y)) {
-						OrientationMin.Y = 0f;
+					if (float.IsNaN (m_orientationMin.Y)) {
+						m_orientationMin.Y = 0f;
 					}
-					if (float.IsNaN (OrientationMax.Y)) {
-						OrientationMax.Y = 0f;
+					if (float.IsNaN (m_orientationMax.Y)) {
+						m_orientationMax.Y = 0f;
 					}
 				}
 			}
 			get { 			
-				return float.IsNaN (OrientationMin.X) || float.IsNaN (OrientationMax.X)
-					|| float.IsNaN (OrientationMin.Y) || float.IsNaN (OrientationMax.Y);
+				return float.IsNaN (m_orientationMin.X) || float.IsNaN (m_orientationMax.X)
+					|| float.IsNaN (m_orientationMin.Y) || float.IsNaN (m_orientationMax.Y);
 			}
 		}
 
@@ -250,10 +271,10 @@ namespace SimpleScene
 			if (BillboardXY) {
 				p.BillboardXY = true;
 			} else {
-				p.Orientation.X = Interpolate.Lerp (OrientationMin.X, OrientationMax.X, nextFloat ());
-				p.Orientation.Y = Interpolate.Lerp (OrientationMin.Y, OrientationMax.Y, nextFloat ());
+				p.Orientation.X = Interpolate.Lerp (m_orientationMin.X, m_orientationMax.X, nextFloat ());
+				p.Orientation.Y = Interpolate.Lerp (m_orientationMin.Y, m_orientationMax.Y, nextFloat ());
 			}
-            p.Orientation.Z = Interpolate.Lerp(OrientationMin.Z, OrientationMax.Z, nextFloat());
+            p.Orientation.Z = Interpolate.Lerp(m_orientationMin.Z, m_orientationMax.Z, nextFloat());
 
             p.AngularVelocity.X = Interpolate.Lerp(AngularVelocityMin.X, AngularVelocityMax.X, nextFloat());
             p.AngularVelocity.Y = Interpolate.Lerp(AngularVelocityMin.Y, AngularVelocityMax.Y, nextFloat());
