@@ -34,14 +34,13 @@ namespace TestBench0
 				}
 			}
 			if (!light.ShadowMap.IsValid) {
-
 				light.ShadowMap = null;
 			}
 			#endif
 			scene.AddLight(light);
 
 			#if true
-			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture4);
+			light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture5);
 			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
 			smapDebug.Scale = new Vector3(0.3f);
 			smapDebug.Pos = new Vector3(50f, 200, 0f);
@@ -100,7 +99,7 @@ namespace TestBench0
 				sunBillboard.renderState.castsShadow = false;
 				sunDiskScene.AddObject(sunBillboard);
 
-				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./Planets/", "sun_flare.png");
+				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
 				const float bigOffset = 0.8889f;
 				const float smallOffset = 0.125f;
 				RectangleF[] flareSpriteRects = {
