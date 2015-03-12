@@ -118,7 +118,7 @@ namespace TestBench0
 			}
 
 			// instanced asteroid ring
-			//if (false)
+			if (false)
 			{
 				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
 				var ringGen = new BodiesRingGenerator (
@@ -202,7 +202,7 @@ namespace TestBench0
 				cubesRenderer.DepthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
 				scene.AddObject(cubesRenderer);
-				//cubesRenderer.renderState.visible = false;
+				cubesRenderer.renderState.visible = false;
 
 				// test explositons
 				//if (false)

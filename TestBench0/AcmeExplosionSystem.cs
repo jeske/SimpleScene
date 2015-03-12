@@ -224,6 +224,8 @@ namespace SimpleScene
 						m_flyingSparksEmitter.OrientAwayFromCenter = true;
 						m_flyingSparksEmitter.Color = FlyingSparksColor;
 						//m_flyingSparksEmitter.Phi = (float)Math.PI/4f;
+						m_flyingSparksEmitter.Phi = 0;
+						m_flyingSparksEmitter.Theta = 0;
 						AddEmitter (m_flyingSparksEmitter);
 
 						var flyingSparksColorEffector = new SSColorKeyframesEffector ();
@@ -303,14 +305,28 @@ namespace SimpleScene
 
 			protected override void effectParticle (SSParticle particle, float deltaT)
 			{
-				#if false
+				#if true
 				// undo instanced billboarding
 				// TODO redundant; optimize
 				Quaternion quat = modelViewMatrix.ExtractRotation();
-				Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
-				particle.Orientation.X = euler.X;
-				particle.Orientation.Y = euler.Y;
-				particle.Orientation.Z = euler.Z;
+				{
+					// x-orient
+					Vector3 test1 = new Vector3(0f, 1f, 0f);
+					Vector3 test2 = Vector3.Transform(test1, quat);
+					float dot = Vector3.Dot(test1, test2);
+					float angle = (float)Math.Acos(dot);
+					if (test2.Z < 0f) {
+						angle = -angle;
+					} 
+					particle.Orientation.X = angle;
+				}
+
+
+
+
+
+				particle.Orientation.Y = 0f;
+				particle.Orientation.Z = 0f;
 				#else
 				particle.Orientation.X = 0f;
 				particle.Orientation.Y = 0f;
