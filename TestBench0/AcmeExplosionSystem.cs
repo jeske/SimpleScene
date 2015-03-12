@@ -1,4 +1,4 @@
-﻿// Copyright(C) David W. Jeske, 2013
+﻿// (C) David W. Jeske, 2013
 // Released to the public domain. Use, modify and relicense at will.
 
 
@@ -142,6 +142,7 @@ namespace SimpleScene
 						m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * flameSmokeDuration;
 						m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						m_flameSmokeEmitter.Life = flameSmokeDuration;
+						m_flameSmokeEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
 						//m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 						//m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
 						//m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
@@ -184,6 +185,7 @@ namespace SimpleScene
 						m_flashEmitter.Velocity = Vector3.Zero;
 						//m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 						//m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
+						m_flashEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
 						m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						AddEmitter (m_flashEmitter);
 
@@ -299,13 +301,19 @@ namespace SimpleScene
 
 			protected override void effectParticle (SSParticle particle, float deltaT)
 			{
+				#if false
 				// undo instanced billboarding
 				// TODO redundant; optimize
-				//Quaternion quat = modelViewMatrix.ExtractRotation();
-				//Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
-				//particle.Orientation.X = euler.X;
-				//particle.Orientation.Y = euler.Y;
-				//particle.Orientation.Z = euler.Z;
+				Quaternion quat = modelViewMatrix.ExtractRotation();
+				Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
+				particle.Orientation.X = euler.X;
+				particle.Orientation.Y = euler.Y;
+				particle.Orientation.Z = euler.Z;
+				#else
+				particle.Orientation.X = 0f;
+				particle.Orientation.Y = 0f;
+				particle.Orientation.Z = 0f;
+				#endif
 
 				//Vector3 dir = Vector3.Transform (particle.Vel, modelViewMatrix);
 				Vector3 dir = particle.Vel;
@@ -318,13 +326,8 @@ namespace SimpleScene
 				float phi = (float)Math.Atan (z / xy);
 				float theta = (float)Math.Atan2 (y, x);
 
-				//particle.Orientation.Y += phi;
-				//particle.Orientation.Z -= theta;
-				particle.Orientation.X = 0f;
-				particle.Orientation.Y = phi;
-				particle.Orientation.Z = -theta;
-				//particle.Orientation.Y = phi;
-				//particle.Orientation.X = 0f;
+				particle.Orientation.Y += phi;
+				particle.Orientation.Z += -theta;
 			}
 		} 
 	}

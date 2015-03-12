@@ -99,7 +99,7 @@ mat3 orientZ(float angle)
 void main()
 {
     vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
-                            
+
     vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
     if (instanceBillboardingEnabled) {
         vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
