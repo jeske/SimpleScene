@@ -96,19 +96,27 @@ mat3 orientZ(float angle)
                 0.0, 0.0, 1.0);
 }
 
+bool isNaN(float value)
+{
+    return value != value;
+}
+
 void main()
 {
     vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
 
     vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
-    if (instanceBillboardingEnabled) {
+    //if (instanceBillboardingEnabled) {
+    if (isNaN(instanceOrientationXY.x) || isNaN(instanceOrientationXY.y)) { // billboardXY?
+        combinedPos = orientZ(instanceOrientationZ) * combinedPos;
         vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
         rotation *= -1; // inverse rotation
         combinedPos = quatTransform(rotation, combinedPos);
+    } else {   
+        combinedPos = orientX(instanceOrientationXY.x) * combinedPos;
+        combinedPos = orientY(instanceOrientationXY.y) * combinedPos;
+        combinedPos = orientZ(instanceOrientationZ) * combinedPos;
     }
-    combinedPos = orientX(instanceOrientationXY.x) * combinedPos;
-    combinedPos = orientY(instanceOrientationXY.y) * combinedPos;
-    combinedPos = orientZ(instanceOrientationZ) * combinedPos;
     combinedPos += instancePos;
 
     gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);

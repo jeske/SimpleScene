@@ -202,6 +202,7 @@ namespace TestBench0
 				cubesRenderer.DepthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
 				scene.AddObject(cubesRenderer);
+				//cubesRenderer.renderState.visible = false;
 
 				// test explositons
 				//if (false)

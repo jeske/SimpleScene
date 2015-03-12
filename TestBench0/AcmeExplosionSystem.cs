@@ -143,6 +143,7 @@ namespace SimpleScene
 						m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						m_flameSmokeEmitter.Life = flameSmokeDuration;
 						m_flameSmokeEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
+						m_flameSmokeEmitter.BillboardXY = true;
 						//m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 						//m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
 						//m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
@@ -186,6 +187,7 @@ namespace SimpleScene
 						//m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 						//m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
 						m_flashEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
+						m_flashEmitter.BillboardXY = true;
 						m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						AddEmitter (m_flashEmitter);
 

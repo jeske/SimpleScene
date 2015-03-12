@@ -36,6 +36,22 @@ namespace SimpleScene
         // TODO orientation, effector mask
 
 		public ushort EffectorMask = ushort.MaxValue;
+
+		public bool BillboardXY {
+			set { 
+				if (value) { 
+					Orientation.X = Orientation.Y = float.NaN;
+				} else {
+					if (float.IsNaN (Orientation.X)) {
+						Orientation.X = 0f;
+					}
+					if (float.IsNaN (Orientation.Y)) {
+						Orientation.Y = 0f;
+					}
+				}
+			}
+			get { return float.IsNaN (Orientation.X) || float.IsNaN (Orientation.Y); }
+		}
     }
 
     /// <summary>
@@ -272,9 +288,15 @@ namespace SimpleScene
                         // Still alive. Update position and run through effectors
                         readParticle(i, p);
 						p.Vel -= p.Drag * p.Vel / p.Mass;
-						p.AngularVelocity -= p.RotationalDrag * p.AngularVelocity / p.RotationalInnertia;
+						if (!p.BillboardXY) {
+							p.AngularVelocity.Xy -= p.RotationalDrag * p.AngularVelocity.Xy / p.RotationalInnertia;
+						}
+						p.AngularVelocity.Z -= p.RotationalDrag * p.AngularVelocity.Z / p.RotationalInnertia;
                         p.Pos += p.Vel * SimulationStep;
-                        p.Orientation += p.AngularVelocity * SimulationStep;
+						if (!p.BillboardXY) {
+							p.Orientation.Xy += p.AngularVelocity.Xy * SimulationStep;
+						}
+						p.Orientation.Z += p.AngularVelocity.Z * SimulationStep;
                         foreach (SSParticleEffector effector in m_effectors) {
 							effector.SimulateParticleEffect(p, SimulationStep);
                         }

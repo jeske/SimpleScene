@@ -51,8 +51,38 @@ namespace SimpleScene
         public Vector3 OrientationMin = c_defaultParticle.Orientation;
         public Vector3 OrientationMax = c_defaultParticle.Orientation;
         public Vector3 Orientation {
-            set { OrientationMin = OrientationMax = value; }
+            set { 
+				OrientationMin = OrientationMax = value; 
+				if (BillboardXY) {
+					BillboardXY = true; // maintain BillboardXY state
+				}
+			}
         }
+
+		public bool BillboardXY {
+			set { 
+				if (value) { 
+					OrientationMin.X = OrientationMax.X = OrientationMin.Y = OrientationMax.Y = float.NaN;
+				} else {
+					if (float.IsNaN (OrientationMin.X)) {
+						OrientationMin.X = 0f;
+					}
+					if (float.IsNaN (OrientationMax.X)) {
+						OrientationMax.X = 0f;
+					}
+					if (float.IsNaN (OrientationMin.Y)) {
+						OrientationMin.Y = 0f;
+					}
+					if (float.IsNaN (OrientationMax.Y)) {
+						OrientationMax.Y = 0f;
+					}
+				}
+			}
+			get { 			
+				return float.IsNaN (OrientationMin.X) || float.IsNaN (OrientationMax.X)
+					|| float.IsNaN (OrientationMin.Y) || float.IsNaN (OrientationMax.Y);
+			}
+		}
 
         public Vector3 AngularVelocityMin = c_defaultParticle.AngularVelocity;
         public Vector3 AngularVelocityMax = c_defaultParticle.AngularVelocity;
@@ -217,8 +247,12 @@ namespace SimpleScene
             p.ComponentScale.Y = Interpolate.Lerp(ComponentScaleMin.Y, ComponentScaleMax.Y, nextFloat());
             p.ComponentScale.Z = Interpolate.Lerp(ComponentScaleMin.Z, ComponentScaleMax.Z, nextFloat());
 
-            p.Orientation.X = Interpolate.Lerp(OrientationMin.X, OrientationMax.X, nextFloat());
-            p.Orientation.Y = Interpolate.Lerp(OrientationMin.Y, OrientationMax.Y, nextFloat());
+			if (BillboardXY) {
+				p.BillboardXY = true;
+			} else {
+				p.Orientation.X = Interpolate.Lerp (OrientationMin.X, OrientationMax.X, nextFloat ());
+				p.Orientation.Y = Interpolate.Lerp (OrientationMin.Y, OrientationMax.Y, nextFloat ());
+			}
             p.Orientation.Z = Interpolate.Lerp(OrientationMin.Z, OrientationMax.Z, nextFloat());
 
             p.AngularVelocity.X = Interpolate.Lerp(AngularVelocityMin.X, AngularVelocityMax.X, nextFloat());
