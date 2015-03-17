@@ -13,8 +13,8 @@ namespace SimpleScene
 
 	public class AcmeExplosionRenderer : SSInstancedMeshRenderer
 	{
-		public AcmeExplosionRenderer(int capacity)
-			: base(new AcmeExplosionSystem(capacity),
+		public AcmeExplosionRenderer(int particleCapacity=100)
+			: base(new AcmeExplosionSystem(particleCapacity),
 				   AcmeExplosionSystem.GetDefaultTexture(),
 				   SSTexturedQuad.DoubleFaceInstance)
 		{
@@ -120,12 +120,12 @@ namespace SimpleScene
 			protected readonly RadialOrientator m_flyingSparksOrientator;
 
 			public AcmeExplosionSystem (
-				int capacity, 
+				int particleCapacity, 
 				RectangleF[] flameSmokeSprites = null,
 				RectangleF[] flashSprites = null,
 				RectangleF[] flyingSparksSprites = null
 			)
-				: base(capacity)
+				: base(particleCapacity)
 			{
 				{
 					// flame/smoke
