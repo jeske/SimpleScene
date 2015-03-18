@@ -91,6 +91,7 @@ namespace SimpleScene
 			public Color4 FlameColor = Color4.DarkOrange;
 			public Color4 FlashColor = Color4.Yellow;
 			public Color4 FlyingSparksColor = Color4.DarkGoldenrod;
+			public Color4 SmokeTrailsColor = Color4.Orange;
 			#endregion
 
 			#region timing settings
@@ -99,6 +100,7 @@ namespace SimpleScene
 			public float FlameSmokeDuration = 2.5f;
 			public float FlashDuration = 0.5f;
 			public float FlyingSparksDuration = 2.5f;
+			public float SmokeTrailsDuration = 1.5f;
 			#endregion
 
 			protected enum ComponentMask : ushort { 
@@ -117,29 +119,31 @@ namespace SimpleScene
 			protected readonly SSParticlesFieldEmitter m_flashEmitter;
 
 			protected readonly SSRadialEmitter m_flyingSparksEmitter;
-			protected readonly RadialOrientator m_flyingSparksOrientator;
+
+			protected readonly SSRadialEmitter m_smokeTrailsEmitter;
+
+			protected readonly RadialOrientator m_radialOrientator;
 
 			public AcmeExplosionSystem (
 				int particleCapacity, 
 				RectangleF[] flameSmokeSprites = null,
 				RectangleF[] flashSprites = null,
-				RectangleF[] flyingSparksSprites = null
+				RectangleF[] flyingSparksSprites = null,
+				RectangleF[] smokeTrailSprites = null
 			)
 				: base(particleCapacity)
 			{
 				{
 					// flame/smoke
 					{
-						float flameSmokeDuration = FlameSmokeDuration;
-
 						m_flameSmokeEmitter = new SSRadialEmitter ();
 						m_flameSmokeEmitter.SpriteRectangles = (flameSmokeSprites != null ? flameSmokeSprites : c_flameSmokeSpritesDefault);
 						m_flameSmokeEmitter.ParticlesPerEmissionMin = 1;
 						m_flameSmokeEmitter.ParticlesPerEmissionMax = 3;
 						m_flameSmokeEmitter.EmissionIntervalMin = 0f;
-						m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * flameSmokeDuration;
+						m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * FlameSmokeDuration;
 						m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
-						m_flameSmokeEmitter.Life = flameSmokeDuration;
+						m_flameSmokeEmitter.Life = FlameSmokeDuration;
 						m_flameSmokeEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
 						m_flameSmokeEmitter.BillboardXY = true;
 						m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
@@ -152,35 +156,35 @@ namespace SimpleScene
 
 						var flamesSmokeColorEffector = new SSColorKeyframesEffector ();
 						flamesSmokeColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-						flamesSmokeColorEffector.Keyframes.Add (0.1f*flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
-						flamesSmokeColorEffector.Keyframes.Add (flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
+						flamesSmokeColorEffector.Keyframes.Add (0.3f*FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
+						flamesSmokeColorEffector.Keyframes.Add (FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
 						flamesSmokeColorEffector.ColorMask = FlameColor;
-						flamesSmokeColorEffector.ParticleLifetime = flameSmokeDuration;
+						flamesSmokeColorEffector.ParticleLifetime = FlameSmokeDuration;
 						AddEffector (flamesSmokeColorEffector);
 
 						var flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
 						flameSmokeScaleEffector.Keyframes.Add (0f, 0.1f);
-						flameSmokeScaleEffector.Keyframes.Add (0.25f * flameSmokeDuration, 1f);
-						flameSmokeScaleEffector.Keyframes.Add (flameSmokeDuration, 1.2f);
-						flameSmokeScaleEffector.ParticleLifetime = flameSmokeDuration;
+						flameSmokeScaleEffector.Keyframes.Add (0.25f * FlameSmokeDuration, 1f);
+						flameSmokeScaleEffector.Keyframes.Add (FlameSmokeDuration, 1.2f);
+						flameSmokeScaleEffector.ParticleLifetime = FlameSmokeDuration;
 						AddEffector (flameSmokeScaleEffector);
 
-						m_flameSmokeEmitter.EffectorMask = flameSmokeScaleEffector.EffectorMask = flamesSmokeColorEffector.EffectorMask
+						m_flameSmokeEmitter.EffectorMask 
+							= flameSmokeScaleEffector.EffectorMask 
+							= flamesSmokeColorEffector.EffectorMask
 							= (ushort)ComponentMask.FlameSmoke;
 					}
 
 					// flash
 					{
-						float flashDuration = FlashDuration;
-
 						m_flashSphereGen = new ParticlesSphereGenerator ();
 						m_flashEmitter = new SSParticlesFieldEmitter (m_flashSphereGen);
 						m_flashEmitter.SpriteRectangles = (flashSprites != null ? flashSprites : c_flashSpritesDefault);
 						m_flashEmitter.ParticlesPerEmissionMin = 1;
 						m_flashEmitter.ParticlesPerEmissionMax = 2;
 						m_flashEmitter.EmissionIntervalMin = 0f;
-						m_flashEmitter.EmissionIntervalMax = 0.2f * flashDuration;
-						m_flashEmitter.Life = flashDuration;
+						m_flashEmitter.EmissionIntervalMax = 0.2f * FlashDuration;
+						m_flashEmitter.Life = FlashDuration;
 						m_flashEmitter.Velocity = Vector3.Zero;
 						m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 						m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
@@ -191,35 +195,34 @@ namespace SimpleScene
 
 						var flashColorEffector = new SSColorKeyframesEffector ();
 						flashColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-						flashColorEffector.Keyframes.Add (flashDuration, new Color4 (1f, 1f, 1f, 0f));
+						flashColorEffector.Keyframes.Add (FlashDuration, new Color4 (1f, 1f, 1f, 0f));
 						flashColorEffector.ColorMask = FlashColor;
-						flashColorEffector.ParticleLifetime = flashDuration;
+						flashColorEffector.ParticleLifetime = FlashDuration;
 						AddEffector (flashColorEffector);
 
 						var flashScaleEffector = new SSMasterScaleKeyframesEffector ();
-						flashScaleEffector.ParticleLifetime = flashDuration;
+						flashScaleEffector.ParticleLifetime = FlashDuration;
 						flashScaleEffector.Keyframes.Add (0f, 1f);
-						flashScaleEffector.Keyframes.Add (flashDuration, 1.5f);
+						flashScaleEffector.Keyframes.Add (FlashDuration, 1.5f);
 						AddEffector (flashScaleEffector);
 
-						m_flashEmitter.EffectorMask = flashColorEffector.EffectorMask = flashScaleEffector.EffectorMask 
+						m_flashEmitter.EffectorMask = flashColorEffector.EffectorMask 
+							= flashScaleEffector.EffectorMask 
 							= (ushort)ComponentMask.Flash;
 					}
 
 					// flying sparks
 					{
-						float flyingSparksDuration = FlyingSparksDuration;
-
 						m_flyingSparksEmitter = new SSRadialEmitter ();
-						m_flyingSparksEmitter.SpriteRectangles = (flyingSparksSprites != null ? flyingSparksSprites : c_flyingSparksSpritesDefault);
+						m_flyingSparksEmitter.SpriteRectangles = (flyingSparksSprites != null ? flyingSparksSprites 
+																							: c_flyingSparksSpritesDefault);
 						//m_flyingSparksEmitter.SpriteRectangles = c_flameSmokeSpritesDefault;
 						m_flyingSparksEmitter.ParticlesPerEmission = 16;
 						m_flyingSparksEmitter.EmissionIntervalMin = 0f;
-						m_flyingSparksEmitter.EmissionIntervalMax = 0.1f * flyingSparksDuration;
-						m_flyingSparksEmitter.Life = flyingSparksDuration;
+						m_flyingSparksEmitter.EmissionIntervalMax = 0.1f * FlyingSparksDuration;
+						m_flyingSparksEmitter.Life = FlyingSparksDuration;
 						m_flyingSparksEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						m_flyingSparksEmitter.ComponentScale = new Vector3 (5f, 1f, 1f);
-						m_flyingSparksEmitter.OrientAwayFromCenter = true;
 						m_flyingSparksEmitter.Color = FlyingSparksColor;
 						//m_flyingSparksEmitter.Phi = (float)Math.PI/4f;
 						//m_flyingSparksEmitter.Phi = 0;
@@ -227,19 +230,57 @@ namespace SimpleScene
 						AddEmitter (m_flyingSparksEmitter);
 
 						var flyingSparksColorEffector = new SSColorKeyframesEffector ();
-						flyingSparksColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-						flyingSparksColorEffector.Keyframes.Add (flyingSparksDuration, new Color4 (1f, 1f, 1f, 0f));
 						flyingSparksColorEffector.ColorMask = FlashColor;
-						flyingSparksColorEffector.ParticleLifetime = flyingSparksDuration;
+						flyingSparksColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
+						flyingSparksColorEffector.Keyframes.Add (FlyingSparksDuration, new Color4 (1f, 1f, 1f, 0f));
+						flyingSparksColorEffector.ParticleLifetime = FlyingSparksDuration;
 						AddEffector (flyingSparksColorEffector);
-
-						m_flyingSparksOrientator = new RadialOrientator();
-						AddEffector (m_flyingSparksOrientator);
 
 						m_flyingSparksEmitter.EffectorMask 
 							= flyingSparksColorEffector.EffectorMask
-							= m_flyingSparksOrientator.EffectorMask 
 							= (ushort)ComponentMask.FlyingSparks;
+					}
+
+					// smoke trails
+					{
+						m_smokeTrailsEmitter = new SSRadialEmitter();
+						m_smokeTrailsEmitter.RadiusOffset = 3f;
+						m_smokeTrailsEmitter.SpriteRectangles = (smokeTrailSprites == null) ? c_smokeTrailsSpritesDefault 
+																							: smokeTrailSprites;
+						m_smokeTrailsEmitter.ParticlesPerEmission = 16;
+						m_smokeTrailsEmitter.EmissionIntervalMin = 0f;
+						m_smokeTrailsEmitter.EmissionIntervalMax = 0.1f * SmokeTrailsDuration;
+						m_smokeTrailsEmitter.Life = SmokeTrailsDuration;
+						m_smokeTrailsEmitter.TotalEmissionsLeft = 0; // control this in ShowExplosion()
+						m_smokeTrailsEmitter.Color = SmokeTrailsColor;
+						AddEmitter(m_smokeTrailsEmitter);
+
+						var smokeTrailsColorEffector = new SSColorKeyframesEffector();
+						smokeTrailsColorEffector.ParticleLifetime = SmokeTrailsDuration;
+						smokeTrailsColorEffector.ColorMask = SmokeTrailsColor;
+						smokeTrailsColorEffector.Keyframes.Add(0f, new Color4(1f, 1f, 1f, 1f));
+						smokeTrailsColorEffector.Keyframes.Add(SmokeTrailsDuration, new Color4(0.7f, 0.7f, 0.7f, 0f));
+						AddEffector(smokeTrailsColorEffector);
+
+						var smokeTrailsScaleEffector = new SSComponentScaleKeyframeEffector();
+						smokeTrailsScaleEffector.ParticleLifetime = SmokeTrailsDuration;
+						smokeTrailsScaleEffector.Keyframes.Add(0f, new Vector3(1f, 1f, 1f));
+						smokeTrailsScaleEffector.Keyframes.Add(0.2f*SmokeTrailsDuration, new Vector3(10f, 1.5f, 1f));
+						smokeTrailsScaleEffector.Keyframes.Add(SmokeTrailsDuration, new Vector3(12f, 2f, 1f));
+						AddEffector(smokeTrailsScaleEffector);
+
+						m_smokeTrailsEmitter.EffectorMask
+							= smokeTrailsColorEffector.EffectorMask
+							= smokeTrailsScaleEffector.EffectorMask
+							= (ushort)ComponentMask.SmokeTrails;
+					}
+
+					// shared
+					{
+						m_radialOrientator = new RadialOrientator();
+						m_radialOrientator.EffectorMask = (ushort)ComponentMask.FlyingSparks 
+													    | (ushort)ComponentMask.SmokeTrails;
+						AddEffector (m_radialOrientator);
 					}
 				}
 			}
@@ -269,11 +310,18 @@ namespace SimpleScene
 				// flying sparks
 				#if true
 				m_flyingSparksEmitter.Center = position;
-				m_flyingSparksEmitter.RadiusOffset = 0f;
 				m_flyingSparksEmitter.VelocityMagnitudeMin = intensity * 5f;
-				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 5f;
+				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 6f;
 				m_flyingSparksEmitter.TotalEmissionsLeft = 1;
 				//m_flyingSparksEmitter.Color = Color4Helper.RandomDebugColor();
+				#endif
+
+				// smoke trails
+				#if true
+				m_smokeTrailsEmitter.Center = position;
+				m_smokeTrailsEmitter.VelocityMagnitudeMin = intensity * 0.7f;
+				m_smokeTrailsEmitter.VelocityMagnitudeMax = intensity * 0.8f;
+				m_smokeTrailsEmitter.TotalEmissionsLeft = 1;
 				#endif
 			}
 
@@ -285,8 +333,7 @@ namespace SimpleScene
 
 			public override void UpdateCamera (ref Matrix4 modelView, ref Matrix4 projection)
 			{
-				m_flyingSparksOrientator.UpdateModelView(ref modelView);
-				//m_sharedBillboarder.modelViewMatrix = modelView;
+				m_radialOrientator.UpdateModelView(ref modelView);
 			}
 		}
 

@@ -144,6 +144,26 @@ namespace SimpleScene
 		}
 	};
 
+	public class SSComponentScaleKeyframeEffector : SSKeyframesEffector<Vector3>
+	{
+		public Vector3 Amplification = Vector3.One;
+
+		protected override Vector3 computeValue (IInterpolater interpolater, 
+												 Vector3 prevKeyframe, Vector3 nextKeyframe, float ammount)
+		{
+			return new Vector3 (
+				interpolater.Compute (prevKeyframe.X, nextKeyframe.X, ammount),
+				interpolater.Compute (prevKeyframe.Y, nextKeyframe.Y, ammount),
+				interpolater.Compute (prevKeyframe.Z, nextKeyframe.Z, ammount)
+			);
+		}
+
+		protected override void applyValue(SSParticle particle, Vector3 value)
+		{
+			particle.ComponentScale = Amplification * value;
+		}
+	}
+
 	public class SSColorKeyframesEffector : SSKeyframesEffector<Color4>
 	{
 		public Color4 ColorMask = new Color4 (1.0f, 1.0f, 1.0f, 1.0f);
