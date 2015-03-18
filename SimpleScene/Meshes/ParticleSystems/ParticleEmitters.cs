@@ -207,7 +207,7 @@ namespace SimpleScene
             emitParticles(numToEmit, receiver);
         }
 
-        public void Simulate(float deltaT, ReceiverHandler receiver) 
+        public void SimulateEmissions(float deltaT, ReceiverHandler receiver) 
         {
 			if (TotalEmissionsLeft == 0) return;
 
@@ -231,6 +231,8 @@ namespace SimpleScene
                 EmitParticles(receiver);
             }
         }
+
+		public virtual void SimulateSelf(float deltaT) { }
 
         /// <summary>
         /// Convenience function.

@@ -272,11 +272,11 @@ namespace SimpleScene
 		protected virtual void simulateStep()
         {
             m_radius = 0f;
-            foreach (SSParticleEmitter emitter in m_emitters) {
-                emitter.Simulate(SimulationStep, storeNewParticle);
-            }
 			foreach (SSParticleEffector effector in m_effectors) {
 				effector.SimulateSelf (SimulationStep);
+			}
+			foreach (SSParticleEmitter emitter in m_emitters) {
+				emitter.SimulateSelf (SimulationStep);
 			}
 
             SSParticle p = new SSParticle ();
@@ -327,10 +327,19 @@ namespace SimpleScene
                     }
                 }
             }
+			foreach (SSParticleEmitter emitter in m_emitters) {
+				emitter.SimulateEmissions(SimulationStep, storeNewParticle);
+			}
         }
 
         protected virtual void storeNewParticle(SSParticle newParticle)
         {
+			// Apply effects before storing the new particle
+			// This can help avoid unnecessary array expansion for new particle's values
+			foreach (SSParticleEffector effector in m_effectors) {
+				effector.SimulateParticleEffect(newParticle, SimulationStep);
+			}
+
             int writeIdx;
             if (m_numParticles == m_capacity) {
                 writeIdx = m_nextIdxToOverwrite;
