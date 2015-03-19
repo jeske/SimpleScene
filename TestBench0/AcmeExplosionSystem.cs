@@ -110,7 +110,7 @@ namespace SimpleScene
 			public Color4 FlashColor = Color4.Yellow;
 			public Color4 FlyingSparksColor = Color4.DarkGoldenrod;
 			public Color4 SmokeTrailsColor = Color4.Orange;
-			public Color4 RoundSparksColor = Color4.Red;
+			public Color4 RoundSparksColor = Color4.OrangeRed;
 			public Color4 DebrisColorStart = Color4.Orange;
 			public Color4 DebrisColorEnd = Color4.Silver;
 			#endregion
@@ -144,6 +144,7 @@ namespace SimpleScene
 			protected readonly SSRadialEmitter m_flyingSparksEmitter;
 
 			protected readonly SSRadialEmitter m_smokeTrailsEmitter;
+			protected readonly SSComponentScaleKeyframeEffector m_smokeTrailsScaleEffector;
 
 			protected readonly SSRadialEmitter m_roundSparksEmitter;
 
@@ -186,7 +187,7 @@ namespace SimpleScene
 						flamesSmokeColorEffector.ColorMask = FlameColor;
 						flamesSmokeColorEffector.ParticleLifetime = FlameSmokeDuration;
 						flamesSmokeColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-						flamesSmokeColorEffector.Keyframes.Add (0.3f*FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
+						flamesSmokeColorEffector.Keyframes.Add (0.4f*FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
 						flamesSmokeColorEffector.Keyframes.Add (FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
 						AddEffector (flamesSmokeColorEffector);
 
@@ -289,16 +290,17 @@ namespace SimpleScene
 						smokeTrailsColorEffector.Keyframes.Add(SmokeTrailsDuration, new Color4(0.7f, 0.7f, 0.7f, 0f));
 						AddEffector(smokeTrailsColorEffector);
 
-						var smokeTrailsScaleEffector = new SSComponentScaleKeyframeEffector();
-						smokeTrailsScaleEffector.ParticleLifetime = SmokeTrailsDuration;
-						smokeTrailsScaleEffector.Keyframes.Add(0f, new Vector3(1f, 1f, 1f));
-						smokeTrailsScaleEffector.Keyframes.Add(0.2f*SmokeTrailsDuration, new Vector3(10f, 1.5f, 1f));
-						smokeTrailsScaleEffector.Keyframes.Add(SmokeTrailsDuration, new Vector3(12f, 2f, 1f));
-						AddEffector(smokeTrailsScaleEffector);
+						m_smokeTrailsScaleEffector = new SSComponentScaleKeyframeEffector();
+						m_smokeTrailsScaleEffector.ParticleLifetime = SmokeTrailsDuration;
+						m_smokeTrailsScaleEffector.BaseOffset = new Vector3(1f, 1f, 1f);
+						m_smokeTrailsScaleEffector.Keyframes.Add(0f, new Vector3(0f));
+						m_smokeTrailsScaleEffector.Keyframes.Add(0.2f*SmokeTrailsDuration, new Vector3(10f, 1.5f, 0f));
+						m_smokeTrailsScaleEffector.Keyframes.Add(SmokeTrailsDuration, new Vector3(12f, 2f, 0f));
+						AddEffector(m_smokeTrailsScaleEffector);
 
 						m_smokeTrailsEmitter.EffectorMask
 							= smokeTrailsColorEffector.EffectorMask
-							= smokeTrailsScaleEffector.EffectorMask
+							= m_smokeTrailsScaleEffector.EffectorMask
 							= (ushort)ComponentMask.SmokeTrails;
 					}
 
@@ -390,7 +392,6 @@ namespace SimpleScene
 				m_flameSmokeEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
 				m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
 				m_flameSmokeEmitter.VelocityMagnitudeMax = 0.30f * intensity;
-				//m_flameSmokeEmitter.VelocityMagnitude = 0f;
 				m_flameSmokeEmitter.Center = position;
 				m_flameSmokeEmitter.TotalEmissionsLeft = 3;
 				#endif
@@ -406,10 +407,9 @@ namespace SimpleScene
 				// flying sparks
 				#if true
 				m_flyingSparksEmitter.Center = position;
-				m_flyingSparksEmitter.VelocityMagnitudeMin = intensity * 5f;
-				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 6f;
+				m_flyingSparksEmitter.VelocityMagnitudeMin = intensity * 2f;
+				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 3f;
 				m_flyingSparksEmitter.TotalEmissionsLeft = 1;
-				//m_flyingSparksEmitter.Color = Color4Helper.RandomDebugColor();
 				#endif
 
 				// smoke trails
@@ -418,6 +418,8 @@ namespace SimpleScene
 				m_smokeTrailsEmitter.VelocityMagnitudeMin = intensity * 0.7f;
 				m_smokeTrailsEmitter.VelocityMagnitudeMax = intensity * 0.8f;
 				m_smokeTrailsEmitter.TotalEmissionsLeft = 1;
+
+				m_smokeTrailsScaleEffector.Amplification = new Vector3(0.1f*intensity, 1f, 0f);
 				#endif
 
 				// round sparks
@@ -431,10 +433,13 @@ namespace SimpleScene
 
 				// debris
 				#if true
-				m_debrisEmitter.MasterScale = intensity / 2f;
+				//m_debrisEmitter.MasterScale = intensity / 2f;
+				m_debrisEmitter.MasterScaleMin = 3f;
+				m_debrisEmitter.MasterScaleMax = 0.4f*intensity;
 				m_debrisEmitter.VelocityMagnitudeMin = 1f * intensity;
 				m_debrisEmitter.VelocityMagnitudeMax = 3f * intensity;
 				m_debrisEmitter.Center = position;
+				m_debrisEmitter.ParticlesPerEmission = 2*(int)Math.Log(intensity);
 				m_debrisEmitter.TotalEmissionsLeft = 1;
 				#endif
 			}

@@ -147,6 +147,7 @@ namespace SimpleScene
 	public class SSComponentScaleKeyframeEffector : SSKeyframesEffector<Vector3>
 	{
 		public Vector3 Amplification = Vector3.One;
+		public Vector3 BaseOffset = Vector3.Zero;
 
 		protected override Vector3 computeValue (IInterpolater interpolater, 
 												 Vector3 prevKeyframe, Vector3 nextKeyframe, float ammount)
@@ -160,7 +161,7 @@ namespace SimpleScene
 
 		protected override void applyValue(SSParticle particle, Vector3 value)
 		{
-			particle.ComponentScale = Amplification * value;
+			particle.ComponentScale = BaseOffset + Amplification * value;
 		}
 	}
 
