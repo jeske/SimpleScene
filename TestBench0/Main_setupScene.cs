@@ -180,7 +180,7 @@ namespace TestBench0
 				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
 				periodicExplosiveForce.EffectInterval = 3f;
 				periodicExplosiveForce.ExplosiveForceMin = 1000f;
-				periodicExplosiveForce.ExplosiveForceMax = 2000f;
+				periodicExplosiveForce.ExplosiveForceMax = 5000f;
 				periodicExplosiveForce.EffectDelay = 5f;
 				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
 				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
@@ -211,7 +211,7 @@ namespace TestBench0
 					scene.AddObject (aer);
 
 					periodicExplosiveForce.ExplosionEventHandlers += (pos, force) => { 
-						aer.ShowExplosion(pos, force/periodicExplosiveForce.ExplosiveForceMin * 5f); 
+						aer.ShowExplosion(pos, force/periodicExplosiveForce.ExplosiveForceMin*1.5f); 
 					};
 				}
 			}

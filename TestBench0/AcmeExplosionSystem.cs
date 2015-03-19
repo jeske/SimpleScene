@@ -245,7 +245,6 @@ namespace SimpleScene
 						m_flyingSparksEmitter.SpriteRectangles = (flyingSparksSprites != null ? flyingSparksSprites 
 																							: c_flyingSparksSpritesDefault);
 						//m_flyingSparksEmitter.SpriteRectangles = c_flameSmokeSpritesDefault;
-						m_flyingSparksEmitter.ParticlesPerEmission = 16;
 						m_flyingSparksEmitter.EmissionIntervalMin = 0f;
 						m_flyingSparksEmitter.EmissionIntervalMax = 0.1f * FlyingSparksDuration;
 						m_flyingSparksEmitter.Life = FlyingSparksDuration;
@@ -409,6 +408,7 @@ namespace SimpleScene
 				m_flyingSparksEmitter.Center = position;
 				m_flyingSparksEmitter.VelocityMagnitudeMin = intensity * 2f;
 				m_flyingSparksEmitter.VelocityMagnitudeMax = intensity * 3f;
+				m_flyingSparksEmitter.ParticlesPerEmission = (int)(5.0*Math.Log(intensity));
 				m_flyingSparksEmitter.TotalEmissionsLeft = 1;
 				#endif
 
@@ -417,6 +417,7 @@ namespace SimpleScene
 				m_smokeTrailsEmitter.Center = position;
 				m_smokeTrailsEmitter.VelocityMagnitudeMin = intensity * 0.7f;
 				m_smokeTrailsEmitter.VelocityMagnitudeMax = intensity * 0.8f;
+				m_smokeTrailsEmitter.ParticlesPerEmission = (int)(5.0*Math.Log(intensity));
 				m_smokeTrailsEmitter.TotalEmissionsLeft = 1;
 
 				m_smokeTrailsScaleEffector.Amplification = new Vector3(0.1f*intensity, 1f, 0f);
@@ -439,7 +440,7 @@ namespace SimpleScene
 				m_debrisEmitter.VelocityMagnitudeMin = 1f * intensity;
 				m_debrisEmitter.VelocityMagnitudeMax = 3f * intensity;
 				m_debrisEmitter.Center = position;
-				m_debrisEmitter.ParticlesPerEmission = 2*(int)Math.Log(intensity);
+				m_debrisEmitter.ParticlesPerEmission = (int)(2.5*Math.Log(intensity));
 				m_debrisEmitter.TotalEmissionsLeft = 1;
 				#endif
 			}
