@@ -84,6 +84,20 @@ namespace SimpleScene
 				new RectangleF(0.5f, 0.75f, 0.25f, 0.25f)
 			};
 
+			public static readonly RectangleF[] c_debrisSpritesDefault = {
+				new RectangleF(0.5f, 0.5f, 0.083333f, 0.083333f),
+				new RectangleF(0.583333f, 0.5f, 0.083333f, 0.083333f),
+				new RectangleF(0.66667f, 0.5f, 0.083333f, 0.083333f),
+
+				new RectangleF(0.5f, 0.583333f, 0.083333f, 0.083333f),
+				new RectangleF(0.583333f, 0.583333f, 0.083333f, 0.083333f),
+				new RectangleF(0.66667f, 0.583333f, 0.083333f, 0.083333f),
+
+				new RectangleF(0.5f, 0.66667f, 0.083333f, 0.083333f),
+				new RectangleF(0.583333f, 0.66667f, 0.083333f, 0.083333f),
+				new RectangleF(0.66667f, 0.66667f, 0.083333f, 0.083333f),
+			};
+
 			// TODO debris sprites
 			// TODO shockwave sprites
 			// TODO round sparks sprites
@@ -97,6 +111,8 @@ namespace SimpleScene
 			public Color4 FlyingSparksColor = Color4.DarkGoldenrod;
 			public Color4 SmokeTrailsColor = Color4.Orange;
 			public Color4 RoundSparksColor = Color4.Red;
+			public Color4 DebrisColorStart = Color4.Orange;
+			public Color4 DebrisColorEnd = Color4.Silver;
 			#endregion
 
 			#region timing settings
@@ -107,6 +123,7 @@ namespace SimpleScene
 			public float FlyingSparksDuration = 2.5f;
 			public float SmokeTrailsDuration = 1.5f;
 			public float RoundSparksDuration = 2.5f;
+			public float DebrisDuration = 4f;
 			#endregion
 
 			protected enum ComponentMask : ushort { 
@@ -130,6 +147,8 @@ namespace SimpleScene
 
 			protected readonly SSRadialEmitter m_roundSparksEmitter;
 
+			protected readonly SSRadialEmitter m_debrisEmitter;
+
 			protected readonly RadialBillboardOrientator m_radialOrientator;
 
 			public AcmeExplosionSystem (
@@ -138,7 +157,8 @@ namespace SimpleScene
 				RectangleF[] flashSprites = null,
 				RectangleF[] flyingSparksSprites = null,
 				RectangleF[] smokeTrailSprites = null,
-				RectangleF[] roundSparksSprites = null
+				RectangleF[] roundSparksSprites = null,
+				RectangleF[] debrisSprites = null
 			)
 				: base(particleCapacity)
 			{
@@ -321,6 +341,36 @@ namespace SimpleScene
 							= (ushort)ComponentMask.RoundSparks;
 					}
 
+					// debris
+					{
+						m_debrisEmitter = new SSRadialEmitter ();
+						m_debrisEmitter.SpriteRectangles = (debrisSprites != null ? debrisSprites : c_debrisSpritesDefault);
+						m_debrisEmitter.ParticlesPerEmissionMin = 7;
+						m_debrisEmitter.ParticlesPerEmissionMax = 10;
+						m_debrisEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
+						m_debrisEmitter.Life = DebrisDuration;
+						m_debrisEmitter.OrientationMin = new Vector3(0f, 0f, 0f);
+						m_debrisEmitter.OrientationMax = new Vector3(0f, 0f, 2f*(float)Math.PI);
+						m_debrisEmitter.BillboardXY = true;
+						m_debrisEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
+						m_debrisEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
+						m_debrisEmitter.RMin = 0f;
+						m_debrisEmitter.RMax = 1f;
+						AddEmitter (m_debrisEmitter);
+
+						var debrisColorFinal = new Color4(DebrisColorEnd.R, DebrisColorEnd.G, DebrisColorEnd.B, 0f);
+						var debrisColorEffector = new SSColorKeyframesEffector ();
+						debrisColorEffector.ParticleLifetime = DebrisDuration;
+						debrisColorEffector.Keyframes.Add (0f, DebrisColorStart);
+						debrisColorEffector.Keyframes.Add (0.3f*DebrisDuration, DebrisColorEnd);
+						debrisColorEffector.Keyframes.Add (DebrisDuration, debrisColorFinal);
+						AddEffector (debrisColorEffector);
+
+						m_debrisEmitter.EffectorMask 
+							= debrisColorEffector.EffectorMask
+							= (ushort)ComponentMask.Debris;
+					}
+
 					// shared
 					{
 						m_radialOrientator = new RadialBillboardOrientator();
@@ -377,6 +427,15 @@ namespace SimpleScene
 				m_roundSparksEmitter.VelocityMagnitudeMax = 0.30f * intensity;
 				m_roundSparksEmitter.Center = position;
 				m_roundSparksEmitter.TotalEmissionsLeft = 3;
+				#endif
+
+				// debris
+				#if true
+				m_debrisEmitter.MasterScale = intensity / 2f;
+				m_debrisEmitter.VelocityMagnitudeMin = 1f * intensity;
+				m_debrisEmitter.VelocityMagnitudeMax = 3f * intensity;
+				m_debrisEmitter.Center = position;
+				m_debrisEmitter.TotalEmissionsLeft = 1;
 				#endif
 			}
 
