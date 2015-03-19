@@ -80,6 +80,10 @@ namespace SimpleScene
 				new RectangleF(0.75f, 0.85f, 0.25f, 0.05f)
 			};
 
+			public static readonly RectangleF[] c_roundSparksSpritesDefault = {
+				new RectangleF(0.5f, 0.75f, 0.25f, 0.25f)
+			};
+
 			// TODO debris sprites
 			// TODO shockwave sprites
 			// TODO round sparks sprites
@@ -92,6 +96,7 @@ namespace SimpleScene
 			public Color4 FlashColor = Color4.Yellow;
 			public Color4 FlyingSparksColor = Color4.DarkGoldenrod;
 			public Color4 SmokeTrailsColor = Color4.Orange;
+			public Color4 RoundSparksColor = Color4.Red;
 			#endregion
 
 			#region timing settings
@@ -101,6 +106,7 @@ namespace SimpleScene
 			public float FlashDuration = 0.5f;
 			public float FlyingSparksDuration = 2.5f;
 			public float SmokeTrailsDuration = 1.5f;
+			public float RoundSparksDuration = 2.5f;
 			#endregion
 
 			protected enum ComponentMask : ushort { 
@@ -122,14 +128,17 @@ namespace SimpleScene
 
 			protected readonly SSRadialEmitter m_smokeTrailsEmitter;
 
-			protected readonly RadialOrientator m_radialOrientator;
+			protected readonly SSRadialEmitter m_roundSparksEmitter;
+
+			protected readonly RadialBillboardOrientator m_radialOrientator;
 
 			public AcmeExplosionSystem (
 				int particleCapacity, 
 				RectangleF[] flameSmokeSprites = null,
 				RectangleF[] flashSprites = null,
 				RectangleF[] flyingSparksSprites = null,
-				RectangleF[] smokeTrailSprites = null
+				RectangleF[] smokeTrailSprites = null,
+				RectangleF[] roundSparksSprites = null
 			)
 				: base(particleCapacity)
 			{
@@ -144,10 +153,9 @@ namespace SimpleScene
 						m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * FlameSmokeDuration;
 						m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						m_flameSmokeEmitter.Life = FlameSmokeDuration;
-						m_flameSmokeEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
+						m_flameSmokeEmitter.OrientationMin = new Vector3(0f, 0f, 0f);
+						m_flameSmokeEmitter.OrientationMax = new Vector3(0f, 0f, 2f*(float)Math.PI);
 						m_flameSmokeEmitter.BillboardXY = true;
-						m_flameSmokeEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
-						m_flameSmokeEmitter.OrientationMax = new Vector3 (0f, 0f, (float)Math.PI);
 						m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
 						m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
 						m_flameSmokeEmitter.RMin = 0f;
@@ -155,18 +163,18 @@ namespace SimpleScene
 						AddEmitter (m_flameSmokeEmitter);
 
 						var flamesSmokeColorEffector = new SSColorKeyframesEffector ();
+						flamesSmokeColorEffector.ColorMask = FlameColor;
+						flamesSmokeColorEffector.ParticleLifetime = FlameSmokeDuration;
 						flamesSmokeColorEffector.Keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
 						flamesSmokeColorEffector.Keyframes.Add (0.3f*FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
 						flamesSmokeColorEffector.Keyframes.Add (FlameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
-						flamesSmokeColorEffector.ColorMask = FlameColor;
-						flamesSmokeColorEffector.ParticleLifetime = FlameSmokeDuration;
 						AddEffector (flamesSmokeColorEffector);
 
 						var flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
+						flameSmokeScaleEffector.ParticleLifetime = FlameSmokeDuration;
 						flameSmokeScaleEffector.Keyframes.Add (0f, 0.1f);
 						flameSmokeScaleEffector.Keyframes.Add (0.25f * FlameSmokeDuration, 1f);
 						flameSmokeScaleEffector.Keyframes.Add (FlameSmokeDuration, 1.2f);
-						flameSmokeScaleEffector.ParticleLifetime = FlameSmokeDuration;
 						AddEffector (flameSmokeScaleEffector);
 
 						m_flameSmokeEmitter.EffectorMask 
@@ -188,7 +196,6 @@ namespace SimpleScene
 						m_flashEmitter.Velocity = Vector3.Zero;
 						m_flashEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
 						m_flashEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
-						m_flashEmitter.Orientation = new Vector3(0f, 0f, (float)Math.PI/4);
 						m_flashEmitter.BillboardXY = true;
 						m_flashEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						AddEmitter (m_flashEmitter);
@@ -275,9 +282,48 @@ namespace SimpleScene
 							= (ushort)ComponentMask.SmokeTrails;
 					}
 
+					// round sparks
+					{
+						m_roundSparksEmitter = new SSRadialEmitter ();
+						m_roundSparksEmitter.SpriteRectangles = (roundSparksSprites != null ? roundSparksSprites : c_roundSparksSpritesDefault);
+						m_roundSparksEmitter.ParticlesPerEmission = 6;
+						m_roundSparksEmitter.EmissionIntervalMin = 0f;
+						m_roundSparksEmitter.EmissionIntervalMax = 0.05f * RoundSparksDuration;
+						m_roundSparksEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
+						m_roundSparksEmitter.Life = RoundSparksDuration;
+						m_roundSparksEmitter.BillboardXY = true;
+						m_roundSparksEmitter.OrientationMin = new Vector3 (0f, 0f, 0f);
+						m_roundSparksEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
+						m_roundSparksEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.25f);
+						m_roundSparksEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.25f);
+						m_roundSparksEmitter.RMin = 0f;
+						m_roundSparksEmitter.RMax = 1f;
+						AddEmitter (m_roundSparksEmitter);
+
+						var roundSparksColorEffector = new SSColorKeyframesEffector ();
+						roundSparksColorEffector.ParticleLifetime = RoundSparksDuration;
+						roundSparksColorEffector.ColorMask = RoundSparksColor;
+						//roundSparksColorEffector.Keyframes.Add (0f, new Color4 (1f, 1, 1f, 1f));
+						roundSparksColorEffector.Keyframes.Add (0.1f*RoundSparksDuration, new Color4 (1f, 1f, 1f, 1f));
+						roundSparksColorEffector.Keyframes.Add (RoundSparksDuration, new Color4 (1f, 1f, 1f, 0f));
+						AddEffector (roundSparksColorEffector);
+
+						var roundSparksScaleEffector = new SSMasterScaleKeyframesEffector ();
+						roundSparksScaleEffector.ParticleLifetime = RoundSparksDuration;
+						roundSparksScaleEffector.Keyframes.Add (0f, 1f);
+						roundSparksScaleEffector.Keyframes.Add (0.25f * RoundSparksDuration, 3f);
+						roundSparksScaleEffector.Keyframes.Add (RoundSparksDuration, 6f);
+						AddEffector (roundSparksScaleEffector);
+
+						m_roundSparksEmitter.EffectorMask 
+							= roundSparksScaleEffector.EffectorMask 
+							= roundSparksColorEffector.EffectorMask
+							= (ushort)ComponentMask.RoundSparks;
+					}
+
 					// shared
 					{
-						m_radialOrientator = new RadialOrientator();
+						m_radialOrientator = new RadialBillboardOrientator();
 						m_radialOrientator.EffectorMask = (ushort)ComponentMask.FlyingSparks 
 													    | (ushort)ComponentMask.SmokeTrails;
 						AddEffector (m_radialOrientator);
@@ -323,6 +369,15 @@ namespace SimpleScene
 				m_smokeTrailsEmitter.VelocityMagnitudeMax = intensity * 0.8f;
 				m_smokeTrailsEmitter.TotalEmissionsLeft = 1;
 				#endif
+
+				// round sparks
+				#if true
+				m_roundSparksEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
+				m_roundSparksEmitter.VelocityMagnitudeMin = 0.20f * intensity;
+				m_roundSparksEmitter.VelocityMagnitudeMax = 0.30f * intensity;
+				m_roundSparksEmitter.Center = position;
+				m_roundSparksEmitter.TotalEmissionsLeft = 3;
+				#endif
 			}
 
 			public override void Simulate(float timeDelta)
@@ -337,7 +392,7 @@ namespace SimpleScene
 			}
 		}
 
-		public class RadialOrientator : SSParticleEffector
+		public class RadialBillboardOrientator : SSParticleEffector
 		{
 			protected float m_orientationX = 0f;
 
