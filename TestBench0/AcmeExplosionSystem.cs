@@ -420,7 +420,7 @@ namespace SimpleScene
 				m_smokeTrailsEmitter.ParticlesPerEmission = (int)(5.0*Math.Log(intensity));
 				m_smokeTrailsEmitter.TotalEmissionsLeft = 1;
 
-				m_smokeTrailsScaleEffector.Amplification = new Vector3(0.1f*intensity, 1f, 0f);
+				m_smokeTrailsScaleEffector.Amplification = new Vector3(0.1f*intensity, 0.1f*intensity, 0f);
 				#endif
 
 				// round sparks
