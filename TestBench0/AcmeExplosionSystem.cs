@@ -286,7 +286,7 @@ namespace SimpleScene
 						smokeTrailsColorEffector.ParticleLifetime = SmokeTrailsDuration;
 						smokeTrailsColorEffector.ColorMask = SmokeTrailsColor;
 						smokeTrailsColorEffector.Keyframes.Add(0f, new Color4(1f, 1f, 1f, 1f));
-						smokeTrailsColorEffector.Keyframes.Add(SmokeTrailsDuration, new Color4(0.7f, 0.7f, 0.7f, 0f));
+						smokeTrailsColorEffector.Keyframes.Add(SmokeTrailsDuration, new Color4(0.3f, 0.3f, 0.3f, 0f));
 						AddEffector(smokeTrailsColorEffector);
 
 						m_smokeTrailsScaleEffector = new SSComponentScaleKeyframeEffector();
