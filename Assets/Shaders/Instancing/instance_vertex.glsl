@@ -119,7 +119,8 @@ void main()
     gl_TexCoord[0].xy = gl_MultiTexCoord0.xy
                       * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
     gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
-    gl_TexCoord[0].zw = gl_MultiTexCoord0.zw;
+    //gl_TexCoord[0].zw = gl_MultiTexCoord0.zw;
+    gl_TexCoord[0].zw = vec2(0);
 
     varInstanceColor = instanceColor;
 }
