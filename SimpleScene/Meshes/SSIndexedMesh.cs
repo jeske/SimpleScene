@@ -50,6 +50,8 @@ namespace SimpleScene
             m_ibo.RenderInstanced(instanceCount, primType);
         }
 
+		public SSTexture InstanceTexture() { return null; }
+
         public void UpdateVertices (V[] vertices)
         {
             m_vbo.UpdateBufferData(vertices);

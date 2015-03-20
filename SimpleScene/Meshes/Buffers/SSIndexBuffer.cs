@@ -76,6 +76,8 @@ namespace SimpleScene
             m_vbo.DrawUnbind();
         }
 
+		public SSTexture InstanceTexture() { return null; }
+
         public void Bind() {
 			GL.BindBuffer (BufferTarget.ElementArrayBuffer, m_IBOid);
 		}

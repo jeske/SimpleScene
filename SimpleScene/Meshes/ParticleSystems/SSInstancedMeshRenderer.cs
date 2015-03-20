@@ -11,6 +11,8 @@ namespace SimpleScene
         /// Render a number of instances of the mesh. Attribute arrays must be prepared prior to use.
         /// </summary>
         void RenderInstanced(int instanceCount, PrimitiveType primType);
+
+		SSTexture InstanceTexture ();
     }
 
     /// <summary>
@@ -33,7 +35,6 @@ namespace SimpleScene
 		public BillboardingType Billboarding = BillboardingType.None;
         public ISSInstancable Mesh;
 
-
         protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> m_orientationXYBuffer;
 		protected SSAttributeBuffer<SSAttributeFloat> m_orientationZBuffer;
@@ -48,6 +49,7 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeUBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeVBuffer;
         protected SSTexture m_texture;
+		protected int m_tbo;
 
         public SSInstancedMeshRenderer (SSParticleSystem ps, 
 										SSTexture texture, 
@@ -57,6 +59,9 @@ namespace SimpleScene
             Mesh = mesh;
             ParticleSystem = ps;
             m_texture = texture;
+			if (m_texture == null && mesh != null) {
+				m_texture = mesh.InstanceTexture ();
+			}
 			m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
 			m_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
 			m_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
@@ -70,6 +75,17 @@ namespace SimpleScene
 			m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+
+			m_tbo = GL.GenBuffer ();
+			GL.BindBuffer (BufferTarget.TextureBuffer, m_tbo);
+			IntPtr size = (IntPtr)(m_texture.Width * m_texture.Height * 4 * sizeof(float)); 
+			GL.BufferData (BufferTarget.TextureBuffer, size, IntPtr.Zero, BufferUsageHint.StaticDraw);
+
+			//GL.ActiveTexture (TextureUnit.Texture0);
+			//GL.Enable (EnableCap.Texture2D);
+			GL.BindTexture (TextureTarget.TextureBuffer, m_texture.TextureID);
+			GL.TexBuffer (TextureBufferTarget.TextureBuffer, SizedInternalFormat.Rgba32f, m_tbo);
+			GL.BindBuffer (BufferTarget.TextureBuffer, 0);
         }
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -140,19 +156,21 @@ namespace SimpleScene
             // draw using the instancing shader
             SSInstanceShaderProgram shader = renderConfig.InstanceShader;
             // texture slot setup
-            GL.ActiveTexture(TextureUnit.Texture0);
+			//GL.ActiveTexture(TextureUnit.Texture0);
             #endif
             //GL.Disable(EnableCap.ColorMaterial);
 
             // texture binding setup
-            if (m_texture != null) {
-                GL.Enable(EnableCap.Texture2D);
-                GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
-            }
-
+			GL.ActiveTexture (TextureUnit.Texture0);
+			GL.BindTexture (TextureTarget.TextureBuffer, m_texture.TextureID);
+			GL.BindBuffer (BufferTarget.TextureBuffer, m_tbo);
+	
             shader.Activate();
             // prepare uniforms
-            #if MAIN_SHADER_INSTANCING
+			shader.UniTboSampler = m_tbo;
+			shader.UniTextureWidth = m_texture.Width;
+            
+			#if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = true;
             #endif
 
@@ -175,6 +193,10 @@ namespace SimpleScene
             // do the draw
             Mesh.RenderInstanced(ParticleSystem.ActiveBlockLength, PrimitiveType.Triangles);
              
+			// cleanup
+			GL.BindTexture (TextureTarget.TextureBuffer, 0);
+			GL.BindBuffer (BufferTarget.TextureBuffer, 0);
+
             GL.PopClientAttrib();
             #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = false;

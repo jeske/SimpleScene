@@ -18,7 +18,12 @@ namespace SimpleScene
 	public class SSTexture
 	{	
 		private int  _glTextureID;
+		private int _width = 0;
+		private int _height = 0;
+
 		public int TextureID { get { return _glTextureID; } }
+		public int Width { get { return _width; } }
+		public int Height { get { return _height; } }
        
         public SSTexture () {
 			//generate one texture and put its ID number into the "_glTextureID" variable
@@ -39,7 +44,10 @@ namespace SimpleScene
         }
 
         public void loadFromBitmap (Bitmap TextureBitmap, string name = null, bool hasAlpha = false, bool mipmap = true)
-		{		    
+		{
+			_width = TextureBitmap.Width;
+			_height = TextureBitmap.Height;
+
 			//get the data out of the bitmap
 			System.Drawing.Imaging.BitmapData TextureData;
 
@@ -126,6 +134,9 @@ namespace SimpleScene
 
 		public void loadFromImageBuffer (ImageBuffer TextureBitmap, string name = null, bool mipmap = true)
 		{	
+			_width = TextureBitmap.Width;
+			_height = TextureBitmap.Height;
+
 			//get the data out of the bitmap
 			byte[] buf = TextureBitmap.GetBuffer ();			
 		 

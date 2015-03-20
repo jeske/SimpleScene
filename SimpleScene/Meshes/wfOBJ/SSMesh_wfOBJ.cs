@@ -61,16 +61,18 @@ namespace SimpleScene
 		public void RenderInstanced(int instanceCount, PrimitiveType primType)
 		{
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
-				GL.ActiveTexture (TextureUnit.Texture0);
-				if (subset.diffuseTexture != null) {
-					GL.BindTexture (TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-				}
-				if (subset.ambientTexture != null || subset.specularTexture != null
-				 || subset.bumpTexture != null) {
-					throw new NotImplementedException ();
-				}
 				subset.ibo.RenderInstanced(instanceCount, primType);
 			}
+		}
+
+		public SSTexture InstanceTexture()
+		{
+			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
+				if (subset.diffuseTexture != null) {
+					return subset.diffuseTexture;
+				}
+			}
+			return null;
 		}
 
 		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
