@@ -43,8 +43,6 @@ namespace SimpleScene
             DrawUnbind();
         }
 
-		public SSTexture InstanceTexture() { return null; }
-
         public void UpdateAndDrawArrays(Vertex[] vertices,
                                         PrimitiveType primType,
                                         bool doBind = true)

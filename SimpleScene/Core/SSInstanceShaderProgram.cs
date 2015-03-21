@@ -14,12 +14,7 @@ namespace SimpleScene
         //private readonly SSShader m_geometryShader;
         #endregion
 
-		#region uniform locations
-		private readonly int u_tboSampler;
-		private readonly int u_textureWidth;
-		#endregion
-
-		#region attribute locations
+		#region attribute Locations
         private readonly int a_instancePos;
 		private readonly int a_instanceOrientationXY;
 		private readonly int a_instanceOrientationZ;
@@ -34,14 +29,6 @@ namespace SimpleScene
         private readonly int a_instanceSpriteSizeU;
         private readonly int a_instanceSpriteSizeV;
         #endregion
-
-		public int UniTextureWidth {
-			set { GL.Uniform1(u_textureWidth, value); }
-		}
-
-		public int UniTboSampler {
-			set { GL.Uniform1(u_tboSampler, value); }
-		}
 
         public int AttrInstancePos {
             get { return a_instancePos; }
@@ -105,8 +92,6 @@ namespace SimpleScene
             Activate ();
 
             // uniform(s)
-			u_textureWidth = getUniLoc ("textureWidth");
-			u_tboSampler = getUniLoc ("tboSampler");
 
 			// attributes
             a_instancePos = getAttrLoc("instancePos");
