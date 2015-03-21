@@ -98,6 +98,10 @@ namespace SimpleScene
 				new RectangleF(0.66667f, 0.66667f, 0.083333f, 0.083333f),
 			};
 
+			public static readonly RectangleF[] c_shockwaveSpritesDefault = {
+				new RectangleF (0.75f, 0.5f, 0.25f, 0.25f)
+			};
+
 			// TODO debris sprites
 			// TODO shockwave sprites
 			// TODO round sparks sprites
@@ -113,6 +117,7 @@ namespace SimpleScene
 			public Color4 RoundSparksColor = Color4.OrangeRed;
 			public Color4 DebrisColorStart = Color4.Orange;
 			public Color4 DebrisColorEnd = Color4.Silver;
+			public Color4 ShockWaveColor = Color4.Orange;
 			#endregion
 
 			#region timing settings
@@ -124,6 +129,7 @@ namespace SimpleScene
 			public float SmokeTrailsDuration = 1.5f;
 			public float RoundSparksDuration = 2.5f;
 			public float DebrisDuration = 4f;
+			public float ShockwaveDuration = 2f;
 			#endregion
 
 			protected enum ComponentMask : ushort { 
@@ -150,6 +156,8 @@ namespace SimpleScene
 
 			protected readonly SSRadialEmitter m_debrisEmitter;
 
+			protected readonly ShockwaveEmitter m_shockwaveEmitter;
+
 			protected readonly RadialBillboardOrientator m_radialOrientator;
 
 			public AcmeExplosionSystem (
@@ -159,7 +167,8 @@ namespace SimpleScene
 				RectangleF[] flyingSparksSprites = null,
 				RectangleF[] smokeTrailSprites = null,
 				RectangleF[] roundSparksSprites = null,
-				RectangleF[] debrisSprites = null
+				RectangleF[] debrisSprites = null,
+				RectangleF[] shockwaveSprites = null
 			)
 				: base(particleCapacity)
 			{
@@ -372,6 +381,36 @@ namespace SimpleScene
 							= (ushort)ComponentMask.Debris;
 					}
 
+					// shockwave
+					{
+						m_shockwaveEmitter = new ShockwaveEmitter();
+						m_shockwaveEmitter.SpriteRectangles = (shockwaveSprites != null ? shockwaveSprites : c_shockwaveSpritesDefault);
+						m_shockwaveEmitter.ParticlesPerEmission = 1;
+						m_shockwaveEmitter.TotalEmissionsLeft = 0;   // Control this in ShowExplosion()
+						m_shockwaveEmitter.Life = ShockwaveDuration;
+						m_shockwaveEmitter.Velocity = Vector3.Zero;
+						AddEmitter(m_shockwaveEmitter);
+
+						var shockwaveScaleEffector = new SSMasterScaleKeyframesEffector();
+						shockwaveScaleEffector.ParticleLifetime = ShockwaveDuration;
+						shockwaveScaleEffector.Keyframes.Add(0f, 0f);
+						shockwaveScaleEffector.Keyframes.Add(ShockwaveDuration, 5f);
+						AddEffector(shockwaveScaleEffector);
+
+						var shockwaveColorEffector = new SSColorKeyframesEffector();
+						shockwaveColorEffector.ParticleLifetime = ShockwaveDuration;
+						shockwaveColorEffector.ColorMask = ShockWaveColor;
+						shockwaveColorEffector.Keyframes.Add(0f, new Color4(1f, 1f, 1f, 1f));
+						//shockwaveColorEffector.Keyframes.Add(0.7f*ShockwaveDuration, new Color4(1f, 1f, 1f, 1f));
+						shockwaveColorEffector.Keyframes.Add(ShockwaveDuration, new Color4(1f, 1f, 1f, 0f));
+						AddEffector(shockwaveColorEffector);
+
+						m_shockwaveEmitter.EffectorMask
+							= shockwaveScaleEffector.EffectorMask
+							= shockwaveColorEffector.EffectorMask
+							= (ushort)ComponentMask.Shockwave;
+					}
+
 					// shared
 					{
 						m_radialOrientator = new RadialBillboardOrientator();
@@ -443,6 +482,13 @@ namespace SimpleScene
 				m_debrisEmitter.ParticlesPerEmission = (int)(2.5*Math.Log(intensity));
 				m_debrisEmitter.TotalEmissionsLeft = 1;
 				#endif
+
+				// shockwave
+				#if true
+				m_shockwaveEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
+				m_shockwaveEmitter.Position = position;
+				m_shockwaveEmitter.TotalEmissionsLeft = 1;
+				#endif
 			}
 
 			public override void Simulate(float timeDelta)
@@ -453,7 +499,8 @@ namespace SimpleScene
 
 			public override void UpdateCamera (ref Matrix4 modelView, ref Matrix4 projection)
 			{
-				m_radialOrientator.UpdateModelView(ref modelView);
+				m_radialOrientator.UpdateModelView (ref modelView);
+				m_shockwaveEmitter.UpdateModelView (ref modelView);
 			}
 		}
 
@@ -494,7 +541,21 @@ namespace SimpleScene
 				particle.Orientation.Z = -theta;
 				particle.Orientation.X = m_orientationX;
 			}
-		} 
+		}
+
+		public class ShockwaveEmitter : SSFixedPositionEmitter
+		{
+			protected static readonly Vector3 c_orientVariance = new Vector3(0f, 0.3f, 0.6f);
+
+			public void UpdateModelView(ref Matrix4 modelViewMatrix)
+			{
+				Quaternion quat = modelViewMatrix.ExtractRotation ().Inverted();
+				Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
+				Vector3 baseVec = new Vector3 (euler.X + 0.5f*(float)Math.PI, euler.Y, euler.Z); 
+				OrientationMin = baseVec - c_orientVariance;
+				OrientationMax = baseVec + c_orientVariance;
+			}
+		}
 	}
 }
 

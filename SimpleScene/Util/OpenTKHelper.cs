@@ -77,7 +77,8 @@ namespace SimpleScene
 			float phi = (float)Math.Atan2(q.Z*q.W + q.X*q.Y, 0.5f - q.Y*q.Y - q.Z*q.Z);
 			float theta = (float)Math.Asin(2f * (q.X*q.Z - q.Y*q.W));
 			float gamma = (float)Math.Atan2(q.Y*q.Z + q.X*q.W, 0.5f - q.Z * q.Z - q.W * q.W);
-            return new Vector3 (phi, theta, gamma);
+			//return new Vector3 (phi, theta, gamma);
+			return new Vector3 (gamma - (float)Math.PI, theta, phi);
         }
 			       
         /// <summary>
