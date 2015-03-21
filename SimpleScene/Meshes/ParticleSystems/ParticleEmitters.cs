@@ -348,10 +348,10 @@ namespace SimpleScene
 		public Vector3 Center = Vector3.Zero;
 
 		#region spawn radius
-		public float RMin = 0f;
-		public float RMax = 0f;
+		public float RadiusOffsetMin = 0f;
+		public float RadiusOffsetMax = 0f;
 		public float RadiusOffset {
-			set { RMin = RMax = value; }
+			set { RadiusOffsetMin = RadiusOffsetMax = value; }
 		}
 		#endregion
 
@@ -386,7 +386,7 @@ namespace SimpleScene
 		protected override void configureNewParticle (SSParticle p)
 		{
 			base.configureNewParticle (p);
-			float r = Interpolate.Lerp (RMin, RMax, nextFloat());
+			float r = Interpolate.Lerp (RadiusOffsetMin, RadiusOffsetMax, nextFloat());
 			float theta = Interpolate.Lerp (ThetaMin, ThetaMax, nextFloat ());
 			float phi = Interpolate.Lerp (PhiMin, PhiMax, nextFloat ());
 			float xy = (float)Math.Cos (phi);

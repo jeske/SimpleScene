@@ -177,10 +177,10 @@ namespace SimpleScene
 					{
 						m_flameSmokeEmitter = new SSRadialEmitter ();
 						m_flameSmokeEmitter.SpriteRectangles = (flameSmokeSprites != null ? flameSmokeSprites : c_flameSmokeSpritesDefault);
-						m_flameSmokeEmitter.ParticlesPerEmissionMin = 1;
-						m_flameSmokeEmitter.ParticlesPerEmissionMax = 3;
-						m_flameSmokeEmitter.EmissionIntervalMin = 0f;
-						m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * FlameSmokeDuration;
+						m_flameSmokeEmitter.ParticlesPerEmission = 2;
+						//m_flameSmokeEmitter.EmissionIntervalMin = 0f;
+						//m_flameSmokeEmitter.EmissionIntervalMax = 0.1f * FlameSmokeDuration;
+						m_flameSmokeEmitter.EmissionInterval = 0.03f * FlameSmokeDuration;
 						m_flameSmokeEmitter.TotalEmissionsLeft = 0; // Control this in ShowExplosion()
 						m_flameSmokeEmitter.Life = FlameSmokeDuration;
 						m_flameSmokeEmitter.OrientationMin = new Vector3(0f, 0f, 0f);
@@ -188,8 +188,8 @@ namespace SimpleScene
 						m_flameSmokeEmitter.BillboardXY = true;
 						m_flameSmokeEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
 						m_flameSmokeEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
-						m_flameSmokeEmitter.RMin = 0f;
-						m_flameSmokeEmitter.RMax = 1f;
+						m_flameSmokeEmitter.RadiusOffsetMin = 0f;
+						m_flameSmokeEmitter.RadiusOffsetMax = 0.5f;
 						AddEmitter (m_flameSmokeEmitter);
 
 						var flamesSmokeColorEffector = new SSColorKeyframesEffector ();
@@ -302,8 +302,8 @@ namespace SimpleScene
 						m_smokeTrailsScaleEffector.ParticleLifetime = SmokeTrailsDuration;
 						m_smokeTrailsScaleEffector.BaseOffset = new Vector3(1f, 1f, 1f);
 						m_smokeTrailsScaleEffector.Keyframes.Add(0f, new Vector3(0f));
-						m_smokeTrailsScaleEffector.Keyframes.Add(0.2f*SmokeTrailsDuration, new Vector3(10f, 1.5f, 0f));
-						m_smokeTrailsScaleEffector.Keyframes.Add(SmokeTrailsDuration, new Vector3(12f, 2f, 0f));
+						m_smokeTrailsScaleEffector.Keyframes.Add(0.5f*SmokeTrailsDuration, new Vector3(12f, 1.5f, 0f));
+						m_smokeTrailsScaleEffector.Keyframes.Add(SmokeTrailsDuration, new Vector3(7f, 2f, 0f));
 						AddEffector(m_smokeTrailsScaleEffector);
 
 						m_smokeTrailsEmitter.EffectorMask
@@ -326,8 +326,8 @@ namespace SimpleScene
 						m_roundSparksEmitter.OrientationMax = new Vector3 (0f, 0f, 2f*(float)Math.PI);
 						m_roundSparksEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.25f);
 						m_roundSparksEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.25f);
-						m_roundSparksEmitter.RMin = 0f;
-						m_roundSparksEmitter.RMax = 1f;
+						m_roundSparksEmitter.RadiusOffsetMin = 0f;
+						m_roundSparksEmitter.RadiusOffsetMax = 1f;
 						AddEmitter (m_roundSparksEmitter);
 
 						var roundSparksColorEffector = new SSColorKeyframesEffector ();
@@ -364,8 +364,8 @@ namespace SimpleScene
 						m_debrisEmitter.BillboardXY = true;
 						m_debrisEmitter.AngularVelocityMin = new Vector3 (0f, 0f, -0.5f);
 						m_debrisEmitter.AngularVelocityMax = new Vector3 (0f, 0f, +0.5f);
-						m_debrisEmitter.RMin = 0f;
-						m_debrisEmitter.RMax = 1f;
+						m_debrisEmitter.RadiusOffsetMin = 0f;
+						m_debrisEmitter.RadiusOffsetMax = 1f;
 						AddEmitter (m_debrisEmitter);
 
 						var debrisColorFinal = new Color4(DebrisColorEnd.R, DebrisColorEnd.G, DebrisColorEnd.B, 0f);
@@ -394,14 +394,13 @@ namespace SimpleScene
 						var shockwaveScaleEffector = new SSMasterScaleKeyframesEffector();
 						shockwaveScaleEffector.ParticleLifetime = ShockwaveDuration;
 						shockwaveScaleEffector.Keyframes.Add(0f, 0f);
-						shockwaveScaleEffector.Keyframes.Add(ShockwaveDuration, 5f);
+						shockwaveScaleEffector.Keyframes.Add(ShockwaveDuration, 7f);
 						AddEffector(shockwaveScaleEffector);
 
 						var shockwaveColorEffector = new SSColorKeyframesEffector();
 						shockwaveColorEffector.ParticleLifetime = ShockwaveDuration;
 						shockwaveColorEffector.ColorMask = ShockWaveColor;
 						shockwaveColorEffector.Keyframes.Add(0f, new Color4(1f, 1f, 1f, 1f));
-						//shockwaveColorEffector.Keyframes.Add(0.7f*ShockwaveDuration, new Color4(1f, 1f, 1f, 1f));
 						shockwaveColorEffector.Keyframes.Add(ShockwaveDuration, new Color4(1f, 1f, 1f, 0f));
 						AddEffector(shockwaveColorEffector);
 
@@ -427,16 +426,16 @@ namespace SimpleScene
 			{
 				// flame/smoke
 				#if true
-				m_flameSmokeEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
-				m_flameSmokeEmitter.VelocityMagnitudeMin = 0.20f * intensity;
-				m_flameSmokeEmitter.VelocityMagnitudeMax = 0.30f * intensity;
+				m_flameSmokeEmitter.ComponentScale = new Vector3(intensity*3f, intensity*3f, 1f);
+				m_flameSmokeEmitter.VelocityMagnitudeMin = 0.60f * intensity;
+				m_flameSmokeEmitter.VelocityMagnitudeMax = 0.80f * intensity;
 				m_flameSmokeEmitter.Center = position;
-				m_flameSmokeEmitter.TotalEmissionsLeft = 3;
+				m_flameSmokeEmitter.TotalEmissionsLeft = 5;
 				#endif
 
 				// flash
 				#if true
-				m_flashEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
+				m_flashEmitter.ComponentScale = new Vector3(intensity*3f, intensity*3f, 1f);
 				m_flashSphereGen.Center = position;
 				m_flashSphereGen.Radius = 0.3f * intensity;
 				m_flashEmitter.TotalEmissionsLeft = 2;
@@ -454,19 +453,20 @@ namespace SimpleScene
 				// smoke trails
 				#if true
 				m_smokeTrailsEmitter.Center = position;
-				m_smokeTrailsEmitter.VelocityMagnitudeMin = intensity * 0.7f;
-				m_smokeTrailsEmitter.VelocityMagnitudeMax = intensity * 0.8f;
+				m_smokeTrailsEmitter.VelocityMagnitudeMin = intensity * 0.8f;
+				m_smokeTrailsEmitter.VelocityMagnitudeMax = intensity * 1f;
 				m_smokeTrailsEmitter.ParticlesPerEmission = (int)(5.0*Math.Log(intensity));
 				m_smokeTrailsEmitter.TotalEmissionsLeft = 1;
+				m_smokeTrailsEmitter.RadiusOffset = intensity;
 
-				m_smokeTrailsScaleEffector.Amplification = new Vector3(0.1f*intensity, 0.1f*intensity, 0f);
+				m_smokeTrailsScaleEffector.Amplification = new Vector3(0.3f*intensity, 0.15f*intensity, 0f);
 				#endif
 
 				// round sparks
 				#if true
 				m_roundSparksEmitter.ComponentScale = new Vector3(intensity, intensity, 1f);
-				m_roundSparksEmitter.VelocityMagnitudeMin = 0.20f * intensity;
-				m_roundSparksEmitter.VelocityMagnitudeMax = 0.30f * intensity;
+				m_roundSparksEmitter.VelocityMagnitudeMin = 0.7f * intensity;
+				m_roundSparksEmitter.VelocityMagnitudeMax = 1.2f * intensity;
 				m_roundSparksEmitter.Center = position;
 				m_roundSparksEmitter.TotalEmissionsLeft = 3;
 				#endif
