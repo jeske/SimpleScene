@@ -74,13 +74,16 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
-            if (ParticleSystem.ActiveBlockLength <= 0) return;
+			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
+			// affects next frame
+			ParticleSystem.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
+
+			if (ParticleSystem.ActiveBlockLength <= 0) return;
 
 			this.boundingSphere = new SSObjectSphere (ParticleSystem.Radius);
 
             base.Render(ref renderConfig);
 
-            Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
             if (Billboarding == BillboardingType.Global) {
                 // Setup "global" billboarding. (entire particle system is rendered as a camera-facing
                 // billboard and will show the same position of particles from all angles)
@@ -193,9 +196,6 @@ namespace SimpleScene
             m_spriteSizeVBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeV);
             #endif
             //this.boundingSphere.Render(ref renderConfig);
-
-			// affects next frame
-			ParticleSystem.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
         }
 
         void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
