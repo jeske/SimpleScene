@@ -28,6 +28,7 @@ namespace SimpleScene
             GL.EnableClientState (ArrayCap.NormalArray);
             GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
+            GL.ActiveTexture(TextureUnit.Texture0); // to make sure it goes into MultiTexCoord0
             GL.EnableClientState (ArrayCap.TextureCoordArray);
             GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
         }
