@@ -85,7 +85,9 @@ public class SSShaderProgram {
     }
 
     protected int getAttrLoc(string name) {
-        return GL.GetAttribLocation(m_programID, name);
+		int ret = GL.GetAttribLocation(m_programID, name);
+		System.Console.WriteLine ("Attr (" + name + ") = " + ret);
+		return ret;
     }
     #endregion
 }
