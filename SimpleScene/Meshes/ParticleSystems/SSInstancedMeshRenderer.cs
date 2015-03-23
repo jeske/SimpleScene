@@ -149,13 +149,16 @@ namespace SimpleScene
             #endif
             //GL.Disable(EnableCap.ColorMaterial);
 
+			// activate shader first.... 
+			shader.Activate();
+
             // texture binding setup
             if (m_texture != null) {
                 GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             }
 
-            shader.Activate();
+            
             // prepare uniforms
             #if MAIN_SHADER_INSTANCING
             shader.UniInstanceDrawEnabled = true;
