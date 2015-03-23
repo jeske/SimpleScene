@@ -95,6 +95,7 @@ public class SSShaderProgram {
 		int activeAttr, maxLength;
 		GL.GetProgram (m_programID, GetProgramParameterName.ActiveAttributes, out activeAttr);
 		GL.GetProgram (m_programID, GetProgramParameterName.ActiveAttributeMaxLength, out maxLength);
+		System.Collections.SortedList info = new System.Collections.SortedList();
 
 		for (int i = 0; i < activeAttr; i++) {
 			int size, length;
@@ -102,12 +103,17 @@ public class SSShaderProgram {
 			System.Text.StringBuilder name = new System.Text.StringBuilder (maxLength);
 
 			GL.GetActiveAttrib (m_programID, i, maxLength, out length, out size, out type, name);
-			Console.WriteLine(String.Format("{0} {1} is at location {2}, size {3}",
-				type.ToString(),
-				name,
-				GL.GetAttribLocation(m_programID, name.ToString()),
-				size
-			));
+			int location = GL.GetAttribLocation (m_programID, name.ToString ());
+			info.Add(location,
+				String.Format("{0} {1} is at location {2}, size {3}",
+					type.ToString(),
+					name,
+					location,
+					size)
+			);
+		}
+		foreach (int key in info.Keys) {
+			Console.WriteLine (info [key]);
 		}
 	}
     #endregion
