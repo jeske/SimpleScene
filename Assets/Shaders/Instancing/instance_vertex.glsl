@@ -16,6 +16,8 @@ attribute float instanceSpriteOffsetV;
 attribute float instanceSpriteSizeU;
 attribute float instanceSpriteSizeV;
 
+attribute vec2 texCoord;
+
 varying vec4 varInstanceColor;
 
 // returns a quaternion representing rotation
@@ -115,11 +117,13 @@ void main()
     }
     combinedPos += instancePos;
 
+    // vec2 inputTexCoord = gl_MultiTexCoord0;
+    vec2 inputTexCoord = texCoord;
+
     gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
-    gl_TexCoord[0].xy = gl_MultiTexCoord0.xy
+    gl_TexCoord[0].xy = inputTexCoord
                       * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
     gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
-    //gl_TexCoord[0].zw = gl_MultiTexCoord0.zw;
     gl_TexCoord[0].zw = vec2(0);
 
     varInstanceColor = instanceColor;

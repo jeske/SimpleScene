@@ -99,7 +99,7 @@ namespace SimpleScene.Util.ssBVH
         private static readonly SSVertexBuffer<SSVertex_Pos> vbo = new SSVertexBuffer<SSVertex_Pos> (vertices);
         private static readonly SSIndexBuffer ibo = new SSIndexBuffer (indices, vbo);
 
-        public void renderCells(ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
+		public void renderCells(ref SSRenderConfig renderConfig, ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
             float nudge = 0f; 
 
             if (parentbox.Equals(n.box)) {
@@ -127,11 +127,11 @@ namespace SimpleScene.Util.ssBVH
 
             GL.PushMatrix();
             GL.MultMatrix(ref mat);
-            ibo.DrawElements(PrimitiveType.Lines, false);
+            ibo.DrawElements(ref renderConfig, PrimitiveType.Lines, false);
             GL.PopMatrix();
 
-            if (n.right != null) renderCells(n.right, ref n.box, depth:depth + 1);
-            if (n.left != null) renderCells(n.left, ref n.box, depth:depth + 1);
+            if (n.right != null) renderCells(ref renderConfig, n.right, ref n.box, depth:depth + 1);
+            if (n.left != null) renderCells(ref renderConfig, n.left, ref n.box, depth:depth + 1);
         }
 
         public override void Render(ref SSRenderConfig renderConfig) {
@@ -144,8 +144,8 @@ namespace SimpleScene.Util.ssBVH
    			
             GL.MatrixMode(MatrixMode.Modelview);
             ibo.Bind();
-            vbo.DrawBind();
-            this.renderCells(bvh.rootBVH, ref bvh.rootBVH.box, 0);
+			vbo.DrawBind(ref renderConfig);
+            this.renderCells(ref renderConfig, bvh.rootBVH, ref bvh.rootBVH.box, 0);
             vbo.DrawUnbind();
             ibo.Unbind();
         }

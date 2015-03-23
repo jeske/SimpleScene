@@ -5,12 +5,12 @@ namespace SimpleScene
 {
     public interface ISSVertexLayout 
     {
-        void BindGlAttributes();
+		void BindGlAttributes(ref SSRenderConfig renderConfig);
     }
 
     public interface ISSVertexBuffer
     {
-        void DrawBind();
+		void DrawBind(ref SSRenderConfig renderConfig);
         void DrawUnbind();
     }
 
@@ -27,8 +27,8 @@ namespace SimpleScene
             : base(vertices, hint)
         { }
 
-        public void DrawArrays(PrimitiveType primType, bool doBind = true) {
-            if (doBind) DrawBind();
+		public void DrawArrays(ref SSRenderConfig renderConfig, PrimitiveType primType, bool doBind = true) {
+			if (doBind) DrawBind(ref renderConfig);
             drawPrivate(primType);
             if (doBind) DrawUnbind();
         }
@@ -36,34 +36,35 @@ namespace SimpleScene
         /// <summary>
         /// Draws the arrays instanced. Attribute arrays must be prepared prior to use.
         /// </summary>
-        public void RenderInstanced(int numInstances, PrimitiveType primType)
+		public void RenderInstanced(ref SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
         {
-            DrawBind();
+			DrawBind(ref renderConfig);
             GL.DrawArraysInstanced(primType, 0, NumElements, numInstances);
             DrawUnbind();
         }
 
-        public void UpdateAndDrawArrays(Vertex[] vertices,
+		public void UpdateAndDrawArrays(ref SSRenderConfig renderConfig, 
+										Vertex[] vertices,
                                         PrimitiveType primType,
                                         bool doBind = true)
         {
             genBufferPrivate();
-            if (doBind) DrawBind();
+			if (doBind) DrawBind(ref renderConfig);
             updatePrivate(vertices);
             drawPrivate(primType);
             if (doBind) DrawUnbind();
         }
 
-        public void DrawBind() {
+		public void DrawBind(ref SSRenderConfig renderConfig) {
             // bind for use and setup for drawing
             bind();
-            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            c_dummyElement.BindGlAttributes();
+            //GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
+			c_dummyElement.BindGlAttributes(ref renderConfig);
         }
 
         public void DrawUnbind() {
             // unbind from use and undo draw settings
-            GL.PopClientAttrib();
+            //GL.PopClientAttrib();
             unbind();
         }
 

@@ -18,7 +18,7 @@ namespace SimpleScene
         public Vector3 Normal;
         public Vector3 Position;
 
-        public unsafe void  BindGlAttributes() {
+		public unsafe void  BindGlAttributes(ref SSRenderConfig renderConfig) {
             // this is the "transitional" GLSL 120 way of assigning buffer contents
             // http://www.opentk.com/node/80?page=1
 
@@ -31,6 +31,16 @@ namespace SimpleScene
             GL.ActiveTexture(TextureUnit.Texture0); // to make sure it goes into MultiTexCoord0
             GL.EnableClientState (ArrayCap.TextureCoordArray);
             GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+
+			int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
+			if (texcoordID != -1) {
+				GL.EnableVertexAttribArray (texcoordID);
+				GL.VertexAttribPointer (texcoordID, 
+					2, VertexAttribPointerType.Float, false, 
+					sizeof(SSVertex_PosNormDiffTex1),
+					(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+			}
+
         }
     }
 
@@ -54,7 +64,7 @@ namespace SimpleScene
             Position = new Vector3 (x, y, z);
         }
 
-        public unsafe void BindGlAttributes() {
+		public unsafe void BindGlAttributes(ref SSRenderConfig renderConfig) {
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_Pos), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_Pos), "Position"));
         }
@@ -73,7 +83,7 @@ namespace SimpleScene
             Position = new Vector3 (x, y, z);
         }
 
-        public unsafe void BindGlAttributes() {
+		public unsafe void BindGlAttributes(ref SSRenderConfig renderConfig) {
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex1), "Position"));
 

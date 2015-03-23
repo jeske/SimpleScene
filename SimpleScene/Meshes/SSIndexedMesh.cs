@@ -42,12 +42,12 @@ namespace SimpleScene
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
-            m_ibo.DrawElements(PrimitiveType.Triangles);
+            m_ibo.DrawElements(ref renderConfig, PrimitiveType.Triangles);
         }
 
-        public void RenderInstanced(int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
+		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
-            m_ibo.RenderInstanced(instanceCount, primType);
+            m_ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
         }
 
         public void UpdateVertices (V[] vertices)

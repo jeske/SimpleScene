@@ -58,7 +58,7 @@ namespace SimpleScene
         }
 #endregion
 
-		public void RenderInstanced(int instanceCount, PrimitiveType primType)
+		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 				GL.ActiveTexture (TextureUnit.Texture0);
@@ -69,7 +69,7 @@ namespace SimpleScene
 				 || subset.bumpTexture != null) {
 					throw new NotImplementedException ();
 				}
-				subset.ibo.RenderInstanced(instanceCount, primType);
+				subset.ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
 			}
 		}
 
@@ -182,8 +182,8 @@ namespace SimpleScene
 
 
 
-		private void _renderSendVBOTriangles(SSMeshOBJSubsetData subset) {
-            subset.ibo.DrawElements(PrimitiveType.Triangles);
+		private void _renderSendVBOTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+            subset.ibo.DrawElements(ref renderConfig, PrimitiveType.Triangles);
 		}
 
 		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
@@ -206,12 +206,12 @@ namespace SimpleScene
 			GL.End();
 		}
 			
-		private void _renderSendVBOLines(SSMeshOBJSubsetData subset) {
+		private void _renderSendVBOLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// TODO: this currently has classic problems with z-fighting between the model and the wireframe
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
             GL.LineWidth(1.5f);
             GL.Color4(0.8f, 0.5f, 0.5f, 0.5f);		
-            subset.ibo_wireframe.DrawElements(PrimitiveType.Lines);
+            subset.ibo_wireframe.DrawElements(ref renderConfig, PrimitiveType.Lines);
 		}
 
 		private void _renderSendLines(SSMeshOBJSubsetData subset) {
@@ -243,12 +243,12 @@ namespace SimpleScene
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {		
              foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
                 if (renderConfig.drawingShadowMap) {
-                    _renderSendVBOTriangles(subset);
+                    _renderSendVBOTriangles(ref renderConfig, subset);
                 } else {
                     if (renderConfig.drawGLSL) {
                         _renderSetupGLSL(ref renderConfig, subset);
                         if (renderConfig.useVBO && renderConfig.MainShader != null) {
-                            _renderSendVBOTriangles(subset);
+                            _renderSendVBOTriangles(ref renderConfig, subset);
                         } else {
                             _renderSendTriangles(subset);
                         }
@@ -256,7 +256,7 @@ namespace SimpleScene
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();
                         if (renderConfig.useVBO && renderConfig.MainShader != null) {
-                            _renderSendVBOLines(subset);
+                            _renderSendVBOLines(ref renderConfig, subset);
                         } else {
                             _renderSendLines(subset);
                         }
