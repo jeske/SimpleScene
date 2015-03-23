@@ -13,6 +13,10 @@ namespace SimpleScene
 
 	public class AcmeExplosionRenderer : SSInstancedMeshRenderer
 	{
+		new public AcmeExplosionSystem ParticleSystem {
+			get { return base.ParticleSystem as AcmeExplosionSystem; }
+		}
+
 		public AcmeExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
 			: base(new AcmeExplosionSystem(particleCapacity),
 				   texture != null ? texture : AcmeExplosionSystem.GetDefaultTexture(),
