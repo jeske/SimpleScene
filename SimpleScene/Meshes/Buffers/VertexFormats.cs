@@ -28,19 +28,19 @@ namespace SimpleScene
             GL.EnableClientState (ArrayCap.NormalArray);
             GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
-            GL.ActiveTexture(TextureUnit.Texture0); // to make sure it goes into MultiTexCoord0
-            GL.EnableClientState (ArrayCap.TextureCoordArray);
-            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
-
-			int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
-			if (texcoordID != -1) {
-				GL.EnableVertexAttribArray (texcoordID);
-				GL.VertexAttribPointer (texcoordID, 
-					2, VertexAttribPointerType.Float, false, 
-					sizeof(SSVertex_PosNormDiffTex1),
-					(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
+				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
+				if (texcoordID != -1) {
+					GL.EnableVertexAttribArray (texcoordID);
+					GL.VertexAttribPointer (texcoordID, 
+						2, VertexAttribPointerType.Float, false, 
+						sizeof(SSVertex_PosNormDiffTex1),
+						(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
+				}
+			} else {
+				GL.EnableClientState (ArrayCap.TextureCoordArray);
+				GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Tu"));
 			}
-
         }
     }
 
