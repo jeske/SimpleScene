@@ -206,7 +206,8 @@ namespace SimpleScene
         {
             int numActive = ParticleSystem.ActiveBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
-			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
+			int numToUpdate = array.Length < numActive ? 1 : numActive;
+			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array, numToUpdate);
         }
 
         public override void Update (float fElapsedMS)

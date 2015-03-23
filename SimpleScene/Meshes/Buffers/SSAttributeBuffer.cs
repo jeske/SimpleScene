@@ -44,7 +44,7 @@ namespace SimpleScene
             GL.VertexAttribDivisor(attrLoc, instancesPerValue);
         }
 
-		public void PrepareAttributeAndUpdate (int attrLoc, int instancesPerValue, Attribute[] data)
+		public void PrepareAttributeAndUpdate (int attrLoc, int instancesPerValue, Attribute[] data, int numToUpdate)
 		{
 			if (attrLoc == -1) return;
 
@@ -54,7 +54,7 @@ namespace SimpleScene
 				c_dummyElement.ComponentNum(), c_dummyElement.AttributeType(), c_dummyElement.IsNormalized(),
 				0, IntPtr.Zero);
 			genBufferPrivate();
-			updatePrivate (data);
+			updatePrivate (data, numToUpdate);
 			unbind();
 			GL.VertexAttribDivisor(attrLoc, instancesPerValue);
 		}
