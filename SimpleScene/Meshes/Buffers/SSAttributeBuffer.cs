@@ -44,9 +44,12 @@ namespace SimpleScene
             GL.VertexAttribDivisor(attrLoc, instancesPerValue);
         }
 
-		public void PrepareAttributeAndUpdate (int attrLoc, int instancesPerValue, Attribute[] data, int numToUpdate)
+		public void PrepareAttributeAndUpdate (int attrLoc, int instancesPerValue, Attribute[] data, int numToUpdate=-1)
 		{
-			if (attrLoc == -1) return;
+			if (attrLoc == -1 || numToUpdate == 0) return;
+			if (numToUpdate < 0) {
+				numToUpdate = data.Length;
+			}
 
 			GL.EnableVertexAttribArray(attrLoc);
 			bind();
