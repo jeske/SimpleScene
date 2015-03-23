@@ -54,7 +54,7 @@ namespace SimpleScene
 				c_dummyElement.ComponentNum(), c_dummyElement.AttributeType(), c_dummyElement.IsNormalized(),
 				0, IntPtr.Zero);
 			genBufferPrivate();
-			updatePrivate (data, NumElements / instancesPerValue);
+			updatePrivate (data);
 			unbind();
 			GL.VertexAttribDivisor(attrLoc, instancesPerValue);
 		}
