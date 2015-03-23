@@ -54,19 +54,29 @@ namespace SimpleScene
 		public Vector3 OrientationMin {
 			get { return m_orientationMin; }
 			set {
-				m_orientationMin = value;
-				if (BillboardXY) {
-					m_orientationMin.X = m_orientationMin.Y = float.NaN; // maintain BillboardXY state
+				if (!BillboardXY) {
+					if (!float.IsNaN (value.X)) {
+						m_orientationMin.X = value.X;
+					}
+					if (!float.IsNaN (value.Y)) {
+						m_orientationMin.Y = value.Y;
+					}
 				}
+				m_orientationMin.Z = value.Z;
 			}
 		}
 		public Vector3 OrientationMax {
 			get { return m_orientationMax; }
 			set {
-				m_orientationMax = value;
-				if (BillboardXY) {
-					m_orientationMax.X = m_orientationMax.Y = float.NaN; // maintain BillboardXY state
+				if (!BillboardXY) {
+					if (!float.IsNaN (value.X)) {
+						m_orientationMax.X = value.X;
+					}
+					if (!float.IsNaN (value.Y)) {
+						m_orientationMax.Y = value.Y;
+					}
 				}
+				m_orientationMax.Z = value.Z;
 			}
 		}
         public Vector3 Orientation {

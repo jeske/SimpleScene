@@ -545,15 +545,13 @@ namespace SimpleScene
 
 		public class ShockwaveEmitter : SSFixedPositionEmitter
 		{
-			protected static readonly Vector3 c_orientVariance = new Vector3(0f, 0.3f, 0.6f);
-
 			public void UpdateModelView(ref Matrix4 modelViewMatrix)
 			{
 				Quaternion quat = modelViewMatrix.ExtractRotation ().Inverted();
 				Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
 				Vector3 baseVec = new Vector3 (euler.X + 0.5f*(float)Math.PI, euler.Y, euler.Z); 
-				OrientationMin = baseVec - c_orientVariance;
-				OrientationMax = baseVec + c_orientVariance;
+				OrientationMin = baseVec + new Vector3((float)Math.PI/8f, 0f, 0f);
+				OrientationMax = baseVec + new Vector3((float)Math.PI*3f/8f, 2f*(float)Math.PI, 0f);
 			}
 		}
 	}
