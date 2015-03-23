@@ -32,8 +32,7 @@ namespace SimpleScene
 
 		public void ShowExplosion(Vector3 position, float intensity)
 		{
-			AcmeExplosionSystem aes = ParticleSystem as AcmeExplosionSystem;
-			aes.ShowExplosion (position, intensity);
+			ParticleSystem.ShowExplosion (position, intensity);
 		}
 
 		/// <summary>
