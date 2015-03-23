@@ -89,5 +89,26 @@ public class SSShaderProgram {
 		System.Console.WriteLine ("Attr (" + name + ") = " + ret);
 		return ret;
     }
+
+	public void debugLocations()
+	{
+		int activeAttr, maxLength;
+		GL.GetProgram (m_programID, GetProgramParameterName.ActiveAttributes, out activeAttr);
+		GL.GetProgram (m_programID, GetProgramParameterName.ActiveAttributeMaxLength, out maxLength);
+
+		for (int i = 0; i < activeAttr; i++) {
+			int size, length;
+			ActiveAttribType type;
+			System.Text.StringBuilder name = new System.Text.StringBuilder (maxLength);
+
+			GL.GetActiveAttrib (m_programID, i, maxLength, out length, out size, out type, name);
+			Console.WriteLine(String.Format("{0} {1} is at location {2}, size {3}",
+				type.ToString(),
+				name,
+				GL.GetAttribLocation(m_programID, name.ToString()),
+				size
+			));
+		}
+	}
     #endregion
 }

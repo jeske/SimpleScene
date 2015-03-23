@@ -80,6 +80,8 @@ namespace TestBench0
 				game.instancingShader = new SSInstanceShaderProgram ();
 				if (!game.instancingShader.IsValid) {
 					game.instancingShader = null;
+				} else {
+					game.instancingShader.debugLocations ();
 				}
 
 				game.setupInput ();
