@@ -87,8 +87,19 @@ namespace SimpleScene
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex1), "Position"));
 
-            GL.EnableClientState (ArrayCap.TextureCoordArray);
-            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosTex1), "TexCoord"));
+			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
+				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
+				if (texcoordID != -1) {
+					GL.EnableVertexAttribArray (texcoordID);
+					GL.VertexAttribPointer (texcoordID, 
+						2, VertexAttribPointerType.Float, false, 
+						sizeof(SSVertex_PosTex1),
+						(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosTex1), "TexCoord"));
+				}
+			} else {
+				GL.EnableClientState (ArrayCap.TextureCoordArray);
+				GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosTex1), "TexCoord"));
+			}
         }
     }
 }
