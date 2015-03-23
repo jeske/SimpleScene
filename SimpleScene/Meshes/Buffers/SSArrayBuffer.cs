@@ -21,7 +21,6 @@ namespace SimpleScene
 
         public SSArrayBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw) 
         {
-			genBufferPrivate();
             m_usageHint = hint;
             // TODO: pre-allocate buffer? will that help if updating buffer partially?
         }
@@ -41,6 +40,7 @@ namespace SimpleScene
 
         public void UpdateBufferData(Element[] elements)
         {
+            genBufferPrivate();
             bind();
             updatePrivate(elements);
             unbind();
