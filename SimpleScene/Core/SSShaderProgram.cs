@@ -104,7 +104,7 @@ public class SSShaderProgram {
 
 			GL.GetActiveAttrib (m_programID, i, maxLength, out length, out size, out type, name);
 			int location = GL.GetAttribLocation (m_programID, name.ToString ());
-			info.Add(location,
+			info.Add((location >= 0) ? location : (location*i),
 				String.Format("{0} {1} is at location {2}, size {3}",
 					type.ToString(),
 					name,
