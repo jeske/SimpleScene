@@ -62,8 +62,11 @@ namespace SimpleScene
             }
         }
 
-        protected void updatePrivate(Element[] vertices) {
-            m_numElements = vertices.Length;
+		protected void updatePrivate(Element[] vertices, int numElements = -1) {
+			if (numElements <= 0) {
+				numElements = vertices.Length;
+			}
+			m_numElements = numElements;
             GL.BufferData(BufferTarget.ArrayBuffer,
                 (IntPtr)(m_numElements * c_elementSz),
                 vertices,

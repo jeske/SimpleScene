@@ -35,7 +35,6 @@ namespace SimpleScene
         {
             if (attrLoc == -1) return;
 
-            //GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             GL.EnableVertexAttribArray(attrLoc);
             bind();
             GL.VertexAttribPointer(attrLoc, 
@@ -44,6 +43,20 @@ namespace SimpleScene
             unbind();
             GL.VertexAttribDivisor(attrLoc, instancesPerValue);
         }
+
+		public void PrepareAttributeAndUpdate (int attrLoc, int instancesPerValue, Attribute[] data)
+		{
+			if (attrLoc == -1) return;
+
+			GL.EnableVertexAttribArray(attrLoc);
+			bind();
+			GL.VertexAttribPointer(attrLoc, 
+				c_dummyElement.ComponentNum(), c_dummyElement.AttributeType(), c_dummyElement.IsNormalized(),
+				0, IntPtr.Zero);
+			updatePrivate (data, NumElements / instancesPerValue);
+			unbind();
+			GL.VertexAttribDivisor(attrLoc, instancesPerValue);
+		}
 
         public void DisableAttribute(int attrLoc)
         {

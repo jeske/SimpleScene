@@ -96,6 +96,7 @@ namespace SimpleScene
                 // Must be called before updating buffers
                 ParticleSystem.SortByDepth(ref modelView);
             }
+			#if false
             m_posBuffer.UpdateBufferData(ParticleSystem.Positions);
 			m_orientationXYBuffer.UpdateBufferData(ParticleSystem.OrientationsXY);
 			m_orientationZBuffer.UpdateBufferData (ParticleSystem.OrientationsZ);
@@ -109,6 +110,7 @@ namespace SimpleScene
             m_spriteOffsetVBuffer.UpdateBufferData(ParticleSystem.SpriteOffsetsV);
             m_spriteSizeUBuffer.UpdateBufferData(ParticleSystem.SpriteSizesU);
             m_spriteSizeVBuffer.UpdateBufferData(ParticleSystem.SpriteSizesV);
+			#endif
 
             if (AlphaBlendingEnabled) {
 				//GL.Enable(EnableCap.AlphaTest);
@@ -204,7 +206,7 @@ namespace SimpleScene
         {
             int numActive = ParticleSystem.ActiveBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
-            attrBuff.PrepareAttribute(attrLoc, numInstancesPerValue);
+			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
 
         public override void Update (float fElapsedMS)
