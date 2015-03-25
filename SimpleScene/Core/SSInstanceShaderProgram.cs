@@ -2,19 +2,34 @@
 
 using OpenTK.Graphics.OpenGL;
 
+public interface ISSInstancableShaderProgram
+{
+	int AttrInstancePos { get; }
+	int AttrInstanceOrientationXY { get; }
+	int AttrInstanceOrientationZ { get; }
+	int AttrInstanceMasterScale { get; }
+	int AttrInstanceComponentScaleXY { get; }
+	int AttrInstanceComponentScaleZ { get; }
+	int AttrInstanceColor { get; }
+	int AttrInstanceSpriteIndex { get; }
+	int AttrInstanceSpriteOffsetU { get; }
+	int AttrInstanceSpriteOffsetV { get; }
+	int AttrInstanceSpriteSizeU { get; }
+	int AttrInstanceSpriteSizeV { get; }
+}
+
 namespace SimpleScene
 {
-    public class SSInstanceShaderProgram : SSShaderProgram
+	public class SSInstanceShaderProgram : SSShaderProgram, ISSInstancableShaderProgram
     {
         private static readonly string c_ctx = "./Shaders/Instancing";
 
-        #region Shaders
+        #region shaders
         private readonly SSShader m_vertexShader;
         private readonly SSShader m_fragmentShader;
-        //private readonly SSShader m_geometryShader;
         #endregion
 
-		#region attribute Locations
+		#region attribute locations
         private readonly int a_instancePos;
 		private readonly int a_instanceOrientationXY;
 		private readonly int a_instanceOrientationZ;
@@ -80,6 +95,13 @@ namespace SimpleScene
 
         public SSInstanceShaderProgram()
         {
+			string glExtStr = GL.GetString (StringName.Extensions).ToLower ();
+			if (!glExtStr.Contains ("gl_ext_draw_instanced")) {
+				Console.WriteLine ("Instance shader not supported");
+				m_isValid = false;
+				return;
+			}
+
             m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "instance_vertex.glsl");
             m_vertexShader.LoadShader();
             attach(m_vertexShader);

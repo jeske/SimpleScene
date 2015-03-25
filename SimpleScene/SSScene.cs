@@ -27,6 +27,7 @@ namespace SimpleScene
 		public SSMainShaderProgram MainShader;
         public SSPssmShaderProgram PssmShader;
         public SSInstanceShaderProgram InstanceShader;
+		public SSInstancePssmShaderProgram InstancePssmShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
@@ -93,6 +94,11 @@ namespace SimpleScene
             get { return m_renderConfig.InstanceShader; }
             set { m_renderConfig.InstanceShader = value; }
         }
+
+		public SSInstancePssmShaderProgram InstancePssmShader {
+			get { return m_renderConfig.InstancePssmShader; }
+			set { m_renderConfig.InstancePssmShader = value; }
+		}
         #endregion
 
         public bool FrustumCulling {

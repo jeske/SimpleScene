@@ -29,6 +29,7 @@ namespace SimpleScene
             GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormDiffTex1), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormDiffTex1), "Normal"));
 
 			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
+				// instance pssm shader is not affected by this texture coordinate workaround
 				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
 				if (texcoordID != -1) {
 					GL.EnableVertexAttribArray (texcoordID);
@@ -88,6 +89,7 @@ namespace SimpleScene
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex1), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex1), "Position"));
 
 			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
+				// instance pssm shader is not affected by this texture coordinate workaround
 				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
 				if (texcoordID != -1) {
 					GL.EnableVertexAttribArray (texcoordID);
