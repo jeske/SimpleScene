@@ -22,7 +22,7 @@ namespace SimpleScene
 				   texture != null ? texture : AcmeExplosionSystem.GetDefaultTexture(),
 				   SSTexturedQuad.DoubleFaceInstance)
 		{
-			Billboarding = SSInstancedMeshRenderer.BillboardingType.None;
+			GlobalBillboarding = false;
 			AlphaBlendingEnabled = true;
 			DepthRead = true;
 			DepthWrite = false;

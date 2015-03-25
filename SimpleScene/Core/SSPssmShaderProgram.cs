@@ -13,6 +13,8 @@ namespace SimpleScene
 {
 	public interface ISSPssmShaderProgram
 	{
+		void Activate();
+
 		Matrix4 UniObjectWorldTransform { set; }
 		void UpdateShadowMapVPs (Matrix4[] mvps);
 	}

@@ -81,9 +81,18 @@ namespace SimpleScene
             // setup for render shadowmap pass
             renderConfig.PssmShader.Activate();
             renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowViewProjMatrices);
+
+			renderConfig.drawingPssm = true;
         }
 
-        void ComputeProjections(
+		public override void FinishRender (SSRenderConfig renderConfig)
+		{
+			base.FinishRender (renderConfig);
+
+			renderConfig.drawingPssm = false;
+		}
+
+        protected void ComputeProjections(
             List<SSObject> objects,
             Matrix4 cameraView,
             Matrix4 cameraProj,

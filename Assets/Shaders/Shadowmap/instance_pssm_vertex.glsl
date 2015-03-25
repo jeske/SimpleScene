@@ -23,7 +23,6 @@ attribute float instanceOrientationZ;
 attribute float instanceMasterScale;
 attribute vec2 instanceComponentScaleXY;
 attribute float instanceComponentScaleZ;
-attribute vec4 instanceColor;
 
 // returns a quaternion representing rotation
 // http://github.com/opentk/opentk/blob/c29509838d340bd292bc0113fe65a2e4b5aed0e8/Source/OpenTK/Math/Matrix4.cs

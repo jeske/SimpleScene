@@ -20,8 +20,6 @@ namespace SimpleScene
     {
         // TODO Draw any ibo/vbo mesh
 
-        public enum BillboardingType { None, Global };
-
         public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
 
 		public SSParticleSystem ParticleSystem;
@@ -30,7 +28,7 @@ namespace SimpleScene
         public bool AlphaBlendingEnabled = true;
 		public bool DepthRead = true;
 		public bool DepthWrite = true;
-		public BillboardingType Billboarding = BillboardingType.None;
+		public bool GlobalBillboarding = false;
         public ISSInstancable Mesh;
 
 
@@ -75,74 +73,93 @@ namespace SimpleScene
         public override void Render (ref SSRenderConfig renderConfig)
         {
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
-			// affects next frame
+
+			// allow particle system to react to camera/worldview
 			ParticleSystem.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
 
+			// do we have anything to draw?
 			if (ParticleSystem.ActiveBlockLength <= 0) return;
 
+			// allow frustum culling to react to particle system expanding/shrinking
 			this.boundingSphere = new SSObjectSphere (ParticleSystem.Radius);
 
             base.Render(ref renderConfig);
 
-            if (Billboarding == BillboardingType.Global) {
-                // Setup "global" billboarding. (entire particle system is rendered as a camera-facing
-                // billboard and will show the same position of particles from all angles)
-                modelView = OpenTKHelper.BillboardMatrix(ref modelView);
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.LoadMatrix(ref modelView);
-            }
-            // Update buffers early for better streaming
-            if (AlphaBlendingEnabled) {
-                // Must be called before updating buffers
-                ParticleSystem.SortByDepth(ref modelView);
+			// select either instance shader or instance pssm shader
+			ISSInstancableShaderProgram instanceShader = renderConfig.InstanceShader;
 
-				//GL.Enable(EnableCap.AlphaTest);
-				//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-                GL.Disable(EnableCap.Lighting);
-
-                // Fixes flicker issues for particles with "fighting" view depth values
-                // Also assumes the particle system is the last to be drawn in a scene
-                GL.DepthFunc(DepthFunction.Lequal);
-            }
-			if (DepthRead) {
-				GL.Enable (EnableCap.DepthTest);
+			if (renderConfig.drawingShadowMap) {
+				if (renderConfig.drawingPssm) {
+					renderConfig.InstancePssmShader.Activate ();
+					renderConfig.InstancePssmShader.UniObjectWorldTransform = this.worldMat;
+					instanceShader = renderConfig.InstancePssmShader;
+				} 
 			} else {
-				GL.Disable (EnableCap.DepthTest);
+				if (!GlobalBillboarding && AlphaBlendingEnabled) {
+					// Must be called before updating buffers
+					ParticleSystem.SortByDepth (ref modelView);
+
+					//GL.Enable(EnableCap.AlphaTest);
+					//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
+					GL.Enable (EnableCap.Blend);
+					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+					GL.Disable (EnableCap.Lighting);
+
+					// Fixes flicker issues for particles with "fighting" view depth values
+					// Also assumes the particle system is the last to be drawn in a scene
+					GL.DepthFunc (DepthFunction.Lequal);
+				}
+				if (DepthRead) {
+					GL.Enable (EnableCap.DepthTest);
+				} else {
+					GL.Disable (EnableCap.DepthTest);
+				}
+				GL.DepthMask (DepthWrite);
+
+				// texture binding setup
+				if (m_texture != null) {
+					GL.ActiveTexture (TextureUnit.Texture0);
+					GL.Enable(EnableCap.Texture2D);
+					GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
+				}
 			}
-			GL.DepthMask (DepthWrite);
 
-            // draw using the instancing shader
-            SSInstanceShaderProgram shader = renderConfig.InstanceShader;
-            // texture slot setup
-            GL.ActiveTexture(TextureUnit.Texture0);
-            //GL.Disable(EnableCap.ColorMaterial);
+			if (GlobalBillboarding) {
+				// Setup "global" billboarding. (entire particle system is rendered as a camera-facing
+				// billboard and will show the same position of particles from all angles)
+				modelView = OpenTKHelper.BillboardMatrix (ref modelView);
+				GL.MatrixMode (MatrixMode.Modelview);
+				GL.LoadMatrix (ref modelView);
+			}
 
-			// activate shader first.... 
-			shader.Activate();
-
-            // texture binding setup
-            if (m_texture != null) {
-                GL.Enable(EnableCap.Texture2D);
-                GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
-            }
+			instanceShader.Activate ();
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            prepareAttribute(m_posBuffer, shader.AttrInstancePos, ParticleSystem.Positions);
-			prepareAttribute(m_orientationXYBuffer, shader.AttrInstanceOrientationXY, ParticleSystem.OrientationsXY);
-			prepareAttribute(m_orientationZBuffer, shader.AttrInstanceOrientationZ, ParticleSystem.OrientationsZ);
-            prepareAttribute(m_masterScaleBuffer, shader.AttrInstanceMasterScale, ParticleSystem.MasterScales);
-			prepareAttribute(m_componentScaleXYBuffer, shader.AttrInstanceComponentScaleXY, ParticleSystem.ComponentScalesXY);
-			prepareAttribute(m_componentScaleZBuffer, shader.AttrInstanceComponentScaleZ, ParticleSystem.ComponentScalesZ);
-            prepareAttribute(m_colorBuffer, shader.AttrInstanceColor, ParticleSystem.Colors);
+            prepareAttribute(m_posBuffer, instanceShader.AttrInstancePos, 
+				ParticleSystem.Positions);
+			prepareAttribute(m_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
+				ParticleSystem.OrientationsXY);
+			prepareAttribute(m_orientationZBuffer, instanceShader.AttrInstanceOrientationZ, 
+				ParticleSystem.OrientationsZ);
+            prepareAttribute(m_masterScaleBuffer, instanceShader.AttrInstanceMasterScale, 
+				ParticleSystem.MasterScales);
+			prepareAttribute(m_componentScaleXYBuffer, instanceShader.AttrInstanceComponentScaleXY, 
+				ParticleSystem.ComponentScalesXY);
+			prepareAttribute(m_componentScaleZBuffer, instanceShader.AttrInstanceComponentScaleZ,
+				ParticleSystem.ComponentScalesZ);
+            prepareAttribute(m_colorBuffer, instanceShader.AttrInstanceColor, 
+				ParticleSystem.Colors);
 
-			//prepareAttribute(m_spriteIndexBuffer, shader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
-            prepareAttribute(m_spriteOffsetUBuffer, shader.AttrInstanceSpriteOffsetU, ParticleSystem.SpriteOffsetsU);
-            prepareAttribute(m_spriteOffsetVBuffer, shader.AttrInstanceSpriteOffsetV, ParticleSystem.SpriteOffsetsV);
-            prepareAttribute(m_spriteSizeUBuffer, shader.AttrInstanceSpriteSizeU, ParticleSystem.SpriteSizesU);
-            prepareAttribute(m_spriteSizeVBuffer, shader.AttrInstanceSpriteSizeV, ParticleSystem.SpriteSizesV);
+			//prepareAttribute(m_spriteIndexBuffer, instanceShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
+            prepareAttribute(m_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
+				ParticleSystem.SpriteOffsetsU);
+            prepareAttribute(m_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
+				ParticleSystem.SpriteOffsetsV);
+            prepareAttribute(m_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
+				ParticleSystem.SpriteSizesU);
+            prepareAttribute(m_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
+				ParticleSystem.SpriteSizesV);
 
             // do the draw
             Mesh.RenderInstanced(ref renderConfig, ParticleSystem.ActiveBlockLength, PrimitiveType.Triangles);

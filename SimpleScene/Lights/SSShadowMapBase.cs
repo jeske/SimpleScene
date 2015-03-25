@@ -133,7 +133,7 @@ namespace SimpleScene
             GL.Ext.DeleteFramebuffer(m_frameBufferID);
         }
 
-        public void FinishRender(SSRenderConfig renderConfig) {
+        public virtual void FinishRender(SSRenderConfig renderConfig) {
             unbindFramebuffer();
             renderConfig.drawingShadowMap = false;
         }
@@ -149,8 +149,8 @@ namespace SimpleScene
 
         }
 
-        protected void PrepareForRenderBase(SSRenderConfig renderConfig,
-                                            List<SSObject> objects) {
+        protected virtual void PrepareForRenderBase(SSRenderConfig renderConfig,
+                                                    List<SSObject> objects) {
 			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, m_frameBufferID);
 			// GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt,FramebufferAttachment.DepthAttachment,
 			//	TextureTarget.Texture2D, m_textureID, 0);

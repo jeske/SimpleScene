@@ -32,6 +32,7 @@ namespace SimpleScene
 		public bool drawGLSL = true;
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
+		public bool drawingPssm = false;
 
         public bool usePoissonSampling = true;
         public int numPoissonSamples = 8;

@@ -4,6 +4,8 @@ using OpenTK.Graphics.OpenGL;
 
 public interface ISSInstancableShaderProgram
 {
+	void Activate();
+
 	int AttrInstancePos { get; }
 	int AttrInstanceOrientationXY { get; }
 	int AttrInstanceOrientationZ { get; }
