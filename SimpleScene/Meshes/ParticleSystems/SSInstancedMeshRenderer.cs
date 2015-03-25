@@ -95,24 +95,7 @@ namespace SimpleScene
             if (AlphaBlendingEnabled) {
                 // Must be called before updating buffers
                 ParticleSystem.SortByDepth(ref modelView);
-            }
-			#if false
-            m_posBuffer.UpdateBufferData(ParticleSystem.Positions);
-			m_orientationXYBuffer.UpdateBufferData(ParticleSystem.OrientationsXY);
-			m_orientationZBuffer.UpdateBufferData (ParticleSystem.OrientationsZ);
-            m_masterScaleBuffer.UpdateBufferData(ParticleSystem.MasterScales);
-            m_componentScaleXYBuffer.UpdateBufferData(ParticleSystem.ComponentScalesXY);
-			m_componentScaleZBuffer.UpdateBufferData (ParticleSystem.ComponentScalesZ);
-            m_colorBuffer.UpdateBufferData(ParticleSystem.Colors);
 
-			//m_spriteIndexBuffer.UpdateBufferData(m_ps.SpriteIndices);
-            m_spriteOffsetUBuffer.UpdateBufferData(ParticleSystem.SpriteOffsetsU);
-            m_spriteOffsetVBuffer.UpdateBufferData(ParticleSystem.SpriteOffsetsV);
-            m_spriteSizeUBuffer.UpdateBufferData(ParticleSystem.SpriteSizesU);
-            m_spriteSizeVBuffer.UpdateBufferData(ParticleSystem.SpriteSizesV);
-			#endif
-
-            if (AlphaBlendingEnabled) {
 				//GL.Enable(EnableCap.AlphaTest);
 				//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
                 GL.Enable(EnableCap.Blend);
@@ -128,25 +111,12 @@ namespace SimpleScene
 			} else {
 				GL.Disable (EnableCap.DepthTest);
 			}
-
 			GL.DepthMask (DepthWrite);
 
-            #if MAIN_SHADER_INSTANCING
-            // draw using the main shader
-            // TODO: debug with bump mapped lighting mode
-            SSMainShaderProgram shader = renderConfig.MainShader;
-            shader.UniAmbTexEnabled = true;
-            shader.UniDiffTexEnabled = false;
-            shader.UniSpecTexEnabled = false;
-            shader.UniBumpTexEnabled = false;
-            // texture slot setup
-            GL.ActiveTexture(TextureUnit.Texture2);
-            #else
             // draw using the instancing shader
             SSInstanceShaderProgram shader = renderConfig.InstanceShader;
             // texture slot setup
             GL.ActiveTexture(TextureUnit.Texture0);
-            #endif
             //GL.Disable(EnableCap.ColorMaterial);
 
 			// activate shader first.... 
@@ -157,12 +127,6 @@ namespace SimpleScene
                 GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
             }
-
-            
-            // prepare uniforms
-            #if MAIN_SHADER_INSTANCING
-            shader.UniInstanceDrawEnabled = true;
-            #endif
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
@@ -184,22 +148,6 @@ namespace SimpleScene
             Mesh.RenderInstanced(ref renderConfig, ParticleSystem.ActiveBlockLength, PrimitiveType.Triangles);
              
             GL.PopClientAttrib();
-            #if MAIN_SHADER_INSTANCING
-            shader.UniInstanceDrawEnabled = false;
-            #endif
-
-            #if false
-            m_posBuffer.DisableAttribute(shader.AttrInstancePos);
-            m_masterScaleBuffer.DisableAttribute(shader.AttrInstanceMasterScale);
-            m_componentScaleBuffer.DisableAttribute(shader.AttrInstanceComponentScale);
-            m_colorBuffer.DisableAttribute(shader.AttrInstanceColor);
-
-            m_spriteIndexBuffer.DisableAttribute(shader.AttrInstanceSpriteIndex);
-            m_spriteOffsetUBuffer.DisableAttribute(shader.AttrInstanceSpriteOffsetU);
-            m_spriteOffsetVBuffer.DisableAttribute(shader.AttrInstanceSpriteOffsetV);
-            m_spriteSizeUBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeU);
-            m_spriteSizeVBuffer.DisableAttribute(shader.AttrInstanceSpriteSizeV);
-            #endif
             //this.boundingSphere.Render(ref renderConfig);
         }
 
@@ -209,7 +157,6 @@ namespace SimpleScene
         {
             int numActive = ParticleSystem.ActiveBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
-			int numToUpdate = array.Length < numActive ? 1 : numActive;
 			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
 
