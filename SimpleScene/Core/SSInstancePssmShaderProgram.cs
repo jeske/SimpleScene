@@ -105,7 +105,7 @@ namespace SimpleScene
 		{
 			string glExtStr = GL.GetString (StringName.Extensions).ToLower ();
 			if (!glExtStr.Contains ("gl_ext_gpu_shader4")
-		     || !glExtStr.Contains ("gl_ext_draw_instanced")) {
+			|| (!glExtStr.Contains ("gl_arb_draw_instanced") && !glExtStr.Contains ("gl_ext_draw_instanced"))) {
 				Console.WriteLine ("Instance PSSM shader not supported");
 				m_isValid = false;
 				return;

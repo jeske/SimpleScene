@@ -98,7 +98,7 @@ namespace SimpleScene
         public SSInstanceShaderProgram()
         {
 			string glExtStr = GL.GetString (StringName.Extensions).ToLower ();
-			if (!glExtStr.Contains ("gl_ext_draw_instanced")) {
+			if (!glExtStr.Contains ("gl_ext_draw_instanced") && !glExtStr.Contains ("gl_arb_draw_instanced")) {
 				Console.WriteLine ("Instance shader not supported");
 				m_isValid = false;
 				return;
