@@ -39,6 +39,7 @@ namespace TestBench0
 		SSMainShaderProgram mainShader;
 		SSPssmShaderProgram pssmShader;
 		SSInstanceShaderProgram instancingShader;
+		SSInstancePssmShaderProgram instancingPssmShader;
 
         SSInstancedMeshRenderer asteroidRingRenderer;
 		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);
@@ -82,6 +83,10 @@ namespace TestBench0
 					game.instancingShader = null;
 				} else {
 					game.instancingShader.debugLocations ();
+				}
+				game.instancingPssmShader = new SSInstancePssmShaderProgram ();
+				if (!game.instancingPssmShader.IsValid) {
+					game.instancingPssmShader = null;
 				}
 
 				game.setupInput ();

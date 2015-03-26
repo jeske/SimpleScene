@@ -19,6 +19,7 @@ namespace TestBench0
 			scene.MainShader = mainShader;
 			scene.PssmShader = pssmShader;
 			scene.InstanceShader = instancingShader;
+			scene.InstancePssmShader = instancingPssmShader;
 			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += beforeRenderObjectHandler;
 
@@ -27,11 +28,11 @@ namespace TestBench0
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-				if (scene.PssmShader != null && scene.PssmShader.IsValid) {
-					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
-				} else {
+				//if (scene.PssmShader != null && scene.InstancePssmShader != null) {
+					//light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
+				//} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);
-				}
+				//}
 			}
 			if (!light.ShadowMap.IsValid) {
 				light.ShadowMap = null;
@@ -141,6 +142,8 @@ namespace TestBench0
 				asteroidRingRenderer.DepthRead = true;
 				asteroidRingRenderer.DepthWrite = true;
 				asteroidRingRenderer.Name = "instanced asteroid renderer";
+				asteroidRingRenderer.renderState.castsShadow = true;
+				asteroidRingRenderer.renderState.receivesShadows = true;
 				scene.AddObject (asteroidRingRenderer);
 			}
 
@@ -198,6 +201,8 @@ namespace TestBench0
 				cubesRenderer.DepthRead = true;
 				cubesRenderer.DepthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
+				cubesRenderer.renderState.castsShadow = true;
+				cubesRenderer.renderState.receivesShadows = true;
 				scene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 

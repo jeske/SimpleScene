@@ -129,7 +129,7 @@ void main()
     }
     combinedPos += instancePos;   
 
-    gl_Position = objWorldTransform * combinedPos;
+    gl_Position = objWorldTransform * vec4(combinedPos, 1);
 
     int splitOverlapMask = 0;
     int submask;

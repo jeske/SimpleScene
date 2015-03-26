@@ -22,6 +22,8 @@ namespace SimpleScene
 				   texture != null ? texture : AcmeExplosionSystem.GetDefaultTexture(),
 				   SSTexturedQuad.DoubleFaceInstance)
 		{
+			renderState.castsShadow = false;
+			renderState.receivesShadows = false;
 			GlobalBillboarding = false;
 			AlphaBlendingEnabled = true;
 			DepthRead = true;

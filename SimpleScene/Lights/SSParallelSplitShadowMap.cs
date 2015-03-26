@@ -81,6 +81,8 @@ namespace SimpleScene
             // setup for render shadowmap pass
             renderConfig.PssmShader.Activate();
             renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowViewProjMatrices);
+			renderConfig.InstancePssmShader.Activate ();
+			renderConfig.InstancePssmShader.UpdateShadowMapVPs (m_shadowViewProjMatrices);
 
 			renderConfig.drawingPssm = true;
         }
