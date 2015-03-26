@@ -28,8 +28,7 @@ namespace TestBench0
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-				//if (scene.PssmShader != null && scene.InstancePssmShader != null) {
-				if (false) {
+				if (scene.PssmShader != null && scene.InstancePssmShader != null) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);

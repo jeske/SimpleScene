@@ -312,12 +312,18 @@ namespace SimpleScene
             int GLun_specTex = getUniLoc("specTex");
             int GLun_ambiTex = getUniLoc("ambiTex");
             int GLun_bumpTex = getUniLoc("bumpTex");
+            
 
 			// bind shader uniform variable handles to GL texture-unit numbers
             GL.Uniform1(GLun_diffTex, 0); // Texture.Texture0
             GL.Uniform1(GLun_specTex, 1); // Texture.Texture1
             GL.Uniform1(GLun_ambiTex, 2); // Texture.Texture2
             GL.Uniform1(GLun_bumpTex, 3); // Texture.Texture3
+
+
+            // TODO: fix this so everyone who needs to know texture assignments shares it.
+            int GLun_shadowMapTexture = getUniLoc("shadowMapTexture");
+            GL.Uniform1(GLun_shadowMapTexture, 7); // TextureUnit.Texture7
 
             // errors?
 			m_isValid = checkGlValid();
