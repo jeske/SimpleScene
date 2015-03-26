@@ -135,6 +135,7 @@
     <Compile Include="Util\Prefs.cs" />
     <Compile Include="Util\Color4Helper.cs" />
     <Compile Include="Core\SSInstancePssmShaderProgram.cs" />
+    <Compile Include="Core\SSSphere.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

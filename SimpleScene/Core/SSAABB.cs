@@ -37,6 +37,11 @@ namespace SimpleScene
             }
         }
 
+		public bool IntersectsSphere(SSSphere sphere)
+		{
+			return IntersectsSphere (sphere.center, sphere.radius);
+		}
+
         public bool IntersectsAABB(SSAABB box) {
             return ( (Max.X > box.Min.X) && (Min.X < box.Max.X) &&
                      (Max.Y > box.Min.Y) && (Min.Y < box.Max.Y) &&

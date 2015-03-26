@@ -28,7 +28,8 @@ namespace TestBench0
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-				if (scene.PssmShader != null && scene.InstancePssmShader != null) {
+				//if (scene.PssmShader != null && scene.InstancePssmShader != null) {
+				if (false) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);
@@ -134,8 +135,8 @@ namespace TestBench0
 				ps.AddEmitter(ringEmitter);
 				Console.WriteLine ("Packing 10k asteroids into a ring. This should take a few seconds...");
 				ps.EmitAll();
-								asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
-																	roidmesh, BufferUsageHint.StaticDraw);
+				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
+													roidmesh, BufferUsageHint.StaticDraw);
 				asteroidRingRenderer.SimulateOnUpdate = false;
 				asteroidRingRenderer.AlphaBlendingEnabled = false;
 				asteroidRingRenderer.DepthRead = true;
@@ -202,7 +203,7 @@ namespace TestBench0
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
-				scene.AddObject(cubesRenderer);
+				//scene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 
 				// test explositons

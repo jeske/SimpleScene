@@ -18,7 +18,7 @@ namespace SimpleScene
         private float m_bodyScaleMax = 1.0f;
         private Random m_rand = new Random();
         private NewBodyDelegate m_newBodyDel = null;
-        private List<BodyInfo> m_bodiesSoFar = null;
+		private List<SSSphere> m_bodiesSoFar = null;
         private int m_id = 0;
 
         public BodiesFieldGenerator(ParticlesFieldGenerator partFieldGen,
@@ -37,7 +37,7 @@ namespace SimpleScene
 
         public void Generate(int numParticles, NewBodyDelegate newBodyDel)
         {
-            m_bodiesSoFar = new List<BodyInfo>();
+            m_bodiesSoFar = new List<SSSphere>();
             m_newBodyDel = newBodyDel;
             m_id = 0;
 
@@ -53,9 +53,9 @@ namespace SimpleScene
         {
             float scale = m_bodyScaleMin + (float)m_rand.NextDouble() * (m_bodyScaleMax - m_bodyScaleMin);
 
-            BodyInfo newBodyInfo;
-            newBodyInfo.scaledRadius = m_bodyRadius * scale;
-            newBodyInfo.pos = pos;
+			SSSphere newBodyInfo;
+			newBodyInfo.radius = m_bodyRadius * scale;
+			newBodyInfo.center = pos;
             if (validate(newBodyInfo)) {
                 Quaternion randOri = randomOrient();
                 if (m_newBodyDel(m_id, scale, pos, randOri)) {
@@ -76,38 +76,19 @@ namespace SimpleScene
             return Quaternion.FromAxisAngle(axis, angle);
         }
 
-        protected virtual bool validate(BodyInfo newBodyInfo) 
+        protected virtual bool validate(SSSphere newBodyInfo) 
         {
             // override to handle collision tests efficiently for a specific shape of a field
             // or add other clipping tests..
             if (m_bodyRadius == 0.0f) return true;
-            foreach (BodyInfo bi in m_bodiesSoFar) {
-                if (newBodyInfo.Intersects(bi)) {
+			foreach (SSSphere s in m_bodiesSoFar) {
+                if (newBodyInfo.IntersectsSphere(s)) {
                     return false; // invalid
                 }
             }
             m_bodiesSoFar.Add(newBodyInfo);
             return true; // valid
         }
-
-        protected struct BodyInfo 
-        {
-            // In theory could be extended to include exact positioning of the body
-            public Vector3 pos;
-            public float scaledRadius;
-
-            public bool Intersects (BodyInfo other) {
-                float distSq = (other.pos - this.pos).LengthSquared;
-                float addedRadSq = (other.scaledRadius + this.scaledRadius);
-                addedRadSq *= addedRadSq;
-                if (distSq <= addedRadSq) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
     }
 
     public class BodiesRingGenerator : BodiesFieldGenerator
