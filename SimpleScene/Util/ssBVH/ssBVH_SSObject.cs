@@ -57,7 +57,7 @@ namespace SimpleScene.Util.ssBVH
         }
 
         // the SSObject has changed, so notify the BVH leaf to refit for the object
-        void obj_OnChanged(SSObject sender) {                 
+        protected void obj_OnChanged(SSObject sender) {                 
             ssToLeafMap[sender].refit_ObjectChanged(this, sender);
         }
 
