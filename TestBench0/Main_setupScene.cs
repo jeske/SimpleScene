@@ -28,11 +28,11 @@ namespace TestBench0
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-				//if (scene.PssmShader != null && scene.InstancePssmShader != null) {
-					//light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
-				//} else {
+				if (scene.PssmShader != null && scene.InstancePssmShader != null) {
+					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
+				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);
-				//}
+				}
 			}
 			if (!light.ShadowMap.IsValid) {
 				light.ShadowMap = null;
@@ -134,8 +134,7 @@ namespace TestBench0
 				ps.AddEmitter(ringEmitter);
 				Console.WriteLine ("Packing 10k asteroids into a ring. This should take a few seconds...");
 				ps.EmitAll();
-
-				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
+								asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
 																	roidmesh, BufferUsageHint.StaticDraw);
 				asteroidRingRenderer.SimulateOnUpdate = false;
 				asteroidRingRenderer.AlphaBlendingEnabled = false;
