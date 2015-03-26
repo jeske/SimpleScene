@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenTK;
+using SimpleScene.Util.ssBVH;
 
 namespace SimpleScene
 {
@@ -13,21 +14,24 @@ namespace SimpleScene
         public delegate bool NewBodyDelegate(int id, float scale, Vector3 pos, Quaternion orient);
 
         private readonly ParticlesFieldGenerator m_partFieldGen;
-        private float m_bodyRadius = 0.0f;
-        private float m_bodyScaleMin = 1.0f;
-        private float m_bodyScaleMax = 1.0f;
+        private readonly float m_bodyRadius;
+        private readonly float m_bodyScaleMin;
+        private readonly float m_bodyScaleMax;
+		private readonly float m_safetyDistance;
         private Random m_rand = new Random();
         private NewBodyDelegate m_newBodyDel = null;
-		private List<SSSphere> m_bodiesSoFar = null;
+		private SSSphereBVH m_bodiesSoFar = null;
         private int m_id = 0;
 
         public BodiesFieldGenerator(ParticlesFieldGenerator partFieldGen,
-            float bodyScaleMin=1.0f, float bodyScaleMax=1.0f, float bodyRadius=0.0f)
+            float bodyScaleMin=1.0f, float bodyScaleMax=1.0f, float bodyRadius=0.0f,
+			float safetyDistance = 0.0f)
         {
             m_partFieldGen = partFieldGen;
             m_bodyScaleMin = bodyScaleMin;
             m_bodyScaleMax = bodyScaleMax;
             m_bodyRadius = bodyRadius;
+			m_safetyDistance = safetyDistance;
         }
         public void SetSeed(int seed)
         {
@@ -37,7 +41,7 @@ namespace SimpleScene
 
         public void Generate(int numParticles, NewBodyDelegate newBodyDel)
         {
-            m_bodiesSoFar = new List<SSSphere>();
+			m_bodiesSoFar = new SSSphereBVH();
             m_newBodyDel = newBodyDel;
             m_id = 0;
 
@@ -80,13 +84,21 @@ namespace SimpleScene
         {
             // override to handle collision tests efficiently for a specific shape of a field
             // or add other clipping tests..
-            if (m_bodyRadius == 0.0f) return true;
-			foreach (SSSphere s in m_bodiesSoFar) {
-                if (newBodyInfo.IntersectsSphere(s)) {
-                    return false; // invalid
-                }
+			newBodyInfo.radius += m_safetyDistance;
+			if (m_bodyRadius == 0.0f) return true;
+
+			List<ssBVHNode<SSSphere>> intersectList 
+				= m_bodiesSoFar.traverse (newBodyInfo.ToAABB ());
+			foreach (ssBVHNode<SSSphere> node in intersectList) {
+				if (node.gobjects != null) {
+					foreach (SSSphere sphere in node.gobjects) {
+						if (newBodyInfo.IntersectsSphere (sphere)) {
+							return false; // invalid
+						}
+					}
+				}
             }
-            m_bodiesSoFar.Add(newBodyInfo);
+			m_bodiesSoFar.addObject (newBodyInfo);
             return true; // valid
         }
     }
@@ -97,20 +109,22 @@ namespace SimpleScene
             Vector3 ringCenter, Vector3 up, float ringRadius,
             float sectionStart = 0.0f,
             float sectionEnd = (float)(2.0*Math.PI),
-            float bodyScaleMin = 1.0f, float bodyScaleMax = 1.0f, float bodyRadius = 0.0f)
+            float bodyScaleMin = 1.0f, float bodyScaleMax = 1.0f, float bodyRadius = 0.0f,
+			float safetyDistance = 0.0f)
             : base(new ParticlesRingGenerator(sliceGenerator, 
                 ringCenter, up, ringRadius, sectionStart, sectionEnd),
-                bodyScaleMin, bodyScaleMax, bodyRadius)
+				bodyScaleMin, bodyScaleMax, bodyRadius, safetyDistance)
         { }
 
         public BodiesRingGenerator(float ovalHorizontal, float ovalVertical,
             Vector3 ringCenter, Vector3 up, float ringRadius,
             float sectionStart = 0.0f,
             float sectionEnd = (float)(2.0*Math.PI),
-            float bodyScaleMin = 1.0f, float bodyScaleMax = 1.0f, float bodyRadius = 0.0f)
+            float bodyScaleMin = 1.0f, float bodyScaleMax = 1.0f, float bodyRadius = 0.0f,
+			float safetyDistance = 0.0f)
             : base(new ParticlesRingGenerator(new ParticlesOvalGenerator(ovalHorizontal, ovalVertical),
                 ringCenter, up, ringRadius, sectionStart, sectionEnd),
-                bodyScaleMin, bodyScaleMax, bodyRadius)
+				bodyScaleMin, bodyScaleMax, bodyRadius, safetyDistance)
         { }
     }
     #endregion

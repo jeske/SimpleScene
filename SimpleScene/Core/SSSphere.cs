@@ -32,6 +32,12 @@ namespace SimpleScene
 		{
 			return aabb.IntersectsSphere (this);
 		}
+
+		public SSAABB ToAABB()
+		{
+			Vector3 rvec = new Vector3 (radius);
+			return new SSAABB (center - rvec, center + rvec);
+		}
 	}
 }
 

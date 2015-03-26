@@ -125,14 +125,14 @@ namespace TestBench0
 					120f, 50f,
 					Vector3.Zero, Vector3.UnitY, 250f,
 					0f, (float)Math.PI*2f,
-					1f, 3f, 1f
+					1f, 3f, 1f, 0.5f
 				);
 				var ringEmitter = new SSBodiesFieldEmitter (ringGen);
 				ringEmitter.ParticlesPerEmission = 10000;
 
 				var ps = new SSParticleSystem(10000);
 				ps.AddEmitter(ringEmitter);
-				Console.WriteLine ("Packing 10k asteroids into a ring. This should take a few seconds...");
+				Console.WriteLine ("Packing 10k asteroids into a ring. This may take a second...");
 				ps.EmitAll();
 				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, null, 
 													roidmesh, BufferUsageHint.StaticDraw);
@@ -202,7 +202,7 @@ namespace TestBench0
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
-				//scene.AddObject(cubesRenderer);
+				scene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 
 				// test explositons

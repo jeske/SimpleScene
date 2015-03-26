@@ -51,15 +51,18 @@ namespace SimpleScene
             for (int i = 0; i < numParticles; ++i) {
                 bool accepted = false;
                 while (!accepted) {
-                    ++numTries;
-                    if (numTries > numParticles * c_maxTriesFactor) {
+                    if (numTries >= numParticles * c_maxTriesFactor) {
                         // This is somewhat of a hack to add a failsafe for the random strategy of 
                         // fitting things in. Currently we just give up if we tried too many time with 
                         // no luck. This can happen when trying to fit too much into a small space.
                         // In the future a smarter packing strategy may be employed before giving up.
                         // todo: print something
+						System.Console.WriteLine (
+							"Too many rejections when generating a field. " + 
+							"Giving up after " + numTries + " fitting attempts.");
                         return;
                     }
+					++numTries;
                     float theta = (float)(2.0 * Math.PI * m_rand.NextDouble());
                     float alpha = (float)(Math.PI * (m_rand.NextDouble() - 0.5));
                     float r = Radius * (float)m_rand.NextDouble();
@@ -96,15 +99,18 @@ namespace SimpleScene
             for (int i = 0; i < numParticles; ++i) {
                 bool accepted = false;
                 while (!accepted) {
-                    ++numTries;
-                    if (numTries > numParticles * c_maxTriesFactor) {
+                    if (numTries >= numParticles * c_maxTriesFactor) {
                         // This is somewhat of a hack to add a failsafe for the random strategy of 
                         // fitting things in. Currently we just give up if we tried too many time with 
                         // no luck. This can happen when trying to fit too much into a small space.
                         // In the future a smarter packing strategy may be employed before giving up.
                         // TODO: print something
+						System.Console.WriteLine (
+							"Too many rejections when generating a field. " + 
+							"Giving up after " + numTries + " fitting attempts.");
                         return;
                     }
+					++numTries;
                     float x = (float)(m_dimmensions.X * (m_rand.NextDouble() - 0.5));
                     float y = (float)(m_dimmensions.Y * (m_rand.NextDouble() - 0.5));
                     float z = (float)(m_dimmensions.Z * (m_rand.NextDouble() - 0.5));
@@ -164,15 +170,18 @@ namespace SimpleScene
             for (int i = 0; i < numParticles; ++i) {
                 bool accepted = false;
                 while (!accepted) {
-                    ++numTries;
-                    if (numTries > numParticles * c_maxTriesFactor) {
+                    if (numTries >= numParticles * c_maxTriesFactor) {
                         // This is somewhat of a hack to add a failsafe for the random strategy of 
                         // fitting things in. Currently we just give up if we tried too many time with 
                         // no luck. This can happen when trying to fit too much into a small space.
                         // In the future a smarter packing strategy may be employed before giving up.
                         // TODO: print something
+						System.Console.WriteLine (
+							"Too many rejections when generating a field. " + 
+							"Giving up after " + numTries + " fitting attempts.");
                         return;
                     }
+					++numTries;
                     m_ringTheta = m_sectionStart + (float)m_rand.NextDouble() * (m_sectionEnd - m_sectionStart);
                     m_planeGenerator.Generate(1, onNewPlaneParticle);
                     accepted = newPartDeleg(i, m_newPos);

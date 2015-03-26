@@ -50,5 +50,15 @@ namespace SimpleScene.Util.ssBVH
 			return sphereToLeafMap [sphere];
 		}
 	}
+
+	public class SSSphereBVH : ssBVH<SSSphere>
+	{
+		public SSSphereBVH(int maxSpheresPerLeaf=1)
+			: base(new SSSphereBVHNodeAdaptor(),
+				   new List<SSSphere>(),
+				   maxSpheresPerLeaf)
+		{
+		}
+	}
 }
 
