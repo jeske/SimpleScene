@@ -183,6 +183,12 @@ namespace SimpleScene
                 ParticleSystem.Simulate(fElapsedMS);
             }
         }
+
+		public override bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
+			// for now, particle systems don't intersect with anything
+			// TODO: figure out how to do this.
+			return false;
+		}
     }
 }
 
