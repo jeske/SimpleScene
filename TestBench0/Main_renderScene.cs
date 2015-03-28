@@ -127,7 +127,9 @@ namespace TestBench0
 				
 				// render 3d content...
 				// scene.renderConfig.renderBoundingSpheres = true;
+                scene.PrepareShadowmapRead();
 				scene.Render ();
+                scene.FinishShadowmapRead();
 			}
 
 			/////////////////////////////////////////

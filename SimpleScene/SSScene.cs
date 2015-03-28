@@ -214,7 +214,24 @@ namespace SimpleScene
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
         }
 
-        
+        public void PrepareShadowmapRead()
+        {
+            foreach (SSLightBase light in m_lights) {
+                if (light.ShadowMap != null) {
+                    light.ShadowMap.PrepareForRead();
+                }
+            }
+        }
+
+        public void FinishShadowmapRead()
+        {
+            foreach (SSLightBase light in m_lights) {
+                if (light.ShadowMap != null) {
+                    light.ShadowMap.FinishRead();
+                }
+            }
+        }
+
         private void setupLighting() {
             GL.Enable(EnableCap.Lighting);
             foreach (var light in m_lights) {

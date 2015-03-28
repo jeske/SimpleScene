@@ -143,6 +143,19 @@ namespace SimpleScene
             List<SSObject> objects,
             float fov, float aspect, float nearZ, float farZ);
 
+        public void PrepareForRead()
+        {
+            GL.ActiveTexture(TextureUnit);
+            GL.Enable(EnableCap.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, TextureID);
+        }
+
+        public void FinishRead()
+        {
+            GL.ActiveTexture(TextureUnit);
+            GL.Disable(EnableCap.Texture2D);
+        }
+
         protected void unbindFramebuffer() {
 			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
 			GL.Ext.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
