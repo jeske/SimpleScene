@@ -204,10 +204,15 @@ namespace SimpleScene
         private float m_timeSinceLastEmission;
         private float m_nextEmission;
 
+		public SSParticleEmitter()
+		{
+			Reset ();
+		}
+
         public virtual void Reset()
         {
             m_initialDelay = EmissionDelay;
-            m_timeSinceLastEmission = float.PositiveInfinity;
+            m_timeSinceLastEmission = 0f;
             m_nextEmission = 0f;
         }
 
@@ -230,15 +235,17 @@ namespace SimpleScene
             }
 
             m_timeSinceLastEmission += deltaT;
-            if (m_timeSinceLastEmission > m_nextEmission) {
+			float diff;
+			while ((diff = m_timeSinceLastEmission - m_nextEmission) > 0f) {
+                EmitParticles(receiver);
 				if (TotalEmissionsLeft > 0 && --TotalEmissionsLeft == 0) {
 					Reset ();
+                    break;
 				} else {
-					m_timeSinceLastEmission = 0f;
+                    m_timeSinceLastEmission = diff;
 					m_nextEmission = Interpolate.Lerp(EmissionIntervalMin, EmissionIntervalMax, 
 						(float)s_rand.NextDouble());
 				}
-                EmitParticles(receiver);
             }
         }
 
