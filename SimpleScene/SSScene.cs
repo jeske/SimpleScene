@@ -212,24 +212,8 @@ namespace SimpleScene
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
-        }
 
-        public void PrepareShadowmapRead()
-        {
-            foreach (SSLightBase light in m_lights) {
-                if (light.ShadowMap != null) {
-                    light.ShadowMap.PrepareForRead();
-                }
-            }
-        }
-
-        public void FinishShadowmapRead()
-        {
-            foreach (SSLightBase light in m_lights) {
-                if (light.ShadowMap != null) {
-                    light.ShadowMap.FinishRead();
-                }
-            }
+            disableLighting();
         }
 
         private void setupLighting() {
@@ -240,6 +224,13 @@ namespace SimpleScene
             if (MainShader != null) {
                 MainShader.Activate();
                 MainShader.UniLightingMode = m_renderConfig.lightingMode;
+            }
+        }
+
+        private void disableLighting() {
+            GL.Disable(EnableCap.Lighting);
+            foreach (var light in m_lights) {
+                light.DisableLight();
             }
         }
 
