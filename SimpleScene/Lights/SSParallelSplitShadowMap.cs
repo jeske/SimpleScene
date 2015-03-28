@@ -73,16 +73,16 @@ namespace SimpleScene
             renderConfig.MainShader.Activate();
             renderConfig.MainShader.UniNumShadowMaps = c_numberOfSplits;
             if (renderConfig.usePoissonSampling) {
-                renderConfig.MainShader.UpdatePoissonScaling(m_poissonScaling);
+				renderConfig.MainShader.UniPoissonScaling  = m_poissonScaling;
             }
-            renderConfig.MainShader.UpdateShadowMapBiasVPs(m_shadowViewProjBiasMatrices);
-            renderConfig.MainShader.UpdatePssmSplits(m_viewSplits);
+			renderConfig.MainShader.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
+            renderConfig.MainShader.UniPssmSplits = m_viewSplits;
 
             // setup for render shadowmap pass
             renderConfig.PssmShader.Activate();
-            renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowViewProjMatrices);
+			renderConfig.PssmShader.UniShadowMapVPs = m_shadowViewProjMatrices;
 			renderConfig.InstancePssmShader.Activate ();
-			renderConfig.InstancePssmShader.UpdateShadowMapVPs (m_shadowViewProjMatrices);
+			renderConfig.InstancePssmShader.UniShadowMapVPs = m_shadowViewProjMatrices;
 
 			renderConfig.drawingPssm = true;
         }

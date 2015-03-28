@@ -24,7 +24,7 @@ namespace SimpleScene
 		#region uniform locations
 		private readonly int u_numShadowMaps;
 		private readonly int u_objectWorldTransform;
-		private readonly int[] u_shadowMapVPs = new int[SSParallelSplitShadowMap.c_numberOfSplits];
+		private readonly int u_shadowMapVPs;
 		#endregion
 
 		#region attribute locations
@@ -42,11 +42,10 @@ namespace SimpleScene
 			set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
 		}
 
-		public void UpdateShadowMapVPs(Matrix4[] mvps) {
-			// pass update mvp matrices for shadowmap lookup
-			for (int s = 0; s < SSParallelSplitShadowMap.c_numberOfSplits; ++s) {
-				//GL.UniformMatrix4(u_shadowMapVPs + s, false, ref mvps[s]);
-				GL.UniformMatrix4(u_shadowMapVPs [s], false, ref mvps [s]);
+		public Matrix4[] UniShadowMapVPs {
+			set {
+				assertActive ();
+				GL.UniformMatrix4(u_shadowMapVPs, value.Length, false, ref value[0].Row0.X);
 			}
 		}
 		#endregion
@@ -131,14 +130,7 @@ namespace SimpleScene
 			link();
 			Activate();
 
-			// TODO: debug passing things through arrays
-			for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
-				var str = "shadowMapVPs" + i;
-				u_shadowMapVPs[i] = getUniLoc(str);
-			}
-			//u_shadowMapVPs = getUniLoc("shadowMapVPs");
-
-			//u_shadowMapSplits = getUniLoc("shadowMapSplits");
+			u_shadowMapVPs = getUniLoc("shadowMapVPs");
 			u_objectWorldTransform = getUniLoc("objWorldTransform");
 			u_numShadowMaps = getUniLoc("numShadowMaps");
 

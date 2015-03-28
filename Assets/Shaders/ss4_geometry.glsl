@@ -13,7 +13,7 @@
 uniform vec2 WIN_SCALE;
 noperspective varying vec3 dist;
 
-const int MAX_NUM_SHADOWMAPS = 4;
+const int MAX_NUM_SMAP_SPLITS = 4;
 uniform int numShadowMaps;
 
 uniform bool instanceDrawEnabled;
@@ -24,7 +24,7 @@ varying in vec3 vertexNormal[3];
 varying in vec3 lightPosition[3];
 varying in vec3 eyeVec[3];
 varying in vec3 vertexPosition_objectspace[3];
-varying in vec4 shadowMapCoords[3][MAX_NUM_SHADOWMAPS];
+varying in vec4 shadowMapCoords[3][MAX_NUM_SMAP_SPLITS];
 varying in vec4 varInstanceColor[3];
 
 // non-uniform blocks are not supported until GLSL 330?
@@ -33,7 +33,7 @@ varying out vec3 f_vertexNormal;
 varying out vec3 f_lightPosition;
 varying out vec3 f_eyeVec;
 varying out vec3 f_vertexPosition_objectspace;
-varying out vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+varying out vec4 f_shadowMapCoords[MAX_NUM_SMAP_SPLITS];
 #ifdef INSTANCE_DRAW
 varying out vec4 f_instanceColor;
 #endif

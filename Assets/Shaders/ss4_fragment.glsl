@@ -39,14 +39,11 @@ uniform bool poissonSamplingEnabled;
 uniform int numPoissonSamples = 16;
 uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
-uniform vec4 shadowMapViewSplits;
-const int MAX_NUM_SHADOWMAPS = 4;
-uniform vec2 poissonScale0;
-uniform vec2 poissonScale1;
-uniform vec2 poissonScale2;
-uniform vec2 poissonScale3;
+const int MAX_NUM_SMAP_SPLITS = 4;
+uniform float shadowMapViewSplits[MAX_NUM_SMAP_SPLITS];
+uniform vec2 poissonScale[MAX_NUM_SMAP_SPLITS];
 
-varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+varying vec4 f_shadowMapCoords[MAX_NUM_SMAP_SPLITS];
 
 const float maxLitReductionByShade = 0.7;
 
@@ -207,18 +204,12 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 float distanceToTexel = clamp(coord.z, 0.0, 1.0);
 
                 if (poissonSamplingEnabled) {
-                    vec2 scale;
-                    if      (i == 0) { scale = poissonScale0; }
-                    else if (i == 1) { scale = poissonScale1; }
-                    else if (i == 2) { scale = poissonScale2; }
-                    else             { scale = poissonScale3; }
-
                     vec3 seed3 = floor(f_vertexPosition_objectspace.xyz * 1000.0);
                     float litReductionPerSample = maxLitReductionByShade
                                                 / float(numPoissonSamples);
                     for (int p = 0; p < numPoissonSamples; ++p) {
                         int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
-                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0 / scale;
+                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0 / poissonScale[i];
                         if (shadowMapTest(uvSample, distanceToTexel, depthOffset)) {
                             litFactor -= litReductionPerSample;
                         }

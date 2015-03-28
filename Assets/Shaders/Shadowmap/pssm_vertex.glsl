@@ -3,17 +3,14 @@
 #version 120
 #extension GL_EXT_gpu_shader4 : enable
 
-const int MAX_NUM_SHADOWMAPS = 4;
+const int MAX_NUM_SMAP_SPLITS = 4;
 
 // input
 uniform int numShadowMaps;
 uniform vec4 shadowMapSplits;
 uniform mat4 objWorldTransform;
 
-uniform mat4 shadowMapVPs0;
-uniform mat4 shadowMapVPs1;
-uniform mat4 shadowMapVPs2;
-uniform mat4 shadowMapVPs3;
+uniform mat4 shadowMapVPs[MAX_NUM_SMAP_SPLITS];
 
 varying float splitOverlapMask_Float;
 
@@ -32,15 +29,8 @@ void main()
     int submask;
     for (int i = 0; i < numShadowMaps; ++i) {
         vec2 bmin = boundaries[i];
-        vec2 bmax = bmin + vec2(1.0f, 1.0f);
-        
-        mat4 vp;
-        if      (i == 0) { vp = shadowMapVPs0; }
-        else if (i == 1) { vp = shadowMapVPs1; }
-        else if (i == 2) { vp = shadowMapVPs2; }
-        else             { vp = shadowMapVPs3; }
-        
-        vec4 test = vp * gl_Position;
+        vec2 bmax = bmin + vec2(1.0f, 1.0f);      
+        vec4 test = shadowMapVPs[i] * gl_Position;
 
         // figure out how the point relates to the split's rectangle
         if (test.x < bmin.x) {

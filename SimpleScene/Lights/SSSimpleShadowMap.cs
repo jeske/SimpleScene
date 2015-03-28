@@ -33,9 +33,9 @@ namespace SimpleScene
             renderConfig.MainShader.UniNumShadowMaps = 1;
             if (renderConfig.usePoissonSampling) {
                 Vector2[] poissonScales = { new Vector2 (1f) };
-                renderConfig.MainShader.UpdatePoissonScaling(poissonScales);
+				renderConfig.MainShader.UniPoissonScaling = poissonScales;
             }
-            renderConfig.MainShader.UpdateShadowMapBiasVPs(vp);
+			renderConfig.MainShader.UniShadowMapVPs = vp;
 
             // setup for render shadowmap pass
             renderConfig.projectionMatrix = m_shadowProjMatrix;

@@ -2,12 +2,9 @@
 #version 120
 
 // shadow-map related
-const int MAX_NUM_SHADOWMAPS = 4;
+const int MAX_NUM_SMAP_SPLITS = 4;
 uniform int numShadowMaps;
-uniform mat4 shadowMapVPs0;
-uniform mat4 shadowMapVPs1;
-uniform mat4 shadowMapVPs2;
-uniform mat4 shadowMapVPs3;
+uniform mat4 shadowMapVPs[MAX_NUM_SMAP_SPLITS];
 uniform mat4 objWorldTransform;
 
 // instanced drawing
@@ -40,7 +37,7 @@ varying vec3 lightPosition;
 varying vec3 eyeVec;
 
 varying vec3 vertexPosition_objectspace;
-varying vec4 shadowMapCoords[MAX_NUM_SHADOWMAPS];
+varying vec4 shadowMapCoords[MAX_NUM_SMAP_SPLITS];
 
 // returns a quaternion representing rotation
 // http://github.com/opentk/opentk/blob/c29509838d340bd292bc0113fe65a2e4b5aed0e8/Source/OpenTK/Math/Matrix4.cs
@@ -139,13 +136,6 @@ void main()
     // shadowmap transform
     vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1.0);
     for (int i = 0; i < numShadowMaps; ++i) {
-        mat4 vp;
-
-		if      (i == 0) { vp = shadowMapVPs0; }
-        else if (i == 1) { vp = shadowMapVPs1; }
-        else if (i == 2) { vp = shadowMapVPs2; }
-        else             { vp = shadowMapVPs3; }
-
-        shadowMapCoords[i] = vp * objPos;
+        shadowMapCoords[i] = shadowMapVPs[i] * objPos;
     }
 }	

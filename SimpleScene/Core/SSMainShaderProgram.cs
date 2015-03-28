@@ -45,8 +45,8 @@ namespace SimpleScene
 
         private readonly int u_numShadowMaps;
         private readonly int u_shadowMapTexture;
-        private readonly int[] u_shadowMapVPs = new int[SSParallelSplitShadowMap.c_numberOfSplits];
-        private readonly int[] u_poissonScaling = new int[SSParallelSplitShadowMap.c_numberOfSplits];
+		private readonly int u_shadowMapVPs;
+        private readonly int u_poissonScaling;
         private readonly int u_objectWorldTransform;
         private readonly int u_shadowMapViewSplits;
         private readonly int u_poissonSamplingEnabled;
@@ -126,56 +126,6 @@ namespace SimpleScene
             set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
         }
 
-        #if MAIN_SHADER_INSTANCING
-        public bool UniInstanceDrawEnabled {
-            set { assertActive(); GL.Uniform1(u_instanceDrawEnabled, value ? 1 : 0); } 
-        }
-
-        public bool UniInstanceBillboardingEnabled {
-            set { assertActive(); GL.Uniform1(u_instanceBillboardingEnabled, value ? 1 : 0); } 
-        }
-
-        public int AttrInstancePos {
-            get { return a_instancePos; }
-        }
-
-        public int AttrInstanceOrientation {
-            get { return a_instanceOrientation; }
-        }
-
-        public int AttrInstanceMasterScale {
-            get { return a_instanceMasterScale; }
-        }
-
-        public int AttrInstanceComponentScale {
-            get { return a_instanceComponentScale; }
-        }
-
-        public int AttrInstanceColor {
-            get { return a_instanceColor; }
-        }
-
-        public int AttrInstanceSpriteIndex {
-            get { return a_instanceSpriteIndex; }
-        }
-
-        public int AttrInstanceSpriteOffsetU {
-            get { return a_instanceSpriteOffsetU; }
-        }
-
-        public int AttrInstanceSpriteOffsetV {
-            get { return a_instanceSpriteOffsetV; }
-        }
-
-        public int AttrInstanceSpriteSizeU {
-            get { return a_instanceSpriteSizeU; }
-        }
-
-        public int AttrInstanceSpriteSizeV {
-            get { return a_instanceSpriteSizeV; }
-        }
-        #endif
-
         public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
 			int count=0;
@@ -193,24 +143,25 @@ namespace SimpleScene
             }
         }
 
-        public void UpdateShadowMapBiasVPs(Matrix4[] vps) {
-            assertActive();
-            for (int i = 0; i < vps.Length; ++i) {
-                // update shadowmap view-projection-crop-bias matrices for shadowmap lookup
-                GL.UniformMatrix4(u_shadowMapVPs [i], false, ref vps [i]);
-            }
+		public Matrix4[] UniShadowMapVPs {
+			set { 
+				assertActive (); 
+				GL.UniformMatrix4 (u_shadowMapVPs, value.Length, false, ref value [0].Row0.X); 
+			}
         }
 
-        public void UpdatePoissonScaling(Vector2[] scales) {
-            assertActive();
-            for (int i = 0; i < scales.Length; ++i) {
-                GL.Uniform2(u_poissonScaling [i], scales [i]);
-            }
+        public Vector2[] UniPoissonScaling {
+			set {
+				assertActive ();
+				GL.Uniform2 (u_poissonScaling, value.Length, ref value [0].X);
+			}
         }
 
-        public void UpdatePssmSplits(float[] splits) {
-            assertActive();
-            GL.Uniform4(u_shadowMapViewSplits, splits [0], splits [1], splits [2], splits [3]);
+		public float[] UniPssmSplits {
+			set {
+				assertActive ();
+				GL.Uniform1 (u_shadowMapViewSplits, value.Length, ref value [0]);
+			}
         }
         #endregion
 
@@ -268,33 +219,11 @@ namespace SimpleScene
             u_poissonSamplingEnabled = getUniLoc("poissonSamplingEnabled");
             u_numPoissonSamples = getUniLoc("numPoissonSamples");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
-            u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
             u_lightingMode = getUniLoc("lightingMode");
-            #if MAIN_SHADER_INSTANCING
-            u_instanceDrawEnabled = getUniLoc("instanceDrawEnabled");
-            u_instanceBillboardingEnabled = getUniLoc("instanceBillboardingEnabled");
 
-            // attributes
-            a_instancePos = getAttrLoc("instancePos");
-            a_instanceOrientation = getAttrLoc("instanceOrientation");
-            a_instanceMasterScale = getAttrLoc("instanceMasterScale");
-            a_instanceComponentScale = getAttrLoc("instanceComponentScale");
-            a_instanceColor = getAttrLoc("instanceColor");
-
-            a_instanceSpriteIndex = getAttrLoc("instanceSpriteIndex");
-            a_instanceSpriteOffsetU = getAttrLoc("instanceSpriteOffsetU");
-            a_instanceSpriteOffsetV = getAttrLoc("instanceSpriteOffsetV");
-            a_instanceSpriteSizeU = getAttrLoc("instanceSpriteSizeU");
-            a_instanceSpriteSizeV = getAttrLoc("instanceSpriteSizeV");
-            #endif
-
-            // TODO: debug passing things through arrays
-            for (int i = 0; i < SSParallelSplitShadowMap.c_numberOfSplits; ++i) {
-                var str = "shadowMapVPs" + i;
-                u_shadowMapVPs[i] = getUniLoc(str);
-                str = "poissonScale" + i;
-                u_poissonScaling[i] = getUniLoc(str);
-            }
+			u_shadowMapVPs = getUniLoc("shadowMapVPs");
+			u_poissonScaling = getUniLoc("poissonScale");
+			u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
 
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
@@ -319,11 +248,6 @@ namespace SimpleScene
             GL.Uniform1(GLun_specTex, 1); // Texture.Texture1
             GL.Uniform1(GLun_ambiTex, 2); // Texture.Texture2
             GL.Uniform1(GLun_bumpTex, 3); // Texture.Texture3
-
-
-            // TODO: fix this so everyone who needs to know texture assignments shares it.
-            int GLun_shadowMapTexture = getUniLoc("shadowMapTexture");
-            GL.Uniform1(GLun_shadowMapTexture, 7); // TextureUnit.Texture7
 
             // errors?
 			m_isValid = checkGlValid();
