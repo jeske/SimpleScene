@@ -28,9 +28,9 @@ namespace SimpleScene
         private static readonly string c_ctx = "./Shaders";
 
         #region Shaders
-        private readonly SSShader m_vertexShader;
-        private readonly SSShader m_fragmentShader;
-        private readonly SSShader m_geometryShader;
+        protected readonly SSShader m_vertexShader;
+		protected readonly SSShader m_fragmentShader;
+		protected readonly SSShader m_geometryShader;
         #endregion
 
         #region Uniform Locations
@@ -52,24 +52,6 @@ namespace SimpleScene
         private readonly int u_poissonSamplingEnabled;
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
-
-        #if MAIN_SHADER_INSTANCING
-        private readonly int u_instanceDrawEnabled;
-        private readonly int u_instanceBillboardingEnabled;
-
-        private readonly int a_instancePos;
-        private readonly int a_instanceOrientation;
-        private readonly int a_instanceMasterScale;
-        private readonly int a_instanceComponentScale;
-        private readonly int a_instanceColor;
-
-        private readonly int a_instanceSpriteIndex;
-        private readonly int a_instanceSpriteOffsetU;
-        private readonly int a_instanceSpriteOffsetV;
-        private readonly int a_instanceSpriteSizeU;
-        private readonly int a_instanceSpriteSizeV;
-        #endif
-
         #endregion
 
         #region Uniform Modifiers
@@ -129,7 +111,7 @@ namespace SimpleScene
         public void SetupShadowMap(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
 			int count=0;
-            assertActive();
+			Activate ();
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
                     // TODO: multiple lights with shadowmaps?
@@ -165,32 +147,26 @@ namespace SimpleScene
         }
         #endregion
 
-		public SSMainShaderProgram ()
+		public SSMainShaderProgram (string preprocessorDefs = null)
 		{
 			// we use this method of detecting the extension because we are in a GL2.2 context
 
 			if (GL.GetString(StringName.Extensions).ToLower().Contains("gl_ext_gpu_shader4")) {
                 m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "ss4_vertex.glsl");
-                #if MAIN_SHADER_INSTANCING
-                m_vertexShader.Prepend("#define INSTANCE_DRAW\n");
-                #endif
+				m_vertexShader.Prepend (preprocessorDefs);
                 m_vertexShader.LoadShader();
                 attach(m_vertexShader);
 
                 m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "ss4_fragment.glsl");
-                #if MAIN_SHADER_INSTANCING
-                m_fragmentShader.Prepend("#define INSTANCE_DRAW\n");
-                #endif
+				m_fragmentShader.Prepend (preprocessorDefs);
                 m_fragmentShader.LoadShader();
                 attach(m_fragmentShader);
 
                 m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "ss4_geometry.glsl");
-                #if MAIN_SHADER_INSTANCING
-                m_geometryShader.Prepend("#define INSTANCE_DRAW\n");
-                #endif
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
                 GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
+				m_geometryShader.Prepend (preprocessorDefs);
                 m_geometryShader.LoadShader();
                 attach(m_geometryShader);
 			} else {

@@ -22,15 +22,8 @@ public interface ISSInstancableShaderProgram
 
 namespace SimpleScene
 {
-	public class SSInstanceShaderProgram : SSShaderProgram, ISSInstancableShaderProgram
+	public class SSInstanceShaderProgram : SSMainShaderProgram, ISSInstancableShaderProgram
     {
-        private static readonly string c_ctx = "./Shaders/Instancing";
-
-        #region shaders
-        private readonly SSShader m_vertexShader;
-        private readonly SSShader m_fragmentShader;
-        #endregion
-
 		#region attribute locations
         private readonly int a_instancePos;
 		private readonly int a_instanceOrientationXY;
@@ -95,28 +88,9 @@ namespace SimpleScene
             get { return a_instanceSpriteSizeV; }
         }
 
-        public SSInstanceShaderProgram()
+		public SSInstanceShaderProgram()
+			: base("#define INSTANCE_DRAW\n")
         {
-			string glExtStr = GL.GetString (StringName.Extensions).ToLower ();
-			if (!glExtStr.Contains ("gl_ext_draw_instanced") && !glExtStr.Contains ("gl_arb_draw_instanced")) {
-				Console.WriteLine ("Instance shader not supported");
-				m_isValid = false;
-				return;
-			}
-
-            m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "instance_vertex.glsl");
-            m_vertexShader.LoadShader();
-            attach(m_vertexShader);
-
-            m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "instance_fragment.glsl");
-            m_fragmentShader.LoadShader();
-            attach(m_fragmentShader);
-
-            link();
-            Activate ();
-
-            // uniform(s)
-
 			// attributes
             a_instancePos = getAttrLoc("instancePos");
 			a_instanceOrientationXY = getAttrLoc("instanceOrientationXY");
@@ -126,7 +100,7 @@ namespace SimpleScene
 			a_instanceComponentScaleZ = getAttrLoc("instanceComponentScaleZ");
             a_instanceColor = getAttrLoc("instanceColor");
 
-            a_instanceSpriteIndex = getAttrLoc("instanceSpriteIndex");
+            //a_instanceSpriteIndex = getAttrLoc("instanceSpriteIndex");
             a_instanceSpriteOffsetU = getAttrLoc("instanceSpriteOffsetU");
             a_instanceSpriteOffsetV = getAttrLoc("instanceSpriteOffsetV");
             a_instanceSpriteSizeU = getAttrLoc("instanceSpriteSizeU");

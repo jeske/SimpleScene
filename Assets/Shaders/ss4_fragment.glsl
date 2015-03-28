@@ -27,7 +27,9 @@ varying vec3 f_vertexNormal;
 varying vec3 f_lightPosition;
 varying vec3 f_eyeVec;
 varying vec3 f_vertexPosition_objectspace;
+#ifdef INSTANCE_DRAW
 varying vec4 f_instanceColor;
+#endif
 
 // tangent space vectors for bump mapping
 varying vec3 surfaceLightVector;   
@@ -259,13 +261,18 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 		// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 
 		// load texels...
-		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
-		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+       #ifdef INSTANCE_DRAW
+       ambientColor *= f_instanceColor;
+       diffuseColor *= f_instanceColor;
+       #endif
 	   
        // 1. ambient lighting term
-	   outputColor = ambientColor * ambientStrength * vec4(0.6);
+	   //outputColor = ambientColor * ambientStrength * vec4(0.6);
+       outputColor = ambientColor * ambientStrength * vec4(1);
 
        // 2. glow/emissive lighting term
 	   outputColor += glowColor * glowStrength;
@@ -306,12 +313,16 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
 		float matShininess = 1.0; // gl_FrontMaterial.shininess;
 
 		// load texels...
-		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
-		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
 
 		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
-
+       #ifdef INSTANCE_DRAW
+       ambientColor *= f_instanceColor;
+       diffuseColor *= f_instanceColor;
+       #endif
+        
 	   // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
        vec3 bump_normal = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
 	   float distSqr = dot(surfaceLightVector,surfaceLightVector);

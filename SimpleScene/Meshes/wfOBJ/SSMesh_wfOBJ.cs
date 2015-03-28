@@ -61,19 +61,12 @@ namespace SimpleScene
 		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
-				GL.ActiveTexture (TextureUnit.Texture0);
-				if (subset.diffuseTexture != null) {
-					GL.BindTexture (TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-				}
-				if (subset.ambientTexture != null || subset.specularTexture != null
-				 || subset.bumpTexture != null) {
-					throw new NotImplementedException ();
-				}
+				_renderSetupGLSL(ref renderConfig, renderConfig.InstanceShader, subset);
 				subset.ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
 			}
 		}
 
-		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMainShaderProgram shaderPgm, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
 
 			// GL.Enable(EnableCap.Lighting);
@@ -83,8 +76,6 @@ namespace SimpleScene
 			// GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
 			// Step 2: setup our material mode and paramaters...
-
-            SSMainShaderProgram shaderPgm = renderConfig.MainShader;
 
             if (renderConfig.drawingShadowMap) { 
                 // assume SSObject.Render has setup our materials properly for the shadowmap Pass               
@@ -246,7 +237,7 @@ namespace SimpleScene
                     _renderSendVBOTriangles(ref renderConfig, subset);
                 } else {
                     if (renderConfig.drawGLSL) {
-                        _renderSetupGLSL(ref renderConfig, subset);
+						_renderSetupGLSL(ref renderConfig, renderConfig.MainShader, subset);
                         if (renderConfig.useVBO && renderConfig.MainShader != null) {
                             _renderSendVBOTriangles(ref renderConfig, subset);
                         } else {

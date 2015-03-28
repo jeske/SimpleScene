@@ -12,11 +12,11 @@ public class SSShaderProgram {
     public readonly int m_programID;
 	protected bool m_isValid = false;
 
-    static SSShaderProgram() {
+	static SSShaderProgram() {
         DeactivateAll ();
     }
 
-    internal SSShaderProgram() {
+	internal SSShaderProgram(string[] preprocessorDefines = null) {
 		m_programID = GL.CreateProgram();
     }
 

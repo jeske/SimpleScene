@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -68,6 +68,7 @@ namespace SimpleScene
 			m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+
         }
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -93,7 +94,7 @@ namespace SimpleScene
 					renderConfig.InstancePssmShader.Activate ();
 					renderConfig.InstancePssmShader.UniObjectWorldTransform = this.worldMat;
 					instanceShader = renderConfig.InstancePssmShader;
-				} 
+				}
 			} else {
 				if (!GlobalBillboarding && AlphaBlendingEnabled) {
 					// Must be called before updating buffers
@@ -117,10 +118,19 @@ namespace SimpleScene
 				GL.DepthMask (DepthWrite);
 
 				// texture binding setup
+				setDefaultShaderState (renderConfig.InstanceShader);
 				if (m_texture != null) {
-					GL.ActiveTexture (TextureUnit.Texture0);
-					GL.Enable(EnableCap.Texture2D);
-					GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
+				//if (false) {
+					renderConfig.InstanceShader.UniAmbTexEnabled = true;
+					GL.ActiveTexture (TextureUnit.Texture2);
+					GL.Enable (EnableCap.Texture2D);
+					GL.BindTexture (TextureTarget.Texture2D, m_texture.TextureID);
+					#if false
+					renderConfig.InstanceShader.UniDiffTexEnabled = true;
+					GL.ActiveTexture (TextureUnit.Texture1);
+					GL.Enable (EnableCap.Texture2D);
+					GL.BindTexture (TextureTarget.Texture2D, m_texture.TextureID);
+					#endif
 				}
 			}
 

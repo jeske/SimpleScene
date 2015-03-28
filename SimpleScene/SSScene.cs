@@ -36,7 +36,8 @@ namespace SimpleScene
 
         public bool usePoissonSampling = true;
         public int numPoissonSamples = 8;
-        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
+        //public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
+		public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
         public bool renderBoundingSpheres = false;
         public bool renderCollisionShells = false;
@@ -147,10 +148,11 @@ namespace SimpleScene
             }
             m_lights.Add(light);
             if (MainShader != null) {
-                MainShader.Activate();
                 MainShader.SetupShadowMap(m_lights);
-                MainShader.Deactivate();
             }
+			if (InstanceShader != null) {
+				InstanceShader.SetupShadowMap(m_lights);
+			}
         }
 
         public void RemoveLight(SSLightBase light) {
@@ -160,9 +162,10 @@ namespace SimpleScene
             m_lights.Remove(light);
             if (MainShader != null) {
                 MainShader.Activate();
-                MainShader.SetupShadowMap(m_lights);
-                MainShader.Deactivate();
             }
+			if (InstanceShader != null) {
+				InstanceShader.Activate();
+			}
         }
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
@@ -225,6 +228,10 @@ namespace SimpleScene
                 MainShader.Activate();
                 MainShader.UniLightingMode = m_renderConfig.lightingMode;
             }
+			if (InstanceShader != null) {
+				InstanceShader.Activate();
+				InstanceShader.UniLightingMode = m_renderConfig.lightingMode;
+			}
         }
 
         private void disableLighting() {

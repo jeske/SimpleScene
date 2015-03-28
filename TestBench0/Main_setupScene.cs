@@ -126,9 +126,12 @@ namespace TestBench0
 					Vector3.Zero, Vector3.UnitY, 250f,
 					0f, (float)Math.PI*2f,
 					1f, 3f, 1f, 0.5f
+					//10f, 30f, 1f, 20f
 				);
+
 				var ringEmitter = new SSBodiesFieldEmitter (ringGen);
 				ringEmitter.ParticlesPerEmission = 10000;
+				//ringEmitter.ParticlesPerEmission = 10;
 
 				var ps = new SSParticleSystem(10000);
 				ps.AddEmitter(ringEmitter);
@@ -200,6 +203,11 @@ namespace TestBench0
 				cubesRenderer.DepthRead = true;
 				cubesRenderer.DepthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
+				cubesRenderer.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
+				cubesRenderer.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
+				cubesRenderer.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
+				cubesRenderer.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
+				cubesRenderer.ShininessMatColor = 0f;
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
 				scene.AddObject(cubesRenderer);

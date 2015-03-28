@@ -11,19 +11,21 @@ uniform mat4 objWorldTransform;
 // #define INSTANCE_DRAW 
 
 #ifdef INSTANCE_DRAW
-uniform bool instanceDrawEnabled;
-uniform bool instanceBillboardingEnabled;
-
 attribute vec3 instancePos;
+attribute vec2 instanceOrientationXY;
+attribute float instanceOrientationZ;
 attribute float instanceMasterScale;
-attribute vec3 instanceComponentScale;
+attribute vec2 instanceComponentScaleXY;
+attribute float instanceComponentScaleZ;
 attribute vec4 instanceColor;
 
-attribute float instanceSpriteIndex;
+//attribute float instanceSpriteIndex;
 attribute float instanceSpriteOffsetU;
 attribute float instanceSpriteOffsetV;
 attribute float instanceSpriteSizeU;
 attribute float instanceSpriteSizeV;
+
+attribute vec2 texCoord;
 varying vec4 varInstanceColor;
 #endif
 
@@ -93,48 +95,83 @@ vec3 quatTransform(vec4 q, vec3 v)
     return v + 2.0*cross(cross(v, q.xyz ) + q.w*v, q.xyz);
 }
 
+mat3 orientX(float angle)
+{
+    return mat3(1.0, 0.0, 0.0,
+                0, cos(angle), -sin(angle),
+                0.0, sin(angle), cos(angle));
+}
+
+mat3 orientY(float angle)
+{
+    return mat3(cos(angle), 0.0, sin(angle),
+                0.0, 1.0, 0.0,
+                -sin(angle), 0.0, cos(angle));
+}
+
+mat3 orientZ(float angle)
+{
+    return mat3(cos(angle), -sin(angle), 0.0,
+                sin(angle), cos(angle), 0.0,
+                0.0, 0.0, 1.0);
+}
+
+bool isNaN(float value)
+{
+    return value != value;
+}
+
 void main()
 {   
-    vertexPosition_objectspace = gl_Vertex.xyz;
 
 	// transform into eye-space
-	vertexNormal = n = normalize (gl_NormalMatrix * gl_Normal);
-	vec4 vertexPosition_viewspace = gl_ModelViewMatrix * gl_Vertex;
+
+    vec3 combinedPos = gl_Vertex.xyz;
+    vec3 combinedNormal = gl_Normal;
+
+    #ifdef INSTANCE_DRAW
+    vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
+
+    combinedPos = instanceComponentScale * combinedPos * vec3(instanceMasterScale);
+    if (isNaN(instanceOrientationXY.x) || isNaN(instanceOrientationXY.y)) { // billboardXY?
+        vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
+        rotation *= -1; // inverse rotation
+
+        combinedPos = orientZ(instanceOrientationZ) * combinedPos;
+        combinedPos = quatTransform(rotation, combinedPos);
+
+        combinedNormal = orientZ(instanceOrientationZ) * combinedNormal;
+        combinedNormal = quatTransform(rotation, combinedNormal);
+    } else {
+        combinedPos = orientX(instanceOrientationXY.x) * combinedPos;
+        combinedPos = orientY(instanceOrientationXY.y) * combinedPos;
+        combinedPos = orientZ(instanceOrientationZ) * combinedPos;
+
+        combinedNormal = orientX(instanceOrientationXY.x) * combinedNormal;
+        combinedNormal = orientY(instanceOrientationXY.y) * combinedNormal;
+        combinedNormal = orientZ(instanceOrientationZ) * combinedNormal;
+    }
+    combinedPos += instancePos;
+    gl_TexCoord[0].xy = texCoord * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
+    gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
+    gl_TexCoord[0].zw = vec2(0);
+    varInstanceColor = instanceColor;
+    //varInstanceColor = new vec4(0f, 1f, 0f, 1f);
+    //gl_ModelViewMatrix *= -1;
+    #else
+    gl_TexCoord[0] = gl_MultiTexCoord0;  // output base UV coordinates
+    #endif
+
+    vertexNormal = n = normalize (gl_NormalMatrix * combinedNormal);
+    vertexPosition_objectspace = combinedPos;
+	vec4 vertexPosition_viewspace = gl_ModelViewMatrix * vec4(combinedPos, 1);
 	VV = vec3(vertexPosition_viewspace);
 	lightPosition = (gl_LightSource[0].position - vertexPosition_viewspace).xyz;
 	eyeVec = -normalize(vertexPosition_viewspace).xyz;
-
-    #ifdef INSTANCE_DRAW
-    if (instanceDrawEnabled) {
-        // TODO fix scale
-        // TODO orientation, texture offset
-        varInstanceColor = instanceColor;
-        
-        vec3 combinedPos = instanceComponentScale * gl_Vertex.xyz * vec3(instanceMasterScale);
-        if (instanceBillboardingEnabled) {
-            // this could have been done on the CPU side but only if we don't want
-            // per-instance scale
-            vec4 rotation = extractRotationQuat(gl_ModelViewMatrix, false);
-            rotation *= -1; // inverse rotation
-            combinedPos = quatTransform(rotation, combinedPos);
-        }
-        combinedPos += instancePos;
-        //vec3 combinedPos = instancePos + gl.Vertex.xyz;
-        gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
-        gl_TexCoord[0].xy = gl_MultiTexCoord0.xy
-                          * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
-        gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
-        gl_TexCoord[0].zw = gl_MultiTexCoord0.zw;
-        
-    } else
-    #endif
-    {
-        gl_Position = ftransform();
-        gl_TexCoord[0] = gl_MultiTexCoord0;  // output base UV coordinates
-    }
+    gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
     
     // shadowmap transform
-    vec4 objPos = objWorldTransform * vec4(gl_Vertex.xyz, 1.0);
+    vec4 objPos = objWorldTransform * vec4(combinedPos, 1.0);
     for (int i = 0; i < numShadowMaps; ++i) {
         shadowMapCoords[i] = shadowMapVPs[i] * objPos;
     }

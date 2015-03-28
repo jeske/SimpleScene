@@ -187,6 +187,7 @@ namespace SimpleScene
                 }
             }
 
+
             renderConfig.drawingShadowMap = true;
         }
 

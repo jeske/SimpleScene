@@ -25,7 +25,9 @@ varying in vec3 lightPosition[3];
 varying in vec3 eyeVec[3];
 varying in vec3 vertexPosition_objectspace[3];
 varying in vec4 shadowMapCoords[3][MAX_NUM_SMAP_SPLITS];
+#ifdef INSTANCE_DRAW
 varying in vec4 varInstanceColor[3];
+#endif
 
 // non-uniform blocks are not supported until GLSL 330?
 varying out vec3 f_VV;

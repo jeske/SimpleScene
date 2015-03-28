@@ -16,7 +16,7 @@ namespace SimpleScene
 	public abstract class SSObject : SSObjectBase {
         public Color4 MainColor = Color4.White;
 
-	    public Color4 AmbientMatColor = new Color4(0.001f,0.001f,0.001f,1.0f);
+	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
 		public Color4 DiffuseMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
 		public Color4 SpecularMatColor = new Color4(0.8f,0.8f,0.8f,1.0f);
 		public Color4 EmissionMatColor = new Color4(1.0f,1.0f,1.0f,1.0f);
@@ -47,9 +47,9 @@ namespace SimpleScene
             GL.Disable(EnableCap.Texture2D);
 
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);            
+            GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, 0);            
+            GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.ActiveTexture(TextureUnit.Texture2);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.ActiveTexture(TextureUnit.Texture3);
