@@ -17,8 +17,8 @@ namespace SimpleScene
         public Color4 MainColor = Color4.White;
 
 	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
-		public Color4 DiffuseMatColor = new Color4(0.4f, 0.4f, 0.4f, 1f);
-		public Color4 SpecularMatColor = new Color4(0.8f, 0.8f, 0.8f, 1.0f);
+		public Color4 DiffuseMatColor = new Color4(0.3f, 0.3f, 0.3f, 1f);
+		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
 		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
 		public float ShininessMatColor = 10.0f;
 

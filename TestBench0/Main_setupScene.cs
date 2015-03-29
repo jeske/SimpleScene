@@ -202,11 +202,6 @@ namespace TestBench0
 				cubesRenderer.DepthRead = true;
 				cubesRenderer.DepthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
-				//cubesRenderer.AmbientMatColor = new Color4 (0.1f, 0.1f, 0.1f, 0.1f);
-				//cubesRenderer.DiffuseMatColor = new Color4 (1f, 1f, 1f, 1f);
-				//cubesRenderer.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
-				cubesRenderer.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
-				//cubesRenderer.ShininessMatColor = 0f;
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
 				scene.AddObject(cubesRenderer);

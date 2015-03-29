@@ -102,7 +102,6 @@ namespace SimpleScene
 				if (subset.diffuseTexture != null) {
 					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
 					shaderPgm.UniDiffTexEnabled = true; 
-
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
 					shaderPgm.UniDiffTexEnabled = false;
@@ -116,8 +115,9 @@ namespace SimpleScene
 					shaderPgm.UniSpecTexEnabled = false;
 				}
 				GL.ActiveTexture(TextureUnit.Texture2);
-				if (subset.ambientTexture != null) {
-					GL.BindTexture(TextureTarget.Texture2D, subset.ambientTexture.TextureID);
+				if (subset.ambientTexture != null || subset.diffuseTexture != null) {
+					SSTexture tex = subset.ambientTexture != null ? subset.ambientTexture : subset.diffuseTexture;
+					GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
 					shaderPgm.UniAmbTexEnabled = true;
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
