@@ -25,13 +25,13 @@ namespace SimpleScene
 	   		public SSTexture bumpTexture;			
 	
 			// raw geometry
-			public SSVertex_PosNormDiffTex1[] vertices;
+			public SSVertex_PosNormTexDiff[] vertices;
 			public UInt16[] indicies;
 			public UInt16[] wireframe_indicies;
 
 			// handles to OpenTK/OpenGL Vertex-buffer and index-buffer objects
 			// these are buffers stored on the videocard for higher performance rendering
-			public SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;	        
+			public SSVertexBuffer<SSVertex_PosNormTexDiff> vbo;	        
 			public SSIndexBuffer ibo;
 			public SSIndexBuffer ibo_wireframe;
 		}
@@ -190,7 +190,7 @@ namespace SimpleScene
 
 				// draw the vertex..
 				GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
-				GL.TexCoord2(vertex.Tu,vertex.Tv);
+				GL.TexCoord2(vertex.TexCoord.X, vertex.TexCoord.Y);
 				GL.Normal3(vertex.Normal);
 				GL.Vertex3(vertex.Position);
 			}
@@ -293,7 +293,7 @@ namespace SimpleScene
 
 			subsetData.wireframe_indicies = OpenTKHelper.generateLineIndicies (subsetData.indicies);
 
-			subsetData.vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(subsetData.vertices);
+			subsetData.vbo = new SSVertexBuffer<SSVertex_PosNormTexDiff>(subsetData.vertices);
 			subsetData.ibo = new SSIndexBuffer(subsetData.indicies, subsetData.vbo);		
 			subsetData.ibo_wireframe = new SSIndexBuffer (subsetData.wireframe_indicies, subsetData.vbo);
 

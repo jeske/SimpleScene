@@ -13,9 +13,9 @@ namespace SimpleScene
         // (make it more friendly for generic use)
 
         #region Instance-Specific Drawing Constructs
-        private SSVertex_PosTex1[] m_vertices;
+        private SSVertex_PosTex[] m_vertices;
 
-        SSIndexedMesh<SSVertex_PosTex1> m_mesh;
+        SSIndexedMesh<SSVertex_PosTex> m_mesh;
         private SSTexture m_texture;
         private Vector2[] m_spriteScales;
         private int m_numElements;
@@ -175,16 +175,16 @@ namespace SimpleScene
                 indices [baseLoc + 4] = (UInt16)(baseVal + 3);
                 indices [baseLoc + 5] = (UInt16)(baseVal + 2);
             }
-            m_mesh = new SSIndexedMesh<SSVertex_PosTex1> (null, indices);
+            m_mesh = new SSIndexedMesh<SSVertex_PosTex> (null, indices);
 
-            m_vertices = new SSVertex_PosTex1[m_numElements * 4];
+            m_vertices = new SSVertex_PosTex[m_numElements * 4];
             for (int r = 0; r < spriteRects.Length; ++r) {
                 RectangleF rect = spriteRects [r];
                 int baseIdx = r * 4;
-                m_vertices [baseIdx]   = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Left, rect.Bottom);
-                m_vertices [baseIdx+1] = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Right, rect.Bottom);
-                m_vertices [baseIdx+2] = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Right, rect.Top);
-                m_vertices [baseIdx+3] = new SSVertex_PosTex1 (0f, 0f, 0f, rect.Left, rect.Top);
+                m_vertices [baseIdx]   = new SSVertex_PosTex (0f, 0f, 0f, rect.Left, rect.Bottom);
+                m_vertices [baseIdx+1] = new SSVertex_PosTex (0f, 0f, 0f, rect.Right, rect.Bottom);
+                m_vertices [baseIdx+2] = new SSVertex_PosTex (0f, 0f, 0f, rect.Right, rect.Top);
+                m_vertices [baseIdx+3] = new SSVertex_PosTex (0f, 0f, 0f, rect.Left, rect.Top);
             }
         }
     }

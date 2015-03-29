@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public class SSMeshDisk : SSIndexedMesh<SSVertex_PosTex1>
+    public class SSMeshDisk : SSIndexedMesh<SSVertex_PosTex>
     {
         private SSTexture m_texture;
 
@@ -19,8 +19,8 @@ namespace SimpleScene
             m_texture = texture;
 
             // generate vertices
-            SSVertex_PosTex1[] vertices = new SSVertex_PosTex1[divisions + 1];
-            vertices [0] = new SSVertex_PosTex1 (0f, 0f, 0f, 0.5f, 0.5f);
+            SSVertex_PosTex[] vertices = new SSVertex_PosTex[divisions + 1];
+            vertices [0] = new SSVertex_PosTex (0f, 0f, 0f, 0.5f, 0.5f);
 
             float angleStep = 2f * (float)Math.PI / divisions;
             float Tr = 0.5f + texOffset;
@@ -29,7 +29,7 @@ namespace SimpleScene
                 float angle = i * angleStep;
                 float x = (float)Math.Cos(angle);
                 float y = (float)Math.Sin(angle);
-                vertices [i + 1] = new SSVertex_PosTex1 (
+                vertices [i + 1] = new SSVertex_PosTex (
                     x, y, 0f,
                     0.5f + Tr * x, 0.5f + Tr * y
                 );       

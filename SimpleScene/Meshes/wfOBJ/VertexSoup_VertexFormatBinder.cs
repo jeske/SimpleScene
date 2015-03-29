@@ -27,11 +27,11 @@ namespace SimpleScene
 		public static void generateDrawIndexBuffer(
 			WavefrontObjLoader wff, 
 			out UInt16[] indicies_return, 
-			out SSVertex_PosNormDiffTex1[] verticies_return) 
+			out SSVertex_PosNormTexDiff[] verticies_return) 
 		{
 			const bool shouldDedup = true; // this lets us turn on/of vertex-soup deduping
 
-			var soup = new VertexSoup<SSVertex_PosNormDiffTex1>(deDup:shouldDedup);
+			var soup = new VertexSoup<SSVertex_PosNormTexDiff>(deDup:shouldDedup);
 			List<UInt16> draw_indicies = new List<UInt16>();
 
 			// (0) go throu`gh the materials and faces, DENORMALIZE from WF-OBJ into fully-configured verticies
@@ -47,7 +47,7 @@ namespace SimpleScene
 					// iterate over the vericies of a wave-front FACE...
 
 					// DEREFERENCE each .obj vertex paramater (position, normal, texture coordinate)
-					SSVertex_PosNormDiffTex1[] vertex_list = new SSVertex_PosNormDiffTex1[face.v_idx.Length];                    
+					SSVertex_PosNormTexDiff[] vertex_list = new SSVertex_PosNormTexDiff[face.v_idx.Length];                    
 					for (int facevertex = 0; facevertex < face.v_idx.Length; facevertex++) {     
 
 						// position

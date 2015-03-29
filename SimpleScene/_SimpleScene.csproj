@@ -137,6 +137,7 @@
     <Compile Include="Core\SSInstancePssmShaderProgram.cs" />
     <Compile Include="Core\SSSphere.cs" />
     <Compile Include="Util\ssBVH\ssBVH_Sphere.cs" />
+    <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

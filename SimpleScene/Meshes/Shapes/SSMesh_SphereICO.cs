@@ -11,7 +11,7 @@ using Util.IcoSphere;
 
 namespace SimpleScene
 {
-    public class SSMesh_SphereICO : SSIndexedMesh<SSVertex_PosNormDiffTex1>
+    public class SSMesh_SphereICO : SSIndexedMesh<SSVertex_PosNormTexDiff>
 	{
 		SSMainShaderProgram shaderPgm;
 
@@ -51,7 +51,7 @@ namespace SimpleScene
 			geom = icoSphereCreator.Create(divisions);
 			var positions = geom.Positions.ToArray();
 
-			var vertexSoup = new Util3d.VertexSoup<SSVertex_PosNormDiffTex1>();
+			var vertexSoup = new Util3d.VertexSoup<SSVertex_PosNormTexDiff>();
 			var indexList = new List<UInt16>();
 
 			// we have to process each face in the IcoSphere, so we can
@@ -73,19 +73,19 @@ namespace SimpleScene
 
 				// configure verticies
 
-				var v1 = new SSVertex_PosNormDiffTex1();
+				var v1 = new SSVertex_PosNormTexDiff();
 				v1.Position = vp1;
 				v1.Normal = normal1;
 				v1.Tu = s1;
 				v1.Tv = t1;
 
-				var v2 = new SSVertex_PosNormDiffTex1();
+				var v2 = new SSVertex_PosNormTexDiff();
 				v2.Position = vp2;
 				v2.Normal = normal2;
 				v2.Tu = s2;
 				v2.Tv = t2;
 
-				var v3 = new SSVertex_PosNormDiffTex1();
+				var v3 = new SSVertex_PosNormTexDiff();
 				v3.Position = vp3;
 				v3.Normal = normal3;
 				v3.Tu = s3;

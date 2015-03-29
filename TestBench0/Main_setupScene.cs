@@ -197,7 +197,7 @@ namespace TestBench0
 
 				// test a renderer
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
-				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, tex, SSTexturedCube.Instance);
+				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, tex, SSTexturedNormalCube.Instance);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
 				cubesRenderer.AlphaBlendingEnabled = false;
 				cubesRenderer.DepthRead = true;
