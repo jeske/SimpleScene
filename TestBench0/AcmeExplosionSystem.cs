@@ -19,8 +19,11 @@ namespace SimpleScene
 
 		public AcmeExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
 			: base(new AcmeExplosionSystem(particleCapacity),
-				   texture != null ? texture : AcmeExplosionSystem.GetDefaultTexture(),
-				   SSTexturedQuad.DoubleFaceInstance)
+				SSTexturedQuad.DoubleFaceInstance,   
+				texture != null ? texture : AcmeExplosionSystem.GetDefaultTexture(), // ambient
+				null, // diffuse
+				c_defaultUsageHint
+			 )
 		{
 			renderState.castsShadow = false;
 			renderState.receivesShadows = false;

@@ -193,7 +193,8 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 }
             }
         }
-        
+
+        debugOutputColor = vec4(1.0, 1.0, 1.0, 1.0); // failsafe debugging
         for (int i = 0; i < numShadowMaps; ++i) {
             if ((smapIndexMask & (1 << i)) != 0) {
 				if      (i == 0) { debugOutputColor = vec4(1.0, 0.0, 0.0, 1.0); }
@@ -223,7 +224,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 }
                 debugOutputColor *= litFactor;               
 				return litFactor;
-            }
+            } 
         }
     } else {
 		// surface away from the light
@@ -261,8 +262,8 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 		// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 
 		// load texels...
-		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
-		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0.1);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.1);
 		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
        #ifdef INSTANCE_DRAW

@@ -70,13 +70,8 @@ namespace SimpleScene
                 fov, aspect, cameraNearZ, cameraFarZ);
 
             // update info for the regular draw pass later
-            renderConfig.MainShader.Activate();
-            renderConfig.MainShader.UniNumShadowMaps = c_numberOfSplits;
-            if (renderConfig.usePoissonSampling) {
-				renderConfig.MainShader.UniPoissonScaling  = m_poissonScaling;
-            }
-			renderConfig.MainShader.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
-            renderConfig.MainShader.UniPssmSplits = m_viewSplits;
+			configureDrawShader (ref renderConfig, renderConfig.MainShader);
+			configureDrawShader (ref renderConfig, renderConfig.InstanceShader);
 
             // setup for render shadowmap pass
             renderConfig.PssmShader.Activate();
@@ -92,6 +87,18 @@ namespace SimpleScene
 			base.FinishRender (renderConfig);
 
 			renderConfig.drawingPssm = false;
+		}
+
+		protected void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
+		{
+			pgm.Activate();
+			pgm.UniNumShadowMaps = c_numberOfSplits;
+			if (renderConfig.usePoissonSampling) {
+				pgm.UniPoissonScaling  = m_poissonScaling;
+			}
+			pgm.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
+			pgm.UniPssmSplits = m_viewSplits;
+
 		}
 
         protected void ComputeProjections(

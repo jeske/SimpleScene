@@ -20,7 +20,7 @@ namespace SimpleScene
     {
         // TODO Draw any ibo/vbo mesh
 
-        public const BufferUsageHint c_usageHint = BufferUsageHint.StreamDraw;
+        public const BufferUsageHint c_defaultUsageHint = BufferUsageHint.StreamDraw;
 
 		public SSParticleSystem ParticleSystem;
 
@@ -30,7 +30,8 @@ namespace SimpleScene
 		public bool DepthWrite = true;
 		public bool GlobalBillboarding = false;
         public ISSInstancable Mesh;
-
+		public SSTexture AmbientTexture;
+		public SSTexture DiffuseTexture;
 
         protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> m_orientationXYBuffer;
@@ -45,16 +46,11 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetVBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeUBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeVBuffer;
-        protected SSTexture m_texture;
 
         public SSInstancedMeshRenderer (SSParticleSystem ps, 
-										SSTexture texture, 
-										ISSInstancable mesh = null,
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
-            Mesh = mesh;
             ParticleSystem = ps;
-            m_texture = texture;
 			m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
 			m_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
 			m_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
@@ -68,8 +64,26 @@ namespace SimpleScene
 			m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-
         }
+
+		public SSInstancedMeshRenderer (SSParticleSystem ps, 
+			ISSInstancable mesh = null,
+			BufferUsageHint hint = BufferUsageHint.StreamDraw)
+			: this(ps, hint)
+		{
+			Mesh = mesh;
+		}
+
+		public SSInstancedMeshRenderer (SSParticleSystem ps, 
+			ISSInstancable mesh = null,
+			SSTexture ambientTexture = null,
+			SSTexture diffuseTexture = null,
+			BufferUsageHint hint = BufferUsageHint.StreamDraw)
+			: this(ps, mesh, hint)
+		{
+			AmbientTexture = ambientTexture;
+			DiffuseTexture = diffuseTexture;
+		}
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
@@ -119,18 +133,17 @@ namespace SimpleScene
 
 				// texture binding setup
 				setDefaultShaderState (renderConfig.InstanceShader);
-				if (m_texture != null) {
-				//if (false) {
+				if (AmbientTexture != null) {
 					renderConfig.InstanceShader.UniAmbTexEnabled = true;
 					GL.ActiveTexture (TextureUnit.Texture2);
 					GL.Enable (EnableCap.Texture2D);
-					GL.BindTexture (TextureTarget.Texture2D, m_texture.TextureID);
-					#if false
+					GL.BindTexture (TextureTarget.Texture2D, AmbientTexture.TextureID);
+				}
+				if (DiffuseTexture != null) {
 					renderConfig.InstanceShader.UniDiffTexEnabled = true;
-					GL.ActiveTexture (TextureUnit.Texture1);
+					GL.ActiveTexture (TextureUnit.Texture0);
 					GL.Enable (EnableCap.Texture2D);
-					GL.BindTexture (TextureTarget.Texture2D, m_texture.TextureID);
-					#endif
+					GL.BindTexture (TextureTarget.Texture2D, DiffuseTexture.TextureID);
 				}
 			}
 
