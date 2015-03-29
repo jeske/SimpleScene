@@ -2,6 +2,7 @@
 // Released to the public domain. 
 
 using System;
+using System.Text.RegularExpressions;
 using OpenTK.Graphics.OpenGL;
 
 using Util;
@@ -69,7 +70,14 @@ namespace SimpleScene
 
         public void Prepend(string prefix)
         {
-            shaderProgramText = prefix + shaderProgramText;
+			if (prefix == null) return;
+			string pattern = @"#version \d+[\n|\r|\r\n]";
+			Regex regex = new Regex (pattern);
+			Match match = regex.Match (shaderProgramText);
+			if (match.Success) {
+				shaderProgramText 
+					= shaderProgramText.Insert (match.Index + match.Length, prefix);
+			}
         }
 	}
 
