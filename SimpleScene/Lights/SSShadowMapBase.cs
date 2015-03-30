@@ -179,17 +179,22 @@ namespace SimpleScene
 
 			GL.Clear(ClearBufferMask.DepthBufferBit);
 
-            if (renderConfig.MainShader != null) {
-                renderConfig.MainShader.Activate();
-                renderConfig.MainShader.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
-                if (renderConfig.usePoissonSampling) {
-                    renderConfig.MainShader.UniNumPoissonSamples = renderConfig.numPoissonSamples;
-                }
-            }
-
+			configureDrawShader (ref renderConfig, renderConfig.MainShader);
+			configureDrawShader (ref renderConfig, renderConfig.InstanceShader);
 
             renderConfig.drawingShadowMap = true;
         }
+
+		private void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
+		{
+			if (pgm != null) {
+				pgm.Activate();
+				pgm.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
+				if (renderConfig.usePoissonSampling) {
+					pgm.UniNumPoissonSamples = renderConfig.numPoissonSamples;
+				}
+			}
+		}
 
         private void BindShadowMapToTexture() {
             GL.ActiveTexture(m_textureUnit);

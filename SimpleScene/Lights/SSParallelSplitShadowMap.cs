@@ -74,10 +74,8 @@ namespace SimpleScene
 			configureDrawShader (ref renderConfig, renderConfig.InstanceShader);
 
             // setup for render shadowmap pass
-            renderConfig.PssmShader.Activate();
-			renderConfig.PssmShader.UniShadowMapVPs = m_shadowViewProjMatrices;
-			renderConfig.InstancePssmShader.Activate ();
-			renderConfig.InstancePssmShader.UniShadowMapVPs = m_shadowViewProjMatrices;
+			configurePssmShader (renderConfig.PssmShader);
+			configurePssmShader (renderConfig.InstancePssmShader);
 
 			renderConfig.drawingPssm = true;
         }
@@ -91,6 +89,7 @@ namespace SimpleScene
 
 		protected void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
 		{
+			if (pgm == null) return;
 			pgm.Activate();
 			pgm.UniNumShadowMaps = c_numberOfSplits;
 			if (renderConfig.usePoissonSampling) {
@@ -98,7 +97,13 @@ namespace SimpleScene
 			}
 			pgm.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
 			pgm.UniPssmSplits = m_viewSplits;
+		}
 
+		protected void configurePssmShader(SSPssmShaderProgram pgm)
+		{
+			if (pgm == null) return;
+			pgm.Activate();
+			pgm.UniShadowMapVPs = m_shadowViewProjMatrices;
 		}
 
         protected void ComputeProjections(
