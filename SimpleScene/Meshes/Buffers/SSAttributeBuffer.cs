@@ -20,7 +20,7 @@ namespace SimpleScene
     public class SSAttributeBuffer<Attribute> : SSArrayBuffer<Attribute>, ISSAttributeBuffer
         where Attribute : struct, ISSAttributeLayout
     {
-        public SSAttributeBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw)
+		public SSAttributeBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw)
             : base(hint)
         { 
         }

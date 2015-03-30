@@ -191,7 +191,8 @@ namespace SimpleScene
             //this.boundingSphere.Render(ref renderConfig);
         }
 
-        void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
+        
+		void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
             where A : struct, ISSAttributeLayout 
             where AB : SSAttributeBuffer<A>
         {

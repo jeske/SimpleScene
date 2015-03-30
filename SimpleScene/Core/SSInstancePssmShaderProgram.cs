@@ -79,10 +79,6 @@ namespace SimpleScene
 			get { return -1; } // not used
 		}
 
-		public int AttrInstanceSpriteIndex {
-			get { return -1; } // not used
-		}
-
 		public int AttrInstanceSpriteOffsetU {
 			get { return -1; } // not used
 		}
@@ -96,6 +92,14 @@ namespace SimpleScene
 		}
 
 		public int AttrInstanceSpriteSizeV {
+			get { return -1; } // not used
+		}
+
+		public int AttrTexCoord {
+			get { return -1; } // not used
+		}
+
+		public int AttrNormal {
 			get { return -1; } // not used
 		}
 		#endregion

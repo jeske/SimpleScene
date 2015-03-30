@@ -10,6 +10,50 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
+	public static class SSVertexFormatHelper
+	{
+		/// <summary>
+		/// Prepare a workaround per-vertex attribute. Will not work for 
+		/// </summary>
+		public unsafe static void PreparePerVertexAttribute(
+			Type vertexType, 
+			string attrLocalName, int attrLoc, int attrNumFloats)
+			//where vertexLayout: struct, ISSVertexLayout
+		{
+			if (attrLoc != -1) {
+				GL.EnableVertexAttribArray (attrLoc);
+				GL.VertexAttribPointer (
+					attrLoc, attrNumFloats, VertexAttribPointerType.Float, false,
+					Marshal.SizeOf (vertexType), (IntPtr)Marshal.OffsetOf (vertexType, attrLocalName));
+			}
+		}
+
+		public unsafe static void PrepareNormal(Type vertexType, string normalLocalName)
+		{
+			GL.EnableClientState (ArrayCap.NormalArray);
+			GL.NormalPointer (NormalPointerType.Float, Marshal.SizeOf(vertexType), 
+				(IntPtr) Marshal.OffsetOf (vertexType, normalLocalName));
+		}
+
+		public unsafe static void PrepareTexCoord(Type vertexType, string texCoordLocalName)
+		{
+			GL.EnableClientState (ArrayCap.TextureCoordArray);
+			GL.TexCoordPointer(2, TexCoordPointerType.Float, Marshal.SizeOf(vertexType), 
+				(IntPtr) Marshal.OffsetOf (vertexType, texCoordLocalName));
+		}
+
+		public static ISSInstancableShaderProgram GetActiveInstanceShader(ref SSRenderConfig renderConfig)
+		{
+
+			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
+				return renderConfig.InstanceShader;
+			} else if (renderConfig.InstancePssmShader != null && renderConfig.InstancePssmShader.IsActive) {
+				return renderConfig.InstancePssmShader;
+			}
+			return null;
+		}
+	}
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSVertex_PosNormTexDiff : ISSVertexLayout {
 
@@ -35,22 +79,16 @@ namespace SimpleScene
             GL.EnableClientState (ArrayCap.VertexArray);
             GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormTexDiff), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTexDiff), "Position"));
 
-            GL.EnableClientState (ArrayCap.NormalArray);
-            GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormTexDiff), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTexDiff), "Normal"));
+			ISSInstancableShaderProgram isp = SSVertexFormatHelper.GetActiveInstanceShader (ref renderConfig);
+			if (isp != null) {
+				SSVertexFormatHelper.PreparePerVertexAttribute(
+					typeof(SSVertex_PosNormTexDiff), "Normal", isp.AttrNormal, 3);
 
-			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
-				// instance pssm shader is not affected by this texture coordinate workaround
-				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
-				if (texcoordID != -1) {
-					GL.EnableVertexAttribArray (texcoordID);
-					GL.VertexAttribPointer (texcoordID, 
-						2, VertexAttribPointerType.Float, false, 
-						sizeof(SSVertex_PosNormTexDiff),
-						(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosNormTexDiff), "TexCoord"));
-				}
+				SSVertexFormatHelper.PreparePerVertexAttribute(
+					typeof(SSVertex_PosNormTexDiff), "TexCoord", isp.AttrTexCoord, 2);
 			} else {
-				GL.EnableClientState (ArrayCap.TextureCoordArray);
-				GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormTexDiff), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTexDiff), "TexCoord"));
+				SSVertexFormatHelper.PrepareNormal (typeof(SSVertex_PosNormTexDiff), "Normal");
+				SSVertexFormatHelper.PrepareTexCoord (typeof(SSVertex_PosNormTexDiff), "TexCoord");
 			}
         }
     }
@@ -77,22 +115,16 @@ namespace SimpleScene
 			GL.EnableClientState (ArrayCap.VertexArray);
 			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormTex), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTex), "Position"));
 
-			GL.EnableClientState (ArrayCap.NormalArray);
-			GL.NormalPointer (NormalPointerType.Float, sizeof(SSVertex_PosNormTex), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTex), "Normal"));
+			ISSInstancableShaderProgram isp = SSVertexFormatHelper.GetActiveInstanceShader (ref renderConfig);
+			if (isp != null) {
+				SSVertexFormatHelper.PreparePerVertexAttribute(
+					typeof(SSVertex_PosNormTex), "Normal", isp.AttrNormal, 3);
 
-			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
-				// instance pssm shader is not affected by this texture coordinate workaround
-				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
-				if (texcoordID != -1) {
-					GL.EnableVertexAttribArray (texcoordID);
-					GL.VertexAttribPointer (texcoordID, 
-						2, VertexAttribPointerType.Float, false, 
-						sizeof(SSVertex_PosNormTex),
-						(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosNormTex), "TexCoord"));
-				}
+				SSVertexFormatHelper.PreparePerVertexAttribute(
+					typeof(SSVertex_PosNormTex), "TexCoord", isp.AttrTexCoord, 2);
 			} else {
-				GL.EnableClientState (ArrayCap.TextureCoordArray);
-				GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosNormTex), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTex), "TexCoord"));
+				SSVertexFormatHelper.PrepareNormal (typeof(SSVertex_PosNormTex), "Normal");
+				SSVertexFormatHelper.PrepareTexCoord (typeof(SSVertex_PosNormTex), "TexCoord");
 			}
 		}
 	}
@@ -150,19 +182,12 @@ namespace SimpleScene
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex), "Position"));
 
-			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
-				// instance pssm shader is not affected by this texture coordinate workaround
-				int texcoordID = GL.GetAttribLocation (renderConfig.InstanceShader.m_programID, "texCoord");
-				if (texcoordID != -1) {
-					GL.EnableVertexAttribArray (texcoordID);
-					GL.VertexAttribPointer (texcoordID, 
-						2, VertexAttribPointerType.Float, false, 
-						sizeof(SSVertex_PosTex),
-						(IntPtr)Marshal.OffsetOf (typeof(SSVertex_PosTex), "TexCoord"));
-				}
+			ISSInstancableShaderProgram isp = SSVertexFormatHelper.GetActiveInstanceShader (ref renderConfig);
+			if (isp != null) {
+				SSVertexFormatHelper.PreparePerVertexAttribute(
+					typeof(SSVertex_PosTex), "TexCoord", isp.AttrTexCoord, 2);
 			} else {
-				GL.EnableClientState (ArrayCap.TextureCoordArray);
-				GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(SSVertex_PosTex), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosTex), "TexCoord"));
+				SSVertexFormatHelper.PrepareTexCoord (typeof(SSVertex_PosTex), "TexCoord");
 			}
         }
     }

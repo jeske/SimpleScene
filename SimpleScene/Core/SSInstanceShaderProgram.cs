@@ -13,11 +13,13 @@ public interface ISSInstancableShaderProgram
 	int AttrInstanceComponentScaleXY { get; }
 	int AttrInstanceComponentScaleZ { get; }
 	int AttrInstanceColor { get; }
-	int AttrInstanceSpriteIndex { get; }
 	int AttrInstanceSpriteOffsetU { get; }
 	int AttrInstanceSpriteOffsetV { get; }
 	int AttrInstanceSpriteSizeU { get; }
 	int AttrInstanceSpriteSizeV { get; }
+
+	int AttrTexCoord { get; }
+	int AttrNormal { get; }
 }
 
 namespace SimpleScene
@@ -33,11 +35,13 @@ namespace SimpleScene
 		private readonly int a_instanceComponentScaleZ;
         private readonly int a_instanceColor;
 
-        private readonly int a_instanceSpriteIndex;
         private readonly int a_instanceSpriteOffsetU;
         private readonly int a_instanceSpriteOffsetV;
         private readonly int a_instanceSpriteSizeU;
         private readonly int a_instanceSpriteSizeV;
+
+		private readonly int a_texCoord;
+		private readonly int a_normal;
         #endregion
 
         public int AttrInstancePos {
@@ -68,10 +72,6 @@ namespace SimpleScene
             get { return a_instanceColor; }
         }
 
-        public int AttrInstanceSpriteIndex {
-            get { return a_instanceSpriteIndex; }
-        }
-
         public int AttrInstanceSpriteOffsetU {
             get { return a_instanceSpriteOffsetU; }
         }
@@ -87,6 +87,14 @@ namespace SimpleScene
         public int AttrInstanceSpriteSizeV {
             get { return a_instanceSpriteSizeV; }
         }
+
+		public int AttrTexCoord {
+			get { return a_texCoord; }
+		}
+
+		public int AttrNormal {
+			get { return a_normal; }
+		}
 
 		public SSInstanceShaderProgram()
 			: base("#define INSTANCE_DRAW\n")
@@ -105,6 +113,9 @@ namespace SimpleScene
             a_instanceSpriteOffsetV = getAttrLoc("instanceSpriteOffsetV");
             a_instanceSpriteSizeU = getAttrLoc("instanceSpriteSizeU");
             a_instanceSpriteSizeV = getAttrLoc("instanceSpriteSizeV");
+
+			a_texCoord = getAttrLoc ("attrTexCoord");
+			a_normal = getAttrLoc ("attrNormal");
 
             // uniform locations for texture setup only
             int uniPrimaryTex = getUniLoc("primaryTexture");

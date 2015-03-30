@@ -25,7 +25,8 @@ attribute float instanceSpriteOffsetV;
 attribute float instanceSpriteSizeU;
 attribute float instanceSpriteSizeV;
 
-attribute vec2 texCoord;
+attribute vec2 attrTexCoord;
+attribute vec3 attrNormal;
 varying vec4 varInstanceColor;
 #endif
 
@@ -127,9 +128,9 @@ void main()
 	// transform into eye-space
 
     vec3 combinedPos = gl_Vertex.xyz;
-    vec3 combinedNormal = gl_Normal;
 
     #ifdef INSTANCE_DRAW
+    vec3 combinedNormal = attrNormal;
     vec3 instanceComponentScale = vec3(instanceComponentScaleXY, instanceComponentScaleZ);
 
     combinedPos = instanceComponentScale * combinedPos * vec3(instanceMasterScale);
@@ -152,13 +153,14 @@ void main()
         combinedNormal = orientZ(instanceOrientationZ) * combinedNormal;
     }
     combinedPos += instancePos;
-    gl_TexCoord[0].xy = texCoord * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
+    gl_TexCoord[0].xy = attrTexCoord * vec2(instanceSpriteSizeU, instanceSpriteSizeV);
     gl_TexCoord[0].xy += vec2(instanceSpriteOffsetU, instanceSpriteOffsetV);
     gl_TexCoord[0].zw = vec2(0);
     varInstanceColor = instanceColor;
     //varInstanceColor = new vec4(0f, 1f, 0f, 1f);
     //gl_ModelViewMatrix *= -1;
     #else
+    vec3 combinedNormal = gl_Normal;
     gl_TexCoord[0] = gl_MultiTexCoord0;  // output base UV coordinates
     #endif
 

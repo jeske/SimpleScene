@@ -16,7 +16,7 @@ attribute float instanceSpriteOffsetV;
 attribute float instanceSpriteSizeU;
 attribute float instanceSpriteSizeV;
 
-attribute vec2 texCoord;
+attribute vec2 attrTexCoord;
 
 varying vec4 varInstanceColor;
 
@@ -118,7 +118,7 @@ void main()
     combinedPos += instancePos;
 
     // vec2 inputTexCoord = gl_MultiTexCoord0;
-    vec2 inputTexCoord = texCoord;
+    vec2 inputTexCoord = attrTexCoord;
 
     gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1.0);
     gl_TexCoord[0].xy = inputTexCoord
