@@ -44,6 +44,8 @@ namespace TestBench0
 			mainShader.Activate();
 			mainShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
+			instancingShader.Activate ();
+			instancingShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
 			/////////////////////////////////////////
 			// clear the render buffer....
@@ -201,6 +203,9 @@ namespace TestBench0
 			// setup WIN_SCALE for our shader...
 			mainShader.Activate();
 			mainShader.UniWinScale = ClientRectangle;
+
+			instancingShader.Activate ();
+			instancingShader.UniWinScale = ClientRectangle;
 
 			saveClientWindowLocation ();
 		}
