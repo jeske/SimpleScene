@@ -12,37 +12,41 @@ namespace SimpleScene
 {
 	public static class SSVertexFormatHelper
 	{
-		/// <summary>
-		/// Prepare a workaround per-vertex attribute. Will not work for 
-		/// </summary>
-		public unsafe static void PreparePerVertexAttribute(
-			Type vertexType, 
-			string attrLocalName, int attrLoc, int attrNumFloats)
-			//where vertexLayout: struct, ISSVertexLayout
+		public static void PreparePosition (int stride, IntPtr offset)
 		{
-			if (attrLoc != -1) {
-				GL.EnableVertexAttribArray (attrLoc);
-				GL.VertexAttribPointer (
-					attrLoc, attrNumFloats, VertexAttribPointerType.Float, false,
-					Marshal.SizeOf (vertexType), (IntPtr)Marshal.OffsetOf (vertexType, attrLocalName));
+			// this is the "transitional" GLSL 120 way of assigning buffer contents
+			// http://www.opentk.com/node/80?page=1
+			GL.EnableClientState (ArrayCap.VertexArray);
+			GL.VertexPointer (3, VertexPointerType.Float, stride, offset);
+		}
+
+		public static void PrepareNormal(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
+		{
+			ISSInstancableShaderProgram isp = getActiveInstanceShader (ref renderConfig);
+			if (isp == null) { // no instancing
+				// this is the "transitional" GLSL 120 way of assigning buffer contents
+				// http://www.opentk.com/node/80?page=1
+				GL.EnableClientState (ArrayCap.NormalArray);
+				GL.NormalPointer (NormalPointerType.Float, stride, offset);
+			} else { // instancing
+				preparePerVertexAttribute (stride, offset, isp.AttrNormal, 3);
 			}
 		}
 
-		public unsafe static void PrepareNormal(Type vertexType, string normalLocalName)
+		public static void PrepareTexCoord(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
 		{
-			GL.EnableClientState (ArrayCap.NormalArray);
-			GL.NormalPointer (NormalPointerType.Float, Marshal.SizeOf(vertexType), 
-				(IntPtr) Marshal.OffsetOf (vertexType, normalLocalName));
+			ISSInstancableShaderProgram isp = getActiveInstanceShader (ref renderConfig);
+			if (isp == null) { // no instancing
+				// this is the "transitional" GLSL 120 way of assigning buffer contents
+				// http://www.opentk.com/node/80?page=1
+				GL.EnableClientState (ArrayCap.TextureCoordArray);
+				GL.TexCoordPointer (2, TexCoordPointerType.Float, stride, offset);
+			} else { // instancing
+				preparePerVertexAttribute (stride, offset, isp.AttrTexCoord, 2);
+			}
 		}
 
-		public unsafe static void PrepareTexCoord(Type vertexType, string texCoordLocalName)
-		{
-			GL.EnableClientState (ArrayCap.TextureCoordArray);
-			GL.TexCoordPointer(2, TexCoordPointerType.Float, Marshal.SizeOf(vertexType), 
-				(IntPtr) Marshal.OffsetOf (vertexType, texCoordLocalName));
-		}
-
-		public static ISSInstancableShaderProgram GetActiveInstanceShader(ref SSRenderConfig renderConfig)
+		private static ISSInstancableShaderProgram getActiveInstanceShader(ref SSRenderConfig renderConfig)
 		{
 
 			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
@@ -52,10 +56,35 @@ namespace SimpleScene
 			}
 			return null;
 		}
+
+		private static void preparePerVertexAttribute(
+			int stride, IntPtr offset, int attrLoc, int attrNumFloats)
+		//where vertexLayout: struct, ISSVertexLayout
+		{
+			if (attrLoc != -1) {
+				GL.EnableVertexAttribArray (attrLoc);
+				GL.VertexAttribPointer ( 
+					attrLoc, attrNumFloats, VertexAttribPointerType.Float, false,
+					stride, offset);
+			}
+		}
 	}
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSVertex_PosNormTexDiff : ISSVertexLayout {
+		static private int Size;
+		static private IntPtr PositionOffset;
+		static private IntPtr NormalOffset;
+		static private IntPtr TexCoordOffset;
+
+		static unsafe SSVertex_PosNormTexDiff()
+		{
+			Type type = typeof(SSVertex_PosNormTexDiff);
+			Size = Marshal.SizeOf (type);
+			PositionOffset = Marshal.OffsetOf (type, "Position");
+			NormalOffset = Marshal.OffsetOf (type, "Normal");
+			TexCoordOffset = Marshal.OffsetOf (type, "TexCoord");
+		}
 
         public Vector3 Position;
 		public Vector3 Normal;
@@ -72,24 +101,10 @@ namespace SimpleScene
 			set { TexCoord.Y = value; }
 		}
 
-		public unsafe void  BindGlAttributes(ref SSRenderConfig renderConfig) {
-            // this is the "transitional" GLSL 120 way of assigning buffer contents
-            // http://www.opentk.com/node/80?page=1
-
-            GL.EnableClientState (ArrayCap.VertexArray);
-            GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormTexDiff), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTexDiff), "Position"));
-
-			ISSInstancableShaderProgram isp = SSVertexFormatHelper.GetActiveInstanceShader (ref renderConfig);
-			if (isp != null) {
-				SSVertexFormatHelper.PreparePerVertexAttribute(
-					typeof(SSVertex_PosNormTexDiff), "Normal", isp.AttrNormal, 3);
-
-				SSVertexFormatHelper.PreparePerVertexAttribute(
-					typeof(SSVertex_PosNormTexDiff), "TexCoord", isp.AttrTexCoord, 2);
-			} else {
-				SSVertexFormatHelper.PrepareNormal (typeof(SSVertex_PosNormTexDiff), "Normal");
-				SSVertexFormatHelper.PrepareTexCoord (typeof(SSVertex_PosNormTexDiff), "TexCoord");
-			}
+		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+			SSVertexFormatHelper.PrepareNormal (ref renderConfig, Size, NormalOffset);
+			SSVertexFormatHelper.PrepareTexCoord (ref renderConfig, Size, TexCoordOffset);
         }
     }
 
@@ -97,9 +112,33 @@ namespace SimpleScene
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	public struct SSVertex_PosNormTex : ISSVertexLayout {
+		static private int Size;
+		static private IntPtr PositionOffset;
+		static private IntPtr NormalOffset;
+		static private IntPtr TexCoordOffset;
+
+		static unsafe SSVertex_PosNormTex()
+		{
+			Type type = typeof(SSVertex_PosNormTex);
+			Size = Marshal.SizeOf (type);
+			PositionOffset = Marshal.OffsetOf (type, "Position");
+			NormalOffset = Marshal.OffsetOf (type, "Normal");
+			TexCoordOffset = Marshal.OffsetOf (type, "TexCoord");
+		}
+
 		public Vector3 Position;
 		public Vector3 Normal;
 		public Vector2 TexCoord;
+
+		public float Tu {
+			get { return TexCoord.X; }
+			set { TexCoord.X = value; }
+		}
+
+		public float Tv {
+			get { return TexCoord.Y; }
+			set { TexCoord.Y = value; }
+		}
 
 		public SSVertex_PosNormTex(Vector3 position, Vector3 normal, Vector2 texCoord)
 		{
@@ -108,24 +147,10 @@ namespace SimpleScene
 			TexCoord = texCoord;
 		}
 
-		public unsafe void  BindGlAttributes(ref SSRenderConfig renderConfig) {
-			// this is the "transitional" GLSL 120 way of assigning buffer contents
-			// http://www.opentk.com/node/80?page=1
-
-			GL.EnableClientState (ArrayCap.VertexArray);
-			GL.VertexPointer (3, VertexPointerType.Float, sizeof(SSVertex_PosNormTex), (IntPtr) Marshal.OffsetOf (typeof(SSVertex_PosNormTex), "Position"));
-
-			ISSInstancableShaderProgram isp = SSVertexFormatHelper.GetActiveInstanceShader (ref renderConfig);
-			if (isp != null) {
-				SSVertexFormatHelper.PreparePerVertexAttribute(
-					typeof(SSVertex_PosNormTex), "Normal", isp.AttrNormal, 3);
-
-				SSVertexFormatHelper.PreparePerVertexAttribute(
-					typeof(SSVertex_PosNormTex), "TexCoord", isp.AttrTexCoord, 2);
-			} else {
-				SSVertexFormatHelper.PrepareNormal (typeof(SSVertex_PosNormTex), "Normal");
-				SSVertexFormatHelper.PrepareTexCoord (typeof(SSVertex_PosNormTex), "TexCoord");
-			}
+		public void  BindGlAttributes(ref SSRenderConfig renderConfig) {
+			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+			SSVertexFormatHelper.PrepareNormal (ref renderConfig, Size, NormalOffset);
+			SSVertexFormatHelper.PrepareTexCoord (ref renderConfig, Size, TexCoordOffset);
 		}
 	}
 
@@ -143,6 +168,16 @@ namespace SimpleScene
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSVertex_Pos : ISSVertexLayout
     {
+		static private int Size;
+		static private IntPtr PositionOffset;
+
+		static unsafe SSVertex_Pos()
+		{
+			Type type = typeof(SSVertex_Pos);
+			Size = Marshal.SizeOf (type);
+			PositionOffset = Marshal.OffsetOf (type, "Position");
+		}
+
         public Vector3 Position;
 
         public SSVertex_Pos(float x, float y, float z) {
@@ -153,9 +188,8 @@ namespace SimpleScene
 			Position = pos;
 		}
 
-		public unsafe void BindGlAttributes(ref SSRenderConfig renderConfig) {
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_Pos), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_Pos), "Position"));
+		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
         }
     }
 
@@ -164,6 +198,18 @@ namespace SimpleScene
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SSVertex_PosTex : ISSVertexLayout
     {
+		static private int Size;
+		static private IntPtr PositionOffset;
+		static private IntPtr TexCoordOffset;
+
+		static unsafe SSVertex_PosTex()
+		{
+			Type type = typeof(SSVertex_PosTex);
+			Size = Marshal.SizeOf (type);
+			PositionOffset = Marshal.OffsetOf (type, "Position");
+			TexCoordOffset = Marshal.OffsetOf (type, "TexCoord");
+		}
+
         public Vector2 TexCoord;
         public Vector3 Position;
 
@@ -178,17 +224,9 @@ namespace SimpleScene
 			Position = position;
 		}
 
-		public unsafe void BindGlAttributes(ref SSRenderConfig renderConfig) {
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.VertexPointer(3, VertexPointerType.Float, sizeof(SSVertex_PosTex), (IntPtr)Marshal.OffsetOf(typeof(SSVertex_PosTex), "Position"));
-
-			ISSInstancableShaderProgram isp = SSVertexFormatHelper.GetActiveInstanceShader (ref renderConfig);
-			if (isp != null) {
-				SSVertexFormatHelper.PreparePerVertexAttribute(
-					typeof(SSVertex_PosTex), "TexCoord", isp.AttrTexCoord, 2);
-			} else {
-				SSVertexFormatHelper.PrepareTexCoord (typeof(SSVertex_PosTex), "TexCoord");
-			}
+		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+			SSVertexFormatHelper.PrepareTexCoord (ref renderConfig, Size, TexCoordOffset);
         }
     }
 }
