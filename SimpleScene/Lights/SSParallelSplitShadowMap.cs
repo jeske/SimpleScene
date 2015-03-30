@@ -171,10 +171,10 @@ namespace SimpleScene
             #endif
 
             for (int i = 0; i < c_numberOfSplits; ++i) {
-                if (m_shrink [i]) {
+                if (m_shrink [i]) {                    
                     m_resultLightBB [i].Min.Xy = Vector2.ComponentMax(m_frustumLightBB[i].Min.Xy, 
                                                                         m_objsLightBB[i].Min.Xy);
-                    m_resultLightBB [i].Min.Z = m_objsLightBB [i].Min.Z;
+                    // don't shrink min.Z, since we don't want to clamp nearZ any closer than the lightBB edge                    
                     m_resultLightBB [i].Max = Vector3.ComponentMin(m_frustumLightBB [i].Max,
                                                                      m_objsLightBB [i].Max);
                 } else {
