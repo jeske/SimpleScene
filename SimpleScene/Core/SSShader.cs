@@ -71,7 +71,7 @@ namespace SimpleScene
         public void Prepend(string prefix)
         {
 			if (prefix == null) return;
-			string pattern = @"#version \d+[\n|\r|\r\n]";
+			string pattern = @"#version \d+[\r]\n";
 			Regex regex = new Regex (pattern);
 			Match match = regex.Match (shaderProgramText);
 			if (match.Success) {
