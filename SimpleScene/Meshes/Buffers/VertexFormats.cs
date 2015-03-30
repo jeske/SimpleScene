@@ -59,7 +59,6 @@ namespace SimpleScene
 
 		private static void preparePerVertexAttribute(
 			int stride, IntPtr offset, int attrLoc, int attrNumFloats)
-		//where vertexLayout: struct, ISSVertexLayout
 		{
 			if (attrLoc != -1) {
 				GL.EnableVertexAttribArray (attrLoc);

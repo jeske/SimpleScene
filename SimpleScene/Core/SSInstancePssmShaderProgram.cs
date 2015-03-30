@@ -10,23 +10,8 @@ using System.Collections.Generic;
 
 namespace SimpleScene
 {
-	public class SSInstancePssmShaderProgram : SSShaderProgram
-		, ISSPssmShaderProgram, ISSInstancableShaderProgram 
+	public class SSInstancePssmShaderProgram : SSPssmShaderProgram, ISSInstancableShaderProgram 
 	{
-		private static string c_ctx = "./Shaders/Shadowmap";
-
-		#region shaders
-		private readonly SSShader m_vertexShader;  
-		private readonly SSShader m_fragmentShader;
-		private readonly SSShader m_geometryShader;
-		#endregion
-
-		#region uniform locations
-		private readonly int u_numShadowMaps;
-		private readonly int u_objectWorldTransform;
-		private readonly int u_shadowMapVPs;
-		#endregion
-
 		#region attribute locations
 		private readonly int a_instancePos;
 		private readonly int a_instanceOrientationXY;
@@ -34,20 +19,6 @@ namespace SimpleScene
 		private readonly int a_instanceMasterScale;
 		private readonly int a_instanceComponentScaleXY;
 		private readonly int a_instanceComponentScaleZ;
-		#endregion
-
-		#region uniform modifiers
-		public Matrix4 UniObjectWorldTransform {
-			// pass object world transform matrix for use in shadowmap lookup
-			set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
-		}
-
-		public Matrix4[] UniShadowMapVPs {
-			set {
-				assertActive ();
-				GL.UniformMatrix4(u_shadowMapVPs, value.Length, false, ref value[0].Row0.X);
-			}
-		}
 		#endregion
 
 		#region attribute accessors
@@ -105,41 +76,8 @@ namespace SimpleScene
 		#endregion
 
 		public SSInstancePssmShaderProgram ()
+			: base ("#define INSTANCE_DRAW\n")
 		{
-			string glExtStr = GL.GetString (StringName.Extensions).ToLower ();
-			if (!glExtStr.Contains ("gl_ext_gpu_shader4")
-			|| (!glExtStr.Contains ("gl_arb_draw_instanced") && !glExtStr.Contains ("gl_ext_draw_instanced"))) {
-				Console.WriteLine ("Instance PSSM shader not supported");
-				m_isValid = false;
-				return;
-			}
-			m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, 
-				"instance_pssm_vertex.glsl");
-			m_vertexShader.LoadShader();
-			attach(m_vertexShader);
-
-			m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx,
-				"pssm_fragment.glsl");
-			m_fragmentShader.LoadShader();
-			attach(m_fragmentShader);
-
-			m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx,
-				"pssm_geometry.glsl");
-			m_geometryShader.LoadShader();
-			GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
-			GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
-			GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3 * SSParallelSplitShadowMap.c_numberOfSplits);
-			attach(m_geometryShader);
-
-			link();
-			Activate();
-
-			u_shadowMapVPs = getUniLoc("shadowMapVPs");
-			u_objectWorldTransform = getUniLoc("objWorldTransform");
-			u_numShadowMaps = getUniLoc("numShadowMaps");
-
-			GL.Uniform1(u_numShadowMaps, SSParallelSplitShadowMap.c_numberOfSplits);
-
 			// attributes
 			a_instancePos = getAttrLoc("instancePos");
 			a_instanceOrientationXY = getAttrLoc("instanceOrientationXY");
