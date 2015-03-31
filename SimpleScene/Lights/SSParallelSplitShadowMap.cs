@@ -12,7 +12,8 @@ namespace SimpleScene
 
         #region Constants
         public const int c_numberOfSplits = 4;
-        private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+        //private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+		private const float c_alpha = 0.90f; // logarithmic component ratio (GPU Gems 3 10.1.12)
 
         private static readonly Matrix4[] c_cropMatrices = {
             new Matrix4 (
@@ -183,10 +184,9 @@ namespace SimpleScene
             #endif
 
             for (int i = 0; i < c_numberOfSplits; ++i) {
-                if (m_shrink [i]) {                    
-                    m_resultLightBB [i].Min.Xy = Vector2.ComponentMax(m_frustumLightBB[i].Min.Xy, 
-                                                                        m_objsLightBB[i].Min.Xy);
-                    // don't shrink min.Z, since we don't want to clamp nearZ any closer than the lightBB edge                    
+                if (m_shrink [i]) {
+					m_resultLightBB[i].Min = Vector3.ComponentMax(m_frustumLightBB [i].Min,
+																  m_objsLightBB [i].Min);
                     m_resultLightBB [i].Max = Vector3.ComponentMin(m_frustumLightBB [i].Max,
                                                                      m_objsLightBB [i].Max);
                 } else {
