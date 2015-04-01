@@ -10,10 +10,10 @@ namespace SimpleScene
     {
         // http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
 
+        public float LogVsLinearSplitFactor = 0.90f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+
         #region Constants
         public const int c_numberOfSplits = 4;
-        //private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
-		private const float c_alpha = 0.90f; // logarithmic component ratio (GPU Gems 3 10.1.12)
 
         private static readonly Matrix4[] c_cropMatrices = {
             new Matrix4 (
@@ -135,7 +135,7 @@ namespace SimpleScene
                 float iRatio = (float)(i+1) / (float)c_numberOfSplits;
                 float cLog = cameraNearZ * (float)Math.Pow(cameraFarZ / cameraNearZ, iRatio);
                 float cUni = cameraNearZ + (cameraFarZ - cameraNearZ) * iRatio;
-                float nextFarZ = c_alpha * cLog + (1f - c_alpha) * cUni;
+                float nextFarZ = LogVsLinearSplitFactor * cLog + (1f - LogVsLinearSplitFactor) * cUni;
                 float nextNearZ = prevFarZ;
 
                 // exported to the shader
