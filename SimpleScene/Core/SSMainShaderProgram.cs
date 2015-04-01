@@ -125,7 +125,7 @@ namespace SimpleScene
 		public float[] UniPssmSplits {
 			set {
 				assertActive ();
-				GL.Uniform1 (u_shadowMapViewSplits, value.Length, ref value [0]);
+                GL.Uniform1 (u_shadowMapViewSplits, value.Length, ref value [0]);
 			}
         }
 
