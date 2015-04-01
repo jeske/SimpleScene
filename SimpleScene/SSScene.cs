@@ -80,9 +80,7 @@ namespace SimpleScene
             set { 
                 m_renderConfig.MainShader = value;
                 if (m_renderConfig.MainShader != null) {
-                    m_renderConfig.MainShader.Activate();
-                    m_renderConfig.MainShader.SetupShadowMap(m_lights);
-                    m_renderConfig.MainShader.Deactivate();
+                    m_renderConfig.MainShader.SetupShadowMapTexture(m_lights);
                 }
             }
         }
@@ -94,7 +92,12 @@ namespace SimpleScene
 
         public SSInstanceShaderProgram InstanceShader {
             get { return m_renderConfig.InstanceShader; }
-            set { m_renderConfig.InstanceShader = value; }
+            set { 
+				m_renderConfig.InstanceShader = value;
+				if (m_renderConfig.InstanceShader != null) {
+					m_renderConfig.InstanceShader.SetupShadowMapTexture (m_lights);
+				}
+			}
         }
 
 		public SSInstancePssmShaderProgram InstancePssmShader {
@@ -148,10 +151,10 @@ namespace SimpleScene
             }
             m_lights.Add(light);
             if (MainShader != null) {
-                MainShader.SetupShadowMap(m_lights);
+                MainShader.SetupShadowMapTexture(m_lights);
             }
 			if (InstanceShader != null) {
-				InstanceShader.SetupShadowMap(m_lights);
+				InstanceShader.SetupShadowMapTexture(m_lights);
 			}
         }
 
@@ -160,12 +163,6 @@ namespace SimpleScene
                 throw new Exception ("Light not found.");
             }
             m_lights.Remove(light);
-            if (MainShader != null) {
-                MainShader.Activate();
-            }
-			if (InstanceShader != null) {
-				InstanceShader.Activate();
-			}
         }
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
@@ -225,11 +222,9 @@ namespace SimpleScene
                 light.SetupLight(ref m_renderConfig);
             }
             if (MainShader != null) {
-                MainShader.Activate();
                 MainShader.UniLightingMode = m_renderConfig.lightingMode;
             }
 			if (InstanceShader != null) {
-				InstanceShader.Activate();
 				InstanceShader.UniLightingMode = m_renderConfig.lightingMode;
 			}
         }

@@ -60,65 +60,64 @@ namespace SimpleScene
 		// normal variables.. I might undo this.. - jeske
 
         public bool UniDiffTexEnabled {
-            set { assertActive (); GL.Uniform1 (u_diffTexEnabled, value ? 1 : 0); }
+            set { GL.ProgramUniform1 (m_programID, u_diffTexEnabled, value ? 1 : 0); }
         }
 
         public bool UniSpecTexEnabled {
-            set { assertActive (); GL.Uniform1 (u_specTexEnabled, value ? 1 : 0); }
+			set { GL.ProgramUniform1 (m_programID, u_specTexEnabled, value ? 1 : 0); }
         }
 
         public bool UniAmbTexEnabled {
-            set { assertActive (); GL.Uniform1 (u_ambiTexEnabled, value ? 1 : 0); }
+			set { GL.ProgramUniform1 (m_programID, u_ambiTexEnabled, value ? 1 : 0); }
         }
 
         public bool UniBumpTexEnabled {
-            set { assertActive (); GL.Uniform1 (u_bumpTexEnabled, value ? 1 : 0); }
+			set { GL.ProgramUniform1 (m_programID, u_bumpTexEnabled, value ? 1 : 0); }
         }
 
         public float UniAnimateSecondsOffset {
-            set { assertActive (); GL.Uniform1 (u_animateSecondsOffset, value); }
+			set { GL.ProgramUniform1 (m_programID, u_animateSecondsOffset, value); }
         }
 
         public bool UniShowWireframes {
-            set { assertActive (); GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
+			set { GL.ProgramUniform1 (m_programID, u_showWireframes, value ? 1 : 0); }
         }
 
         public Rectangle UniWinScale {
-            set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
+			set { GL.ProgramUniform2 (m_programID, u_winScale, (float)value.Width, (float)value.Height); }
         }
 
         public Matrix4 UniObjectWorldTransform {
             // pass object world transform matrix for use in shadowmap lookup
-            set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
+			set { GL.ProgramUniformMatrix4 (m_programID, u_objectWorldTransform, 1, false, ref value.Row0.X); }
         }
 
         public int UniNumShadowMaps {
-            set { assertActive(); GL.Uniform1(u_numShadowMaps, value); }
+			set { GL.ProgramUniform1 (m_programID, u_numShadowMaps, value); }
         }
 
         public bool UniPoissonSamplingEnabled {
-            set { assertActive(); GL.Uniform1(u_poissonSamplingEnabled, value ? 1 : 0); }
+			set { GL.ProgramUniform1 (m_programID, u_poissonSamplingEnabled, value ? 1 : 0); }
         }
 
         public int UniNumPoissonSamples {
-            set { assertActive(); GL.Uniform1(u_numPoissonSamples, value); }
+			set { GL.ProgramUniform1 (m_programID, u_numPoissonSamples, value); }
         }
 
         public LightingMode UniLightingMode {
-            set { assertActive(); GL.Uniform1(u_lightingMode, (int)value); }
+			set { GL.ProgramUniform1 (m_programID, u_lightingMode, (int)value); }
         }
 
-        public void SetupShadowMap(List<SSLightBase> lights) {
+        public void SetupShadowMapTexture(List<SSLightBase> lights) {
             // setup number of shadowmaps, textures
 			int count=0;
-			Activate ();
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
                     // TODO: multiple lights with shadowmaps?
                     if (count >= SSShadowMapBase.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
                     }
-                    GL.Uniform1(u_shadowMapTexture, 
+					GL.ProgramUniform1 (m_programID, u_shadowMapTexture, 
                                 (int)light.ShadowMap.TextureUnit - (int)TextureUnit.Texture0);
 					count ++;
                 }
@@ -126,23 +125,16 @@ namespace SimpleScene
         }
 
 		public Matrix4[] UniShadowMapVPs {
-			set { 
-				assertActive (); 
-				GL.UniformMatrix4 (u_shadowMapVPs, value.Length, false, ref value [0].Row0.X); 
-			}
+			set { GL.ProgramUniformMatrix4 (m_programID, u_shadowMapVPs, value.Length, false, ref value [0].Row0.X); }
         }
 
         public Vector2[] UniPoissonScaling {
-			set {
-				assertActive ();
-				GL.Uniform2 (u_poissonScaling, value.Length, ref value [0].X);
+			set { GL.ProgramUniform2 (m_programID, u_poissonScaling, value.Length, ref value [0].X);
 			}
         }
 
 		public float[] UniPssmSplits {
-			set {
-				assertActive ();
-				GL.Uniform1 (u_shadowMapViewSplits, value.Length, ref value [0]);
+			set { GL.ProgramUniform1 (m_programID, u_shadowMapViewSplits, value.Length, ref value [0]);
 			}
         }
         #endregion

@@ -105,7 +105,6 @@ namespace SimpleScene
 
 			if (renderConfig.drawingShadowMap) {
 				if (renderConfig.drawingPssm) {
-					renderConfig.InstancePssmShader.Activate ();
 					renderConfig.InstancePssmShader.UniObjectWorldTransform = this.worldMat;
 					instanceShader = renderConfig.InstancePssmShader;
 				}
@@ -208,11 +207,13 @@ namespace SimpleScene
             }
         }
 
+		#if false
 		public override bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
 			// for now, particle systems don't intersect with anything
 			// TODO: figure out how to do this.
 			return false;
 		}
+		#endif
     }
 }
 

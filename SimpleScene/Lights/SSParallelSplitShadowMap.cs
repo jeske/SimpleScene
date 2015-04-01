@@ -91,7 +91,6 @@ namespace SimpleScene
 		protected void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
 		{
 			if (pgm == null) return;
-			pgm.Activate();
 			pgm.UniNumShadowMaps = c_numberOfSplits;
 			if (renderConfig.usePoissonSampling) {
 				pgm.UniPoissonScaling  = m_poissonScaling;
@@ -103,7 +102,6 @@ namespace SimpleScene
 		protected void configurePssmShader(SSPssmShaderProgram pgm)
 		{
 			if (pgm == null) return;
-			pgm.Activate();
 			pgm.UniShadowMapVPs = m_shadowViewProjMatrices;
 		}
 
@@ -188,7 +186,7 @@ namespace SimpleScene
 					m_resultLightBB[i].Min = Vector3.ComponentMax(m_frustumLightBB [i].Min,
 																  m_objsLightBB [i].Min);
                     m_resultLightBB [i].Max = Vector3.ComponentMin(m_frustumLightBB [i].Max,
-                                                                     m_objsLightBB [i].Max);
+                                                                   m_objsLightBB [i].Max);
                 } else {
                     m_resultLightBB [i] = m_frustumLightBB [i];
                 }

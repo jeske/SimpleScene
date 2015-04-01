@@ -127,7 +127,6 @@ namespace SimpleScene
                 if (renderConfig.MainShader == null) {
                     return;
                 } else {
-                    renderConfig.MainShader.Activate();
                     GL.ActiveTexture(TextureUnit.Texture0);
                     if (texture != null) {
                         GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);

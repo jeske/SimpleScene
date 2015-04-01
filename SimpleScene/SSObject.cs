@@ -78,12 +78,12 @@ namespace SimpleScene
 
         protected void setDefaultShaderState(SSMainShaderProgram pgm) {
             if (pgm != null) {
-                pgm.Activate();
                 pgm.UniDiffTexEnabled = false;
                 pgm.UniSpecTexEnabled = false;
                 pgm.UniAmbTexEnabled = false;
                 pgm.UniBumpTexEnabled = false;
                 pgm.UniObjectWorldTransform = this.worldMat;
+				pgm.Activate();
             }
         }
 
@@ -101,11 +101,11 @@ namespace SimpleScene
 
 			if (renderConfig.drawingShadowMap) {
 				if (renderConfig.drawingPssm) {
-					renderConfig.PssmShader.Activate ();
 					renderConfig.PssmShader.UniObjectWorldTransform = this.worldMat;
+					renderConfig.PssmShader.Activate ();
 				}
             } else {
-                setDefaultShaderState(renderConfig.MainShader);
+                setDefaultShaderState(renderConfig.MainShader); // activates and configures
                 setMaterialState();
 
                 GL.Disable(EnableCap.Blend);

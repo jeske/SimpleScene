@@ -37,15 +37,11 @@ namespace SimpleScene
 
         #region Uniform Modifiers
         public Matrix4 UniObjectWorldTransform {
-            // pass object world transform matrix for use in shadowmap lookup
-            set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
+			set { GL.ProgramUniformMatrix4 (m_programID, u_objectWorldTransform, 1, false, ref value.Row0.X); }
         }
 
 		public Matrix4[] UniShadowMapVPs {
-			set {
-				assertActive ();
-				GL.UniformMatrix4 (u_shadowMapVPs, value.Length, false, ref value [0].Row0.X);
-			}
+			set { GL.ProgramUniformMatrix4 (m_programID, u_shadowMapVPs, value.Length, false, ref value [0].Row0.X); }
 		}
         #endregion
 
