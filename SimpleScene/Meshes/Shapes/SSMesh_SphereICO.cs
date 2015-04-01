@@ -127,10 +127,7 @@ namespace SimpleScene
                 if (renderConfig.MainShader == null) {
                     return;
                 } else {
-                    GL.ActiveTexture(TextureUnit.Texture0);
 					renderConfig.MainShader.SetupTextures (texture);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 }
             }
 
