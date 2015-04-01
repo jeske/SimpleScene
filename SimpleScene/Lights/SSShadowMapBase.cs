@@ -188,6 +188,7 @@ namespace SimpleScene
 		private void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
 		{
 			if (pgm != null) {
+				pgm.Activate();
 				pgm.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
 				if (renderConfig.usePoissonSampling) {
 					pgm.UniNumPoissonSamples = renderConfig.numPoissonSamples;

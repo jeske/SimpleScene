@@ -97,6 +97,7 @@ namespace SimpleScene
 				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
 
 				// these texture-unit assignments are hard-coded in the shader setup
+                shaderPgm.Activate();
 				shaderPgm.SetupTextures(
 					subset.diffuseTexture, subset.specularTexture, 
 					subset.ambientTexture, subset.bumpTexture

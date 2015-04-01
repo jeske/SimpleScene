@@ -111,6 +111,7 @@ namespace SimpleScene
 
 			if (renderConfig.drawingShadowMap) {
 				if (renderConfig.drawingPssm) {
+					renderConfig.InstancePssmShader.Activate ();
 					renderConfig.InstancePssmShader.UniObjectWorldTransform = this.worldMat;
 					instanceShader = renderConfig.InstancePssmShader;
 				}
@@ -137,7 +138,7 @@ namespace SimpleScene
 				GL.DepthMask (DepthWrite);
 
 				// texture binding setup
-
+                renderConfig.InstanceShader.Activate();
 				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
 				renderConfig.InstanceShader.SetupTextures (
 					DiffuseTexture,
@@ -214,7 +215,7 @@ namespace SimpleScene
 			// TODO: figure out how to do this.
 			return false;
 		}
-		#endif
+        #endif
     }
 }
 

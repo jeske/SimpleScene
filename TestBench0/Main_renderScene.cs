@@ -41,7 +41,9 @@ namespace TestBench0
 			if (animateSecondsOffset > 1000.0f) {
 				animateSecondsOffset -= 1000.0f;
 			}
+            mainShader.Activate();
 			mainShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
+            instancingShader.Activate();
 			instancingShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
 			/////////////////////////////////////////
@@ -198,7 +200,9 @@ namespace TestBench0
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
 
 			// setup WIN_SCALE for our shader...
+            mainShader.Activate();
 			mainShader.UniWinScale = ClientRectangle;
+            instancingShader.Activate();
 			instancingShader.UniWinScale = ClientRectangle;
 
 			saveClientWindowLocation ();

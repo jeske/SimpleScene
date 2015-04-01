@@ -276,22 +276,23 @@ namespace TestBench0
 
 		private void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
 		{
-			// TODO not activate 
+            bool showWireFrames;
 			if (autoWireframeMode) {
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-					mainShader.UniShowWireframes = true;
-					instancingShader.UniShowWireframes = true;
+                    showWireFrames = true;
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-					mainShader.UniShowWireframes = false;
-					instancingShader.UniShowWireframes = false;
+                    showWireFrames = false;
 				}
 			} else { // manual
-                bool showWireFrames = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
-                mainShader.UniShowWireframes = showWireFrames;
-                instancingShader.UniShowWireframes = showWireFrames;
+                showWireFrames = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
 			}
+            mainShader.Activate();
+            mainShader.UniShowWireframes = showWireFrames;
+            instancingShader.Activate();
+            instancingShader.UniShowWireframes = showWireFrames;
+
 		}
 
 		private void updateWireframeDisplayText() 
