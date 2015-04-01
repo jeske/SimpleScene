@@ -130,19 +130,19 @@ namespace SimpleScene
         }
 
 		protected bool uniDiffTexEnabled {
-			set { GL.ProgramUniform1 (m_programID, u_diffTexEnabled, value ? 1 : 0); }
+			set { GL.Uniform1 (u_diffTexEnabled, value ? 1 : 0); }
 		}
 
 		protected bool uniSpecTexEnabled {
-			set { GL.ProgramUniform1 (m_programID, u_specTexEnabled, value ? 1 : 0); }
+			set { GL.Uniform1 (u_specTexEnabled, value ? 1 : 0); }
 		}
 
 		protected bool uniAmbTexEnabled {
-			set { GL.ProgramUniform1 (m_programID, u_ambiTexEnabled, value ? 1 : 0); }
+			set { GL.Uniform1 (u_ambiTexEnabled, value ? 1 : 0); }
 		}
 
 		protected bool uniBumpTexEnabled {
-			set { GL.ProgramUniform1 (m_programID, u_bumpTexEnabled, value ? 1 : 0); }
+            set { GL.Uniform1 (u_bumpTexEnabled, value ? 1 : 0); }
 		}
         #endregion
 
