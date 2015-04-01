@@ -30,8 +30,10 @@ namespace SimpleScene
 		public bool DepthWrite = true;
 		public bool GlobalBillboarding = false;
         public ISSInstancable Mesh;
-		public SSTexture AmbientTexture;
 		public SSTexture DiffuseTexture;
+		public SSTexture SpecularTexture;
+		public SSTexture AmbientTexture;
+		public SSTexture BumpMapTexture;
 
         protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> m_orientationXYBuffer;
@@ -76,13 +78,17 @@ namespace SimpleScene
 
 		public SSInstancedMeshRenderer (SSParticleSystem ps, 
 			ISSInstancable mesh = null,
+            SSTexture diffuseTexture = null,
+			SSTexture specularTexture = null,
 			SSTexture ambientTexture = null,
-			SSTexture diffuseTexture = null,
+			SSTexture bumpMapTexture = null,
 			BufferUsageHint hint = BufferUsageHint.StreamDraw)
 			: this(ps, mesh, hint)
 		{
-			AmbientTexture = ambientTexture;
 			DiffuseTexture = diffuseTexture;
+			SpecularTexture = specularTexture;
+			AmbientTexture = ambientTexture;
+			BumpMapTexture = bumpMapTexture;
 		}
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -131,19 +137,14 @@ namespace SimpleScene
 				GL.DepthMask (DepthWrite);
 
 				// texture binding setup
-				setDefaultShaderState (renderConfig.InstanceShader);
-				if (AmbientTexture != null) {
-					renderConfig.InstanceShader.UniAmbTexEnabled = true;
-					GL.ActiveTexture (TextureUnit.Texture2);
-					GL.Enable (EnableCap.Texture2D);
-					GL.BindTexture (TextureTarget.Texture2D, AmbientTexture.TextureID);
-				}
-				if (DiffuseTexture != null) {
-					renderConfig.InstanceShader.UniDiffTexEnabled = true;
-					GL.ActiveTexture (TextureUnit.Texture0);
-					GL.Enable (EnableCap.Texture2D);
-					GL.BindTexture (TextureTarget.Texture2D, DiffuseTexture.TextureID);
-				}
+
+				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
+				renderConfig.InstanceShader.SetupTextures (
+					DiffuseTexture,
+					SpecularTexture,
+					AmbientTexture,
+					BumpMapTexture
+				);
 			}
 
 			if (GlobalBillboarding) {
@@ -207,7 +208,7 @@ namespace SimpleScene
             }
         }
 
-		#if false
+		#if true
 		public override bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
 			// for now, particle systems don't intersect with anything
 			// TODO: figure out how to do this.

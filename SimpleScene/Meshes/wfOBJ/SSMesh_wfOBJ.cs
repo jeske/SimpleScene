@@ -97,39 +97,10 @@ namespace SimpleScene
 				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
 
 				// these texture-unit assignments are hard-coded in the shader setup
-				GL.ActiveTexture(TextureUnit.Texture0);
-				if (subset.diffuseTexture != null) {
-					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
-					shaderPgm.UniDiffTexEnabled = true; 
-				} else {
-					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.UniDiffTexEnabled = false;
-				}
-				GL.ActiveTexture(TextureUnit.Texture1);
-				if (subset.specularTexture != null) {
-					GL.BindTexture(TextureTarget.Texture2D, subset.specularTexture.TextureID);
-					shaderPgm.UniSpecTexEnabled = true;
-				} else {
-					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.UniSpecTexEnabled = false;
-				}
-				GL.ActiveTexture(TextureUnit.Texture2);
-				if (subset.ambientTexture != null || subset.diffuseTexture != null) {
-					SSTexture tex = subset.ambientTexture != null ? subset.ambientTexture : subset.diffuseTexture;
-					GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
-					shaderPgm.UniAmbTexEnabled = true;
-				} else {
-					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.UniAmbTexEnabled = false;
-				}
-				GL.ActiveTexture(TextureUnit.Texture3);
-				if (subset.bumpTexture != null) {
-					GL.BindTexture(TextureTarget.Texture2D, subset.bumpTexture.TextureID);
-					shaderPgm.UniBumpTexEnabled = true;
-				} else {
-					GL.BindTexture(TextureTarget.Texture2D, 0);
-					shaderPgm.UniBumpTexEnabled = false;
-				}
+				shaderPgm.SetupTextures(
+					subset.diffuseTexture, subset.specularTexture, 
+					subset.ambientTexture, subset.bumpTexture
+				);
 
 				// reset to texture-unit 0 to be friendly..
 				GL.ActiveTexture(TextureUnit.Texture0);				

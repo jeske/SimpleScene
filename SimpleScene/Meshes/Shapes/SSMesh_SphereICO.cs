@@ -128,13 +128,7 @@ namespace SimpleScene
                     return;
                 } else {
                     GL.ActiveTexture(TextureUnit.Texture0);
-                    if (texture != null) {
-                        GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-                        renderConfig.MainShader.UniDiffTexEnabled = true;
-                    } else {
-                        GL.BindTexture(TextureTarget.Texture2D, 0);
-                        renderConfig.MainShader.UniDiffTexEnabled = false;
-                    }
+					renderConfig.MainShader.SetupTextures (texture);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 }

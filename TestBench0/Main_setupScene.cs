@@ -196,7 +196,7 @@ namespace TestBench0
 
 				// test a renderer
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
-				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance, tex, tex);
+				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance, tex);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
 				cubesRenderer.AlphaBlendingEnabled = false;
 				cubesRenderer.DepthRead = true;
@@ -277,15 +277,15 @@ namespace TestBench0
 		private void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
 		{
 			// TODO not activate 
-			mainShader.Activate ();
 			if (autoWireframeMode) {
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
 					mainShader.UniShowWireframes = true;
-
+					instancingShader.UniShowWireframes = true;
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
 					mainShader.UniShowWireframes = false;
+					instancingShader.UniShowWireframes = false;
 				}
 			} else {
 				mainShader.UniShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);

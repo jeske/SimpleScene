@@ -76,17 +76,6 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
         }
 
-        protected void setDefaultShaderState(SSMainShaderProgram pgm) {
-            if (pgm != null) {
-                pgm.UniDiffTexEnabled = false;
-                pgm.UniSpecTexEnabled = false;
-                pgm.UniAmbTexEnabled = false;
-                pgm.UniBumpTexEnabled = false;
-                pgm.UniObjectWorldTransform = this.worldMat;
-				pgm.Activate();
-            }
-        }
-
 		public virtual void Render (ref SSRenderConfig renderConfig) {
 			// compute and set the modelView matrix, by combining the cameraViewMat
 			// with the object's world matrix
@@ -100,12 +89,16 @@ namespace SimpleScene
             resetTexturingState();
 
 			if (renderConfig.drawingShadowMap) {
-				if (renderConfig.drawingPssm) {
+				if (renderConfig.drawingPssm && renderConfig.PssmShader != null) {
 					renderConfig.PssmShader.UniObjectWorldTransform = this.worldMat;
 					renderConfig.PssmShader.Activate ();
 				}
-            } else {
-                setDefaultShaderState(renderConfig.MainShader); // activates and configures
+			} else {
+				if (renderConfig.MainShader != null) {
+					renderConfig.MainShader.SetupTextures (); // disable all by default
+					renderConfig.MainShader.UniObjectWorldTransform = this.worldMat;
+					renderConfig.MainShader.Activate ();
+				}
                 setMaterialState();
 
                 GL.Disable(EnableCap.Blend);

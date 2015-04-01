@@ -20,8 +20,6 @@ namespace SimpleScene
 		public AcmeExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
 			: base(new AcmeExplosionSystem(particleCapacity),
 				SSTexturedQuad.DoubleFaceInstance,   
-				texture != null ? texture : AcmeExplosionSystem.GetDefaultTexture(), // ambient
-				null, // diffuse
 				c_defaultUsageHint
 			 )
 		{
@@ -39,6 +37,9 @@ namespace SimpleScene
 			base.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
 			base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
 			base.ShininessMatColor = 0f;
+
+			base.AmbientTexture 
+				= (texture != null) ? texture : AcmeExplosionSystem.GetDefaultTexture();
 		}
 
 		public void ShowExplosion(Vector3 position, float intensity)
