@@ -287,8 +287,10 @@ namespace TestBench0
 					mainShader.UniShowWireframes = false;
 					instancingShader.UniShowWireframes = false;
 				}
-			} else {
-				mainShader.UniShowWireframes = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
+			} else { // manual
+                bool showWireFrames = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
+                mainShader.UniShowWireframes = showWireFrames;
+                instancingShader.UniShowWireframes = showWireFrames;
 			}
 		}
 
