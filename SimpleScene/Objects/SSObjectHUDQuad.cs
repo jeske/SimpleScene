@@ -21,15 +21,15 @@ namespace SimpleScene
 			GL.Disable(EnableCap.Lighting);
 
 			GL.ActiveTexture(TextureUnit.Texture0);
-            GL.Enable(EnableCap.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, GLu_textureID);
+			GL.Enable(EnableCap.Texture2D);
+			GL.BindTexture(TextureTarget.Texture2D, 0);  // reset first
+            GL.BindTexture(TextureTarget.Texture2D, GLu_textureID);  // now bind the shadowmap texture id
 
 			// GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
 			// GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
 
 			// draw quad...
 			GL.Begin(PrimitiveType.Triangles);
-            GL.Color3(1.0f, 1.0f, 1.0f); 
 
 			float w=500;
 			float h=500;

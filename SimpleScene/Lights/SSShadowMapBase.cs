@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using System.Collections.Generic;
 using Util3d;
+using SimpleScene.Util;
 
 namespace SimpleScene
 {
@@ -21,6 +22,7 @@ namespace SimpleScene
         private readonly int m_textureHeight;
 
         protected SSLightBase m_light;
+		protected bool m_isValid = false;
 
         /// <summary>
         /// Used for lookups into the a texture previous used by the framebuffer
@@ -40,13 +42,20 @@ namespace SimpleScene
             get { return m_textureUnit; }
         }
 
+		public bool IsValid {
+			get { return m_isValid; }
+		}
+
         public SSLightBase Light {
             set { m_light = value; }
         }
 
         public SSShadowMapBase (TextureUnit texUnit, int textureWidth, int textureHeight)
         {
-            validateVersion();
+			if (!OpenTKHelper.areFramebuffersSupported()) {
+				m_isValid = false;
+				return;
+			}
             #if false
             if (s_numberOfShadowMaps >= c_maxNumberOfShadowMaps) {
                 throw new Exception ("Unsupported number of shadow maps: " 
@@ -55,7 +64,10 @@ namespace SimpleScene
             #endif
             ++s_numberOfShadowMaps;
 
-            m_frameBufferID = GL.Ext.GenFramebuffer();
+			m_frameBufferID = GL.Ext.GenFramebuffer();
+			if (m_frameBufferID < 0) {
+				throw new Exception ("gen fb failed");
+			}
             m_textureID = GL.GenTexture();
             m_textureWidth = textureWidth;
             m_textureHeight = textureHeight;
@@ -77,21 +89,38 @@ namespace SimpleScene
                 (int)TextureWrapMode.ClampToEdge);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0,
-                PixelInternalFormat.DepthComponent16,
+				PixelInternalFormat.DepthComponent32f,
                 m_textureWidth, m_textureHeight, 0,
-                PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+				PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+			// done creating texture, unbind
+			GL.BindTexture (TextureTarget.Texture2D, 0); 
 
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
-            GL.Ext.FramebufferTexture(FramebufferTarget.Framebuffer,
-                FramebufferAttachment.DepthAttachment,
-                m_textureID, 0);
 
-			GL.DrawBuffer(DrawBufferMode.None); 
-            GL.ReadBuffer(ReadBufferMode.None);
+			// ----------------------------
+			// now bind the texture to framebuffer..
+			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, m_frameBufferID);
+			GL.Ext.BindFramebuffer(FramebufferTarget.ReadFramebuffer, m_frameBufferID);
 
-            assertFramebufferOK();
+			GL.Ext.FramebufferTexture2D(FramebufferTarget.DrawFramebuffer,FramebufferAttachment.DepthAttachment,
+				TextureTarget.Texture2D, m_textureID, 0);
+			//GL.Ext.FramebufferTexture (FramebufferTarget.FramebufferExt, FramebufferAttachment.Color,
+			//(int)All.None, 0);
+
+			GL.Viewport (0, 0, m_textureWidth, m_textureHeight);
+			GL.DrawBuffer (DrawBufferMode.None);
+			GL.ReadBuffer (ReadBufferMode.None);
+
+			if (!assertFramebufferOK (FramebufferTarget.DrawFramebuffer)) {
+				throw new Exception ("failed to create-and-bind shadowmap FBO");
+			}
+
+			// leave in a sane state...
             unbindFramebuffer();
-        }
+			GL.ActiveTexture(TextureUnit.Texture0);
+			if (!assertFramebufferOK (FramebufferTarget.DrawFramebuffer)) {
+				throw new Exception ("failed to ubind shadowmap FBO");
+			}        
+		}
 
         ~SSShadowMapBase() {
             //DeleteData();
@@ -104,7 +133,7 @@ namespace SimpleScene
             GL.Ext.DeleteFramebuffer(m_frameBufferID);
         }
 
-        public void FinishRender(SSRenderConfig renderConfig) {
+        public virtual void FinishRender(SSRenderConfig renderConfig) {
             unbindFramebuffer();
             renderConfig.drawingShadowMap = false;
         }
@@ -114,51 +143,74 @@ namespace SimpleScene
             List<SSObject> objects,
             float fov, float aspect, float nearZ, float farZ);
 
-        protected void unbindFramebuffer() {
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        public void PrepareForRead()
+        {
+            GL.ActiveTexture(TextureUnit);
+            GL.Enable(EnableCap.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, TextureID);
         }
 
-        protected void PrepareForRenderBase(SSRenderConfig renderConfig,
-                                            List<SSObject> objects) {
-            GL.Ext.BindFramebuffer(FramebufferTarget.Framebuffer, m_frameBufferID);
+        public void FinishRead()
+        {
+            GL.ActiveTexture(TextureUnit);
+            GL.Disable(EnableCap.Texture2D);
+        }
+
+        protected void unbindFramebuffer() {
+			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+			GL.Ext.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
+
+        }
+
+        protected virtual void PrepareForRenderBase(SSRenderConfig renderConfig,
+                                                    List<SSObject> objects) {
+			GL.Ext.BindFramebuffer(FramebufferTarget.DrawFramebuffer, m_frameBufferID);
+			// GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt,FramebufferAttachment.DepthAttachment,
+			//	TextureTarget.Texture2D, m_textureID, 0);
+
             GL.Viewport(0, 0, m_textureWidth, m_textureHeight);
 
             // turn off reading and writing to color data
-            GL.DrawBuffer(DrawBufferMode.None); 
-            GL.ReadBuffer(ReadBufferMode.None);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            assertFramebufferOK();
+            GL.DrawBuffer(DrawBufferMode.None);     
 
-            if (renderConfig.MainShader != null) {
-                renderConfig.MainShader.Activate();
-                renderConfig.MainShader.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
-                if (renderConfig.usePoissonSampling) {
-                    renderConfig.MainShader.UniNumPoissonSamples = renderConfig.numPoissonSamples;
-                }
-            }
+			if (!assertFramebufferOK (FramebufferTarget.DrawFramebuffer)) {
+				throw new Exception ("failed to bind framebuffer for drawing");
+			}
+
+			GL.Clear(ClearBufferMask.DepthBufferBit);
+
+			configureDrawShader (ref renderConfig, renderConfig.MainShader);
+			configureDrawShader (ref renderConfig, renderConfig.InstanceShader);
 
             renderConfig.drawingShadowMap = true;
         }
+
+		private void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
+		{
+			if (pgm != null) {
+				pgm.Activate();
+				pgm.UniPoissonSamplingEnabled = renderConfig.usePoissonSampling;
+				if (renderConfig.usePoissonSampling) {
+					pgm.UniNumPoissonSamples = renderConfig.numPoissonSamples;
+				}
+			}
+		}
 
         private void BindShadowMapToTexture() {
             GL.ActiveTexture(m_textureUnit);
             GL.BindTexture(TextureTarget.Texture2D, m_textureID);
         }
 
-        protected void assertFramebufferOK() {
-            var currCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (currCode != FramebufferErrorCode.FramebufferComplete) {
-                throw new Exception("Frame buffer operation failed: " + currCode.ToString());
-            }
-        }
-
-        protected void validateVersion() {
-            string version_string = GL.GetString(StringName.Version);
-            Version version = new Version(version_string[0], version_string[2]); // todo: improve
-            Version versionRequired = new Version(2, 2);
-            if (version < versionRequired) {
-                throw new Exception("framebuffers not supported by the GL backend used");
-            }
+		protected bool assertFramebufferOK(FramebufferTarget target) {
+            var currCode = GL.Ext.CheckFramebufferStatus(target);
+			if (currCode != FramebufferErrorCode.FramebufferComplete) {
+				Console.WriteLine ("Frame buffer operation failed: " + currCode.ToString ());
+				m_isValid = false;
+				DeleteData ();
+			} else {
+				m_isValid = true;
+			}
+			return m_isValid;
         }
 
         protected static void viewProjFromLightAlignedBB(ref SSAABB bb, 

@@ -58,11 +58,19 @@ namespace SimpleScene
 
             int idx = m_lightName - c_firstName;
             GL.Enable (EnableCap.Light0 + idx);
+
+            if (ShadowMap != null) {
+                ShadowMap.PrepareForRead();
+            }
         }
 
         public void DisableLight() {
             int idx = m_lightName - c_firstName;
             GL.Disable (EnableCap.Light0 + idx);
+
+            if (ShadowMap != null) {
+                ShadowMap.FinishRead();
+            }
         }
 
     }

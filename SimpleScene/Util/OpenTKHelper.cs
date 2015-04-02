@@ -4,11 +4,17 @@
 using System;
 
 using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
 	public static class OpenTKHelper
 	{
+		/// <summary>
+		/// Randomizer to be used for debugging purposes only.
+		/// </summary>
+		public static readonly Random s_debugRandom = new Random();
 
 	    // MouseToWorldRay
 	    //
@@ -62,7 +68,19 @@ namespace SimpleScene
 			return new Vector3(vec.X,vec.Y,vec.Z);
 		}
 
-        
+        /// <summary>
+        /// Converts quaternion representation to Euler angles
+        /// http://math.stackexchange.com/questions/687964/getting-euler-tait-bryan-angles-from-quaternion-representation
+        /// </summary>
+		public static Vector3 QuaternionToEuler(ref Quaternion q)
+        {
+			float phi = (float)Math.Atan2(q.Z*q.W + q.X*q.Y, 0.5f - q.Y*q.Y - q.Z*q.Z);
+			float theta = (float)Math.Asin(2f * (q.X*q.Z - q.Y*q.W));
+			float gamma = (float)Math.Atan2(q.Y*q.Z + q.X*q.W, 0.5f - q.Z * q.Z - q.W * q.W);
+			//return new Vector3 (phi, theta, gamma);
+			return new Vector3 (gamma - (float)Math.PI, theta, phi);
+        }
+			       
         /// <summary>
         /// Distance from a ray to a point at the closest spot. The ray is assumed to be infinite length.
         /// </summary>
@@ -297,8 +315,39 @@ namespace SimpleScene
         {
             // return true when two rectangles overlap in 2D
             return !(r1Max.X < r2Min.X || r2Max.X < r1Min.X
-                || r1Max.Y < r2Min.Y || r2Max.Y < r1Min.Y);
+                     || r1Max.Y < r2Min.Y || r2Max.Y < r1Min.Y);
         }
+
+        /// <summary>
+        /// Override matrix setup to get rid of any rotation in view
+        /// http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
+        /// </summary>
+        public static Matrix4 BillboardMatrix(ref Matrix4 modelViewMat)
+        {
+            Vector3 trans = modelViewMat.ExtractTranslation();
+            Vector3 scale = modelViewMat.ExtractScale();
+            return new Matrix4 (
+                scale.X, 0f, 0f, 0f,
+                0f, scale.Y, 0f, 0f,
+                0f, 0f, scale.Z, 0f,
+                trans.X, trans.Y, trans.Z, 1f);
+        }
+
+		public static bool areFramebuffersSupported() {
+			string version_string = GL.GetString(StringName.Version);
+			// TODO improve in time for OpenGL 10.0 backends
+			int major = version_string [0] - '0';
+			int minor = version_string [2] - '0';
+			Version version = new Version(major, minor); // todo: improve
+			if (version < new Version(3, 0)) {
+				var str = GL.GetString(StringName.Extensions).ToLower();
+				if (!str.Contains ("framebuffer_object")) {
+					Console.WriteLine ("framebuffers not supported by the GL version ");
+					return false;
+				}
+			} 
+			return true;
+		}
 	}
 }
 

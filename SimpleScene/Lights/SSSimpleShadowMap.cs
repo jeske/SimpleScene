@@ -28,19 +28,25 @@ namespace SimpleScene
                                 renderConfig.invCameraViewMat, renderConfig.projectionMatrix);
 
             // update info for the regular draw pass later
-            Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
-            renderConfig.MainShader.Activate();
-            renderConfig.MainShader.UniNumShadowMaps = 1;
-            if (renderConfig.usePoissonSampling) {
-                Vector2[] poissonScales = { new Vector2 (1f) };
-                renderConfig.MainShader.UpdatePoissonScaling(poissonScales);
-            }
-            renderConfig.MainShader.UpdateShadowMapBiasVPs(vp);
+			Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
+			configureDrawShader (ref renderConfig, renderConfig.MainShader, vp);
+			configureDrawShader (ref renderConfig, renderConfig.InstanceShader, vp);
 
             // setup for render shadowmap pass
             renderConfig.projectionMatrix = m_shadowProjMatrix;
             renderConfig.invCameraViewMat = m_shadowViewMatrix;
             SSShaderProgram.DeactivateAll();
+		}
+
+		private void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm, Matrix4[] vp)
+		{
+			if (pgm == null) return;
+			pgm.UniNumShadowMaps = 1;
+			if (renderConfig.usePoissonSampling) {
+				Vector2[] poissonScales = { new Vector2 (1f) };
+				pgm.UniPoissonScaling = poissonScales;
+			}
+			pgm.UniShadowMapVPs = vp;
 		}
 
         private void ComputeProjections(List<SSObject> objects,

@@ -3,12 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E028B740-9EBB-491B-8080-CDED0AAD2F92}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>WavefrontOBJViewer</RootNamespace>
-    <AssemblyName>WavefrontOBJViewer</AssemblyName>
+    <AssemblyName>TestBench0</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -18,8 +16,8 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Externalconsole>True</Externalconsole>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -53,6 +51,7 @@
     <Compile Include="SSMesh_Starfield.cs" />
     <Compile Include="Main_renderScene.cs" />
     <Compile Include="Main_setupInput.cs" />
+    <Compile Include="AcmeExplosionSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
@@ -86,9 +85,20 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox_readme.txt" />
     <None Include="Assets\drone2\drone2_readme.txt" />
+    <None Include="Assets\simpleasteroid\asteroid.mtl" />
+    <None Include="Assets\simpleasteroid\asteroid.obj" />
+    <None Include="Assets\simpleasteroid\asteroid.png" />
+    <None Include="Assets\simpleasteroid\readme.txt" />
+    <None Include="Assets\explosions\fig7.png" />
+    <None Include="Assets\explosions\fix7.txt" />
+    <None Include="Assets\elements.png" />
+    <None Include="Assets\sun_flare.png" />
+    <None Include="Assets\sun_flare.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\skybox\" />
+    <Folder Include="Assets\simpleasteroid\" />
+    <Folder Include="Assets\explosions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">

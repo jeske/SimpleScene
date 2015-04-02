@@ -10,9 +10,10 @@ namespace SimpleScene
     {
         // http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
 
+        public float LogVsLinearSplitFactor = 0.90f; // logarithmic component ratio (GPU Gems 3 10.1.12)
+
         #region Constants
         public const int c_numberOfSplits = 4;
-        private const float c_alpha = 0.992f; // logarithmic component ratio (GPU Gems 3 10.1.12)
 
         private static readonly Matrix4[] c_cropMatrices = {
             new Matrix4 (
@@ -70,20 +71,43 @@ namespace SimpleScene
                 fov, aspect, cameraNearZ, cameraFarZ);
 
             // update info for the regular draw pass later
-            renderConfig.MainShader.Activate();
-            renderConfig.MainShader.UniNumShadowMaps = c_numberOfSplits;
-            if (renderConfig.usePoissonSampling) {
-                renderConfig.MainShader.UpdatePoissonScaling(m_poissonScaling);
-            }
-            renderConfig.MainShader.UpdateShadowMapBiasVPs(m_shadowViewProjBiasMatrices);
-            renderConfig.MainShader.UpdatePssmSplits(m_viewSplits);
+			configureDrawShader (ref renderConfig, renderConfig.MainShader);
+			configureDrawShader (ref renderConfig, renderConfig.InstanceShader);
 
             // setup for render shadowmap pass
-            renderConfig.PssmShader.Activate();
-            renderConfig.PssmShader.UpdateShadowMapVPs(m_shadowViewProjMatrices);
+			configurePssmShader (renderConfig.PssmShader);
+			configurePssmShader (renderConfig.InstancePssmShader);
+
+			renderConfig.drawingPssm = true;
         }
 
-        void ComputeProjections(
+		public override void FinishRender (SSRenderConfig renderConfig)
+		{
+			base.FinishRender (renderConfig);
+
+			renderConfig.drawingPssm = false;
+		}
+
+		protected void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
+		{
+			if (pgm == null) return;
+			pgm.Activate();
+			pgm.UniNumShadowMaps = c_numberOfSplits;
+			if (renderConfig.usePoissonSampling) {
+				pgm.UniPoissonScaling  = m_poissonScaling;
+			}
+			pgm.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
+			pgm.UniPssmSplits = m_viewSplits;
+		}
+
+		protected void configurePssmShader(SSPssmShaderProgram pgm)
+		{
+			if (pgm == null) return;
+			pgm.Activate();
+			pgm.UniShadowMapVPs = m_shadowViewProjMatrices;
+		}
+
+        protected void ComputeProjections(
             List<SSObject> objects,
             Matrix4 cameraView,
             Matrix4 cameraProj,
@@ -113,7 +137,7 @@ namespace SimpleScene
                 float iRatio = (float)(i+1) / (float)c_numberOfSplits;
                 float cLog = cameraNearZ * (float)Math.Pow(cameraFarZ / cameraNearZ, iRatio);
                 float cUni = cameraNearZ + (cameraFarZ - cameraNearZ) * iRatio;
-                float nextFarZ = c_alpha * cLog + (1f - c_alpha) * cUni;
+                float nextFarZ = LogVsLinearSplitFactor * cLog + (1f - LogVsLinearSplitFactor) * cUni;
                 float nextNearZ = prevFarZ;
 
                 // exported to the shader
@@ -161,9 +185,8 @@ namespace SimpleScene
 
             for (int i = 0; i < c_numberOfSplits; ++i) {
                 if (m_shrink [i]) {
-                    m_resultLightBB [i].Min.Xy = Vector2.ComponentMax(m_frustumLightBB[i].Min.Xy, 
-                                                                        m_objsLightBB[i].Min.Xy);
-                    m_resultLightBB [i].Min.Z = m_objsLightBB [i].Min.Z;
+					m_resultLightBB[i].Min = Vector3.ComponentMax(m_frustumLightBB [i].Min,
+																  m_objsLightBB [i].Min);
                     m_resultLightBB [i].Max = Vector3.ComponentMin(m_frustumLightBB [i].Max,
                                                                      m_objsLightBB [i].Max);
                 } else {

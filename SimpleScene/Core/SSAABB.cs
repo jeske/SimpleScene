@@ -17,6 +17,12 @@ namespace SimpleScene
             Max = new Vector3(max);
         }
 
+		public SSAABB(Vector3 min, Vector3 max)
+		{
+			Min = min;
+			Max = max;
+		}
+
         public void Combine(ref SSAABB other) {
             Min = Vector3.ComponentMin(Min, other.Min);
             Max = Vector3.ComponentMax(Max, other.Max);
@@ -36,6 +42,11 @@ namespace SimpleScene
                return true;
             }
         }
+
+		public bool IntersectsSphere(SSSphere sphere)
+		{
+			return IntersectsSphere (sphere.center, sphere.radius);
+		}
 
         public bool IntersectsAABB(SSAABB box) {
             return ( (Max.X > box.Min.X) && (Min.X < box.Max.X) &&

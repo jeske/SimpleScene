@@ -57,7 +57,6 @@ namespace SimpleScene
             GL.Begin(PrimitiveType.Triangles);
 
 			GL.LineWidth(1.0f);
-			GL.Color3(1.0f,1.0f,1.0f);
 
             for (int ring = 0; ring < rings + 1; ring++)
             {
@@ -97,7 +96,6 @@ namespace SimpleScene
 
 			GL.Begin(PrimitiveType.Lines);
 			GL.LineWidth(1.0f);
-			GL.Color3(1.0f,1.0f,1.0f);
 
 			foreach (var face in icoSphereFaces) {
 				var v1 = icoSphereVertices[face.v1];
@@ -135,7 +133,6 @@ namespace SimpleScene
             GL.Begin(PrimitiveType.LineStrip);
 
 			GL.LineWidth(1.0f);
-			GL.Color3(1.0f,1.0f,1.0f);
 
             for (int ring = 0; ring < rings + 1; ring++)
             {

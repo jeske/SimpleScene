@@ -11,21 +11,18 @@ using Util.IcoSphere;
 
 namespace SimpleScene
 {
-	public class SSMesh_SphereICO : SSAbstractMesh
+    public class SSMesh_SphereICO : SSIndexedMesh<SSVertex_PosNormTexDiff>
 	{
 		SSMainShaderProgram shaderPgm;
 
 		MeshGeometry3D geom;
 
-		SSVertexBuffer<SSVertex_PosNormDiffTex1> vbo;
-		SSIndexBuffer ibo;
-
 		SSTexture texture;
 
 		public SSMesh_SphereICO (int divisions, SSTexture texture)
+            : base(BufferUsageHint.StaticDraw, BufferUsageHint.StaticDraw)
 		{
 			this.texture = texture;
-
 			this._Create(divisions);
 		}
 
@@ -54,7 +51,7 @@ namespace SimpleScene
 			geom = icoSphereCreator.Create(divisions);
 			var positions = geom.Positions.ToArray();
 
-			var vertexSoup = new Util3d.VertexSoup<SSVertex_PosNormDiffTex1>();
+			var vertexSoup = new Util3d.VertexSoup<SSVertex_PosNormTexDiff>();
 			var indexList = new List<UInt16>();
 
 			// we have to process each face in the IcoSphere, so we can
@@ -76,19 +73,19 @@ namespace SimpleScene
 
 				// configure verticies
 
-				var v1 = new SSVertex_PosNormDiffTex1();
+				var v1 = new SSVertex_PosNormTexDiff();
 				v1.Position = vp1;
 				v1.Normal = normal1;
 				v1.Tu = s1;
 				v1.Tv = t1;
 
-				var v2 = new SSVertex_PosNormDiffTex1();
+				var v2 = new SSVertex_PosNormTexDiff();
 				v2.Position = vp2;
 				v2.Normal = normal2;
 				v2.Tu = s2;
 				v2.Tv = t2;
 
-				var v3 = new SSVertex_PosNormDiffTex1();
+				var v3 = new SSVertex_PosNormTexDiff();
 				v3.Position = vp3;
 				v3.Normal = normal3;
 				v3.Tu = s3;
@@ -117,14 +114,10 @@ namespace SimpleScene
 				indexList.Add(idx3);
 			}
 
-			var vertexArr = vertexSoup.verticies.ToArray();
-			var idxArr = indexList.ToArray();
+            UpdateVertices(vertexSoup.verticies.ToArray());
+            UpdateIndices(indexList.ToArray());
 
-			// upload to GL
-			vbo = new SSVertexBuffer<SSVertex_PosNormDiffTex1>(vertexArr);
-			ibo = new SSIndexBuffer (idxArr, vbo);
 		}
-
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
             // note that the texture state was previously reset by the calling SSObject
@@ -134,29 +127,20 @@ namespace SimpleScene
                 if (renderConfig.MainShader == null) {
                     return;
                 } else {
-                    renderConfig.MainShader.Activate();
-                    GL.ActiveTexture(TextureUnit.Texture0);
-                    if (texture != null) {
-                        GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
-                        renderConfig.MainShader.UniDiffTexEnabled = true;
-                    } else {
-                        GL.BindTexture(TextureTarget.Texture2D, 0);
-                        renderConfig.MainShader.UniDiffTexEnabled = false;
-                    }
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+					renderConfig.MainShader.SetupTextures (texture);
                 }
             }
 
-            ibo.DrawElements(PrimitiveType.Triangles);
+            base.RenderMesh(ref renderConfig);
 		}
 
-
-		public override IEnumerable<Vector3> EnumeratePoints ()
+        public override float Radius ()
 		{
+            float radSq = 0f;
 			foreach (var point in geom.Positions) {
-				yield return point;
+                radSq = Math.Max(radSq, point.LengthSquared);
 			}
+            return (float)Math.Sqrt(radSq);
 		}
 
 	}

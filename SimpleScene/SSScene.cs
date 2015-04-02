@@ -11,9 +11,9 @@ using OpenTK.Graphics.OpenGL;
 namespace SimpleScene
 {
 	public enum WireframeMode {
-		None,
-		GLSL_SinglePass,
-		GL_Lines,
+		None = 0,
+		GLSL_SinglePass = 1,
+		GL_Lines = 2,
 	};
 
 	public struct SSRenderStats {
@@ -22,18 +22,22 @@ namespace SimpleScene
 	}     
 
 	public class SSRenderConfig {
-		public SSRenderStats renderStats;
+        public SSRenderStats renderStats;
 
 		public SSMainShaderProgram MainShader;
         public SSPssmShaderProgram PssmShader;
+        public SSInstanceShaderProgram InstanceShader;
+		public SSInstancePssmShaderProgram InstancePssmShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
         public bool drawingShadowMap = false;
+		public bool drawingPssm = false;
 
         public bool usePoissonSampling = true;
         public int numPoissonSamples = 8;
         public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
+		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
         public bool renderBoundingSpheres = false;
         public bool renderCollisionShells = false;
@@ -70,6 +74,7 @@ namespace SimpleScene
             set { m_activeCamera = value; }
         }
 
+        #region convenience pass-through parameters
         public SSMainShaderProgram MainShader {
             get { return m_renderConfig.MainShader; }
             set { 
@@ -86,6 +91,17 @@ namespace SimpleScene
             get { return m_renderConfig.PssmShader; }
             set { m_renderConfig.PssmShader = value; }
         }
+
+        public SSInstanceShaderProgram InstanceShader {
+            get { return m_renderConfig.InstanceShader; }
+            set { m_renderConfig.InstanceShader = value; }
+        }
+
+		public SSInstancePssmShaderProgram InstancePssmShader {
+			get { return m_renderConfig.InstancePssmShader; }
+			set { m_renderConfig.InstancePssmShader = value; }
+		}
+        #endregion
 
         public bool FrustumCulling {
             get { return m_renderConfig.frustumCulling; }
@@ -112,12 +128,10 @@ namespace SimpleScene
             set { m_renderConfig.renderBoundingSpheres = value; }
         }
 
-
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
         public event BeforeRenderObjectHandler BeforeRenderObject;
         #endregion
-
 
         public void AddObject(SSObject obj) {
             m_objects.Add(obj);
@@ -134,10 +148,11 @@ namespace SimpleScene
             }
             m_lights.Add(light);
             if (MainShader != null) {
-                MainShader.Activate();
                 MainShader.SetupShadowMap(m_lights);
-                MainShader.Deactivate();
             }
+			if (InstanceShader != null) {
+				InstanceShader.SetupShadowMap(m_lights);
+			}
         }
 
         public void RemoveLight(SSLightBase light) {
@@ -147,9 +162,10 @@ namespace SimpleScene
             m_lights.Remove(light);
             if (MainShader != null) {
                 MainShader.Activate();
-                MainShader.SetupShadowMap(m_lights);
-                MainShader.Deactivate();
             }
+			if (InstanceShader != null) {
+				InstanceShader.Activate();
+			}
         }
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
@@ -199,9 +215,10 @@ namespace SimpleScene
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
+
+            disableLighting();
         }
 
-        
         private void setupLighting() {
             GL.Enable(EnableCap.Lighting);
             foreach (var light in m_lights) {
@@ -210,6 +227,17 @@ namespace SimpleScene
             if (MainShader != null) {
                 MainShader.Activate();
                 MainShader.UniLightingMode = m_renderConfig.lightingMode;
+            }
+			if (InstanceShader != null) {
+				InstanceShader.Activate();
+				InstanceShader.UniLightingMode = m_renderConfig.lightingMode;
+			}
+        }
+
+        private void disableLighting() {
+            GL.Disable(EnableCap.Lighting);
+            foreach (var light in m_lights) {
+                light.DisableLight();
             }
         }
 

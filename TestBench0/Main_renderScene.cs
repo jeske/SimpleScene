@@ -12,12 +12,11 @@ using OpenTK.Input;
 
 using SimpleScene;
 
-namespace WavefrontOBJViewer
+namespace TestBench0
 {
 
-	partial class WavefrontOBJViewer : OpenTK.GameWindow
+	partial class TestBench0 : OpenTK.GameWindow
 	{
-
 		FPSCalculator fpsCalc = new FPSCalculator();
 		float animateSecondsOffset;
 		/// <summary>
@@ -42,9 +41,10 @@ namespace WavefrontOBJViewer
 			if (animateSecondsOffset > 1000.0f) {
 				animateSecondsOffset -= 1000.0f;
 			}
-			mainShader.Activate();
+            mainShader.Activate();
 			mainShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
-
+            instancingShader.Activate();
+			instancingShader.UniAnimateSecondsOffset = (float)animateSecondsOffset;
 
 			/////////////////////////////////////////
 			// clear the render buffer....
@@ -55,7 +55,7 @@ namespace WavefrontOBJViewer
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
 			float nearPlane = 1.0f;
-			float farPlane = 500.0f;
+			float farPlane = 5000.0f;
 
 			// setup the inverse matrix of the active camera...
 			Matrix4 mainSceneView = scene.ActiveCamera.worldMat.Inverted();
@@ -69,7 +69,7 @@ namespace WavefrontOBJViewer
 			/////////////////////////////////////////
 			// render the "shadowMap" 
 			// 
-			#if false
+			#if true
 			scene.ProjectionMatrix = mainSceneProj;
 			scene.InvCameraViewMatrix = mainSceneView;
 
@@ -123,6 +123,7 @@ namespace WavefrontOBJViewer
 				GL.CullFace (CullFaceMode.Back);
 				GL.Enable (EnableCap.DepthTest);
 				GL.Enable (EnableCap.DepthClamp);
+				GL.DepthFunc(DepthFunction.Less);
 				GL.DepthMask (true);
 				
 				// render 3d content...
@@ -131,7 +132,7 @@ namespace WavefrontOBJViewer
 			}
 
 			/////////////////////////////////////////
-			// rendering the sun billboard scene....
+			// rendering the sun dsk scene....
 			{
 				sunDiskScene.InvCameraViewMatrix = rotationOnlyView;
 				sunDiskScene.ProjectionMatrix = mainSceneProj;
@@ -199,8 +200,12 @@ namespace WavefrontOBJViewer
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
 
 			// setup WIN_SCALE for our shader...
-			mainShader.Activate();
+            mainShader.Activate();
 			mainShader.UniWinScale = ClientRectangle;
+            instancingShader.Activate();
+			instancingShader.UniWinScale = ClientRectangle;
+
+			saveClientWindowLocation ();
 		}
 
 	}

@@ -9,6 +9,7 @@ using System.Text;
 using System.Drawing;
 
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene;
 
@@ -56,7 +57,7 @@ namespace SimpleScene.Util.ssBVH
         }
 
         // the SSObject has changed, so notify the BVH leaf to refit for the object
-        void obj_OnChanged(SSObject sender) {                 
+        protected void obj_OnChanged(SSObject sender) {                 
             ssToLeafMap[sender].refit_ObjectChanged(this, sender);
         }
 
@@ -82,6 +83,7 @@ namespace SimpleScene.Util.ssBVH
 
         public SSBVHRender(ssBVH<SSObject> bvh) {
             this.bvh = bvh;
+            this.MainColor = Color4.Red;
         }
 
         private static readonly SSVertex_Pos[] vertices = {
@@ -97,7 +99,7 @@ namespace SimpleScene.Util.ssBVH
         private static readonly SSVertexBuffer<SSVertex_Pos> vbo = new SSVertexBuffer<SSVertex_Pos> (vertices);
         private static readonly SSIndexBuffer ibo = new SSIndexBuffer (indices, vbo);
 
-        public void renderCells(ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
+		public void renderCells(ref SSRenderConfig renderConfig, ssBVHNode<SSObject> n, ref SSAABB parentbox, int depth) {
             float nudge = 0f; 
 
             if (parentbox.Equals(n.box)) {
@@ -125,27 +127,25 @@ namespace SimpleScene.Util.ssBVH
 
             GL.PushMatrix();
             GL.MultMatrix(ref mat);
-            ibo.DrawElements(PrimitiveType.Lines, false);
+            ibo.DrawElements(ref renderConfig, PrimitiveType.Lines, false);
             GL.PopMatrix();
 
-            if (n.right != null) renderCells(n.right, ref n.box, depth:depth + 1);
-            if (n.left != null) renderCells(n.left, ref n.box, depth:depth + 1);
+            if (n.right != null) renderCells(ref renderConfig, n.right, ref n.box, depth:depth + 1);
+            if (n.left != null) renderCells(ref renderConfig, n.left, ref n.box, depth:depth + 1);
         }
 
         public override void Render(ref SSRenderConfig renderConfig) {
             if (renderConfig.drawingShadowMap) return;
 			base.Render(ref renderConfig);
 			SSShaderProgram.DeactivateAll();
-            GL.Color4(Color.Red);          
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
    			
-            GL.Color4(Color.Red);
             GL.MatrixMode(MatrixMode.Modelview);
             ibo.Bind();
-            vbo.DrawBind();
-            this.renderCells(bvh.rootBVH, ref bvh.rootBVH.box, 0);
+			vbo.DrawBind(ref renderConfig);
+            this.renderCells(ref renderConfig, bvh.rootBVH, ref bvh.rootBVH.box, 0);
             vbo.DrawUnbind();
             ibo.Unbind();
         }

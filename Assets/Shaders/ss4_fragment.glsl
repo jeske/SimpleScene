@@ -27,6 +27,9 @@ varying vec3 f_vertexNormal;
 varying vec3 f_lightPosition;
 varying vec3 f_eyeVec;
 varying vec3 f_vertexPosition_objectspace;
+#ifdef INSTANCE_DRAW
+varying vec4 f_instanceColor;
+#endif
 
 // tangent space vectors for bump mapping
 varying vec3 surfaceLightVector;   
@@ -38,14 +41,11 @@ uniform bool poissonSamplingEnabled;
 uniform int numPoissonSamples = 16;
 uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
-uniform vec4 shadowMapViewSplits;
-const int MAX_NUM_SHADOWMAPS = 4;
-uniform vec2 poissonScale0;
-uniform vec2 poissonScale1;
-uniform vec2 poissonScale2;
-uniform vec2 poissonScale3;
+const int MAX_NUM_SMAP_SPLITS = 4;
+uniform float shadowMapViewSplits[MAX_NUM_SMAP_SPLITS];
+uniform vec2 poissonScale[MAX_NUM_SMAP_SPLITS];
 
-varying vec4 f_shadowMapCoords[MAX_NUM_SHADOWMAPS];
+varying vec4 f_shadowMapCoords[MAX_NUM_SMAP_SPLITS];
 
 const float maxLitReductionByShade = 0.7;
 
@@ -193,7 +193,8 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 }
             }
         }
-        
+
+        debugOutputColor = vec4(1.0, 1.0, 1.0, 1.0); // failsafe debugging
         for (int i = 0; i < numShadowMaps; ++i) {
             if ((smapIndexMask & (1 << i)) != 0) {
 				if      (i == 0) { debugOutputColor = vec4(1.0, 0.0, 0.0, 1.0); }
@@ -206,18 +207,12 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 float distanceToTexel = clamp(coord.z, 0.0, 1.0);
 
                 if (poissonSamplingEnabled) {
-                    vec2 scale;
-                    if      (i == 0) { scale = poissonScale0; }
-                    else if (i == 1) { scale = poissonScale1; }
-                    else if (i == 2) { scale = poissonScale2; }
-                    else             { scale = poissonScale3; }
-
                     vec3 seed3 = floor(f_vertexPosition_objectspace.xyz * 1000.0);
                     float litReductionPerSample = maxLitReductionByShade
                                                 / float(numPoissonSamples);
                     for (int p = 0; p < numPoissonSamples; ++p) {
                         int pIndex = int(16.0*rand(vec4(seed3, p)))%16;
-                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0 / scale;
+                        vec2 uvSample = uv + poissonDisk[pIndex] / 700.0 / poissonScale[i];
                         if (shadowMapTest(uvSample, distanceToTexel, depthOffset)) {
                             litFactor -= litReductionPerSample;
                         }
@@ -229,7 +224,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
                 }
                 debugOutputColor *= litFactor;               
 				return litFactor;
-            }
+            } 
         }
     } else {
 		// surface away from the light
@@ -267,13 +262,18 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 		// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 
 		// load texels...
-		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
-		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0.1);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.1);
 		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+       #ifdef INSTANCE_DRAW
+       ambientColor *= f_instanceColor;
+       diffuseColor *= f_instanceColor;
+       #endif
 	   
        // 1. ambient lighting term
-	   outputColor = ambientColor * ambientStrength * vec4(0.6);
+	   //outputColor = ambientColor * ambientStrength * vec4(0.6);
+       outputColor = ambientColor * ambientStrength * vec4(1);
 
        // 2. glow/emissive lighting term
 	   outputColor += glowColor * glowStrength;
@@ -314,12 +314,16 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
 		float matShininess = 1.0; // gl_FrontMaterial.shininess;
 
 		// load texels...
-		vec4 ambientColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
-		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.5);
+		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
 
 		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
-
+       #ifdef INSTANCE_DRAW
+       ambientColor *= f_instanceColor;
+       diffuseColor *= f_instanceColor;
+       #endif
+        
 	   // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
        vec3 bump_normal = normalize( texture2D (bumpTex, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
 	   float distSqr = dot(surfaceLightVector,surfaceLightVector);
@@ -351,13 +355,12 @@ void main()
 	vec3 lightPosition = surfaceLightVector;
     
     if (lightingMode == 0) {
-        outputColor = BlinnPhongLighting(outputColor);
+        outputColor = BlinnPhongLighting(outputColor);        
     } else if (lightingMode == 1) {
-        outputColor = BumpMapBlinnPhongLighting(outputColor);
+        outputColor = BumpMapBlinnPhongLighting(outputColor);       
     } else { // lightingMode == 2
         outputColor = shadowMapTestLighting(outputColor);
     }
-
 
     // ---- object space shader effect tests ----
     // outputColor = linearTest(outputColor);
@@ -372,7 +375,6 @@ void main()
         float curIntensity = max(max(outputColor.r,outputColor.g),outputColor.b);
 		float edgeIntensity = exp2((-1 / edgeWidth)*nearD*nearD * 2);		
         vec4 edgeColor = vec4(vec3( (curIntensity < 0.4) ? 0.6 : 0.3 ), 1.0);
-		// vec4 edgeColor = vec4( clamp( (1.7 - length(outputColor.rgb) ),0.3,0.7) );			
         outputColor = mix(edgeColor,outputColor,1.0-edgeIntensity);
     }
 

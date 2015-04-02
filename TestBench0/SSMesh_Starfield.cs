@@ -6,7 +6,7 @@ using System.Drawing;
 
 using SimpleScene;
 
-namespace WavefrontOBJViewer
+namespace TestBench0
 {
 
 	// TODO: this would be more attractive with some varied star-textures
@@ -43,13 +43,8 @@ namespace WavefrontOBJViewer
             }
 		}
 
-		public override System.Collections.Generic.IEnumerable<Vector3> EnumeratePoints ()
-		{  // return no points...
-			yield break;
-		}
-
 		public override void RenderMesh(ref SSRenderConfig renderConfig) {
-			GL.UseProgram(0);
+			SSShaderProgram.DeactivateAll ();
 
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
@@ -69,9 +64,6 @@ namespace WavefrontOBJViewer
 			GL.End();
 
 			GL.Disable(EnableCap.Blend);
-
-
-
 		}	
 
 	}

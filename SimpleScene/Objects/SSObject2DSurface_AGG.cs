@@ -90,7 +90,6 @@ namespace SimpleScene {
 
             // draw text rectangle...
             GL.Begin(BeginMode.Triangles);
-            GL.Color3(Color.White);  // clear the vertex color to white..
 
             float w = gdiSize.Width;
             float h = gdiSize.Height;

@@ -2,6 +2,7 @@
 // Released to the public domain. 
 
 using System;
+using System.Text.RegularExpressions;
 using OpenTK.Graphics.OpenGL;
 
 using Util;
@@ -23,11 +24,9 @@ namespace SimpleScene
 			this.type = type;
 			this.shaderProgramText = shaderProgramText;
 			this.shaderName = shaderName;
-
-			this.loadShader();
 		}
 		
-		private void loadShader() {			
+        public void LoadShader() {			
 			ShaderID = GL.CreateShader(this.type);
 			GL.ShaderSource(ShaderID, this.shaderProgramText);
 			GL.CompileShader(ShaderID);	
@@ -68,7 +67,18 @@ namespace SimpleScene
 				}
 			}
 		}
-		
+
+        public void Prepend(string prefix)
+        {
+			if (prefix == null) return;
+			string pattern = @"#version \d+\r?\n";
+			Regex regex = new Regex (pattern);
+			Match match = regex.Match (shaderProgramText);
+			if (match.Success) {
+				shaderProgramText 
+					= shaderProgramText.Insert (match.Index + match.Length, prefix);
+			}
+        }
 	}
 
     public class SSVertexShader : SSShader
