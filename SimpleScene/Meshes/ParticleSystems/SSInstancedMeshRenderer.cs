@@ -20,52 +20,52 @@ namespace SimpleScene
     {
         // TODO Draw any ibo/vbo mesh
 
-        public const BufferUsageHint c_defaultUsageHint = BufferUsageHint.StreamDraw;
+        public const BufferUsageHint _defaultUsageHint = BufferUsageHint.StreamDraw;
 
-		public SSParticleSystem ParticleSystem;
+		public SSParticleSystem particleSystem;
 
-        public bool SimulateOnUpdate = true;
-        public bool AlphaBlendingEnabled = true;
-		public bool DepthRead = true;
-		public bool DepthWrite = true;
-		public bool GlobalBillboarding = false;
-        public ISSInstancable Mesh;
-		public SSTexture DiffuseTexture;
-		public SSTexture SpecularTexture;
-		public SSTexture AmbientTexture;
-		public SSTexture BumpMapTexture;
+        public bool simulateOnUpdate = true;
+        public bool alphaBlendingEnabled = true;
+		public bool depthRead = true;
+		public bool depthWrite = true;
+		public bool globalBillboarding = false;
+        public ISSInstancable mesh;
+		public SSTexture diffuseTexture;
+		public SSTexture specularTexture;
+		public SSTexture ambientTexture;
+		public SSTexture bumpMapTexture;
 
-        protected SSAttributeBuffer<SSAttributeVec3> m_posBuffer;
-		protected SSAttributeBuffer<SSAttributeVec2> m_orientationXYBuffer;
-		protected SSAttributeBuffer<SSAttributeFloat> m_orientationZBuffer;
-        protected SSAttributeBuffer<SSAttributeFloat> m_masterScaleBuffer;
-        protected SSAttributeBuffer<SSAttributeVec2> m_componentScaleXYBuffer;
-		protected SSAttributeBuffer<SSAttributeFloat> m_componentScaleZBuffer;
-        protected SSAttributeBuffer<SSAttributeColor> m_colorBuffer;
+        protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
+		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
+		protected SSAttributeBuffer<SSAttributeFloat> _orientationZBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _masterScaleBuffer;
+        protected SSAttributeBuffer<SSAttributeVec2> _componentScaleXYBuffer;
+		protected SSAttributeBuffer<SSAttributeFloat> _componentScaleZBuffer;
+        protected SSAttributeBuffer<SSAttributeColor> _colorBuffer;
 
 		//protected SSAttributeBuffer<SSAttributeByte> m_spriteIndexBuffer;
-        protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetUBuffer;
-        protected SSAttributeBuffer<SSAttributeFloat> m_spriteOffsetVBuffer;
-        protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeUBuffer;
-        protected SSAttributeBuffer<SSAttributeFloat> m_spriteSizeVBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _spriteOffsetUBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _spriteOffsetVBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _spriteSizeUBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _spriteSizeVBuffer;
 
         public SSInstancedMeshRenderer (SSParticleSystem ps, 
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
-            ParticleSystem = ps;
-			m_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
-			m_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
-			m_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
-			m_componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
+            particleSystem = ps;
+			_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+			_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+			_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+			_componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
 
 			//m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
-			m_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			m_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+			_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
         }
 
 		public SSInstancedMeshRenderer (SSParticleSystem ps, 
@@ -73,7 +73,7 @@ namespace SimpleScene
 			BufferUsageHint hint = BufferUsageHint.StreamDraw)
 			: this(ps, hint)
 		{
-			Mesh = mesh;
+			this.mesh = mesh;
 		}
 
 		public SSInstancedMeshRenderer (SSParticleSystem ps, 
@@ -85,10 +85,10 @@ namespace SimpleScene
 			BufferUsageHint hint = BufferUsageHint.StreamDraw)
 			: this(ps, mesh, hint)
 		{
-			DiffuseTexture = diffuseTexture;
-			SpecularTexture = specularTexture;
-			AmbientTexture = ambientTexture;
-			BumpMapTexture = bumpMapTexture;
+			this.diffuseTexture = diffuseTexture;
+			this.specularTexture = specularTexture;
+			this.ambientTexture = ambientTexture;
+			this.bumpMapTexture = bumpMapTexture;
 		}
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -96,13 +96,13 @@ namespace SimpleScene
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
 
 			// allow particle system to react to camera/worldview
-			ParticleSystem.UpdateCamera (ref modelView, ref renderConfig.projectionMatrix);
+			particleSystem.updateCamera (ref modelView, ref renderConfig.projectionMatrix);
 
 			// do we have anything to draw?
-			if (ParticleSystem.ActiveBlockLength <= 0) return;
+			if (particleSystem.activeBlockLength <= 0) return;
 
 			// allow frustum culling to react to particle system expanding/shrinking
-			this.boundingSphere = new SSObjectSphere (ParticleSystem.Radius);
+			this.boundingSphere = new SSObjectSphere (particleSystem.radius);
 
             base.Render(ref renderConfig);
 
@@ -116,9 +116,9 @@ namespace SimpleScene
 					instanceShader = renderConfig.InstancePssmShader;
 				}
 			} else {
-				if (!GlobalBillboarding && AlphaBlendingEnabled) {
+				if (!globalBillboarding && alphaBlendingEnabled) {
 					// Must be called before updating buffers
-					ParticleSystem.SortByDepth (ref modelView);
+					particleSystem.sortByDepth (ref modelView);
 
 					//GL.Enable(EnableCap.AlphaTest);
 					//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
@@ -130,25 +130,25 @@ namespace SimpleScene
 					// Also assumes the particle system is the last to be drawn in a scene
 					GL.DepthFunc (DepthFunction.Lequal);
 				}
-				if (DepthRead) {
+				if (depthRead) {
 					GL.Enable (EnableCap.DepthTest);
 				} else {
 					GL.Disable (EnableCap.DepthTest);
 				}
-				GL.DepthMask (DepthWrite);
+				GL.DepthMask (depthWrite);
 
 				// texture binding setup
                 renderConfig.InstanceShader.Activate();
 				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
 				renderConfig.InstanceShader.SetupTextures (
-					DiffuseTexture,
-					SpecularTexture,
-					AmbientTexture,
-					BumpMapTexture
+					diffuseTexture,
+					specularTexture,
+					ambientTexture,
+					bumpMapTexture
 				);
 			}
 
-			if (GlobalBillboarding) {
+			if (globalBillboarding) {
 				// Setup "global" billboarding. (entire particle system is rendered as a camera-facing
 				// billboard and will show the same position of particles from all angles)
 				modelView = OpenTKHelper.BillboardMatrix (ref modelView);
@@ -160,33 +160,33 @@ namespace SimpleScene
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            prepareAttribute(m_posBuffer, instanceShader.AttrInstancePos, 
-				ParticleSystem.Positions);
-			prepareAttribute(m_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
-				ParticleSystem.OrientationsXY);
-			prepareAttribute(m_orientationZBuffer, instanceShader.AttrInstanceOrientationZ, 
-				ParticleSystem.OrientationsZ);
-            prepareAttribute(m_masterScaleBuffer, instanceShader.AttrInstanceMasterScale, 
-				ParticleSystem.MasterScales);
-			prepareAttribute(m_componentScaleXYBuffer, instanceShader.AttrInstanceComponentScaleXY, 
-				ParticleSystem.ComponentScalesXY);
-			prepareAttribute(m_componentScaleZBuffer, instanceShader.AttrInstanceComponentScaleZ,
-				ParticleSystem.ComponentScalesZ);
-            prepareAttribute(m_colorBuffer, instanceShader.AttrInstanceColor, 
-				ParticleSystem.Colors);
+            prepareAttribute(_posBuffer, instanceShader.AttrInstancePos, 
+				particleSystem.positions);
+			prepareAttribute(_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
+				particleSystem.orientationsXY);
+			prepareAttribute(_orientationZBuffer, instanceShader.AttrInstanceOrientationZ, 
+				particleSystem.orientationsZ);
+            prepareAttribute(_masterScaleBuffer, instanceShader.AttrInstanceMasterScale, 
+				particleSystem.masterScales);
+			prepareAttribute(_componentScaleXYBuffer, instanceShader.AttrInstanceComponentScaleXY, 
+				particleSystem.componentScalesXY);
+			prepareAttribute(_componentScaleZBuffer, instanceShader.AttrInstanceComponentScaleZ,
+				particleSystem.componentScalesZ);
+            prepareAttribute(_colorBuffer, instanceShader.AttrInstanceColor, 
+				particleSystem.colors);
 
 			//prepareAttribute(m_spriteIndexBuffer, instanceShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
-            prepareAttribute(m_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
-				ParticleSystem.SpriteOffsetsU);
-            prepareAttribute(m_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
-				ParticleSystem.SpriteOffsetsV);
-            prepareAttribute(m_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
-				ParticleSystem.SpriteSizesU);
-            prepareAttribute(m_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
-				ParticleSystem.SpriteSizesV);
+            prepareAttribute(_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
+				particleSystem.spriteOffsetsU);
+            prepareAttribute(_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
+				particleSystem.SpriteOffsetsV);
+            prepareAttribute(_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
+				particleSystem.SpriteSizesU);
+            prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
+				particleSystem.SpriteSizesV);
 
             // do the draw
-            Mesh.RenderInstanced(ref renderConfig, ParticleSystem.ActiveBlockLength, PrimitiveType.Triangles);
+            mesh.RenderInstanced(ref renderConfig, particleSystem.activeBlockLength, PrimitiveType.Triangles);
              
             GL.PopClientAttrib();
             //this.boundingSphere.Render(ref renderConfig);
@@ -197,15 +197,15 @@ namespace SimpleScene
             where A : struct, ISSAttributeLayout 
             where AB : SSAttributeBuffer<A>
         {
-            int numActive = ParticleSystem.ActiveBlockLength;
+            int numActive = particleSystem.activeBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
 			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
 
         public override void Update (float fElapsedMS)
         {
-            if (SimulateOnUpdate) {
-                ParticleSystem.Simulate(fElapsedMS);
+            if (simulateOnUpdate) {
+                particleSystem.simulate(fElapsedMS);
             }
         }
 

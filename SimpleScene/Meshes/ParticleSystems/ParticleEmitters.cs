@@ -13,122 +13,122 @@ namespace SimpleScene
     {
         public delegate void ReceiverHandler(SSParticle newParticle);
 
-        protected readonly static SSParticle c_defaultParticle = new SSParticle();
+        protected readonly static SSParticle _defaultParticle = new SSParticle();
 
-        protected static Random s_rand = new Random ();
+        protected static Random _rand = new Random ();
 
-        public float EmissionDelay = 0f;
+        public float emissionDelay = 0f;
 
-        public float EmissionIntervalMin = 1.0f;
-        public float EmissionIntervalMax = 1.0f;
-        public float EmissionInterval {
-            set { EmissionIntervalMin = EmissionIntervalMax = value; }
+        public float emissionIntervalMin = 1.0f;
+        public float emissionIntervalMax = 1.0f;
+        public float emissionInterval {
+            set { emissionIntervalMin = emissionIntervalMax = value; }
         }
 
-        public int ParticlesPerEmissionMin = 1;
-        public int ParticlesPerEmissionMax = 1;
-        public int ParticlesPerEmission {
-            set { ParticlesPerEmissionMin = ParticlesPerEmissionMax = value; }
+        public int particlesPerEmissionMin = 1;
+        public int particlesPerEmissionMax = 1;
+        public int particlesPerEmission {
+            set { particlesPerEmissionMin = particlesPerEmissionMax = value; }
         }
 
 		/// <summary>
 		/// When >= 0 indices emissions left. When -1 means emit infinitely (default)
 		/// </summary>
-		public int TotalEmissionsLeft = -1;
+		public int totalEmissionsLeft = -1;
 
-        public float LifeMin = c_defaultParticle.Life;
-        public float LifeMax = c_defaultParticle.Life;
-        public float Life {
-            set { LifeMin = LifeMax = value; }
+        public float lifeMin = _defaultParticle.life;
+        public float lifeMax = _defaultParticle.life;
+        public float life {
+            set { lifeMin = lifeMax = value; }
         }
 
-        public Vector3 VelocityComponentMin = c_defaultParticle.Vel;
-        public Vector3 VelocityComponentMax = c_defaultParticle.Vel;
-        public Vector3 Velocity {
-            set { VelocityComponentMin = VelocityComponentMax = value; }
+        public Vector3 velocityComponentMin = _defaultParticle.vel;
+        public Vector3 velocityComponentMax = _defaultParticle.vel;
+        public Vector3 velocity {
+            set { velocityComponentMin = velocityComponentMax = value; }
         }
 
-		private Vector3 m_orientationMin = c_defaultParticle.Orientation;
-		private Vector3 m_orientationMax = c_defaultParticle.Orientation;
+        private Vector3 _orientationMin = _defaultParticle.orientation;
+        private Vector3 _orientationMax = _defaultParticle.orientation;
 
-		public Vector3 OrientationMin {
-			get { return m_orientationMin; }
+		public Vector3 orientationMin {
+			get { return _orientationMin; }
 			set {
-				if (!BillboardXY) {
+				if (!billboardXY) {
 					if (!float.IsNaN (value.X)) {
-						m_orientationMin.X = value.X;
+						_orientationMin.X = value.X;
 					}
 					if (!float.IsNaN (value.Y)) {
-						m_orientationMin.Y = value.Y;
+						_orientationMin.Y = value.Y;
 					}
 				}
-				m_orientationMin.Z = value.Z;
+				_orientationMin.Z = value.Z;
 			}
 		}
-		public Vector3 OrientationMax {
-			get { return m_orientationMax; }
+		public Vector3 orientationMax {
+			get { return _orientationMax; }
 			set {
-				if (!BillboardXY) {
+				if (!billboardXY) {
 					if (!float.IsNaN (value.X)) {
-						m_orientationMax.X = value.X;
+						_orientationMax.X = value.X;
 					}
 					if (!float.IsNaN (value.Y)) {
-						m_orientationMax.Y = value.Y;
+						_orientationMax.Y = value.Y;
 					}
 				}
-				m_orientationMax.Z = value.Z;
+				_orientationMax.Z = value.Z;
 			}
 		}
-        public Vector3 Orientation {
+        public Vector3 orientation {
             set { 
-				m_orientationMin = m_orientationMax = value; 
-				if (BillboardXY) {
-					BillboardXY = true; // maintain BillboardXY state
+				_orientationMin = _orientationMax = value; 
+				if (billboardXY) {
+					billboardXY = true; // maintain BillboardXY state
 				}
 			}
         }
 
-		public bool BillboardXY {
+		public bool billboardXY {
 			set { 
 				if (value) { 
-					m_orientationMin.X = m_orientationMax.X = m_orientationMin.Y = m_orientationMax.Y = float.NaN;
+					_orientationMin.X = _orientationMax.X = _orientationMin.Y = _orientationMax.Y = float.NaN;
 				} else {
-					if (float.IsNaN (m_orientationMin.X)) {
-						m_orientationMin.X = 0f;
+					if (float.IsNaN (_orientationMin.X)) {
+						_orientationMin.X = 0f;
 					}
-					if (float.IsNaN (m_orientationMax.X)) {
-						m_orientationMax.X = 0f;
+					if (float.IsNaN (_orientationMax.X)) {
+						_orientationMax.X = 0f;
 					}
-					if (float.IsNaN (m_orientationMin.Y)) {
-						m_orientationMin.Y = 0f;
+					if (float.IsNaN (_orientationMin.Y)) {
+						_orientationMin.Y = 0f;
 					}
-					if (float.IsNaN (m_orientationMax.Y)) {
-						m_orientationMax.Y = 0f;
+					if (float.IsNaN (_orientationMax.Y)) {
+						_orientationMax.Y = 0f;
 					}
 				}
 			}
 			get { 			
-				return float.IsNaN (m_orientationMin.X) || float.IsNaN (m_orientationMax.X)
-					|| float.IsNaN (m_orientationMin.Y) || float.IsNaN (m_orientationMax.Y);
+				return float.IsNaN (_orientationMin.X) || float.IsNaN (_orientationMax.X)
+					|| float.IsNaN (_orientationMin.Y) || float.IsNaN (_orientationMax.Y);
 			}
 		}
 
-        public Vector3 AngularVelocityMin = c_defaultParticle.AngularVelocity;
-        public Vector3 AngularVelocityMax = c_defaultParticle.AngularVelocity;
-        public Vector3 AngularVelocity {
-            set { AngularVelocityMin = AngularVelocityMax = value; }
+        public Vector3 angularVelocityMin = _defaultParticle.angularVelocity;
+        public Vector3 angularVelocityMax = _defaultParticle.angularVelocity;
+        public Vector3 angularVelocity {
+            set { angularVelocityMin = angularVelocityMax = value; }
         }
 
-        public float MasterScaleMin = c_defaultParticle.MasterScale;
-        public float MasterScaleMax = c_defaultParticle.MasterScale;
-        public float MasterScale {
-            set { MasterScaleMin = MasterScaleMax = value; }
+        public float masterScaleMin = _defaultParticle.masterScale;
+        public float masterScaleMax = _defaultParticle.masterScale;
+        public float masterScale {
+            set { masterScaleMin = masterScaleMax = value; }
         }
 
-        public Vector3 ComponentScaleMin = c_defaultParticle.ComponentScale;
-        public Vector3 ComponentScaleMax = c_defaultParticle.ComponentScale;
-        public Vector3 ComponentScale {
-            set { ComponentScaleMin = ComponentScaleMax = value; }
+        public Vector3 componentScaleMin = _defaultParticle.componentScale;
+        public Vector3 componentScaleMax = _defaultParticle.componentScale;
+        public Vector3 componentScale {
+            set { componentScaleMin = componentScaleMax = value; }
         }
 
 		#region final color = random color preset + random component offset
@@ -136,14 +136,14 @@ namespace SimpleScene
 		/// Just set all particles to be this color! (Simplify color picking) 
 		/// </summary>
 		/// <value>The color.</value>
-		public Color4 Color {
+		public Color4 color {
 			set { 
-				ColorOffsetComponentMin = ColorOffsetComponentMax = Color4Helper.Zero;
-				if (ColorPresets == null || ColorPresets.Length != 1) {
+				colorOffsetComponentMin = colorOffsetComponentMax = Color4Helper.Zero;
+				if (colorPresets == null || colorPresets.Length != 1) {
 					// avoid reallocation if used frequently
-					ColorPresets = new Color4[1];
+					colorPresets = new Color4[1];
 				}
-				ColorPresets [0] = value;
+				colorPresets [0] = value;
 			}
 		}
 
@@ -151,112 +151,112 @@ namespace SimpleScene
 		/// Color presets. Values selected at random when picking a color before being added to a random
 		/// offset to form the final value
 		/// </summary>
-		public Color4[] ColorPresets = { new Color4(1f, 1f, 1f, 1f) };
+		public Color4[] colorPresets = { new Color4(1f, 1f, 1f, 1f) };
 
 		/// <summary>
 		/// Minimum value, split into components, for a color offset that gets added to preset to
 		/// form the final color value
 		/// </summary>
-		public Color4 ColorOffsetComponentMin = Color4Helper.Zero;
+		public Color4 colorOffsetComponentMin = Color4Helper.Zero;
 		/// <summary>
 		/// Maximum value, split into components, for a color offset that gets added to preset to
 		/// form the final color value
 		/// </summary>
-		public Color4 ColorOffsetComponentMax = Color4Helper.Zero;
+		public Color4 colorOffsetComponentMax = Color4Helper.Zero;
 		#endregion
 
-		public float MassMin = c_defaultParticle.Mass;
-		public float MassMax = c_defaultParticle.Mass;
-		public float Mass {
-			set { MassMin = MassMax = value; }
+		public float massMin = _defaultParticle.mass;
+		public float massMax = _defaultParticle.mass;
+		public float mass {
+			set { massMin = massMax = value; }
 		}
 
-		public float RotationalInnertiaMin = c_defaultParticle.RotationalInnertia;
-		public float RotationalInnertiaMax = c_defaultParticle.RotationalInnertia;
-		public float RotationalInnertia {
-			set { RotationalInnertiaMin = RotationalInnertiaMax = value; }
+		public float rotationalInnertiaMin = _defaultParticle.rotationalInnertia;
+		public float rotationalInnertiaMax = _defaultParticle.rotationalInnertia;
+		public float rotationalInnertia {
+			set { rotationalInnertiaMin = rotationalInnertiaMax = value; }
 		}
 
-		public float DragMin = c_defaultParticle.Drag;
-		public float DragMax = c_defaultParticle.Drag;
-		public float Drag {
-			set { DragMin = DragMax = value; }
+		public float dragMin = _defaultParticle.drag;
+		public float dragMax = _defaultParticle.drag;
+		public float drag {
+			set { dragMin = dragMax = value; }
 		}
 
-		public float RotationalDragMin = c_defaultParticle.RotationalDrag;
-		public float RotationalDragMax = c_defaultParticle.RotationalDrag;
-		public float RotationalDrag {
-			set { RotationalDragMin = RotationalDragMax = value; }
+		public float rotationalDragMin = _defaultParticle.rotationalDrag;
+		public float rotationalDragMax = _defaultParticle.rotationalDrag;
+		public float rotationalDrag {
+			set { rotationalDragMin = rotationalDragMax = value; }
 		}
 
-        public RectangleF[] SpriteRectangles = { c_defaultParticle.SpriteRect };
+        public RectangleF[] spriteRectangles = { _defaultParticle.spriteRect };
 		//public byte[] SpriteIndices = { c_defaultParticle.SpriteIndex };
 
-		public ushort[] EffectorMasks = { c_defaultParticle.EffectorMask };
-		public ushort EffectorMask {
+		public ushort[] effectorMasks = { _defaultParticle.effectorMask };
+		public ushort effectorMask {
 			set { 
-				EffectorMasks = new ushort[1]; 
-				EffectorMasks [0] = value;
+				effectorMasks = new ushort[1]; 
+				effectorMasks [0] = value;
 			}
 		}
 
-        private float m_initialDelay;
-        private float m_timeSinceLastEmission;
-        private float m_nextEmission;
+        private float _initialDelay;
+        private float _timeSinceLastEmission;
+        private float _nextEmission;
 
 		public SSParticleEmitter()
 		{
-			Reset ();
+			reset ();
 		}
 
-        public virtual void Reset()
+        public virtual void reset()
         {
-            m_initialDelay = EmissionDelay;
-            m_timeSinceLastEmission = 0f;
-            m_nextEmission = 0f;
+            _initialDelay = emissionDelay;
+            _timeSinceLastEmission = 0f;
+            _nextEmission = 0f;
         }
 
-        public void EmitParticles(ReceiverHandler receiver)
+        public void emitParticles(ReceiverHandler receiver)
         {
-            int numToEmit = s_rand.Next(ParticlesPerEmissionMin, ParticlesPerEmissionMax);
+            int numToEmit = _rand.Next(particlesPerEmissionMin, particlesPerEmissionMax);
             emitParticles(numToEmit, receiver);
         }
 
-        public void SimulateEmissions(float deltaT, ReceiverHandler receiver) 
+        public void simulateEmissions(float deltaT, ReceiverHandler receiver) 
         {
-			if (TotalEmissionsLeft == 0) return;
+			if (totalEmissionsLeft == 0) return;
 
-            if (m_initialDelay > 0f) {
+            if (_initialDelay > 0f) {
                 // if initial delay is needed
-                m_initialDelay -= deltaT;
-                if (m_initialDelay > 0f) {
+                _initialDelay -= deltaT;
+                if (_initialDelay > 0f) {
                     return;
                 }
             }
 
-            m_timeSinceLastEmission += deltaT;
+            _timeSinceLastEmission += deltaT;
 			float diff;
-			while ((diff = m_timeSinceLastEmission - m_nextEmission) > 0f) {
-                EmitParticles(receiver);
-				if (TotalEmissionsLeft > 0 && --TotalEmissionsLeft == 0) {
-					Reset ();
+			while ((diff = _timeSinceLastEmission - _nextEmission) > 0f) {
+                emitParticles(receiver);
+				if (totalEmissionsLeft > 0 && --totalEmissionsLeft == 0) {
+					reset ();
                     break;
 				} else {
-                    m_timeSinceLastEmission = diff;
-					m_nextEmission = Interpolate.Lerp(EmissionIntervalMin, EmissionIntervalMax, 
-						(float)s_rand.NextDouble());
+                    _timeSinceLastEmission = diff;
+					_nextEmission = Interpolate.Lerp(emissionIntervalMin, emissionIntervalMax, 
+						(float)_rand.NextDouble());
 				}
             }
         }
 
-		public virtual void SimulateSelf(float deltaT) { }
+		public virtual void simulateSelf(float deltaT) { }
 
         /// <summary>
         /// Convenience function.
         /// </summary>
         static protected float nextFloat()
         {
-            return (float)s_rand.NextDouble();
+            return (float)_rand.NextDouble();
         }
 
         /// <summary>
@@ -279,57 +279,57 @@ namespace SimpleScene
         /// <param name="p">particle to setup</param>
         protected virtual void configureNewParticle(SSParticle p)
         {
-            p.Life = Interpolate.Lerp(LifeMin, LifeMax, nextFloat());
+            p.life = Interpolate.Lerp(lifeMin, lifeMax, nextFloat());
 
-            p.ComponentScale.X = Interpolate.Lerp(ComponentScaleMin.X, ComponentScaleMax.X, nextFloat());
-            p.ComponentScale.Y = Interpolate.Lerp(ComponentScaleMin.Y, ComponentScaleMax.Y, nextFloat());
-            p.ComponentScale.Z = Interpolate.Lerp(ComponentScaleMin.Z, ComponentScaleMax.Z, nextFloat());
+            p.componentScale.X = Interpolate.Lerp(componentScaleMin.X, componentScaleMax.X, nextFloat());
+            p.componentScale.Y = Interpolate.Lerp(componentScaleMin.Y, componentScaleMax.Y, nextFloat());
+            p.componentScale.Z = Interpolate.Lerp(componentScaleMin.Z, componentScaleMax.Z, nextFloat());
 
-			if (BillboardXY) {
-				p.BillboardXY = true;
+			if (billboardXY) {
+				p.billboardXY = true;
 			} else {
-				p.Orientation.X = Interpolate.Lerp (m_orientationMin.X, m_orientationMax.X, nextFloat ());
-				p.Orientation.Y = Interpolate.Lerp (m_orientationMin.Y, m_orientationMax.Y, nextFloat ());
+				p.orientation.X = Interpolate.Lerp (_orientationMin.X, _orientationMax.X, nextFloat ());
+				p.orientation.Y = Interpolate.Lerp (_orientationMin.Y, _orientationMax.Y, nextFloat ());
 			}
-            p.Orientation.Z = Interpolate.Lerp(m_orientationMin.Z, m_orientationMax.Z, nextFloat());
+            p.orientation.Z = Interpolate.Lerp(_orientationMin.Z, _orientationMax.Z, nextFloat());
 
-            p.AngularVelocity.X = Interpolate.Lerp(AngularVelocityMin.X, AngularVelocityMax.X, nextFloat());
-            p.AngularVelocity.Y = Interpolate.Lerp(AngularVelocityMin.Y, AngularVelocityMax.Y, nextFloat());
-            p.AngularVelocity.Z = Interpolate.Lerp(AngularVelocityMin.Z, AngularVelocityMax.Z, nextFloat());
+            p.angularVelocity.X = Interpolate.Lerp(angularVelocityMin.X, angularVelocityMax.X, nextFloat());
+            p.angularVelocity.Y = Interpolate.Lerp(angularVelocityMin.Y, angularVelocityMax.Y, nextFloat());
+            p.angularVelocity.Z = Interpolate.Lerp(angularVelocityMin.Z, angularVelocityMax.Z, nextFloat());
 
-            p.Vel.X = Interpolate.Lerp(VelocityComponentMin.X, VelocityComponentMax.X, nextFloat());
-            p.Vel.Y = Interpolate.Lerp(VelocityComponentMin.Y, VelocityComponentMax.Y, nextFloat());
-            p.Vel.Z = Interpolate.Lerp(VelocityComponentMin.Z, VelocityComponentMax.Z, nextFloat());
+            p.vel.X = Interpolate.Lerp(velocityComponentMin.X, velocityComponentMax.X, nextFloat());
+            p.vel.Y = Interpolate.Lerp(velocityComponentMin.Y, velocityComponentMax.Y, nextFloat());
+            p.vel.Z = Interpolate.Lerp(velocityComponentMin.Z, velocityComponentMax.Z, nextFloat());
 
-            p.MasterScale = Interpolate.Lerp(MasterScaleMin, MasterScaleMax, nextFloat());
+            p.masterScale = Interpolate.Lerp(masterScaleMin, masterScaleMax, nextFloat());
 
-			p.Mass = Interpolate.Lerp (MassMin, MassMax, nextFloat ());
-			p.RotationalInnertia = Interpolate.Lerp (RotationalInnertiaMin, RotationalInnertiaMax, nextFloat ());
-			p.Drag = Interpolate.Lerp (DragMin, DragMax, nextFloat ());
-			p.RotationalDrag = Interpolate.Lerp (RotationalDragMin, RotationalDragMax, nextFloat ());
+			p.mass = Interpolate.Lerp (massMin, massMax, nextFloat ());
+			p.rotationalInnertia = Interpolate.Lerp (rotationalInnertiaMin, rotationalInnertiaMax, nextFloat ());
+			p.drag = Interpolate.Lerp (dragMin, dragMax, nextFloat ());
+			p.rotationalDrag = Interpolate.Lerp (rotationalDragMin, rotationalDragMax, nextFloat ());
 
 			// color presets
 			Color4 randPreset;
-			if (ColorPresets != null && ColorPresets.Length > 0) {
-				randPreset = ColorPresets [s_rand.Next (0, ColorPresets.Length)];
+			if (colorPresets != null && colorPresets.Length > 0) {
+				randPreset = colorPresets [_rand.Next (0, colorPresets.Length)];
 			} else {
 				randPreset = new Color4(0f, 0f, 0f, 0f);
 			}
 
 			// color offsets
 			Color4 randOffset;
-			randOffset.R = Interpolate.Lerp(ColorOffsetComponentMin.R, ColorOffsetComponentMax.R, nextFloat());
-			randOffset.G = Interpolate.Lerp(ColorOffsetComponentMin.G, ColorOffsetComponentMax.G, nextFloat());
-			randOffset.B = Interpolate.Lerp(ColorOffsetComponentMin.B, ColorOffsetComponentMax.B, nextFloat());
-			randOffset.A = Interpolate.Lerp(ColorOffsetComponentMin.A, ColorOffsetComponentMax.A, nextFloat());
+			randOffset.R = Interpolate.Lerp(colorOffsetComponentMin.R, colorOffsetComponentMax.R, nextFloat());
+			randOffset.G = Interpolate.Lerp(colorOffsetComponentMin.G, colorOffsetComponentMax.G, nextFloat());
+			randOffset.B = Interpolate.Lerp(colorOffsetComponentMin.B, colorOffsetComponentMax.B, nextFloat());
+			randOffset.A = Interpolate.Lerp(colorOffsetComponentMin.A, colorOffsetComponentMax.A, nextFloat());
 
 			// color presets + offsets
-			p.Color = Color4Helper.Add(ref randPreset, ref randOffset);
+			p.color = Color4Helper.Add(ref randPreset, ref randOffset);
 
 			//p.SpriteIndex = SpriteIndices [s_rand.Next(0, SpriteIndices.Length)];
-            p.SpriteRect = SpriteRectangles [s_rand.Next(0, SpriteRectangles.Length)];
+            p.spriteRect = spriteRectangles [_rand.Next(0, spriteRectangles.Length)];
 
-			p.EffectorMask = EffectorMasks [s_rand.Next (0, EffectorMasks.Length)];
+			p.effectorMask = effectorMasks [_rand.Next (0, effectorMasks.Length)];
         }
     }
 
@@ -338,22 +338,22 @@ namespace SimpleScene
 	/// </summary>
 	public class SSFixedPositionEmitter : SSParticleEmitter
 	{
-		public Vector3 Position;
+		public Vector3 position;
 
-		public SSFixedPositionEmitter (Vector3 position)
+		public SSFixedPositionEmitter (Vector3 _position)
 		{
-			Position = position;
+			position = _position;
 		}
 
 		public SSFixedPositionEmitter()
 		{
-			Position = Vector3.Zero;
+			position = Vector3.Zero;
 		}
 
 		protected override void configureNewParticle (SSParticle p)
 		{
 			base.configureNewParticle (p);
-			p.Pos = Position;
+			p.pos = position;
 		}
 	}
 
@@ -362,62 +362,62 @@ namespace SimpleScene
 	/// </summary>
 	public class SSRadialEmitter : SSParticleEmitter
 	{
-		public Vector3 Center = Vector3.Zero;
+		public Vector3 center = Vector3.Zero;
 
 		#region spawn radius
-		public float RadiusOffsetMin = 0f;
-		public float RadiusOffsetMax = 0f;
-		public float RadiusOffset {
-			set { RadiusOffsetMin = RadiusOffsetMax = value; }
+		public float radiusOffsetMin = 0f;
+		public float radiusOffsetMax = 0f;
+		public float radiusOffset {
+			set { radiusOffsetMin = radiusOffsetMax = value; }
 		}
 		#endregion
 
 		#region theta of the spawn and velocity
-		public float ThetaMin = 0f;
-		public float ThetaMax = 2f * (float)Math.PI;
-		public float Theta {
-			set { ThetaMin = ThetaMax = value; }
+		public float thetaMin = 0f;
+		public float thetaMax = 2f * (float)Math.PI;
+		public float theta {
+			set { thetaMin = thetaMax = value; }
 		}
 		#endregion
 
 		#region phi of the spawn and velocity
-		public float PhiMin = -0.5f * (float)Math.PI;
-		public float PhiMax = +0.5f * (float)Math.PI;
-		public float Phi {
-			set { PhiMin = PhiMax = value; }
+		public float phiMin = -0.5f * (float)Math.PI;
+		public float phiMax = +0.5f * (float)Math.PI;
+		public float phi {
+			set { phiMin = phiMax = value; }
 		}
 		#endregion
 
 		#region magnitude of the spawns' velocity
-		public float VelocityMagnitudeMin = 1f;
-		public float VelocityMagnitudeMax = 1f;
-		public float VelocityMagnitude {
-			set { VelocityMagnitudeMin = VelocityMagnitudeMax = value; }
+		public float velocityMagnitudeMin = 1f;
+		public float velocityMagnitudeMax = 1f;
+		public float velocityMagnitude {
+			set { velocityMagnitudeMin = velocityMagnitudeMax = value; }
 		}
 		#endregion
 
 		#region special behaviors
-		public bool OrientAwayFromCenter = false;
+		public bool orientAwayFromCenter = false;
 		#endregion
 
 		protected override void configureNewParticle (SSParticle p)
 		{
 			base.configureNewParticle (p);
-			float r = Interpolate.Lerp (RadiusOffsetMin, RadiusOffsetMax, nextFloat());
-			float theta = Interpolate.Lerp (ThetaMin, ThetaMax, nextFloat ());
-			float phi = Interpolate.Lerp (PhiMin, PhiMax, nextFloat ());
+			float r = Interpolate.Lerp (radiusOffsetMin, radiusOffsetMax, nextFloat());
+			float theta = Interpolate.Lerp (thetaMin, thetaMax, nextFloat ());
+			float phi = Interpolate.Lerp (phiMin, phiMax, nextFloat ());
 			float xy = (float)Math.Cos (phi);
 			float x = xy * (float)Math.Cos (theta);
 			float y = xy * (float)Math.Sin (theta);
 			float z = (float)Math.Sin (phi);
 			Vector3 xyz = new Vector3 (x, y, z);
-			p.Pos = Center + r * xyz;
-			float velocityMag = Interpolate.Lerp (VelocityMagnitudeMin, VelocityMagnitudeMax, nextFloat ());
-			p.Vel = velocityMag * xyz;
+			p.pos = center + r * xyz;
+			float velocityMag = Interpolate.Lerp (velocityMagnitudeMin, velocityMagnitudeMax, nextFloat ());
+			p.vel = velocityMag * xyz;
 
-			if (OrientAwayFromCenter) {
-				p.Orientation.Z = -theta;
-				p.Orientation.Y = phi;
+			if (orientAwayFromCenter) {
+				p.orientation.Z = -theta;
+				p.orientation.Y = phi;
 			}
 		}
 	}
@@ -438,7 +438,7 @@ namespace SimpleScene
             m_fieldGenerator = fieldGenerator;
         }
 
-        public void SetSeed(int seed)
+        public void setSeed(int seed)
         {
             m_fieldGenerator.SetSeed(seed);
         }
@@ -448,7 +448,7 @@ namespace SimpleScene
             SSParticle newParticle = new SSParticle();
             ParticlesFieldGenerator.NewParticleDelegate fieldReceiver = (id, pos) => {
                 configureNewParticle(newParticle);
-                newParticle.Pos = pos;
+                newParticle.pos = pos;
                 particleReceiver(newParticle);
                 return true;
             };
@@ -458,16 +458,16 @@ namespace SimpleScene
 
 	public class SSBodiesFieldEmitter : SSParticleEmitter
 	{
-		protected BodiesFieldGenerator m_bodiesGenerator;
+		protected BodiesFieldGenerator _bodiesGenerator;
 
 		public SSBodiesFieldEmitter(BodiesFieldGenerator fieldGenerator)
 		{
-			m_bodiesGenerator = fieldGenerator;
+			_bodiesGenerator = fieldGenerator;
 		}
 
-		public void SetSeed(int seed)
+		public void setSeed(int seed)
 		{
-			m_bodiesGenerator.SetSeed(seed);
+			_bodiesGenerator.SetSeed(seed);
 		}
 
 		protected override void emitParticles (int particleCount, ReceiverHandler particleReceiver)
@@ -475,13 +475,13 @@ namespace SimpleScene
 			SSParticle newParticle = new SSParticle();
 			BodiesFieldGenerator.NewBodyDelegate bodyReceiver = (id, scale, pos, orient) => {
 				configureNewParticle(newParticle);
-				newParticle.Pos = pos;
-				newParticle.MasterScale *= scale;
-				newParticle.Orientation += OpenTKHelper.QuaternionToEuler(ref orient);
+				newParticle.pos = pos;
+				newParticle.masterScale *= scale;
+				newParticle.orientation += OpenTKHelper.QuaternionToEuler(ref orient);
 				particleReceiver(newParticle);
 				return true;
 			};
-			m_bodiesGenerator.Generate(particleCount, bodyReceiver);
+			_bodiesGenerator.Generate(particleCount, bodyReceiver);
 		}
 	}
 }

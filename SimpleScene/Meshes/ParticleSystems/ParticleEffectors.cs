@@ -10,31 +10,31 @@ namespace SimpleScene
     {
 		public enum MatchFunction { And, Equals };
 
-		protected static Random s_rand = new Random ();
+		protected static Random _rand = new Random ();
 
 		/// <summary>
 		/// Convenience function.
 		/// </summary>
 		static protected float nextFloat()
 		{
-			return (float)s_rand.NextDouble();
+			return (float)_rand.NextDouble();
 		}
 
-		public ushort EffectorMask = ushort.MaxValue; // initialize to a default
-		public MatchFunction MaskMathFunction = MatchFunction.And;
+		public ushort effectorMask = ushort.MaxValue; // initialize to a default
+		public MatchFunction maskMathFunction = MatchFunction.And;
 
-		protected float m_timeSinceReset = 0f;
+		protected float _timeSinceReset = 0f;
 
-		public float TimeSinceReset {
-			get { return m_timeSinceReset; }
+		public float timeSinceReset {
+			get { return _timeSinceReset; }
 		}
 
 		/// <summary>
 		/// Allows effector to do some housekeeping, once per frame
 		/// </summary>
-		public virtual void SimulateSelf (float deltaT) 
+		public virtual void simulateSelf (float deltaT) 
 		{ 
-			m_timeSinceReset += deltaT;
+			_timeSinceReset += deltaT;
 		}
 
 
@@ -44,13 +44,13 @@ namespace SimpleScene
 		/// 
 		/// Override with caution.
 		/// </summary>
-		public void SimulateParticleEffect (SSParticle particle, float deltaT)
+		public void simulateParticleEffect (SSParticle particle, float deltaT)
 		{
 			bool match;
-			if (MaskMathFunction == MatchFunction.And) {
-				match = ((particle.EffectorMask & this.EffectorMask) != 0);
+			if (maskMathFunction == MatchFunction.And) {
+				match = ((particle.effectorMask & this.effectorMask) != 0);
 			} else { // Equals
-				match = (particle.EffectorMask == this.EffectorMask);
+				match = (particle.effectorMask == this.effectorMask);
 			}
 			if (match) {
 				effectParticle (particle, deltaT);
@@ -70,9 +70,9 @@ namespace SimpleScene
 		/// <summary>
 		/// Effectors should initialize/reset their variables here
 		/// </summary>
-        public virtual void Reset() 
+        public virtual void reset() 
 		{ 
-			m_timeSinceReset = 0f;
+			_timeSinceReset = 0f;
 		}
     }
 
@@ -82,37 +82,37 @@ namespace SimpleScene
 		/// When not NaN will be used to adjust keyframe control to individual particles' Lifes instead
 		/// of time since last reset
 		/// </summary>
-		public float ParticleLifetime = float.NaN;
+		public float particleLifetime = float.NaN;
 
 		/// <summary>
 		/// Pairs of time elapsed matched to keyframe values
 		/// </summary>
-		public SortedList<float,T> Keyframes = new SortedList<float, T> ();
+		public SortedList<float,T> keyframes = new SortedList<float, T> ();
 
 		/// <summary>
 		/// Used to interpolate values between keyframes. If there are not enough of these to cover all
 		/// keyframe inbetweens the last interpolater will be used repeatedly.
 		/// </summary>
-		public IInterpolater[] Interpolaters = { new LinearInterpolater() }; // default to using LERP for everything
+		public IInterpolater[] interpolaters = { new LinearInterpolater() }; // default to using LERP for everything
 
 		protected override sealed void effectParticle(SSParticle particle, float deltaT)
 		{
-			m_timeSinceReset += deltaT;
-			float timeElapsed = float.IsNaN (ParticleLifetime) ? m_timeSinceReset
-															   : ParticleLifetime - particle.Life;
-			float lastKey = Keyframes.Keys [Keyframes.Count - 1];
+			_timeSinceReset += deltaT;
+			float timeElapsed = float.IsNaN (particleLifetime) ? _timeSinceReset
+															   : particleLifetime - particle.life;
+			float lastKey = keyframes.Keys [keyframes.Count - 1];
 			if (timeElapsed > lastKey) {
-				applyValue(particle, Keyframes [lastKey]);
+				applyValue(particle, keyframes [lastKey]);
 			} else {
-				float prevKey = Keyframes.Keys [0];
-				for (int i = 1; i < Keyframes.Keys.Count; ++i) {
-					float key = Keyframes.Keys [i];
+				float prevKey = keyframes.Keys [0];
+				for (int i = 1; i < keyframes.Keys.Count; ++i) {
+					float key = keyframes.Keys [i];
 					if (timeElapsed < key) {
 						IInterpolater interpolater = 
-							i < Interpolaters.Length ? Interpolaters [i] 
-													 : Interpolaters[Interpolaters.Length - 1];
+							i < interpolaters.Length ? interpolaters [i] 
+													 : interpolaters[interpolaters.Length - 1];
 						float progression = (timeElapsed - prevKey) / (key - prevKey);
-						T value = computeValue (interpolater, Keyframes [prevKey], Keyframes [key], progression);
+						T value = computeValue (interpolater, keyframes [prevKey], keyframes [key], progression);
 						applyValue(particle, value);
 						break;
 					}
@@ -129,116 +129,116 @@ namespace SimpleScene
 
 	public class SSMasterScaleKeyframesEffector : SSKeyframesEffector<float>
 	{
-		public float Amplification = 1.0f;
+		public float amplification = 1.0f;
 
 		protected override float computeValue (IInterpolater interpolater, 
 											   float prevKeyframe, float nextKeyframe, float ammount)
 		{
-			return interpolater.Compute (prevKeyframe, nextKeyframe, ammount);
+			return interpolater.compute (prevKeyframe, nextKeyframe, ammount);
 
 		}
 
 		protected override void applyValue(SSParticle particle, float value)
 		{
-			particle.MasterScale = Amplification * value;
+			particle.masterScale = amplification * value;
 		}
 	};
 
 	public class SSComponentScaleKeyframeEffector : SSKeyframesEffector<Vector3>
 	{
-		public Vector3 Amplification = Vector3.One;
-		public Vector3 BaseOffset = Vector3.Zero;
+		public Vector3 amplification = Vector3.One;
+		public Vector3 baseOffset = Vector3.Zero;
 
 		protected override Vector3 computeValue (IInterpolater interpolater, 
 												 Vector3 prevKeyframe, Vector3 nextKeyframe, float ammount)
 		{
 			return new Vector3 (
-				interpolater.Compute (prevKeyframe.X, nextKeyframe.X, ammount),
-				interpolater.Compute (prevKeyframe.Y, nextKeyframe.Y, ammount),
-				interpolater.Compute (prevKeyframe.Z, nextKeyframe.Z, ammount)
+				interpolater.compute (prevKeyframe.X, nextKeyframe.X, ammount),
+				interpolater.compute (prevKeyframe.Y, nextKeyframe.Y, ammount),
+				interpolater.compute (prevKeyframe.Z, nextKeyframe.Z, ammount)
 			);
 		}
 
 		protected override void applyValue(SSParticle particle, Vector3 value)
 		{
-			particle.ComponentScale = BaseOffset + Amplification * value;
+			particle.componentScale = baseOffset + amplification * value;
 		}
 	}
 
 	public class SSColorKeyframesEffector : SSKeyframesEffector<Color4>
 	{
-		public Color4 ColorMask = new Color4 (1.0f, 1.0f, 1.0f, 1.0f);
+		public Color4 colorMask = new Color4 (1.0f, 1.0f, 1.0f, 1.0f);
 
 		protected override Color4 computeValue (IInterpolater interpolater, Color4 prevKeyframe, Color4 nextKeyframe, float ammount)
 		{
 			return new Color4 (
-				interpolater.Compute (prevKeyframe.R, nextKeyframe.R, ammount),
-				interpolater.Compute (prevKeyframe.G, nextKeyframe.G, ammount),
-				interpolater.Compute (prevKeyframe.B, nextKeyframe.B, ammount),
-				interpolater.Compute (prevKeyframe.A, nextKeyframe.A, ammount)
+				interpolater.compute (prevKeyframe.R, nextKeyframe.R, ammount),
+				interpolater.compute (prevKeyframe.G, nextKeyframe.G, ammount),
+				interpolater.compute (prevKeyframe.B, nextKeyframe.B, ammount),
+				interpolater.compute (prevKeyframe.A, nextKeyframe.A, ammount)
 			);
 		}
 
 		protected override void applyValue (SSParticle particle, Color4 value)
 		{
-			value.R *= ColorMask.R;
-			value.G *= ColorMask.G;
-			value.B *= ColorMask.B;
-			value.A *= ColorMask.A;
-			particle.Color = value;
+			value.R *= colorMask.R;
+			value.G *= colorMask.G;
+			value.B *= colorMask.B;
+			value.A *= colorMask.A;
+			particle.color = value;
 		}
 	};
 
 	public abstract class SSPeriodicEffector : SSParticleEffector
 	{
-		public float EffectDelay = 0f;
+		public float effectDelay = 0f;
 
-		public float EffectIntervalMin = 1f;
-		public float EffectIntervalMax = 1f;
-		public float EffectInterval {
-			set { EffectIntervalMin = EffectIntervalMax = value; }
+		public float effectIntervalMin = 1f;
+		public float effectIntervalMax = 1f;
+		public float effectInterval {
+			set { effectIntervalMin = effectIntervalMax = value; }
 		}
 
-		public int ActivationsCount = 0; // 0 or less means infinite periodic activation
+		public int activationsCount = 0; // 0 or less means infinite periodic activation
 
-		protected float m_initialDelay;
-		protected float m_timeSinceLastEffect;
-		protected float m_nextEffect;
-		protected int m_activationsDone;
+		protected float _initialDelay;
+		protected float _timeSinceLastEffect;
+		protected float _nextEffect;
+		protected int _activationsDone;
 
-		public override void Reset()
+		public override void reset()
 		{
-			base.Reset ();
-			m_initialDelay = EffectDelay;
-			m_timeSinceLastEffect = float.PositiveInfinity;
-			m_activationsDone = 0;
-			m_nextEffect = 0f;
+			base.reset ();
+			_initialDelay = effectDelay;
+			_timeSinceLastEffect = float.PositiveInfinity;
+			_activationsDone = 0;
+			_nextEffect = 0f;
 			resetPeriodic ();
 		}
 
-		public override sealed void SimulateSelf(float deltaT)
+		public override sealed void simulateSelf(float deltaT)
 		{
-			base.SimulateSelf (deltaT);
+			base.simulateSelf (deltaT);
 
-			if (m_initialDelay > 0f) {
+			if (_initialDelay > 0f) {
 				// if initial delay is needed
-				m_initialDelay -= deltaT;
-				if (m_initialDelay > 0f) {
+				_initialDelay -= deltaT;
+				if (_initialDelay > 0f) {
 					return;
 				}
 			}
 
-			if (ActivationsCount > 0 && m_activationsDone > ActivationsCount) {
+			if (activationsCount > 0 && _activationsDone > activationsCount) {
 				return;
 			}
 
-			m_timeSinceLastEffect += deltaT;
-			if (m_timeSinceLastEffect > m_nextEffect) {
+			_timeSinceLastEffect += deltaT;
+			if (_timeSinceLastEffect > _nextEffect) {
 				activatePeriodic ();
-				++m_activationsDone;
-				m_timeSinceLastEffect = 0f;
-				m_nextEffect = Interpolate.Lerp(EffectIntervalMin, EffectIntervalMax, 
-					(float)s_rand.NextDouble());
+				++_activationsDone;
+				_timeSinceLastEffect = 0f;
+				_nextEffect = Interpolate.Lerp(effectIntervalMin, effectIntervalMax, 
+					(float)_rand.NextDouble());
 			}
 
 			simulateSelfPeriodic (deltaT);
@@ -246,7 +246,7 @@ namespace SimpleScene
 
 		protected override sealed void effectParticle(SSParticle particle, float deltaT)
 		{
-			if (m_initialDelay > 0f) {
+			if (_initialDelay > 0f) {
 				return;
 			}
 
@@ -264,48 +264,48 @@ namespace SimpleScene
     {
 		public delegate void ExplosiveHandlerType (Vector3 position, float explosiveForce);
 
-		public ExplosiveHandlerType ExplosionEventHandlers = null;
+		public ExplosiveHandlerType explosionEventHandlers = null;
 
-		public float ExplosiveForceMin = 0.1f;
-		public float ExplosiveForceMax = 0.1f;
-		public float ExplosiveForce {
-			set { ExplosiveForceMin = ExplosiveForceMax = value; }
+		public float explosiveForceMin = 0.1f;
+		public float explosiveForceMax = 0.1f;
+		public float explosiveForce {
+			set { explosiveForceMin = explosiveForceMax = value; }
 		}
 
-		public Vector3 CenterMin = new Vector3(0f);
-		public Vector3 CenterMax = new Vector3(0f);
-		public Vector3 Center {
-			set { CenterMin = CenterMax = value; }
+		public Vector3 centerMin = new Vector3(0f);
+		public Vector3 centerMax = new Vector3(0f);
+		public Vector3 center {
+			set { centerMin = centerMax = value; }
 		}
 
-		protected ADSREnvelope m_adsr;
-		protected List<BlastInfo> m_blasts;
+		protected ADSREnvelope _adsr;
+		protected List<BlastInfo> _blasts;
 
 		public SSPeriodicExplosiveForceEffector()
 		{
-			m_adsr = new ADSREnvelope ();
-			m_adsr.Amplitude = 1f;
-			m_adsr.SustainLevel = 0.5f;
+			_adsr = new ADSREnvelope ();
+			_adsr.amplitude = 1f;
+			_adsr.sustainLevel = 0.5f;
 
-			m_adsr.AttackDuration = 0.01f;
-			m_adsr.DecayDuration = 0.01f;
-			m_adsr.SustainDuration = 0.05f;
-			m_adsr.ReleaseDuration = 0.01f;
+			_adsr.attackDuration = 0.01f;
+			_adsr.decayDuration = 0.01f;
+			_adsr.sustainDuration = 0.05f;
+			_adsr.releaseDuration = 0.01f;
 		}
 
 		protected override void resetPeriodic()
 		{
-			m_blasts = new List<BlastInfo> ();
+			_blasts = new List<BlastInfo> ();
 		}
 
 		protected override void simulateSelfPeriodic(float timeDelta)
 		{
-			for (int i = 0; i < m_blasts.Count; ++i) {
-				BlastInfo bi = m_blasts [i];
+			for (int i = 0; i < _blasts.Count; ++i) {
+				BlastInfo bi = _blasts [i];
 
-				bi.TimeElapsed += timeDelta;
-				if (bi.TimeElapsed > m_adsr.TotalDuration) {
-					m_blasts.RemoveAt (i);
+				bi.timeElapsed += timeDelta;
+				if (bi.timeElapsed > _adsr.totalDuration) {
+					_blasts.RemoveAt (i);
 					i--;
 				}
 			}
@@ -313,16 +313,16 @@ namespace SimpleScene
 
 		protected override void effectParticlePeriodic(SSParticle particle, float timeDelta)
 		{
-			for (int i = 0; i < m_blasts.Count; ++i) {
-				BlastInfo bi = m_blasts [i];
+			for (int i = 0; i < _blasts.Count; ++i) {
+				BlastInfo bi = _blasts [i];
 
 				// TODO inverse square law or something similar
-				Vector3 dist = particle.Pos - bi.Center;
+				Vector3 dist = particle.pos - bi.center;
 				if (dist != Vector3.Zero) {
-					float acc = m_adsr.ComputeLevel (bi.TimeElapsed) * bi.ForceMagnitude 
-							  / dist.LengthSquared / particle.Mass;
-					Vector3 dir = (particle.Pos - bi.Center).Normalized ();
-					particle.Vel += (acc * dir);
+					float acc = _adsr.computeLevel (bi.timeElapsed) * bi.forceMagnitude 
+							  / dist.LengthSquared / particle.mass;
+					Vector3 dir = (particle.pos - bi.center).Normalized ();
+					particle.vel += (acc * dir);
 				}
 			}
 		}
@@ -330,21 +330,21 @@ namespace SimpleScene
 		protected override void activatePeriodic ()
 		{
 			BlastInfo bi = new BlastInfo ();
-			bi.Center.X = Interpolate.Lerp (CenterMin.X, CenterMax.X, nextFloat ());
-			bi.Center.Y = Interpolate.Lerp (CenterMin.Y, CenterMax.Y, nextFloat ());
-			bi.Center.Z = Interpolate.Lerp (CenterMin.Z, CenterMax.Z, nextFloat ());
-			bi.ForceMagnitude = Interpolate.Lerp (ExplosiveForceMin, ExplosiveForceMax, nextFloat ());
-			bi.TimeElapsed = 0f;
-			m_blasts.Add (bi);
-			if (ExplosionEventHandlers != null) {
-				ExplosionEventHandlers (bi.Center, bi.ForceMagnitude);
+			bi.center.X = Interpolate.Lerp (centerMin.X, centerMax.X, nextFloat ());
+			bi.center.Y = Interpolate.Lerp (centerMin.Y, centerMax.Y, nextFloat ());
+			bi.center.Z = Interpolate.Lerp (centerMin.Z, centerMax.Z, nextFloat ());
+			bi.forceMagnitude = Interpolate.Lerp (explosiveForceMin, explosiveForceMax, nextFloat ());
+			bi.timeElapsed = 0f;
+			_blasts.Add (bi);
+			if (explosionEventHandlers != null) {
+				explosionEventHandlers (bi.center, bi.forceMagnitude);
 			}
 		}
 
 		protected class BlastInfo {
-			public Vector3 Center;
-			public float ForceMagnitude;
-			public float TimeElapsed;
+			public Vector3 center;
+			public float forceMagnitude;
+			public float timeElapsed;
 		}
     }
 }

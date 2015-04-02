@@ -12,12 +12,12 @@ namespace SimpleScene.Util
 
 	public interface IInterpolater 
 	{
-		float Compute (float start, float finish, float ammount);
+		float compute (float start, float finish, float ammount);
 	}
 
 	public class LinearInterpolater : IInterpolater
 	{
-		public float Compute(float start, float finish, float ammount)
+		public float compute(float start, float finish, float ammount)
 		{
 			return Interpolate.Lerp(start, finish, ammount);
 		}
@@ -29,45 +29,45 @@ namespace SimpleScene.Util
 	/// </summary>
 	public class ADSREnvelope
 	{
-		public float AttackDuration = 1f;
-		public float DecayDuration = 1f;
-		public float SustainDuration = 1f;
-		public float ReleaseDuration = 1f;
+		public float attackDuration = 1f;
+		public float decayDuration = 1f;
+		public float sustainDuration = 1f;
+		public float releaseDuration = 1f;
 
-		public float TotalDuration {
-			get { return AttackDuration + DecayDuration + SustainDuration + ReleaseDuration; }
+		public float totalDuration {
+			get { return attackDuration + decayDuration + sustainDuration + releaseDuration; }
 		}
 
-		IInterpolater AttackInterpolater = new LinearInterpolater();
-		IInterpolater DecayInterpolater = new LinearInterpolater();
-		IInterpolater ReleaseInterpolater = new LinearInterpolater();
+        IInterpolater attackInterpolater = new LinearInterpolater();
+        IInterpolater decayInterpolater = new LinearInterpolater();
+        IInterpolater releaseInterpolater = new LinearInterpolater();
 
-		public float Amplitude = 1f;
-		public float SustainLevel = 0.5f;
+		public float amplitude = 1f;
+		public float sustainLevel = 0.5f;
 
-		public float ComputeLevel(float time)
+		public float computeLevel(float time)
 		{
             if (time < 0f) {
                 return 0f;
             }
 
-			if (time < AttackDuration) {
-				return AttackInterpolater.Compute (0f, Amplitude, time / AttackDuration);
+			if (time < attackDuration) {
+				return attackInterpolater.compute (0f, amplitude, time / attackDuration);
 			}
-			time -= AttackDuration;
+			time -= attackDuration;
 
-			if (time < DecayDuration) {
-				return DecayInterpolater.Compute (Amplitude, SustainLevel, time / DecayDuration);
+			if (time < decayDuration) {
+				return decayInterpolater.compute (amplitude, sustainLevel, time / decayDuration);
 			}
-			time -= DecayDuration;
+			time -= decayDuration;
 
-			if (time < SustainDuration) {
-				return SustainLevel;
+			if (time < sustainDuration) {
+				return sustainLevel;
 			}
-			time -= SustainDuration;
+			time -= sustainDuration;
 
-			if (time < ReleaseDuration) {
-				ReleaseInterpolater.Compute (SustainLevel, 0f, time / SustainDuration);
+			if (time < releaseDuration) {
+				releaseInterpolater.compute (sustainLevel, 0f, time / sustainDuration);
 			}
 			return 0f;
 		}

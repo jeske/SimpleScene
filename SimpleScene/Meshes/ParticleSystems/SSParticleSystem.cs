@@ -13,44 +13,44 @@ namespace SimpleScene
     {
         public const int c_maxSupportedSpritePresets = 8;
 
-        public float Life = 1f;
-        public Vector3 Pos = new Vector3(0f);
-        public Vector3 Vel = new Vector3(1f);
-		public Vector3 Orientation = new Vector3(0f);
-		public Vector3 AngularVelocity = new Vector3 (0f);
-        public float MasterScale = 1f;
-        public Vector3 ComponentScale = new Vector3(1f);
-        public Color4 Color = Color4.White;
-        public float Mass = 1.0f;
-		public float RotationalInnertia = 1.0f;
-		public float Drag = 0.0f;
-		public float RotationalDrag = 0.0f;
-        public float ViewDepth = float.PositiveInfinity;
+        public float life = 1f;
+        public Vector3 pos = new Vector3(0f);
+        public Vector3 vel = new Vector3(1f);
+		public Vector3 orientation = new Vector3(0f);
+		public Vector3 angularVelocity = new Vector3 (0f);
+        public float masterScale = 1f;
+        public Vector3 componentScale = new Vector3(1f);
+        public Color4 color = Color4.White;
+        public float mass = 1.0f;
+		public float rotationalInnertia = 1.0f;
+		public float drag = 0.0f;
+		public float rotationalDrag = 0.0f;
+        public float viewDepth = float.PositiveInfinity;
 
         // when not -1 (255) means use sprite location preset as a source of UV for the current particle
 		//public byte SpriteIndex = byte.MaxValue;
 
         // when not NaN means the values are used as a sorce of UV for the current particles
-        public RectangleF SpriteRect = new RectangleF (0f, 0f, 1f, 1f);
+        public RectangleF spriteRect = new RectangleF (0f, 0f, 1f, 1f);
         // ^ if both indexed and custom uv values are specified they will be added in the shader
         // TODO orientation, effector mask
 
-		public ushort EffectorMask = ushort.MaxValue;
+		public ushort effectorMask = ushort.MaxValue;
 
-		public bool BillboardXY {
+		public bool billboardXY {
 			set { 
 				if (value) { 
-					Orientation.X = Orientation.Y = float.NaN;
+					orientation.X = orientation.Y = float.NaN;
 				} else {
-					if (float.IsNaN (Orientation.X)) {
-						Orientation.X = 0f;
+					if (float.IsNaN (orientation.X)) {
+						orientation.X = 0f;
 					}
-					if (float.IsNaN (Orientation.Y)) {
-						Orientation.Y = 0f;
+					if (float.IsNaN (orientation.Y)) {
+						orientation.Y = 0f;
 					}
 				}
 			}
-			get { return float.IsNaN (Orientation.X) || float.IsNaN (Orientation.Y); }
+			get { return float.IsNaN (orientation.X) || float.IsNaN (orientation.Y); }
 		}
     }
 
@@ -64,83 +64,83 @@ namespace SimpleScene
 
     public class SSParticleSystem
     {
-        protected static readonly SSAttributeVec3 c_notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
-        protected static Random s_rand = new Random(); // for quicksorting
+        protected static readonly SSAttributeVec3 _notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
+        protected static Random _rand = new Random(); // for quicksorting
 
 		/// <summary>
 		/// Defines a unit step for the thic particle system's simulation. 
 		/// Higher values result in a more quanitized simulation but more processing
 		/// </summary>
-        public float SimulationStep = .010f;
+        public float simulationStep = .010f;
 
         // TODO bounding sphere or cube
-        protected List<SSParticleEmitter> m_emitters = new List<SSParticleEmitter> ();
-        protected List<SSParticleEffector> m_effectors = new List<SSParticleEffector> ();
+        protected List<SSParticleEmitter> _emitters = new List<SSParticleEmitter> ();
+        protected List<SSParticleEffector> _effectors = new List<SSParticleEffector> ();
 
-        protected readonly int m_capacity;
-        protected int m_numParticles = 0;
+        protected readonly int _capacity;
+        protected int _numParticles = 0;
 
         #region required particle data
-        protected readonly float[] m_lives;  // unused particles will be hacked to not draw
-        protected int m_nextIdxToWrite;      // change to UintPtr?
-        protected int m_nextIdxToOverwrite;
-        protected int m_activeBlockLength;
+        protected readonly float[] _lives;  // unused particles will be hacked to not draw
+        protected int _nextIdxToWrite;      // change to UintPtr?
+        protected int _nextIdxToOverwrite;
+        protected int _activeBlockLength;
         #endregion
 
         #region particle data sent to the GPU
-        protected SSAttributeVec3[] m_positions;
-		protected SSAttributeVec2[] m_orientationsXY;
-		protected SSAttributeFloat[] m_orientationsZ;
-        protected SSAttributeColor[] m_colors;
-        protected SSAttributeFloat[] m_masterScales;
-        protected SSAttributeVec2[] m_componentScalesXY;
-		protected SSAttributeFloat[] m_componentScalesZ;
+        protected SSAttributeVec3[] _positions;
+		protected SSAttributeVec2[] _orientationsXY;
+		protected SSAttributeFloat[] _orientationsZ;
+        protected SSAttributeColor[] _colors;
+        protected SSAttributeFloat[] _masterScales;
+        protected SSAttributeVec2[] _componentScalesXY;
+		protected SSAttributeFloat[] _componentScalesZ;
 
 		//protected SSAttributeByte[] m_spriteIndices;
-        protected SSAttributeFloat[] m_spriteOffsetsU;
-        protected SSAttributeFloat[] m_spriteOffsetsV;
-        protected SSAttributeFloat[] m_spriteSizesU;
-        protected SSAttributeFloat[] m_spriteSizesV;
+        protected SSAttributeFloat[] _spriteOffsetsU;
+        protected SSAttributeFloat[] _spriteOffsetsV;
+        protected SSAttributeFloat[] _spriteSizesU;
+        protected SSAttributeFloat[] _spriteSizesV;
         #endregion
 
         #region particle data used for the simulation only
-        protected Vector3[] m_velocities;
-        protected Vector3[] m_angularVelocities;
-        protected float[] m_masses;
-		protected float[] m_rotationalInnertias;
-		protected float[] m_drags;
-		protected float[] m_rotationalDrags;
-        protected float[] m_viewDepths;
-		protected byte[] m_effectorMasksLow;
-		protected byte[] m_effectorMasksHigh;
+        protected Vector3[] _velocities;
+        protected Vector3[] _angularVelocities;
+        protected float[] _masses;
+		protected float[] _rotationalInnertias;
+		protected float[] _drags;
+		protected float[] _rotationalDrags;
+        protected float[] _viewDepths;
+		protected byte[] _effectorMasksLow;
+		protected byte[] _effectorMasksHigh;
         // TODO Orientation
         // TODO Texture Coord
         #endregion
 
-        protected float m_radius;
-        protected float m_timeDeltaAccumulator;
+        protected float _radius;
+        protected float _timeDeltaAccumulator;
 
-        public int Capacity { get { return m_capacity; } }
-        public int ActiveBlockLength { get { return m_activeBlockLength; } }
-        public float Radius { get { return m_radius; } }
-        public SSAttributeVec3[] Positions { get { return m_positions; } }
-		public SSAttributeVec2[] OrientationsXY { get { return m_orientationsXY; } }
-		public SSAttributeFloat[] OrientationsZ { get { return m_orientationsZ; } }
-        public SSAttributeColor[] Colors { get { return m_colors; } }
-        public SSAttributeFloat[] MasterScales { get { return m_masterScales; } }
-        public SSAttributeVec2[] ComponentScalesXY { get { return m_componentScalesXY; } }
-		public SSAttributeFloat[] ComponentScalesZ { get { return m_componentScalesZ; } }
+        public int apacity { get { return _capacity; } }
+        public int activeBlockLength { get { return _activeBlockLength; } }
+        public float radius { get { return _radius; } }
+        public SSAttributeVec3[] positions { get { return _positions; } }
+		public SSAttributeVec2[] orientationsXY { get { return _orientationsXY; } }
+		public SSAttributeFloat[] orientationsZ { get { return _orientationsZ; } }
+        public SSAttributeColor[] colors { get { return _colors; } }
+        public SSAttributeFloat[] masterScales { get { return _masterScales; } }
+        public SSAttributeVec2[] componentScalesXY { get { return _componentScalesXY; } }
+		public SSAttributeFloat[] componentScalesZ { get { return _componentScalesZ; } }
 		//public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
-        public SSAttributeFloat[] SpriteOffsetsU { get { return m_spriteOffsetsU; ; } }
-        public SSAttributeFloat[] SpriteOffsetsV { get { return m_spriteOffsetsV; } }
-        public SSAttributeFloat[] SpriteSizesU { get { return m_spriteSizesU; } }
-        public SSAttributeFloat[] SpriteSizesV { get { return m_spriteSizesV; } }
+        public SSAttributeFloat[] spriteOffsetsU { get { return _spriteOffsetsU; ; } }
+        public SSAttributeFloat[] SpriteOffsetsV { get { return _spriteOffsetsV; } }
+        public SSAttributeFloat[] SpriteSizesU { get { return _spriteSizesU; } }
+        public SSAttributeFloat[] SpriteSizesV { get { return _spriteSizesV; } }
 
         public SSParticleSystem (int capacity)
         {
-            m_capacity = capacity;
-            m_lives = new float[m_capacity];
-            Reset();
+            _capacity = capacity;
+            _lives = new float[_capacity];
+            reset();
         }
 
 		/// <summary>
@@ -151,107 +151,107 @@ namespace SimpleScene
 		/// sync with the basic particle system reset. Should you chose to do so make sure to call
 		/// this base function.
 		/// </summary>
-		public virtual void Reset()
+		public virtual void reset()
         {
-            m_nextIdxToWrite = 0;
-            m_nextIdxToOverwrite = 0;
-            m_activeBlockLength = 0;
-			m_numParticles = 0;
+            _nextIdxToWrite = 0;
+            _nextIdxToOverwrite = 0;
+            _activeBlockLength = 0;
+			_numParticles = 0;
 
-			m_radius = 0f;
-			m_timeDeltaAccumulator = 0f;
+			_radius = 0f;
+			_timeDeltaAccumulator = 0f;
 
-            m_positions = new SSAttributeVec3[1];
-			m_orientationsXY = new SSAttributeVec2[1];
-			m_orientationsZ = new SSAttributeFloat[1];
-            m_masterScales = new SSAttributeFloat[1];
-            m_componentScalesXY = new SSAttributeVec2[1];
-			m_componentScalesZ = new SSAttributeFloat[1];
-            m_colors = new SSAttributeColor[1];
+            _positions = new SSAttributeVec3[1];
+			_orientationsXY = new SSAttributeVec2[1];
+			_orientationsZ = new SSAttributeFloat[1];
+            _masterScales = new SSAttributeFloat[1];
+            _componentScalesXY = new SSAttributeVec2[1];
+			_componentScalesZ = new SSAttributeFloat[1];
+            _colors = new SSAttributeColor[1];
 
 			//m_spriteIndices = new SSAttributeByte[1];
-            m_spriteOffsetsU = new SSAttributeFloat[1];
-            m_spriteOffsetsV = new SSAttributeFloat[1];
-            m_spriteSizesU = new SSAttributeFloat[1];
-            m_spriteSizesV = new SSAttributeFloat[1];
+            _spriteOffsetsU = new SSAttributeFloat[1];
+            _spriteOffsetsV = new SSAttributeFloat[1];
+            _spriteSizesU = new SSAttributeFloat[1];
+            _spriteSizesV = new SSAttributeFloat[1];
 
-            m_velocities = new Vector3[1];
-            m_angularVelocities = new Vector3[1];
-            m_masses = new float[1];
-			m_rotationalInnertias = new float[1];
-			m_drags = new float[1];
-			m_rotationalDrags = new float[1];
-            m_viewDepths = new float[1];
-			m_effectorMasksLow = new byte[1];
-			m_effectorMasksHigh = new byte[1];
+            _velocities = new Vector3[1];
+            _angularVelocities = new Vector3[1];
+            _masses = new float[1];
+			_rotationalInnertias = new float[1];
+			_drags = new float[1];
+			_rotationalDrags = new float[1];
+            _viewDepths = new float[1];
+			_effectorMasksLow = new byte[1];
+			_effectorMasksHigh = new byte[1];
 
             writeParticle(0, new SSParticle ()); // fill in default values
-            for (int i = 0; i < m_capacity; ++i) {
-                m_lives [i] = 0f;
+            for (int i = 0; i < _capacity; ++i) {
+                _lives [i] = 0f;
             }
 
-            foreach (SSParticleEmitter emitter in m_emitters) {
-                emitter.Reset();
+            foreach (SSParticleEmitter emitter in _emitters) {
+                emitter.reset();
             }
-            foreach (SSParticleEffector effector in m_effectors) {
-                effector.Reset();
+            foreach (SSParticleEffector effector in _effectors) {
+                effector.reset();
             }
         }
 
-		public virtual void EmitAll()
+		public virtual void emitAll()
         {
-            foreach (SSParticleEmitter e in m_emitters) {
-                e.EmitParticles(storeNewParticle);
+            foreach (SSParticleEmitter e in _emitters) {
+                e.emitParticles(storeNewParticle);
             }
         }
 
-		public virtual void Simulate(float timeDelta)
+		public virtual void simulate(float timeDelta)
         {
-            timeDelta += m_timeDeltaAccumulator;
-            while (timeDelta >= SimulationStep) {
+            timeDelta += _timeDeltaAccumulator;
+            while (timeDelta >= simulationStep) {
                 simulateStep();
-                timeDelta -= SimulationStep;
+                timeDelta -= simulationStep;
             }
-            m_timeDeltaAccumulator = timeDelta;
+            _timeDeltaAccumulator = timeDelta;
         }
 
-		public virtual void UpdateCamera(ref Matrix4 modelView, ref Matrix4 projection) { }
+		public virtual void updateCamera(ref Matrix4 modelView, ref Matrix4 projection) { }
 
-		public virtual void AddEmitter(SSParticleEmitter emitter)
+		public virtual void addEmitter(SSParticleEmitter emitter)
         {
-            emitter.Reset();
-            m_emitters.Add(emitter);
+            emitter.reset();
+            _emitters.Add(emitter);
         }
 
-		public virtual void AddEffector(SSParticleEffector effector)
+		public virtual void addEffector(SSParticleEffector effector)
         {
-            effector.Reset();
-            m_effectors.Add(effector);
+            effector.reset();
+            _effectors.Add(effector);
         }
 
-        public void SortByDepth(ref Matrix4 viewMatrix)
+        public void sortByDepth(ref Matrix4 viewMatrix)
         {
-            if (m_numParticles == 0) return;
+            if (_numParticles == 0) return;
 
-            for (int i = 0; i < m_activeBlockLength; ++i) {
+            for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
-                    Vector3 pos = readData(m_positions, i).Value;
+                    Vector3 pos = readData(_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
-                    writeDataIfNeeded(ref m_viewDepths, i, pos.Z);
+                    writeDataIfNeeded(ref _viewDepths, i, pos.Z);
                 } else {
                     // since we are doing a sort pass later, might as well make it so
                     // so the dead particles get pushed the back of the arrays
-                    writeDataIfNeeded(ref m_viewDepths, i, float.PositiveInfinity);
+                    writeDataIfNeeded(ref _viewDepths, i, float.PositiveInfinity);
                 }
             }
 
-            quickSort(0, m_activeBlockLength - 1);
+            quickSort(0, _activeBlockLength - 1);
 
-            if (m_numParticles < m_capacity) {
+            if (_numParticles < _capacity) {
                 // update pointers to reflect dead particles that just got sorted to the back
-                m_nextIdxToWrite = m_numParticles - 1;
-                m_activeBlockLength = m_numParticles;
+                _nextIdxToWrite = _numParticles - 1;
+                _activeBlockLength = _numParticles;
             }
 
             #if false
@@ -271,64 +271,64 @@ namespace SimpleScene
 
 		protected virtual void simulateStep()
         {
-            m_radius = 0f;
-			foreach (SSParticleEffector effector in m_effectors) {
-				effector.SimulateSelf (SimulationStep);
+            _radius = 0f;
+			foreach (SSParticleEffector effector in _effectors) {
+				effector.simulateSelf (simulationStep);
 			}
-			foreach (SSParticleEmitter emitter in m_emitters) {
-				emitter.SimulateSelf (SimulationStep);
+			foreach (SSParticleEmitter emitter in _emitters) {
+				emitter.simulateSelf (simulationStep);
 			}
 
             SSParticle p = new SSParticle ();
-            for (int i = 0; i < m_activeBlockLength; ++i) {
+            for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Alive particle
-                    m_lives [i] -= SimulationStep;
+                    _lives [i] -= simulationStep;
                     if (isAlive(i)) {
                         // Still alive. Update position and run through effectors
                         readParticle(i, p);
-						p.Vel -= p.Drag * p.Vel / p.Mass;
-						if (!p.BillboardXY) {
-							p.AngularVelocity.Xy -= p.RotationalDrag * p.AngularVelocity.Xy / p.RotationalInnertia;
+						p.vel -= p.drag * p.vel / p.mass;
+						if (!p.billboardXY) {
+							p.angularVelocity.Xy -= p.rotationalDrag * p.angularVelocity.Xy / p.rotationalInnertia;
 						}
-						p.AngularVelocity.Z -= p.RotationalDrag * p.AngularVelocity.Z / p.RotationalInnertia;
-                        p.Pos += p.Vel * SimulationStep;
-						if (!p.BillboardXY) {
-							p.Orientation.Xy += p.AngularVelocity.Xy * SimulationStep;
+						p.angularVelocity.Z -= p.rotationalDrag * p.angularVelocity.Z / p.rotationalInnertia;
+                        p.pos += p.vel * simulationStep;
+						if (!p.billboardXY) {
+							p.orientation.Xy += p.angularVelocity.Xy * simulationStep;
 						}
-						p.Orientation.Z += p.AngularVelocity.Z * SimulationStep;
-                        foreach (SSParticleEffector effector in m_effectors) {
-							effector.SimulateParticleEffect(p, SimulationStep);
+						p.orientation.Z += p.angularVelocity.Z * simulationStep;
+                        foreach (SSParticleEffector effector in _effectors) {
+							effector.simulateParticleEffect(p, simulationStep);
                         }
                         writeParticle(i, p);
-                        float distFromOrogin = p.Pos.Length;
-                        if (distFromOrogin > m_radius) {
-                            m_radius = distFromOrogin;
+                        float distFromOrogin = p.pos.Length;
+                        if (distFromOrogin > _radius) {
+                            _radius = distFromOrogin;
                         }
                     } else {
                         // Particle just died. Hack to not draw?
-                        writeDataIfNeeded(ref m_positions, i, c_notAPosition);
-                        if (m_numParticles == m_capacity || i < m_nextIdxToWrite) {
+                        writeDataIfNeeded(ref _positions, i, _notAPosition);
+                        if (_numParticles == _capacity || i < _nextIdxToWrite) {
                             // released slot will be the next one to be written to
-                            m_nextIdxToWrite = i;
+                            _nextIdxToWrite = i;
                         }
-                        if (i == m_activeBlockLength - 1) {
+                        if (i == _activeBlockLength - 1) {
                             // reduction in the active particles block
-                            while (m_activeBlockLength > 0 && isDead(m_activeBlockLength - 1)) {
-                                --m_activeBlockLength;
+                            while (_activeBlockLength > 0 && isDead(_activeBlockLength - 1)) {
+                                --_activeBlockLength;
                             }
-                        }                        --m_numParticles;
-                        if (m_numParticles == 0) {
+                        }                        --_numParticles;
+                        if (_numParticles == 0) {
                             // all particles gone. reset write and overwrite locations for better packing
-                            m_nextIdxToWrite = 0;
-                            m_nextIdxToOverwrite = 0;
-                            m_activeBlockLength = 0;
+                            _nextIdxToWrite = 0;
+                            _nextIdxToOverwrite = 0;
+                            _activeBlockLength = 0;
                         }
                     }
                 }
             }
-			foreach (SSParticleEmitter emitter in m_emitters) {
-				emitter.SimulateEmissions(SimulationStep, storeNewParticle);
+			foreach (SSParticleEmitter emitter in _emitters) {
+				emitter.simulateEmissions(simulationStep, storeNewParticle);
 			}
         }
 
@@ -336,44 +336,44 @@ namespace SimpleScene
         {
 			// Apply effects before storing the new particle
 			// This can help avoid unnecessary array expansion for new particle's values
-			foreach (SSParticleEffector effector in m_effectors) {
-				effector.SimulateParticleEffect(newParticle, SimulationStep);
+			foreach (SSParticleEffector effector in _effectors) {
+				effector.simulateParticleEffect(newParticle, simulationStep);
 			}
 
             int writeIdx;
-            if (m_numParticles == m_capacity) {
-                writeIdx = m_nextIdxToOverwrite;
-                m_nextIdxToOverwrite = nextIdx(m_nextIdxToOverwrite);
+            if (_numParticles == _capacity) {
+                writeIdx = _nextIdxToOverwrite;
+                _nextIdxToOverwrite = nextIdx(_nextIdxToOverwrite);
             } else {
-                while (isAlive(m_nextIdxToWrite)) {
-                    m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
+                while (isAlive(_nextIdxToWrite)) {
+                    _nextIdxToWrite = nextIdx(_nextIdxToWrite);
                 }
-                writeIdx = m_nextIdxToWrite;
-                if (writeIdx + 1 >= m_activeBlockLength) {
-                    m_activeBlockLength = writeIdx + 1;
+                writeIdx = _nextIdxToWrite;
+                if (writeIdx + 1 >= _activeBlockLength) {
+                    _activeBlockLength = writeIdx + 1;
                 }
-                m_nextIdxToWrite = nextIdx(m_nextIdxToWrite);
-                m_numParticles++;
+                _nextIdxToWrite = nextIdx(_nextIdxToWrite);
+                _numParticles++;
             }
             writeParticle(writeIdx, newParticle);
 
-			float distFromOrogin = newParticle.Pos.Length;
-			if (distFromOrogin > m_radius) {
-				m_radius = distFromOrogin;
+			float distFromOrogin = newParticle.pos.Length;
+			if (distFromOrogin > _radius) {
+				_radius = distFromOrogin;
 			}
         }
 
         protected int nextIdx(int idx) 
         {
             ++idx;
-            if (idx == m_capacity) {
+            if (idx == _capacity) {
                 idx = 0;
             }
             return idx;
         }
 
         protected bool isDead(int idx) {
-            return m_lives [idx] <= 0f;
+            return _lives [idx] <= 0f;
         }
 
         protected bool isAlive(int idx) {
@@ -390,46 +390,46 @@ namespace SimpleScene
         }
 
         protected virtual void readParticle (int idx, SSParticle p) {
-            p.Life = m_lives [idx];
-            p.Pos = readData(m_positions, idx).Value;
-			p.Orientation.Xy = readData(m_orientationsXY, idx).Value;
-			p.Orientation.Z = readData (m_orientationsZ, idx).Value;
-            p.ViewDepth = readData(m_viewDepths, idx);
+            p.life = _lives [idx];
+            p.pos = readData(_positions, idx).Value;
+			p.orientation.Xy = readData(_orientationsXY, idx).Value;
+			p.orientation.Z = readData (_orientationsZ, idx).Value;
+            p.viewDepth = readData(_viewDepths, idx);
 
-            if (p.Life <= 0f) return; // the rest does not matter
+            if (p.life <= 0f) return; // the rest does not matter
 
-            p.MasterScale = readData(m_masterScales, idx).Value;
-			p.ComponentScale.Xy = readData(m_componentScalesXY, idx).Value;
-			p.ComponentScale.Z = readData (m_componentScalesZ, idx).Value;
-			p.Color = Color4Helper.RgbaToColor4(readData(m_colors, idx).Color);
+            p.masterScale = readData(_masterScales, idx).Value;
+			p.componentScale.Xy = readData(_componentScalesXY, idx).Value;
+			p.componentScale.Z = readData (_componentScalesZ, idx).Value;
+			p.color = Color4Helper.RgbaToColor4(readData(_colors, idx).Color);
 
 			//p.SpriteIndex = readData(m_spriteIndices, idx).Value;
-            p.SpriteRect.X = readData(m_spriteOffsetsU, idx).Value;
-            p.SpriteRect.Y = readData(m_spriteOffsetsV, idx).Value;
-            p.SpriteRect.Width = readData(m_spriteSizesU, idx).Value;
-            p.SpriteRect.Height = readData(m_spriteSizesV, idx).Value;
+            p.spriteRect.X = readData(_spriteOffsetsU, idx).Value;
+            p.spriteRect.Y = readData(_spriteOffsetsV, idx).Value;
+            p.spriteRect.Width = readData(_spriteSizesU, idx).Value;
+            p.spriteRect.Height = readData(_spriteSizesV, idx).Value;
 
-            p.Vel = readData(m_velocities, idx);
-            p.AngularVelocity = readData(m_angularVelocities, idx);
-            p.Mass = readData(m_masses, idx);
-			p.RotationalInnertia = readData (m_rotationalInnertias, idx);
-			p.Drag = readData (m_drags, idx);
-			p.RotationalDrag = readData (m_rotationalDrags, idx);
-			p.EffectorMask = (ushort)((int)readData (m_effectorMasksHigh, idx) << 8
-							 	    | (int)readData (m_effectorMasksLow, idx));
+            p.vel = readData(_velocities, idx);
+            p.angularVelocity = readData(_angularVelocities, idx);
+            p.mass = readData(_masses, idx);
+			p.rotationalInnertia = readData (_rotationalInnertias, idx);
+			p.drag = readData (_drags, idx);
+			p.rotationalDrag = readData (_rotationalDrags, idx);
+			p.effectorMask = (ushort)((int)readData (_effectorMasksHigh, idx) << 8
+							 	    | (int)readData (_effectorMasksLow, idx));
         }
 
         protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
         {
             bool write = true;
-			if (m_activeBlockLength > 1 && array.Length == 1) {
+			if (_activeBlockLength > 1 && array.Length == 1) {
                 T masterVal = array [0];
                 if (masterVal.Equals(value)) {
                     write = false;
                 } else {
                     // allocate the array to keep track of different values
-                    array = new T[m_capacity];
-                    for (int i = 0; i < m_activeBlockLength; ++i) {
+                    array = new T[_capacity];
+                    for (int i = 0; i < _activeBlockLength; ++i) {
                         array [i] = masterVal;
                     }
                 }
@@ -440,30 +440,30 @@ namespace SimpleScene
         }
 
         protected virtual void writeParticle(int idx, SSParticle p) {
-            m_lives [idx] = p.Life;
-			writeDataIfNeeded(ref m_positions, idx, new SSAttributeVec3(p.Pos));
-			writeDataIfNeeded(ref m_orientationsXY, idx, new SSAttributeVec2 (p.Orientation.Xy));
-			writeDataIfNeeded(ref m_orientationsZ, idx, new SSAttributeFloat (p.Orientation.Z));
-			writeDataIfNeeded(ref m_masterScales, idx, new SSAttributeFloat (p.MasterScale));
-			writeDataIfNeeded(ref m_componentScalesXY, idx, new SSAttributeVec2 (p.ComponentScale.Xy));
-			writeDataIfNeeded(ref m_componentScalesZ, idx, new SSAttributeFloat (p.ComponentScale.Z));
-			writeDataIfNeeded(ref m_colors, idx, new SSAttributeColor(Color4Helper.Color4toRgba(p.Color)));
+            _lives [idx] = p.life;
+			writeDataIfNeeded(ref _positions, idx, new SSAttributeVec3(p.pos));
+			writeDataIfNeeded(ref _orientationsXY, idx, new SSAttributeVec2 (p.orientation.Xy));
+			writeDataIfNeeded(ref _orientationsZ, idx, new SSAttributeFloat (p.orientation.Z));
+			writeDataIfNeeded(ref _masterScales, idx, new SSAttributeFloat (p.masterScale));
+			writeDataIfNeeded(ref _componentScalesXY, idx, new SSAttributeVec2 (p.componentScale.Xy));
+			writeDataIfNeeded(ref _componentScalesZ, idx, new SSAttributeFloat (p.componentScale.Z));
+			writeDataIfNeeded(ref _colors, idx, new SSAttributeColor(Color4Helper.Color4toRgba(p.color)));
 
 			//writeDataIfNeeded(ref m_spriteIndices, idx, new SSAttributeByte(p.SpriteIndex));
-            writeDataIfNeeded(ref m_spriteOffsetsU, idx, new SSAttributeFloat(p.SpriteRect.X));
-            writeDataIfNeeded(ref m_spriteOffsetsV, idx, new SSAttributeFloat(p.SpriteRect.Y));
-            writeDataIfNeeded(ref m_spriteSizesU, idx, new SSAttributeFloat(p.SpriteRect.Width));
-            writeDataIfNeeded(ref m_spriteSizesV, idx, new SSAttributeFloat(p.SpriteRect.Height));
+            writeDataIfNeeded(ref _spriteOffsetsU, idx, new SSAttributeFloat(p.spriteRect.X));
+            writeDataIfNeeded(ref _spriteOffsetsV, idx, new SSAttributeFloat(p.spriteRect.Y));
+            writeDataIfNeeded(ref _spriteSizesU, idx, new SSAttributeFloat(p.spriteRect.Width));
+            writeDataIfNeeded(ref _spriteSizesV, idx, new SSAttributeFloat(p.spriteRect.Height));
 
-            writeDataIfNeeded(ref m_velocities, idx, p.Vel);
-            writeDataIfNeeded(ref m_angularVelocities, idx, p.AngularVelocity);
-            writeDataIfNeeded(ref m_masses, idx, p.Mass);
-			writeDataIfNeeded(ref m_rotationalInnertias, idx, p.RotationalInnertia);
-			writeDataIfNeeded(ref m_drags, idx, p.Drag);
-			writeDataIfNeeded(ref m_rotationalDrags, idx, p.RotationalDrag);
-            writeDataIfNeeded(ref m_viewDepths, idx, p.ViewDepth);
-			writeDataIfNeeded(ref m_effectorMasksHigh, idx, (byte)((p.EffectorMask & 0xFF00) >> 8));
-			writeDataIfNeeded(ref m_effectorMasksLow, idx, (byte)(p.EffectorMask & 0xFF));
+            writeDataIfNeeded(ref _velocities, idx, p.vel);
+            writeDataIfNeeded(ref _angularVelocities, idx, p.angularVelocity);
+            writeDataIfNeeded(ref _masses, idx, p.mass);
+			writeDataIfNeeded(ref _rotationalInnertias, idx, p.rotationalInnertia);
+			writeDataIfNeeded(ref _drags, idx, p.drag);
+			writeDataIfNeeded(ref _rotationalDrags, idx, p.rotationalDrag);
+            writeDataIfNeeded(ref _viewDepths, idx, p.viewDepth);
+			writeDataIfNeeded(ref _effectorMasksHigh, idx, (byte)((p.effectorMask & 0xFF00) >> 8));
+			writeDataIfNeeded(ref _effectorMasksLow, idx, (byte)(p.effectorMask & 0xFF));
         }
 
         // The alternative to re-implementing quicksort appears to be implementing IList interface with
@@ -480,13 +480,13 @@ namespace SimpleScene
 
         protected int quicksortPartition(int leftIdx, int rightIdx)
         {
-            int pivot = s_rand.Next(leftIdx, rightIdx);
+            int pivot = _rand.Next(leftIdx, rightIdx);
             particleSwap(pivot, rightIdx);
             int store = leftIdx;
 
             for (int i = leftIdx; i < rightIdx; ++i) {
-                float iDepth = readData(m_viewDepths, i);
-                float rightDepth = readData(m_viewDepths, rightIdx);
+                float iDepth = readData(_viewDepths, i);
+                float rightDepth = readData(_viewDepths, rightIdx);
                 // or <= ?
                 if (iDepth <= rightDepth) {
                     particleSwap(i, store);

@@ -130,18 +130,18 @@ namespace TestBench0
 				);
 
 				var ringEmitter = new SSBodiesFieldEmitter (ringGen);
-				ringEmitter.ParticlesPerEmission = 10000;
+				ringEmitter.particlesPerEmission = 10000;
 				//ringEmitter.ParticlesPerEmission = 10;
 
 				var ps = new SSParticleSystem(10000);
-				ps.AddEmitter(ringEmitter);
+				ps.addEmitter(ringEmitter);
 				Console.WriteLine ("Packing 10k asteroids into a ring. This may take a second...");
-				ps.EmitAll();
+				ps.emitAll();
 				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, roidmesh, BufferUsageHint.StaticDraw);
-				asteroidRingRenderer.SimulateOnUpdate = false;
-				asteroidRingRenderer.AlphaBlendingEnabled = false;
-				asteroidRingRenderer.DepthRead = true;
-				asteroidRingRenderer.DepthWrite = true;
+				asteroidRingRenderer.simulateOnUpdate = false;
+				asteroidRingRenderer.alphaBlendingEnabled = false;
+				asteroidRingRenderer.depthRead = true;
+				asteroidRingRenderer.depthWrite = true;
 				asteroidRingRenderer.Name = "instanced asteroid renderer";
 				asteroidRingRenderer.renderState.castsShadow = true;
 				asteroidRingRenderer.renderState.receivesShadows = true;
@@ -156,17 +156,17 @@ namespace TestBench0
 				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
 				var emitter = new SSParticlesFieldEmitter (box);
 				//emitter.EmissionDelay = 5f;
-				emitter.ParticlesPerEmission = 1;
-				emitter.EmissionInterval = 0.5f;
-				emitter.Life = 1000f;
-				emitter.ColorOffsetComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
-				emitter.ColorOffsetComponentMax = new Color4 (1f, 1f, 1f, 1f);
-				emitter.VelocityComponentMax = new Vector3 (.3f);
-				emitter.VelocityComponentMin = new Vector3 (-.3f);
-				emitter.AngularVelocityMin = new Vector3 (-0.5f);
-				emitter.AngularVelocityMax = new Vector3 (0.5f);
-				emitter.DragMin = 0f;
-				emitter.DragMax = .1f;
+				emitter.particlesPerEmission = 1;
+				emitter.emissionInterval = 0.5f;
+				emitter.life = 1000f;
+				emitter.colorOffsetComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
+				emitter.colorOffsetComponentMax = new Color4 (1f, 1f, 1f, 1f);
+				emitter.velocityComponentMax = new Vector3 (.3f);
+				emitter.velocityComponentMin = new Vector3 (-.3f);
+				emitter.angularVelocityMin = new Vector3 (-0.5f);
+				emitter.angularVelocityMax = new Vector3 (0.5f);
+				emitter.dragMin = 0f;
+				emitter.dragMax = .1f;
 				RectangleF[] uvRects = new RectangleF[18*6];
 				float tileWidth = 1f / 18f;
 				float tileHeight = 1f / 6f;
@@ -178,29 +178,29 @@ namespace TestBench0
 							tileHeight);
 					}
 				}
-				emitter.SpriteRectangles = uvRects;
+				emitter.spriteRectangles = uvRects;
 
 				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
-				periodicExplosiveForce.EffectInterval = 3f;
-				periodicExplosiveForce.ExplosiveForceMin = 1000f;
-				periodicExplosiveForce.ExplosiveForceMax = 5000f;
-				periodicExplosiveForce.EffectDelay = 5f;
-				periodicExplosiveForce.CenterMin = new Vector3 (-30f, -30f, -30f);
-				periodicExplosiveForce.CenterMax = new Vector3 (30f, 30f, 30f);
+				periodicExplosiveForce.effectInterval = 3f;
+				periodicExplosiveForce.explosiveForceMin = 1000f;
+				periodicExplosiveForce.explosiveForceMax = 5000f;
+				periodicExplosiveForce.effectDelay = 5f;
+				periodicExplosiveForce.centerMin = new Vector3 (-30f, -30f, -30f);
+				periodicExplosiveForce.centerMax = new Vector3 (30f, 30f, 30f);
 				//periodicExplosiveForce.Center = new Vector3 (10f);
 
 				// make a particle system
 				SSParticleSystem cubesPs = new SSParticleSystem (1000);
-				cubesPs.AddEmitter(emitter);
-				cubesPs.AddEffector (periodicExplosiveForce);
+				cubesPs.addEmitter(emitter);
+				cubesPs.addEffector (periodicExplosiveForce);
 
 				// test a renderer
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
 				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance, tex);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
-				cubesRenderer.AlphaBlendingEnabled = false;
-				cubesRenderer.DepthRead = true;
-				cubesRenderer.DepthWrite = true;
+				cubesRenderer.alphaBlendingEnabled = false;
+				cubesRenderer.depthRead = true;
+				cubesRenderer.depthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
@@ -214,8 +214,8 @@ namespace TestBench0
 					aer.Pos = cubesRenderer.Pos;
 					scene.AddObject (aer);
 
-					periodicExplosiveForce.ExplosionEventHandlers += (pos, force) => { 
-						aer.ShowExplosion(pos, force/periodicExplosiveForce.ExplosiveForceMin*1.5f); 
+					periodicExplosiveForce.explosionEventHandlers += (pos, force) => { 
+						aer.showExplosion(pos, force/periodicExplosiveForce.explosiveForceMin*1.5f); 
 					};
 				}
 			}
