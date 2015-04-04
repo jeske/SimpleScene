@@ -40,7 +40,7 @@ namespace SimpleScene
 		/// <summary>
 		/// Used when packing into 4-byte formats that gets unpacked and normalized into vec4 for the shader
 		/// </summary>
-		public static UInt32 Color4toRgba(Color4 color)
+		public static UInt32 ToUInt32(Color4 color)
 		{
 			const float maxByteF = (float)byte.MaxValue;
 			color.R = color.R * maxByteF;
@@ -53,7 +53,7 @@ namespace SimpleScene
 				| (UInt32)color.R;
 		}
 
-		public static Color4 RgbaToColor4(UInt32 rgba)
+		public static Color4 FromUInt32(UInt32 rgba)
 		{
 			return new Color4 (
 				(byte)((rgba & 0xFF)),              // R

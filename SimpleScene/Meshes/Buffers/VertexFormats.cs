@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
@@ -19,6 +20,12 @@ namespace SimpleScene
 			GL.EnableClientState (ArrayCap.VertexArray);
 			GL.VertexPointer (3, VertexPointerType.Float, stride, offset);
 		}
+
+        public static void PrepareColor(int stride, IntPtr offset)
+        {
+            GL.EnableClientState(ArrayCap.ColorArray);
+            GL.ColorPointer(4, ColorPointerType.UnsignedInt, stride, offset);
+        }
 
 		public static void PrepareNormal(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
 		{
@@ -189,6 +196,37 @@ namespace SimpleScene
 
 		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+        }
+    }
+
+    ///////////////////////////////////////////////////////
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SSVertex_PosColor : ISSVertexLayout
+    {
+        static private int Size;
+        static private IntPtr PositionOffset;
+        static private IntPtr ColorOffset;
+
+        static unsafe SSVertex_PosColor()
+        {
+            Type type = typeof(SSVertex_Pos);
+            Size = Marshal.SizeOf (type);
+            PositionOffset = Marshal.OffsetOf (type, "Position");
+            ColorOffset = Marshal.OffsetOf(type, "Color");
+        }
+
+        public Vector3 Position;
+        public UInt32 Color;
+
+        public SSVertex_PosColor(Vector3 pos, Color4 color) {
+            Position = pos;
+            Color = Color4Helper.ToUInt32(color);
+        }
+
+        public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+            SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+            SSVertexFormatHelper.PrepareColor(Size, ColorOffset);
         }
     }
 
