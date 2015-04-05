@@ -58,13 +58,13 @@ namespace SimpleScene
 		public void DrawBind(ref SSRenderConfig renderConfig) {
             // bind for use and setup for drawing
             bind();
-            //GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
+            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
 			c_dummyElement.BindGlAttributes(ref renderConfig);
         }
 
         public void DrawUnbind() {
             // unbind from use and undo draw settings
-            //GL.PopClientAttrib();
+            GL.PopClientAttrib();
             unbind();
         }
 

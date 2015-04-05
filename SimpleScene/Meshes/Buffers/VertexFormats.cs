@@ -24,7 +24,7 @@ namespace SimpleScene
         public static void PrepareColor(int stride, IntPtr offset)
         {
             GL.EnableClientState(ArrayCap.ColorArray);
-            GL.ColorPointer(4, ColorPointerType.UnsignedInt, stride, offset);
+            GL.ColorPointer(4, ColorPointerType.UnsignedByte, stride, offset);
         }
 
 		public static void PrepareNormal(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
@@ -201,7 +201,7 @@ namespace SimpleScene
 
     ///////////////////////////////////////////////////////
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential, Pack = 0)]
     public struct SSVertex_PosColor : ISSVertexLayout
     {
         static private int Size;
@@ -210,7 +210,7 @@ namespace SimpleScene
 
         static unsafe SSVertex_PosColor()
         {
-            Type type = typeof(SSVertex_Pos);
+            Type type = typeof(SSVertex_PosColor);
             Size = Marshal.SizeOf (type);
             PositionOffset = Marshal.OffsetOf (type, "Position");
             ColorOffset = Marshal.OffsetOf(type, "Color");

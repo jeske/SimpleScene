@@ -22,8 +22,10 @@ namespace SimpleScene.Util
         }
     }
 
-    // Class for keeping a running average
-    // Implemented via a circular queue
+    /// <summary>
+    /// Class for keeping a running average
+    /// Implemented via a circular queue
+    /// </summary>
     public class RunningAverage<T>
     {
         static protected AverageArithmeticProvider<T> s_mathProvider;
@@ -62,8 +64,12 @@ namespace SimpleScene.Util
             }
         }
 
+        public bool IsFull {
+            get { return m_insertedCount >= m_history.Length; }
+        }
+
         public void Push(T item) {
-            if (m_insertedCount >= m_history.Length) {
+            if (IsFull) {
                 // full. remove the last item first
                 s_mathProvider.SubtractEquals(ref m_sum, m_history[m_nextIdx]);
             } else {
