@@ -293,7 +293,7 @@ namespace SimpleScene
                 && Math.Abs(zAxis.Y) < delta) { // special case
                 xAxis = Vector3.UnitX;
             } else {
-                xAxis = new Vector3(zAxis.Y, -zAxis.X, 0.0f);
+                xAxis = new Vector3(zAxis.Y, -zAxis.X, 0.0f).Normalized();
             }
             yAxis = Vector3.Cross(zAxis, xAxis);
         }
