@@ -71,7 +71,7 @@ namespace SimpleScene
 		/// Defines a unit step for the thic particle system's simulation. 
 		/// Higher values result in a more quanitized simulation but more processing
 		/// </summary>
-        public float simulationStep = .010f;
+        public float simulationStep = .025f;
 
         // TODO bounding sphere or cube
         protected List<SSParticleEmitter> _emitters = new List<SSParticleEmitter> ();
