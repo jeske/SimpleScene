@@ -138,6 +138,7 @@
     <Compile Include="Core\SSSphere.cs" />
     <Compile Include="Util\ssBVH\ssBVH_Sphere.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -183,5 +184,6 @@
   <ItemGroup>
     <Folder Include="Meshes\ParticleSystems\" />
     <Folder Include="Assets\Shaders\Instancing\" />
+    <Folder Include="Meshes\Skeletal\" />
   </ItemGroup>
 </Project>
