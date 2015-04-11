@@ -112,7 +112,7 @@ namespace SimpleScene
                 m_vertices [baseIdx+3].Position.X = center.X - tileVec.X;
                 m_vertices [baseIdx+3].Position.Y = center.Y + tileVec.Y;
             }
-            m_mesh.UpdateVertices(m_vertices);
+            m_mesh.ComputeVertices(m_vertices);
 
             // now, actually draw
             base.Render(ref renderConfig);

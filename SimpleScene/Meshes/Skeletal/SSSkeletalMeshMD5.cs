@@ -1,4 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 using OpenTK;
 
 namespace SimpleScene
@@ -68,19 +72,19 @@ namespace SimpleScene
 		protected Vector3[] m_baseNormals = null;
 		#endregion
 
-		protected int NumJoints {
+		public int NumJoints {
 			get { return m_joints.Length; }
 		}
 
-		protected int NumVertices {
+		public int NumVertices {
 			get { return m_vertices.Length; }
 		}
 
-		protected int NumIndices {
+		public int NumIndices {
 			get { return m_triangleIndices.Length; }
 		}
 
-		protected int NumTriangles {
+		public int NumTriangles {
 			get { return m_triangleIndices.Length / 3; }
 		}
 
@@ -119,10 +123,112 @@ namespace SimpleScene
 			return currentPos;
 		}
 
-		public SSSkeletalMeshMD5 (SSAssetManager.Context ctx, string filename)
+		public Vector2 TextureCoords(int vertexIndex)
 		{
-
+			return m_vertices [vertexIndex].TextureCoords;
 		}
+
+		public static SSSkeletalMeshMD5[] ReadMeshes(SSAssetManager.Context ctx, string filename)
+		{
+			string fullFilename = ctx.fullResourcePath (filename);
+			StreamReader reader = File.OpenText (fullFilename);
+			System.Console.WriteLine ("Reading MD5 file: " + fullFilename);
+
+			Match[] matches;
+			seekEntry (reader, "MD5Version", "10");
+			seekEntry (reader, "commandline", @"""[A-Za-z0-9 _]""");
+
+			matches = seekEntry (reader, "numJoints", @"(\d+)");
+			SkeletalJoint[] joints = new SkeletalJoint[Convert.ToInt32(matches[1].Value)];
+
+			matches = seekEntry (reader, "numMeshes", @"(\d+)");
+			SSSkeletalMeshMD5[] meshes = new SSSkeletalMeshMD5[Convert.ToInt32 (matches [1].Value)];
+
+			seekEntry (reader, "joints {");
+
+			foreach (SSSkeletalMeshMD5 mesh in meshes) {
+				mesh.ComputeJointPosFromMD5Mesh ();
+			}
+			return meshes;
+		}
+
+
+
+		static private Match[] seekEntry(StreamReader reader, params string[] wordRegExStr)
+		{
+			Regex[] regex = new Regex[wordRegExStr.Length];
+			for (int w = 0; w < wordRegExStr.Length; ++w) {
+				regex[w] = new Regex (wordRegExStr[w]);
+			}
+			return seekEntry (reader, regex);
+		}
+
+		private static Match[] seekEntry(StreamReader reader, params Regex[] wordRegEx)
+		{
+			char[] wordDelimeters = { ' ', '\t' };
+
+			string line;
+			int lineIdx = 0;
+
+			while ((line = reader.ReadLine ()) != null) {
+				int commentsIdx = line.IndexOf ("//");
+				if (commentsIdx > 0) {
+					line = line.Substring (0, commentsIdx);
+				}
+
+				string[] words = line.Split (wordDelimeters);
+				if (words.Length > 0) {
+
+					// combine words when in brackets
+					bool openBracket = false;
+					var adjustedWords = new List<string> ();
+					for (int w = 0; w < words.Length; ++w) {
+						string word = words [w];
+						if (word.Length > 0) {
+							if (openBracket) {
+								adjustedWords [adjustedWords.Count - 1] += word;
+								if (word [word.Length - 1] == '\"') {
+									openBracket = false;
+								}
+							} else {
+								adjustedWords.Add (word);
+								if (word[0] == '\"' 
+								&& (word.Length == 0 || word[word.Length-1] != '\"')) {
+									openBracket = true;
+								}
+							}
+						}
+					}
+
+
+					if (adjustedWords.Count != wordRegEx.Length) {
+						entryFailure (lineIdx, line, wordRegEx);
+					}
+
+					Match[] ret = new Match[wordRegEx.Length];
+					for (int w = 0; w < wordRegEx.Length; ++w) {
+						ret [w] = wordRegEx [w].Match (adjustedWords [w]);
+						if (!ret [w].Success) {
+							entryFailure (lineIdx, line, wordRegEx);
+						}
+					}
+					return ret;
+				}
+				lineIdx++;
+			}
+			entryFailure (lineIdx, "EOF", wordRegEx);
+			return null;
+		}
+
+		private static void entryFailure(int lineIdx, string line, Regex[] regex)
+		{
+			string errorStr = String.Format (
+				"Failed to read MD5: line {0}: {1} *** Expecting {2}",
+				lineIdx, line, regex.ToString());
+			System.Console.WriteLine (errorStr);
+			throw new Exception (errorStr);
+		}
+
 
 	}
 }

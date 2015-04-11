@@ -34,7 +34,7 @@ namespace SimpleScene
                     0.5f + Tr * x, 0.5f + Tr * y
                 );       
             }
-            UpdateVertices(vertices);
+            ComputeVertices(vertices);
 
             // generate indices
             UInt16[] indices = new UInt16[divisions * 3];

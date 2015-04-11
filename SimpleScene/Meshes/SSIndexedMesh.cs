@@ -50,7 +50,7 @@ namespace SimpleScene
             m_ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
         }
 
-        public void UpdateVertices (V[] vertices)
+        public void ComputeVertices (V[] vertices)
         {
             m_vbo.UpdateBufferData(vertices);
         }
