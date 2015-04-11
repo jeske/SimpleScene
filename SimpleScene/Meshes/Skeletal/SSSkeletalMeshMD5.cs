@@ -3,7 +3,7 @@ using OpenTK;
 
 namespace SimpleScene
 {
-	public struct SSSkeletalVertexMD5
+	public struct SkeletalVertexMD5
 	{
 		#region from MD5 mesh
 		public int VertexIndex;
@@ -13,7 +13,7 @@ namespace SimpleScene
 		#endregion
 	}
 
-	public struct SSSkeletalWeightMD5
+	public struct SkeletalWeightMD5
 	{
 		#region from MD5 mesh
 		public int WeightIndex;
@@ -23,7 +23,7 @@ namespace SimpleScene
 		#endregion
 	}
 
-	public struct SSSkeletalJointMD5
+	public struct SkeletalJointMD5
 	{
 		#region from MD5 mesh
 		public int ParentIndex;
@@ -33,11 +33,18 @@ namespace SimpleScene
 		#endregion
 	}
 
-	public struct SSSkeletalJoint
+	public struct SkeletalJointLocation
 	{
-		public SSSkeletalJointMD5 Md5;
-		public Vector3 CurrentPos;
-		public Quaternion CurrentOrient;
+		public Vector3 Position;
+		public Quaternion Orientation;
+	}
+
+	public class SkeletalJoint
+	{
+		public SkeletalJointMD5 Md5;
+		public SkeletalJointLocation Current;
+
+		public SkeletalJointLocation[] Frames = null;
 	}
 
 	public class SSSkeletalMeshMD5
@@ -51,10 +58,10 @@ namespace SimpleScene
 		#region from MD5 mesh
 		protected string MaterialShaderString;
 
-		protected SSSkeletalVertexMD5[] m_vertices = null;
-		protected SSSkeletalWeightMD5[] m_weights = null;
+		protected SkeletalVertexMD5[] m_vertices = null;
+		protected SkeletalWeightMD5[] m_weights = null;
 		protected UInt16[] m_triangleIndices = null;
-		protected SSSkeletalJoint[] m_joints = null;
+		protected SkeletalJoint[] m_joints = null;
 		#endregion
 
 		#region runtime only use
@@ -69,6 +76,10 @@ namespace SimpleScene
 			get { return m_vertices.Length; }
 		}
 
+		protected int NumIndices {
+			get { return m_triangleIndices.Length; }
+		}
+
 		protected int NumTriangles {
 			get { return m_triangleIndices.Length / 3; }
 		}
@@ -77,30 +88,33 @@ namespace SimpleScene
 			get { return m_triangleIndices; }
 		}
 
-		public void BuildRuntimeFromMD5Mesh()
+		public void ComputeJointPosFromMD5Mesh(bool computeNormals=true)
 		{
 			for (int j = 0; j < NumJoints; ++j) {
-				m_joints [j].CurrentPos = m_joints [j].Md5.BasePosition;
+				m_joints [j].Current.Position = m_joints [j].Md5.BasePosition;
 
 				Vector3 orient = m_joints [j].Md5.BaseOrientation;
-				m_joints [j].CurrentOrient.Xyz = orient;
-				m_joints [j].CurrentOrient.W = ComputeQuatW (ref orient);
+				m_joints [j].Current.Orientation.Xyz = orient;
+				m_joints [j].Current.Orientation.W = ComputeQuatW (ref orient);
 			}
 
-			// TODO compute normals?
+			if (computeNormals) {
+				// TODO compute normals?
+
+			}
 		}
 
 		public Vector3 ComputeVertexPos(int vertexIndex)
 		{
 			Vector3 currentPos = Vector3.Zero;
-			SSSkeletalVertexMD5 vertex = m_vertices [vertexIndex];
+			SkeletalVertexMD5 vertex = m_vertices [vertexIndex];
 
 			for (int w = 0; w < vertex.WeightCount; ++w) {
-				SSSkeletalWeightMD5 weight = m_weights [vertex.WeightStartIndex + w];
-				SSSkeletalJoint joint = m_joints [weight.JointIndex];
+				SkeletalWeightMD5 weight = m_weights [vertex.WeightStartIndex + w];
+				SkeletalJoint joint = m_joints [weight.JointIndex];
 
-				Vector3 currWeightPos = Vector3.Transform (weight.Position, joint.CurrentOrient); 
-				currentPos += weight.Bias * currWeightPos;
+				Vector3 currWeightPos = Vector3.Transform (weight.Position, joint.Current.Orientation); 
+				currentPos += weight.Bias * (joint.Current.Position + currWeightPos);
 			}
 			return currentPos;
 		}
