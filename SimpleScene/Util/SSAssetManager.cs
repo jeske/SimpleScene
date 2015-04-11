@@ -38,6 +38,7 @@ namespace SimpleScene
 	public interface ISSAssetArchiveHandler {
 		bool resourceExists (string resource_name);
 		Stream openResource(string resource_name);
+		StreamReader openTextReader (string resource_name);
 	}
 	#endregion
 
@@ -173,6 +174,23 @@ namespace SimpleScene
             throw new SSNoSuchAssetException(fullPath, handlersArr);
         }
 
+		private StreamReader openTextReader(string fullPath) {
+			ISSAssetArchiveHandler[] handlersArr;
+
+			lock (this) { handlersArr = this.m_handlers.ToArray(); }
+
+			if (handlersArr.Length == 0) {
+				throw new Exception("SSAssetManager: no handlers available for load");
+			}
+
+			foreach (ISSAssetArchiveHandler handler in handlersArr) {
+				if (handler.resourceExists(fullPath)) {
+					return handler.openTextReader(fullPath);
+				}
+			}
+			throw new SSNoSuchAssetException(fullPath, handlersArr);
+		}
+
         private T getInstance<T>(Context context, string filename) {
             object obj = null;
             string fullPath = context.fullResourcePath(filename);
@@ -247,6 +265,12 @@ namespace SimpleScene
                 return s_mgr.openStream(fullPath);
             }
 
+			public StreamReader OpenText(string filename) {
+				string fullPath = fullResourcePath(filename);
+				return s_mgr.openTextReader (fullPath);
+			}
+
+
             public string fullResourcePath(string filename) {
                 return Path.Combine(m_basepath, filename);
             }
@@ -283,6 +307,20 @@ namespace SimpleScene
 			} else {
 				try {
 					return File.Open(fullpath, FileMode.Open, FileAccess.Read, FileShare.Read);
+				} catch (Exception e) {
+					throw new SSAssetHandlerLoadException(this, resource_name, e);
+				}
+			}
+		}
+
+		public StreamReader openTextReader(string resource_name) 
+		{
+			string fullpath = Path.Combine(this.basepath, resource_name);
+			if (!File.Exists(fullpath)) {
+				throw new SSAssetHandlerNotFoundException(this, resource_name);
+			} else {
+				try {
+					return File.OpenText(fullpath);
 				} catch (Exception e) {
 					throw new SSAssetHandlerLoadException(this, resource_name, e);
 				}

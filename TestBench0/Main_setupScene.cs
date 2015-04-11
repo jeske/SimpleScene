@@ -219,6 +219,14 @@ namespace TestBench0
 					};
 				}
 			}
+
+			// mesh test
+			#if true
+			{
+				SSSkeletalMeshMD5[] meshes 
+					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
+			}
+			#endif
 		}
 
 		public void setupEnvironment() 

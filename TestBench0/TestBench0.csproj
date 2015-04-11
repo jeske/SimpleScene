@@ -7,6 +7,8 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>WavefrontOBJViewer</RootNamespace>
     <AssemblyName>TestBench0</AssemblyName>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -94,11 +96,24 @@
     <None Include="Assets\elements.png" />
     <None Include="Assets\sun_flare.png" />
     <None Include="Assets\sun_flare.txt" />
+    <None Include="Assets\boneman\LICENSE.txt" />
+    <None Include="Assets\boneman\boneman.md5mesh" />
+    <None Include="Assets\boneman\boneman_attack.md5anim" />
+    <None Include="Assets\boneman\boneman_dead.md5anim" />
+    <None Include="Assets\boneman\boneman_dying.md5anim" />
+    <None Include="Assets\boneman\boneman_idle.md5anim" />
+    <None Include="Assets\boneman\boneman_pain.md5anim" />
+    <None Include="Assets\boneman\boneman_running.blend" />
+    <None Include="Assets\boneman\boneman_running.md5anim" />
+    <None Include="Assets\boneman\md5.cfg" />
+    <None Include="Assets\boneman\skin.png" />
+    <None Include="Assets\boneman\skin_n.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\skybox\" />
     <Folder Include="Assets\simpleasteroid\" />
     <Folder Include="Assets\explosions\" />
+    <Folder Include="Assets\boneman\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
