@@ -138,7 +138,7 @@
     <Compile Include="Core\SSSphere.cs" />
     <Compile Include="Util\ssBVH\ssBVH_Sphere.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalMeshMD5.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
