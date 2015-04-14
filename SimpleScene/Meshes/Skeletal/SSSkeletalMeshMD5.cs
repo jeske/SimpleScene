@@ -51,11 +51,11 @@ namespace SimpleScene
 		public void ComputeJointPosFromMD5Mesh(bool computeNormals=true)
 		{
 			for (int j = 0; j < NumJoints; ++j) {
-				m_joints [j].Current.Position = m_joints [j].Md5.BasePosition;
+				m_joints [j].CurrentLocation.Position = m_joints [j].Md5.BasePosition;
 
 				Vector3 orient = m_joints [j].Md5.BaseOrientation;
-				m_joints [j].Current.Orientation.Xyz = orient;
-				m_joints [j].Current.Orientation.W = ComputeQuatW (ref orient);
+				m_joints [j].CurrentLocation.Orientation.Xyz = orient;
+				m_joints [j].CurrentLocation.Orientation.W = ComputeQuatW (ref orient);
 			}
 
 			if (computeNormals) {
@@ -73,8 +73,8 @@ namespace SimpleScene
 				SkeletalWeightMD5 weight = m_weights [vertex.WeightStartIndex + w];
 				SkeletalJoint joint = m_joints [weight.JointIndex];
 
-				Vector3 currWeightPos = Vector3.Transform (weight.Position, joint.Current.Orientation); 
-				currentPos += weight.Bias * (joint.Current.Position + currWeightPos);
+				Vector3 currWeightPos = Vector3.Transform (weight.Position, joint.CurrentLocation.Orientation); 
+				currentPos += weight.Bias * (joint.CurrentLocation.Position + currWeightPos);
 			}
 			return currentPos;
 		}
@@ -124,13 +124,21 @@ namespace SimpleScene
 			public static readonly string c_intRegex = @"(-*\d+)";
 			public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
 
-			static public Match[] seekEntry(StreamReader reader, ref int lineIdx, params string[] wordRegExStr)
+			private static Dictionary<string, Regex> s_regexCache = new Dictionary<string, Regex>();
+
+			static public Match[] seekEntry(StreamReader reader, ref int lineIdx, params string[] wordRegExStrArray)
 			{
-				Regex[] regex = new Regex[wordRegExStr.Length];
-				for (int w = 0; w < wordRegExStr.Length; ++w) {
-					regex[w] = new Regex (wordRegExStr[w]);
+				Regex[] regexArray = new Regex[wordRegExStrArray.Length];
+				for (int w = 0; w < wordRegExStrArray.Length; ++w) {
+					string regExStr = wordRegExStrArray [w];
+					Regex regex = null;
+					if (!s_regexCache.TryGetValue(regExStr, out regex)) {
+						regex = new Regex (regExStr);
+						s_regexCache.Add (regExStr, regex);
+					}
+					regexArray [w] = regex;
 				}
-				return seekRegexEntry (reader, ref lineIdx, regex, wordRegExStr);
+				return seekRegexEntry (reader, ref lineIdx, regexArray, wordRegExStrArray);
 			}
 
 			private static Match[] seekRegexEntry(StreamReader reader, ref int lineIdx, Regex[] wordRegEx, string[] wordRegExStr)
@@ -263,7 +271,7 @@ namespace SimpleScene
 		public class SkeletalJoint
 		{
 			public SkeletalJointMD5 Md5;
-			public SkeletalJointLocation Current;
+			public SkeletalJointLocation CurrentLocation;
 
 			public SkeletalJointLocation[] Frames = null;
 		}
