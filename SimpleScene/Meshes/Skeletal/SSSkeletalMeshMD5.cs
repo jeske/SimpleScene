@@ -119,7 +119,7 @@ namespace SimpleScene
 		private static class MD5Parser
 		{
 			// TODO fix quotes not getting discarded
-			public static readonly string c_nameRegex = "[\\\"]([A-Za-z0-9_'., ]+)[\\\"]";
+			public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
 			public static readonly string c_uintRegex = @"(\d+)";
 			public static readonly string c_intRegex = @"(-*\d+)";
 			public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
