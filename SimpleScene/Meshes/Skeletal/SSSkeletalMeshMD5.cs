@@ -16,7 +16,7 @@ namespace SimpleScene
 		}
 
 		#region from MD5 mesh
-		protected string MaterialShaderString;
+		protected string m_materialShaderString;
 
 		protected SkeletalVertexMD5[] m_vertices = null;
 		protected SkeletalWeightMD5[] m_weights = null;
@@ -79,11 +79,6 @@ namespace SimpleScene
 			return currentPos;
 		}
 
-		public Vector2 TextureCoords(int vertexIndex)
-		{
-			return m_vertices [vertexIndex].TextureCoords;
-		}
-
 		public static SSSkeletalMeshMD5[] ReadMeshes(SSAssetManager.Context ctx, string filename)
 		{
 			StreamReader reader = ctx.OpenText (filename);
@@ -96,10 +91,10 @@ namespace SimpleScene
 			MD5Parser.seekEntry (reader, ref lineIdx, "commandline", MD5Parser.c_nameRegex);
 
 			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numJoints", MD5Parser.c_uintRegex);
-			SkeletalJoint[] joints = new SkeletalJoint[Convert.ToInt32(matches[1].Value)];
+			SkeletalJoint[] joints = new SkeletalJoint[Convert.ToUInt32(matches[1].Value)];
 
 			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numMeshes", MD5Parser.c_uintRegex);
-			SSSkeletalMeshMD5[] meshes = new SSSkeletalMeshMD5[Convert.ToInt32 (matches [1].Value)];
+			SSSkeletalMeshMD5[] meshes = new SSSkeletalMeshMD5[Convert.ToUInt32 (matches [1].Value)];
 
 			MD5Parser.seekEntry (reader, ref lineIdx, "joints", "{");
 			for (int j = 0; j < joints.Length; ++j) {
@@ -109,6 +104,10 @@ namespace SimpleScene
 			MD5Parser.seekEntry (reader, ref lineIdx, "}");
 
 			// TODO Build meshes
+			for (int m = 0; m < meshes.Length; ++m) {
+				meshes [m] = new SSSkeletalMeshMD5 (reader, ref lineIdx);
+				meshes [m].m_joints = joints;
+			}
 
 			foreach (SSSkeletalMeshMD5 mesh in meshes) {
 				mesh.ComputeJointPosFromMD5Mesh ();
@@ -116,13 +115,36 @@ namespace SimpleScene
 			return meshes;
 		}
 
+		public SSSkeletalMeshMD5 (StreamReader reader, ref int lineIdx)
+		{
+			MD5Parser.seekEntry(reader, ref lineIdx, "mesh", "{");
+
+			Match[] matches;
+			matches = MD5Parser.seekEntry(reader, ref lineIdx, "shader", MD5Parser.c_nameRegex);
+			m_materialShaderString = matches[1].Value;
+
+			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numverts", MD5Parser.c_uintRegex);
+			m_vertices = new SkeletalVertexMD5[Convert.ToUInt32(matches[1].Value)];
+
+			for (int v = 0; v < m_vertices.Length; ++v) {
+				m_vertices [v] = new SkeletalVertexMD5 (reader, ref lineIdx);
+			}
+		}
+
+		public Vector2 TextureCoords(int vertexIndex)
+		{
+			return m_vertices [vertexIndex].TextureCoords;
+		}
+
 		private static class MD5Parser
 		{
 			// TODO fix quotes not getting discarded
 			public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
-			public static readonly string c_uintRegex = @"(\d+)";
-			public static readonly string c_intRegex = @"(-*\d+)";
-			public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
+			public static readonly string c_uintRegex = @"^(\d+)$";
+			public static readonly string c_intRegex = @"^(-*\d+)$";
+			public static readonly string c_floatRegex = @"^(-*\d*\.\d*[Ee]*-*\d*)$";
+			public static readonly string c_parOpen = @"\(";
+			public static readonly string c_parClose = @"\)";
 
 			private static Dictionary<string, Regex> s_regexCache = new Dictionary<string, Regex>();
 
@@ -222,6 +244,23 @@ namespace SimpleScene
 			public int WeightStartIndex;
 			public int WeightCount;
 			#endregion
+
+			public SkeletalVertexMD5(StreamReader reader, ref int lineIdx)
+			{
+				Match[] matches
+				= MD5Parser.seekEntry(reader, ref lineIdx,
+					"vert",
+					MD5Parser.c_uintRegex, // vertex index
+					MD5Parser.c_parOpen, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_parClose, // texture coord
+					MD5Parser.c_uintRegex, // weight start index
+					MD5Parser.c_uintRegex // weight count
+				);
+				VertexIndex = Convert.ToInt32(matches[1].Value);
+				TextureCoords.X = (float)Convert.ToDouble(matches[3].Value);
+				TextureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
+				WeightStartIndex = Convert.ToInt32(matches[6].Value);
+				WeightCount = Convert.ToInt32(matches[7].Value);
+			}
 		}
 
 		public struct SkeletalWeightMD5
@@ -248,17 +287,19 @@ namespace SimpleScene
 				Match[] matches = MD5Parser.seekEntry (reader, ref lineIdx, 
 					MD5Parser.c_nameRegex, // joint name
 					MD5Parser.c_intRegex,  // parent index
-					"\\(", MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, "\\)", // position
-					"\\(", MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, "\\)"  // orientation			
+					MD5Parser.c_parOpen, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_parClose, // position
+					MD5Parser.c_parOpen, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_parClose  // orientation			
 				);
 				Name = matches[0].Captures[0].Value;
 				ParentIndex = Convert.ToInt32(matches[1].Value);
-				BasePosition = new Vector3((float)Convert.ToDouble(matches[3].Value), 
-										   (float)Convert.ToDouble(matches[4].Value), 
-										   (float)Convert.ToDouble(matches[5].Value));
-				BaseOrientation = new Vector3((float)Convert.ToDouble(matches[8].Value), 
-       										  (float)Convert.ToDouble(matches[9].Value), 
-											  (float)Convert.ToDouble(matches[10].Value));
+
+				BasePosition.X = (float)Convert.ToDouble(matches[3].Value);
+				BasePosition.Y = (float)Convert.ToDouble(matches[4].Value); 
+				BasePosition.Z = (float)Convert.ToDouble(matches[5].Value);
+
+				BaseOrientation.X = (float)Convert.ToDouble(matches[8].Value);
+				BaseOrientation.Y = (float)Convert.ToDouble(matches[9].Value); 
+				BaseOrientation.Z = (float)Convert.ToDouble(matches[10].Value);
 			}
 		}
 
