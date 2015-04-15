@@ -138,6 +138,15 @@ namespace SimpleScene
 			for (int t = 0; t < numTris; ++t) {
 				readTri (reader, ref lineIdx);
 			}
+
+			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numweights", MD5Parser.c_uintRegex);
+			int numWeights = Convert.ToInt32 (matches [1].Value);
+			m_weights = new SkeletalWeightMD5[numWeights];
+			for (int w = 0; w < m_weights.Length; ++w) {
+				int weightIdx;
+				SkeletalWeightMD5 weight = new SkeletalWeightMD5 (reader, ref lineIdx, out weightIdx);
+				m_weights [weightIdx] = weight;
+			}
 		}
 
 		public Vector2 TextureCoords(int vertexIndex)
@@ -166,7 +175,7 @@ namespace SimpleScene
 			public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
 			public static readonly string c_uintRegex = @"^(\d+)$";
 			public static readonly string c_intRegex = @"^(-*\d+)$";
-			public static readonly string c_floatRegex = @"^(-*\d*\.\d*[Ee]*-*\d*)$";
+			public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
 			public static readonly string c_parOpen = @"\(";
 			public static readonly string c_parClose = @"\)";
 
@@ -290,11 +299,30 @@ namespace SimpleScene
 		public struct SkeletalWeightMD5
 		{
 			#region from MD5 mesh
-			public int WeightIndex;
+			//public int WeightIndex;
 			public int JointIndex;
 			public float Bias;
 			public Vector3 Position;
 			#endregion
+
+			public SkeletalWeightMD5(StreamReader reader, ref int lineIdx, out int weightIndex)
+			{
+				Match[] matches
+				= MD5Parser.seekEntry(reader, ref lineIdx,
+					"weight",
+					MD5Parser.c_uintRegex, // weight index
+					MD5Parser.c_uintRegex, // joint index
+					MD5Parser.c_floatRegex, // bias
+					MD5Parser.c_parOpen, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_parClose // position
+				);
+
+				weightIndex = Convert.ToInt32(matches[1].Value);
+				JointIndex = Convert.ToInt32(matches[2].Value);
+				Bias = (float)Convert.ToDouble(matches[3].Value);
+				Position.X = (float)Convert.ToDouble(matches[5].Value);
+				Position.Y = (float)Convert.ToDouble(matches[6].Value);
+				Position.Z = (float)Convert.ToDouble(matches[7].Value);
+			}
 		}
 
 		public struct SkeletalJointMD5
