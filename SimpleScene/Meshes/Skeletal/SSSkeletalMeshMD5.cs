@@ -127,7 +127,9 @@ namespace SimpleScene
 			m_vertices = new SkeletalVertexMD5[Convert.ToUInt32(matches[1].Value)];
 
 			for (int v = 0; v < m_vertices.Length; ++v) {
-				m_vertices [v] = new SkeletalVertexMD5 (reader, ref lineIdx);
+				int vertexIndex;
+				var vertex = new SkeletalVertexMD5 (reader, ref lineIdx, out vertexIndex);
+				m_vertices [vertexIndex] = vertex;
 			}
 		}
 
@@ -239,13 +241,13 @@ namespace SimpleScene
 		public struct SkeletalVertexMD5
 		{
 			#region from MD5 mesh
-			public int VertexIndex;
+			//public int VertexIndex;
 			public Vector2 TextureCoords;
 			public int WeightStartIndex;
 			public int WeightCount;
 			#endregion
 
-			public SkeletalVertexMD5(StreamReader reader, ref int lineIdx)
+			public SkeletalVertexMD5(StreamReader reader, ref int lineIdx, out int vertexIndex)
 			{
 				Match[] matches
 				= MD5Parser.seekEntry(reader, ref lineIdx,
@@ -255,7 +257,7 @@ namespace SimpleScene
 					MD5Parser.c_uintRegex, // weight start index
 					MD5Parser.c_uintRegex // weight count
 				);
-				VertexIndex = Convert.ToInt32(matches[1].Value);
+				vertexIndex = Convert.ToInt32(matches[1].Value);
 				TextureCoords.X = (float)Convert.ToDouble(matches[3].Value);
 				TextureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
 				WeightStartIndex = Convert.ToInt32(matches[6].Value);
