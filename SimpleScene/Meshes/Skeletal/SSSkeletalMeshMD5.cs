@@ -131,11 +131,33 @@ namespace SimpleScene
 				var vertex = new SkeletalVertexMD5 (reader, ref lineIdx, out vertexIndex);
 				m_vertices [vertexIndex] = vertex;
 			}
+
+			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numtris", MD5Parser.c_uintRegex);
+			int numTris = Convert.ToUInt16 (matches [1].Value);
+			m_triangleIndices = new UInt16[numTris * 3];
+			for (int t = 0; t < numTris; ++t) {
+				readTri (reader, ref lineIdx);
+			}
 		}
 
 		public Vector2 TextureCoords(int vertexIndex)
 		{
 			return m_vertices [vertexIndex].TextureCoords;
+		}
+
+		private void readTri(StreamReader reader, ref int lineIdx)
+		{
+			Match[] matches;
+			matches = MD5Parser.seekEntry (reader, ref lineIdx,
+				"tri",
+				MD5Parser.c_uintRegex, // triangle index
+				MD5Parser.c_uintRegex, MD5Parser.c_uintRegex, MD5Parser.c_uintRegex // 3 vertex indices
+			);
+			UInt32 triIdx = Convert.ToUInt32 (matches [1].Value);
+			UInt32 indexBaseIdx = triIdx * 3;
+			m_triangleIndices [indexBaseIdx] = Convert.ToUInt16 (matches [2].Value);
+			m_triangleIndices [indexBaseIdx+1] = Convert.ToUInt16 (matches [3].Value);
+			m_triangleIndices [indexBaseIdx+2] = Convert.ToUInt16 (matches [4].Value);
 		}
 
 		private static class MD5Parser
