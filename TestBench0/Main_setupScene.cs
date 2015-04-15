@@ -148,6 +148,22 @@ namespace TestBench0
 				scene.AddObject (asteroidRingRenderer);
 			}
 
+			// mesh test
+			#if true
+			{
+				SSSkeletalMeshMD5[] meshes 
+				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
+				foreach (var skeliMeshMD5 in meshes) {
+					var renderMesh = new SSSkeletalIIndexedMesh(skeliMeshMD5);
+					var obj = new SSObjectMesh(renderMesh);
+					//obj.MainColor = Color4.Lime;
+					obj.Scale = new Vector3(10);
+					obj.boundingSphere = null; // no frustum culling
+					scene.AddObject(obj);
+				}
+			}
+			#endif
+
 			// particle system test
 			// particle systems should be drawn last (if it requires alpha blending)
 			//if (false)
@@ -219,14 +235,6 @@ namespace TestBench0
 					};
 				}
 			}
-
-			// mesh test
-			#if true
-			{
-				SSSkeletalMeshMD5[] meshes 
-					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
-			}
-			#endif
 		}
 
 		public void setupEnvironment() 

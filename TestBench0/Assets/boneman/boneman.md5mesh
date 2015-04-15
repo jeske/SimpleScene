@@ -48,7 +48,8 @@ joints {
 }
 
 mesh {
-	shader "Skeli"
+	shader "skin.png"
+	//shader "Skeli"
 
 	numverts 2203
 	vert 0 ( 0.874671 0.978768 ) 0 1

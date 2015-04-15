@@ -8,6 +8,11 @@ namespace SimpleScene
     public class SSIndexedMesh<V> : SSAbstractMesh, ISSInstancable
         where V : struct, ISSVertexLayout
     {
+		public SSTexture diffuseTexture = null;
+		public SSTexture specularTexture = null;
+		public SSTexture ambientTexture = null;
+		public SSTexture bumpMapTexture = null;
+
         protected SSVertexBuffer<V> m_vbo;
         protected SSIndexBuffer m_ibo;
 
@@ -42,11 +47,31 @@ namespace SimpleScene
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
+			if (diffuseTexture != null || specularTexture != null
+			 || ambientTexture != null || bumpMapTexture != null) {
+				renderConfig.InstanceShader.SetupTextures (
+					diffuseTexture,
+					specularTexture,
+					ambientTexture,
+					bumpMapTexture
+				);
+			}
+
             m_ibo.DrawElements(ref renderConfig, PrimitiveType.Triangles);
         }
 
 		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
+			if (diffuseTexture != null || specularTexture != null
+			 || ambientTexture != null || bumpMapTexture != null) {
+				renderConfig.InstanceShader.SetupTextures (
+					diffuseTexture,
+					specularTexture,
+					ambientTexture,
+					bumpMapTexture
+				);
+			}
+
             m_ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
         }
 

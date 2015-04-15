@@ -22,6 +22,7 @@ namespace SimpleScene
 		protected SkeletalWeightMD5[] m_weights = null;
 		protected UInt16[] m_triangleIndices = null;
 		protected SkeletalJoint[] m_joints = null;
+		protected SSTexture m_mainTexture = null;
 		#endregion
 
 		#region runtime only use
@@ -46,6 +47,10 @@ namespace SimpleScene
 
 		public ushort[] Indices {
 			get { return m_triangleIndices; }
+		}
+
+		public SSTexture MainTexture {
+			get { return m_mainTexture; }
 		}
 
 		public void ComputeJointPosFromMD5Mesh(bool computeNormals=true)
@@ -105,7 +110,7 @@ namespace SimpleScene
 
 			// TODO Build meshes
 			for (int m = 0; m < meshes.Length; ++m) {
-				meshes [m] = new SSSkeletalMeshMD5 (reader, ref lineIdx);
+				meshes [m] = new SSSkeletalMeshMD5 (reader, ref lineIdx, ctx);
 				meshes [m].m_joints = joints;
 			}
 
@@ -115,13 +120,14 @@ namespace SimpleScene
 			return meshes;
 		}
 
-		public SSSkeletalMeshMD5 (StreamReader reader, ref int lineIdx)
+		public SSSkeletalMeshMD5 (StreamReader reader, ref int lineIdx, SSAssetManager.Context ctx)
 		{
 			MD5Parser.seekEntry(reader, ref lineIdx, "mesh", "{");
 
 			Match[] matches;
 			matches = MD5Parser.seekEntry(reader, ref lineIdx, "shader", MD5Parser.c_nameRegex);
 			m_materialShaderString = matches[1].Value;
+			m_mainTexture = SSAssetManager.GetInstance<SSTexture> (ctx, m_materialShaderString);
 
 			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numverts", MD5Parser.c_uintRegex);
 			m_vertices = new SkeletalVertexMD5[Convert.ToUInt32(matches[1].Value)];
@@ -136,7 +142,7 @@ namespace SimpleScene
 			int numTris = Convert.ToUInt16 (matches [1].Value);
 			m_triangleIndices = new UInt16[numTris * 3];
 			for (int t = 0; t < numTris; ++t) {
-				readTri (reader, ref lineIdx);
+				readTriangle (reader, ref lineIdx);
 			}
 
 			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numweights", MD5Parser.c_uintRegex);
@@ -154,7 +160,7 @@ namespace SimpleScene
 			return m_vertices [vertexIndex].TextureCoords;
 		}
 
-		private void readTri(StreamReader reader, ref int lineIdx)
+		private void readTriangle(StreamReader reader, ref int lineIdx)
 		{
 			Match[] matches;
 			matches = MD5Parser.seekEntry (reader, ref lineIdx,
@@ -165,19 +171,22 @@ namespace SimpleScene
 			UInt32 triIdx = Convert.ToUInt32 (matches [1].Value);
 			UInt32 indexBaseIdx = triIdx * 3;
 			m_triangleIndices [indexBaseIdx] = Convert.ToUInt16 (matches [2].Value);
-			m_triangleIndices [indexBaseIdx+1] = Convert.ToUInt16 (matches [3].Value);
-			m_triangleIndices [indexBaseIdx+2] = Convert.ToUInt16 (matches [4].Value);
+			m_triangleIndices [indexBaseIdx+2] = Convert.ToUInt16 (matches [3].Value);
+			m_triangleIndices [indexBaseIdx+1] = Convert.ToUInt16 (matches [4].Value);
 		}
 
 		private static class MD5Parser
 		{
 			// TODO fix quotes not getting discarded
 			public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
-			public static readonly string c_uintRegex = @"^(\d+)$";
-			public static readonly string c_intRegex = @"^(-*\d+)$";
+			//public static readonly string c_nameRegex = @"")";
+			public static readonly string c_uintRegex = @"(\d+)";
+			public static readonly string c_intRegex = @"(-*\d+)";
 			public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
 			public static readonly string c_parOpen = @"\(";
 			public static readonly string c_parClose = @"\)";
+
+			private static readonly char[] c_charDelims = "\t ".ToCharArray();
 
 			private static Dictionary<string, Regex> s_regexCache = new Dictionary<string, Regex>();
 
@@ -198,8 +207,6 @@ namespace SimpleScene
 
 			private static Match[] seekRegexEntry(StreamReader reader, ref int lineIdx, Regex[] wordRegEx, string[] wordRegExStr)
 			{
-				char[] wordDelimeters = { ' ', '\t' };
-
 				string line;
 
 				while ((line = reader.ReadLine ()) != null) {
@@ -208,7 +215,7 @@ namespace SimpleScene
 						line = line.Substring (0, commentsIdx);
 					}
 
-					string[] words = line.Split (wordDelimeters);
+					string[] words = line.Split (c_charDelims);
 					if (words.Length > 1 || (words.Length == 1 && words[0].Length > 0)) {
 
 						// combine words when in brackets
@@ -226,13 +233,14 @@ namespace SimpleScene
 								} else {
 									adjustedWords.Add (word);
 									if (word[0] == '\"' 
-										&& (word.Length == 0 || word[word.Length-1] != '\"')) {
+										&& (word.Length == 1 || word[word.Length-1] != '\"')) {
 										openBracket = true;
 									}
 								}
 							}
 						}
 
+						if (adjustedWords.Count == 0) continue;
 
 						if (adjustedWords.Count != wordRegEx.Length) {
 							entryFailure (lineIdx, line, wordRegExStr);
