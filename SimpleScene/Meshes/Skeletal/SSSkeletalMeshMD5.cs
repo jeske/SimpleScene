@@ -193,6 +193,9 @@ namespace SimpleScene
 					m_vertices [v].Normal 
 					+= Vector3.Transform (normal, joint.Md5.BaseLocation.Orientation.Inverted()) * weight.Bias;
 				}
+
+				// normalize the joint-local normal
+				m_vertices [v].Normal = m_vertices [v].Normal.Normalized ();
 			}
 		}
 
