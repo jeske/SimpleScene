@@ -47,18 +47,6 @@ namespace SimpleScene
 			get { return m_mainTexture; }
 		}
 
-		public void ComputeJointPosFromMD5Mesh(bool computeNormals=true)
-		{
-			for (int j = 0; j < NumJoints; ++j) {
-				m_joints [j].ComputeLocationFromMd5 ();
-			}
-
-			if (computeNormals) {
-				// TODO compute normals?
-
-			}
-		}
-
 		public Vector3 ComputeVertexPos(int vertexIndex)
 		{
 			Vector3 currentPos = Vector3.Zero;
@@ -73,6 +61,58 @@ namespace SimpleScene
 			}
 			return currentPos;
 		}
+
+		public Vector3 ComputeVertexNormal(int vertexIndex)
+		{
+			SkeletalVertexMD5 vertex = m_vertices [vertexIndex];
+			Vector3 currentNormal = Vector3.Zero;
+
+			for (int w = 0; w < vertex.WeightCount; ++w) {
+				SkeletalWeightMD5 weight = m_weights [vertex.WeightStartIndex + w];
+				SkeletalJoint joint = m_joints [weight.JointIndex];
+				currentNormal += weight.Bias * Vector3.Transform (vertex.Normal, joint.CurrentLocation.Orientation);
+			}
+			return currentNormal;
+		}
+
+		/// <summary>
+		/// Precompute normals in joint-local space
+		/// http://3dgep.com/loading-and-animating-md5-models-with-opengl/#The_MD5Mesh::PrepareNormals_Method
+		/// </summary>
+		private void PreComputeNormals()
+		{
+			for (int i = 0; i < m_triangleIndices.Length; ++i) {
+				int baseIdx = i * 3;
+				int v0 = m_triangleIndices [baseIdx];
+				int v1 = m_triangleIndices [baseIdx + 1];
+				int v2 = m_triangleIndices [baseIdx + 2];
+				Vector3 p0 = ComputeVertexPos (v0);
+				Vector3 p1 = ComputeVertexPos (v1);
+				Vector3 p2 = ComputeVertexPos (v2);
+				Vector3 normal = Vector3.Cross (p2 - p0, p1 - p0);
+				m_vertices [v0].Normal += normal;
+				m_vertices [v1].Normal += normal;
+				m_vertices [v1].Normal += normal;
+			}
+
+			for (int v = 0; v < m_vertices.Length; ++v) {
+				// Normalize
+				Vector3 normal = m_vertices [v].Normal.Normalized ();
+
+				// Reset for the next step
+				m_vertices [v].Normal = Vector3.Zero;
+
+				// Put the bind-pose normal into joint-local space
+				// so the animated normal can be computed faster later
+				for (int w = 0; w < m_vertices [v].WeightCount; ++w) {
+					SkeletalWeightMD5 weight = m_weights [m_vertices [v].WeightStartIndex + w];
+					SkeletalJoint joint = m_joints [weight.JointIndex];
+					m_vertices [v].Normal 
+					+= Vector3.Transform (normal, joint.Md5.BaseLocation.Orientation.Inverted()) * weight.Bias;
+				}
+			}
+		}
+
 
 		public static SSSkeletalMeshMD5[] ReadMeshes(SSAssetManager.Context ctx, string filename)
 		{
@@ -161,9 +201,7 @@ namespace SimpleScene
 
 		public class MD5Parser
 		{
-			// TODO fix quotes not getting discarded
 			public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
-			//public static readonly string c_nameRegex = @"")";
 			public static readonly string c_uintRegex = @"(\d+)";
 			public static readonly string c_intRegex = @"(-*\d+)";
 			public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
@@ -280,6 +318,7 @@ namespace SimpleScene
 			#region from MD5 mesh
 			//public int VertexIndex;
 			public Vector2 TextureCoords;
+			public Vector3 Normal;
 			public int WeightStartIndex;
 			public int WeightCount;
 			#endregion
@@ -299,6 +338,7 @@ namespace SimpleScene
 				TextureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
 				WeightStartIndex = Convert.ToInt32(matches[6].Value);
 				WeightCount = Convert.ToInt32(matches[7].Value);
+				Normal = Vector3.Zero;
 			}
 		}
 
@@ -383,6 +423,10 @@ namespace SimpleScene
 
 			public SkeletalJointLocation CurrentLocation {
 				get { return m_currentLocation; }
+			}
+
+			public SkeletalJointMD5 Md5 {
+				get { return m_md5; }
 			}
 
 			public SkeletalJoint(SkeletalJointMD5 md5)
