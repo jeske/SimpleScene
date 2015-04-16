@@ -76,65 +76,60 @@ namespace SimpleScene
 
 		public static SSSkeletalMeshMD5[] ReadMeshes(SSAssetManager.Context ctx, string filename)
 		{
-			StreamReader reader = ctx.OpenText (filename);
-			System.Console.WriteLine ("Reading MD5 file: " + ctx.fullResourcePath(filename));
-
+			var parser = new MD5Parser(ctx, filename);
 			Match[] matches;
-			int lineIdx = 0;
+			parser.seekEntry ("MD5Version", "10");
+			parser.seekEntry ("commandline", MD5Parser.c_nameRegex);
 
-			MD5Parser.seekEntry (reader, ref lineIdx, "MD5Version", "10");
-			MD5Parser.seekEntry (reader, ref lineIdx, "commandline", MD5Parser.c_nameRegex);
-
-			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numJoints", MD5Parser.c_uintRegex);
+			matches = parser.seekEntry ("numJoints", MD5Parser.c_uintRegex);
 			var joints = new SkeletalJointMD5[Convert.ToUInt32(matches[1].Value)];
 
-			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numMeshes", MD5Parser.c_uintRegex);
+			matches = parser.seekEntry ( "numMeshes", MD5Parser.c_uintRegex);
 			SSSkeletalMeshMD5[] meshes = new SSSkeletalMeshMD5[Convert.ToUInt32 (matches [1].Value)];
 
-			MD5Parser.seekEntry (reader, ref lineIdx, "joints", "{");
+			parser.seekEntry ("joints", "{");
 			for (int j = 0; j < joints.Length; ++j) {
-				joints[j] = new SkeletalJointMD5(reader, ref lineIdx);
+				joints[j] = new SkeletalJointMD5(parser);
 			}
-			MD5Parser.seekEntry (reader, ref lineIdx, "}");
+			parser.seekEntry ("}");
 
 			for (int m = 0; m < meshes.Length; ++m) {
-				meshes [m] = new SSSkeletalMeshMD5 (reader, ref lineIdx, joints, ctx);
+				meshes [m] = new SSSkeletalMeshMD5 (joints, parser);
 			}
 			return meshes;
 		}
 
-		public SSSkeletalMeshMD5 (StreamReader reader, ref int lineIdx, SkeletalJointMD5[] joints,
-								  SSAssetManager.Context ctx)
+		public SSSkeletalMeshMD5 (SkeletalJointMD5[] joints, MD5Parser parser)
 		{
-			MD5Parser.seekEntry(reader, ref lineIdx, "mesh", "{");
+			parser.seekEntry("mesh", "{");
 
 			Match[] matches;
-			matches = MD5Parser.seekEntry(reader, ref lineIdx, "shader", MD5Parser.c_nameRegex);
+			matches = parser.seekEntry("shader", MD5Parser.c_nameRegex);
 			m_materialShaderString = matches[1].Value;
-			m_mainTexture = SSAssetManager.GetInstance<SSTexture> (ctx, m_materialShaderString);
+			m_mainTexture = SSAssetManager.GetInstance<SSTexture> (parser.Context, m_materialShaderString);
 
-			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numverts", MD5Parser.c_uintRegex);
+			matches = parser.seekEntry ("numverts", MD5Parser.c_uintRegex);
 			m_vertices = new SkeletalVertexMD5[Convert.ToUInt32(matches[1].Value)];
 
 			for (int v = 0; v < m_vertices.Length; ++v) {
 				int vertexIndex;
-				var vertex = new SkeletalVertexMD5 (reader, ref lineIdx, out vertexIndex);
+				var vertex = new SkeletalVertexMD5 (parser, out vertexIndex);
 				m_vertices [vertexIndex] = vertex;
 			}
 
-			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numtris", MD5Parser.c_uintRegex);
+			matches = parser.seekEntry ("numtris", MD5Parser.c_uintRegex);
 			int numTris = Convert.ToUInt16 (matches [1].Value);
 			m_triangleIndices = new UInt16[numTris * 3];
 			for (int t = 0; t < numTris; ++t) {
-				readTriangle (reader, ref lineIdx);
+				readTriangle (parser);
 			}
 
-			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numweights", MD5Parser.c_uintRegex);
+			matches = parser.seekEntry ("numweights", MD5Parser.c_uintRegex);
 			int numWeights = Convert.ToInt32 (matches [1].Value);
 			m_weights = new SkeletalWeightMD5[numWeights];
 			for (int w = 0; w < m_weights.Length; ++w) {
 				int weightIdx;
-				SkeletalWeightMD5 weight = new SkeletalWeightMD5 (reader, ref lineIdx, out weightIdx);
+				SkeletalWeightMD5 weight = new SkeletalWeightMD5 (parser,  out weightIdx);
 				m_weights [weightIdx] = weight;
 			}
 
@@ -149,10 +144,10 @@ namespace SimpleScene
 			return m_vertices [vertexIndex].TextureCoords;
 		}
 
-		private void readTriangle(StreamReader reader, ref int lineIdx)
+		private void readTriangle(MD5Parser parser)
 		{
 			Match[] matches;
-			matches = MD5Parser.seekEntry (reader, ref lineIdx,
+			matches = parser.seekEntry (
 				"tri",
 				MD5Parser.c_uintRegex, // triangle index
 				MD5Parser.c_uintRegex, MD5Parser.c_uintRegex, MD5Parser.c_uintRegex // 3 vertex indices
@@ -164,7 +159,7 @@ namespace SimpleScene
 			m_triangleIndices [indexBaseIdx+1] = Convert.ToUInt16 (matches [4].Value);
 		}
 
-		private static class MD5Parser
+		public class MD5Parser
 		{
 			// TODO fix quotes not getting discarded
 			public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
@@ -175,36 +170,50 @@ namespace SimpleScene
 			public static readonly string c_parOpen = @"\(";
 			public static readonly string c_parClose = @"\)";
 
-			private static readonly char[] c_charDelims = "\t ".ToCharArray();
+			private static readonly char[] c_wordDelimeters = {' ', '\t' };
 
-			private static Dictionary<string, Regex> s_regexCache = new Dictionary<string, Regex>();
+			private Dictionary<string, Regex> m_regexCache = new Dictionary<string, Regex>();
+			private int m_lineIdx = 0;
+			private StreamReader m_reader;
+			private SSAssetManager.Context m_ctx;
 
-			static public Match[] seekEntry(StreamReader reader, ref int lineIdx, params string[] wordRegExStrArray)
+			public SSAssetManager.Context Context {
+				get { return m_ctx; }
+			}
+
+			public MD5Parser(SSAssetManager.Context ctx, string filename)
+			{
+				m_ctx = ctx;
+				m_reader = ctx.OpenText (filename);
+				System.Console.WriteLine ("Reading MD5 file: " + ctx.fullResourcePath(filename));
+			}
+
+			public Match[] seekEntry(params string[] wordRegExStrArray)
 			{
 				Regex[] regexArray = new Regex[wordRegExStrArray.Length];
 				for (int w = 0; w < wordRegExStrArray.Length; ++w) {
 					string regExStr = wordRegExStrArray [w];
 					Regex regex = null;
-					if (!s_regexCache.TryGetValue(regExStr, out regex)) {
+					if (!m_regexCache.TryGetValue(regExStr, out regex)) {
 						regex = new Regex (regExStr);
-						s_regexCache.Add (regExStr, regex);
+						m_regexCache.Add (regExStr, regex);
 					}
 					regexArray [w] = regex;
 				}
-				return seekRegexEntry (reader, ref lineIdx, regexArray, wordRegExStrArray);
+				return seekRegexEntry (regexArray, wordRegExStrArray);
 			}
 
-			private static Match[] seekRegexEntry(StreamReader reader, ref int lineIdx, Regex[] wordRegEx, string[] wordRegExStr)
+			private Match[] seekRegexEntry(Regex[] wordRegEx, string[] wordRegExStr)
 			{
 				string line;
 
-				while ((line = reader.ReadLine ()) != null) {
+				while ((line = m_reader.ReadLine ()) != null) {
 					int commentsIdx = line.IndexOf ("//");
 					if (commentsIdx >= 0) {
 						line = line.Substring (0, commentsIdx);
 					}
 
-					string[] words = line.Split (c_charDelims);
+					string[] words = line.Split (c_wordDelimeters);
 					if (words.Length > 1 || (words.Length == 1 && words[0].Length > 0)) {
 
 						// combine words when in brackets
@@ -232,26 +241,26 @@ namespace SimpleScene
 						if (adjustedWords.Count == 0) continue;
 
 						if (adjustedWords.Count != wordRegEx.Length) {
-							entryFailure (lineIdx, line, wordRegExStr);
+							entryFailure (line, wordRegExStr);
 						}
 
 						Match[] ret = new Match[wordRegEx.Length];
 						for (int w = 0; w < wordRegEx.Length; ++w) {
 							ret [w] = wordRegEx [w].Match (adjustedWords [w]);
 							if (!ret [w].Success) {
-								entryFailure (lineIdx, line, wordRegExStr);
+								entryFailure (line, wordRegExStr);
 							}
 						}
-						lineIdx++;
+						m_lineIdx++;
 						return ret;
 					}
-					lineIdx++;
+					m_lineIdx++;
 				}
-				entryFailure (lineIdx, "EOF", wordRegExStr);
+				entryFailure ("EOF", wordRegExStr);
 				return null;
 			}
 
-			private static void entryFailure(int lineIdx, string line, string[] regexStr)
+			private void entryFailure(string line, string[] regexStr)
 			{
 				string expectingStr = "";
 				for (int r = 0; r < regexStr.Length; ++r) {
@@ -260,13 +269,13 @@ namespace SimpleScene
 
 				string errorStr = String.Format (
 					"Failed to read MD5: line {0}: {1} *** Expecting: {2}",
-					lineIdx, line, expectingStr);
+					m_lineIdx, line, expectingStr);
 				System.Console.WriteLine (errorStr);
 				throw new Exception (errorStr);
 			}
 		}
 
-		public struct SkeletalVertexMD5
+		protected struct SkeletalVertexMD5
 		{
 			#region from MD5 mesh
 			//public int VertexIndex;
@@ -275,10 +284,10 @@ namespace SimpleScene
 			public int WeightCount;
 			#endregion
 
-			public SkeletalVertexMD5(StreamReader reader, ref int lineIdx, out int vertexIndex)
+			public SkeletalVertexMD5(MD5Parser parser, out int vertexIndex)
 			{
 				Match[] matches
-				= MD5Parser.seekEntry(reader, ref lineIdx,
+				= parser.seekEntry(
 					"vert",
 					MD5Parser.c_uintRegex, // vertex index
 					MD5Parser.c_parOpen, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_parClose, // texture coord
@@ -293,7 +302,7 @@ namespace SimpleScene
 			}
 		}
 
-		public struct SkeletalWeightMD5
+		protected struct SkeletalWeightMD5
 		{
 			#region from MD5 mesh
 			//public int WeightIndex;
@@ -302,10 +311,10 @@ namespace SimpleScene
 			public Vector3 Position;
 			#endregion
 
-			public SkeletalWeightMD5(StreamReader reader, ref int lineIdx, out int weightIndex)
+			public SkeletalWeightMD5(MD5Parser parser, out int weightIndex)
 			{
 				Match[] matches
-				= MD5Parser.seekEntry(reader, ref lineIdx,
+				= parser.seekEntry(
 					"weight",
 					MD5Parser.c_uintRegex, // weight index
 					MD5Parser.c_uintRegex, // joint index
@@ -344,9 +353,9 @@ namespace SimpleScene
 			public SkeletalJointLocation BaseLocation;
 			#endregion
 
-			public SkeletalJointMD5 (StreamReader reader, ref int lineIdx)
+			public SkeletalJointMD5 (MD5Parser parser)
 			{
-				Match[] matches = MD5Parser.seekEntry (reader, ref lineIdx, 
+				Match[] matches = parser.seekEntry (
 					MD5Parser.c_nameRegex, // joint name
 					MD5Parser.c_intRegex,  // parent index
 					MD5Parser.c_parOpen, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_floatRegex, MD5Parser.c_parClose, // position
