@@ -17,8 +17,6 @@ namespace SimpleScene
 				m_vertices [v].TexCoord = md5.TextureCoords (v);
 			}
 			ComputeVertices ();
-
-			ambientTexture = md5.MainTexture;
 		}
 
 		public void ComputeVertices()

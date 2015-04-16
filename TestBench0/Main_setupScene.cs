@@ -155,9 +155,11 @@ namespace TestBench0
 				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				foreach (var skeliMeshMD5 in meshes) {
 					var renderMesh = new SSSkeletalIIndexedMesh(skeliMeshMD5);
-					var normTex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin_n.png");
-					renderMesh.specularTexture = normTex;
+					var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
+					renderMesh.diffuseTexture = tex;
+					//renderMesh.specularTexture = tex;
 					var obj = new SSObjectMesh(renderMesh);
+					obj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					//obj.MainColor = Color4.Lime;
 					obj.Scale = new Vector3(10);
 					obj.boundingSphere = null;
