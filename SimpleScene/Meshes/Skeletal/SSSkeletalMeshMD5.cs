@@ -9,12 +9,6 @@ namespace SimpleScene
 {
 	public class SSSkeletalMeshMD5
 	{
-		public static float ComputeQuatW(ref Vector3 quatXyz)
-		{
-			float t = 1f - quatXyz.X * quatXyz.X - quatXyz.Y * quatXyz.Y - quatXyz.Z * quatXyz.Z;
-			return t < 0f ? 0f : -(float)Math.Sqrt(t);
-		}
-
 		#region from MD5 mesh
 		protected string m_materialShaderString;
 
@@ -56,11 +50,7 @@ namespace SimpleScene
 		public void ComputeJointPosFromMD5Mesh(bool computeNormals=true)
 		{
 			for (int j = 0; j < NumJoints; ++j) {
-				m_joints [j].CurrentLocation.Position = m_joints [j].Md5.BasePosition;
-
-				Vector3 orient = m_joints [j].Md5.BaseOrientation;
-				m_joints [j].CurrentLocation.Orientation.Xyz = orient;
-				m_joints [j].CurrentLocation.Orientation.W = ComputeQuatW (ref orient);
+				m_joints [j].ComputeLocationFromMd5 ();
 			}
 
 			if (computeNormals) {
@@ -96,31 +86,25 @@ namespace SimpleScene
 			MD5Parser.seekEntry (reader, ref lineIdx, "commandline", MD5Parser.c_nameRegex);
 
 			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numJoints", MD5Parser.c_uintRegex);
-			SkeletalJoint[] joints = new SkeletalJoint[Convert.ToUInt32(matches[1].Value)];
+			var joints = new SkeletalJointMD5[Convert.ToUInt32(matches[1].Value)];
 
 			matches = MD5Parser.seekEntry (reader, ref lineIdx, "numMeshes", MD5Parser.c_uintRegex);
 			SSSkeletalMeshMD5[] meshes = new SSSkeletalMeshMD5[Convert.ToUInt32 (matches [1].Value)];
 
 			MD5Parser.seekEntry (reader, ref lineIdx, "joints", "{");
 			for (int j = 0; j < joints.Length; ++j) {
-				joints [j] = new SkeletalJoint ();
-				joints[j].Md5 = new SkeletalJointMD5(reader, ref lineIdx);
+				joints[j] = new SkeletalJointMD5(reader, ref lineIdx);
 			}
 			MD5Parser.seekEntry (reader, ref lineIdx, "}");
 
-			// TODO Build meshes
 			for (int m = 0; m < meshes.Length; ++m) {
-				meshes [m] = new SSSkeletalMeshMD5 (reader, ref lineIdx, ctx);
-				meshes [m].m_joints = joints;
-			}
-
-			foreach (SSSkeletalMeshMD5 mesh in meshes) {
-				mesh.ComputeJointPosFromMD5Mesh ();
+				meshes [m] = new SSSkeletalMeshMD5 (reader, ref lineIdx, joints, ctx);
 			}
 			return meshes;
 		}
 
-		public SSSkeletalMeshMD5 (StreamReader reader, ref int lineIdx, SSAssetManager.Context ctx)
+		public SSSkeletalMeshMD5 (StreamReader reader, ref int lineIdx, SkeletalJointMD5[] joints,
+								  SSAssetManager.Context ctx)
 		{
 			MD5Parser.seekEntry(reader, ref lineIdx, "mesh", "{");
 
@@ -152,6 +136,11 @@ namespace SimpleScene
 				int weightIdx;
 				SkeletalWeightMD5 weight = new SkeletalWeightMD5 (reader, ref lineIdx, out weightIdx);
 				m_weights [weightIdx] = weight;
+			}
+
+			m_joints = new SkeletalJoint[joints.Length];
+			for (int j = 0; j < joints.Length; ++j) {
+				m_joints[j] = new SkeletalJoint (joints [j]);
 			}
 		}
 
@@ -333,13 +322,26 @@ namespace SimpleScene
 			}
 		}
 
-		public struct SkeletalJointMD5
+		public struct SkeletalJointLocation
+		{
+			public Vector3 Position;
+			public Quaternion Orientation;
+
+			public void ComputeQuatW()
+			{
+				float t = 1f - Orientation.X * Orientation.X 
+							 - Orientation.Y * Orientation.Y 
+							 - Orientation.Z * Orientation.Z;
+				Orientation.W = t < 0f ? 0f : -(float)Math.Sqrt(t);
+			}
+		}
+
+		public class SkeletalJointMD5
 		{
 			#region from MD5 mesh
 			public string Name;
 			public int ParentIndex;
-			public Vector3 BasePosition;
-			public Vector3 BaseOrientation;
+			public SkeletalJointLocation BaseLocation;
 			#endregion
 
 			public SkeletalJointMD5 (StreamReader reader, ref int lineIdx)
@@ -353,28 +355,37 @@ namespace SimpleScene
 				Name = matches[0].Captures[0].Value;
 				ParentIndex = Convert.ToInt32(matches[1].Value);
 
-				BasePosition.X = (float)Convert.ToDouble(matches[3].Value);
-				BasePosition.Y = (float)Convert.ToDouble(matches[4].Value); 
-				BasePosition.Z = (float)Convert.ToDouble(matches[5].Value);
+				BaseLocation.Position.X = (float)Convert.ToDouble(matches[3].Value);
+				BaseLocation.Position.Y = (float)Convert.ToDouble(matches[4].Value); 
+				BaseLocation.Position.Z = (float)Convert.ToDouble(matches[5].Value);
 
-				BaseOrientation.X = (float)Convert.ToDouble(matches[8].Value);
-				BaseOrientation.Y = (float)Convert.ToDouble(matches[9].Value); 
-				BaseOrientation.Z = (float)Convert.ToDouble(matches[10].Value);
+				BaseLocation.Orientation.X = (float)Convert.ToDouble(matches[8].Value);
+				BaseLocation.Orientation.Y = (float)Convert.ToDouble(matches[9].Value); 
+				BaseLocation.Orientation.Z = (float)Convert.ToDouble(matches[10].Value);
+				BaseLocation.ComputeQuatW();
 			}
-		}
-
-		public struct SkeletalJointLocation
-		{
-			public Vector3 Position;
-			public Quaternion Orientation;
 		}
 
 		public class SkeletalJoint
 		{
-			public SkeletalJointMD5 Md5;
-			public SkeletalJointLocation CurrentLocation;
+			protected SkeletalJointMD5 m_md5;
+			protected SkeletalJointLocation m_currentLocation;
+			protected SkeletalJointLocation[] Frames = null;
 
-			public SkeletalJointLocation[] Frames = null;
+			public SkeletalJointLocation CurrentLocation {
+				get { return m_currentLocation; }
+			}
+
+			public SkeletalJoint(SkeletalJointMD5 md5)
+			{
+				m_md5 = md5;
+				ComputeLocationFromMd5();
+			}
+
+			public void ComputeLocationFromMd5()
+			{
+				m_currentLocation = m_md5.BaseLocation;
+			}
 		}
 	}
 }
