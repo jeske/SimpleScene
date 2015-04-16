@@ -162,6 +162,7 @@ namespace SimpleScene
 		/// </summary>
 		private void preComputeNormals()
 		{
+			// step 1: walk each triangle, and add the normal contribution to it's verticies.
 			for (int i = 0; i < NumTriangles; ++i) {
 				int baseIdx = i * 3;
 				int v0 = m_triangleIndices [baseIdx];
@@ -173,9 +174,10 @@ namespace SimpleScene
 				Vector3 normal = Vector3.Cross (p2 - p0, p1 - p0);
 				m_vertices [v0].Normal += normal;
 				m_vertices [v1].Normal += normal;
-				m_vertices [v1].Normal += normal;
+				m_vertices [v2].Normal += normal;
 			}
 
+			// step 2: walk each vertex, normalize the normal, and convert into joint-local space
 			for (int v = 0; v < m_vertices.Length; ++v) {
 				// Normalize
 				Vector3 normal = m_vertices [v].Normal.Normalized ();
