@@ -54,6 +54,7 @@ namespace SimpleScene
 
 			// base frame
 			parser.seekEntry ("baseframe", "{");
+			m_baseFrames = new SSSkeletalJointLocation[m_numJoints];
 			for (int j = 0; j < m_numJoints; ++j) {
 				m_baseFrames [j] = readBaseFrame (parser);
 			}
@@ -75,9 +76,9 @@ namespace SimpleScene
 				SSMD5Parser.c_parClose
 			);
 			SSAABB ret;
-			ret.Min.X = (float)Convert.ToDouble (matches [2].Value);
-			ret.Min.Y = (float)Convert.ToDouble (matches [3].Value);
-			ret.Min.Z = (float)Convert.ToDouble (matches [4].Value);
+			ret.Min.X = (float)Convert.ToDouble (matches [1].Value);
+			ret.Min.Y = (float)Convert.ToDouble (matches [2].Value);
+			ret.Min.Z = (float)Convert.ToDouble (matches [3].Value);
 			ret.Max.X = (float)Convert.ToDouble (matches [6].Value);
 			ret.Max.Y = (float)Convert.ToDouble (matches [7].Value);
 			ret.Max.Z = (float)Convert.ToDouble (matches [8].Value);
@@ -99,9 +100,9 @@ namespace SimpleScene
 				SSMD5Parser.c_parClose
 			);
 			SSSkeletalJointLocation loc;
-			loc.Position.X = (float)Convert.ToDouble (matches [2].Value);
-			loc.Position.Y = (float)Convert.ToDouble (matches [3].Value);
-			loc.Position.Z = (float)Convert.ToDouble (matches [4].Value);
+			loc.Position.X = (float)Convert.ToDouble (matches [1].Value);
+			loc.Position.Y = (float)Convert.ToDouble (matches [2].Value);
+			loc.Position.Z = (float)Convert.ToDouble (matches [3].Value);
 			loc.Orientation = new Quaternion ();
 			loc.Orientation.X = (float)Convert.ToDouble (matches [6].Value);
 			loc.Orientation.Y = (float)Convert.ToDouble (matches [7].Value);
@@ -134,10 +135,10 @@ namespace SimpleScene
 					SSMD5Parser.c_uintRegex, // flags
 					SSMD5Parser.c_uintRegex // start index
 				);
-				m_name = matches[1].Value;
-				m_parent = Convert.ToInt32(matches[2].Value);
-				m_flags = Convert.ToInt32(matches[3].Value);
-				m_startIndex = Convert.ToInt32(matches[4].Value);
+				m_name = matches[0].Value;
+				m_parent = Convert.ToInt32(matches[1].Value);
+				m_flags = Convert.ToInt32(matches[2].Value);
+				m_startIndex = Convert.ToInt32(matches[3].Value);
 			}
 		}
 	}

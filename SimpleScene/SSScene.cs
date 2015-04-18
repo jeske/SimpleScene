@@ -305,6 +305,9 @@ namespace SimpleScene
 			SSAssetManager.RegisterLoadDelegate<SSSkeletalMeshMD5[]> (
 				(ctx, filename) => { return SSSkeletalMeshMD5.ReadMeshes(ctx, filename); }
 			);
+			SSAssetManager.RegisterLoadDelegate<SSSkeletalAnimationMD5> (
+				(ctx, filename) => { return new SSSkeletalAnimationMD5 (ctx, filename); }
+			);
         }
     }
 }

@@ -165,6 +165,10 @@ namespace TestBench0
 					obj.boundingSphere = null;
 					scene.AddObject(obj);
 				}
+
+				SSSkeletalAnimationMD5 animation
+				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
+
 			}
 			#endif
 
