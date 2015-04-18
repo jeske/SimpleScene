@@ -1,0 +1,122 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace SimpleScene
+{
+	public class SSMD5Parser
+	{
+		public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
+		public static readonly string c_uintRegex = @"(\d+)";
+		public static readonly string c_intRegex = @"(-*\d+)";
+		public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
+		public static readonly string c_parOpen = @"\(";
+		public static readonly string c_parClose = @"\)";
+
+		private static readonly char[] c_wordDelimeters = {' ', '\t' };
+
+		private Dictionary<string, Regex> m_regexCache = new Dictionary<string, Regex>();
+		private int m_lineIdx = 0;
+		private StreamReader m_reader;
+		private SSAssetManager.Context m_ctx;
+
+		public SSAssetManager.Context Context {
+			get { return m_ctx; }
+		}
+
+		public SSMD5Parser(SSAssetManager.Context ctx, string filename)
+		{
+			m_ctx = ctx;
+			m_reader = ctx.OpenText (filename);
+			System.Console.WriteLine ("Reading MD5 file: " + ctx.fullResourcePath(filename));
+		}
+
+		public Match[] seekEntry(params string[] wordRegExStrArray)
+		{
+			Regex[] regexArray = new Regex[wordRegExStrArray.Length];
+			for (int w = 0; w < wordRegExStrArray.Length; ++w) {
+				string regExStr = wordRegExStrArray [w];
+				Regex regex = null;
+				if (!m_regexCache.TryGetValue(regExStr, out regex)) {
+					regex = new Regex (regExStr);
+					m_regexCache.Add (regExStr, regex);
+				}
+				regexArray [w] = regex;
+			}
+			return seekRegexEntry (regexArray, wordRegExStrArray);
+		}
+
+		private Match[] seekRegexEntry(Regex[] wordRegEx, string[] wordRegExStr)
+		{
+			string line;
+
+			while ((line = m_reader.ReadLine ()) != null) {
+				int commentsIdx = line.IndexOf ("//");
+				if (commentsIdx >= 0) {
+					line = line.Substring (0, commentsIdx);
+				}
+
+				string[] words = line.Split (c_wordDelimeters);
+				if (words.Length > 1 || (words.Length == 1 && words[0].Length > 0)) {
+
+					// combine words when in brackets
+					bool openBracket = false;
+					var adjustedWords = new List<string> ();
+					for (int w = 0; w < words.Length; ++w) {
+						string word = words [w];
+						if (word.Length > 0) {
+							if (openBracket) {
+								adjustedWords [adjustedWords.Count - 1] += " ";
+								adjustedWords [adjustedWords.Count - 1] += word;
+								if (word [word.Length - 1] == '\"') {
+									openBracket = false;
+								}
+							} else {
+								adjustedWords.Add (word);
+								if (word[0] == '\"' 
+									&& (word.Length == 1 || word[word.Length-1] != '\"')) {
+									openBracket = true;
+								}
+							}
+						}
+					}
+
+					if (adjustedWords.Count == 0) continue;
+
+					if (adjustedWords.Count != wordRegEx.Length) {
+						entryFailure (line, wordRegExStr);
+					}
+
+					Match[] ret = new Match[wordRegEx.Length];
+					for (int w = 0; w < wordRegEx.Length; ++w) {
+						ret [w] = wordRegEx [w].Match (adjustedWords [w]);
+						if (!ret [w].Success) {
+							entryFailure (line, wordRegExStr);
+						}
+					}
+					m_lineIdx++;
+					return ret;
+				}
+				m_lineIdx++;
+			}
+			entryFailure ("EOF", wordRegExStr);
+			return null;
+		}
+
+		private void entryFailure(string line, string[] regexStr)
+		{
+			string expectingStr = "";
+			for (int r = 0; r < regexStr.Length; ++r) {
+				expectingStr += regexStr [r] + ' ';
+			}
+
+			string errorStr = String.Format (
+				"Failed to read MD5: line {0}: {1} *** Expecting: {2}",
+				m_lineIdx, line, expectingStr);
+			System.Console.WriteLine (errorStr);
+			throw new Exception (errorStr);
+		}
+	}
+}
+

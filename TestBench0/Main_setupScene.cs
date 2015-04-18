@@ -154,7 +154,7 @@ namespace TestBench0
 				SSSkeletalMeshMD5[] meshes 
 				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				foreach (var skeliMeshMD5 in meshes) {
-					var renderMesh = new SSSkeletalIIndexedMesh(skeliMeshMD5);
+					var renderMesh = new SSSkeletalRenderMesh(skeliMeshMD5);
 					var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 					renderMesh.diffuseTexture = tex;
 					//renderMesh.specularTexture = tex;

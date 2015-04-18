@@ -140,6 +140,9 @@
     <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalMeshMD5.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalRenderMesh.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalAnimationMD5.cs" />
+    <Compile Include="Meshes\Skeletal\SSMD5Parser.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalJointLocation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

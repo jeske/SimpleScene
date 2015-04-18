@@ -36,8 +36,8 @@ namespace SimpleScene
 
         public bool usePoissonSampling = true;
         public int numPoissonSamples = 8;
-        //public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
-		public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
+        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
+		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
         public bool renderBoundingSpheres = false;
         public bool renderCollisionShells = false;
