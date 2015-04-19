@@ -104,6 +104,20 @@ namespace SimpleScene
 			return null;
 		}
 
+		public void seekFloats(float[] floats)
+		{
+			int numSoFar = 0;
+			while (numSoFar < floats.Length) {
+				string line = m_reader.ReadLine ();
+				string[] words = line.Split (c_wordDelimeters);
+				for (int n = 0; n < words.Length; ++n) {
+					if (words [n].Length > 0) {
+						floats [numSoFar++] = (float)Convert.ToDouble (words [n]);
+					}
+				}
+			}
+		}
+
 		private void entryFailure(string line, string[] regexStr)
 		{
 			string expectingStr = "";

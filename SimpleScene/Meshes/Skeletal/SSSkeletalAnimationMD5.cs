@@ -6,14 +6,22 @@ namespace SimpleScene
 {
 	public class SSSkeletalAnimationMD5
 	{
+		public enum LocationFlags : byte {
+			Tx = 1, Ty = 2, Tz = 4,
+			Qx = 8, Qy = 16, Qz = 32
+		}
+
 		protected int m_numFrames;
-		protected int m_numAnimatedComponents;
 		protected int m_numJoints;
 		protected int m_frameRate;
 
 		protected SSAABB[] m_bounds;
-		protected HierarchyMD5[] m_hierarchy;
+		protected HierarchyEntryMD5[] m_hierarchy;
 		protected SSSkeletalJointLocation[] m_baseFrames;
+		protected SSSkeletalJointLocation[][] m_frames;
+
+		// temp use
+		protected float[] m_floatComponents;
 
 		public SSSkeletalAnimationMD5 (SSAssetManager.Context ctx, string filename)
 		{
@@ -34,13 +42,14 @@ namespace SimpleScene
 			m_frameRate = Convert.ToInt32 (matches [1].Value);
 
 			matches = parser.seekEntry ("numAnimatedComponents", SSMD5Parser.c_uintRegex);
-			m_numAnimatedComponents = Convert.ToInt32 (matches [1].Value);
+			int numAnimatedComponents = Convert.ToInt32 (matches [1].Value);
+			m_floatComponents = new float[numAnimatedComponents];
 
 			// hierarchy
 			parser.seekEntry ("hierarchy", "{");
-			m_hierarchy = new HierarchyMD5[m_numJoints];
+			m_hierarchy = new HierarchyEntryMD5[m_numJoints];
 			for (int j = 0; j < m_numJoints; ++j) {
-				m_hierarchy [j] = new HierarchyMD5 (parser);
+				m_hierarchy [j] = new HierarchyEntryMD5 (parser);
 			}
 			parser.seekEntry ("}");
 
@@ -59,6 +68,14 @@ namespace SimpleScene
 				m_baseFrames [j] = readBaseFrame (parser);
 			}
 			parser.seekEntry ("}");
+
+			// frames
+			m_frames = new SSSkeletalJointLocation[m_numFrames][];
+			for (int f = 0; f < m_numFrames; ++f) {
+				matches = parser.seekEntry ("frame", SSMD5Parser.c_uintRegex, "{");
+				m_frames [f] = readFrameJoints (parser);
+				parser.seekEntry ("}");
+			}
 		}
 
 		private static SSAABB readBounds(SSMD5Parser parser)
@@ -107,27 +124,64 @@ namespace SimpleScene
 			loc.Orientation.X = (float)Convert.ToDouble (matches [6].Value);
 			loc.Orientation.Y = (float)Convert.ToDouble (matches [7].Value);
 			loc.Orientation.Z = (float)Convert.ToDouble (matches [8].Value);
-			loc.ComputeQuatW ();
+			//loc.ComputeQuatW ();
 			return loc;
 		}
 
-		public class HierarchyMD5 {
-			public enum EFlags : int {
-				Tx = 1, Ty = 2, Tz = 4,
-				Qx = 8, Qy = 16, Qz = 32
+		private SSSkeletalJointLocation[] readFrameJoints(SSMD5Parser parser)
+		{
+			parser.seekFloats (m_floatComponents);
+			var actualLocations = new SSSkeletalJointLocation[m_numJoints];
+			int compIdx = 0;
+			for (int j = 0; j < m_numJoints; ++j) {
+				HierarchyEntryMD5 jointInfo = m_hierarchy [j];
+				byte flags = jointInfo.Flags;
+
+				SSSkeletalJointLocation loc = m_baseFrames [j];
+				if ((flags & (byte)LocationFlags.Tx) != 0) {
+					loc.Position.X = m_floatComponents [compIdx++];
+				}
+				if ((flags & (byte)LocationFlags.Ty) != 0) {
+					loc.Position.Y = m_floatComponents [compIdx++];
+				}
+				if ((flags & (byte)LocationFlags.Tz) != 0) {
+					loc.Position.Z = m_floatComponents [compIdx++];
+				}
+				if ((flags & (byte)LocationFlags.Qx) != 0) {
+					loc.Orientation.X = m_floatComponents [compIdx++];
+				}
+				if ((flags & (byte)LocationFlags.Qy) != 0) {
+					loc.Orientation.Y = m_floatComponents [compIdx++];
+				}
+				if ((flags & (byte)LocationFlags.Qz) != 0) {
+					loc.Orientation.Z = m_floatComponents [compIdx++];
+				}
+				loc.ComputeQuatW ();
+
+				if (jointInfo.Parent >= 0) { // has a parent
+					SSSkeletalJointLocation parentLoc = actualLocations [jointInfo.Parent];
+					loc.Position = Vector3.Transform (loc.Position, parentLoc.Orientation);
+					loc.Orientation = Quaternion.Multiply (loc.Orientation, parentLoc.Orientation);
+					loc.Orientation.Normalize ();
+				}
+				actualLocations[j] = loc;
 			}
+			return actualLocations;
+		}
+
+		public class HierarchyEntryMD5 {
 
 			private string m_name;
 			private int m_parent;
-			private int m_flags;
+			private byte m_flags;
 			private int m_startIndex;
 
 			public string Name { get { return m_name; } }
 			public int Parent { get { return m_parent; } }
-			public int Flags { get { return m_flags; } }
+			public byte Flags { get { return m_flags; } }
 			public int StartIndex { get { return m_startIndex; } }
 
-			public HierarchyMD5(SSMD5Parser parser)
+			public HierarchyEntryMD5(SSMD5Parser parser)
 			{
 				Match[] matches = parser.seekEntry(
 					SSMD5Parser.c_nameRegex, // name
@@ -137,7 +191,7 @@ namespace SimpleScene
 				);
 				m_name = matches[0].Value;
 				m_parent = Convert.ToInt32(matches[1].Value);
-				m_flags = Convert.ToInt32(matches[2].Value);
+				m_flags = Convert.ToByte(matches[2].Value);
 				m_startIndex = Convert.ToInt32(matches[3].Value);
 			}
 		}
