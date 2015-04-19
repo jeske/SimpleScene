@@ -140,6 +140,28 @@ namespace SimpleScene
 			return m_vertices [vertexIndex].TextureCoords;
 		}
 
+		public void VerifyAnimation(SSSkeletalAnimationMD5 animation)
+		{
+			if (this.NumJoints != animation.NumJoints) {
+				string str = string.Format (
+		             "Joint number mismatch. {0} in md5mesh, {1} in md5anim",
+		             this.NumJoints, animation.NumJoints);
+				Console.WriteLine (str);
+				throw new Exception (str);
+			}
+			for (int j = 0; j < NumJoints; ++j) {
+				string jointMeshName = m_joints [j].Md5.Name;
+				string jointAnimName = animation.JointHierarchy [j].Name;
+				if (jointMeshName != jointAnimName) {
+					string str = string.Format (
+						"Joint name mismatch. {0} in md5mesh, {1} in md5anim",
+						jointMeshName, jointAnimName);
+					Console.WriteLine (str);
+					throw new Exception (str);
+				}
+			}
+		}
+
 		private void readTriangle(SSMD5Parser parser)
 		{
 			Match[] matches;
@@ -290,7 +312,6 @@ namespace SimpleScene
 		{
 			protected SkeletalJointMD5 m_md5;
 			protected SSSkeletalJointLocation m_currentLocation;
-			protected SSSkeletalJointLocation[] Frames = null;
 
 			// TODO parent? children?
 

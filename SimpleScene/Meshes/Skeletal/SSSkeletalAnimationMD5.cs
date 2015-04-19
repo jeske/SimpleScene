@@ -23,6 +23,30 @@ namespace SimpleScene
 		// temp use
 		protected float[] m_floatComponents;
 
+		public int NumFrames {
+			get { return m_numFrames; }
+		}
+
+		public int NumJoints {
+			get { return m_numJoints; }
+		}
+
+		public int FrameRate {
+			get { return m_frameRate; }
+		}
+
+		public float FramePeriod {
+			get { return 1f / (float)m_frameRate; }
+		}
+
+		public SSAABB[] Bounds {
+			get { return m_bounds; }
+		}
+
+		public HierarchyEntryMD5[] JointHierarchy {
+			get { return m_hierarchy; }
+		}
+
 		public SSSkeletalAnimationMD5 (SSAssetManager.Context ctx, string filename)
 		{
 			var parser = new SSMD5Parser (ctx, filename);
@@ -73,7 +97,8 @@ namespace SimpleScene
 			m_frames = new SSSkeletalJointLocation[m_numFrames][];
 			for (int f = 0; f < m_numFrames; ++f) {
 				matches = parser.seekEntry ("frame", SSMD5Parser.c_uintRegex, "{");
-				m_frames [f] = readFrameJoints (parser);
+				int frameIdx = Convert.ToInt32 (matches [1].Value);
+				m_frames [frameIdx] = readFrameJoints (parser);
 				parser.seekEntry ("}");
 			}
 		}
@@ -131,7 +156,7 @@ namespace SimpleScene
 		private SSSkeletalJointLocation[] readFrameJoints(SSMD5Parser parser)
 		{
 			parser.seekFloats (m_floatComponents);
-			var actualLocations = new SSSkeletalJointLocation[m_numJoints];
+			var thisFrameLocations = new SSSkeletalJointLocation[m_numJoints];
 			int compIdx = 0;
 			for (int j = 0; j < m_numJoints; ++j) {
 				HierarchyEntryMD5 jointInfo = m_hierarchy [j];
@@ -159,18 +184,17 @@ namespace SimpleScene
 				loc.ComputeQuatW ();
 
 				if (jointInfo.Parent >= 0) { // has a parent
-					SSSkeletalJointLocation parentLoc = actualLocations [jointInfo.Parent];
+					SSSkeletalJointLocation parentLoc = thisFrameLocations [jointInfo.Parent];
 					loc.Position = Vector3.Transform (loc.Position, parentLoc.Orientation);
 					loc.Orientation = Quaternion.Multiply (loc.Orientation, parentLoc.Orientation);
 					loc.Orientation.Normalize ();
 				}
-				actualLocations[j] = loc;
+				thisFrameLocations[j] = loc;
 			}
-			return actualLocations;
+			return thisFrameLocations;
 		}
 
 		public class HierarchyEntryMD5 {
-
 			private string m_name;
 			private int m_parent;
 			private byte m_flags;
