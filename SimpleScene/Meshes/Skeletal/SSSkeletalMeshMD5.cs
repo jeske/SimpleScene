@@ -144,7 +144,7 @@ namespace SimpleScene
 		{
 			if (this.NumJoints != animation.NumJoints) {
 				string str = string.Format (
-		             "Joint number mismatch. {0} in md5mesh, {1} in md5anim",
+		             "Joint number mismatch: {0} in md5mesh, {1} in md5anim",
 		             this.NumJoints, animation.NumJoints);
 				Console.WriteLine (str);
 				throw new Exception (str);
@@ -154,11 +154,18 @@ namespace SimpleScene
 				string jointAnimName = animation.JointHierarchy [j].Name;
 				if (jointMeshName != jointAnimName) {
 					string str = string.Format (
-						"Joint name mismatch. {0} in md5mesh, {1} in md5anim",
+						"Joint name mismatch: {0} in md5mesh, {1} in md5anim",
 						jointMeshName, jointAnimName);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
+			}
+		}
+
+		public void LoadAnimationFrame(SSSkeletalAnimationMD5 anim, float t)
+		{
+			for (int j = 0; j < NumJoints; ++j) {
+				m_joints [j].CurrentLocation = anim.ComputeJointFrame (j, t);
 			}
 		}
 
@@ -310,14 +317,8 @@ namespace SimpleScene
 
 		public class SkeletalJoint
 		{
+			public SSSkeletalJointLocation CurrentLocation;
 			protected SkeletalJointMD5 m_md5;
-			protected SSSkeletalJointLocation m_currentLocation;
-
-			// TODO parent? children?
-
-			public SSSkeletalJointLocation CurrentLocation {
-				get { return m_currentLocation; }
-			}
 
 			public SkeletalJointMD5 Md5 {
 				get { return m_md5; }
@@ -331,7 +332,7 @@ namespace SimpleScene
 
 			public void ComputeLocationFromMd5()
 			{
-				m_currentLocation = m_md5.BaseLocation;
+				CurrentLocation = m_md5.BaseLocation;
 			}
 		}
 	}

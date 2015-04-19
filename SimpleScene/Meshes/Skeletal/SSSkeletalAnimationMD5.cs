@@ -35,7 +35,7 @@ namespace SimpleScene
 			get { return m_frameRate; }
 		}
 
-		public float FramePeriod {
+		public float FrameDuration {
 			get { return 1f / (float)m_frameRate; }
 		}
 
@@ -100,6 +100,20 @@ namespace SimpleScene
 				int frameIdx = Convert.ToInt32 (matches [1].Value);
 				m_frames [frameIdx] = readFrameJoints (parser);
 				parser.seekEntry ("}");
+			}
+		}
+
+		public SSSkeletalJointLocation ComputeJointFrame(int jointIdx, float t)
+		{
+			int leftFrameIdx = (int)(t / FrameDuration);
+			SSSkeletalJointLocation leftJointFrame = m_frames [leftFrameIdx] [jointIdx];
+			float remainder = ((float)leftFrameIdx * FrameDuration - t);
+			if (remainder == 0) {
+				return leftJointFrame;
+			} else {
+				SSSkeletalJointLocation rightJointFrame = m_frames [leftFrameIdx+1] [jointIdx];
+				return SSSkeletalJointLocation.Interpolate (
+					leftJointFrame,	rightJointFrame, remainder / FrameDuration);
 			}
 		}
 
@@ -185,8 +199,10 @@ namespace SimpleScene
 
 				if (jointInfo.Parent >= 0) { // has a parent
 					SSSkeletalJointLocation parentLoc = thisFrameLocations [jointInfo.Parent];
-					loc.Position = Vector3.Transform (loc.Position, parentLoc.Orientation);
-					loc.Orientation = Quaternion.Multiply (loc.Orientation, parentLoc.Orientation);
+					loc.Position = parentLoc.Position 
+								 + Vector3.Transform (loc.Position, parentLoc.Orientation);
+					loc.Orientation = Quaternion.Multiply (parentLoc.Orientation, 
+														   loc.Orientation);
 					loc.Orientation.Normalize ();
 				}
 				thisFrameLocations[j] = loc;

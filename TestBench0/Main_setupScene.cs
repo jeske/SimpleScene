@@ -151,13 +151,18 @@ namespace TestBench0
 			// mesh test
 			#if true
 			{
+				SSSkeletalAnimationMD5 animation
+				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
+
 				SSSkeletalMeshMD5[] meshes 
 				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				foreach (var skeliMeshMD5 in meshes) {
 					var renderMesh = new SSSkeletalRenderMesh(skeliMeshMD5);
 					var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 					renderMesh.diffuseTexture = tex;
-					//renderMesh.specularTexture = tex;
+
+					renderMesh.LoadAnimation(animation);
+
 					var obj = new SSObjectMesh(renderMesh);
 					obj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					//obj.MainColor = Color4.Lime;
@@ -166,8 +171,7 @@ namespace TestBench0
 					scene.AddObject(obj);
 				}
 
-				SSSkeletalAnimationMD5 animation
-				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
+
 
 			}
 			#endif
