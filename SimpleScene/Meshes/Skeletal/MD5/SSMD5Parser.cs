@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using OpenTK;
 
 namespace SimpleScene
 {
-	public class SSMD5Parser
+	public abstract class SSMD5Parser
 	{
 		public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
 		public static readonly string c_uintRegex = @"(\d+)";
@@ -45,6 +46,20 @@ namespace SimpleScene
 				regexArray [w] = regex;
 			}
 			return seekRegexEntry (regexArray, wordRegExStrArray);
+		}
+
+		public void seekFloats(float[] floats)
+		{
+			int numSoFar = 0;
+			while (numSoFar < floats.Length) {
+				string line = m_reader.ReadLine ();
+				string[] words = line.Split (c_wordDelimeters);
+				for (int n = 0; n < words.Length; ++n) {
+					if (words [n].Length > 0) {
+						floats [numSoFar++] = (float)Convert.ToDouble (words [n]);
+					}
+				}
+			}
 		}
 
 		private Match[] seekRegexEntry(Regex[] wordRegEx, string[] wordRegExStr)
@@ -102,20 +117,6 @@ namespace SimpleScene
 			}
 			entryFailure ("EOF", wordRegExStr);
 			return null;
-		}
-
-		public void seekFloats(float[] floats)
-		{
-			int numSoFar = 0;
-			while (numSoFar < floats.Length) {
-				string line = m_reader.ReadLine ();
-				string[] words = line.Split (c_wordDelimeters);
-				for (int n = 0; n < words.Length; ++n) {
-					if (words [n].Length > 0) {
-						floats [numSoFar++] = (float)Convert.ToDouble (words [n]);
-					}
-				}
-			}
 		}
 
 		private void entryFailure(string line, string[] regexStr)

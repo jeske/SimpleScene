@@ -7,13 +7,13 @@ namespace SimpleScene
 {
 	public class SSSkeletalRenderMesh : SSIndexedMesh<SSVertex_PosNormTex>
 	{
-		protected readonly SSSkeletalMeshMD5 m_md5;
+		protected readonly SSSkeletalMesh m_md5;
 		protected readonly SSVertex_PosNormTex[] m_vertices;
 
-		protected SSSkeletalAnimationMD5 m_prevAnim = null;
-		protected SSSkeletalAnimationMD5 m_anim = null;
+		protected SSSkeletalAnimation m_prevAnim = null;
+		protected SSSkeletalAnimation m_anim = null;
 
-		public SSSkeletalRenderMesh (SSSkeletalMeshMD5 md5)
+		public SSSkeletalRenderMesh (SSSkeletalMesh md5)
 			: base(null, md5.Indices)
 		{
 			m_md5 = md5;
@@ -39,12 +39,12 @@ namespace SimpleScene
 		/// <param name="anim">Animation to transition to.</param>
 		/// <param name="animationTransitionTime">Time to transition from the current animation into the target animation</param>
 		/// <param name="repeatInterpolationTime">Time for to transition from the end of the animation to the beginning. Zero value means no looping</param>
-		public void LoadAnimation (SSSkeletalAnimationMD5 anim, 
+		public void LoadAnimation (SSSkeletalAnimation anim, 
  			                      float animationTransitionTime = 0f,
   			                      float repeatInterpolationTime = 0f)
 		{
 			m_anim = anim;
-			m_md5.LoadAnimationFrame (anim, 1f);
+			m_md5.LoadAnimationFrame (anim, 1.5f);
 			ComputeVertices ();
 		}
 

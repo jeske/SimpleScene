@@ -303,10 +303,10 @@ namespace SimpleScene
                 (ctx, filename) => { return new SSGeometryShader(ctx, filename); }
             );
 			SSAssetManager.RegisterLoadDelegate<SSSkeletalMeshMD5[]> (
-				(ctx, filename) => { return SSSkeletalMeshMD5.ReadMeshes(ctx, filename); }
+				(ctx, filename) => { return SSMD5MeshParser.ReadMeshes(ctx, filename); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSSkeletalAnimationMD5> (
-				(ctx, filename) => { return new SSSkeletalAnimationMD5 (ctx, filename); }
+				(ctx, filename) => { return SSMD5AnimParser.ReadAnimation(ctx, filename); }
 			);
         }
     }

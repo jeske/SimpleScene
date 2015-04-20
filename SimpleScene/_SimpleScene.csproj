@@ -138,11 +138,13 @@
     <Compile Include="Core\SSSphere.cs" />
     <Compile Include="Util\ssBVH\ssBVH_Sphere.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalMeshMD5.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalRenderMesh.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalAnimationMD5.cs" />
-    <Compile Include="Meshes\Skeletal\SSMD5Parser.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalJointLocation.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalAnimationChannel.cs" />
+    <Compile Include="Meshes\Skeletal\MD5\SSMD5Parser.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
+    <Compile Include="Meshes\Skeletal\MD5\SSMD5MeshParser.cs" />
+    <Compile Include="Meshes\Skeletal\MD5\SSMD5AnimParser.cs" />
+    <Compile Include="Meshes\Skeletal\MD5\SSSkeletalAnimation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -189,5 +191,6 @@
     <Folder Include="Meshes\ParticleSystems\" />
     <Folder Include="Assets\Shaders\Instancing\" />
     <Folder Include="Meshes\Skeletal\" />
+    <Folder Include="Meshes\Skeletal\MD5\" />
   </ItemGroup>
 </Project>

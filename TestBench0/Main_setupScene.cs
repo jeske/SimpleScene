@@ -151,10 +151,10 @@ namespace TestBench0
 			// mesh test
 			#if true
 			{
-				SSSkeletalAnimationMD5 animation
+				SSSkeletalAnimation animation
 				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
 
-				SSSkeletalMeshMD5[] meshes 
+				SSSkeletalMesh[] meshes 
 				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				foreach (var skeliMeshMD5 in meshes) {
 					var renderMesh = new SSSkeletalRenderMesh(skeliMeshMD5);
