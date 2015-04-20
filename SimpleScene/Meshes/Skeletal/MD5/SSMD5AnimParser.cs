@@ -28,7 +28,7 @@ namespace SimpleScene
 			Qx = 8, Qy = 16, Qz = 32
 		}
 
-		public SSMD5AnimParser (SSAssetManager.Context ctx, string filename)
+		private SSMD5AnimParser (SSAssetManager.Context ctx, string filename)
 			: base(ctx, filename)
 		{
 		}

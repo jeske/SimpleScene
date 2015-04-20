@@ -21,15 +21,15 @@ namespace SimpleScene
 		public static SSSkeletalMeshMD5[] ReadMeshes(SSAssetManager.Context ctx, string filename)
 		{
 			var parser = new SSMD5MeshParser (ctx, filename);
-			return parser.ReadMeshes ();
+			return parser.readMeshes ();
 		}
 
-		public SSMD5MeshParser (SSAssetManager.Context ctx, string filename)
+		private SSMD5MeshParser (SSAssetManager.Context ctx, string filename)
 			: base(ctx, filename)
 		{
 		}
 
-		public SSSkeletalMeshMD5[] ReadMeshes()
+		private SSSkeletalMeshMD5[] readMeshes()
 		{
 			Match[] matches;
 			seekEntry ("MD5Version", "10");
