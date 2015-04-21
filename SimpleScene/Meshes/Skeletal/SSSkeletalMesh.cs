@@ -104,12 +104,19 @@ namespace SimpleScene
 				throw new Exception (str);
 			}
 			for (int j = 0; j < NumJoints; ++j) {
-				string jointMeshName = m_joints [j].BaseInfo.Name;
-				string jointAnimName = animation.JointHierarchy [j].Name;
-				if (jointMeshName != jointAnimName) {
+				SSSkeletalJointBaseInfo meshInfo = this.m_joints [j].BaseInfo;
+				SSSkeletalJointBaseInfo animInfo = animation.JointHierarchy [j];
+				if (meshInfo.Name != animInfo.Name) {
 					string str = string.Format (
 						"Joint name mismatch: {0} in md5mesh, {1} in md5anim",
-						jointMeshName, jointAnimName);
+						meshInfo.Name, animInfo.Name);
+					Console.WriteLine (str);
+					throw new Exception (str);
+				}
+				if (meshInfo.ParentIndex != animInfo.ParentIndex) {
+					string str = string.Format (
+						"Hierarchy parent mismatch: {0} in md5mesh, {1} in md5anim",
+						meshInfo.ParentIndex, animInfo.ParentIndex);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
