@@ -31,7 +31,7 @@ namespace SimpleScene
 		}
 
 		public float TotalDuration {
-			get { return (float)m_frames.Length / (float)m_frameRate; }
+			get { return (float)(m_frames.Length-1) / (float)m_frameRate; }
 		}
 
 		public SSAABB[] Bounds {
@@ -57,7 +57,7 @@ namespace SimpleScene
 		{
 			int leftFrameIdx = (int)(t / FrameDuration);
 			SSSkeletalJointLocation leftJointFrame = m_frames [leftFrameIdx] [jointIdx];
-			float remainder = ((float)leftFrameIdx * FrameDuration - t);
+			float remainder = t - ((float)leftFrameIdx * FrameDuration);
 			if (remainder == 0) {
 				return leftJointFrame;
 			} else {

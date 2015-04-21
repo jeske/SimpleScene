@@ -137,7 +137,7 @@ namespace SimpleScene
 			}
 		}
 
-		public void ApplyAnimationChannels(SSSkeletalAnimationChannel[] channels)
+		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannel> channels)
 		{
 			foreach (int j in m_topLevelJoints) {
 				TraverseWithChannels (j, channels, null, null);
@@ -145,7 +145,7 @@ namespace SimpleScene
 		}
 
 		private void TraverseWithChannels(int j, 
-									      SSSkeletalAnimationChannel[] channels,
+									      List<SSSkeletalAnimationChannel> channels,
 										  SSSkeletalAnimationChannel activeChannel,
 										  SSSkeletalAnimationChannel prevActiveChannel)
 		{
@@ -160,7 +160,12 @@ namespace SimpleScene
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
 			} else {
-				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (j); 
+				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (j);
+				int parentIdx = joint.BaseInfo.ParentIndex;
+				if (parentIdx != -1) {
+					activeLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
+				}
+
 				if (activeChannel.IsEnding) {
 					// TODO smarter, multi layer fallback
 					SSSkeletalJointLocation fallbackLoc;
@@ -168,6 +173,9 @@ namespace SimpleScene
 						fallbackLoc = joint.BaseInfo.BaseLocation;
 					} else {
 						fallbackLoc = prevActiveChannel.ComputeJointFrame (j);
+						if (joint.BaseInfo.ParentIndex != -1) {
+							fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
+						}
 					}
 					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
 						activeLoc, fallbackLoc, activeChannel.FadeBlendPosition);
@@ -176,17 +184,6 @@ namespace SimpleScene
 				}
 			}
 
-			int parentIdx = joint.BaseInfo.ParentIndex;
-			if (parentIdx != -1) {
-				SSSkeletalJointLocation currLoc = joint.CurrentLocation;
-				SSSkeletalJointLocation parentLoc = m_joints[parentIdx].CurrentLocation;
-				currLoc.Position = parentLoc.Position 
-					+ Vector3.Transform (currLoc.Position, parentLoc.Orientation);
-				currLoc.Orientation = Quaternion.Multiply (parentLoc.Orientation, 
-					currLoc.Orientation);
-				currLoc.Orientation.Normalize ();
-				joint.CurrentLocation = currLoc;
-			}
 			foreach (int child in joint.Children) {
 				TraverseWithChannels (child, channels, activeChannel, prevActiveChannel);
 			}
@@ -280,6 +277,16 @@ namespace SimpleScene
 				- Orientation.Z * Orientation.Z;
 			Orientation.W = t < 0f ? 0f : -(float)Math.Sqrt(t);
 		}
+
+		public void ApplyParentTransform(SSSkeletalJointLocation parentLoc)
+		{
+			Position = parentLoc.Position 
+				+ Vector3.Transform (Position, parentLoc.Orientation);
+			Orientation = Quaternion.Multiply (parentLoc.Orientation, 
+				Orientation);
+			Orientation.Normalize ();
+		}
+
 	}
 
 	public class SSSkeletalJointBaseInfo
@@ -305,11 +312,6 @@ namespace SimpleScene
 		public SSSkeletalJoint(SSSkeletalJointBaseInfo baseInfo)
 		{
 			m_baseInfo = baseInfo;
-			ComputeLocationFromBaseInfo();
-		}
-
-		public void ComputeLocationFromBaseInfo()
-		{
 			CurrentLocation = m_baseInfo.BaseLocation;
 		}
 	}

@@ -284,7 +284,7 @@ namespace SimpleScene
 
 		public virtual void ObjectChanged() { }
 
-		public virtual void Update (float fElapsedMS) {}
+		public virtual void Update (float fElapsedS) {}
 
 		// constructor
 		public SSObjectBase() { 

@@ -25,6 +25,8 @@ namespace SimpleScene
         {
 			return this.TraverseTriangles<Object>(new Object(), fn);
 		}
+
+		public virtual void Update(float timeElapsed) { }
 	}
 }
 

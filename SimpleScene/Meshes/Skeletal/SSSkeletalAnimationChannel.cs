@@ -61,7 +61,7 @@ namespace SimpleScene
 		public void PlayAnimation(SSSkeletalAnimation animation, 
 								  bool repeat, float transitionTime)
 		{
-			m_prevAnimation = animation;
+			m_prevAnimation = m_currAnimation;
 			m_prevT = m_currT;
 
 			m_currAnimation = animation;
@@ -89,9 +89,11 @@ namespace SimpleScene
 				m_currT += timeElapsed;
 				if (m_currT >= m_currAnimation.TotalDuration - m_transitionTime) {
 					if (m_repeat) {
-						m_prevAnimation = m_currAnimation;
-						m_prevT = m_currT;
-						m_currT = 0;
+						if (m_transitionTime > 0f) {
+							m_prevAnimation = m_currAnimation;
+							m_prevT = m_currT;
+						} 
+						m_currT -= m_currAnimation.TotalDuration;
 					} else {
 						m_currAnimation = null;
 						m_currT = 0f;

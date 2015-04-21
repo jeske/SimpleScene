@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -7,52 +8,63 @@ namespace SimpleScene
 {
 	public class SSSkeletalRenderMesh : SSIndexedMesh<SSVertex_PosNormTex>
 	{
-		protected readonly SSSkeletalMesh m_md5;
+		protected readonly SSSkeletalMesh m_skeletalMesh;
 		protected readonly SSVertex_PosNormTex[] m_vertices;
+		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
+			= new Dictionary<int, SSSkeletalAnimationChannel>();
 
-		protected SSSkeletalAnimation m_prevAnim = null;
-		protected SSSkeletalAnimation m_anim = null;
-
-		public SSSkeletalRenderMesh (SSSkeletalMesh md5)
-			: base(null, md5.Indices)
+		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh)
+			: base(null, skeletalMesh.Indices)
 		{
-			m_md5 = md5;
-			m_vertices = new SSVertex_PosNormTex[md5.NumVertices];
-			for (int v = 0; v < md5.NumVertices; ++v) {
-				m_vertices [v].TexCoord = md5.TextureCoords (v);
+			m_skeletalMesh = skeletalMesh;
+			m_vertices = new SSVertex_PosNormTex[skeletalMesh.NumVertices];
+			for (int v = 0; v < skeletalMesh.NumVertices; ++v) {
+				m_vertices [v].TexCoord = skeletalMesh.TextureCoords (v);
 			}
-			ComputeVertices ();
+			computeVertices ();
 		}
 
-		public void ComputeVertices()
+		public void AddChannel(int channelId, params int[] topLevelActiveJoints)
 		{
-			for (int v = 0; v < m_md5.NumVertices; ++v) {
-				m_vertices [v].Position = m_md5.ComputeVertexPos (v);
-				m_vertices [v].Normal = m_md5.ComputeVertexNormal (v);
-			}
-			m_vbo.UpdateBufferData (m_vertices);
+			var channel = new SSSkeletalAnimationChannel (topLevelActiveJoints);
+			m_animChannels.Add (channelId, channel);
 		}
 
-		/// <summary>
-		/// Transition into an animation
-		/// </summary>
-		/// <param name="anim">Animation to transition to.</param>
-		/// <param name="animationTransitionTime">Time to transition from the current animation into the target animation</param>
-		/// <param name="repeatInterpolationTime">Time for to transition from the end of the animation to the beginning. Zero value means no looping</param>
-		public void LoadAnimation (SSSkeletalAnimation anim, 
- 			                      float animationTransitionTime = 0f,
-  			                      float repeatInterpolationTime = 0f)
+		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
+								  bool repeat, float transitionTime)
 		{
-			m_anim = anim;
-			m_md5.LoadAnimationFrame (anim, 1.5f);
-			ComputeVertices ();
+			var channel = m_animChannels [channelId];
+			channel.PlayAnimation (anim, repeat, transitionTime);
 		}
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig)
 		{
+			var channels = new List<SSSkeletalAnimationChannel> ();
+			channels.AddRange (m_animChannels.Values);
+
+			m_skeletalMesh.ApplyAnimationChannels (channels);
+			computeVertices ();
+
 			base.RenderMesh (ref renderConfig);
 			//renderNormals ();
 		}
+
+		public override void Update(float elapsedS)
+		{
+			foreach (var channel in m_animChannels.Values) {
+				channel.Update (elapsedS);
+			}
+		}
+
+		private void computeVertices()
+		{
+			for (int v = 0; v < m_skeletalMesh.NumVertices; ++v) {
+				m_vertices [v].Position = m_skeletalMesh.ComputeVertexPos (v);
+				m_vertices [v].Normal = m_skeletalMesh.ComputeVertexNormal (v);
+			}
+			m_vbo.UpdateBufferData (m_vertices);
+		}
+
 
 		private void renderNormals()
 		{

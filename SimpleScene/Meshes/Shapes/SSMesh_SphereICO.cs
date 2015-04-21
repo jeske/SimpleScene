@@ -114,7 +114,7 @@ namespace SimpleScene
 				indexList.Add(idx3);
 			}
 
-            ComputeVertices(vertexSoup.verticies.ToArray());
+            computeVertices(vertexSoup.verticies.ToArray());
             UpdateIndices(indexList.ToArray());
 
 		}

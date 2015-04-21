@@ -93,6 +93,10 @@ namespace SimpleScene
 				return global_hit || hit;
 			}			     
 		}
+
+		public override void Update(float elapsedS) {
+			Mesh.Update (elapsedS);
+		}
     }
 }
 
