@@ -161,7 +161,7 @@ namespace TestBench0
 					var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 					renderMesh.diffuseTexture = tex;
 
-					renderMesh.AddChannel(0, 0);
+					renderMesh.AddChannel(0, "all");
 					renderMesh.PlayAnimation(0, animation, true, 0f);
 
 					var obj = new SSObjectMesh(renderMesh);

@@ -24,15 +24,31 @@ namespace SimpleScene
 			computeVertices ();
 		}
 
-		public void AddChannel(int channelId, params int[] topLevelActiveJoints)
+		public void AddChannel(int channelId, params int[] topLevelActiveJointIds)
 		{
-			var channel = new SSSkeletalAnimationChannel (topLevelActiveJoints);
+			foreach (int cid in topLevelActiveJointIds) {
+				if (cid == -1) { // means include all
+					topLevelActiveJointIds = m_skeletalMesh.TopLevelJoints;
+					break;
+				}
+			}
+			var channel = new SSSkeletalAnimationChannel (topLevelActiveJointIds);
 			m_animChannels.Add (channelId, channel);
+		}
+
+		public void AddChannel(int channelId, params string[] topLevelActiveJointNames)
+		{
+			int[] topLevelActiveJointsIds = new int[topLevelActiveJointNames.Length];
+			for (int n = 0; n < topLevelActiveJointsIds.Length; ++n) {
+				topLevelActiveJointsIds [n] = m_skeletalMesh.JointIndex (topLevelActiveJointNames [n]);
+			}
+			AddChannel (channelId, topLevelActiveJointsIds);
 		}
 
 		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
 								  bool repeat, float transitionTime)
 		{
+			m_skeletalMesh.VerifyAnimation (anim);
 			var channel = m_animChannels [channelId];
 			channel.PlayAnimation (anim, repeat, transitionTime);
 		}

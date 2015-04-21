@@ -42,7 +42,9 @@ namespace SimpleScene
 			get { return m_triangleIndices; }
 		}
 
-
+		public int[] TopLevelJoints {
+			get { return m_topLevelJoints.ToArray (); }
+		}
 
 		public SSSkeletalMesh (SSSkeletalJointBaseInfo[] joints, 
 							   SSSkeletalWeight[] weights,
@@ -66,6 +68,22 @@ namespace SimpleScene
 			m_triangleIndices = triangleIndices;
 			m_materialShaderString = materialShaderString;
 			preComputeNormals ();
+		}
+
+		public int JointIndex(string jointName)
+		{
+			if (String.Compare (jointName, "all", true) == 0) {
+				return -1;
+			}
+
+			for (int j = 0; j < m_joints.Length; ++j) {
+				if (m_joints [j].BaseInfo.Name == jointName) {
+					return j;
+				}
+			}
+			string errMsg = string.Format ("Joint not found: \"{0}\"", jointName);
+			System.Console.WriteLine (errMsg);
+			throw new Exception (errMsg);
 		}
 
 		public Vector3 ComputeVertexPos(int vertexIndex)
