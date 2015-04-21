@@ -8,7 +8,7 @@ namespace SimpleScene
 {
 	public class SSSkeletalMesh
 	{
-		#region from MD5 mesh
+		#region input from file formats
 		protected string m_materialShaderString;
 
 		protected SSSkeletalVertex[] m_vertices = null;
@@ -18,6 +18,7 @@ namespace SimpleScene
 		#endregion
 
 		#region runtime only use
+		protected readonly List<int> m_topLevelJoints = new List<int> ();
 		protected Vector3[] m_baseNormals = null;
 		#endregion
 
@@ -53,6 +54,12 @@ namespace SimpleScene
 			m_joints = new SSSkeletalJoint[joints.Length];
 			for (int j = 0; j < joints.Length; ++j) {
 				m_joints[j] = new SSSkeletalJoint (joints [j]);
+				int parentIdx = joints [j].ParentIndex;
+				if (parentIdx != -1) {
+					m_joints [parentIdx].Children.Add (j);
+				} else {
+					m_topLevelJoints.Add (j);
+				}
 			}
 			m_weights = weights;
 			m_vertices = vertices;
@@ -115,8 +122,8 @@ namespace SimpleScene
 				}
 				if (meshInfo.ParentIndex != animInfo.ParentIndex) {
 					string str = string.Format (
-						"Hierarchy parent mismatch: {0} in md5mesh, {1} in md5anim",
-						meshInfo.ParentIndex, animInfo.ParentIndex);
+						"Hierarchy parent mismatch for joint \"{0}\": {1} in md5mesh, {2} in md5anim",
+						meshInfo.Name, meshInfo.ParentIndex, animInfo.ParentIndex);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
@@ -127,6 +134,61 @@ namespace SimpleScene
 		{
 			for (int j = 0; j < NumJoints; ++j) {
 				m_joints [j].CurrentLocation = anim.ComputeJointFrame (j, t);
+			}
+		}
+
+		public void ApplyAnimationChannels(SSSkeletalAnimationChannel[] channels)
+		{
+			foreach (int j in m_topLevelJoints) {
+				TraverseWithChannels (j, channels, null, null);
+			}
+		}
+
+		private void TraverseWithChannels(int j, 
+									      SSSkeletalAnimationChannel[] channels,
+										  SSSkeletalAnimationChannel activeChannel,
+										  SSSkeletalAnimationChannel prevActiveChannel)
+		{
+			foreach (var channel in channels) {
+				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (j)) {
+					prevActiveChannel = activeChannel;
+					activeChannel = channel;
+				}
+			}
+			SSSkeletalJoint joint = m_joints [j];
+
+			if (activeChannel == null) {
+				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
+			} else {
+				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (j); 
+				if (activeChannel.IsEnding) {
+					// TODO smarter, multi layer fallback
+					SSSkeletalJointLocation fallbackLoc;
+					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
+						fallbackLoc = joint.BaseInfo.BaseLocation;
+					} else {
+						fallbackLoc = prevActiveChannel.ComputeJointFrame (j);
+					}
+					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
+						activeLoc, fallbackLoc, activeChannel.FadeBlendPosition);
+				} else {
+					joint.CurrentLocation = activeLoc;
+				}
+			}
+
+			int parentIdx = joint.BaseInfo.ParentIndex;
+			if (parentIdx != -1) {
+				SSSkeletalJointLocation currLoc = joint.CurrentLocation;
+				SSSkeletalJointLocation parentLoc = m_joints[parentIdx].CurrentLocation;
+				currLoc.Position = parentLoc.Position 
+					+ Vector3.Transform (currLoc.Position, parentLoc.Orientation);
+				currLoc.Orientation = Quaternion.Multiply (parentLoc.Orientation, 
+					currLoc.Orientation);
+				currLoc.Orientation.Normalize ();
+				joint.CurrentLocation = currLoc;
+			}
+			foreach (int child in joint.Children) {
+				TraverseWithChannels (child, channels, activeChannel, prevActiveChannel);
 			}
 		}
 
@@ -232,6 +294,8 @@ namespace SimpleScene
 	public class SSSkeletalJoint
 	{
 		public SSSkeletalJointLocation CurrentLocation;
+		public List<int> Children = new List<int>();
+
 		protected SSSkeletalJointBaseInfo m_baseInfo;
 
 		public SSSkeletalJointBaseInfo BaseInfo {

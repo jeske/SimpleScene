@@ -30,6 +30,10 @@ namespace SimpleScene
 			get { return 1f / (float)m_frameRate; }
 		}
 
+		public float TotalDuration {
+			get { return (float)m_frames.Length / (float)m_frameRate; }
+		}
+
 		public SSAABB[] Bounds {
 			get { return m_bounds; }
 		}

@@ -189,6 +189,7 @@ namespace SimpleScene
 				}
 				loc.ComputeQuatW ();
 
+				#if false
 				if (jointInfo.ParentIndex >= 0) { // has a parent
 					SSSkeletalJointLocation parentLoc = thisFrameLocations [jointInfo.ParentIndex];
 					loc.Position = parentLoc.Position 
@@ -197,6 +198,7 @@ namespace SimpleScene
 						loc.Orientation);
 					loc.Orientation.Normalize ();
 				}
+				#endif
 				thisFrameLocations[j] = loc;
 			}
 			return thisFrameLocations;
