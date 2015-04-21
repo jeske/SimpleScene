@@ -157,19 +157,34 @@ namespace TestBench0
 				SSSkeletalMesh[] meshes 
 				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				foreach (var skeliMeshMD5 in meshes) {
-					var renderMesh = new SSSkeletalRenderMesh(skeliMeshMD5);
+					var renderMesh1 = new SSSkeletalRenderMesh(skeliMeshMD5);
+					var renderMesh2 = new SSSkeletalRenderMesh(skeliMeshMD5);
 					var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
-					renderMesh.diffuseTexture = tex;
+					renderMesh1.diffuseTexture = tex;
+					renderMesh2.diffuseTexture = tex;
 
-					renderMesh.AddChannel(0, "all");
-					renderMesh.PlayAnimation(0, animation, true, 0f);
+					renderMesh1.AddChannel(0, "all");
+					renderMesh1.PlayAnimation(0, animation, true, 0f);
 
-					var obj = new SSObjectMesh(renderMesh);
-					obj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+					renderMesh2.AddChannel(0, "LeftClavicle", "RightClavicle");
+					renderMesh2.PlayAnimation(0, animation, true, 0f);
+
+					var obj1 = new SSObjectMesh(renderMesh1);
+					obj1.MainColor = Color4.Red;
+					obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					//obj.MainColor = Color4.Lime;
-					obj.Scale = new Vector3(10);
-					obj.boundingSphere = null;
-					scene.AddObject(obj);
+					obj1.Scale = new Vector3(10);
+					obj1.boundingSphere = null;
+					scene.AddObject(obj1);
+
+					var obj2 = new SSObjectMesh(renderMesh2);
+					obj2.MainColor = Color.Lime;
+					obj2.Pos = new Vector3(-40f, 0f, 0f);
+					obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+					//obj.MainColor = Color4.Lime;
+					obj2.Scale = new Vector3(10);
+					obj2.boundingSphere = null;
+					scene.AddObject(obj2);
 				}
 
 
