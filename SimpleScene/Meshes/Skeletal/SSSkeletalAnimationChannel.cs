@@ -49,7 +49,7 @@ namespace SimpleScene
 
 		public float FadeBlendPosition {
 			get { 
-				return 1f - (m_currAnimation.TotalDuration - m_currT) / m_transitionTime;
+				return m_currT / m_transitionTime;
 			}
 		}
 
@@ -87,13 +87,14 @@ namespace SimpleScene
 
 			if (m_currAnimation != null) {
 				m_currT += timeElapsed;
-				if (m_currT >= m_currAnimation.TotalDuration - m_transitionTime) {
+				float transitionThreshold = m_currAnimation.TotalDuration - m_transitionTime;
+				if (m_currT >= transitionThreshold) {
 					if (m_repeat) {
 						if (m_transitionTime > 0f) {
 							m_prevAnimation = m_currAnimation;
 							m_prevT = m_currT;
 						} 
-						m_currT -= m_currAnimation.TotalDuration;
+						m_currT -= transitionThreshold;
 					} else {
 						m_currAnimation = null;
 						m_currT = 0f;
