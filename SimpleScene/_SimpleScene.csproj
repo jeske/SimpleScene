@@ -146,6 +146,8 @@
     <Compile Include="Meshes\Skeletal\SSSkeletalMeshRuntime.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimation.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
+    <Compile Include="Meshes\Shapes\SSTexturedNormalQuad.cs" />
+    <Compile Include="Meshes\SSVertexMesh.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

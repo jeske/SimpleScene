@@ -11,17 +11,9 @@
 *.blend4
 *.blend5
 
-
 # output directories
-
-TestBench0/bin/**
-TestBench0/obj/**
-SimpleScene/bin/**
-SimpleScene/obj/**
-GDIviaAGGTest/bin/**
-GDIviaAGGTest/obj/**
-Example2DTileGame/obj/**
-Example2DTileGame/bin/**
+*/bin/**
+*/obj/**
 
 
 

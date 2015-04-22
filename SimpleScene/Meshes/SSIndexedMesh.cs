@@ -29,8 +29,7 @@ namespace SimpleScene
         /// <summary>
         /// Initialize given arrays of vertices and/or indices.
         /// </summary>
-        public SSIndexedMesh(V[] vertices,
-                              UInt16[] indices)
+        public SSIndexedMesh(V[] vertices, UInt16[] indices)
         {
             if (vertices == null) {
                 m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
@@ -45,6 +44,21 @@ namespace SimpleScene
             }
         }
 
+		public SSIndexedMesh(SSVertexBuffer<V> vbo, SSIndexBuffer ibo)
+		{
+			if (vbo == null) {
+				m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
+			} else {
+				m_vbo = vbo;
+			}
+
+			if (ibo == null) {
+				m_ibo = new SSIndexBuffer (m_vbo, BufferUsageHint.DynamicDraw);
+			} else {
+				m_ibo = ibo;
+			}
+		}
+
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
 			if (diffuseTexture != null || specularTexture != null
@@ -56,8 +70,7 @@ namespace SimpleScene
 					bumpMapTexture
 				);
 			}
-
-            m_ibo.DrawElements(ref renderConfig, PrimitiveType.Triangles);
+			m_ibo.DrawElements (ref renderConfig, PrimitiveType.Triangles);
         }
 
 		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
@@ -72,10 +85,10 @@ namespace SimpleScene
 				);
 			}
 
-            m_ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
+			m_ibo.RenderInstanced (ref renderConfig, instanceCount, primType);
         }
 
-        public void computeVertices (V[] vertices)
+        public void UpdateVertices (V[] vertices)
         {
             m_vbo.UpdateBufferData(vertices);
         }

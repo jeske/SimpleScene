@@ -88,35 +88,25 @@ namespace TestBench0
 				sunFlareScene.AddObject(sunFlare);
 			}
 
-			// instanced asteroid ring
-			#if false
+			// checkerboard floor
+			#if true
 			{
-				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
-				var ringGen = new BodiesRingGenerator (
-					120f, 50f,
-					Vector3.Zero, Vector3.UnitY, 250f,
-					0f, (float)Math.PI*2f,
-					1f, 3f, 1f, 0.5f
-					//10f, 30f, 1f, 20f
-				);
-
-				var ringEmitter = new SSBodiesFieldEmitter (ringGen);
-				ringEmitter.particlesPerEmission = 10000;
-				//ringEmitter.ParticlesPerEmission = 10;
-
-				var ps = new SSParticleSystem(10000);
-				ps.addEmitter(ringEmitter);
-				Console.WriteLine ("Packing 10k asteroids into a ring. This may take a second...");
-				ps.emitAll();
-				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, roidmesh, BufferUsageHint.StaticDraw);
-				asteroidRingRenderer.simulateOnUpdate = false;
-				asteroidRingRenderer.alphaBlendingEnabled = false;
-				asteroidRingRenderer.depthRead = true;
-				asteroidRingRenderer.depthWrite = true;
-				asteroidRingRenderer.Name = "instanced asteroid renderer";
-				asteroidRingRenderer.renderState.castsShadow = true;
-				asteroidRingRenderer.renderState.receivesShadows = true;
-				scene.AddObject (asteroidRingRenderer);
+				SSTexture tex = SSAssetManager.GetInstance<SSTexture> (".", "checkerboard.png");
+				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(SSTexturedNormalQuad.DoubleFaceInstance);
+				quadMesh.diffuseTexture = tex;
+				const float tileSz = 4f;
+				const int gridSz = 10;
+				Quaternion orient = Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f);
+				for (int x = -gridSz/2; x < gridSz/2; x++) {
+					for (int z = -gridSz/2; z < gridSz/2; ++z) {
+						var tileObj = new SSObjectMesh(quadMesh);
+						tileObj.Pos = new Vector3(tileSz * x, 0f, tileSz * z);
+						tileObj.Scale = new Vector3(tileSz);
+						tileObj.Orient(orient);
+						tileObj.MainColor = new Color4(1f, 1f, 1f, 0.5f);
+						scene.AddObject(tileObj);
+					}
+				}
 			}
 			#endif
 
@@ -173,9 +163,6 @@ namespace TestBench0
 					obj3.boundingSphere = null;
 					scene.AddObject(obj3);
 				}
-
-
-
 			}
 			#endif
 
