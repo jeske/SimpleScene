@@ -54,6 +54,7 @@ namespace TestBench0
 
 			var camera = new SSCameraThirdPerson (null);
 			camera.followDistance = 50.0f;
+			camera.basePos = new Vector3 (0f, 10f, 0f);
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 
