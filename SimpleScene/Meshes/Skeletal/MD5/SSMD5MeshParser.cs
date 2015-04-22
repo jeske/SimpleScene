@@ -7,13 +7,6 @@ namespace SimpleScene
 	// only used to register with the asset manager
 	public class SSSkeletalMeshMD5 : SSSkeletalMesh 
 	{ 
-		public SSSkeletalMeshMD5(SSSkeletalJointBaseInfo[] joints, 
-								 SSSkeletalWeight[] weights,
-								 SSSkeletalVertex[] vertices,
-								 UInt16[] triangleIndices,
-								 string materialShaderString)
-			: base(joints, weights, vertices, triangleIndices, materialShaderString)
-		{ }
 	}
 
 	public class SSMD5MeshParser : SSMD5Parser
@@ -49,6 +42,7 @@ namespace SimpleScene
 
 			for (int m = 0; m < meshes.Length; ++m) {
 				meshes [m] = readMesh (joints);
+				meshes [m].Joints = joints;
 			}
 			return meshes;
 		}
@@ -78,39 +72,40 @@ namespace SimpleScene
 
 		private SSSkeletalMeshMD5 readMesh(SSSkeletalJointBaseInfo[] joints)
 		{
+			SSSkeletalMeshMD5 newMesh = new SSSkeletalMeshMD5 ();
 			seekEntry("mesh", "{");
 
 			Match[] matches;
 			matches = seekEntry("shader", SSMD5Parser.c_nameRegex);
-			var shaderString = matches[1].Value;
+			newMesh.MaterialShaderString = matches[1].Value;
 
 			matches = seekEntry ("numverts", SSMD5Parser.c_uintRegex);
-			var vertices = new SSSkeletalVertex[Convert.ToUInt32(matches[1].Value)];
+			int numVertices = Convert.ToInt32 (matches [1].Value);
+			newMesh.Vertices = new SSSkeletalVertex[numVertices];
 
-			for (int v = 0; v < vertices.Length; ++v) {
+			for (int v = 0; v < numVertices; ++v) {
 				int vertexIndex;
 				var vertex = readVertex (out vertexIndex);
-				vertices [vertexIndex] = vertex;
+				newMesh.Vertices [vertexIndex] = vertex;
 			}
 
 			matches = seekEntry ("numtris", SSMD5Parser.c_uintRegex);
 			int numTris = Convert.ToUInt16 (matches [1].Value);
-			var triangleIndices = new UInt16[numTris * 3];
+			newMesh.TriangleIndices = new UInt16[numTris * 3];
 			for (int t = 0; t < numTris; ++t) {
-				readTriangle (triangleIndices);
+				readTriangle (newMesh.TriangleIndices);
 			}
 
 			matches = seekEntry ("numweights", SSMD5Parser.c_uintRegex);
 			int numWeights = Convert.ToInt32 (matches [1].Value);
-			var weights = new SSSkeletalWeight[numWeights];
-			for (int w = 0; w < weights.Length; ++w) {
+			newMesh.Weights = new SSSkeletalWeight[numWeights];
+			for (int w = 0; w < numWeights; ++w) {
 				int weightIdx;
 				SSSkeletalWeight weight = readWeight(out weightIdx);
-				weights [weightIdx] = weight;
+				newMesh.Weights [weightIdx] = weight;
 			}
 
-			return new SSSkeletalMeshMD5 (joints, weights, vertices, triangleIndices, 
-				shaderString);
+			return newMesh;
 		}
 
 		private SSSkeletalVertex readVertex(out int vertexIndex)

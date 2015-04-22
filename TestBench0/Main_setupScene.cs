@@ -157,23 +157,23 @@ namespace TestBench0
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
 
 				SSSkeletalMesh[] meshes 
-				= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
+					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
-				foreach (var skeliMeshMD5 in meshes) {
+				foreach (var skeliMesh in meshes) {
 
-					var renderMesh1 = new SSSkeletalRenderMesh(skeliMeshMD5);
+					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh1.diffuseTexture = tex;
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
 
-					var renderMesh2 = new SSSkeletalRenderMesh(skeliMeshMD5);
+					var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh2.diffuseTexture = tex;
 					renderMesh2.AddChannel(0, "all");
 					renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
 					renderMesh2.PlayAnimation(0, animIdle, true, 0f);
 					renderMesh2.PlayAnimation(1, animRunning, true, 0f);
 
-					var renderMesh3 = new SSSkeletalRenderMesh(skeliMeshMD5);
+					var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh3.diffuseTexture = tex;
 					renderMesh3.AddChannel(0, "all");
 					renderMesh3.PlayAnimation(0, animIdle, true, 0f);

@@ -8,18 +8,18 @@ namespace SimpleScene
 {
 	public class SSSkeletalRenderMesh : SSIndexedMesh<SSVertex_PosNormTex>
 	{
-		protected readonly SSSkeletalMesh m_skeletalMesh;
+		protected readonly SSSkeletalMeshRuntime m_skeletalMesh;
 		protected readonly SSVertex_PosNormTex[] m_vertices;
 		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
 			= new Dictionary<int, SSSkeletalAnimationChannel>();
 
 		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh)
-			: base(null, skeletalMesh.Indices)
+			: base(null, skeletalMesh.TriangleIndices)
 		{
-			m_skeletalMesh = skeletalMesh;
-			m_vertices = new SSVertex_PosNormTex[skeletalMesh.NumVertices];
-			for (int v = 0; v < skeletalMesh.NumVertices; ++v) {
-				m_vertices [v].TexCoord = skeletalMesh.TextureCoords (v);
+			m_skeletalMesh = new SSSkeletalMeshRuntime(skeletalMesh);
+			m_vertices = new SSVertex_PosNormTex[m_skeletalMesh.NumVertices];
+			for (int v = 0; v < m_skeletalMesh.NumVertices; ++v) {
+				m_vertices [v].TexCoord = m_skeletalMesh.TextureCoords (v);
 			}
 			computeVertices ();
 		}

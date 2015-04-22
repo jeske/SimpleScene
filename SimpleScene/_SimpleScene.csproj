@@ -141,10 +141,11 @@
     <Compile Include="Meshes\Skeletal\SSSkeletalRenderMesh.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationChannel.cs" />
     <Compile Include="Meshes\Skeletal\MD5\SSMD5Parser.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
     <Compile Include="Meshes\Skeletal\MD5\SSMD5MeshParser.cs" />
     <Compile Include="Meshes\Skeletal\MD5\SSMD5AnimParser.cs" />
-    <Compile Include="Meshes\Skeletal\MD5\SSSkeletalAnimation.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalMeshRuntime.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalAnimation.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
