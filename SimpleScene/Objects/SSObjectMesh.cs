@@ -19,6 +19,7 @@ namespace SimpleScene
             this.Mesh = mesh;        
             this.renderState.castsShadow = true;    // SSObjectMesh casts shadow by default
             this.renderState.receivesShadows = true; // SSObjectMesh receives shadow by default
+			_setupMesh ();
         }
 		
         private SSAbstractMesh _mesh;
@@ -48,15 +49,11 @@ namespace SimpleScene
         private void _setupMesh() {
             if (_mesh != null) {
                 // compute and setup bounding sphere
-                float radius = _mesh.Radius();
 
                 // TODO: fix this confusion -> currently boundingSphere is object-space radius, world-space position
                 //  this affects collision intersect, bounding-sphere rendering, and the SSObjectBVHNodeAdaptor
-				this.boundingSphere = new SSObjectSphere(radius);
-				this.OnChanged += (sender) => { 
-					this.boundingSphere.Pos = this.Pos;
-					this.boundingSphere.Scale = this.Scale;
-				};
+				this.OnChanged += updateBoundingSphere;
+				_mesh.OnMeshChanged += updateBoundingSphere;
 				// Console.WriteLine("constructed collision shell of radius {0}",radius);
 
 				// TODO: make a more detailed collision mesh
@@ -65,6 +62,16 @@ namespace SimpleScene
 				ObjectChanged(); 
 			} 
         }
+
+		private void updateBoundingSphere(SSObject sender)
+		{
+			if (this.boundingSphere == null) {
+				this.boundingSphere = new SSObjectSphere (0f);
+			}
+			this.boundingSphere.radius = _mesh.Radius();
+			this.boundingSphere.Pos = Vector3.Transform(_mesh.Center(), this.worldMat);
+			this.boundingSphere.Scale = this.Scale;
+		}
 			
 		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
 		{

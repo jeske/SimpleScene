@@ -167,10 +167,10 @@ namespace SimpleScene
                     continue;
                 } else {
                     for (int i = 0; i < c_numberOfSplits; ++i) {
-                        if (m_splitFrustums[i].isSphereInsideFrustum(obj.Pos, obj.ScaledRadius)) {
+						if (m_splitFrustums[i].isSphereInsideFrustum(obj.boundingSphere.Pos, obj.ScaledRadius)) {
                             // determine AABB in light coordinates of the objects so far
                             m_shrink[i] = true;                        
-                            Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+							Vector3 lightAlignedPos = Vector3.Transform(obj.boundingSphere.Pos, lightTransform);
                             Vector3 rad = new Vector3(obj.ScaledRadius);
                             Vector3 localMin = lightAlignedPos - rad;
                             Vector3 localMax = lightAlignedPos + rad;
@@ -222,7 +222,7 @@ namespace SimpleScene
                  || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
                 } else {
-                    Vector3 lightAlignedPos = Vector3.Transform(obj.Pos, lightTransform);
+					Vector3 lightAlignedPos = Vector3.Transform(obj.boundingSphere.Pos, lightTransform);
                     Vector3 rad = new Vector3(obj.ScaledRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;

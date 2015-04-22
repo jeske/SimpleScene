@@ -148,64 +148,6 @@ namespace TestBench0
 				scene.AddObject (asteroidRingRenderer);
 			}
 
-			// mesh test
-			#if false
-			{
-				SSSkeletalAnimation animIdle
-					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");
-				SSSkeletalAnimation animRunning
-					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
-
-				SSSkeletalMesh[] meshes 
-					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
-				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
-				foreach (var skeliMeshMD5 in meshes) {
-
-					var renderMesh1 = new SSSkeletalRenderMesh(skeliMeshMD5);
-					renderMesh1.diffuseTexture = tex;
-					renderMesh1.AddChannel(0, "all");
-					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
-
-					var renderMesh2 = new SSSkeletalRenderMesh(skeliMeshMD5);
-					renderMesh2.diffuseTexture = tex;
-					renderMesh2.AddChannel(0, "all");
-					renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
-					renderMesh2.PlayAnimation(0, animIdle, true, 0f);
-					renderMesh2.PlayAnimation(1, animRunning, true, 0f);
-
-					var renderMesh3 = new SSSkeletalRenderMesh(skeliMeshMD5);
-					renderMesh3.diffuseTexture = tex;
-					renderMesh3.AddChannel(0, "all");
-					renderMesh3.PlayAnimation(0, animIdle, true, 0f);
-
-					var obj1 = new SSObjectMesh(renderMesh1);
-					obj1.MainColor = Color4.Red;
-					obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					obj1.Scale = new Vector3(10);
-					obj1.boundingSphere = null;
-					scene.AddObject(obj1);
-
-					var obj2 = new SSObjectMesh(renderMesh2);
-					obj2.MainColor = Color.Lime;
-					obj2.Pos = new Vector3(-60f, 0f, 0f);
-					obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					//obj.MainColor = Color4.Lime;
-					obj2.Scale = new Vector3(10);
-					obj2.boundingSphere = null;
-					scene.AddObject(obj2);
-
-					var obj3 = new SSObjectMesh(renderMesh3);
-					obj3.MainColor = Color.DarkCyan;
-					obj3.Pos = new Vector3(-120f, 0f, 0f);
-					obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					//obj.MainColor = Color4.Lime;
-					obj3.Scale = new Vector3(10);
-					obj3.boundingSphere = null;
-					scene.AddObject(obj3);
-				}
-			}
-			#endif
-
 			// particle system test
 			// particle systems should be drawn last (if it requires alpha blending)
 			//if (false)

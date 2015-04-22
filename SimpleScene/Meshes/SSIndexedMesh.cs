@@ -30,6 +30,7 @@ namespace SimpleScene
         /// Initialize given arrays of vertices and/or indices.
         /// </summary>
         public SSIndexedMesh(V[] vertices, UInt16[] indices)
+			: base()
         {
             if (vertices == null) {
                 m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);

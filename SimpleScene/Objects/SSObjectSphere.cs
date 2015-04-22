@@ -12,7 +12,7 @@ namespace SimpleScene
 {
 	public class SSObjectSphere : SSObject
 	{
-	    public readonly float radius;
+	    public float radius;
 		public bool renderSolid = false;
 
 		Vector3[] icoSphereVertices;
@@ -98,9 +98,9 @@ namespace SimpleScene
 			GL.LineWidth(1.0f);
 
 			foreach (var face in icoSphereFaces) {
-				var v1 = icoSphereVertices[face.v1];
-				var v2 = icoSphereVertices[face.v2];
-				var v3 = icoSphereVertices[face.v3];
+				var v1 = icoSphereVertices[face.v1] * radius;
+				var v2 = icoSphereVertices[face.v2] * radius;
+				var v3 = icoSphereVertices[face.v3] * radius;
 
 				GL.Vertex3(v1);  GL.Vertex3(v2);
 				GL.Vertex3(v2);  GL.Vertex3(v3);

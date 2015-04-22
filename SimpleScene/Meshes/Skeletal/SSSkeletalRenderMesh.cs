@@ -12,6 +12,7 @@ namespace SimpleScene
 		protected readonly SSVertex_PosNormTex[] m_vertices;
 		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
 			= new Dictionary<int, SSSkeletalAnimationChannel>();
+		protected SSSphere m_boundingSphere;
 
 		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh)
 			: base(null, skeletalMesh.TriangleIndices)
@@ -58,11 +59,24 @@ namespace SimpleScene
 			var channels = new List<SSSkeletalAnimationChannel> ();
 			channels.AddRange (m_animChannels.Values);
 
-			m_skeletalMesh.ApplyAnimationChannels (channels);
+			SSAABB aabb;
+			m_skeletalMesh.ApplyAnimationChannels (channels, out aabb);
+			m_boundingSphere = aabb.ToSphere ();
+			MeshChanged ();
+
 			computeVertices ();
 
 			base.RenderMesh (ref renderConfig);
 			//renderNormals ();
+
+			#if false
+			// bounding box debugging
+			GL.Disable (EnableCap.Texture2D);
+			GL.Translate (aabb.Center ());
+			GL.Scale (aabb.Diff ());
+			GL.Color4 (1f, 0f, 0f, 0.1f);
+			SSTexturedCube.Instance.DrawArrays (ref renderConfig, PrimitiveType.Triangles);
+			#endif
 		}
 
 		public override void Update(float elapsedS)
@@ -92,6 +106,16 @@ namespace SimpleScene
 				GL.Vertex3 (m_vertices [v].Position + m_vertices [v].Normal * 0.1f); 
 				GL.End ();
 			}
+		}
+
+		public override Vector3 Center ()
+		{
+			return m_boundingSphere.center;
+		}
+
+		public override float Radius ()
+		{
+			return m_boundingSphere.radius;
 		}
 	}
 }

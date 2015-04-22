@@ -166,7 +166,7 @@ namespace SimpleScene
 		protected Vector3 _pos;
 		public Vector3 Pos {  
 			get { return _pos; } 
-			set { _pos = value; this.calcMatFromState();}
+ 			set { _pos = value; this.calcMatFromState();}
 		}
 		protected Vector3 _scale = new Vector3 (1.0f);
 		public Vector3 Scale { 

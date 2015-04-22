@@ -114,6 +114,18 @@ namespace SimpleScene
 					loc, prevLoc, FadeBlendPosition);
 			}
 		}
+
+		public SSAABB ComputeAABB()
+		{
+			SSAABB ret = new SSAABB (0f, 0f);
+			if (m_currAnimation != null) {
+				ret.ExpandBy(m_currAnimation.ComputeAABB(m_currT));
+			}
+			if (m_prevAnimation != null) {
+				ret.ExpandBy (m_prevAnimation.ComputeAABB (m_prevT));
+			}
+			return ret;
+		}
 	}
 }
 

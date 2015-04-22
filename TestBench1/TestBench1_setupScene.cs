@@ -47,17 +47,12 @@ namespace TestBench0
 			hudScene.AddObject(smapDebug);
 			#endif
 
-
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
-						
 			// last for the main scene. Add Camera
-
 			var camera = new SSCameraThirdPerson (null);
 			camera.followDistance = 50.0f;
 			camera.basePos = new Vector3 (0f, 10f, 0f);
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
-
 
 			// setup a sun billboard object and a sun flare spriter renderer
 			{
@@ -143,25 +138,23 @@ namespace TestBench0
 
 					var obj1 = new SSObjectMesh(renderMesh1);
 					obj1.MainColor = Color4.Red;
+					obj1.Name = "red bones";
 					obj1.Pos = new Vector3(6f, 0f, 0f);
 					obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					obj1.boundingSphere = null;
 					scene.AddObject(obj1);
 
 					var obj2 = new SSObjectMesh(renderMesh2);
 					obj2.MainColor = Color.Lime;
+					obj2.Name = "green bones";
 					obj2.Pos = new Vector3(0f, 0f, 0f);
 					obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					//obj2.Scale = new Vector3(10);
-					obj2.boundingSphere = null;
 					scene.AddObject(obj2);
 
 					var obj3 = new SSObjectMesh(renderMesh3);
 					obj3.MainColor = Color.DarkCyan;
+					obj3.Name = "blue bones";
 					obj3.Pos = new Vector3(-6f, 0f, 0f);
 					obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					//obj3.Scale = new Vector3(10);
-					obj3.boundingSphere = null;
 					scene.AddObject(obj3);
 				}
 			}

@@ -8,6 +8,8 @@ using OpenTK;
 namespace SimpleScene 
 {
 	public abstract class SSAbstractMesh {
+		public event SSObject.ChangedEventHandler OnMeshChanged;
+
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
 		public abstract void RenderMesh (ref SSRenderConfig renderConfig);
 
@@ -15,6 +17,11 @@ namespace SimpleScene
         {
             return 1f;
         }
+
+		public virtual Vector3 Center()
+		{
+			return Vector3.Zero;
+		}
 
         public virtual bool TraverseTriangles<T>(T state, traverseFn<T> fn) 
         {
@@ -27,6 +34,11 @@ namespace SimpleScene
 		}
 
 		public virtual void Update(float timeElapsed) { }
+
+		protected void MeshChanged()
+		{
+			OnMeshChanged (null);
+		}
 	}
 }
 

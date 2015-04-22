@@ -80,6 +80,13 @@ namespace SimpleScene
             return Max - Min;
         }
 
+		public SSSphere ToSphere()
+		{
+			Vector3 diff = Diff () / 2f;
+			float r = Math.Max (diff.X, Math.Max(diff.Y, diff.Z));
+			return new SSSphere (Center (), r);
+		}
+
         internal void ExpandToFit(SSAABB b) {
             if (b.Min.X < this.Min.X) { this.Min.X = b.Min.X; }            
             if (b.Min.Y < this.Min.Y) { this.Min.Y = b.Min.Y; }            
@@ -90,7 +97,7 @@ namespace SimpleScene
             if (b.Max.Z > this.Max.Z) { this.Max.Z = b.Max.Z; }                        
         }
 
-        internal SSAABB ExpandedBy(SSAABB b) {
+        public SSAABB ExpandedBy(SSAABB b) {
             SSAABB newbox = this;
             if (b.Min.X < newbox.Min.X) { newbox.Min.X = b.Min.X; }            
             if (b.Min.Y < newbox.Min.Y) { newbox.Min.Y = b.Min.Y; }            
@@ -103,7 +110,12 @@ namespace SimpleScene
             return newbox;
         }
 
-        public static SSAABB FromSphere(Vector3 pos, float radius) {
+		public void ExpandBy(SSAABB b) 
+		{
+			this = this.ExpandedBy (b);
+		}
+
+		public static SSAABB FromSphere(Vector3 pos, float radius) {
             SSAABB box;
             box.Min.X = pos.X - radius;
             box.Max.X = pos.X + radius;
