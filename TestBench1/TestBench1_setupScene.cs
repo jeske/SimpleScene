@@ -106,7 +106,7 @@ namespace TestBench0
 			}
 			#endif
 
-			// mesh test
+			// skeleton mesh test
 			#if true
 			{
 				SSSkeletalAnimation animIdle
@@ -157,6 +157,16 @@ namespace TestBench0
 					obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj3);
 				}
+			}
+			#endif
+
+			#if true
+			// bob mesh test
+			{
+				var bobBodyMesh = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(
+					"./bob_lamp/", "bob_lamp_update.md5mesh")[0];
+				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
+					"./bob_lamp/", "bob_lamp_update.md5anim");
 			}
 			#endif
 

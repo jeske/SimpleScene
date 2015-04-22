@@ -54,6 +54,7 @@
   <ItemGroup>
     <Folder Include="Assets\" />
     <Folder Include="Assets\skybox\" />
+    <Folder Include="Assets\bob_lamp\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\sun_flare.txt" />
@@ -84,6 +85,31 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox.png" />
     <None Include="Assets\skybox\skybox_readme.txt" />
+    <None Include="Assets\bob_lamp\Readme.txt" />
+    <None Include="Assets\bob_lamp\bob_body.tga" />
+    <None Include="Assets\bob_lamp\bob_body_h.tga" />
+    <None Include="Assets\bob_lamp\bob_body_local.tga" />
+    <None Include="Assets\bob_lamp\bob_body_s.tga" />
+    <None Include="Assets\bob_lamp\bob_head.tga" />
+    <None Include="Assets\bob_lamp\bob_head_h.tga" />
+    <None Include="Assets\bob_lamp\bob_head_local.tga" />
+    <None Include="Assets\bob_lamp\bob_head_s.tga" />
+    <None Include="Assets\bob_lamp\bob_helmet.tga" />
+    <None Include="Assets\bob_lamp\bob_helmet_h.tga" />
+    <None Include="Assets\bob_lamp\bob_helmet_local.tga" />
+    <None Include="Assets\bob_lamp\bob_helmet_s.tga" />
+    <None Include="Assets\bob_lamp\bob_lamp_update.blend" />
+    <None Include="Assets\bob_lamp\bob_lamp_update.md5anim" />
+    <None Include="Assets\bob_lamp\bob_lamp_update.md5mesh" />
+    <None Include="Assets\bob_lamp\bob_lamp_update_export.blend" />
+    <None Include="Assets\bob_lamp\bob_lamp_update_export.md5anim" />
+    <None Include="Assets\bob_lamp\bob_lamp_update_export.md5mesh" />
+    <None Include="Assets\bob_lamp\lantern.tga" />
+    <None Include="Assets\bob_lamp\lantern_h.tga" />
+    <None Include="Assets\bob_lamp\lantern_local.tga" />
+    <None Include="Assets\bob_lamp\lantern_top.tga" />
+    <None Include="Assets\bob_lamp\lantern_top_h.tga" />
+    <None Include="Assets\bob_lamp\lantern_top_local.tga" />
   </ItemGroup>
   <ItemGroup>
     <CopyAsset Include="Assets\testcube.mtl">

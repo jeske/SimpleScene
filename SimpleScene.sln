@@ -33,6 +33,7 @@ Global
 		{E028B740-9EBB-491B-8080-CDED0AAD2F92}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TestBench1\TestBench1.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.inheritsSet = null

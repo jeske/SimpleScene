@@ -41,8 +41,10 @@ namespace SimpleScene
 			seekEntry ("}");
 
 			for (int m = 0; m < meshes.Length; ++m) {
+				seekEntry ("mesh", "{");
 				meshes [m] = readMesh (joints);
 				meshes [m].Joints = joints;
+				seekEntry ("}");
 			}
 			return meshes;
 		}
@@ -73,7 +75,6 @@ namespace SimpleScene
 		private SSSkeletalMeshMD5 readMesh(SSSkeletalJointBaseInfo[] joints)
 		{
 			SSSkeletalMeshMD5 newMesh = new SSSkeletalMeshMD5 ();
-			seekEntry("mesh", "{");
 
 			Match[] matches;
 			matches = seekEntry("shader", SSMD5Parser.c_nameRegex);
