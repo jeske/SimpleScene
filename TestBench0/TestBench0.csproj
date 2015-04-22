@@ -47,13 +47,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Main_setupScene.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
-    <Compile Include="Main_renderScene.cs" />
-    <Compile Include="Main_setupInput.cs" />
     <Compile Include="AcmeExplosionSystem.cs" />
+    <Compile Include="TestBench0.cs" />
+    <Compile Include="TestBench0_renderScene.cs" />
+    <Compile Include="TestBench0_setupScene.cs" />
+    <Compile Include="TestBench0_setupInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
@@ -82,10 +82,6 @@
     <CopyAsset Include="Assets\testcube.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </CopyAsset>
-    <None Include="Assets\skybox\skybox-envmap.png" />
-    <None Include="Assets\skybox\skybox.mtl" />
-    <None Include="Assets\skybox\skybox.obj" />
-    <None Include="Assets\skybox\skybox_readme.txt" />
     <None Include="Assets\drone2\drone2_readme.txt" />
     <None Include="Assets\simpleasteroid\asteroid.mtl" />
     <None Include="Assets\simpleasteroid\asteroid.obj" />
@@ -108,12 +104,15 @@
     <None Include="Assets\boneman\md5.cfg" />
     <None Include="Assets\boneman\skin.png" />
     <None Include="Assets\boneman\skin_n.png" />
+    <None Include="Assets\skybox\skybox.mtl" />
+    <None Include="Assets\skybox\skybox.obj" />
+    <None Include="Assets\skybox\skybox_readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\skybox\" />
     <Folder Include="Assets\simpleasteroid\" />
     <Folder Include="Assets\explosions\" />
     <Folder Include="Assets\boneman\" />
+    <Folder Include="Assets\skybox\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
