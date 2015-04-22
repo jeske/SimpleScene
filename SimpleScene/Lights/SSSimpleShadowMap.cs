@@ -41,6 +41,7 @@ namespace SimpleScene
 		private void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm, Matrix4[] vp)
 		{
 			if (pgm == null) return;
+			pgm.Activate ();
 			pgm.UniNumShadowMaps = 1;
 			if (renderConfig.usePoissonSampling) {
 				Vector2[] poissonScales = { new Vector2 (1f) };
