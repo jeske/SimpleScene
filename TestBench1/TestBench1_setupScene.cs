@@ -167,12 +167,23 @@ namespace TestBench0
 					"./bob_lamp/", "bob_lamp_update.md5mesh")[0];
 				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
 					"./bob_lamp/", "bob_lamp_update.md5anim");
+				//var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
+				//	"./bob_lamp/", "bob_body.tga");
+				var bobRender = new SSSkeletalRenderMesh(bobBodyMesh);
+				bobRender.AddChannel(0, "all");
+				bobRender.PlayAnimation(0, bobAnim, true, 0f);
+				//bobRender.diffuseTexture = bobBodyTex;
+				var bobObj = new SSObjectMesh(bobRender);
+				bobObj.MainColor = Color4.Magenta;
+				bobObj.Pos = new Vector3(10f, 0f, 10f);
+				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(bobObj);
 			}
 			#endif
 
 			// particle system test
 			// particle systems should be drawn last (if it requires alpha blending)
-			//if (false)
+			#if false			
 			{
 				// setup an emitter
 				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
@@ -215,8 +226,8 @@ namespace TestBench0
 				SSParticleSystem cubesPs = new SSParticleSystem (1000);
 				cubesPs.addEmitter(emitter);
 				cubesPs.addEffector (periodicExplosiveForce);
-
 			}
+			#endif
 		}
 
 		public void setupEnvironment() 
