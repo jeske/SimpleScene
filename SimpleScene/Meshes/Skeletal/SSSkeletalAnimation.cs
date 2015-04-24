@@ -66,19 +66,6 @@ namespace SimpleScene
 					leftJointFrame,	rightJointFrame, remainder / FrameDuration);
 			}
 		}
-
-		public SSAABB ComputeAABB(float t)
-		{
-			int leftFrameIdx = (int)(t / FrameDuration);
-			SSAABB leftAABB = m_bounds [leftFrameIdx];
-			float remainder = t - ((float)leftFrameIdx * FrameDuration);
-			if (remainder == 0) {
-				return leftAABB;
-			} else {
-				SSAABB rightAABB = m_bounds [leftFrameIdx + 1];
-				return leftAABB.ExpandedBy (rightAABB);
-			}
-		}
 	}
 }
 
