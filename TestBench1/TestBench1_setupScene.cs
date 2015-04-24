@@ -85,7 +85,7 @@ namespace TestBench0
 			}
 
 			// checkerboard floor
-			#if false
+			#if true
 			{
 				SSTexture tex = SSAssetManager.GetInstance<SSTexture> (".", "checkerboard.png");
 				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(SSTexturedNormalQuad.DoubleFaceInstance);
@@ -107,7 +107,7 @@ namespace TestBench0
 			#endif
 
 			// skeleton mesh test
-			#if false
+			#if true
 			{
 				SSSkeletalAnimation animIdle
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");

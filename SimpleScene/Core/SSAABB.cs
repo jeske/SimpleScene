@@ -82,8 +82,7 @@ namespace SimpleScene
 
 		public SSSphere ToSphere()
 		{
-			Vector3 diff = Diff () / 2f;
-			float r = Math.Max (diff.X, Math.Max(diff.Y, diff.Z));
+			float r = (Diff ().LengthFast + 0.001f)/2f;
 			return new SSSphere (Center (), r);
 		}
 
