@@ -20,7 +20,6 @@ namespace SimpleScene
 		#region runtime only use
 		protected readonly List<int> m_topLevelJoints = new List<int> ();
 		protected Vector3[] m_baseNormals = null;
-		protected SSAABB m_bindPoseAABB;
 		#endregion
 
 		public int NumJoints {
@@ -64,7 +63,6 @@ namespace SimpleScene
 			m_triangleIndices = mesh.TriangleIndices;
 			m_materialShaderString = mesh.MaterialShaderString;
 			preComputeNormals ();
-			computeBindPoseAABB ();
 		}
 
 		public int JointIndex(string jointName)
@@ -152,19 +150,17 @@ namespace SimpleScene
 			}
 		}
 
-		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannel> channels, out SSAABB aabb)
+		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannel> channels)
 		{
-			aabb = new SSAABB (0f, 0f);
 			foreach (int j in m_topLevelJoints) {
-				traverseWithChannels (j, channels, null, null, ref aabb);
+				traverseWithChannels (j, channels, null, null);
 			}
 		}
 
 		private void traverseWithChannels(int j, 
 									      List<SSSkeletalAnimationChannel> channels,
 										  SSSkeletalAnimationChannel activeChannel,
-										  SSSkeletalAnimationChannel prevActiveChannel,
-										  ref SSAABB aabb)
+										  SSSkeletalAnimationChannel prevActiveChannel)
 		{
 			foreach (var channel in channels) {
 				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (j)) {
@@ -172,14 +168,12 @@ namespace SimpleScene
 						prevActiveChannel = activeChannel;
 					}
 					activeChannel = channel;
-					aabb.ExpandBy (channel.ComputeAABB ());
 				}
 			}
 			SSSkeletalJoint joint = m_joints [j];
 
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
-				aabb.ExpandBy (m_bindPoseAABB);
 			} else {
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (j);
 				int parentIdx = joint.BaseInfo.ParentIndex;
@@ -192,7 +186,6 @@ namespace SimpleScene
 					SSSkeletalJointLocation fallbackLoc;
 					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
 						fallbackLoc = joint.BaseInfo.BaseLocation;
-						aabb.ExpandBy (m_bindPoseAABB);
 					} else {
 						fallbackLoc = prevActiveChannel.ComputeJointFrame (j);
 						if (joint.BaseInfo.ParentIndex != -1) {
@@ -207,7 +200,7 @@ namespace SimpleScene
 			}
 
 			foreach (int child in joint.Children) {
-				traverseWithChannels (child, channels, activeChannel, prevActiveChannel, ref aabb);
+				traverseWithChannels (child, channels, activeChannel, prevActiveChannel);
 			}
 		}
 
@@ -251,16 +244,6 @@ namespace SimpleScene
 
 				// normalize the joint-local normal
 				m_vertices [v].Normal = m_vertices [v].Normal.Normalized ();
-			}
-		}
-
-		private void computeBindPoseAABB()
-		{
-			m_bindPoseAABB = new SSAABB (0f, 0f);
-			for (int v = 0; v < m_vertices.Length; ++v) {
-				Vector3 pos = ComputeVertexPos (v);
-				m_bindPoseAABB.UpdateMin (pos);
-				m_bindPoseAABB.UpdateMax (pos);
 			}
 		}
 	}

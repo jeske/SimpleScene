@@ -37,7 +37,9 @@ namespace SimpleScene
 
 		protected void MeshChanged()
 		{
-			OnMeshChanged (null);
+			if (OnMeshChanged != null) {
+				OnMeshChanged (null);
+			}
 		}
 	}
 }

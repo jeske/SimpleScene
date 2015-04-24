@@ -85,7 +85,7 @@ namespace TestBench0
 			}
 
 			// checkerboard floor
-			#if true
+			#if false
 			{
 				SSTexture tex = SSAssetManager.GetInstance<SSTexture> (".", "checkerboard.png");
 				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(SSTexturedNormalQuad.DoubleFaceInstance);
@@ -107,7 +107,7 @@ namespace TestBench0
 			#endif
 
 			// skeleton mesh test
-			#if true
+			#if false
 			{
 				SSSkeletalAnimation animIdle
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");
@@ -167,12 +167,12 @@ namespace TestBench0
 					"./bob_lamp/", "bob_lamp_update.md5mesh")[0];
 				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
 					"./bob_lamp/", "bob_lamp_update.md5anim");
-				//var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
-				//	"./bob_lamp/", "bob_body.tga");
+				var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
+					"./bob_lamp/", "bob_body.png");
 				var bobRender = new SSSkeletalRenderMesh(bobBodyMesh);
 				bobRender.AddChannel(0, "all");
 				bobRender.PlayAnimation(0, bobAnim, true, 0f);
-				//bobRender.diffuseTexture = bobBodyTex;
+				bobRender.diffuseTexture = bobBodyTex;
 				var bobObj = new SSObjectMesh(bobRender);
 				bobObj.MainColor = Color4.Magenta;
 				bobObj.Pos = new Vector3(10f, 0f, 10f);

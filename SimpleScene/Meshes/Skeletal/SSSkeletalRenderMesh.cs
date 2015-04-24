@@ -59,23 +59,22 @@ namespace SimpleScene
 			var channels = new List<SSSkeletalAnimationChannel> ();
 			channels.AddRange (m_animChannels.Values);
 
-			SSAABB aabb;
-			m_skeletalMesh.ApplyAnimationChannels (channels, out aabb);
-			m_boundingSphere = aabb.ToSphere ();
-			MeshChanged ();
+			m_skeletalMesh.ApplyAnimationChannels (channels);
 
 			computeVertices ();
 
 			base.RenderMesh (ref renderConfig);
 			//renderNormals ();
-
 			#if false
+			SSShaderProgram.DeactivateAll ();
 			// bounding box debugging
+			GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
 			GL.Disable (EnableCap.Texture2D);
 			GL.Translate (aabb.Center ());
 			GL.Scale (aabb.Diff ());
 			GL.Color4 (1f, 0f, 0f, 0.1f);
 			SSTexturedCube.Instance.DrawArrays (ref renderConfig, PrimitiveType.Triangles);
+			GL.PolygonMode(MaterialFace.Front, PolygonMode.Fill);
 			#endif
 		}
 
@@ -88,11 +87,19 @@ namespace SimpleScene
 
 		private void computeVertices()
 		{
+			SSAABB aabb= new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
 			for (int v = 0; v < m_skeletalMesh.NumVertices; ++v) {
-				m_vertices [v].Position = m_skeletalMesh.ComputeVertexPos (v);
+				// position
+				Vector3 pos = m_skeletalMesh.ComputeVertexPos (v);
+				m_vertices [v].Position = pos;
+				aabb.UpdateMin (pos);
+				aabb.UpdateMax (pos);
+				// normal
 				m_vertices [v].Normal = m_skeletalMesh.ComputeVertexNormal (v);
 			}
 			m_vbo.UpdateBufferData (m_vertices);
+			m_boundingSphere = aabb.ToSphere ();
+			MeshChanged ();
 		}
 
 
