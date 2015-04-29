@@ -174,7 +174,6 @@ namespace TestBench0
 				bobRender.PlayAnimation(0, bobAnim, true, 0f);
 				bobRender.diffuseTexture = bobBodyTex;
 				var bobObj = new SSObjectMesh(bobRender);
-				bobObj.MainColor = Color4.Magenta;
 				bobObj.Pos = new Vector3(10f, 0f, 10f);
 				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(bobObj);
