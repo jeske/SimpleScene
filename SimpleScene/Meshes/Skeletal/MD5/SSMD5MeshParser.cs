@@ -29,7 +29,7 @@ namespace SimpleScene
 			seekEntry ("commandline", SSMD5Parser.c_nameRegex);
 
 			matches = seekEntry ("numJoints", SSMD5Parser.c_uintRegex);
-			var joints = new SSSkeletalJointBaseInfo[Convert.ToUInt32(matches[1].Value)];
+			var joints = new SSSkeletalJoint[Convert.ToUInt32(matches[1].Value)];
 
 			matches = seekEntry ( "numMeshes", SSMD5Parser.c_uintRegex);
 			var meshes = new SSSkeletalMeshMD5[Convert.ToUInt32 (matches [1].Value)];
@@ -49,7 +49,7 @@ namespace SimpleScene
 			return meshes;
 		}
 
-		private SSSkeletalJointBaseInfo readJoint()
+		private SSSkeletalJoint readJoint()
 		{
 			Match[] matches = seekEntry (
 				SSMD5Parser.c_nameRegex, // joint name
@@ -57,7 +57,7 @@ namespace SimpleScene
 				SSMD5Parser.c_parOpen, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_parClose, // position
 				SSMD5Parser.c_parOpen, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_parClose  // orientation			
 			);
-			SSSkeletalJointBaseInfo ret = new SSSkeletalJointBaseInfo();
+			SSSkeletalJoint ret = new SSSkeletalJoint();
 			ret.Name = matches[0].Captures[0].Value;
 			ret.ParentIndex = Convert.ToInt32(matches[1].Value);
 
@@ -72,7 +72,7 @@ namespace SimpleScene
 			return ret;
 		}
 
-		private SSSkeletalMeshMD5 readMesh(SSSkeletalJointBaseInfo[] joints)
+		private SSSkeletalMeshMD5 readMesh(SSSkeletalJoint[] joints)
 		{
 			SSSkeletalMeshMD5 newMesh = new SSSkeletalMeshMD5 ();
 
@@ -124,7 +124,6 @@ namespace SimpleScene
 			ret.TextureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
 			ret.WeightStartIndex = Convert.ToInt32(matches[6].Value);
 			ret.WeightCount = Convert.ToInt32(matches[7].Value);
-			ret.Normal = Vector3.Zero;
 			return ret;
 		}
 

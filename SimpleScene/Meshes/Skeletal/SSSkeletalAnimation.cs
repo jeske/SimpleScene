@@ -8,7 +8,7 @@ namespace SimpleScene
 		protected int m_frameRate;
 
 		protected SSAABB[] m_bounds;
-		protected SSSkeletalJointBaseInfo[] m_hierarchy;
+		protected SSSkeletalJoint[] m_hierarchy;
 		protected SSSkeletalJointLocation[][] m_frames;
 
 		// temp use
@@ -38,12 +38,12 @@ namespace SimpleScene
 			get { return m_bounds; }
 		}
 
-		public SSSkeletalJointBaseInfo[] JointHierarchy {
+		public SSSkeletalJoint[] JointHierarchy {
 			get { return m_hierarchy; }
 		}
 
 		public SSSkeletalAnimation (int frameRate,
-									SSSkeletalJointBaseInfo[] jointInfo,
+									SSSkeletalJoint[] jointInfo,
 									SSSkeletalJointLocation[][] frames,
 									SSAABB[] bounds = null)
 		{

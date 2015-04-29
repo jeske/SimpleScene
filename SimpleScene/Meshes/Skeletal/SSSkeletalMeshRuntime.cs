@@ -11,10 +11,10 @@ namespace SimpleScene
 		#region input from file formats
 		protected string m_materialShaderString;
 
-		protected SSSkeletalVertex[] m_vertices = null;
+		protected SSSkeletalVertexRuntime[] m_vertices = null;
 		protected SSSkeletalWeight[] m_weights = null;
 		protected UInt16[] m_triangleIndices = null;
-		protected SSSkeletalJoint[] m_joints = null;
+		protected SSSkeletalJointRuntime[] m_joints = null;
 		#endregion
 
 		#region runtime only use
@@ -48,9 +48,9 @@ namespace SimpleScene
 
 		public SSSkeletalMeshRuntime (SSSkeletalMesh mesh)
 		{
-			m_joints = new SSSkeletalJoint[mesh.Joints.Length];
+			m_joints = new SSSkeletalJointRuntime[mesh.Joints.Length];
 			for (int j = 0; j < mesh.Joints.Length; ++j) {
-				m_joints[j] = new SSSkeletalJoint (mesh.Joints [j]);
+				m_joints[j] = new SSSkeletalJointRuntime (mesh.Joints [j]);
 				int parentIdx = mesh.Joints [j].ParentIndex;
 				if (parentIdx != -1) {
 					m_joints [parentIdx].Children.Add (j);
@@ -58,8 +58,12 @@ namespace SimpleScene
 					m_topLevelJoints.Add (j);
 				}
 			}
+			m_vertices = new SSSkeletalVertexRuntime[mesh.Vertices.Length];
+			for (int v = 0; v < mesh.Vertices.Length; ++v) {
+				m_vertices [v] = new SSSkeletalVertexRuntime (mesh.Vertices [v]);
+			}
+
 			m_weights = mesh.Weights;
-			m_vertices = mesh.Vertices;
 			m_triangleIndices = mesh.TriangleIndices;
 			m_materialShaderString = mesh.MaterialShaderString;
 			preComputeNormals ();
@@ -84,11 +88,11 @@ namespace SimpleScene
 		public Vector3 ComputeVertexPos(int vertexIndex)
 		{
 			Vector3 currentPos = Vector3.Zero;
-			SSSkeletalVertex vertex = m_vertices [vertexIndex];
+			SSSkeletalVertex vertex = m_vertices [vertexIndex].BaseInfo;
 
 			for (int w = 0; w < vertex.WeightCount; ++w) {
 				SSSkeletalWeight weight = m_weights [vertex.WeightStartIndex + w];
-				SSSkeletalJoint joint = m_joints [weight.JointIndex];
+				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
 
 				Vector3 currWeightPos = Vector3.Transform (weight.Position, joint.CurrentLocation.Orientation); 
 				currentPos += weight.Bias * (joint.CurrentLocation.Position + currWeightPos);
@@ -98,12 +102,12 @@ namespace SimpleScene
 
 		public Vector3 ComputeVertexNormal(int vertexIndex)
 		{
-			SSSkeletalVertex vertex = m_vertices [vertexIndex];
+			SSSkeletalVertexRuntime vertex = m_vertices [vertexIndex];
 			Vector3 currentNormal = Vector3.Zero;
 
-			for (int w = 0; w < vertex.WeightCount; ++w) {
-				SSSkeletalWeight weight = m_weights [vertex.WeightStartIndex + w];
-				SSSkeletalJoint joint = m_joints [weight.JointIndex];
+			for (int w = 0; w < vertex.BaseInfo.WeightCount; ++w) {
+				SSSkeletalWeight weight = m_weights [vertex.BaseInfo.WeightStartIndex + w];
+				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
 				currentNormal += weight.Bias * Vector3.Transform (vertex.Normal, joint.CurrentLocation.Orientation);
 			}
 			return currentNormal;
@@ -111,7 +115,7 @@ namespace SimpleScene
 
 		public Vector2 TextureCoords(int vertexIndex)
 		{
-			return m_vertices [vertexIndex].TextureCoords;
+			return m_vertices [vertexIndex].BaseInfo.TextureCoords;
 		}
 
 		public void VerifyAnimation(SSSkeletalAnimation animation)
@@ -124,8 +128,8 @@ namespace SimpleScene
 				throw new Exception (str);
 			}
 			for (int j = 0; j < NumJoints; ++j) {
-				SSSkeletalJointBaseInfo meshInfo = this.m_joints [j].BaseInfo;
-				SSSkeletalJointBaseInfo animInfo = animation.JointHierarchy [j];
+				SSSkeletalJoint meshInfo = this.m_joints [j].BaseInfo;
+				SSSkeletalJoint animInfo = animation.JointHierarchy [j];
 				if (meshInfo.Name != animInfo.Name) {
 					string str = string.Format (
 						"Joint name mismatch: {0} in md5mesh, {1} in md5anim",
@@ -170,7 +174,7 @@ namespace SimpleScene
 					activeChannel = channel;
 				}
 			}
-			SSSkeletalJoint joint = m_joints [j];
+			SSSkeletalJointRuntime joint = m_joints [j];
 
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
@@ -235,9 +239,10 @@ namespace SimpleScene
 
 				// Put the bind-pose normal into joint-local space
 				// so the animated normal can be computed faster later
-				for (int w = 0; w < m_vertices [v].WeightCount; ++w) {
-					SSSkeletalWeight weight = m_weights [m_vertices [v].WeightStartIndex + w];
-					SSSkeletalJoint joint = m_joints [weight.JointIndex];
+				var vertBaseInfo = m_vertices [v].BaseInfo;
+				for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
+					SSSkeletalWeight weight = m_weights [vertBaseInfo.WeightStartIndex + w];
+					SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
 					m_vertices [v].Normal 
 					+= Vector3.Transform (normal, joint.BaseInfo.BaseLocation.Orientation.Inverted()) * weight.Bias;
 				}
@@ -248,83 +253,34 @@ namespace SimpleScene
 		}
 	}
 
-	public struct SSSkeletalVertex
+	public struct SSSkeletalVertexRuntime
 	{
-		#region from MD5 mesh
-		//public int VertexIndex;
-		public Vector2 TextureCoords;
 		public Vector3 Normal;
-		public int WeightStartIndex;
-		public int WeightCount;
-		#endregion
-	}
+		private SSSkeletalVertex m_baseInfo;
 
-	public struct SSSkeletalWeight
-	{
-		#region from MD5 mesh
-		//public int WeightIndex;
-		public int JointIndex;
-		public float Bias;
-		public Vector3 Position;
-		#endregion
-	}
-
-
-	public struct SSSkeletalJointLocation
-	{
-		public Vector3 Position;
-		public Quaternion Orientation;
-
-		public static SSSkeletalJointLocation Interpolate(SSSkeletalJointLocation left, 
-			SSSkeletalJointLocation right, 
-			float blend)
-		{
-			SSSkeletalJointLocation ret;
-			ret.Position = Vector3.Lerp(left.Position, right.Position, blend);
-			ret.Orientation = Quaternion.Slerp(left.Orientation, right.Orientation, blend);
-			return ret;
+		public SSSkeletalVertex BaseInfo {
+			get { return m_baseInfo; }
 		}
 
-		public void ComputeQuatW()
+		public SSSkeletalVertexRuntime(SSSkeletalVertex vertex)
 		{
-			float t = 1f - Orientation.X * Orientation.X 
-				- Orientation.Y * Orientation.Y 
-				- Orientation.Z * Orientation.Z;
-			Orientation.W = t < 0f ? 0f : -(float)Math.Sqrt(t);
+			m_baseInfo = vertex;
+			Normal = Vector3.Zero;
 		}
-
-		public void ApplyParentTransform(SSSkeletalJointLocation parentLoc)
-		{
-			Position = parentLoc.Position 
-				+ Vector3.Transform (Position, parentLoc.Orientation);
-			Orientation = Quaternion.Multiply (parentLoc.Orientation, 
-				Orientation);
-			Orientation.Normalize ();
-		}
-
 	}
 
-	public class SSSkeletalJointBaseInfo
-	{
-		#region from MD5 mesh
-		public string Name;
-		public int ParentIndex;
-		public SSSkeletalJointLocation BaseLocation;
-		#endregion
-	}
-
-	public class SSSkeletalJoint
+	public class SSSkeletalJointRuntime
 	{
 		public SSSkeletalJointLocation CurrentLocation;
 		public List<int> Children = new List<int>();
 
-		protected SSSkeletalJointBaseInfo m_baseInfo;
+		protected SSSkeletalJoint m_baseInfo;
 
-		public SSSkeletalJointBaseInfo BaseInfo {
+		public SSSkeletalJoint BaseInfo {
 			get { return m_baseInfo; }
 		}
 
-		public SSSkeletalJoint(SSSkeletalJointBaseInfo baseInfo)
+		public SSSkeletalJointRuntime(SSSkeletalJoint baseInfo)
 		{
 			m_baseInfo = baseInfo;
 			CurrentLocation = m_baseInfo.BaseLocation;

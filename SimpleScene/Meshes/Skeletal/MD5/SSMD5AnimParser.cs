@@ -8,7 +8,7 @@ namespace SimpleScene
 	public class SSSkeletalAnimationMD5 : SSSkeletalAnimation
 	{ 
 		public SSSkeletalAnimationMD5 (int frameRate,
-									   SSSkeletalJointBaseInfo[] jointInfo,
+									   SSSkeletalJoint[] jointInfo,
 									   SSSkeletalJointLocation[][] frames,
 									   SSAABB[] bounds)
 			: base(frameRate, jointInfo, frames, bounds)
@@ -56,7 +56,7 @@ namespace SimpleScene
 
 			// hierarchy
 			seekEntry ("hierarchy", "{");
-			var hierarchy = new SSSkeletalJointBaseInfo[numJoints];
+			var hierarchy = new SSSkeletalJoint[numJoints];
 			var flags = new byte[numJoints];
 			for (int j = 0; j < numJoints; ++j) {
 				hierarchy [j] = readHierarchyEntry (out flags [j]);
@@ -89,7 +89,7 @@ namespace SimpleScene
 			return new SSSkeletalAnimationMD5 (frameRate, hierarchy, frames, bounds);
 		}
 
-		private SSSkeletalJointBaseInfo readHierarchyEntry(out byte flags)
+		private SSSkeletalJoint readHierarchyEntry(out byte flags)
 		{
 			Match[] matches = seekEntry(
 				SSMD5Parser.c_nameRegex, // name
@@ -97,7 +97,7 @@ namespace SimpleScene
 				SSMD5Parser.c_uintRegex, // flags
 				SSMD5Parser.c_uintRegex // start index (currently not used)
 			);
-			SSSkeletalJointBaseInfo ret = new SSSkeletalJointBaseInfo();
+			SSSkeletalJoint ret = new SSSkeletalJoint();
 			ret.Name = matches[0].Value;
 			ret.ParentIndex = Convert.ToInt32(matches[1].Value);
 			flags = Convert.ToByte(matches[2].Value);
@@ -159,7 +159,7 @@ namespace SimpleScene
 
 
 		private SSSkeletalJointLocation[] readFrameJoints(byte[] jointFlags,
-														  SSSkeletalJointBaseInfo[] jointInfos,
+														  SSSkeletalJoint[] jointInfos,
 														  float[] floatComponents)
 		{
 			seekFloats (floatComponents);
@@ -167,7 +167,7 @@ namespace SimpleScene
 			int compIdx = 0;
 			for (int j = 0; j < jointInfos.Length; ++j) {
 				byte flags = jointFlags[j];
-				SSSkeletalJointBaseInfo jointInfo = jointInfos [j];
+				SSSkeletalJoint jointInfo = jointInfos [j];
 				SSSkeletalJointLocation loc = jointInfo.BaseLocation;
 				if ((flags & (byte)LocationFlags.Tx) != 0) {
 					loc.Position.X = floatComponents [compIdx++];

@@ -64,7 +64,7 @@ namespace SimpleScene
 			computeVertices ();
 
 			base.RenderMesh (ref renderConfig);
-			//renderNormals ();
+			renderNormals ();
 			#if false
 			SSShaderProgram.DeactivateAll ();
 			// bounding box debugging
@@ -110,7 +110,7 @@ namespace SimpleScene
 			for (int v = 0; v < m_vertices.Length; ++v) {
 				GL.Begin (PrimitiveType.Lines);
 				GL.Vertex3 (m_vertices [v].Position);
-				GL.Vertex3 (m_vertices [v].Position + m_vertices [v].Normal * 0.1f); 
+				GL.Vertex3 (m_vertices [v].Position + m_vertices [v].Normal * 0.5f); 
 				GL.End ();
 			}
 		}
