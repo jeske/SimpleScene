@@ -64,7 +64,8 @@ namespace SimpleScene
 			computeVertices ();
 
 			base.RenderMesh (ref renderConfig);
-			renderNormals ();
+
+			//renderNormals ();
 			#if false
 			SSShaderProgram.DeactivateAll ();
 			// bounding box debugging

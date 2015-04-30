@@ -110,7 +110,7 @@ namespace SimpleScene
 				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
 				currentNormal += weight.Bias * Vector3.Transform (vertex.Normal, joint.CurrentLocation.Orientation);
 			}
-			return currentNormal;
+			return currentNormal.Normalized();
 		}
 
 		public Vector2 TextureCoords(int vertexIndex)
@@ -248,7 +248,7 @@ namespace SimpleScene
 				}
 
 				// normalize the joint-local normal
-				m_vertices [v].Normal = m_vertices [v].Normal.Normalized ();
+				m_vertices [v].Normal.Normalize ();
 			}
 		}
 	}

@@ -88,21 +88,20 @@ namespace TestBench0
 			#if true
 			{
 				SSTexture tex = SSAssetManager.GetInstance<SSTexture> (".", "checkerboard.png");
-				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(SSTexturedNormalQuad.DoubleFaceInstance);
-				quadMesh.diffuseTexture = tex;
 				const float tileSz = 4f;
 				const int gridSz = 10;
-				Quaternion orient = Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f);
-				for (int x = -gridSz/2; x < gridSz/2; x++) {
-					for (int z = -gridSz/2; z < gridSz/2; ++z) {
-						var tileObj = new SSObjectMesh(quadMesh);
-						tileObj.Pos = new Vector3(tileSz * x, 0f, tileSz * z);
-						tileObj.Scale = new Vector3(tileSz);
-						tileObj.Orient(orient);
-						tileObj.MainColor = new Color4(1f, 1f, 1f, 0.5f);
-						scene.AddObject(tileObj);
-					}
+				var tileVertices = new SSVertex_PosNormTex[SSTexturedNormalQuad.c_doubleFaceVertices.Length];
+				SSTexturedNormalQuad.c_doubleFaceVertices.CopyTo(tileVertices, 0);
+				for (int v = 0; v < tileVertices.Length; ++v) {
+					tileVertices[v].TexCoord *= (float)gridSz;
 				}
+
+				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(tileVertices);
+				quadMesh.diffuseTexture = tex;
+				var tileObj = new SSObjectMesh(quadMesh);
+				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
+				tileObj.Scale = new Vector3(tileSz * gridSz);
+				scene.AddObject(tileObj);
 			}
 			#endif
 

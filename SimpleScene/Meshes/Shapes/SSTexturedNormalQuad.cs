@@ -14,7 +14,7 @@ namespace SimpleScene
 			DoubleFaceInstance = new SSVertexBuffer<SSVertex_PosNormTex>(c_doubleFaceVertices);
 		}
 
-		private static readonly SSVertex_PosNormTex[] c_singleFaceVertices = {
+		public static readonly SSVertex_PosNormTex[] c_singleFaceVertices = {
 			// CCW quad; no indexing
 			new SSVertex_PosNormTex(new Vector3(-.5f, -.5f, 0f), Vector3.UnitZ, new Vector2(0f, 1f)),
 			new SSVertex_PosNormTex(new Vector3(+.5f, -.5f, 0f), Vector3.UnitZ, new Vector2(1f, 1f)),
@@ -25,7 +25,7 @@ namespace SimpleScene
 			new SSVertex_PosNormTex(new Vector3(-.5f, +.5f, 0f), Vector3.UnitZ, new Vector2(0f, 0f)),
 		};
 
-		private static readonly SSVertex_PosNormTex[] c_doubleFaceVertices = {
+		public static readonly SSVertex_PosNormTex[] c_doubleFaceVertices = {
 			// CCW quad; no indexing
 			new SSVertex_PosNormTex(new Vector3(-.5f, -.5f, 0f), Vector3.UnitZ, new Vector2(0f, 1f)),
 			new SSVertex_PosNormTex(new Vector3(+.5f, -.5f, 0f), Vector3.UnitZ, new Vector2(1f, 1f)),
