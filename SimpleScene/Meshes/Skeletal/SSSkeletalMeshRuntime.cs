@@ -46,17 +46,25 @@ namespace SimpleScene
 			get { return m_topLevelJoints.ToArray (); }
 		}
 
-		public SSSkeletalMeshRuntime (SSSkeletalMesh mesh)
+		public SSSkeletalJointRuntime[] Joints {
+			get { return m_joints; }
+		}
+
+		public SSSkeletalMeshRuntime (SSSkeletalMesh mesh, SSSkeletalJointRuntime[] sharedJoints = null)
 		{
-			m_joints = new SSSkeletalJointRuntime[mesh.Joints.Length];
-			for (int j = 0; j < mesh.Joints.Length; ++j) {
-				m_joints[j] = new SSSkeletalJointRuntime (mesh.Joints [j]);
-				int parentIdx = mesh.Joints [j].ParentIndex;
-				if (parentIdx != -1) {
-					m_joints [parentIdx].Children.Add (j);
-				} else {
-					m_topLevelJoints.Add (j);
+			if (sharedJoints == null) {
+				m_joints = new SSSkeletalJointRuntime[mesh.Joints.Length];
+				for (int j = 0; j < mesh.Joints.Length; ++j) {
+					m_joints [j] = new SSSkeletalJointRuntime (mesh.Joints [j]);
+					int parentIdx = mesh.Joints [j].ParentIndex;
+					if (parentIdx != -1) {
+						m_joints [parentIdx].Children.Add (j);
+					} else {
+						m_topLevelJoints.Add (j);
+					}
 				}
+			} else {
+				m_joints = sharedJoints;
 			}
 			m_vertices = new SSSkeletalVertexRuntime[mesh.Vertices.Length];
 			for (int v = 0; v < mesh.Vertices.Length; ++v) {
@@ -83,6 +91,11 @@ namespace SimpleScene
 			string errMsg = string.Format ("Joint not found: \"{0}\"", jointName);
 			System.Console.WriteLine (errMsg);
 			throw new Exception (errMsg);
+		}
+
+		public SSSkeletalJointLocation JointLocation(int jointIdx) 
+		{
+			return m_joints [jointIdx].CurrentLocation;
 		}
 
 		public Vector3 ComputeVertexPos(int vertexIndex)

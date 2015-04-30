@@ -162,20 +162,20 @@ namespace TestBench0
 			#if true
 			// bob mesh test
 			{
-				var bobBodyMesh = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(
-					"./bob_lamp/", "bob_lamp_update.md5mesh")[0];
+				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(
+					"./bob_lamp/", "bob_lamp_update.md5mesh");
 				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
 					"./bob_lamp/", "bob_lamp_update.md5anim");
 				var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
 					"./bob_lamp/", "bob_body.png");
-				var bobRender = new SSSkeletalRenderMesh(bobBodyMesh);
-				bobRender.AddChannel(0, "all");
-				bobRender.PlayAnimation(0, bobAnim, true, 0f);
-				bobRender.diffuseTexture = bobBodyTex;
-				var bobObj = new SSObjectMesh(bobRender);
-				bobObj.Pos = new Vector3(10f, 0f, 10f);
-				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				scene.AddObject(bobObj);
+				var bobBodyRender = new SSSkeletalRenderMesh(bobMeshes);
+				bobBodyRender.AddChannel(0, "all");
+				bobBodyRender.PlayAnimation(0, bobAnim, true, 0f);
+				bobBodyRender.diffuseTexture = bobBodyTex;
+				var bobBodyObj = new SSObjectMesh(bobBodyRender);
+				bobBodyObj.Pos = new Vector3(10f, 0f, 10f);
+				bobBodyObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(bobBodyObj);
 			}
 			#endif
 

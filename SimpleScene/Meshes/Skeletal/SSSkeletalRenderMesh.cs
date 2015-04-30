@@ -8,21 +8,35 @@ namespace SimpleScene
 {
 	public class SSSkeletalRenderMesh : SSIndexedMesh<SSVertex_PosNormTex>
 	{
+		// TODO Textures per render mesh, extracted from SSSkeletalMesh
+		// TODO Detach mesh
+
 		protected readonly SSSkeletalMeshRuntime m_skeletalMesh;
 		protected readonly SSVertex_PosNormTex[] m_vertices;
 		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
 			= new Dictionary<int, SSSkeletalAnimationChannel>();
 		protected SSSphere m_boundingSphere;
+		protected List<SSSkeletalRenderMesh> m_attachedSkeletalMeshes;
 
-		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh)
+		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh, 
+									 SSSkeletalJointRuntime[] sharedJoints = null)
 			: base(null, skeletalMesh.TriangleIndices)
 		{
-			m_skeletalMesh = new SSSkeletalMeshRuntime(skeletalMesh);
+			m_skeletalMesh = new SSSkeletalMeshRuntime(skeletalMesh, sharedJoints);
 			m_vertices = new SSVertex_PosNormTex[m_skeletalMesh.NumVertices];
 			for (int v = 0; v < m_skeletalMesh.NumVertices; ++v) {
 				m_vertices [v].TexCoord = m_skeletalMesh.TextureCoords (v);
 			}
+			m_attachedSkeletalMeshes = new List<SSSkeletalRenderMesh> ();
 			computeVertices ();
+		}
+
+		public SSSkeletalRenderMesh(SSSkeletalMesh[] skeletalMeshes) 
+			: this(skeletalMeshes[0], null)
+		{
+			for (int i = 1; i < skeletalMeshes.Length; ++i) {
+				AttachMesh (skeletalMeshes [i]);
+			}
 		}
 
 		public void AddChannel(int channelId, params int[] topLevelActiveJointIds)
@@ -54,16 +68,27 @@ namespace SimpleScene
 			channel.PlayAnimation (anim, repeat, transitionTime);
 		}
 
+		public void AttachMesh(SSSkeletalMesh mesh)
+		{
+			var newRender = new SSSkeletalRenderMesh (mesh, m_skeletalMesh.Joints);
+			m_attachedSkeletalMeshes.Add (newRender);
+		}
+
 		public override void RenderMesh(ref SSRenderConfig renderConfig)
 		{
+			// apply animation channels
 			var channels = new List<SSSkeletalAnimationChannel> ();
 			channels.AddRange (m_animChannels.Values);
-
 			m_skeletalMesh.ApplyAnimationChannels (channels);
 
+			// compute vertex positions, normals
 			computeVertices ();
 
+			// render vertices + indices
 			base.RenderMesh (ref renderConfig);
+			foreach (SSSkeletalRenderMesh rm in m_attachedSkeletalMeshes) {
+				rm.RenderMesh (ref renderConfig);
+			}
 
 			//renderNormals ();
 			#if false
@@ -124,6 +149,15 @@ namespace SimpleScene
 		public override float Radius ()
 		{
 			return m_boundingSphere.radius;
+		}
+
+		protected class AttachedObjectInfo
+		{
+			public SSObject AttachedObject;
+			public int JointIdx;
+			public Vector3 PositionOffset;
+			public Quaternion OrientOffset;
+			public bool ControlOrient;
 		}
 	}
 }
