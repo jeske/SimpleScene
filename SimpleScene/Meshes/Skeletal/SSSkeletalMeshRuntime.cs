@@ -267,7 +267,7 @@ namespace SimpleScene
 				// Put the bind-pose normal into joint-local space
 				// so the animated normal can be computed faster later
 				var vertBaseInfo = m_vertices [v].BaseInfo;
-				for (int w = vertBaseInfo.WeightCount-1; w >= 0 ; --w) {
+                for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
 					SSSkeletalWeight weight = m_weights [vertBaseInfo.WeightStartIndex + w];
 					SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
 
