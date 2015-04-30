@@ -98,6 +98,11 @@ namespace SimpleScene
 			return m_joints [jointIdx].CurrentLocation;
 		}
 
+        public Vector3 ComputeVertexPosFromTriIndex(int triangleVertexIndex) {
+            int vertexIndex = m_triangleIndices[triangleVertexIndex];
+            return ComputeVertexPos(vertexIndex);
+        }
+
 		public Vector3 ComputeVertexPos(int vertexIndex)
 		{
 			Vector3 currentPos = Vector3.Zero;
@@ -231,12 +236,12 @@ namespace SimpleScene
 			for (int i = 0; i < NumTriangles; ++i) {
 				int baseIdx = i * 3;
 				int v0 = m_triangleIndices [baseIdx];
-				int v1 = m_triangleIndices [baseIdx + 2];
-				int v2 = m_triangleIndices [baseIdx + 1];
+				int v1 = m_triangleIndices [baseIdx + 1];
+				int v2 = m_triangleIndices [baseIdx + 2];
 				Vector3 p0 = ComputeVertexPos (v0);
 				Vector3 p1 = ComputeVertexPos (v1);
 				Vector3 p2 = ComputeVertexPos (v2);
-				Vector3 normal = Vector3.Cross (p2 - p0, p1 - p0);
+				Vector3 normal = Vector3.Cross (p1 - p0, p2 - p0);
 				m_vertices [v0].Normal += normal;
 				m_vertices [v1].Normal += normal;
 				m_vertices [v2].Normal += normal;

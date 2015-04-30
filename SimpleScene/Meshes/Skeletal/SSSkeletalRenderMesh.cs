@@ -90,7 +90,8 @@ namespace SimpleScene
 				rm.RenderMesh (ref renderConfig);
 			}
 
-			//renderNormals ();
+            renderFaceNormals ();
+			renderVertexNormals ();
 			#if false
 			SSShaderProgram.DeactivateAll ();
 			// bounding box debugging
@@ -129,7 +130,27 @@ namespace SimpleScene
 		}
 
 
-		private void renderNormals()
+        private void renderFaceNormals() 
+        {
+            SSShaderProgram.DeactivateAll();
+            GL.Color4(Color4.Green);
+            for (int i=0;i<m_skeletalMesh.NumTriangles;i++) {
+                int baseIdx = i * 3;                
+                Vector3 p0 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx);
+                Vector3 p1 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx + 1);
+                Vector3 p2 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx + 2);
+
+                Vector3 face_center = (p0 + p1 + p2) / 3.0f;
+                Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0);
+
+                GL.Begin(PrimitiveType.Lines);
+                GL.Vertex3(face_center);
+                GL.Vertex3(face_center + face_normal * 0.5f);
+                GL.End();                
+            }
+        }
+
+		private void renderVertexNormals()
 		{
 			SSShaderProgram.DeactivateAll ();
 			GL.Color4 (Color4.Magenta);
