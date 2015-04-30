@@ -11,10 +11,10 @@ namespace SimpleScene
 		#region input from file formats
 		protected string m_materialShaderString;
 
-		protected SSSkeletalVertexRuntime[] m_vertices = null;
-		protected SSSkeletalWeight[] m_weights = null;
-		protected UInt16[] m_triangleIndices = null;
-		protected SSSkeletalJointRuntime[] m_joints = null;
+		internal SSSkeletalVertexRuntime[] m_vertices = null;
+        internal SSSkeletalWeight[] m_weights = null;
+		internal UInt16[] m_triangleIndices = null;
+        internal SSSkeletalJointRuntime[] m_joints = null;
 		#endregion
 
 		#region runtime only use
@@ -126,10 +126,15 @@ namespace SimpleScene
 			for (int w = 0; w < vertex.BaseInfo.WeightCount; ++w) {
 				SSSkeletalWeight weight = m_weights [vertex.BaseInfo.WeightStartIndex + w];
 				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
-				currentNormal += weight.Bias * Vector3.Transform (vertex.Normal, joint.CurrentLocation.Orientation);
+
+                currentNormal += Vector3.Transform(weight.JointLocalNormal, joint.CurrentLocation.Orientation) * weight.Bias;  
 			}
 			return currentNormal.Normalized();
-		}
+		}        
+
+        public Vector3 BindPoseNormal(int vertexIndex) {
+            return m_vertices[vertexIndex].BindPoseNormal;
+        }
 
 		public Vector2 TextureCoords(int vertexIndex)
 		{
@@ -232,7 +237,12 @@ namespace SimpleScene
 		/// </summary>
 		private void preComputeNormals()
 		{
-			// step 1: walk each triangle, and add the normal contribution to it's verticies.
+            // step 0: initialize per-vertex normals to zero..
+            for (int v = 0; v < m_vertices.Length; ++v) {
+                m_vertices[v].BindPoseNormal = Vector3.Zero;
+            }
+
+			// step 1: walk each triangle, and add the triangle normal contribution to it's verticies.
 			for (int i = 0; i < NumTriangles; ++i) {
 				int baseIdx = i * 3;
 				int v0 = m_triangleIndices [baseIdx];
@@ -241,39 +251,40 @@ namespace SimpleScene
 				Vector3 p0 = ComputeVertexPos (v0);
 				Vector3 p1 = ComputeVertexPos (v1);
 				Vector3 p2 = ComputeVertexPos (v2);
-				Vector3 normal = Vector3.Cross (p1 - p0, p2 - p0);
-				m_vertices [v0].Normal += normal;
-				m_vertices [v1].Normal += normal;
-				m_vertices [v2].Normal += normal;
+				Vector3 triNormal = Vector3.Cross (p1 - p0, p2 - p0);
+				m_vertices [v0].BindPoseNormal += triNormal;
+				m_vertices [v1].BindPoseNormal += triNormal;
+				m_vertices [v2].BindPoseNormal += triNormal;
 			}
 
 			// step 2: walk each vertex, normalize the normal, and convert into joint-local space
 			for (int v = 0; v < m_vertices.Length; ++v) {
 				// Normalize
-				Vector3 normal = m_vertices [v].Normal.Normalized ();
-
-				// Reset for the next step
-				m_vertices [v].Normal = Vector3.Zero;
+				Vector3 normal = m_vertices [v].BindPoseNormal.Normalized();				
+				m_vertices [v].BindPoseNormal = normal;
+                Console.WriteLine("normal = {0}",normal);
 
 				// Put the bind-pose normal into joint-local space
 				// so the animated normal can be computed faster later
 				var vertBaseInfo = m_vertices [v].BaseInfo;
-				for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
+				for (int w = vertBaseInfo.WeightCount-1; w >= 0 ; --w) {
 					SSSkeletalWeight weight = m_weights [vertBaseInfo.WeightStartIndex + w];
 					SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
-					m_vertices [v].Normal 
-					+= Vector3.Transform (normal, joint.BaseInfo.BaseLocation.Orientation.Inverted()) * weight.Bias;
+
+                    // write the joint local normal
+                    m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     
+                        Vector3.Transform(normal, joint.BaseInfo.BaseLocation.Orientation.Inverted()) / weight.Bias;
+
+                    Console.WriteLine("Joint-Weight local normal: {0}", weight.JointLocalNormal);                       
 				}
 
-				// normalize the joint-local normal
-				m_vertices [v].Normal.Normalize ();
 			}
 		}
 	}
 
 	public struct SSSkeletalVertexRuntime
 	{
-		public Vector3 Normal;
+		public Vector3 BindPoseNormal;        
 		private SSSkeletalVertex m_baseInfo;
 
 		public SSSkeletalVertex BaseInfo {
@@ -283,7 +294,7 @@ namespace SimpleScene
 		public SSSkeletalVertexRuntime(SSSkeletalVertex vertex)
 		{
 			m_baseInfo = vertex;
-			Normal = Vector3.Zero;
+			BindPoseNormal = Vector3.Zero;            
 		}
 	}
 

@@ -25,7 +25,8 @@ namespace SimpleScene
 		//public int WeightIndex;
 		public int JointIndex;
 		public float Bias;
-		public Vector3 Position;
+		public Vector3 Position;        
+        public Vector3 JointLocalNormal;
 	}
 
 	public class SSSkeletalJoint

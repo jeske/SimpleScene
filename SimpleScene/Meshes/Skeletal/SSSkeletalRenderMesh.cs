@@ -26,6 +26,7 @@ namespace SimpleScene
 			m_vertices = new SSVertex_PosNormTex[m_skeletalMesh.NumVertices];
 			for (int v = 0; v < m_skeletalMesh.NumVertices; ++v) {
 				m_vertices [v].TexCoord = m_skeletalMesh.TextureCoords (v);
+                m_vertices [v].Normal = m_skeletalMesh.BindPoseNormal(v);
 			}
 			m_attachedSkeletalMeshes = new List<SSSkeletalRenderMesh> ();
 			computeVertices ();
@@ -90,8 +91,18 @@ namespace SimpleScene
 				rm.RenderMesh (ref renderConfig);
 			}
 
-            renderFaceNormals ();
-			renderVertexNormals ();
+            
+            // debugging vertex normals... 
+            {
+                // do not change the order!!
+                renderFaceNormals();               // these are correct..
+                renderFaceAveragedVertexNormals(); // these are correct..                
+                // renderBindPoseVertexNormals ();
+                renderAnimatedVertexNormals();     // these are currently WRONG
+                
+                
+            }
+
 			#if false
 			SSShaderProgram.DeactivateAll ();
 			// bounding box debugging
@@ -141,26 +152,71 @@ namespace SimpleScene
                 Vector3 p2 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx + 2);
 
                 Vector3 face_center = (p0 + p1 + p2) / 3.0f;
-                Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0);
+                Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
 
                 GL.Begin(PrimitiveType.Lines);
                 GL.Vertex3(face_center);
-                GL.Vertex3(face_center + face_normal * 0.5f);
+                GL.Vertex3(face_center + face_normal * 0.2f);
                 GL.End();                
             }
         }
 
-		private void renderVertexNormals()
+        private void renderAnimatedVertexNormals() {
+            SSShaderProgram.DeactivateAll();
+            GL.Color4(Color4.Magenta);
+            for (int v = 0; v < m_vertices.Length; ++v) {                
+
+                GL.Begin(PrimitiveType.Lines);
+                GL.Vertex3(m_vertices[v].Position);
+                GL.Vertex3(m_vertices[v].Position + m_vertices[v].Normal * 0.2f);
+                GL.End();
+            }
+        }
+
+		private void renderBindPoseVertexNormals()
 		{
 			SSShaderProgram.DeactivateAll ();
-			GL.Color4 (Color4.Magenta);
-			for (int v = 0; v < m_vertices.Length; ++v) {
+			GL.Color4 (Color4.White);
+			for (int v = 0; v < m_vertices.Length; ++v) {                
 				GL.Begin (PrimitiveType.Lines);
 				GL.Vertex3 (m_vertices [v].Position);
-				GL.Vertex3 (m_vertices [v].Position + m_vertices [v].Normal * 0.5f); 
+				GL.Vertex3 (m_vertices [v].Position + m_skeletalMesh.BindPoseNormal(v) * 0.3f); 
 				GL.End ();
 			}
 		}
+
+        public void renderFaceAveragedVertexNormals() {
+            Vector3[] perVertexNormals = new Vector3[m_skeletalMesh.NumVertices];
+
+            for (int i = 0; i < m_skeletalMesh.NumTriangles; i++) {
+                int baseIdx = i * 3;
+                Vector3 p0 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx);
+                Vector3 p1 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx + 1);
+                Vector3 p2 = m_skeletalMesh.ComputeVertexPosFromTriIndex(baseIdx + 2);
+                
+                Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
+
+                int v0 = m_skeletalMesh.m_triangleIndices[baseIdx];
+                int v1 = m_skeletalMesh.m_triangleIndices[baseIdx + 1];
+                int v2 = m_skeletalMesh.m_triangleIndices[baseIdx + 2];
+
+                perVertexNormals[v0] += face_normal;
+                perVertexNormals[v1] += face_normal;
+                perVertexNormals[v2] += face_normal;
+
+            }
+
+            // render face averaged vertex normals
+
+            SSShaderProgram.DeactivateAll();
+            GL.Color4(Color4.Yellow);
+            for (int v=0;v<perVertexNormals.Length;v++) {
+                GL.Begin(PrimitiveType.Lines);
+                GL.Vertex3(m_skeletalMesh.ComputeVertexPos(v));
+                GL.Vertex3(m_skeletalMesh.ComputeVertexPos(v) + perVertexNormals[v].Normalized() * 0.5f);
+                GL.End();
+            }
+        }
 
 		public override Vector3 Center ()
 		{
