@@ -21,6 +21,7 @@ namespace SimpleScene
 		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
 		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
 		public float ShininessMatColor = 10.0f;
+		public SSTextureMaterial TextureMaterial = null;
 
 		public string Name = "";
 
@@ -63,7 +64,7 @@ namespace SimpleScene
             // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        protected void setMaterialState()
+		protected void setMaterialState(SSMainShaderProgram mainShader)
         {
             GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
             GL.Color4(this.MainColor);
@@ -74,6 +75,10 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Specular, SpecularMatColor);
             GL.Material(MaterialFace.Front, MaterialParameter.Emission, EmissionMatColor);
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
+
+			if (TextureMaterial != null) {
+				mainShader.SetupTextures (TextureMaterial);
+			}
         }
 
         protected void setDefaultShaderState(SSMainShaderProgram pgm) {
@@ -107,7 +112,7 @@ namespace SimpleScene
                 if (renderConfig.MainShader != null) {
                     setDefaultShaderState(renderConfig.MainShader);
                 }
-                setMaterialState();
+				setMaterialState(renderConfig.MainShader);
 
                 GL.Disable(EnableCap.Blend);
                 if (this.renderState.lighted) {

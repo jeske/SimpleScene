@@ -7,11 +7,22 @@ using OpenTK;
 
 namespace SimpleScene 
 {
-	public abstract class SSAbstractMesh {
+	public abstract class SSAbstractMesh 
+	{
 		public event SSObject.ChangedEventHandler OnMeshChanged;
 
+		public SSTextureMaterial TextureMaterial = null;
+
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
-		public abstract void RenderMesh (ref SSRenderConfig renderConfig);
+
+		public virtual void RenderMesh (ref SSRenderConfig renderConfig)
+		{
+			if (!renderConfig.drawingShadowMap 
+			 && renderConfig.ActiveDrawShader != null
+			 && TextureMaterial != null) {
+				renderConfig.ActiveDrawShader.SetupTextures (TextureMaterial);
+			}
+		}
 
         public virtual float Radius()
         {

@@ -29,7 +29,7 @@ namespace SimpleScene
 
 		public static void PrepareNormal(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
 		{
-			ISSInstancableShaderProgram isp = getActiveInstanceShader (ref renderConfig);
+			ISSInstancableShaderProgram isp = renderConfig.ActiveInstanceShader;
 			if (isp == null) { // no instancing
 				// this is the "transitional" GLSL 120 way of assigning buffer contents
 				// http://www.opentk.com/node/80?page=1
@@ -42,7 +42,7 @@ namespace SimpleScene
 
 		public static void PrepareTexCoord(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
 		{
-			ISSInstancableShaderProgram isp = getActiveInstanceShader (ref renderConfig);
+			ISSInstancableShaderProgram isp = renderConfig.ActiveInstanceShader;
 			if (isp == null) { // no instancing
 				// this is the "transitional" GLSL 120 way of assigning buffer contents
 				// http://www.opentk.com/node/80?page=1
@@ -51,17 +51,6 @@ namespace SimpleScene
 			} else { // instancing
 				preparePerVertexAttribute (stride, offset, isp.AttrTexCoord, 2);
 			}
-		}
-
-		private static ISSInstancableShaderProgram getActiveInstanceShader(ref SSRenderConfig renderConfig)
-		{
-
-			if (renderConfig.InstanceShader != null && renderConfig.InstanceShader.IsActive) {
-				return renderConfig.InstanceShader;
-			} else if (renderConfig.InstancePssmShader != null && renderConfig.InstancePssmShader.IsActive) {
-				return renderConfig.InstancePssmShader;
-			}
-			return null;
 		}
 
 		private static void preparePerVertexAttribute(

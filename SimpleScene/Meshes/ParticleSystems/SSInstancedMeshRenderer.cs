@@ -30,10 +30,6 @@ namespace SimpleScene
 		public bool depthWrite = true;
 		public bool globalBillboarding = false;
         public ISSInstancable mesh;
-		public SSTexture diffuseTexture;
-		public SSTexture specularTexture;
-		public SSTexture ambientTexture;
-		public SSTexture bumpMapTexture;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
@@ -74,21 +70,6 @@ namespace SimpleScene
 			: this(ps, hint)
 		{
 			this.mesh = mesh;
-		}
-
-		public SSInstancedMeshRenderer (SSParticleSystem ps, 
-			ISSInstancable mesh = null,
-            SSTexture diffuseTexture = null,
-			SSTexture specularTexture = null,
-			SSTexture ambientTexture = null,
-			SSTexture bumpMapTexture = null,
-			BufferUsageHint hint = BufferUsageHint.StreamDraw)
-			: this(ps, mesh, hint)
-		{
-			this.diffuseTexture = diffuseTexture;
-			this.specularTexture = specularTexture;
-			this.ambientTexture = ambientTexture;
-			this.bumpMapTexture = bumpMapTexture;
 		}
 
         public override void Render (ref SSRenderConfig renderConfig)
@@ -140,12 +121,9 @@ namespace SimpleScene
 				// texture binding setup
                 renderConfig.InstanceShader.Activate();
 				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
-				renderConfig.InstanceShader.SetupTextures (
-					diffuseTexture,
-					specularTexture,
-					ambientTexture,
-					bumpMapTexture
-				);
+				if (base.TextureMaterial != null) {
+					renderConfig.InstanceShader.SetupTextures (base.TextureMaterial);
+				}
 			}
 
 			if (globalBillboarding) {

@@ -48,6 +48,28 @@ namespace SimpleScene
 		public Matrix4 invCameraViewMat = Matrix4.Identity;
 		public Matrix4 projectionMatrix = Matrix4.Identity;
 
+		public ISSInstancableShaderProgram ActiveInstanceShader {
+			get {
+				if (InstanceShader != null && InstanceShader.IsActive) {
+					return InstanceShader;
+				} else if (InstancePssmShader != null && InstancePssmShader.IsActive) {
+					return InstancePssmShader;
+				}
+				return null;
+			}
+		}
+
+		public SSMainShaderProgram ActiveDrawShader {
+			get {
+				if (MainShader != null && MainShader.IsActive) {
+					return MainShader;
+				} else if (InstanceShader != null && InstanceShader.IsActive) {
+					return InstanceShader;
+				}
+				return null;
+			}
+		}
+
 		public static WireframeMode NextWireFrameMode(WireframeMode val) {
 			int newVal = (int)val;
 			newVal++;

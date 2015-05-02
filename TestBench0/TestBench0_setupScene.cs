@@ -196,7 +196,7 @@ namespace TestBench0
 
 				// test a renderer
 				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
-				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance, tex);
+				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
 				cubesRenderer.alphaBlendingEnabled = false;
 				cubesRenderer.depthRead = true;
@@ -204,6 +204,7 @@ namespace TestBench0
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
+				cubesRenderer.TextureMaterial = new SSTextureMaterial (null, null, tex, null);
 				scene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 

@@ -38,7 +38,8 @@ namespace SimpleScene
 			base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
 			base.ShininessMatColor = 0f;
 
-            base.ambientTexture = texture ?? AcmeExplosionSystem.getDefaultTexture();
+			var tex = texture ?? AcmeExplosionSystem.getDefaultTexture();
+			base.TextureMaterial = new SSTextureMaterial(null, null, tex, null);
 		}
 
 		public void showExplosion(Vector3 position, float intensity)
