@@ -17,7 +17,6 @@ namespace SimpleScene
 
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
 
-
 		public virtual void RenderMesh (ref SSRenderConfig renderConfig)
 		{
 			if (!renderConfig.drawingShadowMap && textureMaterial != null) {

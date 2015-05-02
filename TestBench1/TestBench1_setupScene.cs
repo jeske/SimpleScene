@@ -165,15 +165,16 @@ namespace TestBench0
 					"./bob_lamp/", "bob_lamp_update.md5anim");
 				var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
 					"./bob_lamp/", "bob_body.png");
-				var bobBodyRender = new SSSkeletalRenderMesh(bobMeshes);
-				bobBodyRender.AddChannel(0, "all");
-				bobBodyRender.PlayAnimation(0, bobAnim, true, 0f);
-				bobBodyRender.textureMaterial = new SSTextureMaterial(bobBodyTex);
-				bobBodyRender.alphaBlendingEnabled = true;
-				var bobBodyObj = new SSObjectMesh(bobBodyRender);
-				bobBodyObj.Pos = new Vector3(10f, 0f, 10f);
-				bobBodyObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				scene.AddObject(bobBodyObj);
+				var bobRender = new SSSkeletalRenderMesh(bobMeshes);
+				bobRender.AddChannel(0, "all");
+				bobRender.PlayAnimation(0, bobAnim, true, 0f);
+				bobRender.textureMaterial = new SSTextureMaterial(bobBodyTex);
+				bobRender.alphaBlendingEnabled = true;
+				bobRender.TimeScale = 0.5f;
+				var bobObj = new SSObjectMesh(bobRender);
+				bobObj.Pos = new Vector3(10f, 0f, 10f);
+				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(bobObj);
 			}
 			#endif
 

@@ -11,6 +11,8 @@ namespace SimpleScene
 		// TODO Textures per render mesh, extracted from SSSkeletalMesh
 		// TODO Detach mesh
 
+		public float TimeScale = 1f;
+
 		protected readonly SSSkeletalMeshRuntime m_skeletalMesh;
 		protected readonly SSVertex_PosNormTex[] m_vertices;
 		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
@@ -137,6 +139,7 @@ namespace SimpleScene
 
 		public override void Update(float elapsedS)
 		{
+			elapsedS *= TimeScale;
 			foreach (var channel in m_animChannels.Values) {
 				channel.Update (elapsedS);
 			}
