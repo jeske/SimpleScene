@@ -119,17 +119,23 @@ namespace SimpleScene
 		}
 
 		public Vector3 ComputeVertexNormal(int vertexIndex)
-		{
-			SSSkeletalVertexRuntime vertex = m_vertices [vertexIndex];
-			Vector3 currentNormal = Vector3.Zero;
+		{            
+            SSSkeletalVertex vertex = m_vertices[vertexIndex].BaseInfo;
+            Vector3 currentPos = Vector3.Zero;
+            Vector3 currentNormalEndpoint = Vector3.Zero;
 
-			for (int w = 0; w < vertex.BaseInfo.WeightCount; ++w) {
-				SSSkeletalWeight weight = m_weights [vertex.BaseInfo.WeightStartIndex + w];
-				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
+            for (int w = 0; w < vertex.WeightCount; ++w) {
+                SSSkeletalWeight weight = m_weights[vertex.WeightStartIndex + w];
+                SSSkeletalJointRuntime joint = m_joints[weight.JointIndex];
 
-                currentNormal += Vector3.Transform(weight.JointLocalNormal, joint.CurrentLocation.Orientation) * weight.Bias;
-			}
-			return currentNormal.Normalized();
+                Vector3 currWeightPos = Vector3.Transform(weight.Position, joint.CurrentLocation.Orientation);
+                currentPos += weight.Bias * (joint.CurrentLocation.Position + currWeightPos);
+
+                Vector3 currWeightNormalEndpointPos = Vector3.Transform(weight.Position + weight.JointLocalNormal, joint.CurrentLocation.Orientation);
+                currentNormalEndpoint += weight.Bias * (joint.CurrentLocation.Position + currWeightNormalEndpointPos);
+            }
+
+            return (currentNormalEndpoint - currentPos).Normalized();
 		}        
 
         public Vector3 BindPoseNormal(int vertexIndex) {
