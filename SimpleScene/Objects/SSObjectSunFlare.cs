@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-    public class SSObjectSunFlare : SSObject
+	public class SSObjectSunFlare : SSObjectMesh
     {
         // TODO decouple some sprite details from this class
         // (make it more friendly for generic use)
@@ -15,8 +15,6 @@ namespace SimpleScene
         #region Instance-Specific Drawing Constructs
         private SSVertex_PosTex[] m_vertices;
 
-        SSIndexedMesh<SSVertex_PosTex> m_mesh;
-        private SSTexture m_texture;
         private Vector2[] m_spriteScales;
         private int m_numElements;
         #endregion
@@ -31,6 +29,13 @@ namespace SimpleScene
         private Vector2 m_screenCenter;
         private Vector2 m_clientRect;
         #endregion
+
+		public new SSIndexedMesh<SSVertex_PosTex> Mesh {
+			get { return base.Mesh as SSIndexedMesh<SSVertex_PosTex>; }
+			set { base.Mesh = value; }
+		}
+
+		public override bool alphaBlendingEnabled { get { return true; } }
 
         private Vector2 worldToScreen(Vector3 worldPos) {
             Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), m_sunSceneViewProj);
@@ -75,7 +80,7 @@ namespace SimpleScene
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             Vector2 screenOrig = new Vector2 (viewport [0], viewport [1]);
-            m_clientRect = new Vector2 (viewport [2], viewport [3]);
+			m_clientRect = new Vector2 (viewport [2], viewport [3]) / 2f;
             m_screenCenter = screenOrig + m_clientRect / 2f;
             m_sunSceneViewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
             Vector2 sunScreenPos = worldToScreen(m_sun.Pos);
@@ -112,31 +117,18 @@ namespace SimpleScene
                 m_vertices [baseIdx+3].Position.X = center.X - tileVec.X;
                 m_vertices [baseIdx+3].Position.Y = center.Y + tileVec.Y;
             }
-            m_mesh.UpdateVertices(m_vertices);
+			Mesh.UpdateVertices(m_vertices);
 
-            // now, actually draw
-            base.Render(ref renderConfig);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             SSShaderProgram.DeactivateAll(); // disable shaders
 
-            GL.Enable (EnableCap.AlphaTest);
-            GL.Enable (EnableCap.Blend);
-            GL.AlphaFunc(AlphaFunction.Always, 0f);
-            GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Disable(EnableCap.Lighting);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.Enable(EnableCap.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);
-
             // modulate color alpha with the intensity fraction
-            Color4 color = m_sun.MainColor;
-            color.A = intensityFraction;
-            GL.Color4(color);
-            //GL.Color3(0f, 1f, 0f);
+			this.MainColor = m_sun.MainColor;
+			this.MainColor.A = intensityFraction;
 
-            m_mesh.RenderMesh(ref renderConfig);
+			// now, actually draw
+			base.Render(ref renderConfig);
         }
 
         private void init(SSScene sunScene,
@@ -145,9 +137,9 @@ namespace SimpleScene
                           RectangleF[] spriteRects,
                           Vector2[] spriteScales)
         {
+			base.textureMaterial = new SSTextureMaterial (texture);
             m_sun = sun;
             m_sunScene = sunScene;
-            m_texture = texture;
             m_numElements = spriteRects.Length;
             if (spriteScales == null) {
                 m_spriteScales = new Vector2[m_numElements];
@@ -175,7 +167,7 @@ namespace SimpleScene
                 indices [baseLoc + 4] = (UInt16)(baseVal + 3);
                 indices [baseLoc + 5] = (UInt16)(baseVal + 2);
             }
-            m_mesh = new SSIndexedMesh<SSVertex_PosTex> (null, indices);
+			Mesh = new SSIndexedMesh<SSVertex_PosTex> (null, indices);
 
             m_vertices = new SSVertex_PosTex[m_numElements * 4];
             for (int r = 0; r < spriteRects.Length; ++r) {

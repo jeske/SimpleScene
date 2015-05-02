@@ -21,7 +21,9 @@ namespace SimpleScene
 		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
 		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
 		public float ShininessMatColor = 10.0f;
-		public SSTextureMaterial TextureMaterial = null;
+
+		public virtual SSTextureMaterial textureMaterial { get; set; } = null;
+		public virtual bool alphaBlendingEnabled { get; set; } = false;
 
 		public string Name = "";
 
@@ -76,8 +78,20 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Emission, EmissionMatColor);
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
 
-			if (TextureMaterial != null) {
-				mainShader.SetupTextures (TextureMaterial);
+			if (textureMaterial != null) {
+				if (mainShader != null) {
+					mainShader.SetupTextures (textureMaterial);
+				} else {
+					GL.ActiveTexture(TextureUnit.Texture0);
+					GL.Enable(EnableCap.Texture2D);
+					if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
+						// fall back onto the diffuse texture in the absence of ambient
+						SSTexture tex = textureMaterial.ambientTex ?? textureMaterial.diffuseTex;
+						GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
+					} else {
+						GL.BindTexture(TextureTarget.Texture2D, 0);
+					}
+				}
 			}
         }
 
@@ -114,7 +128,13 @@ namespace SimpleScene
                 }
 				setMaterialState(renderConfig.MainShader);
 
-                GL.Disable(EnableCap.Blend);
+				if (alphaBlendingEnabled) {
+					GL.Enable (EnableCap.Blend);
+					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+				} else {
+					GL.Disable (EnableCap.Blend);
+				}
+
                 if (this.renderState.lighted) {
                     GL.Enable(EnableCap.Lighting);
                     GL.ShadeModel(ShadingModel.Flat);

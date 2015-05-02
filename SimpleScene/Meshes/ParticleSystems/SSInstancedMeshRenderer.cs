@@ -25,7 +25,6 @@ namespace SimpleScene
 		public SSParticleSystem particleSystem;
 
         public bool simulateOnUpdate = true;
-        public bool alphaBlendingEnabled = true;
 		public bool depthRead = true;
 		public bool depthWrite = true;
 		public bool globalBillboarding = false;
@@ -97,15 +96,9 @@ namespace SimpleScene
 					instanceShader = renderConfig.InstancePssmShader;
 				}
 			} else {
-				if (!globalBillboarding && alphaBlendingEnabled) {
+				if (!globalBillboarding && base.alphaBlendingEnabled) {
 					// Must be called before updating buffers
 					particleSystem.sortByDepth (ref modelView);
-
-					//GL.Enable(EnableCap.AlphaTest);
-					//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
-					GL.Enable (EnableCap.Blend);
-					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-					GL.Disable (EnableCap.Lighting);
 
 					// Fixes flicker issues for particles with "fighting" view depth values
 					// Also assumes the particle system is the last to be drawn in a scene
@@ -121,8 +114,8 @@ namespace SimpleScene
 				// texture binding setup
                 renderConfig.InstanceShader.Activate();
 				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
-				if (base.TextureMaterial != null) {
-					renderConfig.InstanceShader.SetupTextures (base.TextureMaterial);
+				if (base.textureMaterial != null) {
+					renderConfig.InstanceShader.SetupTextures (base.textureMaterial);
 				}
 			}
 

@@ -97,7 +97,7 @@ namespace TestBench0
 				}
 
 				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(tileVertices);
-				quadMesh.TextureMaterial = new SSTextureMaterial(tex);
+				quadMesh.textureMaterial = new SSTextureMaterial(tex);
 				var tileObj = new SSObjectMesh(quadMesh);
 				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
 				tileObj.Scale = new Vector3(tileSz * gridSz);
@@ -119,19 +119,16 @@ namespace TestBench0
 				foreach (var skeliMesh in meshes) {
 
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh1.TextureMaterial = new SSTextureMaterial(tex);
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
 
 					var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh2.TextureMaterial = new SSTextureMaterial(tex);
 					renderMesh2.AddChannel(0, "all");
 					renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
 					renderMesh2.PlayAnimation(0, animIdle, true, 0f);
 					renderMesh2.PlayAnimation(1, animRunning, true, 0f);
 
 					var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh3.TextureMaterial = new SSTextureMaterial(tex);
 					renderMesh3.AddChannel(0, "all");
 					renderMesh3.PlayAnimation(0, animIdle, true, 0f);
 
@@ -171,7 +168,8 @@ namespace TestBench0
 				var bobBodyRender = new SSSkeletalRenderMesh(bobMeshes);
 				bobBodyRender.AddChannel(0, "all");
 				bobBodyRender.PlayAnimation(0, bobAnim, true, 0f);
-				bobBodyRender.TextureMaterial = new SSTextureMaterial(bobBodyTex);
+				bobBodyRender.textureMaterial = new SSTextureMaterial(bobBodyTex);
+				bobBodyRender.alphaBlendingEnabled = true;
 				var bobBodyObj = new SSObjectMesh(bobBodyRender);
 				bobBodyObj.Pos = new Vector3(10f, 0f, 10f);
 				bobBodyObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));

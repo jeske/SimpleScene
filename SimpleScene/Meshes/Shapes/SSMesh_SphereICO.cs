@@ -18,7 +18,7 @@ namespace SimpleScene
 		public SSMesh_SphereICO (int divisions, SSTexture texture)
             : base(BufferUsageHint.StaticDraw, BufferUsageHint.StaticDraw)
 		{
-			this.TextureMaterial = new SSTextureMaterial(texture);
+			this.textureMaterial = new SSTextureMaterial(texture);
 			this._Create(divisions);
 		}
 

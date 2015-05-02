@@ -17,6 +17,8 @@ namespace SimpleScene
 
 	public class SSTexture
 	{	
+		public static string[] commonImageExtensions = { ".png", ".jpeg", ".jpg", ".bmp" };
+
 		private int  _glTextureID;
 		public int TextureID { get { return _glTextureID; } }
        

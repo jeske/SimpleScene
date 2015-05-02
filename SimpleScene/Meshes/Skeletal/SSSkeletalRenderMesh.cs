@@ -18,6 +18,18 @@ namespace SimpleScene
 		protected SSSphere m_boundingSphere;
 		protected List<SSSkeletalRenderMesh> m_attachedSkeletalMeshes;
 
+		public override bool alphaBlendingEnabled {
+			get { return base.alphaBlendingEnabled; }
+			set {
+				base.alphaBlendingEnabled = value;
+				if (m_attachedSkeletalMeshes != null) {
+					foreach (var child in m_attachedSkeletalMeshes) {
+						child.alphaBlendingEnabled = value;
+					}
+				}
+			}
+		}
+
 		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh, 
 									 SSSkeletalJointRuntime[] sharedJoints = null)
 			: base(null, skeletalMesh.TriangleIndices)
@@ -30,6 +42,12 @@ namespace SimpleScene
 			}
 			m_attachedSkeletalMeshes = new List<SSSkeletalRenderMesh> ();
 			computeVertices ();
+
+			string matString = skeletalMesh.MaterialShaderString;
+			if (matString != null && matString.Length > 0) {
+				base.textureMaterial 
+					= SSTextureMaterial.FromMaterialString (skeletalMesh.AssetContext, matString);
+			}
 		}
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh[] skeletalMeshes) 
@@ -72,6 +90,7 @@ namespace SimpleScene
 		public void AttachMesh(SSSkeletalMesh mesh)
 		{
 			var newRender = new SSSkeletalRenderMesh (mesh, m_skeletalMesh.Joints);
+			newRender.alphaBlendingEnabled = this.alphaBlendingEnabled;
 			m_attachedSkeletalMeshes.Add (newRender);
 		}
 
@@ -93,15 +112,15 @@ namespace SimpleScene
 
             
             // debugging vertex normals... 
+			#if false
             {
                 // do not change the order!!
                 renderFaceNormals();               // these are correct..
                 renderFaceAveragedVertexNormals(); // these are correct..                
                 // renderBindPoseVertexNormals ();
                 renderAnimatedVertexNormals();     // these are currently WRONG
-                
-                
             }
+			#endif
 
 			#if false
 			SSShaderProgram.DeactivateAll ();
