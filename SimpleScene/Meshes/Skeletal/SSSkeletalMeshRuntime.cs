@@ -127,7 +127,7 @@ namespace SimpleScene
 				SSSkeletalWeight weight = m_weights [vertex.BaseInfo.WeightStartIndex + w];
 				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
 
-                currentNormal += Vector3.Transform(weight.JointLocalNormal, joint.CurrentLocation.Orientation) * weight.Bias;  
+                currentNormal += Vector3.Transform(weight.JointLocalNormal, joint.CurrentLocation.Orientation) * weight.Bias;
 			}
 			return currentNormal.Normalized();
 		}        
@@ -273,7 +273,7 @@ namespace SimpleScene
 
                     // write the joint local normal
                     m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     
-                        Vector3.Transform(normal, joint.BaseInfo.BaseLocation.Orientation.Inverted()) / weight.Bias;
+                        Vector3.Transform(normal, joint.BaseInfo.BaseLocation.Orientation.Inverted());
 
                     Console.WriteLine("Joint-Weight local normal: {0}", weight.JointLocalNormal);                       
 				}
