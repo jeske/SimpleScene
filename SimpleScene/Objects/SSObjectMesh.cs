@@ -27,6 +27,15 @@ namespace SimpleScene
           get { return _mesh; }
           set { _mesh = value; _setupMesh(); }
         }
+
+		public override bool alphaBlendingEnabled {
+			get {
+				return base.alphaBlendingEnabled || _mesh.alphaBlendingEnabled;
+			}
+			set {
+				base.alphaBlendingEnabled = value;
+			}
+		}
         
         public override void Render (ref SSRenderConfig renderConfig)
 		{

@@ -41,7 +41,7 @@ joints {
 }
 
 mesh {
-	shader "bob_body"
+	shader "bob_body.png"
 
 	numverts 489
 	vert 0 ( 0.683594 0.455078 ) 0 3
@@ -2886,7 +2886,7 @@ mesh {
 }
 
 mesh {
-	shader "bob_body"
+	shader "bob_body.png"
 
 	numverts 135
 	vert 0 ( 0.162109 0.550781 ) 0 1

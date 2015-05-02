@@ -18,11 +18,8 @@ namespace SimpleScene
 		SSAssetManager.Context ctx;
 		public readonly string srcFilename;
 		
-	    public struct SSMeshOBJSubsetData {
-	   		public SSTexture diffuseTexture;
-	   		public SSTexture specularTexture;
-	   		public SSTexture ambientTexture;
-	   		public SSTexture bumpTexture;			
+	    public class SSMeshOBJSubsetData {
+			public SSTextureMaterial TextureMaterial = null;
 	
 			// raw geometry
 			public SSVertex_PosNormTexDiff[] vertices;
@@ -60,6 +57,7 @@ namespace SimpleScene
 
 		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
+			base.RenderMesh (ref renderConfig);
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 				_renderSetupGLSL(ref renderConfig, renderConfig.InstanceShader, subset);
 				subset.ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
@@ -87,10 +85,10 @@ namespace SimpleScene
 				SSShaderProgram.DeactivateAll ();
 
 				// fixed function single-texture
-				if (subset.diffuseTexture != null) {
+				if (subset.TextureMaterial.diffuseTex != null) {
 					GL.ActiveTexture(TextureUnit.Texture0);
 					GL.Enable(EnableCap.Texture2D);
-					GL.BindTexture(TextureTarget.Texture2D, subset.diffuseTexture.TextureID);
+					GL.BindTexture(TextureTarget.Texture2D, subset.TextureMaterial.diffuseTex.TextureID);
 				}
 			} else {
 				// bind our texture-images to GL texture-units 
@@ -98,10 +96,7 @@ namespace SimpleScene
 
 				// these texture-unit assignments are hard-coded in the shader setup
                 shaderPgm.Activate();
-				shaderPgm.SetupTextures(
-					subset.diffuseTexture, subset.specularTexture, 
-					subset.ambientTexture, subset.bumpTexture
-				);
+				shaderPgm.SetupTextures(subset.TextureMaterial);
 
 				// reset to texture-unit 0 to be friendly..
 				GL.ActiveTexture(TextureUnit.Texture0);				
@@ -202,8 +197,9 @@ namespace SimpleScene
 		}
 
 
-		public override void RenderMesh(ref SSRenderConfig renderConfig) {		
-             foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
+		public override void RenderMesh(ref SSRenderConfig renderConfig) {
+			base.RenderMesh (ref renderConfig);
+            foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
                 if (renderConfig.drawingShadowMap) {
                     _renderSendVBOTriangles(ref renderConfig, subset);
                 } else {
@@ -243,17 +239,18 @@ namespace SimpleScene
             // setup the material...            
 
             // load and link every texture present 
+			subsetData.TextureMaterial = new SSTextureMaterial();
             if (objMatSubset.diffuseTextureResourceName != null) {
-                subsetData.diffuseTexture = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.diffuseTextureResourceName);
+				subsetData.TextureMaterial.diffuseTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.diffuseTextureResourceName);
             }
             if (objMatSubset.ambientTextureResourceName != null) {
-                subsetData.ambientTexture = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.ambientTextureResourceName);
+				subsetData.TextureMaterial.ambientTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.ambientTextureResourceName);
             } 
             if (objMatSubset.bumpTextureResourceName != null) {
-                subsetData.bumpTexture = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.bumpTextureResourceName);
+				subsetData.TextureMaterial.bumpMapTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.bumpTextureResourceName);
             }
             if (objMatSubset.specularTextureResourceName != null) {
-                subsetData.specularTexture = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.specularTextureResourceName);
+				subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.specularTextureResourceName);
             }
 
             // generate renderable geometry data...

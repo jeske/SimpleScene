@@ -97,10 +97,13 @@ namespace TestBench0
 				}
 
 				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(tileVertices);
-				quadMesh.diffuseTexture = tex;
+				quadMesh.textureMaterial = new SSTextureMaterial(tex);
 				var tileObj = new SSObjectMesh(quadMesh);
+				tileObj.Name = "Tiles";
+				tileObj.Selectable = false;
 				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
 				tileObj.Scale = new Vector3(tileSz * gridSz);
+				//tileObj.boundingSphere = new SSObjectSphere(0f);
 				scene.AddObject(tileObj);
 			}
 			#endif
@@ -119,19 +122,16 @@ namespace TestBench0
 				foreach (var skeliMesh in meshes) {
 
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh1.diffuseTexture = tex;
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
 
 					var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh2.diffuseTexture = tex;
 					renderMesh2.AddChannel(0, "all");
 					renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
 					renderMesh2.PlayAnimation(0, animIdle, true, 0f);
 					renderMesh2.PlayAnimation(1, animRunning, true, 0f);
 
 					var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh3.diffuseTexture = tex;
 					renderMesh3.AddChannel(0, "all");
 					renderMesh3.PlayAnimation(0, animIdle, true, 0f);
 
@@ -168,14 +168,17 @@ namespace TestBench0
 					"./bob_lamp/", "bob_lamp_update.md5anim");
 				var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
 					"./bob_lamp/", "bob_body.png");
-				var bobBodyRender = new SSSkeletalRenderMesh(bobMeshes);
-				bobBodyRender.AddChannel(0, "all");
-				bobBodyRender.PlayAnimation(0, bobAnim, true, 0f);
-				bobBodyRender.diffuseTexture = bobBodyTex;
-				var bobBodyObj = new SSObjectMesh(bobBodyRender);
-				bobBodyObj.Pos = new Vector3(10f, 0f, 10f);
-				bobBodyObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				scene.AddObject(bobBodyObj);
+				var bobRender = new SSSkeletalRenderMesh(bobMeshes);
+				bobRender.AddChannel(0, "all");
+				bobRender.PlayAnimation(0, bobAnim, true, 0f);
+				bobRender.textureMaterial = new SSTextureMaterial(bobBodyTex);
+				bobRender.alphaBlendingEnabled = true;
+				bobRender.TimeScale = 0.5f;
+				var bobObj = new SSObjectMesh(bobRender);
+				bobObj.Name = "Bob";
+				bobObj.Pos = new Vector3(10f, 0f, 10f);
+				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(bobObj);
 			}
 			#endif
 

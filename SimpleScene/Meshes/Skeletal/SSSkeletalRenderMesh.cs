@@ -11,12 +11,26 @@ namespace SimpleScene
 		// TODO Textures per render mesh, extracted from SSSkeletalMesh
 		// TODO Detach mesh
 
+		public float TimeScale = 1f;
+
 		protected readonly SSSkeletalMeshRuntime m_skeletalMesh;
 		protected readonly SSVertex_PosNormTex[] m_vertices;
 		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
 			= new Dictionary<int, SSSkeletalAnimationChannel>();
 		protected SSSphere m_boundingSphere;
 		protected List<SSSkeletalRenderMesh> m_attachedSkeletalMeshes;
+
+		public override bool alphaBlendingEnabled {
+			get { return base.alphaBlendingEnabled; }
+			set {
+				base.alphaBlendingEnabled = value;
+				if (m_attachedSkeletalMeshes != null) {
+					foreach (var child in m_attachedSkeletalMeshes) {
+						child.alphaBlendingEnabled = value;
+					}
+				}
+			}
+		}
 
 		public SSSkeletalRenderMesh (SSSkeletalMesh skeletalMesh, 
 									 SSSkeletalJointRuntime[] sharedJoints = null)
@@ -30,6 +44,12 @@ namespace SimpleScene
 			}
 			m_attachedSkeletalMeshes = new List<SSSkeletalRenderMesh> ();
 			computeVertices ();
+
+			string matString = skeletalMesh.MaterialShaderString;
+			if (matString != null && matString.Length > 0) {
+				base.textureMaterial 
+					= SSTextureMaterial.FromMaterialString (skeletalMesh.AssetContext, matString);
+			}
 		}
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh[] skeletalMeshes) 
@@ -72,6 +92,7 @@ namespace SimpleScene
 		public void AttachMesh(SSSkeletalMesh mesh)
 		{
 			var newRender = new SSSkeletalRenderMesh (mesh, m_skeletalMesh.Joints);
+			newRender.alphaBlendingEnabled = this.alphaBlendingEnabled;
 			m_attachedSkeletalMeshes.Add (newRender);
 		}
 
@@ -93,15 +114,15 @@ namespace SimpleScene
 
             
             // debugging vertex normals... 
+			#if false
             {
                 // do not change the order!!
                 renderFaceNormals();               // these are correct..
                 renderFaceAveragedVertexNormals(); // these are correct..                
                 // renderBindPoseVertexNormals ();
                 renderAnimatedVertexNormals();     // these are currently WRONG
-                
-                
             }
+			#endif
 
 			#if false
 			SSShaderProgram.DeactivateAll ();
@@ -118,9 +139,29 @@ namespace SimpleScene
 
 		public override void Update(float elapsedS)
 		{
+			elapsedS *= TimeScale;
 			foreach (var channel in m_animChannels.Values) {
 				channel.Update (elapsedS);
 			}
+		}
+
+		public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {
+			for(int idx=0; idx < m_skeletalMesh.Indices.Length; idx+=3) {
+				var v1 = m_skeletalMesh.ComputeVertexPos (m_skeletalMesh.Indices[idx]);
+				var v2 = m_skeletalMesh.ComputeVertexPos (m_skeletalMesh.Indices[idx+1]);
+				var v3 = m_skeletalMesh.ComputeVertexPos (m_skeletalMesh.Indices[idx+2]);
+				bool finished = fn(state, v1, v2, v3);
+				if (finished) { 
+					return true;
+				}
+			}
+			foreach (SSSkeletalRenderMesh a in m_attachedSkeletalMeshes) {
+				bool finished = a.TraverseTriangles (state, fn);
+				if (finished) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		private void computeVertices()

@@ -25,15 +25,10 @@ namespace SimpleScene
 		public SSParticleSystem particleSystem;
 
         public bool simulateOnUpdate = true;
-        public bool alphaBlendingEnabled = true;
 		public bool depthRead = true;
 		public bool depthWrite = true;
 		public bool globalBillboarding = false;
         public ISSInstancable mesh;
-		public SSTexture diffuseTexture;
-		public SSTexture specularTexture;
-		public SSTexture ambientTexture;
-		public SSTexture bumpMapTexture;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
@@ -76,21 +71,6 @@ namespace SimpleScene
 			this.mesh = mesh;
 		}
 
-		public SSInstancedMeshRenderer (SSParticleSystem ps, 
-			ISSInstancable mesh = null,
-            SSTexture diffuseTexture = null,
-			SSTexture specularTexture = null,
-			SSTexture ambientTexture = null,
-			SSTexture bumpMapTexture = null,
-			BufferUsageHint hint = BufferUsageHint.StreamDraw)
-			: this(ps, mesh, hint)
-		{
-			this.diffuseTexture = diffuseTexture;
-			this.specularTexture = specularTexture;
-			this.ambientTexture = ambientTexture;
-			this.bumpMapTexture = bumpMapTexture;
-		}
-
         public override void Render (ref SSRenderConfig renderConfig)
         {
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
@@ -116,15 +96,9 @@ namespace SimpleScene
 					instanceShader = renderConfig.InstancePssmShader;
 				}
 			} else {
-				if (!globalBillboarding && alphaBlendingEnabled) {
+				if (!globalBillboarding && base.alphaBlendingEnabled) {
 					// Must be called before updating buffers
 					particleSystem.sortByDepth (ref modelView);
-
-					//GL.Enable(EnableCap.AlphaTest);
-					//GL.AlphaFunc(AlphaFunction.Greater, 0.01f);
-					GL.Enable (EnableCap.Blend);
-					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-					GL.Disable (EnableCap.Lighting);
 
 					// Fixes flicker issues for particles with "fighting" view depth values
 					// Also assumes the particle system is the last to be drawn in a scene
@@ -140,12 +114,9 @@ namespace SimpleScene
 				// texture binding setup
                 renderConfig.InstanceShader.Activate();
 				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
-				renderConfig.InstanceShader.SetupTextures (
-					diffuseTexture,
-					specularTexture,
-					ambientTexture,
-					bumpMapTexture
-				);
+				if (base.textureMaterial != null) {
+					renderConfig.InstanceShader.SetupTextures (base.textureMaterial);
+				}
 			}
 
 			if (globalBillboarding) {

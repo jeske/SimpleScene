@@ -15,12 +15,16 @@ namespace SimpleScene
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
         public Color4 MainColor = Color4.White;
+		public bool Selectable = true;
 
 	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
 		public Color4 DiffuseMatColor = new Color4(0.3f, 0.3f, 0.3f, 1f);
 		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
 		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
 		public float ShininessMatColor = 10.0f;
+
+		public virtual SSTextureMaterial textureMaterial { get; set; } = null;
+		public virtual bool alphaBlendingEnabled { get; set; } = false;
 
 		public string Name = "";
 
@@ -63,7 +67,7 @@ namespace SimpleScene
             // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        protected void setMaterialState()
+		protected void setMaterialState(SSMainShaderProgram mainShader)
         {
             GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
             GL.Color4(this.MainColor);
@@ -74,6 +78,22 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Specular, SpecularMatColor);
             GL.Material(MaterialFace.Front, MaterialParameter.Emission, EmissionMatColor);
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
+
+			if (textureMaterial != null) {
+				if (mainShader != null) {
+					mainShader.SetupTextures (textureMaterial);
+				} else {
+					GL.ActiveTexture(TextureUnit.Texture0);
+					GL.Enable(EnableCap.Texture2D);
+					if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
+						// fall back onto the diffuse texture in the absence of ambient
+						SSTexture tex = textureMaterial.ambientTex ?? textureMaterial.diffuseTex;
+						GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
+					} else {
+						GL.BindTexture(TextureTarget.Texture2D, 0);
+					}
+				}
+			}
         }
 
         protected void setDefaultShaderState(SSMainShaderProgram pgm) {
@@ -107,9 +127,15 @@ namespace SimpleScene
                 if (renderConfig.MainShader != null) {
                     setDefaultShaderState(renderConfig.MainShader);
                 }
-                setMaterialState();
+				setMaterialState(renderConfig.MainShader);
 
-                GL.Disable(EnableCap.Blend);
+				if (alphaBlendingEnabled) {
+					GL.Enable (EnableCap.Blend);
+					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+				} else {
+					GL.Disable (EnableCap.Blend);
+				}
+
                 if (this.renderState.lighted) {
                     GL.Enable(EnableCap.Lighting);
                     GL.ShadeModel(ShadingModel.Flat);

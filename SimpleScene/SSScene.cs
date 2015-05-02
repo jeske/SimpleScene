@@ -48,6 +48,28 @@ namespace SimpleScene
 		public Matrix4 invCameraViewMat = Matrix4.Identity;
 		public Matrix4 projectionMatrix = Matrix4.Identity;
 
+		public ISSInstancableShaderProgram ActiveInstanceShader {
+			get {
+				if (InstanceShader != null && InstanceShader.IsActive) {
+					return InstanceShader;
+				} else if (InstancePssmShader != null && InstancePssmShader.IsActive) {
+					return InstancePssmShader;
+				}
+				return null;
+			}
+		}
+
+		public SSMainShaderProgram ActiveDrawShader {
+			get {
+				if (MainShader != null && MainShader.IsActive) {
+					return MainShader;
+				} else if (InstanceShader != null && InstanceShader.IsActive) {
+					return InstanceShader;
+				}
+				return null;
+			}
+		}
+
 		public static WireframeMode NextWireFrameMode(WireframeMode val) {
 			int newVal = (int)val;
 			newVal++;
@@ -174,7 +196,7 @@ namespace SimpleScene
             // distances get "smaller" as they move in camera direction for some reason (why?)
             foreach (var obj in m_objects) {
                 float distanceAlongRay;
-                if (obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
+				if (obj.Selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
                     if (distanceAlongRay < 0.0) {
                         Console.WriteLine("intersect: [{0}] @distance: {1}", obj.Name, distanceAlongRay);

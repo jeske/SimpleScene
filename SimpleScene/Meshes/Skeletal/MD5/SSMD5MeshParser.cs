@@ -45,6 +45,8 @@ namespace SimpleScene
 				meshes [m] = readMesh (joints);
 				meshes [m].Joints = joints;
 				seekEntry ("}");
+
+				meshes [m].AssetContext = Context;
 			}
 			return meshes;
 		}

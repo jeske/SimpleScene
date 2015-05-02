@@ -9,15 +9,9 @@ namespace SimpleScene
 {
     public class SSMeshDisk : SSIndexedMesh<SSVertex_PosTex>
     {
-        private SSTexture m_texture;
-
-        public SSMeshDisk (int divisions = 50,
-                           SSTexture texture = null, 
-                           float texOffset = 0.1f)
+        public SSMeshDisk (int divisions = 50, float texOffset = 0.1f)
             : base(BufferUsageHint.StaticDraw, BufferUsageHint.StaticDraw)
         {
-            m_texture = texture;
-
             // generate vertices
             SSVertex_PosTex[] vertices = new SSVertex_PosTex[divisions + 1];
             vertices [0] = new SSVertex_PosTex (0f, 0f, 0f, 0.5f, 0.5f);
@@ -58,14 +52,6 @@ namespace SimpleScene
             GL.Enable (EnableCap.AlphaTest);
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-
-            if (m_texture != null) {
-                GL.Enable(EnableCap.Texture2D);
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, m_texture.TextureID);                                   
-            } else {
-                GL.Disable(EnableCap.Texture2D);
-            }
 
             base.RenderMesh(ref renderConfig);
         }

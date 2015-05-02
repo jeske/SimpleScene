@@ -8,14 +8,10 @@ namespace SimpleScene
 {
 	public class SSSkeletalMeshRuntime
 	{
-		#region input from file formats
-		protected string m_materialShaderString;
-
 		internal SSSkeletalVertexRuntime[] m_vertices = null;
         internal SSSkeletalWeight[] m_weights = null;
 		internal UInt16[] m_triangleIndices = null;
         internal SSSkeletalJointRuntime[] m_joints = null;
-		#endregion
 
 		#region runtime only use
 		protected readonly List<int> m_topLevelJoints = new List<int> ();
@@ -73,7 +69,6 @@ namespace SimpleScene
 
 			m_weights = mesh.Weights;
 			m_triangleIndices = mesh.TriangleIndices;
-			m_materialShaderString = mesh.MaterialShaderString;
 			preComputeNormals ();
 		}
 

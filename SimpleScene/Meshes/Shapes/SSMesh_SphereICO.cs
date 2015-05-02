@@ -13,16 +13,12 @@ namespace SimpleScene
 {
     public class SSMesh_SphereICO : SSIndexedMesh<SSVertex_PosNormTexDiff>
 	{
-		SSMainShaderProgram shaderPgm;
-
 		MeshGeometry3D geom;
-
-		SSTexture texture;
 
 		public SSMesh_SphereICO (int divisions, SSTexture texture)
             : base(BufferUsageHint.StaticDraw, BufferUsageHint.StaticDraw)
 		{
-			this.texture = texture;
+			this.textureMaterial = new SSTextureMaterial(texture);
 			this._Create(divisions);
 		}
 
@@ -119,21 +115,6 @@ namespace SimpleScene
 
 		}
 
-		public override void RenderMesh(ref SSRenderConfig renderConfig) {	
-            // note that the texture state was previously reset by the calling SSObject
-            // note that the shader state was previously reset by the calling SSObject
-
-            if (!renderConfig.drawingShadowMap) {
-                if (renderConfig.MainShader == null) {
-                    return;
-                } else {
-					renderConfig.MainShader.SetupTextures (texture);
-                }
-            }
-
-            base.RenderMesh(ref renderConfig);
-		}
-
         public override float Radius ()
 		{
             float radSq = 0f;
@@ -142,7 +123,6 @@ namespace SimpleScene
 			}
             return (float)Math.Sqrt(radSq);
 		}
-
 	}
 }
 

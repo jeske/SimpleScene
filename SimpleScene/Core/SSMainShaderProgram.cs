@@ -190,6 +190,11 @@ namespace SimpleScene
 			}
 		}
 
+		public void SetupTextures(SSTextureMaterial texInfo)
+		{
+			SetupTextures (texInfo.diffuseTex, texInfo.specularTex, texInfo.ambientTex, texInfo.bumpMapTex);
+		}
+
 		public SSMainShaderProgram (string preprocessorDefs = null)
 		{
 			// we use this method of detecting the extension because we are in a GL2.2 context

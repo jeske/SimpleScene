@@ -134,6 +134,10 @@ namespace SimpleScene
         static public void AddAssetArchive(ISSAssetArchiveHandler handler) {
             s_mgr.addAssetArchive(handler);
         }
+
+		static public bool ResourceExists(Context context, string filename) {
+			return s_mgr.resourceExists (context, filename);
+		}
         #endregion
 
         private void registerLoadDelegate<T>(LoadDelegate dlg) {
@@ -252,9 +256,22 @@ namespace SimpleScene
             throw new SSNoSuchAssetException(filename, handlersArr);
         }
 
+		private bool resourceExists(Context context, string filename)
+		{
+			string fullname = context.fullResourcePath (filename);
+			foreach (ISSAssetArchiveHandler handler in m_handlers) {
+				if (handler.resourceExists (fullname)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
         public class Context
         {
             private readonly string m_basepath;
+
+			public static readonly Context Root = new Context (".");
 
             public Context(string basepath) {
                 m_basepath = basepath;
