@@ -196,7 +196,7 @@ namespace SimpleScene
             // distances get "smaller" as they move in camera direction for some reason (why?)
             foreach (var obj in m_objects) {
                 float distanceAlongRay;
-                if (obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
+				if (obj.Selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
                     if (distanceAlongRay < 0.0) {
                         Console.WriteLine("intersect: [{0}] @distance: {1}", obj.Name, distanceAlongRay);

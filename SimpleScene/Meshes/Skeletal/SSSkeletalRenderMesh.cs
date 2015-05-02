@@ -145,6 +145,25 @@ namespace SimpleScene
 			}
 		}
 
+		public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {
+			for(int idx=0; idx < m_skeletalMesh.Indices.Length; idx+=3) {
+				var v1 = m_skeletalMesh.ComputeVertexPos (m_skeletalMesh.Indices[idx]);
+				var v2 = m_skeletalMesh.ComputeVertexPos (m_skeletalMesh.Indices[idx+1]);
+				var v3 = m_skeletalMesh.ComputeVertexPos (m_skeletalMesh.Indices[idx+2]);
+				bool finished = fn(state, v1, v2, v3);
+				if (finished) { 
+					return true;
+				}
+			}
+			foreach (SSSkeletalRenderMesh a in m_attachedSkeletalMeshes) {
+				bool finished = a.TraverseTriangles (state, fn);
+				if (finished) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		private void computeVertices()
 		{
 			SSAABB aabb= new SSAABB (float.PositiveInfinity, float.NegativeInfinity);

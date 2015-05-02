@@ -99,8 +99,11 @@ namespace TestBench0
 				var quadMesh = new SSVertexMesh<SSVertex_PosNormTex>(tileVertices);
 				quadMesh.textureMaterial = new SSTextureMaterial(tex);
 				var tileObj = new SSObjectMesh(quadMesh);
+				tileObj.Name = "Tiles";
+				tileObj.Selectable = false;
 				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
 				tileObj.Scale = new Vector3(tileSz * gridSz);
+				//tileObj.boundingSphere = new SSObjectSphere(0f);
 				scene.AddObject(tileObj);
 			}
 			#endif
@@ -172,6 +175,7 @@ namespace TestBench0
 				bobRender.alphaBlendingEnabled = true;
 				bobRender.TimeScale = 0.5f;
 				var bobObj = new SSObjectMesh(bobRender);
+				bobObj.Name = "Bob";
 				bobObj.Pos = new Vector3(10f, 0f, 10f);
 				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(bobObj);

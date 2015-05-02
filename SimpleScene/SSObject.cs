@@ -15,6 +15,7 @@ namespace SimpleScene
 	// abstract base class for "tangible" Renderable objects
 	public abstract class SSObject : SSObjectBase {
         public Color4 MainColor = Color4.White;
+		public bool Selectable = true;
 
 	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
 		public Color4 DiffuseMatColor = new Color4(0.3f, 0.3f, 0.3f, 1f);
