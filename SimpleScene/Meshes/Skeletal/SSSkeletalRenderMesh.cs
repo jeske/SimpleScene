@@ -207,6 +207,11 @@ namespace SimpleScene
 				return false;
 			}
 
+			/// <summary>
+			/// Computes vertex positions and normals (based on the state of runtime joint hierarchy).
+			/// Updates VBO with the result.
+			/// </summary>
+			/// <returns>AABB of the vertices.</returns>
 			public SSAABB ComputeVertices()
 			{
 				SSAABB aabb= new SSAABB (float.PositiveInfinity, float.NegativeInfinity);

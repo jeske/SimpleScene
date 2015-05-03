@@ -79,6 +79,9 @@ namespace SimpleScene
             return ComputeVertexPos(vertexIndex);
         }
 
+		/// <summary>
+		/// Computes a vertex position based on the state of runtime joint hierarchy
+		/// </summary>
 		public Vector3 ComputeVertexPos(int vertexIndex)
 		{
 			Vector3 currentPos = Vector3.Zero;
@@ -94,6 +97,9 @@ namespace SimpleScene
 			return currentPos;
 		}
 
+		/// <summary>
+		/// Computes a vertex normal based on the state of runtime joint hierarchy
+		/// </summary>
 		public Vector3 ComputeVertexNormal(int vertexIndex)
 		{            
             SSSkeletalVertex vertex = m_vertices[vertexIndex].BaseInfo;
@@ -114,10 +120,17 @@ namespace SimpleScene
             return (currentNormalEndpoint - currentPos).Normalized();
 		}        
 
-        public Vector3 BindPoseNormal(int vertexIndex) {
+		/// <summary>
+		/// Retrieve bind pose normal for a vertex
+		/// </summary>
+        public Vector3 BindPoseNormal(int vertexIndex) 
+		{
             return m_vertices[vertexIndex].BindPoseNormal;
         }
 
+		/// <summary>
+		/// Retrieve texture coordinates for a vertex
+		/// </summary>
 		public Vector2 TextureCoords(int vertexIndex)
 		{
 			return m_vertices [vertexIndex].BaseInfo.TextureCoords;
