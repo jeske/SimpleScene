@@ -158,7 +158,6 @@ namespace SimpleScene
 			SSSkeletalWeight ret;
 			ret.JointIndex = Convert.ToInt32(matches[2].Value);
 			ret.Bias = (float)Convert.ToDouble(matches[3].Value);
-            ret.JointLocalNormal = Vector3.Zero; // will be filled in later
 			ret.Position.X = (float)Convert.ToDouble(matches[5].Value);
 			ret.Position.Y = (float)Convert.ToDouble(matches[6].Value);
 			ret.Position.Z = (float)Convert.ToDouble(matches[7].Value);
