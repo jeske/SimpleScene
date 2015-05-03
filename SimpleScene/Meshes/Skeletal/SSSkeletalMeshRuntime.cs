@@ -6,6 +6,22 @@ using OpenTK;
 
 namespace SimpleScene
 {
+	public struct SSSkeletalVertexRuntime
+	{
+		public Vector3 BindPoseNormal;        
+		private SSSkeletalVertex m_baseInfo;
+
+		public SSSkeletalVertex BaseInfo {
+			get { return m_baseInfo; }
+		}
+
+		public SSSkeletalVertexRuntime(SSSkeletalVertex vertex)
+		{
+			m_baseInfo = vertex;
+			BindPoseNormal = Vector3.Zero;            
+		}
+	}
+
 	public struct SSSkeletalWeightRuntime
 	{
 		public SSSkeletalWeight BaseInfo;
@@ -18,25 +34,12 @@ namespace SimpleScene
 		}
 	}
 
-	public class SSSkeletalHierarchyRuntime
-	{
-
-	}
-
 	public class SSSkeletalMeshRuntime
 	{
+		protected SSSkeletalHierarchyRuntime m_hierarchy = null;
 		protected SSSkeletalVertexRuntime[] m_vertices = null;
 		protected SSSkeletalWeightRuntime[] m_weights = null;
 		protected UInt16[] m_triangleIndices = null;
-		protected SSSkeletalJointRuntime[] m_joints = null;
-
-		#region runtime only use
-		protected readonly List<int> m_topLevelJoints = new List<int> ();
-		#endregion
-
-		public int NumJoints {
-			get { return m_joints.Length; }
-		}
 
 		public int NumVertices {
 			get { return m_vertices.Length; }
@@ -54,30 +57,10 @@ namespace SimpleScene
 			get { return m_triangleIndices; }
 		}
 
-		public int[] TopLevelJoints {
-			get { return m_topLevelJoints.ToArray (); }
-		}
-
-		public SSSkeletalJointRuntime[] Joints {
-			get { return m_joints; }
-		}
-
-		public SSSkeletalMeshRuntime (SSSkeletalMesh mesh, SSSkeletalJointRuntime[] sharedJoints = null)
+		public SSSkeletalMeshRuntime (SSSkeletalMesh mesh, SSSkeletalHierarchyRuntime hierarchy)
 		{
-			if (sharedJoints == null) {
-				m_joints = new SSSkeletalJointRuntime[mesh.Joints.Length];
-				for (int j = 0; j < mesh.Joints.Length; ++j) {
-					m_joints [j] = new SSSkeletalJointRuntime (mesh.Joints [j]);
-					int parentIdx = mesh.Joints [j].ParentIndex;
-					if (parentIdx != -1) {
-						m_joints [parentIdx].Children.Add (j);
-					} else {
-						m_topLevelJoints.Add (j);
-					}
-				}
-			} else {
-				m_joints = sharedJoints;
-			}
+			m_hierarchy = hierarchy;
+
 			m_vertices = new SSSkeletalVertexRuntime[mesh.Vertices.Length];
 			for (int v = 0; v < mesh.Vertices.Length; ++v) {
 				m_vertices [v] = new SSSkeletalVertexRuntime (mesh.Vertices [v]);
@@ -89,27 +72,6 @@ namespace SimpleScene
 			}
 			m_triangleIndices = mesh.TriangleIndices;
 			preComputeNormals ();
-		}
-
-		public int JointIndex(string jointName)
-		{
-			if (String.Compare (jointName, "all", true) == 0) {
-				return -1;
-			}
-
-			for (int j = 0; j < m_joints.Length; ++j) {
-				if (m_joints [j].BaseInfo.Name == jointName) {
-					return j;
-				}
-			}
-			string errMsg = string.Format ("Joint not found: \"{0}\"", jointName);
-			System.Console.WriteLine (errMsg);
-			throw new Exception (errMsg);
-		}
-
-		public SSSkeletalJointLocation JointLocation(int jointIdx) 
-		{
-			return m_joints [jointIdx].CurrentLocation;
 		}
 
         public Vector3 ComputeVertexPosFromTriIndex(int triangleVertexIndex) {
@@ -124,7 +86,7 @@ namespace SimpleScene
 
 			for (int w = 0; w < vertex.WeightCount; ++w) {
 				var weight = m_weights [vertex.WeightStartIndex + w];
-				var joint = m_joints [weight.BaseInfo.JointIndex];
+				var joint = m_hierarchy.Joints[weight.BaseInfo.JointIndex];
 
 				Vector3 currWeightPos = Vector3.Transform (weight.BaseInfo.Position, joint.CurrentLocation.Orientation); 
 				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
@@ -140,7 +102,7 @@ namespace SimpleScene
 
             for (int w = 0; w < vertex.WeightCount; ++w) {
                 var weight = m_weights[vertex.WeightStartIndex + w];
-				var joint = m_joints[weight.BaseInfo.JointIndex];
+				var joint = m_hierarchy.Joints[weight.BaseInfo.JointIndex];
 
 				Vector3 currWeightPos = Vector3.Transform(weight.BaseInfo.Position, joint.CurrentLocation.Orientation);
 				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
@@ -159,96 +121,6 @@ namespace SimpleScene
 		public Vector2 TextureCoords(int vertexIndex)
 		{
 			return m_vertices [vertexIndex].BaseInfo.TextureCoords;
-		}
-
-		public void VerifyAnimation(SSSkeletalAnimation animation)
-		{
-			if (this.NumJoints != animation.NumJoints) {
-				string str = string.Format (
-		             "Joint number mismatch: {0} in md5mesh, {1} in md5anim",
-		             this.NumJoints, animation.NumJoints);
-				Console.WriteLine (str);
-				throw new Exception (str);
-			}
-			for (int j = 0; j < NumJoints; ++j) {
-				SSSkeletalJoint meshInfo = this.m_joints [j].BaseInfo;
-				SSSkeletalJoint animInfo = animation.JointHierarchy [j];
-				if (meshInfo.Name != animInfo.Name) {
-					string str = string.Format (
-						"Joint name mismatch: {0} in md5mesh, {1} in md5anim",
-						meshInfo.Name, animInfo.Name);
-					Console.WriteLine (str);
-					throw new Exception (str);
-				}
-				if (meshInfo.ParentIndex != animInfo.ParentIndex) {
-					string str = string.Format (
-						"Hierarchy parent mismatch for joint \"{0}\": {1} in md5mesh, {2} in md5anim",
-						meshInfo.Name, meshInfo.ParentIndex, animInfo.ParentIndex);
-					Console.WriteLine (str);
-					throw new Exception (str);
-				}
-			}
-		}
-
-		public void LoadAnimationFrame(SSSkeletalAnimation anim, float t)
-		{
-			for (int j = 0; j < NumJoints; ++j) {
-				m_joints [j].CurrentLocation = anim.ComputeJointFrame (j, t);
-			}
-		}
-
-		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannel> channels)
-		{
-			foreach (int j in m_topLevelJoints) {
-				traverseWithChannels (j, channels, null, null);
-			}
-		}
-
-		private void traverseWithChannels(int j, 
-									      List<SSSkeletalAnimationChannel> channels,
-										  SSSkeletalAnimationChannel activeChannel,
-										  SSSkeletalAnimationChannel prevActiveChannel)
-		{
-			foreach (var channel in channels) {
-				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (j)) {
-					if (activeChannel != null && !channel.IsEnding) {
-						prevActiveChannel = activeChannel;
-					}
-					activeChannel = channel;
-				}
-			}
-			SSSkeletalJointRuntime joint = m_joints [j];
-
-			if (activeChannel == null) {
-				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
-			} else {
-				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (j);
-				int parentIdx = joint.BaseInfo.ParentIndex;
-				if (parentIdx != -1) {
-					activeLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
-				}
-
-				if (activeChannel.IsEnding) {
-					// TODO smarter, multi layer fallback
-					SSSkeletalJointLocation fallbackLoc;
-					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
-						fallbackLoc = joint.BaseInfo.BaseLocation;
-					} else {
-						fallbackLoc = prevActiveChannel.ComputeJointFrame (j);
-						if (joint.BaseInfo.ParentIndex != -1) {
-							fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
-						}
-					}
-					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
-						activeLoc, fallbackLoc, activeChannel.FadeBlendPosition);
-				} else {
-					joint.CurrentLocation = activeLoc;
-				}
-			}
-
-			foreach (int child in joint.Children) {
-				traverseWithChannels (child, channels, activeChannel, prevActiveChannel);
-			}
 		}
 
 		/// <summary>
@@ -289,7 +161,7 @@ namespace SimpleScene
 				var vertBaseInfo = m_vertices [v].BaseInfo;
                 for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
 					var weight = m_weights [vertBaseInfo.WeightStartIndex + w];
-					var joint = m_joints [weight.BaseInfo.JointIndex];
+					var joint = m_hierarchy.Joints [weight.BaseInfo.JointIndex];
 
                     // write the joint local normal
                     m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     
@@ -299,40 +171,6 @@ namespace SimpleScene
 				}
 
 			}
-		}
-	}
-
-	public struct SSSkeletalVertexRuntime
-	{
-		public Vector3 BindPoseNormal;        
-		private SSSkeletalVertex m_baseInfo;
-
-		public SSSkeletalVertex BaseInfo {
-			get { return m_baseInfo; }
-		}
-
-		public SSSkeletalVertexRuntime(SSSkeletalVertex vertex)
-		{
-			m_baseInfo = vertex;
-			BindPoseNormal = Vector3.Zero;            
-		}
-	}
-
-	public class SSSkeletalJointRuntime
-	{
-		public SSSkeletalJointLocation CurrentLocation;
-		public List<int> Children = new List<int>();
-
-		protected SSSkeletalJoint m_baseInfo;
-
-		public SSSkeletalJoint BaseInfo {
-			get { return m_baseInfo; }
-		}
-
-		public SSSkeletalJointRuntime(SSSkeletalJoint baseInfo)
-		{
-			m_baseInfo = baseInfo;
-			CurrentLocation = m_baseInfo.BaseLocation;
 		}
 	}
 }
