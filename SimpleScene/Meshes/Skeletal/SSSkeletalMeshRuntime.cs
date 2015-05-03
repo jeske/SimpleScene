@@ -6,16 +6,27 @@ using OpenTK;
 
 namespace SimpleScene
 {
+	public struct SSSkeletalWeightRuntime
+	{
+		public SSSkeletalWeight BaseInfo;
+		public Vector3 JointLocalNormal;
+
+		public SSSkeletalWeightRuntime(SSSkeletalWeight weight)
+		{
+			BaseInfo = weight;
+			JointLocalNormal = Vector3.Zero;
+		}
+	}
+
 	public class SSSkeletalMeshRuntime
 	{
 		internal SSSkeletalVertexRuntime[] m_vertices = null;
-        internal SSSkeletalWeight[] m_weights = null;
+		internal SSSkeletalWeightRuntime[] m_weights = null;
 		internal UInt16[] m_triangleIndices = null;
         internal SSSkeletalJointRuntime[] m_joints = null;
 
 		#region runtime only use
 		protected readonly List<int> m_topLevelJoints = new List<int> ();
-		protected Vector3[] m_baseNormals = null;
 		#endregion
 
 		public int NumJoints {
@@ -67,7 +78,10 @@ namespace SimpleScene
 				m_vertices [v] = new SSSkeletalVertexRuntime (mesh.Vertices [v]);
 			}
 
-			m_weights = mesh.Weights;
+			m_weights = new SSSkeletalWeightRuntime[mesh.Weights.Length];
+			for (int w = 0; w < mesh.Weights.Length; ++w) {
+				m_weights [w] = new SSSkeletalWeightRuntime (mesh.Weights [w]);
+			}
 			m_triangleIndices = mesh.TriangleIndices;
 			preComputeNormals ();
 		}
@@ -104,11 +118,11 @@ namespace SimpleScene
 			SSSkeletalVertex vertex = m_vertices [vertexIndex].BaseInfo;
 
 			for (int w = 0; w < vertex.WeightCount; ++w) {
-				SSSkeletalWeight weight = m_weights [vertex.WeightStartIndex + w];
-				SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
+				var weight = m_weights [vertex.WeightStartIndex + w];
+				var joint = m_joints [weight.BaseInfo.JointIndex];
 
-				Vector3 currWeightPos = Vector3.Transform (weight.Position, joint.CurrentLocation.Orientation); 
-				currentPos += weight.Bias * (joint.CurrentLocation.Position + currWeightPos);
+				Vector3 currWeightPos = Vector3.Transform (weight.BaseInfo.Position, joint.CurrentLocation.Orientation); 
+				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
 			}
 			return currentPos;
 		}
@@ -120,14 +134,14 @@ namespace SimpleScene
             Vector3 currentNormalEndpoint = Vector3.Zero;
 
             for (int w = 0; w < vertex.WeightCount; ++w) {
-                SSSkeletalWeight weight = m_weights[vertex.WeightStartIndex + w];
-                SSSkeletalJointRuntime joint = m_joints[weight.JointIndex];
+                var weight = m_weights[vertex.WeightStartIndex + w];
+				var joint = m_joints[weight.BaseInfo.JointIndex];
 
-                Vector3 currWeightPos = Vector3.Transform(weight.Position, joint.CurrentLocation.Orientation);
-                currentPos += weight.Bias * (joint.CurrentLocation.Position + currWeightPos);
+				Vector3 currWeightPos = Vector3.Transform(weight.BaseInfo.Position, joint.CurrentLocation.Orientation);
+				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
 
-                Vector3 currWeightNormalEndpointPos = Vector3.Transform(weight.Position + weight.JointLocalNormal, joint.CurrentLocation.Orientation);
-                currentNormalEndpoint += weight.Bias * (joint.CurrentLocation.Position + currWeightNormalEndpointPos);
+				Vector3 currWeightNormalEndpointPos = Vector3.Transform(weight.BaseInfo.Position + weight.JointLocalNormal, joint.CurrentLocation.Orientation);
+				currentNormalEndpoint += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightNormalEndpointPos);
             }
 
             return (currentNormalEndpoint - currentPos).Normalized();
@@ -269,8 +283,8 @@ namespace SimpleScene
 				// so the animated normal can be computed faster later
 				var vertBaseInfo = m_vertices [v].BaseInfo;
                 for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
-					SSSkeletalWeight weight = m_weights [vertBaseInfo.WeightStartIndex + w];
-					SSSkeletalJointRuntime joint = m_joints [weight.JointIndex];
+					var weight = m_weights [vertBaseInfo.WeightStartIndex + w];
+					var joint = m_joints [weight.BaseInfo.JointIndex];
 
                     // write the joint local normal
                     m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     

@@ -268,15 +268,6 @@ namespace SimpleScene
 		{
 			return m_boundingSphere.radius;
 		}
-
-		protected class AttachedObjectInfo
-		{
-			public SSObject AttachedObject;
-			public int JointIdx;
-			public Vector3 PositionOffset;
-			public Quaternion OrientOffset;
-			public bool ControlOrient;
-		}
 	}
 }
 

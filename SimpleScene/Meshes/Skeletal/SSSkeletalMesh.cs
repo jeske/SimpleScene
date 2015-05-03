@@ -16,7 +16,6 @@ namespace SimpleScene
 
 	public struct SSSkeletalVertex
 	{
-		//public int VertexIndex;
 		public Vector2 TextureCoords;
 		public int WeightStartIndex;
 		public int WeightCount;
@@ -24,10 +23,9 @@ namespace SimpleScene
 
 	public struct SSSkeletalWeight
 	{
-		//public int WeightIndex;
 		public int JointIndex;
 		public float Bias;
-		public Vector3 Position;        
+		public Vector3 Position;
         public Vector3 JointLocalNormal;
 	}
 
