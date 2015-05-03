@@ -105,6 +105,7 @@ namespace SimpleScene
 				totalAABB.ExpandBy (aabb);
 			}
 			m_boundingSphere = totalAABB.ToSphere ();
+			MeshChanged ();
 		}
 
 		public void RenderInstanced(ref SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
