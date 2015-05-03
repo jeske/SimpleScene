@@ -237,9 +237,9 @@ namespace SimpleScene
                 
                 Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
 
-                int v0 = m_skeletalMesh.m_triangleIndices[baseIdx];
-                int v1 = m_skeletalMesh.m_triangleIndices[baseIdx + 1];
-                int v2 = m_skeletalMesh.m_triangleIndices[baseIdx + 2];
+                int v0 = m_skeletalMesh.Indices[baseIdx];
+				int v1 = m_skeletalMesh.Indices[baseIdx + 1];
+				int v2 = m_skeletalMesh.Indices[baseIdx + 2];
 
                 perVertexNormals[v0] += face_normal;
                 perVertexNormals[v1] += face_normal;

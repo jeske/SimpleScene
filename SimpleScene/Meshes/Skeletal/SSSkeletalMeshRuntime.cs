@@ -18,12 +18,17 @@ namespace SimpleScene
 		}
 	}
 
+	public class SSSkeletalHierarchyRuntime
+	{
+
+	}
+
 	public class SSSkeletalMeshRuntime
 	{
-		internal SSSkeletalVertexRuntime[] m_vertices = null;
-		internal SSSkeletalWeightRuntime[] m_weights = null;
-		internal UInt16[] m_triangleIndices = null;
-        internal SSSkeletalJointRuntime[] m_joints = null;
+		protected SSSkeletalVertexRuntime[] m_vertices = null;
+		protected SSSkeletalWeightRuntime[] m_weights = null;
+		protected UInt16[] m_triangleIndices = null;
+		protected SSSkeletalJointRuntime[] m_joints = null;
 
 		#region runtime only use
 		protected readonly List<int> m_topLevelJoints = new List<int> ();
