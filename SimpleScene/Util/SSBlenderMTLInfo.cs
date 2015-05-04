@@ -57,9 +57,7 @@ namespace SimpleScene
 		public static SSBlenderMTLInfo[] ReadMTLs(SSAssetManager.Context ctx, string filename)
 		{
 			var materials = new List<SSBlenderMTLInfo> ();
-			var parseMaterial = new SSBlenderMTLInfo();
-
-			bool first = true;
+			SSBlenderMTLInfo parseMaterial = null;
 
 			StreamReader sr = ctx.OpenText(filename);
 
@@ -76,17 +74,13 @@ namespace SimpleScene
 				string firstToken = tokens[0];
 				string lineContent = tokens[1];
 
-
 				switch (firstToken) {
 				case "#":
 					// Nothing to read, these are comments.
 					break;
 				case "newmtl":  // create new named material                
-					if (!first) {
-						materials.Add(parseMaterial);
-						parseMaterial = new SSBlenderMTLInfo();
-					}
-					first = false;
+					parseMaterial = new SSBlenderMTLInfo();
+					materials.Add(parseMaterial);
 					parseMaterial.name = lineContent;
 					break;
 				case "Ka": // ambient color
@@ -150,7 +144,6 @@ namespace SimpleScene
 				//Read the next line
 				line = sr.ReadLine();
 			}
-			materials.Add(parseMaterial);
 
 			//close the file
 			sr.Close();

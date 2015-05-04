@@ -90,10 +90,6 @@ namespace SimpleScene
 					GL.BindTexture(TextureTarget.Texture2D, subset.TextureMaterial.diffuseTex.TextureID);
 				}
 			} else {
-				// bind our texture-images to GL texture-units 
-				// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
-
-				// these texture-unit assignments are hard-coded in the shader setup
                 shaderPgm.Activate();
 				shaderPgm.SetupTextures(subset.TextureMaterial);		
 			}

@@ -147,7 +147,10 @@ namespace SimpleScene
         #endregion
 
 		/// <summary>
-		/// Sets up textures. Disables textures that were passed as null (defaults)
+		/// Binds our texture-images to GL texture-units 
+		/// http://adriangame.blogspot.com/2010/05/glsl-multitexture-checklist.html
+		/// these texture-unit assignments are hard-coded in the shader setup
+		/// Disables textures that were passed as null (defaults)
 		/// </summary>
 		public void SetupTextures(
 			SSTexture diffuseTex = null, SSTexture specTex = null, 
