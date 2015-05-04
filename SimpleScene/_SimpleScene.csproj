@@ -150,6 +150,7 @@
     <Compile Include="Meshes\SSVertexMesh.cs" />
     <Compile Include="Core\SSTextureMaterial.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalHierarchyRuntime.cs" />
+    <Compile Include="Util\SSBlenderMTLInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

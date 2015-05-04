@@ -45,8 +45,7 @@ namespace SimpleScene
 
 
             Console.WriteLine("SSMesh_wfOBJ: loading wff {0}",filename);
-            WavefrontObjLoader wff_data = new WavefrontObjLoader(filename,
-               delegate(string resourceName) { return ctx.Open(resourceName); });
+			WavefrontObjLoader wff_data = new WavefrontObjLoader(ctx, filename);
 
 			Console.WriteLine("wff vertex count = {0}",wff_data.positions.Count);
 			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
@@ -96,10 +95,7 @@ namespace SimpleScene
 
 				// these texture-unit assignments are hard-coded in the shader setup
                 shaderPgm.Activate();
-				shaderPgm.SetupTextures(subset.TextureMaterial);
-
-				// reset to texture-unit 0 to be friendly..
-				GL.ActiveTexture(TextureUnit.Texture0);				
+				shaderPgm.SetupTextures(subset.TextureMaterial);		
 			}
 		}
 
@@ -232,7 +228,8 @@ namespace SimpleScene
             }
         }
         
-        private SSMeshOBJSubsetData _loadMaterialSubset(SSAssetManager.Context ctx, WavefrontObjLoader wff, WavefrontObjLoader.MaterialFromObj objMatSubset) {
+		private SSMeshOBJSubsetData _loadMaterialSubset(SSAssetManager.Context ctx, WavefrontObjLoader wff, 
+														WavefrontObjLoader.MaterialInfoWithFaces objMatSubset) {
             // create new mesh subset-data
             SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData();            
 
@@ -240,17 +237,17 @@ namespace SimpleScene
 
             // load and link every texture present 
 			subsetData.TextureMaterial = new SSTextureMaterial();
-            if (objMatSubset.diffuseTextureResourceName != null) {
-				subsetData.TextureMaterial.diffuseTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.diffuseTextureResourceName);
+            if (objMatSubset.mtl.diffuseTextureResourceName != null) {
+				subsetData.TextureMaterial.diffuseTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.diffuseTextureResourceName);
             }
-            if (objMatSubset.ambientTextureResourceName != null) {
-				subsetData.TextureMaterial.ambientTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.ambientTextureResourceName);
+            if (objMatSubset.mtl.ambientTextureResourceName != null) {
+				subsetData.TextureMaterial.ambientTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.ambientTextureResourceName);
             } 
-            if (objMatSubset.bumpTextureResourceName != null) {
-				subsetData.TextureMaterial.bumpMapTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.bumpTextureResourceName);
+			if (objMatSubset.mtl.bumpTextureResourceName != null) {
+				subsetData.TextureMaterial.bumpMapTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.bumpTextureResourceName);
             }
-            if (objMatSubset.specularTextureResourceName != null) {
-				subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.specularTextureResourceName);
+			if (objMatSubset.mtl.specularTextureResourceName != null) {
+				subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.specularTextureResourceName);
             }
 
             // generate renderable geometry data...

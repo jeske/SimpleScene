@@ -16,9 +16,6 @@ namespace SimpleScene
 	{
 
 		// convert wavefrontobjloader vector formats, to our OpenTK Vector3 format
-		private static Vector3 CV(WavefrontObjLoader.Vector_XYZW dxv) { return new Vector3(dxv.X, dxv.Y, dxv.Z); }
-		private static Vector3 CV(WavefrontObjLoader.Vector_XYZ dxv) { return new Vector3(dxv.X, dxv.Y, dxv.Z); }
-
 		// generateDrawIndexBuffer(..)
 		//
 		// Walks the wavefront faces, feeds pre-configured verticies to the VertexSoup, 
@@ -37,12 +34,12 @@ namespace SimpleScene
 			// (0) go throu`gh the materials and faces, DENORMALIZE from WF-OBJ into fully-configured verticies
 
 			// load indexes
-			foreach (var mtl in wff.materials) {
+			foreach (var m in wff.materials) {
 
 				// wavefrontOBJ stores color in CIE-XYZ color space. Convert this to Alpha-RGB
-				var materialDiffuseColor = WavefrontObjLoader.CIEXYZtoColor(mtl.vDiffuse).ToArgb();
+				var materialDiffuseColor = WavefrontObjLoader.CIEXYZtoColor(m.mtl.vDiffuse).ToArgb();
 
-				foreach (var face in mtl.faces) {
+				foreach (var face in m.faces) {
 
 					// iterate over the vericies of a wave-front FACE...
 
@@ -51,19 +48,19 @@ namespace SimpleScene
 					for (int facevertex = 0; facevertex < face.v_idx.Length; facevertex++) {     
 
 						// position
-						vertex_list[facevertex].Position = CV(wff.positions[face.v_idx[facevertex]]);
+						vertex_list[facevertex].Position = wff.positions[face.v_idx[facevertex]].Xyz;
 
 						// normal
 						int normal_idx = face.n_idx[facevertex];
 						if (normal_idx != -1) {
-							vertex_list[facevertex].Normal = CV(wff.normals[normal_idx]); 
+							vertex_list[facevertex].Normal = wff.normals[normal_idx]; 
 						}
 
 						// texture coordinate
 						int tex_index = face.tex_idx[facevertex];
 						if (tex_index != -1 ) {
-							vertex_list[facevertex].Tu = wff.texCoords[tex_index].U; 
-							vertex_list[facevertex].Tv = 1- wff.texCoords[tex_index].V;
+							vertex_list[facevertex].Tu = wff.texCoords[tex_index].X; 
+							vertex_list[facevertex].Tv = 1- wff.texCoords[tex_index].Y;
 						}
 					
 						// assign our material's diffusecolor to the vertex diffuse color...

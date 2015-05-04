@@ -7,6 +7,11 @@ using System.IO;
 
 using System.Globalization;
 
+using OpenTK;
+
+using SimpleScene;
+using SimpleScene.Util;
+
 // WavefrontObjLoader.cs
 //
 // Wavefront .OBJ 3d fileformat loader in C# (csharp dot net)
@@ -58,41 +63,6 @@ namespace Util3d {
         // 
         // http://stackoverflow.com/questions/4233152/how-to-setup-calculate-texturebuffer-in-gltexcoordpointer-when-importing-from-ob
 
-        public struct Vector_UVW {
-            public float U;  // horizontal texture direction (i.e. X)
-            public float V;  // vertical texture direction (i.e. Y)
-            public float W;  // optional depth of the texture (default 0)
-            public Vector_UVW(float u, float v) {
-                this.U = u; this.V = v; this.W = 0.0f;
-            }
-            public Vector_UVW(float u, float v, float w) {
-                this.U = u; this.V = v; this.W = w;
-            }
-        }
-
-        public struct Vector2 {
-            public float X, Y;
-            public Vector2(float x, float y) {
-                this.X = x; this.Y = y;
-            }
-        }
-        public struct Vector_XYZW {
-            public float X, Y, Z, W;
-            public Vector_XYZW(float x, float y, float z) {
-                this.X = x; this.Y = y; this.Z = z; this.W = 1.0f;
-            }
-            public Vector_XYZW(float x, float y, float z, float w) {
-                this.X = x; this.Y = y; this.Z = z; this.W = w;
-            }
-        }
-
-        public struct Vector_XYZ {
-            public float X, Y, Z;
-            public Vector_XYZ(float x, float y, float z) {
-                this.X = x; this.Y = y; this.Z = z; 
-            }            
-        }
-
         public struct Face {
             public Int16[] v_idx;
             public Int16[] n_idx;
@@ -108,62 +78,14 @@ namespace Util3d {
         //       if you need per material indicies, you'll need to rebuild your own
         //       vertex lists and indicies.
 
-        public List<Vector_UVW> texCoords = new List<Vector_UVW>();
-        public List<Vector_XYZ> normals = new List<Vector_XYZ>();
-        public List<Vector_XYZW> positions = new List<Vector_XYZW>();
+        public List<Vector2> texCoords = new List<Vector2>();
+        public List<Vector3> normals = new List<Vector3>();
+        public List<Vector4> positions = new List<Vector4>();
 
-        public List<MaterialFromObj> materials = new List<MaterialFromObj>();
+		public List<MaterialInfoWithFaces> materials = new List<MaterialInfoWithFaces>();
 
-        public enum WffObjIlluminationMode {
-            ColorOnAmbientOff = 0,
-            ColorOnAmbiendOn = 1,
-            HighlightOn = 2,
-            ReflectionOnRayTraceOn = 3,
-            TransparentyGlassOn_ReflectionRayTraceOn = 4,
-            ReflectionFresnelAndRayTraceOn = 5,
-            TransparencyRefractionOn_ReflectionFresnelOffRayTraceOn = 6,
-            TransparentyRefractionOn_ReflectionFresnelOnRayTraceOn = 7,
-            ReflectionOn_RayTraceOff = 8,
-            TransparencyGlassOn_ReflectionRayTraceOff = 9,
-            CastsShadowsOntoInvisibleSurfaces = 10
-        }
 
-        /// <summary>
-        /// This structure is used to store material information.
-        /// </summary>
-        public class MaterialFromObj {
-            public string name;
-
-            public bool hasAmbient;
-            public Vector_XYZW vAmbient;       // Ka
-
-            public bool hasDiffuse;
-            public Vector_XYZW vDiffuse;       // Kd
-            
-            public bool hasSpecular;            
-            public Vector_XYZW vSpecular;      // Ks
-            public float vSpecularWeight;  // Ns
-
-            // textures
-            public string ambientTextureResourceName;    // map_Ka
-            public string diffuseTextureResourceName;    // map_Kd
-            public string specularTextureResourceName;   // map_Ks
-            public string bumpTextureResourceName;       // map_bump || bump
-            
-            // texture paramaters
-			public float bumpIntensity = 1.0f;
-
-            public bool hasIlluminationMode;
-            public WffObjIlluminationMode illuminationMode;  // illum
-
-            public bool hasTransparency;
-            public float fTransparency;
-
-            public int nbrIndices;
-            public List<Face> faces = new List<Face>();
-        }
-
-        private float parseFloat(string data) {
+        public static float parseFloat(string data) {
             // we have to use InvariantCulture to get the float-format parsing we expect
             return float.Parse(data, CultureInfo.InvariantCulture);            
         }
@@ -173,7 +95,7 @@ namespace Util3d {
         /// <param name="strIn"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        private string[] FilteredSplit(string strIn, char[] separator) {
+        private static string[] FilteredSplit(string strIn, char[] separator) {
             string[] valuesUnfiltered = strIn.Split(separator);
 
             // Sometime if we have a white space at the beginning of the string, split
@@ -189,45 +111,46 @@ namespace Util3d {
             return values;
         }
 
-        private void ASSERT(bool test_true, string reason) {
+        private static void ASSERT(bool test_true, string reason) {
             if (!test_true) {
                 throw new WavefrontObjParseException("WavefrontObjLoader Error: " + reason);
             }
         }
 
-        private Vector_XYZW readVector_XYZW(string strIn, char[] separator) {
+		public static Vector4 readVector4(string strIn, char[] separator) {
             string[] values = FilteredSplit(strIn, separator);
 
             if (values.Length == 3) {       // W optional
-                return new Vector_XYZW(
-                    parseFloat(values[0]),
-                    parseFloat(values[1]),
-                    parseFloat(values[2]));
+                return new Vector4(parseFloat(values[0]), 
+								   parseFloat(values[1]),
+                                   parseFloat(values[2]),
+								   0f);
             } else if (values.Length == 4) {
-                return new Vector_XYZW(
+                return new Vector4(
                     parseFloat(values[0]),
                     parseFloat(values[1]),
                     parseFloat(values[2]),
                     parseFloat(values[3]));
             } else {
-                throw new WavefrontObjParseException("readVector_XYZW found wrong number of vectors : " + strIn);
+				throw new WavefrontObjParseException("readVector4 found wrong number of vectors : " + strIn);
             }
         }
-        private Vector_XYZ readVector_XYZ(string strIn, char[] separator) {
+
+		public static Vector3 readVector3(string strIn, char[] separator) {
             string[] values = FilteredSplit(strIn, separator);
 
             if (values.Length == 3) {
-                return new Vector_XYZ(
+                return new Vector3(
                     parseFloat(values[0]),
                     parseFloat(values[1]),
                     parseFloat(values[2]));
             } else {
-                throw new WavefrontObjParseException("readVector_XYZ found wrong number of vectors : " + strIn);
+				throw new WavefrontObjParseException("readVector3 found wrong number of vectors : " + strIn);
             }
         }
         
 
-        private Vector2 readVector2(string strIn, char[] separator) {
+		public static Vector2 readVector2(string strIn, char[] separator) {
             string[] values = FilteredSplit(strIn, separator);
 
             ASSERT(values.Length == 2, "readVector2 found wrong number of vectors : " + strIn);
@@ -237,6 +160,7 @@ namespace Util3d {
 
         }
 
+		#if false
         private Vector_UVW readVector_UVW(string strIn, char[] separator) {
             string[] values = FilteredSplit(strIn, separator);
 
@@ -254,15 +178,13 @@ namespace Util3d {
                 throw new WavefrontObjParseException("readVector_UVW found wrong number of vectors : " + strIn);                
             }
         }
+		#endif
 
 
-        private MaterialFromObj createImplicitMaterial() {
-            MaterialFromObj makeMaterial = new MaterialFromObj();
+		private MaterialInfoWithFaces createImplicitMaterial() {
+			MaterialInfoWithFaces makeMaterial = MaterialInfoWithFaces.CreateImplicitMaterialWithFaces();
             materials.Add(makeMaterial);
-
-            makeMaterial.name = "[ Implicit Material ]";
-
-            return makeMaterial;            
+            return makeMaterial;
         }
             
 
@@ -272,109 +194,10 @@ namespace Util3d {
         /// <param name="d3ddevice"></param>
         /// <param name="file"></param>
        
-        public void parseMTL(string file) {
-            MaterialFromObj parseMaterial = new MaterialFromObj();
-            
-            bool first = true;
+		private void parseOBJ(SSAssetManager.Context ctx, string filename) {
+			MaterialInfoWithFaces currentMaterial = null;
 
-            // ask the delegate to open the material file for us..
-            StreamReader sr = new StreamReader(this.opendelegate(file));            
-
-            //Read the first line of text
-            string line = sr.ReadLine();
-
-            //Continue to read until you reach end of file
-            while (line != null) {
-                string[] tokens = line.Split(" ".ToArray(), 2);
-                if (tokens.Length < 2) {
-                    goto next_line;
-                }
-
-                string firstToken = tokens[0];
-                string lineContent = tokens[1];
-
-
-                switch (firstToken) {
-                    case "#":
-                        // Nothing to read, these are comments.
-                        break;
-                    case "newmtl":  // create new named material                
-                        if (!first) {
-                            materials.Add(parseMaterial);
-                            parseMaterial = new MaterialFromObj();
-                        }
-                        first = false;
-                        parseMaterial.name = lineContent;
-                        break;
-                    case "Ka": // ambient color
-                        parseMaterial.vAmbient = readVector_XYZW(lineContent, null);
-                        parseMaterial.hasAmbient = true;
-                        break;
-                    case "Kd": // diffuse color
-                        parseMaterial.vDiffuse = readVector_XYZW(lineContent, null);
-                        parseMaterial.hasDiffuse = true;
-                        break;
-                    case "Ks": // specular color (weighted by Ns)                                 
-                        parseMaterial.vSpecular = readVector_XYZW(lineContent,null);
-                        parseMaterial.hasSpecular = true;
-                        break;
-                    case "Ns": // specular color weight                
-                        parseMaterial.vSpecularWeight = parseFloat(lineContent);   
-                        break;
-                    case "d":
-                    case "Tr": // transparency / dissolve (i.e. alpha)
-                        parseMaterial.fTransparency = parseFloat(lineContent);
-                        parseMaterial.hasTransparency = true;
-                        break;
-                    case "illum": // illumination mode                           
-                        parseMaterial.hasIlluminationMode = true;
-                        parseMaterial.illuminationMode = (WffObjIlluminationMode) int.Parse(lineContent);
-                        break;
-                    case "map_Kd": // diffuse color map                
-                        parseMaterial.diffuseTextureResourceName = lineContent;
-                        break;
-                    case "map_Ka": // ambient color map
-                        parseMaterial.ambientTextureResourceName = lineContent;
-                        break;
-                    case "map_Ks": // specular color map                
-                        parseMaterial.specularTextureResourceName = lineContent;
-                        break;
-                    case "bump": 
-					case "map_Bump":
-                    case "map_bump": // bump map  
-                        // bump <filename> [-bm <float intensity>]             
-                        // bump -bm <float intensity> <filename>
-                        string[] parts = lineContent.Split(' ');
-                        if (parts.Length == 1) {
-                            parseMaterial.bumpTextureResourceName = parts[0];
-                        } else {
-                            if (parts.Length == 3) {
-                                if (parts[1].Equals("-bm")) {
-                                    parseMaterial.bumpTextureResourceName = parts[0];
-                                    parseMaterial.bumpIntensity = parseFloat(parts[2]);
-                                } else if (parts[0].Equals("-bm")) {
-                                    parseMaterial.bumpTextureResourceName = parts[3];
-                                    parseMaterial.bumpIntensity = parseFloat(parts[1]);
-                                }
-                            }
-                        }
-                        
-                        
-                        break;
-                }
-
-            next_line:
-                //Read the next line
-                line = sr.ReadLine();
-            }
-            materials.Add(parseMaterial);
-
-            //close the file
-            sr.Close();
-        }
-
-        private void parseOBJ(StreamReader sr) {
-            MaterialFromObj currentMaterial = null;
+			StreamReader sr = ctx.OpenText (filename);
 
             //Read the first line of text
 			string line = sr.ReadLine();
@@ -394,13 +217,13 @@ namespace Util3d {
                     case "#":   // Nothing to read, these are comments.                        
                         break;
                     case "v":   // Vertex position
-                        positions.Add(readVector_XYZW(lineContent, null));
+                        positions.Add(readVector4(lineContent, null));
                         break;
                     case "vn":  // vertex normal direction vector
-                        normals.Add(readVector_XYZ(lineContent, null));   
+                        normals.Add(readVector3(lineContent, null));   
                         break;
                     case "vt":  // Vertex texcoordinate
-                        texCoords.Add(readVector_UVW(lineContent,null));
+						texCoords.Add(readVector2(lineContent,null));
                         break;
                     case "f":   // Face                    
                         string[] values = FilteredSplit(lineContent, null);
@@ -457,7 +280,12 @@ namespace Util3d {
                         break;
                     case "mtllib":  // load named material file
                         string mtlFile = lineContent;
-                        parseMTL(mtlFile);
+						{
+							var mtls = SSBlenderMTLInfo.ReadMTLs (ctx, mtlFile);
+							foreach (var mtl in mtls) {
+								materials.Add (new MaterialInfoWithFaces (mtl));
+							}
+						}
                         break;
                     case "usemtl":  // use named material (from material file previously loaded)
                         bool found = false;
@@ -466,7 +294,7 @@ namespace Util3d {
 
                         for (int i = 0; i < materials.Count; i++)
                         {
-                            if (matName.Equals(materials[i].name))
+                            if (matName.Equals(materials[i].mtl.name))
                             {
                                 found = true;
                                 currentMaterial = materials[i];                            
@@ -489,16 +317,12 @@ namespace Util3d {
 			sr.Close();
         }
 
-        public delegate Stream openNamedFile(string resource_name); 
-        openNamedFile opendelegate;
-
-        public WavefrontObjLoader(string obj_file_name, openNamedFile opendelegate) {
-            this.opendelegate = opendelegate;
-            Stream fs = opendelegate(obj_file_name);            
-            this.parseOBJ(new StreamReader(fs));
+		public WavefrontObjLoader(SSAssetManager.Context ctx, string filename) 
+		{
+			this.parseOBJ(ctx, filename);
         }
         
-        public static System.Drawing.Color CIEXYZtoColor(Vector_XYZW xyzColor) {
+        public static System.Drawing.Color CIEXYZtoColor(Vector4 xyzColor) {
             if (xyzColor.X + xyzColor.Y + xyzColor.Z < 0.01f) {
                 return System.Drawing.Color.FromArgb(150, 150, 150);
             } else {
@@ -507,7 +331,7 @@ namespace Util3d {
             }
         }
 
-        public static Int32 CIEXYZtoRGB(Vector_XYZW xyzColor) {
+        public static Int32 CIEXYZtoRGB(Vector4 xyzColor) {
             if (xyzColor.X + xyzColor.Y + xyzColor.Z < 0.01f) {
                 return System.Drawing.Color.FromArgb(150, 150, 150).ToArgb();
             } else {
@@ -516,5 +340,23 @@ namespace Util3d {
             }
         }
 
+		public class MaterialInfoWithFaces
+		{
+			public static MaterialInfoWithFaces CreateImplicitMaterialWithFaces()
+			{
+				MaterialInfoWithFaces newMat = new MaterialInfoWithFaces(new SSBlenderMTLInfo ());
+				newMat.mtl.name = "[ implicit material ]";
+				return newMat;
+			}
+		    
+			public MaterialInfoWithFaces(SSBlenderMTLInfo sourceMtl)
+			{
+				mtl = sourceMtl;
+			}
+
+			public SSBlenderMTLInfo mtl;
+			public List<Face> faces = new List<Face>();
+			public int nbrIndices;
+		}
     }
 }
