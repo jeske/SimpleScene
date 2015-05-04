@@ -22,9 +22,9 @@ namespace SimpleScene
 		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
 		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
 		public float ShininessMatColor = 10.0f;
-
-		public virtual SSTextureMaterial textureMaterial { get; set; } = null;
-		public virtual bool alphaBlendingEnabled { get; set; } = false;
+        
+		public virtual SSTextureMaterial textureMaterial { get; set; }
+		public virtual bool alphaBlendingEnabled { get; set; }
 
 		public string Name = "";
 

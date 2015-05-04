@@ -12,8 +12,8 @@ namespace SimpleScene
 	{
 		public event SSObject.ChangedEventHandler OnMeshChanged;
 
-		public virtual bool alphaBlendingEnabled { get; set; } = false;
-		public virtual SSTextureMaterial textureMaterial { get; set; } = null;
+		public virtual bool alphaBlendingEnabled { get; set; }
+		public virtual SSTextureMaterial textureMaterial { get; set; }
 
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
 
