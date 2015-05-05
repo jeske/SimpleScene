@@ -84,12 +84,10 @@
     <Compile Include="Objects\SSObjectTriangle.cs" />
     <Compile Include="Util\OpenTKHelper.cs" />
     <Compile Include="Util\RunningAverage.cs" />
-    <Compile Include="Util\SSAssetManager.cs" />
     <Compile Include="Util\ssBVH\ssBVH.cs" />
     <Compile Include="Util\ssBVH\ssBVH_Node.cs" />
     <Compile Include="Util\ssBVH\ssBVH_SSObject.cs" />
     <Compile Include="Util\VertexSoup.cs" />
-    <Compile Include="Util\WavefrontObjLoader.cs" />
     <Compile Include="Util\WhoCalls.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\FPSCalculator.cs" />
@@ -140,9 +138,6 @@
     <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalRenderMesh.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationChannel.cs" />
-    <Compile Include="Meshes\Skeletal\MD5\SSMD5Parser.cs" />
-    <Compile Include="Meshes\Skeletal\MD5\SSMD5MeshParser.cs" />
-    <Compile Include="Meshes\Skeletal\MD5\SSMD5AnimParser.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalMeshRuntime.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimation.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
@@ -150,7 +145,12 @@
     <Compile Include="Meshes\SSVertexMesh.cs" />
     <Compile Include="Core\SSTextureMaterial.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalHierarchyRuntime.cs" />
-    <Compile Include="Util\SSBlenderMTLInfo.cs" />
+    <Compile Include="Util\Files\SSAssetManager.cs" />
+    <Compile Include="Util\Files\SSBlenderMTLInfo.cs" />
+    <Compile Include="Util\Files\WavefrontObjLoader.cs" />
+    <Compile Include="Util\Files\SSMD5AnimParser.cs" />
+    <Compile Include="Util\Files\SSMD5MeshParser.cs" />
+    <Compile Include="Util\Files\SSMD5Parser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -197,6 +197,6 @@
     <Folder Include="Meshes\ParticleSystems\" />
     <Folder Include="Assets\Shaders\Instancing\" />
     <Folder Include="Meshes\Skeletal\" />
-    <Folder Include="Meshes\Skeletal\MD5\" />
+    <Folder Include="Util\Files\" />
   </ItemGroup>
 </Project>
