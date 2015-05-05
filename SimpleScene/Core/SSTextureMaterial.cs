@@ -43,7 +43,7 @@ namespace SimpleScene
 			if (existingFilename != null) {
 				// try loading a material
 				try {
-					SSBlenderMTLInfo[] mtls = SSBlenderMTLInfo.ReadMTLs(existingCtx, existingFilename);
+					SSWavefrontMTLInfo[] mtls = SSWavefrontMTLInfo.ReadMTLs(existingCtx, existingFilename);
 					if (mtls.Length < 0) {
 						throw new Exception("No MTLs available in a file");
 					}
@@ -64,7 +64,7 @@ namespace SimpleScene
 			throw new Exception (errMsg);
 		}
 
-		public static SSTextureMaterial FromBlenderMtl(SSAssetManager.Context ctx, SSBlenderMTLInfo mtl)
+		public static SSTextureMaterial FromBlenderMtl(SSAssetManager.Context ctx, SSWavefrontMTLInfo mtl)
 		{
 			SSTexture diffuse = null, specular = null, ambient = null, bumpMap = null;
 			if (mtl.diffuseTextureResourceName != null && mtl.diffuseTextureResourceName.Length > 0) {

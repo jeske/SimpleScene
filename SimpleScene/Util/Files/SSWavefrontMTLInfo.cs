@@ -7,7 +7,7 @@ using Util3d;
 
 namespace SimpleScene
 {
-	public enum SSBlenderIlluminationMode {
+	public enum SSWavefrontIlluminationMode {
 		ColorOnAmbientOff = 0,
 		ColorOnAmbiendOn = 1,
 		HighlightOn = 2,
@@ -24,7 +24,7 @@ namespace SimpleScene
 	/// <summary>
 	/// This structure is used to store material information.
 	/// </summary>
-	public class SSBlenderMTLInfo {
+	public class SSWavefrontMTLInfo {
 
 		public string name;
 
@@ -48,16 +48,16 @@ namespace SimpleScene
 		public float bumpIntensity = 1.0f;
 
 		public bool hasIlluminationMode;
-		public SSBlenderIlluminationMode illuminationMode;  // illum
+		public SSWavefrontIlluminationMode illuminationMode;  // illum
 
 		public bool hasTransparency;
 		public float fTransparency;
 
 
-		public static SSBlenderMTLInfo[] ReadMTLs(SSAssetManager.Context ctx, string filename)
+		public static SSWavefrontMTLInfo[] ReadMTLs(SSAssetManager.Context ctx, string filename)
 		{
-			var materials = new List<SSBlenderMTLInfo> ();
-			SSBlenderMTLInfo parseMaterial = null;
+			var materials = new List<SSWavefrontMTLInfo> ();
+			SSWavefrontMTLInfo parseMaterial = null;
 
 			StreamReader sr = ctx.OpenText(filename);
 
@@ -79,7 +79,7 @@ namespace SimpleScene
 					// Nothing to read, these are comments.
 					break;
 				case "newmtl":  // create new named material                
-					parseMaterial = new SSBlenderMTLInfo();
+					parseMaterial = new SSWavefrontMTLInfo();
 					materials.Add(parseMaterial);
 					parseMaterial.name = lineContent;
 					break;
@@ -105,7 +105,7 @@ namespace SimpleScene
 					break;
 				case "illum": // illumination mode                           
 					parseMaterial.hasIlluminationMode = true;
-					parseMaterial.illuminationMode = (SSBlenderIlluminationMode) int.Parse(lineContent);
+					parseMaterial.illuminationMode = (SSWavefrontIlluminationMode) int.Parse(lineContent);
 					break;
 				case "map_Kd": // diffuse color map                
 					parseMaterial.diffuseTextureResourceName = lineContent;

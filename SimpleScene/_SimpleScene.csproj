@@ -146,11 +146,12 @@
     <Compile Include="Core\SSTextureMaterial.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalHierarchyRuntime.cs" />
     <Compile Include="Util\Files\SSAssetManager.cs" />
-    <Compile Include="Util\Files\SSBlenderMTLInfo.cs" />
     <Compile Include="Util\Files\WavefrontObjLoader.cs" />
     <Compile Include="Util\Files\SSMD5AnimParser.cs" />
     <Compile Include="Util\Files\SSMD5MeshParser.cs" />
     <Compile Include="Util\Files\SSMD5Parser.cs" />
+    <Compile Include="Util\Files\SSDoomMtrInfo.cs" />
+    <Compile Include="Util\Files\SSWavefrontMTLInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

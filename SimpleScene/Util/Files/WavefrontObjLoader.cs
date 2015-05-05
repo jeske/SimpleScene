@@ -280,7 +280,7 @@ namespace Util3d {
                     case "mtllib":  // load named material file
                         string mtlFile = lineContent;
 						{
-							var mtls = SSBlenderMTLInfo.ReadMTLs (ctx, mtlFile);
+							var mtls = SSWavefrontMTLInfo.ReadMTLs (ctx, mtlFile);
 							foreach (var mtl in mtls) {
 								materials.Add (new MaterialInfoWithFaces (mtl));
 							}
@@ -343,17 +343,17 @@ namespace Util3d {
 		{
 			public static MaterialInfoWithFaces CreateImplicitMaterialWithFaces()
 			{
-				MaterialInfoWithFaces newMat = new MaterialInfoWithFaces(new SSBlenderMTLInfo ());
+				MaterialInfoWithFaces newMat = new MaterialInfoWithFaces(new SSWavefrontMTLInfo ());
 				newMat.mtl.name = "[ implicit material ]";
 				return newMat;
 			}
 		    
-			public MaterialInfoWithFaces(SSBlenderMTLInfo sourceMtl)
+			public MaterialInfoWithFaces(SSWavefrontMTLInfo sourceMtl)
 			{
 				mtl = sourceMtl;
 			}
 
-			public SSBlenderMTLInfo mtl;
+			public SSWavefrontMTLInfo mtl;
 			public List<Face> faces = new List<Face>();
 			public int nbrIndices;
 		}
