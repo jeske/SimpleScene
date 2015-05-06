@@ -136,14 +136,14 @@ namespace TestBench0
 					renderMesh3.PlayAnimation(0, animIdle, true, 0f);
 
 					var obj1 = new SSObjectMesh(renderMesh1);
-					obj1.MainColor = Color4.Red;
+					obj1.MainColor = Color4.DarkRed;
 					obj1.Name = "red bones";
 					obj1.Pos = new Vector3(6f, 0f, 0f);
 					obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj1);
 
 					var obj2 = new SSObjectMesh(renderMesh2);
-					obj2.MainColor = Color.Lime;
+					obj2.MainColor = Color.Green;
 					obj2.Name = "green bones";
 					obj2.Pos = new Vector3(0f, 0f, 0f);
 					obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
