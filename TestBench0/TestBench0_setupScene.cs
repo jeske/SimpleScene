@@ -15,7 +15,7 @@ namespace TestBench0
 	{
 		private bool autoWireframeMode = true;
 
-		public void setupScene() {
+		public void setupScene0() {
 			scene.MainShader = mainShader;
 			scene.PssmShader = pssmShader;
 			scene.InstanceShader = instancingShader;

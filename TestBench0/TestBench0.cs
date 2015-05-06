@@ -91,7 +91,7 @@ namespace TestBench0
 
 				game.setupInput ();
 
-				game.setupScene ();
+				game.setupScene0 ();
 				game.setupEnvironment ();
 				game.setupHUD ();
 

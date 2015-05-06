@@ -15,7 +15,7 @@ namespace TestBench0
 	{
 		private bool autoWireframeMode = true;
 
-		public void setupScene() {
+		public void setupScene1() {
 			scene.MainShader = mainShader;
 			scene.PssmShader = pssmShader;
 			scene.InstanceShader = instancingShader;
@@ -138,23 +138,44 @@ namespace TestBench0
 					var obj1 = new SSObjectMesh(renderMesh1);
 					obj1.MainColor = Color4.DarkRed;
 					obj1.Name = "red bones";
-					obj1.Pos = new Vector3(6f, 0f, 0f);
+					obj1.Pos = new Vector3(6f, 0f, -12f);
 					obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj1);
 
 					var obj2 = new SSObjectMesh(renderMesh2);
 					obj2.MainColor = Color.Green;
 					obj2.Name = "green bones";
-					obj2.Pos = new Vector3(0f, 0f, 0f);
+					obj2.Pos = new Vector3(0f, 0f, -12f);
 					obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj2);
 
 					var obj3 = new SSObjectMesh(renderMesh3);
 					obj3.MainColor = Color.DarkCyan;
 					obj3.Name = "blue bones";
-					obj3.Pos = new Vector3(-6f, 0f, 0f);
+					obj3.Pos = new Vector3(-6f, 0f, -12f);
 					obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj3);
+
+					// state machine test
+					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
+					renderMesh4.AddChannel(0, "all");
+
+					var obj4 = new SSObjectMesh(renderMesh4);
+					obj4.MainColor = Color.DarkMagenta;
+					obj4.Name = "magenta bones";
+					obj4.Pos = new Vector3(0f, 0f, 0f);
+					obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+					scene.AddObject(obj4);
+
+					var sm = renderMesh4.AddNewStateMachine();
+					sm.AddState("idle");
+					sm.AddStateAnimation("idle", 0, animIdle);
+
+					sm.AddState("running");
+					sm.AddStateAnimation("running", 0, animRunning);
+
+					sm.AddStateTransition("idle", "running", 0, 0);
+					sm.AddStateTransition("running", "idle", 0, 0);
 				}
 			}
 			#endif

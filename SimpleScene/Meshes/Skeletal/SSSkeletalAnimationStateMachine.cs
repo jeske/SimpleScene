@@ -189,7 +189,7 @@ namespace SimpleScene
 
 		protected class AnimationState
 		{
-			public List<ChannelState> channelStates;
+			public List<ChannelState> channelStates = new List<ChannelState>();
 		}
 
 

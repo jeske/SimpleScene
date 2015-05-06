@@ -12,6 +12,8 @@ namespace SimpleScene
 	/// </summary>
 	public class SSSkeletalRenderMesh : SSAbstractMesh, ISSInstancable
 	{
+		// TODO Fix multiple objects updating a single mesh twice
+
 		public float TimeScale = 1f;
 
 		protected readonly List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
@@ -113,6 +115,9 @@ namespace SimpleScene
 			elapsedS *= TimeScale;
 			foreach (var channel in _chanRuntimes.Values) {
 				channel.Update (elapsedS);
+			}
+			foreach (var sm in _animStateMachines) {
+				sm.TriggerAutomaticTransitions ();
 			}
 		}
 

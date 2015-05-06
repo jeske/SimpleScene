@@ -149,7 +149,6 @@
     <Compile Include="Util\Files\SSMD5AnimParser.cs" />
     <Compile Include="Util\Files\SSMD5MeshParser.cs" />
     <Compile Include="Util\Files\SSWavefrontMTLInfo.cs" />
-    <Compile Include="Util\Files\SSDoomMTRInfo.cs" />
     <Compile Include="Util\Files\SSWavefrontParser.cs" />
     <Compile Include="Util\Files\SSMD5Parser.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachine.cs" />
