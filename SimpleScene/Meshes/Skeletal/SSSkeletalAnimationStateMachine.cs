@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace SimpleScene
 {
+	// TODO repeat count of sorts
+
 	/// <summary>
 	/// Simple skeletal animation state machine.
 	/// 
@@ -17,13 +19,23 @@ namespace SimpleScene
 	{
 		protected readonly Dictionary<string, AnimationState> _animationStates = new Dictionary<string, AnimationState>();
 		protected readonly List<TransitionInfo> _transitions = new List<TransitionInfo>();
+
 		protected AnimationState _activeState = null;
+		protected Dictionary<int, SSSkeletalAnimationChannelRuntime> _channelsRuntime = null;
 
-		protected readonly Dictionary<int, SSSkeletalAnimationChannelRuntime> _channelsRuntime;
-
-		public SSSkeletalAnimationStateMachine (Dictionary<int, SSSkeletalAnimationChannelRuntime> animChannels)
+		public SSSkeletalAnimationStateMachine (Dictionary<int, SSSkeletalAnimationChannelRuntime> chanRuntime = null)
 		{
-			_channelsRuntime = animChannels;
+			ConnectRuntimeChannels (chanRuntime);
+		}
+
+		public void ConnectRuntimeChannels(Dictionary<int, SSSkeletalAnimationChannelRuntime> chanRuntime)
+		{
+			if (_channelsRuntime != chanRuntime) {
+				_channelsRuntime = chanRuntime;
+				if (_activeState != null) {
+					forceState (_activeState);
+				}
+			}
 		}
 
 		/// <summary>
@@ -36,7 +48,7 @@ namespace SimpleScene
 			var newState = new AnimationState ();
 			_animationStates.Add (stateName, newState);
 			if (_activeState == null || makeActive) {
-				ForceActiveState (stateName);
+				ForceState (stateName);
 			}
 		}
 
@@ -112,7 +124,8 @@ namespace SimpleScene
 						int cid = chanState.channelId;
 						if (cid == transition.channelEndsTrigger) {
 							var chanRuntime = _channelsRuntime [cid];
-							if (!chanRuntime.IsActive || chanRuntime.TimeRemaining < transition.transitionTime) {
+							if (!chanRuntime.IsActive 
+							 || chanRuntime.TimeRemaining < transition.transitionTime) {
 								requestTransition (transition.target);
 							}
 							return;
@@ -128,26 +141,36 @@ namespace SimpleScene
 			requestTransition (targetState);
 		}
 
-		public void ForceActiveState(string targetStateName)
+		public void ForceState(string targetStateName)
 		{
 			var targetState = _animationStates [targetStateName];
-			foreach (var channelState in targetState.channelStates) {
-				_channelsRuntime [channelState.channelId].PlayAnimation (channelState.animation, true, 0f);
-			}
-			_activeState = targetState;
+			forceState (targetState);
 		}
 
 		protected void requestTransition(AnimationState targetState)
 		{
 			foreach (var transition in _transitions) {
 				if (transition.target == targetState
-				       && (transition.sorce == null || transition.sorce == _activeState)) {
+				&& (transition.sorce == null || transition.sorce == _activeState)) {
 					foreach (var chanState in targetState.channelStates) {
 						var channel = _channelsRuntime [chanState.channelId];
-						channel.PlayAnimation (chanState.animation, false, transition.transitionTime);
+						channel.PlayAnimation (
+							chanState.animation, false, transition.transitionTime);
 					}
+					_activeState = targetState;
 				}
 			}
+		}
+
+		protected void forceState(AnimationState targetState)
+		{
+			if (_channelsRuntime != null) {
+				foreach (var channelState in targetState.channelStates) {
+					_channelsRuntime [channelState.channelId].PlayAnimation (
+						channelState.animation, true, 0f);
+				}
+			}
+			_activeState = targetState;
 		}
 
 		protected class TransitionInfo

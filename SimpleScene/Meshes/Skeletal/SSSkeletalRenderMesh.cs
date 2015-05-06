@@ -14,10 +14,13 @@ namespace SimpleScene
 	{
 		public float TimeScale = 1f;
 
-		protected List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
-		protected Dictionary<int, SSSkeletalAnimationChannelRuntime> _animChannels
+		protected readonly List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
+		protected readonly Dictionary<int, SSSkeletalAnimationChannelRuntime> _chanRuntimes
 			= new Dictionary<int, SSSkeletalAnimationChannelRuntime>();
-		protected SSSkeletalHierarchyRuntime _hierarchy;
+		protected readonly List<SSSkeletalAnimationStateMachine> _animStateMachines
+			= new List<SSSkeletalAnimationStateMachine> ();
+		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
+
 		protected SSSphere _boundingSphere;
 
 		public override bool alphaBlendingEnabled {
@@ -62,7 +65,7 @@ namespace SimpleScene
 				}
 			}
 			var channel = new SSSkeletalAnimationChannelRuntime (topLevelActiveJointIds);
-			_animChannels.Add (channelId, channel);
+			_chanRuntimes.Add (channelId, channel);
 		}
 
 		public void AddChannel(int channelId, params string[] topLevelActiveJointNames)
@@ -78,10 +81,26 @@ namespace SimpleScene
 			bool repeat, float transitionTime)
 		{
 			_hierarchy.VerifyAnimation (anim);
-			var channel = _animChannels [channelId];
+			var channel = _chanRuntimes [channelId];
 			channel.PlayAnimation (anim, repeat, transitionTime);
 		}
 
+		public void AddStateMachine(SSSkeletalAnimationStateMachine stateMachine)
+		{
+			_animStateMachines.Add (stateMachine);
+			stateMachine.ConnectRuntimeChannels (_chanRuntimes);
+		}
+
+		public SSSkeletalAnimationStateMachine AddNewStateMachine()
+		{
+			var newSM = new SSSkeletalAnimationStateMachine (_chanRuntimes);
+			_animStateMachines.Add (newSM);
+			return newSM;
+		}
+
+		/// <summary>
+		/// Adds a sumbesh that will share the existing joint hierarchy
+		/// </summary>
 		public void AttachMesh(SSSkeletalMesh mesh)
 		{
 			var newRender = new RenderSubMesh (mesh, _hierarchy);
@@ -92,7 +111,7 @@ namespace SimpleScene
 		public override void Update(float elapsedS)
 		{
 			elapsedS *= TimeScale;
-			foreach (var channel in _animChannels.Values) {
+			foreach (var channel in _chanRuntimes.Values) {
 				channel.Update (elapsedS);
 			}
 		}
@@ -101,7 +120,7 @@ namespace SimpleScene
 		{
 			// apply animation channels
 			var channels = new List<SSSkeletalAnimationChannelRuntime> ();
-			channels.AddRange (_animChannels.Values);
+			channels.AddRange (_chanRuntimes.Values);
 			_hierarchy.ApplyAnimationChannels (channels);
 
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
