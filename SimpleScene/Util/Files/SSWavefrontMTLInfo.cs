@@ -84,23 +84,23 @@ namespace SimpleScene
 					parseMaterial.name = lineContent;
 					break;
 				case "Ka": // ambient color
-					parseMaterial.vAmbient = WavefrontObjLoader.readVector4(lineContent, null);
+					parseMaterial.vAmbient = WavefrontParser.readVector4(lineContent, null);
 					parseMaterial.hasAmbient = true;
 					break;
 				case "Kd": // diffuse color
-					parseMaterial.vDiffuse = WavefrontObjLoader.readVector4(lineContent, null);
+					parseMaterial.vDiffuse = WavefrontParser.readVector4(lineContent, null);
 					parseMaterial.hasDiffuse = true;
 					break;
 				case "Ks": // specular color (weighted by Ns)                                 
-					parseMaterial.vSpecular = WavefrontObjLoader.readVector4(lineContent,null);
+					parseMaterial.vSpecular = WavefrontParser.readVector4(lineContent,null);
 					parseMaterial.hasSpecular = true;
 					break;
 				case "Ns": // specular color weight                
-					parseMaterial.vSpecularWeight = WavefrontObjLoader.parseFloat(lineContent);   
+					parseMaterial.vSpecularWeight = WavefrontParser.parseFloat(lineContent);   
 					break;
 				case "d":
 				case "Tr": // transparency / dissolve (i.e. alpha)
-					parseMaterial.fTransparency = WavefrontObjLoader.parseFloat(lineContent);
+					parseMaterial.fTransparency = WavefrontParser.parseFloat(lineContent);
 					parseMaterial.hasTransparency = true;
 					break;
 				case "illum": // illumination mode                           
@@ -128,10 +128,10 @@ namespace SimpleScene
 						if (parts.Length == 3) {
 							if (parts[1].Equals("-bm")) {
 								parseMaterial.bumpTextureResourceName = parts[0];
-								parseMaterial.bumpIntensity = WavefrontObjLoader.parseFloat(parts[2]);
+								parseMaterial.bumpIntensity = WavefrontParser.parseFloat(parts[2]);
 							} else if (parts[0].Equals("-bm")) {
 								parseMaterial.bumpTextureResourceName = parts[3];
-								parseMaterial.bumpIntensity = WavefrontObjLoader.parseFloat(parts[1]);
+								parseMaterial.bumpIntensity = WavefrontParser.parseFloat(parts[1]);
 							}
 						}
 					}
