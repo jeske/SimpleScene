@@ -8,14 +8,14 @@ namespace SimpleScene
 {
 	public abstract class SSMD5Parser
 	{
-		public static readonly string c_nameRegex = @"(?<="")[^\""]*(?="")";
-		public static readonly string c_uintRegex = @"(\d+)";
-		public static readonly string c_intRegex = @"(-*\d+)";
-		public static readonly string c_floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
-		public static readonly string c_parOpen = @"\(";
-		public static readonly string c_parClose = @"\)";
+		public static readonly string _quotedStrRegex = @"(?<="")[^\""]*(?="")";
+		public static readonly string _uintRegex = @"(\d+)";
+		public static readonly string _intRegex = @"(-*\d+)";
+		public static readonly string _floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
+		public static readonly string _parOpen = @"\(";
+		public static readonly string _parClose = @"\)";
 
-		private static readonly char[] c_wordDelimeters = {' ', '\t' };
+		private static readonly char[] _wordDelimeters = {' ', '\t' };
 
 		private Dictionary<string, Regex> m_regexCache = new Dictionary<string, Regex>();
 		private int m_lineIdx = 0;
@@ -30,7 +30,7 @@ namespace SimpleScene
 		{
 			m_ctx = ctx;
 			m_reader = ctx.OpenText (filename);
-			System.Console.WriteLine ("Reading MD5 file: " + ctx.fullResourcePath(filename));
+			System.Console.WriteLine ("Reading a \"doom\" file: " + ctx.fullResourcePath(filename));
 		}
 
 		public Match[] seekEntry(params string[] wordRegExStrArray)
@@ -53,7 +53,7 @@ namespace SimpleScene
 			int numSoFar = 0;
 			while (numSoFar < floats.Length) {
 				string line = m_reader.ReadLine ();
-				string[] words = line.Split (c_wordDelimeters);
+				string[] words = line.Split (_wordDelimeters);
 				for (int n = 0; n < words.Length; ++n) {
 					if (words [n].Length > 0) {
 						floats [numSoFar++] = (float)Convert.ToDouble (words [n]);
@@ -72,7 +72,7 @@ namespace SimpleScene
 					line = line.Substring (0, commentsIdx);
 				}
 
-				string[] words = line.Split (c_wordDelimeters);
+				string[] words = line.Split (_wordDelimeters);
 				if (words.Length > 1 || (words.Length == 1 && words[0].Length > 0)) {
 
 					// combine words when in brackets
@@ -127,7 +127,7 @@ namespace SimpleScene
 			}
 
 			string errorStr = String.Format (
-				"Failed to read MD5: line {0}: {1} *** Expecting: {2}",
+				"Failed to read a \"doom\" file: line {0}: {1} *** Expecting: {2}",
 				m_lineIdx, line, expectingStr);
 			System.Console.WriteLine (errorStr);
 			throw new Exception (errorStr);

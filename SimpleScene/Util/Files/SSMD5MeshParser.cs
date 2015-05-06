@@ -26,12 +26,12 @@ namespace SimpleScene
 		{
 			Match[] matches;
 			seekEntry ("MD5Version", "10");
-			seekEntry ("commandline", SSMD5Parser.c_nameRegex);
+			seekEntry ("commandline", SSMD5Parser._quotedStrRegex);
 
-			matches = seekEntry ("numJoints", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numJoints", SSMD5Parser._uintRegex);
 			var joints = new SSSkeletalJoint[Convert.ToUInt32(matches[1].Value)];
 
-			matches = seekEntry ( "numMeshes", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ( "numMeshes", SSMD5Parser._uintRegex);
 			var meshes = new SSSkeletalMeshMD5[Convert.ToUInt32 (matches [1].Value)];
 
 			seekEntry ("joints", "{");
@@ -54,10 +54,10 @@ namespace SimpleScene
 		private SSSkeletalJoint readJoint()
 		{
 			Match[] matches = seekEntry (
-				SSMD5Parser.c_nameRegex, // joint name
-				SSMD5Parser.c_intRegex,  // parent index
-				SSMD5Parser.c_parOpen, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_parClose, // position
-				SSMD5Parser.c_parOpen, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_parClose  // orientation			
+				SSMD5Parser._quotedStrRegex, // joint name
+				SSMD5Parser._intRegex,  // parent index
+				SSMD5Parser._parOpen, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._parClose, // position
+				SSMD5Parser._parOpen, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._parClose  // orientation			
 			);
 			SSSkeletalJoint ret = new SSSkeletalJoint();
 			ret.Name = matches[0].Captures[0].Value;
@@ -79,10 +79,10 @@ namespace SimpleScene
 			SSSkeletalMeshMD5 newMesh = new SSSkeletalMeshMD5 ();
 
 			Match[] matches;
-			matches = seekEntry("shader", SSMD5Parser.c_nameRegex);
+			matches = seekEntry("shader", SSMD5Parser._quotedStrRegex);
 			newMesh.MaterialShaderString = matches[1].Value;
 
-			matches = seekEntry ("numverts", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numverts", SSMD5Parser._uintRegex);
 			int numVertices = Convert.ToInt32 (matches [1].Value);
 			newMesh.Vertices = new SSSkeletalVertex[numVertices];
 
@@ -92,14 +92,14 @@ namespace SimpleScene
 				newMesh.Vertices [vertexIndex] = vertex;
 			}
 
-			matches = seekEntry ("numtris", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numtris", SSMD5Parser._uintRegex);
 			int numTris = Convert.ToUInt16 (matches [1].Value);
 			newMesh.TriangleIndices = new UInt16[numTris * 3];
 			for (int t = 0; t < numTris; ++t) {
 				readTriangle (newMesh.TriangleIndices);
 			}
 
-			matches = seekEntry ("numweights", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numweights", SSMD5Parser._uintRegex);
 			int numWeights = Convert.ToInt32 (matches [1].Value);
 			newMesh.Weights = new SSSkeletalWeight[numWeights];
 			for (int w = 0; w < numWeights; ++w) {
@@ -115,10 +115,10 @@ namespace SimpleScene
 		{
 			Match[] matches = seekEntry(
 				"vert",
-				SSMD5Parser.c_uintRegex, // vertex index
-				SSMD5Parser.c_parOpen, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_parClose, // texture coord
-				SSMD5Parser.c_uintRegex, // weight start index
-				SSMD5Parser.c_uintRegex // weight count
+				SSMD5Parser._uintRegex, // vertex index
+				SSMD5Parser._parOpen, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._parClose, // texture coord
+				SSMD5Parser._uintRegex, // weight start index
+				SSMD5Parser._uintRegex // weight count
 			);
 			vertexIndex = Convert.ToInt32(matches[1].Value);
 			SSSkeletalVertex ret;
@@ -134,8 +134,8 @@ namespace SimpleScene
 			Match[] matches;
 			matches = seekEntry (
 				"tri",
-				SSMD5Parser.c_uintRegex, // triangle index
-				SSMD5Parser.c_uintRegex, SSMD5Parser.c_uintRegex, SSMD5Parser.c_uintRegex // 3 vertex indices
+				SSMD5Parser._uintRegex, // triangle index
+				SSMD5Parser._uintRegex, SSMD5Parser._uintRegex, SSMD5Parser._uintRegex // 3 vertex indices
 			);
 			UInt32 triIdx = Convert.ToUInt32 (matches [1].Value);
 			UInt32 indexBaseIdx = triIdx * 3;
@@ -148,10 +148,10 @@ namespace SimpleScene
 		{
 			Match[] matches = seekEntry(
 				"weight",
-				SSMD5Parser.c_uintRegex, // weight index
-				SSMD5Parser.c_uintRegex, // joint index
-				SSMD5Parser.c_floatRegex, // bias
-				SSMD5Parser.c_parOpen, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_floatRegex, SSMD5Parser.c_parClose // position
+				SSMD5Parser._uintRegex, // weight index
+				SSMD5Parser._uintRegex, // joint index
+				SSMD5Parser._floatRegex, // bias
+				SSMD5Parser._parOpen, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._parClose // position
 			);
 
 			weightIndex = Convert.ToInt32(matches[1].Value);

@@ -110,7 +110,7 @@ namespace SimpleScene
 			}
 		}
 
-		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannel> channels)
+		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannelRuntime> channels)
 		{
 			foreach (int j in m_topLevelJoints) {
 				traverseWithChannels (j, channels, null, null);
@@ -118,9 +118,9 @@ namespace SimpleScene
 		}
 
 		private void traverseWithChannels(int jointIdx, 
-			List<SSSkeletalAnimationChannel> channels,
-			SSSkeletalAnimationChannel activeChannel,
-			SSSkeletalAnimationChannel prevActiveChannel)
+			List<SSSkeletalAnimationChannelRuntime> channels,
+			SSSkeletalAnimationChannelRuntime activeChannel,
+			SSSkeletalAnimationChannelRuntime prevActiveChannel)
 		{
 			foreach (var channel in channels) {
 				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {

@@ -14,18 +14,18 @@ namespace SimpleScene
 	{
 		public float TimeScale = 1f;
 
-		protected List<RenderSubMesh> m_renderSubMeshes = new List<RenderSubMesh> ();
-		protected Dictionary<int, SSSkeletalAnimationChannel> m_animChannels
-			= new Dictionary<int, SSSkeletalAnimationChannel>();
-		protected SSSkeletalHierarchyRuntime m_hierarchy;
-		protected SSSphere m_boundingSphere;
+		protected List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
+		protected Dictionary<int, SSSkeletalAnimationChannelRuntime> _animChannels
+			= new Dictionary<int, SSSkeletalAnimationChannelRuntime>();
+		protected SSSkeletalHierarchyRuntime _hierarchy;
+		protected SSSphere _boundingSphere;
 
 		public override bool alphaBlendingEnabled {
 			get { return base.alphaBlendingEnabled; }
 			set {
 				base.alphaBlendingEnabled = value;
-				if (m_renderSubMeshes != null) {
-					foreach (var child in m_renderSubMeshes) {
+				if (_renderSubMeshes != null) {
+					foreach (var child in _renderSubMeshes) {
 						child.alphaBlendingEnabled = value;
 					}
 				}
@@ -34,7 +34,7 @@ namespace SimpleScene
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh[] subMeshArray)
 		{
-			m_hierarchy = new SSSkeletalHierarchyRuntime (subMeshArray [0].Joints);
+			_hierarchy = new SSSkeletalHierarchyRuntime (subMeshArray [0].Joints);
 			foreach (var mesh in subMeshArray) {
 				AttachMesh (mesh);
 			}
@@ -42,28 +42,34 @@ namespace SimpleScene
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh mesh) 
 		{
-			m_hierarchy = new SSSkeletalHierarchyRuntime (mesh.Joints);
+			_hierarchy = new SSSkeletalHierarchyRuntime (mesh.Joints);
 			AttachMesh (mesh);
 		}
 
 
 		public void AddChannel(int channelId, params int[] topLevelActiveJointIds)
 		{
+			if (channelId < -1) {
+				string errMsg = "channel id must be >= 0";
+				System.Console.WriteLine (channelId);
+				throw new Exception (errMsg);
+			}
+
 			foreach (int cid in topLevelActiveJointIds) {
 				if (cid == -1) { // means include all
-					topLevelActiveJointIds = m_hierarchy.TopLevelJoints;
+					topLevelActiveJointIds = _hierarchy.TopLevelJoints;
 					break;
 				}
 			}
-			var channel = new SSSkeletalAnimationChannel (topLevelActiveJointIds);
-			m_animChannels.Add (channelId, channel);
+			var channel = new SSSkeletalAnimationChannelRuntime (topLevelActiveJointIds);
+			_animChannels.Add (channelId, channel);
 		}
 
 		public void AddChannel(int channelId, params string[] topLevelActiveJointNames)
 		{
 			int[] topLevelActiveJointsIds = new int[topLevelActiveJointNames.Length];
 			for (int n = 0; n < topLevelActiveJointsIds.Length; ++n) {
-				topLevelActiveJointsIds [n] = m_hierarchy.JointIndex (topLevelActiveJointNames [n]);
+				topLevelActiveJointsIds [n] = _hierarchy.JointIndex (topLevelActiveJointNames [n]);
 			}
 			AddChannel (channelId, topLevelActiveJointsIds);
 		}
@@ -71,22 +77,22 @@ namespace SimpleScene
 		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
 			bool repeat, float transitionTime)
 		{
-			m_hierarchy.VerifyAnimation (anim);
-			var channel = m_animChannels [channelId];
+			_hierarchy.VerifyAnimation (anim);
+			var channel = _animChannels [channelId];
 			channel.PlayAnimation (anim, repeat, transitionTime);
 		}
 
 		public void AttachMesh(SSSkeletalMesh mesh)
 		{
-			var newRender = new RenderSubMesh (mesh, m_hierarchy);
+			var newRender = new RenderSubMesh (mesh, _hierarchy);
 			newRender.alphaBlendingEnabled = this.alphaBlendingEnabled;
-			m_renderSubMeshes.Add (newRender);
+			_renderSubMeshes.Add (newRender);
 		}
 
 		public override void Update(float elapsedS)
 		{
 			elapsedS *= TimeScale;
-			foreach (var channel in m_animChannels.Values) {
+			foreach (var channel in _animChannels.Values) {
 				channel.Update (elapsedS);
 			}
 		}
@@ -94,30 +100,30 @@ namespace SimpleScene
 		public override void RenderMesh (ref SSRenderConfig renderConfig)
 		{
 			// apply animation channels
-			var channels = new List<SSSkeletalAnimationChannel> ();
-			channels.AddRange (m_animChannels.Values);
-			m_hierarchy.ApplyAnimationChannels (channels);
+			var channels = new List<SSSkeletalAnimationChannelRuntime> ();
+			channels.AddRange (_animChannels.Values);
+			_hierarchy.ApplyAnimationChannels (channels);
 
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
-			foreach (var sub in m_renderSubMeshes) {
+			foreach (var sub in _renderSubMeshes) {
 				SSAABB aabb = sub.ComputeVertices ();
 				sub.RenderMesh (ref renderConfig);
 				totalAABB.ExpandBy (aabb);
 			}
-			m_boundingSphere = totalAABB.ToSphere ();
+			_boundingSphere = totalAABB.ToSphere ();
 			MeshChanged ();
 		}
 
 		public void RenderInstanced(ref SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
 		{
-			foreach (var sub in m_renderSubMeshes) {
+			foreach (var sub in _renderSubMeshes) {
 				sub.RenderInstanced (ref cfg, instanceCount, primType);
 			}
 		}
 
 		public override bool TraverseTriangles<T> (T state, traverseFn<T> fn)
 		{
-			foreach (var s in m_renderSubMeshes) {
+			foreach (var s in _renderSubMeshes) {
 				bool finished = s.TraverseTriangles (state, fn);
 				if (finished) {
 					return true;
@@ -128,12 +134,12 @@ namespace SimpleScene
 
 		public override Vector3 Center ()
 		{
-			return m_boundingSphere.center;
+			return _boundingSphere.center;
 		}
 
 		public override float Radius ()
 		{
-			return m_boundingSphere.radius;
+			return _boundingSphere.radius;
 		}
 
 		// *****************************

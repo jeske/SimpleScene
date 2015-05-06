@@ -14,7 +14,7 @@ namespace SimpleScene
 	/// 3. Transition from an ending partial animation to a higher level animation
 	/// </summary>
 
-	public class SSSkeletalAnimationChannel
+	public class SSSkeletalAnimationChannelRuntime
 	{
 		protected readonly List<int> m_topLevelActiveJoints;
 
@@ -32,6 +32,12 @@ namespace SimpleScene
 
 		public float TransitionTime {
 			get { return m_transitionTime; }
+		}
+
+		public float TimeRemaining {
+			get {
+				return m_currAnimation.TotalDuration - m_currT;
+			}
 		}
 
 		public bool IsActive {
@@ -53,7 +59,7 @@ namespace SimpleScene
 			}
 		}
 
-		public SSSkeletalAnimationChannel (int[] topLevelActiveJoints)
+		public SSSkeletalAnimationChannelRuntime (int[] topLevelActiveJoints)
 		{
 			m_topLevelActiveJoints = new List<int>(topLevelActiveJoints);
 		}

@@ -39,18 +39,18 @@ namespace SimpleScene
 
 			// header
 			seekEntry ("MD5Version", "10");
-			seekEntry ("commandline", SSMD5Parser.c_nameRegex);
+			seekEntry ("commandline", SSMD5Parser._quotedStrRegex);
 
-			matches = seekEntry ("numFrames", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numFrames", SSMD5Parser._uintRegex);
 			var numFrames = Convert.ToInt32 (matches [1].Value);
 
-			matches = seekEntry ("numJoints", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numJoints", SSMD5Parser._uintRegex);
 			var numJoints = Convert.ToInt32 (matches [1].Value);
 
-			matches = seekEntry ("frameRate", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("frameRate", SSMD5Parser._uintRegex);
 			var frameRate = Convert.ToInt32 (matches [1].Value);
 
-			matches = seekEntry ("numAnimatedComponents", SSMD5Parser.c_uintRegex);
+			matches = seekEntry ("numAnimatedComponents", SSMD5Parser._uintRegex);
 			int numAnimatedComponents = Convert.ToInt32 (matches [1].Value);
 			var floatComponents = new float[numAnimatedComponents];
 
@@ -81,7 +81,7 @@ namespace SimpleScene
 			// frames
 			var frames = new SSSkeletalJointLocation[numFrames][];
 			for (int f = 0; f < numFrames; ++f) {
-				matches = seekEntry ("frame", SSMD5Parser.c_uintRegex, "{");
+				matches = seekEntry ("frame", SSMD5Parser._uintRegex, "{");
 				int frameIdx = Convert.ToInt32 (matches [1].Value);
 				frames [frameIdx] = readFrameJoints (flags, hierarchy, floatComponents);
 				seekEntry ("}");
@@ -92,10 +92,10 @@ namespace SimpleScene
 		private SSSkeletalJoint readHierarchyEntry(out byte flags)
 		{
 			Match[] matches = seekEntry(
-				SSMD5Parser.c_nameRegex, // name
-				SSMD5Parser.c_intRegex, // parent index
-				SSMD5Parser.c_uintRegex, // flags
-				SSMD5Parser.c_uintRegex // start index (currently not used)
+				SSMD5Parser._quotedStrRegex, // name
+				SSMD5Parser._intRegex, // parent index
+				SSMD5Parser._uintRegex, // flags
+				SSMD5Parser._uintRegex // start index (currently not used)
 			);
 			SSSkeletalJoint ret = new SSSkeletalJoint();
 			ret.Name = matches[0].Value;
@@ -109,16 +109,16 @@ namespace SimpleScene
 		private SSAABB readBounds()
 		{
 			Match[] matches = seekEntry (
-				SSMD5Parser.c_parOpen, 
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-				SSMD5Parser.c_parClose,
-				SSMD5Parser.c_parOpen,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-				SSMD5Parser.c_parClose
+				SSMD5Parser._parOpen, 
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+				SSMD5Parser._parClose,
+				SSMD5Parser._parOpen,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+				SSMD5Parser._parClose
 			);
 			SSAABB ret;
 			ret.Min.X = (float)Convert.ToDouble (matches [1].Value);
@@ -133,16 +133,16 @@ namespace SimpleScene
 		private SSSkeletalJointLocation readBaseFrame()
 		{
 			Match[] matches = seekEntry (
-				SSMD5Parser.c_parOpen, 
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-				SSMD5Parser.c_parClose,
-				SSMD5Parser.c_parOpen,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_floatRegex,
-					SSMD5Parser.c_parClose
+				SSMD5Parser._parOpen, 
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+				SSMD5Parser._parClose,
+				SSMD5Parser._parOpen,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._floatRegex,
+					SSMD5Parser._parClose
 			);
 			SSSkeletalJointLocation loc;
 			loc.Position.X = (float)Convert.ToDouble (matches [1].Value);
