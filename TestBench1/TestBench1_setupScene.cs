@@ -123,7 +123,7 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
-					#if true
+					#if false
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
@@ -163,7 +163,8 @@ namespace TestBench0
 					// state machine test
 					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh4.AddChannel(0, "all");
-					renderMesh4.TimeScale = 0.5f;
+					renderMesh4.AddChannel(1, "LeftClavicle", "RightClavicle");
+					renderMesh4.TimeScale = 0.15f;
 
 					var obj4 = new SSObjectMesh(renderMesh4);
 					obj4.MainColor = Color.DarkMagenta;
@@ -173,18 +174,32 @@ namespace TestBench0
 					scene.AddObject(obj4);
 
 					#if true
-					var sm = renderMesh4.AddNewStateMachine();
-					sm.AddState("idle");
-					sm.AddStateAnimation("idle", 0, animIdle);
+					skeletonWalkSm = renderMesh4.AddNewStateMachine();
+					skeletonWalkSm.AddState("idle");
+					skeletonWalkSm.AddStateAnimation("idle", 0, animIdle);
 
-					sm.AddState("running");
-					sm.AddStateAnimation("running", 0, animRunning);
+					skeletonWalkSm.AddState("running");
+					skeletonWalkSm.AddStateAnimation("running", 0, animRunning);
 
-					sm.AddState("attack");
-					sm.AddStateAnimation("attack", 0, animAttack);
+					skeletonWalkSm.AddState("attack");
+					skeletonWalkSm.AddStateAnimation("attack", 0, animAttack);
 
-					sm.AddStateTransition("idle", "running", 0f, 0);
-					sm.AddStateTransition("running", "idle", 0f, 0);
+					skeletonWalkSm.AddStateTransition("idle", "running", 0f, 0);
+					skeletonWalkSm.AddStateTransition("running", "idle", 0f, 0);
+					#endif
+
+					#if true
+					skeletonAttackSm = renderMesh4.AddNewStateMachine();
+
+					skeletonAttackSm.AddState("idle");
+					skeletonAttackSm.AddStateAnimation("idle", 1, animRunning);
+
+					skeletonAttackSm.AddState("attack");
+					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack);
+
+					skeletonAttackSm.AddStateTransition("idle", "idle", 0f, 1);
+					skeletonAttackSm.AddStateTransition("idle", "attack", 0.3f);
+					skeletonAttackSm.AddStateTransition("attack", "idle", 0f, 1);
 
 					#endif
 				}

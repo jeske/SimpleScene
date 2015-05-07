@@ -140,27 +140,27 @@ namespace SimpleScene
 				GL.Color4 (Color4.LightSkyBlue); // debugging
 			} else {
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
+				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				int parentIdx = joint.BaseInfo.ParentIndex;
-				if (parentIdx != -1) {
-					activeLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
-				}
-
 				if (activeChannel.IsEnding) {
 					// TODO smarter, multi layer fallback
 					SSSkeletalJointLocation fallbackLoc;
 					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
 						fallbackLoc = joint.BaseInfo.BaseLocation;
-						GL.Color4 (Color4.LightCoral); // debugging
+						if (joint.BaseInfo.ParentIndex != -1) {
+							fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation.Inverted());
+						}
+						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
 					} else {
 						fallbackLoc = prevActiveChannel.ComputeJointFrame (jointIdx);
-						if (joint.BaseInfo.ParentIndex != -1) {
-							fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
-						}
 					}
 					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
 						activeLoc, fallbackLoc, activeChannel.FadeBlendPosition);
 				} else {
 					joint.CurrentLocation = activeLoc;
+				}
+				if (joint.BaseInfo.ParentIndex != -1) {
+					joint.CurrentLocation.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
 				}
 			}
 

@@ -40,13 +40,14 @@ namespace SimpleScene
 		public Vector3 Position;
 		public Quaternion Orientation;
 
-		public static SSSkeletalJointLocation Interpolate(SSSkeletalJointLocation left, 
+		public static SSSkeletalJointLocation Interpolate(
+			SSSkeletalJointLocation left, 
 			SSSkeletalJointLocation right, 
 			float blend)
 		{
 			SSSkeletalJointLocation ret;
 			ret.Position = Vector3.Lerp(left.Position, right.Position, blend);
-			ret.Orientation = Quaternion.Slerp(left.Orientation, right.Orientation, blend);
+			ret.Orientation = Quaternion.Slerp (left.Orientation, right.Orientation, blend);
 			return ret;
 		}
 
@@ -65,6 +66,14 @@ namespace SimpleScene
 			Orientation = Quaternion.Multiply (parentLoc.Orientation, 
 				Orientation);
 			Orientation.Normalize ();
+		}
+
+		public SSSkeletalJointLocation Inverted()
+		{
+			var ret = new SSSkeletalJointLocation ();
+			ret.Position = -this.Position;
+			ret.Orientation = this.Orientation.Inverted ();
+			return ret;
 		}
 	}
 }

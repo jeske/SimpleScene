@@ -44,6 +44,9 @@ namespace TestBench0
         SSInstancedMeshRenderer asteroidRingRenderer;
 		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);
 
+		SSSkeletalAnimationStateMachine skeletonWalkSm = null;
+		SSSkeletalAnimationStateMachine skeletonAttackSm = null;
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -89,7 +92,7 @@ namespace TestBench0
 					game.instancingPssmShader = null;
 				}
 
-				game.setupInput ();
+				game.setupInput1 ();
 
 				game.setupScene1 ();
 				game.setupEnvironment ();

@@ -76,8 +76,13 @@ namespace SimpleScene
 		public void PlayAnimation(SSSkeletalAnimation animation, 
 								  bool repeat, float transitionTime)
 		{
-			m_prevAnimation = m_currAnimation;
-			m_prevT = m_currT;
+			if (transitionTime == 0) {
+				m_prevAnimation = null;
+				m_prevT = 0;
+			} else {
+				m_prevAnimation = m_currAnimation;
+				m_prevT = m_currT;
+			}
 
 			m_currAnimation = animation;
 			m_currT = 0f;
@@ -130,8 +135,9 @@ namespace SimpleScene
 				} else {
 					GL.Color4 (Color4.Yellow);
 					var prevLoc = m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
-					return SSSkeletalJointLocation.Interpolate (
+					var ret =  SSSkeletalJointLocation.Interpolate (
 						loc, prevLoc, FadeBlendPosition);
+					return ret;
 				}
 			} else if (m_prevAnimation != null) {
 				return m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);

@@ -18,7 +18,7 @@ namespace TestBench0
 	{
 		SSObject selectedObject = null;
 
-		public void setupInput()
+		public void setupInput0()
 		{
 			this.MouseDown += mouseDownHandler;
 			this.MouseUp += mouseUpHandler;

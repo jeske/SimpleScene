@@ -39,7 +39,8 @@ namespace SimpleScene
 			string[] values = FilteredSplit(strIn, separator);
 
 			if (values.Length == 3) {       // W optional
-				return new Vector4(parseFloat(values[0]), 
+				return new Vector4(
+					parseFloat(values[0]), 
 					parseFloat(values[1]),
 					parseFloat(values[2]),
 					0f);
@@ -80,7 +81,7 @@ namespace SimpleScene
 
 		private static void ASSERT(bool test_true, string reason) {
 			if (!test_true) {
-				throw new Exception("WavefrontObjLoader Error: " + reason);
+				throw new Exception("WavefrontParser Error: " + reason);
 			}
 		}
 	}

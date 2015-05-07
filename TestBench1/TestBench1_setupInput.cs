@@ -18,7 +18,7 @@ namespace TestBench0
 	{
 		SSObject selectedObject = null;
 
-		public void setupInput()
+		public void setupInput1()
 		{
 			this.MouseDown += mouseDownHandler;
 			this.MouseUp += mouseUpHandler;
@@ -89,6 +89,9 @@ namespace TestBench0
 					}
 				}
 				updateWireframeDisplayText ();
+				break;
+			case Key.Q:
+				skeletonAttackSm.RequestTransition ("attack");
 				break;
 			case Key.Escape:
 				Exit ();

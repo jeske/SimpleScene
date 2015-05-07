@@ -89,7 +89,7 @@ namespace TestBench0
 					game.instancingPssmShader = null;
 				}
 
-				game.setupInput ();
+				game.setupInput0 ();
 
 				game.setupScene0 ();
 				game.setupEnvironment ();
