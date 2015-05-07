@@ -149,7 +149,7 @@ namespace SimpleScene
 					SSSkeletalJointLocation fallbackLoc;
 					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
 						fallbackLoc = joint.BaseInfo.BaseLocation;
-						GL.Color4 (Color4.Yellow);
+						GL.Color4 (Color4.LightGray); // debugging
 					} else {
 						fallbackLoc = prevActiveChannel.ComputeJointFrame (jointIdx);
 						if (joint.BaseInfo.ParentIndex != -1) {

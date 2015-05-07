@@ -5,41 +5,43 @@ namespace SimpleScene
 {
 	public class SSSkeletalAnimation
 	{
-		protected int m_frameRate;
+		public string Name;
 
-		protected SSAABB[] m_bounds;
-		protected SSSkeletalJoint[] m_hierarchy;
-		protected SSSkeletalJointLocation[][] m_frames;
+		protected int _frameRate;
+
+		protected SSAABB[] _bounds;
+		protected SSSkeletalJoint[] _hierarchy;
+		protected SSSkeletalJointLocation[][] _frames;
 
 		// temp use
-		protected float[] m_floatComponents;
+		protected float[] _floatComponents;
 
 		public int NumFrames {
-			get { return m_frames.Length; }
+			get { return _frames.Length; }
 		}
 
 		public int NumJoints {
-			get { return m_hierarchy.Length; }
+			get { return _hierarchy.Length; }
 		}
 
 		public int FrameRate {
-			get { return m_frameRate; }
+			get { return _frameRate; }
 		}
 
 		public float FrameDuration {
-			get { return 1f / (float)m_frameRate; }
+			get { return 1f / (float)_frameRate; }
 		}
 
 		public float TotalDuration {
-			get { return (float)(m_frames.Length-1) / (float)m_frameRate; }
+			get { return (float)(_frames.Length-1) / (float)_frameRate; }
 		}
 
 		public SSAABB[] Bounds {
-			get { return m_bounds; }
+			get { return _bounds; }
 		}
 
 		public SSSkeletalJoint[] JointHierarchy {
-			get { return m_hierarchy; }
+			get { return _hierarchy; }
 		}
 
 		public SSSkeletalAnimation (int frameRate,
@@ -47,21 +49,21 @@ namespace SimpleScene
 									SSSkeletalJointLocation[][] frames,
 									SSAABB[] bounds = null)
 		{
-			m_hierarchy = jointInfo;
-			m_frames = frames;
-			m_bounds = bounds;
-			m_frameRate = frameRate;
+			_hierarchy = jointInfo;
+			_frames = frames;
+			_bounds = bounds;
+			_frameRate = frameRate;
 		}
 
 		public SSSkeletalJointLocation ComputeJointFrame(int jointIdx, float t)
 		{
 			int leftFrameIdx = (int)(t / FrameDuration);
-			SSSkeletalJointLocation leftJointFrame = m_frames [leftFrameIdx] [jointIdx];
+			SSSkeletalJointLocation leftJointFrame = _frames [leftFrameIdx] [jointIdx];
 			float remainder = t - ((float)leftFrameIdx * FrameDuration);
 			if (remainder == 0) {
 				return leftJointFrame;
 			} else {
-				SSSkeletalJointLocation rightJointFrame = m_frames [leftFrameIdx+1] [jointIdx];
+				SSSkeletalJointLocation rightJointFrame = _frames [leftFrameIdx+1] [jointIdx];
 				return SSSkeletalJointLocation.Interpolate (
 					leftJointFrame,	rightJointFrame, remainder / FrameDuration);
 			}

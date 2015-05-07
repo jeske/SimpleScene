@@ -20,7 +20,9 @@ namespace SimpleScene
 		public static SSSkeletalAnimationMD5 ReadAnimation(SSAssetManager.Context ctx, string filename)
 		{
 			var parser = new SSMD5AnimParser(ctx, filename);
-			return parser.readAnimation();
+			var anim = parser.readAnimation ();
+			anim.Name = filename;
+			return anim;
 		}
 
 		private enum LocationFlags : byte {

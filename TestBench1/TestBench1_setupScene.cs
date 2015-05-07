@@ -161,7 +161,7 @@ namespace TestBench0
 					// state machine test
 					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh4.AddChannel(0, "all");
-					renderMesh4.TimeScale = 0.3f;
+					renderMesh4.TimeScale = 0.5f;
 
 					var obj4 = new SSObjectMesh(renderMesh4);
 					obj4.MainColor = Color.DarkMagenta;
@@ -178,8 +178,8 @@ namespace TestBench0
 					sm.AddState("running");
 					sm.AddStateAnimation("running", 0, animRunning);
 
-					sm.AddStateTransition("idle", "idle", 0.5f, 0);
-					//sm.AddStateTransition("running", "idle", 0, 0);
+					sm.AddStateTransition("idle", "running", 0.5f, 0);
+					sm.AddStateTransition("running", "idle", 0.5f, 0);
 					#endif
 				}
 			}

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL; // debug hacks
+
 namespace SimpleScene
 {
 	/// <summary>
@@ -125,6 +128,7 @@ namespace SimpleScene
 				if (m_prevAnimation == null) {
 					return loc;
 				} else {
+					GL.Color4 (Color4.Yellow);
 					var prevLoc = m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
 					return SSSkeletalJointLocation.Interpolate (
 						loc, prevLoc, FadeBlendPosition);
