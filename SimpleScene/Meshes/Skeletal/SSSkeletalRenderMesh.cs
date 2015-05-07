@@ -113,11 +113,11 @@ namespace SimpleScene
 		public override void Update(float elapsedS)
 		{
 			elapsedS *= TimeScale;
-			foreach (var channel in _chanRuntimes.Values) {
-				channel.Update (elapsedS);
-			}
 			foreach (var sm in _animStateMachines) {
 				sm.TriggerAutomaticTransitions ();
+			}
+			foreach (var channel in _chanRuntimes.Values) {
+				channel.Update (elapsedS);
 			}
 		}
 

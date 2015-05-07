@@ -124,9 +124,10 @@ namespace SimpleScene
 						int cid = chanState.channelId;
 						if (cid == transition.channelEndsTrigger) {
 							var chanRuntime = _channelsRuntime [cid];
-							if (!chanRuntime.IsActive 
-							 || chanRuntime.TimeRemaining < transition.transitionTime) {
-								requestTransition (transition.target);
+							if (!chanRuntime.IsActive) {
+								requestTransition (transition, 0f);
+							} else if (chanRuntime.TimeRemaining < transition.transitionTime) {
+								requestTransition (transition, chanRuntime.TimeRemaining);
 							}
 							return;
 						}
@@ -138,7 +139,13 @@ namespace SimpleScene
 		public void RequestTransition(string targetStateName)
 		{
 			var targetState = _animationStates [targetStateName];
-			requestTransition (targetState);
+			foreach (var transition in _transitions) {
+				if (transition.target == targetState
+				    && (transition.sorce == null || transition.sorce == _activeState)) {
+					requestTransition (transition, transition.transitionTime);
+					return;
+				}
+			}
 		}
 
 		public void ForceState(string targetStateName)
@@ -147,19 +154,14 @@ namespace SimpleScene
 			forceState (targetState);
 		}
 
-		protected void requestTransition(AnimationState targetState)
+		protected void requestTransition(TransitionInfo transition, float transitionTime)
 		{
-			foreach (var transition in _transitions) {
-				if (transition.target == targetState
-				&& (transition.sorce == null || transition.sorce == _activeState)) {
-					foreach (var chanState in targetState.channelStates) {
-						var channel = _channelsRuntime [chanState.channelId];
-						channel.PlayAnimation (
-							chanState.animation, false, transition.transitionTime);
-					}
-					_activeState = targetState;
-				}
+			foreach (var chanState in transition.target.channelStates) {
+				var channel = _channelsRuntime [chanState.channelId];
+				channel.PlayAnimation (
+					chanState.animation, false, transitionTime);
 			}
+			_activeState = transition.target;
 		}
 
 		protected void forceState(AnimationState targetState)

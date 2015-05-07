@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL; // debug hacks
+
 namespace SimpleScene
 {
 	public class SSSkeletalJointRuntime
@@ -146,6 +149,7 @@ namespace SimpleScene
 					SSSkeletalJointLocation fallbackLoc;
 					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
 						fallbackLoc = joint.BaseInfo.BaseLocation;
+						GL.Color4 (Color4.Yellow);
 					} else {
 						fallbackLoc = prevActiveChannel.ComputeJointFrame (jointIdx);
 						if (joint.BaseInfo.ParentIndex != -1) {

@@ -24,7 +24,7 @@ namespace SimpleScene
 		protected float m_prevT = 0f;
 
 		protected bool m_repeat = false;
-		protected float m_transitionTime = 0.5f;
+		protected float m_transitionTime = 0f;
 
 		public List<int> TopLevelActiveJoints {
 			get { return m_topLevelActiveJoints; }
@@ -36,20 +36,26 @@ namespace SimpleScene
 
 		public float TimeRemaining {
 			get {
-				return m_currAnimation.TotalDuration - m_currT;
+				if (m_currAnimation != null) {
+					return m_currAnimation.TotalDuration - m_currT;
+				} else if (m_prevAnimation != null) {
+					return m_prevAnimation.TotalDuration - m_prevT;
+				} else {
+					return 0f;
+				}
 			}
 		}
 
 		public bool IsActive {
-			get { return m_currAnimation != null; }
+			get { return m_currAnimation != null || m_prevAnimation != null; }
 		}
 
 		public bool IsEnding {
 			get {
-				if (m_repeat || m_currAnimation == null || m_transitionTime == 0f) {
+				if (m_repeat) {
 					return false;
 				}
-				return m_currT < m_currAnimation.TotalDuration - m_transitionTime;
+				return m_currAnimation == null;
 			}
 		}
 
@@ -88,6 +94,9 @@ namespace SimpleScene
 				if (m_prevT > m_prevAnimation.TotalDuration) {
 					m_prevAnimation = null;
 					m_prevT = 0f;
+					if (!m_repeat) {
+						m_transitionTime = 0f;
+					}
 				}
 			}
 
@@ -95,15 +104,15 @@ namespace SimpleScene
 				m_currT += timeElapsed;
 				float transitionThreshold = m_currAnimation.TotalDuration - m_transitionTime;
 				if (m_currT >= transitionThreshold) {
-					if (m_repeat) {
-						if (m_transitionTime > 0f) {
-							m_prevAnimation = m_currAnimation;
-							m_prevT = m_currT;
-						} 
+					if (m_transitionTime > 0f) {
+						m_prevAnimation = m_currAnimation;
+						m_prevT = m_currT;
 						m_currT -= transitionThreshold;
 					} else {
-						m_currAnimation = null;
 						m_currT = 0f;
+					}
+					if (!m_repeat) {
+						m_currAnimation = null;
 					}
 				}
 			}
@@ -111,13 +120,21 @@ namespace SimpleScene
 
 		public SSSkeletalJointLocation ComputeJointFrame(int jointIdx)
 		{
-			var loc = m_currAnimation.ComputeJointFrame (jointIdx, m_currT);
-			if (m_prevAnimation == null) {
-				return loc;
+			if (m_currAnimation != null) {
+				var loc = m_currAnimation.ComputeJointFrame (jointIdx, m_currT);
+				if (m_prevAnimation == null) {
+					return loc;
+				} else {
+					var prevLoc = m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
+					return SSSkeletalJointLocation.Interpolate (
+						loc, prevLoc, FadeBlendPosition);
+				}
+			} else if (m_prevAnimation != null) {
+				return m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
 			} else {
-				var prevLoc = m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
-				return SSSkeletalJointLocation.Interpolate (
-					loc, prevLoc, FadeBlendPosition);
+				var errMsg = "Attempting to compute a joint frame location from an inactive channel.";
+				System.Console.WriteLine (errMsg);
+				throw new Exception (errMsg);
 			}
 		}
 	}

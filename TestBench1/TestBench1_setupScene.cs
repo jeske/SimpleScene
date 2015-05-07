@@ -121,6 +121,7 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
+					#if false
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
@@ -155,10 +156,12 @@ namespace TestBench0
 					obj3.Pos = new Vector3(-6f, 0f, -12f);
 					obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj3);
+					#endif
 
 					// state machine test
 					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh4.AddChannel(0, "all");
+					renderMesh4.TimeScale = 0.3f;
 
 					var obj4 = new SSObjectMesh(renderMesh4);
 					obj4.MainColor = Color.DarkMagenta;
@@ -167,6 +170,7 @@ namespace TestBench0
 					obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj4);
 
+					#if true
 					var sm = renderMesh4.AddNewStateMachine();
 					sm.AddState("idle");
 					sm.AddStateAnimation("idle", 0, animIdle);
@@ -174,8 +178,9 @@ namespace TestBench0
 					sm.AddState("running");
 					sm.AddStateAnimation("running", 0, animRunning);
 
-					sm.AddStateTransition("idle", "running", 0, 0);
-					sm.AddStateTransition("running", "idle", 0, 0);
+					sm.AddStateTransition("idle", "idle", 0.5f, 0);
+					//sm.AddStateTransition("running", "idle", 0, 0);
+					#endif
 				}
 			}
 			#endif
