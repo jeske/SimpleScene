@@ -113,11 +113,13 @@ namespace SimpleScene
 		public override void Update(float elapsedS)
 		{
 			elapsedS *= TimeScale;
-			foreach (var sm in _animStateMachines) {
-				sm.TriggerAutomaticTransitions ();
-			}
 			foreach (var channel in _chanRuntimes.Values) {
 				channel.Update (elapsedS);
+			}
+			// do automated state transitions immediately after channel updates to avoid
+			// "gaps" (periods of time with undefined animation) when using instant transitions
+			foreach (var sm in _animStateMachines) {
+				sm.TriggerAutomaticTransitions ();
 			}
 		}
 

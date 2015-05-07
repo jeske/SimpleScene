@@ -169,7 +169,7 @@ namespace SimpleScene
 			if (_channelsRuntime != null) {
 				foreach (var channelState in targetState.channelStates) {
 					_channelsRuntime [channelState.channelId].PlayAnimation (
-						channelState.animation, true, 0f);
+						channelState.animation, false, 0f);
 				}
 			}
 			_activeState = targetState;

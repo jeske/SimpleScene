@@ -115,13 +115,15 @@ namespace TestBench0
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");
 				SSSkeletalAnimation animRunning
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
+				SSSkeletalAnimation animAttack
+				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_attack.md5anim");
 
 				SSSkeletalMesh[] meshes 
 					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
-					#if false
+					#if true
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
@@ -178,8 +180,12 @@ namespace TestBench0
 					sm.AddState("running");
 					sm.AddStateAnimation("running", 0, animRunning);
 
-					sm.AddStateTransition("idle", "running", 0.5f, 0);
-					sm.AddStateTransition("running", "idle", 0.5f, 0);
+					sm.AddState("attack");
+					sm.AddStateAnimation("attack", 0, animAttack);
+
+					sm.AddStateTransition("idle", "running", 0f, 0);
+					sm.AddStateTransition("running", "idle", 0f, 0);
+
 					#endif
 				}
 			}

@@ -137,6 +137,7 @@ namespace SimpleScene
 
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
+				GL.Color4 (Color4.LightSkyBlue); // debugging
 			} else {
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				int parentIdx = joint.BaseInfo.ParentIndex;
@@ -149,7 +150,7 @@ namespace SimpleScene
 					SSSkeletalJointLocation fallbackLoc;
 					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
 						fallbackLoc = joint.BaseInfo.BaseLocation;
-						GL.Color4 (Color4.LightGray); // debugging
+						GL.Color4 (Color4.LightCoral); // debugging
 					} else {
 						fallbackLoc = prevActiveChannel.ComputeJointFrame (jointIdx);
 						if (joint.BaseInfo.ParentIndex != -1) {
