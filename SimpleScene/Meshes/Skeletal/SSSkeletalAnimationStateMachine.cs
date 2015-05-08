@@ -82,38 +82,26 @@ namespace SimpleScene
 		///     If specified, animation ending on this channel of the source animation state will trigger the transition to the
 		///     target animation state
 		/// </param>
-		public void AddStateTransition(string fromState, string targetState, float transitionTime,
-									   int channelEndsTrigger = -1)
+		public void AddStateTransition(string fromState, string targetState, float transitionTime)
 		{
-			if (targetState == null || targetState.Length == 0) {
-				var errMsg = "target state must be specified";
+			addStateTransition (fromState, targetState, transitionTime, -1);
+		}
+
+		public void AddAnimationEndsTransition(string fromState, string targetState, float transitionTime,
+											   int animationChannel)
+		                                    
+		{
+			if (fromState == null) {
+				var errMsg = "from state must be specified for after-playback transitions";
 				System.Console.WriteLine (errMsg);
 				throw new Exception (errMsg);
 			}
-
-			var newTransition = new TransitionInfo ();
-			if (fromState == null || fromState.Length == 0) {
-				if (channelEndsTrigger >= 0) {
-					var errMsg = "from state must be specified for after-playback transitions";
-					System.Console.WriteLine (errMsg);
-					throw new Exception (errMsg);
-				}
-				newTransition.sorce = null;
-			} else {
-				newTransition.sorce = _animationStates [fromState];
+			if (animationChannel < 0) {
+				var errMsg = "channel must be >= 0";
+				System.Console.WriteLine (errMsg);
+				throw new Exception (errMsg);
 			}
-			newTransition.target = _animationStates [targetState];
-			newTransition.transitionTime = transitionTime;
-			newTransition.channelEndsTrigger = channelEndsTrigger;
-
-			foreach (var transition in _transitions) {
-				if (transition.Equals (newTransition)) {
-					var errMsg = "Idential animation transition already defined.";
-					System.Console.WriteLine (errMsg);
-					throw new Exception (errMsg);
-				}
-			}
-			_transitions.Add (newTransition);
+			addStateTransition (fromState, targetState, transitionTime, animationChannel);
 		}
 
 		public void TriggerAutomaticTransitions()
@@ -152,6 +140,35 @@ namespace SimpleScene
 		{
 			var targetState = _animationStates [targetStateName];
 			forceState (targetState);
+		}
+
+		protected void addStateTransition(string fromState, string targetState, float transitionTime,
+										  int channelEndsTrigger)
+		{
+			if (targetState == null || targetState.Length == 0) {
+				var errMsg = "target state must be specified";
+				System.Console.WriteLine (errMsg);
+				throw new Exception (errMsg);
+			}
+
+			var newTransition = new TransitionInfo ();
+			if (fromState == null || fromState.Length == 0) {
+				newTransition.sorce = null;
+			} else {
+				newTransition.sorce = _animationStates [fromState];
+			}
+			newTransition.target = _animationStates [targetState];
+			newTransition.transitionTime = transitionTime;
+			newTransition.channelEndsTrigger = channelEndsTrigger;
+
+			foreach (var transition in _transitions) {
+				if (transition.Equals (newTransition)) {
+					var errMsg = "Idential animation transition already defined.";
+					System.Console.WriteLine (errMsg);
+					throw new Exception (errMsg);
+				}
+			}
+			_transitions.Add (newTransition);
 		}
 
 		protected void requestTransition(TransitionInfo transition, float transitionTime)

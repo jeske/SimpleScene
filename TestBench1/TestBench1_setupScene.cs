@@ -184,8 +184,8 @@ namespace TestBench0
 					skeletonWalkSm.AddState("attack");
 					skeletonWalkSm.AddStateAnimation("attack", 0, animAttack);
 
-					skeletonWalkSm.AddStateTransition("idle", "running", 0f, 0);
-					skeletonWalkSm.AddStateTransition("running", "idle", 0f, 0);
+					skeletonWalkSm.AddAnimationEndsTransition("idle", "running", 0f, 0);
+					skeletonWalkSm.AddAnimationEndsTransition("running", "idle", 0f, 0);
 					#endif
 
 					#if true
@@ -197,9 +197,9 @@ namespace TestBench0
 					skeletonAttackSm.AddState("attack");
 					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack);
 
-					skeletonAttackSm.AddStateTransition("idle", "idle", 0f, 1);
-					skeletonAttackSm.AddStateTransition("idle", "attack", 0.3f);
-					skeletonAttackSm.AddStateTransition("attack", "idle", 0f, 1);
+					skeletonAttackSm.AddAnimationEndsTransition("idle", "idle", 0f, 1);
+					skeletonAttackSm.AddStateTransition("idle", "attack", 0.7f);
+					skeletonAttackSm.AddAnimationEndsTransition("attack", "idle", 0f, 1);
 
 					#endif
 				}
