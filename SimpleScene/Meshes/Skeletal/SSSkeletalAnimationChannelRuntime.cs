@@ -25,6 +25,7 @@ namespace SimpleScene
 		protected SSSkeletalAnimation m_prevAnimation = null;
 		protected float m_currT = 0f;
 		protected float m_prevT = 0f;
+		protected float m_prevTimeout = 0f;
 
 		protected bool m_repeat = false;
 		protected float m_transitionTime = 0f;
@@ -82,6 +83,9 @@ namespace SimpleScene
 			} else {
 				m_prevAnimation = m_currAnimation;
 				m_prevT = m_currT;
+				if (m_prevAnimation != null) {
+					m_prevTimeout = Math.Min (m_prevAnimation.TotalDuration, m_prevT + transitionTime);
+				}
 			}
 
 			m_currAnimation = animation;
@@ -99,7 +103,7 @@ namespace SimpleScene
 		{
 			if (m_prevAnimation != null) {
 				m_prevT += timeElapsed;
-				if (m_prevT > m_prevAnimation.TotalDuration) {
+				if (m_prevT > m_prevTimeout) {
 					m_prevAnimation = null;
 					m_prevT = 0f;
 					if (!m_repeat) {
@@ -112,15 +116,13 @@ namespace SimpleScene
 				m_currT += timeElapsed;
 				float transitionThreshold = m_currAnimation.TotalDuration - m_transitionTime;
 				if (m_currT >= transitionThreshold) {
-					if (m_transitionTime > 0f) {
-						m_prevAnimation = m_currAnimation;
-						m_prevT = m_currT;
-						m_currT -= transitionThreshold;
+					if (m_repeat) {
+						// restart repeating animation before it's over
+						PlayAnimation (m_currAnimation, true, m_transitionTime);
 					} else {
-						m_currT = 0f;
-					}
-					if (!m_repeat) {
+						// hard stop for an animation on this channel
 						m_currAnimation = null;
+						m_currT = 0;
 					}
 				}
 			}
@@ -133,7 +135,7 @@ namespace SimpleScene
 				if (m_prevAnimation == null) {
 					return loc;
 				} else {
-					GL.Color4 (Color4.Yellow);
+					GL.Color4 (new Color4(FadeBlendPosition, 1f - FadeBlendPosition, 0, 1f));
 					var prevLoc = m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
 					var ret =  SSSkeletalJointLocation.Interpolate (
 						loc, prevLoc, FadeBlendPosition);
@@ -144,7 +146,7 @@ namespace SimpleScene
 			} else {
 				var errMsg = "Attempting to compute a joint frame location from an inactive channel.";
 				System.Console.WriteLine (errMsg);
-				throw new Exception (errMsg);
+				throw new Exception (errMsg); 
 			}
 		}
 	}

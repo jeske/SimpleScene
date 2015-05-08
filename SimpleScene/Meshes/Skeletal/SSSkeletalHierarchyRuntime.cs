@@ -137,7 +137,7 @@ namespace SimpleScene
 
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
-				GL.Color4 (Color4.LightSkyBlue); // debugging
+				//GL.Color4 (Color4.LightSkyBlue); // debugging
 			} else {
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);

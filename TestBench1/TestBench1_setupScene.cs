@@ -162,8 +162,7 @@ namespace TestBench0
 
 					// state machine test
 					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh4.AddChannel(0, "all");
-					renderMesh4.AddChannel(1, "LeftClavicle", "RightClavicle");
+					//renderMesh4.AddChannel(0, "all");
 					renderMesh4.TimeScale = 0.15f;
 
 					var obj4 = new SSObjectMesh(renderMesh4);
@@ -174,9 +173,11 @@ namespace TestBench0
 					scene.AddObject(obj4);
 
 					#if true
+					renderMesh4.AddChannel(0, "all");
 					skeletonWalkSm = renderMesh4.AddNewStateMachine();
+
 					skeletonWalkSm.AddState("idle");
-					skeletonWalkSm.AddStateAnimation("idle", 0, animIdle);
+					skeletonWalkSm.AddStateAnimation("idle", 0, animRunning);
 
 					skeletonWalkSm.AddState("running");
 					skeletonWalkSm.AddStateAnimation("running", 0, animRunning);
@@ -189,24 +190,23 @@ namespace TestBench0
 					#endif
 
 					#if true
+					renderMesh4.AddChannel(1, "LeftClavicle", "RightClavicle");
 					skeletonAttackSm = renderMesh4.AddNewStateMachine();
 
-					skeletonAttackSm.AddState("idle");
-					skeletonAttackSm.AddStateAnimation("idle", 1, animRunning);
+					skeletonAttackSm.AddState("inactive");
+					skeletonAttackSm.AddStateAnimation("inactive", 1, null);
 
 					skeletonAttackSm.AddState("attack");
 					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack);
 
-					skeletonAttackSm.AddAnimationEndsTransition("idle", "idle", 0f, 1);
-					skeletonAttackSm.AddStateTransition("idle", "attack", 0.7f);
-					skeletonAttackSm.AddAnimationEndsTransition("attack", "idle", 0f, 1);
-
+					skeletonAttackSm.AddStateTransition("inactive", "attack", 0f);
+					skeletonAttackSm.AddAnimationEndsTransition("attack", "inactive", 0f, 1);
 					#endif
 				}
 			}
 			#endif
 
-			#if true
+			#if false
 			// bob mesh test
 			{
 				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(

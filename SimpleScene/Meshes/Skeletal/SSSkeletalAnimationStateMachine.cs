@@ -82,17 +82,35 @@ namespace SimpleScene
 		///     If specified, animation ending on this channel of the source animation state will trigger the transition to the
 		///     target animation state
 		/// </param>
-		public void AddStateTransition(string fromState, string targetState, float transitionTime)
+		public void AddStateTransition(string fromStateStr, string targetStateStr, float transitionTime)
 		{
+			AnimationState fromState;
+			if (fromStateStr == null || fromStateStr.Length == 0) {
+				fromState = null;
+			} else {
+				fromState = _animationStates [fromStateStr];
+			}
+			if (targetStateStr == null || targetStateStr.Length == 0) {
+				var errMsg = "target state must be specified for after-playback transitions";
+				System.Console.WriteLine (errMsg);
+				throw new Exception (errMsg);
+			}
+			AnimationState targetState = _animationStates [targetStateStr];
+
 			addStateTransition (fromState, targetState, transitionTime, -1);
 		}
 
-		public void AddAnimationEndsTransition(string fromState, string targetState, float transitionTime,
+		public void AddAnimationEndsTransition(string fromStateStr, string targetStateStr, float transitionTime,
 											   int animationChannel)
 		                                    
 		{
-			if (fromState == null) {
+			if (fromStateStr == null || fromStateStr.Length == 0) {
 				var errMsg = "from state must be specified for after-playback transitions";
+				System.Console.WriteLine (errMsg);
+				throw new Exception (errMsg);
+			}
+			if (targetStateStr == null || targetStateStr.Length == 0) {
+				var errMsg = "target state must be specified for after-playback transitions";
 				System.Console.WriteLine (errMsg);
 				throw new Exception (errMsg);
 			}
@@ -101,6 +119,8 @@ namespace SimpleScene
 				System.Console.WriteLine (errMsg);
 				throw new Exception (errMsg);
 			}
+			AnimationState fromState = _animationStates [fromStateStr];
+			AnimationState targetState = _animationStates [targetStateStr];
 			addStateTransition (fromState, targetState, transitionTime, animationChannel);
 		}
 
@@ -142,22 +162,12 @@ namespace SimpleScene
 			forceState (targetState);
 		}
 
-		protected void addStateTransition(string fromState, string targetState, float transitionTime,
+		protected void addStateTransition(AnimationState fromState, AnimationState targetState, float transitionTime,
 										  int channelEndsTrigger)
 		{
-			if (targetState == null || targetState.Length == 0) {
-				var errMsg = "target state must be specified";
-				System.Console.WriteLine (errMsg);
-				throw new Exception (errMsg);
-			}
-
 			var newTransition = new TransitionInfo ();
-			if (fromState == null || fromState.Length == 0) {
-				newTransition.sorce = null;
-			} else {
-				newTransition.sorce = _animationStates [fromState];
-			}
-			newTransition.target = _animationStates [targetState];
+			newTransition.sorce = fromState;
+			newTransition.target = targetState;
 			newTransition.transitionTime = transitionTime;
 			newTransition.channelEndsTrigger = channelEndsTrigger;
 
