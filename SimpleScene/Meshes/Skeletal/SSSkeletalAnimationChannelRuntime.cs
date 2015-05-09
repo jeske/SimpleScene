@@ -99,8 +99,10 @@ namespace SimpleScene
 				_prevAnimation = null;
 				_prevT = 0;
 			} else {
-				_prevAnimation = _currAnimation;
-				_prevT = _currT;
+				if (_currAnimation != null) {
+					_prevAnimation = _currAnimation;
+					_prevT = _currT;
+				}
 				if (_prevAnimation != null) {
 					_prevTimeout = Math.Min (_prevAnimation.TotalDuration, _prevT + transitionTime);
 				}
