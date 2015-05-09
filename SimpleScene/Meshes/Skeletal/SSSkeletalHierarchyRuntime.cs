@@ -160,7 +160,7 @@ namespace SimpleScene
 					if (activeChannel.IsEnding) {
 						activeChannelRatio = 1f - activeChannelRatio;
 					}
-					GL.Color3(activeChannelRatio, 1f - activeChannelRatio, 0f);
+					//GL.Color3(activeChannelRatio, 1f - activeChannelRatio, 0f);
 					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
 						fallbackLoc, activeLoc, activeChannelRatio);
 				} else {

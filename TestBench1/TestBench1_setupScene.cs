@@ -123,7 +123,7 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
-					#if true
+					#if false
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
@@ -163,7 +163,7 @@ namespace TestBench0
 					// state machine test
 					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 					//renderMesh4.AddChannel(0, "all");
-					renderMesh4.TimeScale = 0.5f;
+					renderMesh4.TimeScale = 0.15f;
 
 					var obj4 = new SSObjectMesh(renderMesh4);
 					obj4.MainColor = Color.DarkMagenta;
@@ -200,14 +200,14 @@ namespace TestBench0
 					skeletonAttackSm.AddState("attack");
 					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack, true);
 
-					skeletonAttackSm.AddStateTransition("inactive", "attack", 0.5f);
+					skeletonAttackSm.AddStateTransition(null, "attack", 0.5f);
 					skeletonAttackSm.AddAnimationEndsTransition("attack", "inactive", 0.5f, 1);
 					#endif
 				}
 			}
 			#endif
 
-			#if true
+			#if false
 			// bob mesh test
 			{
 				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(

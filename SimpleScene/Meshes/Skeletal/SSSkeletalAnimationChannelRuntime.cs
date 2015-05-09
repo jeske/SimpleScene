@@ -160,10 +160,10 @@ namespace SimpleScene
 				if (_prevAnimation == null) {
 					return loc;
 				} else {
-					GL.Color4 (new Color4(FadeInRatio, 1f - FadeInRatio, 0, 1f));
+					GL.Color3 (FadeInRatio, 1f - FadeInRatio, 0);
 					var prevLoc = _prevAnimation.ComputeJointFrame (jointIdx, _prevT);
 					var ret =  SSSkeletalJointLocation.Interpolate (
-						loc, prevLoc, FadeInRatio);
+						prevLoc, loc, FadeInRatio);
 					return ret;
 				}
 			} else if (_prevAnimation != null) {
