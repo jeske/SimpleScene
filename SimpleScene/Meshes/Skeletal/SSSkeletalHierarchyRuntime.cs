@@ -127,7 +127,7 @@ namespace SimpleScene
 		{
 			foreach (var channel in channels) {
 				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {
-					if (activeChannel != null && !channel.IsEnding) {
+					if (activeChannel != null) {
 						fallbackActiveChannel = activeChannel;
 					}
 					activeChannel = channel;

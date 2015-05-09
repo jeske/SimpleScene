@@ -66,7 +66,7 @@ namespace SimpleScene
 					break;
 				}
 			}
-			var channel = new SSSkeletalAnimationChannelRuntime (topLevelActiveJointIds);
+			var channel = new SSSkeletalAnimationChannelRuntime (channelId, topLevelActiveJointIds);
 			_chanRuntimes.Add (channelId, channel);
 		}
 

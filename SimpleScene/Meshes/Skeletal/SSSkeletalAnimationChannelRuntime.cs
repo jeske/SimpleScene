@@ -20,6 +20,7 @@ namespace SimpleScene
 	public class SSSkeletalAnimationChannelRuntime
 	{
 		protected readonly List<int> _topLevelActiveJoints;
+		protected readonly int _id; // for debugging only
 
 		protected SSSkeletalAnimation _currAnimation = null;
 		protected SSSkeletalAnimation _prevAnimation = null;
@@ -82,9 +83,10 @@ namespace SimpleScene
 			}
 		}
 
-		public SSSkeletalAnimationChannelRuntime (int[] topLevelActiveJoints)
+		public SSSkeletalAnimationChannelRuntime (int id, int[] topLevelActiveJoints)
 		{
 			_topLevelActiveJoints = new List<int>(topLevelActiveJoints);
+			_id = id;
 		}
 
 		public void PlayAnimation(SSSkeletalAnimation animation, 
