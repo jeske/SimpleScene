@@ -142,8 +142,7 @@ namespace SimpleScene
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				int parentIdx = joint.BaseInfo.ParentIndex;
-				if (activeChannel.InterChannelFade
-				&& (activeChannel.IsStarting || activeChannel.IsEnding)) {
+				if (activeChannel.InterChannelFade && activeChannel.InterChannelFadeIntensity < 1f) {
 					// TODO smarter, multi layer fallback
 					SSSkeletalJointLocation fallbackLoc;
 					if (fallbackActiveChannel == null || fallbackActiveChannel.IsEnding) {

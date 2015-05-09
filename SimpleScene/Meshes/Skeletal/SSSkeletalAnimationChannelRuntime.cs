@@ -58,18 +58,12 @@ namespace SimpleScene
 			get { return _currAnimation != null || _prevAnimation != null; }
 		}
 
-		public bool IsEnding {
+		public bool IsFadingOut {
 			get {
 				if (_repeat) {
 					return false;
 				}
-				return _prevAnimation != null && _currAnimation == null;
-			}
-		}
-
-		public bool IsStarting {
-			get {
-				return /*_prevAnimation == null &&  */_currT < _transitionTime;
+				return _currAnimation == null && _currT < _transitionTime;
 			}
 		}
 
@@ -178,13 +172,10 @@ namespace SimpleScene
 					}
 				}
 			} 
-			#if false
-			else if (IsEnding) {
+			#if true
+			else if (_currT < _transitionTime) {
 				// maintain FadeIn ratio for use with interchannel interpolation, until 
 				_currT += timeElapsed;
-				if (_currT >= _transitionTime) {
-					_currT = 0;
-				}
 			}
 			#endif
 
