@@ -162,7 +162,7 @@ namespace SimpleScene
 					}
 					GL.Color3(activeChannelRatio, 1f - activeChannelRatio, 0f);
 					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
-						activeLoc, fallbackLoc, activeChannelRatio);
+						fallbackLoc, activeLoc, activeChannelRatio);
 				} else {
 					joint.CurrentLocation = activeLoc;
 				}
