@@ -30,8 +30,6 @@ namespace SimpleScene
 		protected bool _interChannelFade = false;
 		protected float _interChannelFadeIntensity = 0f;
 		protected float _interChannelFadeVelocity = 0f;
-		protected Dictionary<int, SSSkeletalJointLocation> _earlyFadeWorkaround 
-			= new Dictionary<int, SSSkeletalJointLocation>();
 
 		protected bool _repeat = false;
 		protected float _transitionTime = 0f;
@@ -112,12 +110,12 @@ namespace SimpleScene
 					if (_currAnimation == null) {
 						_interChannelFadeVelocity = (1f - _interChannelFadeIntensity) / _transitionTime;
 					} else {
+						_prevAnimation = _currAnimation;
+						_prevT = _currT;
 					}
 				} else {
 					Console.WriteLine ("test");
 				}
-				_prevAnimation = _currAnimation;
-				_prevT = _currT;
 				if (_prevAnimation != null) {
 					_prevTimeout = _prevT + _transitionTime;
 				}
@@ -167,7 +165,6 @@ namespace SimpleScene
 				} else {
 					if (_currT >= _transitionTime) {
 						_transitionTime = 0;
-						_earlyFadeWorkaround.Clear ();
 					}
 					if (_currT >= _currAnimation.TotalDuration) {
 						_currAnimation = null;
@@ -197,26 +194,16 @@ namespace SimpleScene
 		public SSSkeletalJointLocation ComputeJointFrame(int jointIdx)
 		{
 			if (_currAnimation != null) {
-				var currLoc = _currAnimation.ComputeJointFrame (jointIdx, _currT);
+				var loc = _currAnimation.ComputeJointFrame (jointIdx, _currT);
 				if (_prevAnimation == null) {
 					//GL.Color3 (1f, 0f, 0f);
-					return currLoc;
+					return loc;
 				} else {
 					GL.Color3 (FadeInRatio, 1f - FadeInRatio, 0);
 					var prevTime = Math.Min(_prevT, _prevAnimation.TotalDuration);
-					SSSkeletalJointLocation prevLoc;
-					bool usingWorkaround = true;
-					try {
-						prevLoc = _earlyFadeWorkaround[jointIdx];
-					} catch {
-						usingWorkaround = false;
-						prevLoc = _prevAnimation.ComputeJointFrame (jointIdx, prevTime);
-					}
-					var ret = SSSkeletalJointLocation.Interpolate (
-						prevLoc, currLoc, FadeInRatio);
-					if (!usingWorkaround && _currT < _transitionTime) {
-						_earlyFadeWorkaround [jointIdx] = ret;
-					}
+					var prevLoc = _prevAnimation.ComputeJointFrame (jointIdx, prevTime);
+					var ret =  SSSkeletalJointLocation.Interpolate (
+						prevLoc, loc, FadeInRatio);
 					return ret;
 				}
 			} else if (_prevAnimation != null) {
