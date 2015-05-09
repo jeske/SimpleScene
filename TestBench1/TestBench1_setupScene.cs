@@ -163,12 +163,12 @@ namespace TestBench0
 					// state machine test
 					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 					//renderMesh4.AddChannel(0, "all");
-					renderMesh4.TimeScale = 0.15f;
+					renderMesh4.TimeScale = 0.5f;
 
 					var obj4 = new SSObjectMesh(renderMesh4);
 					obj4.MainColor = Color.DarkMagenta;
 					obj4.Name = "magenta bones";
-					obj4.Pos = new Vector3(0f, 0f, 0f);
+					obj4.Pos = new Vector3(-12f, 0f, 0f);
 					obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj4);
 
@@ -177,16 +177,17 @@ namespace TestBench0
 					skeletonWalkSm = renderMesh4.AddNewStateMachine();
 
 					skeletonWalkSm.AddState("idle");
-					skeletonWalkSm.AddStateAnimation("idle", 0, animRunning);
+					skeletonWalkSm.AddStateAnimation("idle", 0, animIdle);
 
-					skeletonWalkSm.AddState("running");
-					skeletonWalkSm.AddStateAnimation("running", 0, animRunning);
+					skeletonWalkSm.AddState("running1");
+					skeletonWalkSm.AddStateAnimation("running1", 0, animRunning);
 
-					skeletonWalkSm.AddState("attack");
-					skeletonWalkSm.AddStateAnimation("attack", 0, animAttack);
+					skeletonWalkSm.AddState("running2");
+					skeletonWalkSm.AddStateAnimation("running2", 0, animRunning);
 
-					skeletonWalkSm.AddAnimationEndsTransition("idle", "running", 0f, 0);
-					skeletonWalkSm.AddAnimationEndsTransition("running", "idle", 0f, 0);
+					skeletonWalkSm.AddAnimationEndsTransition("idle", "running1", 0f, 0);
+					skeletonWalkSm.AddAnimationEndsTransition("running1", "running2", 0f, 0);
+					skeletonWalkSm.AddAnimationEndsTransition("running2", "idle", 0f, 0);
 					#endif
 
 					#if true

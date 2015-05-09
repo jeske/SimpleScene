@@ -92,8 +92,8 @@ namespace SimpleScene
 		public void PlayAnimation(SSSkeletalAnimation animation, 
 								  bool repeat, float transitionTime, bool interChannelFade)
 		{
-			System.Console.WriteLine ("play: {0}, repeat: {1}, transitionTime {2}, ichf: {3}",
-				animation != null ? animation.Name : "null", repeat, transitionTime, interChannelFade);
+			//System.Console.WriteLine ("play: {0}, repeat: {1}, transitionTime {2}, ichf: {3}",
+			//	animation != null ? animation.Name : "null", repeat, transitionTime, interChannelFade);
 
 			if (transitionTime == 0) {
 				_prevAnimation = null;
