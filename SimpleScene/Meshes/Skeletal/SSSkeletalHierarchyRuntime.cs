@@ -156,11 +156,8 @@ namespace SimpleScene
 					} else {
 						fallbackLoc = fallbackActiveChannel.ComputeJointFrame (jointIdx);
 					}
-					float activeChannelRatio = activeChannel.FadeInRatio;
-					if (activeChannel.IsEnding) {
-						activeChannelRatio = 1f - activeChannelRatio;
-					}
-					//GL.Color3(activeChannelRatio, 1f - activeChannelRatio, 0f);
+					float activeChannelRatio = activeChannel.InterChannelFadeIntensity;
+					GL.Color3(activeChannelRatio, activeChannelRatio, 1f - activeChannelRatio);
 					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
 						fallbackLoc, activeLoc, activeChannelRatio);
 				} else {

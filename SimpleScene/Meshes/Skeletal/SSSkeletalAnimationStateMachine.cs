@@ -139,7 +139,7 @@ namespace SimpleScene
 							if (transition.transitionTime == 0 && !chanRuntime.IsActive) {
 								requestTransition (transition, 0f);
 							}
-							else if (chanRuntime.TimeRemaining < transition.transitionTime) {
+							else if (chanRuntime.TimeRemaining <= transition.transitionTime) {
 								requestTransition (transition, chanRuntime.TimeRemaining);
 							}
 							return;
