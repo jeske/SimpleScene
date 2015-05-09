@@ -145,7 +145,7 @@ namespace SimpleScene
 				if (activeChannel.InterChannelFade && activeChannel.InterChannelFadeIntensity < 1f) {
 					// TODO smarter, multi layer fallback
 					SSSkeletalJointLocation fallbackLoc;
-					if (fallbackActiveChannel == null || fallbackActiveChannel.IsEnding) {
+					if (fallbackActiveChannel == null || fallbackActiveChannel.IsFadingOut) {
 						// fall back to bind bose
 						fallbackLoc = joint.BaseInfo.BaseLocation;
 						if (joint.BaseInfo.ParentIndex != -1) {
