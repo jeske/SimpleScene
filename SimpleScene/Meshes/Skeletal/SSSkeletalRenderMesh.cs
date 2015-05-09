@@ -80,11 +80,11 @@ namespace SimpleScene
 		}
 
 		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
-			bool repeat, float transitionTime)
+								  bool repeat = true, float fadeInTime = 0f, bool interChannelFade = false)
 		{
 			_hierarchy.VerifyAnimation (anim);
 			var channel = _chanRuntimes [channelId];
-			channel.PlayAnimation (anim, repeat, transitionTime);
+			channel.PlayAnimation (anim, repeat, fadeInTime, interChannelFade);
 		}
 
 		public void AddStateMachine(SSSkeletalAnimationStateMachine stateMachine)

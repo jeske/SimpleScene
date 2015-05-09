@@ -123,12 +123,12 @@ namespace SimpleScene
 		private void traverseWithChannels(int jointIdx, 
 			List<SSSkeletalAnimationChannelRuntime> channels,
 			SSSkeletalAnimationChannelRuntime activeChannel,
-			SSSkeletalAnimationChannelRuntime prevActiveChannel)
+			SSSkeletalAnimationChannelRuntime fallbackActiveChannel)
 		{
 			foreach (var channel in channels) {
 				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {
 					if (activeChannel != null && !channel.IsEnding) {
-						prevActiveChannel = activeChannel;
+						fallbackActiveChannel = activeChannel;
 					}
 					activeChannel = channel;
 				}
@@ -142,20 +142,28 @@ namespace SimpleScene
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				int parentIdx = joint.BaseInfo.ParentIndex;
-				if (activeChannel.IsEnding) {
+				if (activeChannel.InterChannelFade
+				&& (activeChannel.IsStarting || activeChannel.IsEnding)) {
 					// TODO smarter, multi layer fallback
 					SSSkeletalJointLocation fallbackLoc;
-					if (prevActiveChannel == null || prevActiveChannel.IsEnding) {
+					if (fallbackActiveChannel == null || fallbackActiveChannel.IsEnding) {
+						// fall back to bind bose
 						fallbackLoc = joint.BaseInfo.BaseLocation;
 						if (joint.BaseInfo.ParentIndex != -1) {
 							fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation.Inverted());
 						}
 						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
 					} else {
-						fallbackLoc = prevActiveChannel.ComputeJointFrame (jointIdx);
+						fallbackLoc = fallbackActiveChannel.ComputeJointFrame (jointIdx);
+					}
+					float activeChannelRatio = activeChannel.FadeInRatio;
+					GL.Color4 (Color4.Lime); // debugging
+					if (activeChannel.IsEnding) {
+						activeChannelRatio = 1f - activeChannelRatio;
+						GL.Color4 (Color4.Orange); // debugging
 					}
 					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
-						activeLoc, fallbackLoc, activeChannel.FadeBlendPosition);
+						activeLoc, fallbackLoc, activeChannelRatio);
 				} else {
 					joint.CurrentLocation = activeLoc;
 				}
@@ -165,7 +173,7 @@ namespace SimpleScene
 			}
 
 			foreach (int child in joint.Children) {
-				traverseWithChannels (child, channels, activeChannel, prevActiveChannel);
+				traverseWithChannels (child, channels, activeChannel, fallbackActiveChannel);
 			}
 		}
 	}

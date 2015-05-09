@@ -19,31 +19,32 @@ namespace SimpleScene
 
 	public class SSSkeletalAnimationChannelRuntime
 	{
-		protected readonly List<int> m_topLevelActiveJoints;
+		protected readonly List<int> _topLevelActiveJoints;
 
-		protected SSSkeletalAnimation m_currAnimation = null;
-		protected SSSkeletalAnimation m_prevAnimation = null;
-		protected float m_currT = 0f;
-		protected float m_prevT = 0f;
-		protected float m_prevTimeout = 0f;
+		protected SSSkeletalAnimation _currAnimation = null;
+		protected SSSkeletalAnimation _prevAnimation = null;
+		protected float _currT = 0f;
+		protected float _prevT = 0f;
+		protected float _prevTimeout = 0f;
+		protected bool _interChannelFade = false;
 
-		protected bool m_repeat = false;
-		protected float m_transitionTime = 0f;
+		protected bool _repeat = false;
+		protected float _transitionTime = 0f;
 
 		public List<int> TopLevelActiveJoints {
-			get { return m_topLevelActiveJoints; }
+			get { return _topLevelActiveJoints; }
 		}
 
 		public float TransitionTime {
-			get { return m_transitionTime; }
+			get { return _transitionTime; }
 		}
 
 		public float TimeRemaining {
 			get {
-				if (m_currAnimation != null) {
-					return m_currAnimation.TotalDuration - m_currT;
-				} else if (m_prevAnimation != null) {
-					return m_prevAnimation.TotalDuration - m_prevT;
+				if (_currAnimation != null) {
+					return _currAnimation.TotalDuration - _currT;
+				} else if (_prevAnimation != null) {
+					return _prevAnimation.TotalDuration - _prevT;
 				} else {
 					return 0f;
 				}
@@ -51,48 +52,64 @@ namespace SimpleScene
 		}
 
 		public bool IsActive {
-			get { return m_currAnimation != null || m_prevAnimation != null; }
+			get { return _currAnimation != null || _prevAnimation != null; }
 		}
 
 		public bool IsEnding {
 			get {
-				if (m_repeat) {
+				if (_repeat) {
 					return false;
 				}
-				return m_currAnimation == null;
+				return _prevAnimation != null && _currAnimation == null;
 			}
 		}
 
-		public float FadeBlendPosition {
+		public bool IsStarting {
+			get {
+				return _prevAnimation == null && _currT < _transitionTime;
+			}
+		}
+
+		public float FadeInRatio {
 			get { 
-				return m_currT / m_transitionTime;
+				return _currT / _transitionTime;
+			}
+		}
+
+		public bool InterChannelFade {
+			get {
+				return _interChannelFade;
 			}
 		}
 
 		public SSSkeletalAnimationChannelRuntime (int[] topLevelActiveJoints)
 		{
-			m_topLevelActiveJoints = new List<int>(topLevelActiveJoints);
+			_topLevelActiveJoints = new List<int>(topLevelActiveJoints);
 		}
 
 		public void PlayAnimation(SSSkeletalAnimation animation, 
-								  bool repeat, float transitionTime)
+								  bool repeat, float transitionTime, bool interChannelFade)
 		{
+			System.Console.WriteLine ("play: {0}, repeat: {1}, transitionTime {2}, ichf: {3}",
+				animation != null ? animation.Name : "null", repeat, transitionTime, interChannelFade);
+
 			if (transitionTime == 0) {
-				m_prevAnimation = null;
-				m_prevT = 0;
+				_prevAnimation = null;
+				_prevT = 0;
 			} else {
-				m_prevAnimation = m_currAnimation;
-				m_prevT = m_currT;
-				if (m_prevAnimation != null) {
-					m_prevTimeout = Math.Min (m_prevAnimation.TotalDuration, m_prevT + transitionTime);
+				_prevAnimation = _currAnimation;
+				_prevT = _currT;
+				if (_prevAnimation != null) {
+					_prevTimeout = Math.Min (_prevAnimation.TotalDuration, _prevT + transitionTime);
 				}
 			}
 
-			m_currAnimation = animation;
-			m_currT = 0f;
+			_currAnimation = animation;
+			_currT = 0f;
 
-			m_repeat = repeat;
-			m_transitionTime = transitionTime;
+			_repeat = repeat;
+			_transitionTime = transitionTime;
+			_interChannelFade = interChannelFade;
 		}
 
 		/// <summary>
@@ -101,48 +118,54 @@ namespace SimpleScene
 		/// <param name="timeElapsed">Time elapsed in seconds</param>
 		public void Update(float timeElapsed)
 		{
-			if (m_prevAnimation != null) {
-				m_prevT += timeElapsed;
-				if (m_prevT > m_prevTimeout) {
-					m_prevAnimation = null;
-					m_prevT = 0f;
-					if (!m_repeat) {
-						m_transitionTime = 0f;
-					}
+			if (_prevAnimation != null) {
+				_prevT += timeElapsed;
+				if (_prevT > _prevTimeout) {
+					_prevAnimation = null;
+					_prevT = 0f;
 				}
 			}
 
-			if (m_currAnimation != null) {
-				m_currT += timeElapsed;
-				float transitionThreshold = m_currAnimation.TotalDuration - m_transitionTime;
-				if (m_currT >= transitionThreshold) {
-					if (m_repeat) {
-						// restart repeating animation before it's over
-						PlayAnimation (m_currAnimation, true, m_transitionTime);
-					} else {
-						// hard stop for an animation on this channel
-						m_currAnimation = null;
-						m_currT = 0;
+			if (_currAnimation != null) {
+				_currT += timeElapsed;
+				if (_repeat) {
+					if (_currT >= _currAnimation.TotalDuration - _transitionTime) {
+						PlayAnimation (_currAnimation, true, _transitionTime, _interChannelFade);
+					}
+				} else {
+					if (_currT >= _transitionTime) {
+						_transitionTime = 0;
+					}
+					if (_currT >= _currAnimation.TotalDuration) {
+						_currAnimation = null;
+						_currT = 0;
 					}
 				}
+			} else if (IsEnding) {
+				// maintain FadeIn ratio for use with interchannel interpolation, until 
+				_currT += timeElapsed;
+				if (_currT >= _transitionTime) {
+					_currT = 0;
+				}
+
 			}
 		}
 
 		public SSSkeletalJointLocation ComputeJointFrame(int jointIdx)
 		{
-			if (m_currAnimation != null) {
-				var loc = m_currAnimation.ComputeJointFrame (jointIdx, m_currT);
-				if (m_prevAnimation == null) {
+			if (_currAnimation != null) {
+				var loc = _currAnimation.ComputeJointFrame (jointIdx, _currT);
+				if (_prevAnimation == null) {
 					return loc;
 				} else {
-					GL.Color4 (new Color4(FadeBlendPosition, 1f - FadeBlendPosition, 0, 1f));
-					var prevLoc = m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
+					GL.Color4 (new Color4(FadeInRatio, 1f - FadeInRatio, 0, 1f));
+					var prevLoc = _prevAnimation.ComputeJointFrame (jointIdx, _prevT);
 					var ret =  SSSkeletalJointLocation.Interpolate (
-						loc, prevLoc, FadeBlendPosition);
+						loc, prevLoc, FadeInRatio);
 					return ret;
 				}
-			} else if (m_prevAnimation != null) {
-				return m_prevAnimation.ComputeJointFrame (jointIdx, m_prevT);
+			} else if (_prevAnimation != null) {
+				return _prevAnimation.ComputeJointFrame (jointIdx, _prevT);
 			} else {
 				var errMsg = "Attempting to compute a joint frame location from an inactive channel.";
 				System.Console.WriteLine (errMsg);

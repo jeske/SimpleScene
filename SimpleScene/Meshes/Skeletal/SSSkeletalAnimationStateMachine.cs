@@ -48,14 +48,17 @@ namespace SimpleScene
 			var newState = new AnimationState ();
 			_animationStates.Add (stateName, newState);
 			if (_activeState == null || makeActive) {
-				ForceState (stateName);
+				forceState (newState);
 			}
 		}
 
 		/// <summary>
 		/// Adds animation for a state at a specified channel
 		/// </summary>
-		public void AddStateAnimation(string stateName, int channelId, SSSkeletalAnimation animation)
+		public void AddStateAnimation(string stateName, 
+									  int channelId, 
+									  SSSkeletalAnimation animation,
+									  bool interChannelFade = false)
 		{
 			AnimationState animState = _animationStates [stateName];
 			foreach (var channelState in animState.channelStates) {
@@ -69,6 +72,7 @@ namespace SimpleScene
 			var newChanState = new ChannelState ();
 			newChanState.channelId = channelId;
 			newChanState.animation = animation;
+			newChanState.interChannelFade = interChannelFade;
 			animState.channelStates.Add (newChanState);
 		}
 
@@ -132,9 +136,10 @@ namespace SimpleScene
 						int cid = chanState.channelId;
 						if (cid == transition.channelEndsTrigger) {
 							var chanRuntime = _channelsRuntime [cid];
-							if (!chanRuntime.IsActive) {
+							if (transition.transitionTime == 0 && !chanRuntime.IsActive) {
 								requestTransition (transition, 0f);
-							} else if (chanRuntime.TimeRemaining < transition.transitionTime) {
+							}
+							else if (chanRuntime.TimeRemaining < transition.transitionTime) {
 								requestTransition (transition, chanRuntime.TimeRemaining);
 							}
 							return;
@@ -186,7 +191,7 @@ namespace SimpleScene
 			foreach (var chanState in transition.target.channelStates) {
 				var channel = _channelsRuntime [chanState.channelId];
 				channel.PlayAnimation (
-					chanState.animation, false, transitionTime);
+					chanState.animation, false, transitionTime, chanState.interChannelFade);
 			}
 			_activeState = transition.target;
 		}
@@ -196,7 +201,7 @@ namespace SimpleScene
 			if (_channelsRuntime != null) {
 				foreach (var channelState in targetState.channelStates) {
 					_channelsRuntime [channelState.channelId].PlayAnimation (
-						channelState.animation, false, 0f);
+						channelState.animation, false, 0f, channelState.interChannelFade);
 				}
 			}
 			_activeState = targetState;
@@ -214,6 +219,7 @@ namespace SimpleScene
 		{
 			public int channelId;
 			public SSSkeletalAnimation animation;
+			public bool interChannelFade;
 		}
 
 		protected class AnimationState

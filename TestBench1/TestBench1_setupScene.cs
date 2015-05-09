@@ -194,13 +194,13 @@ namespace TestBench0
 					skeletonAttackSm = renderMesh4.AddNewStateMachine();
 
 					skeletonAttackSm.AddState("inactive");
-					skeletonAttackSm.AddStateAnimation("inactive", 1, null);
+					skeletonAttackSm.AddStateAnimation("inactive", 1, null, true);
 
 					skeletonAttackSm.AddState("attack");
-					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack);
+					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack, true);
 
-					skeletonAttackSm.AddStateTransition("inactive", "attack", 0f);
-					skeletonAttackSm.AddAnimationEndsTransition("attack", "inactive", 0f, 1);
+					skeletonAttackSm.AddStateTransition("inactive", "attack", 0.5f);
+					skeletonAttackSm.AddAnimationEndsTransition("attack", "inactive", 0.5f, 1);
 					#endif
 				}
 			}
