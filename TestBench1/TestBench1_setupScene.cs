@@ -315,12 +315,14 @@ namespace TestBench0
 			// HUD text....
 			fpsDisplay = new SSObjectGDISurface_Text ();
 			fpsDisplay.Label = "FPS: ...";
+			fpsDisplay.alphaBlendingEnabled = true;
 			hudScene.AddObject (fpsDisplay);
 			fpsDisplay.Pos = new Vector3 (10f, 10f, 0f);
 			fpsDisplay.Scale = new Vector3 (1.0f);
 
 			// wireframe mode text....
 			wireframeDisplay = new SSObjectGDISurface_Text ();
+			wireframeDisplay.alphaBlendingEnabled = true;
 			hudScene.AddObject (wireframeDisplay);
 			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
 			wireframeDisplay.Scale = new Vector3 (1.0f);
@@ -328,6 +330,8 @@ namespace TestBench0
 
 			// HUD text....
 			var testDisplay = new SSObject2DSurface_AGGText ();
+			testDisplay.backgroundColor = Color.Transparent;
+			testDisplay.alphaBlendingEnabled = true;
 			testDisplay.Label = "TEST AGG";
 			hudScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
