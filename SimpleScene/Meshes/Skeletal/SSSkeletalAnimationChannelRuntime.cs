@@ -24,15 +24,20 @@ namespace SimpleScene
 
 		protected SSSkeletalAnimation _currAnimation = null;
 		protected SSSkeletalAnimation _prevAnimation = null;
+		protected SSSkeletalAnimation _prevPrevAnimation = null;
+
+		protected float _transitionTime = 0f;
+		protected float _prevTransitionTime = 0f;
 		protected float _currT = 0f;
 		protected float _prevT = 0f;
+		protected float _prevPrevT = 0f;
 		protected float _prevTimeout = 0f;
+
 		protected bool _interChannelFade = false;
 		protected float _interChannelFadeIntensity = 0f;
 		protected float _interChannelFadeVelocity = 0f;
 
 		protected bool _repeat = false;
-		protected float _transitionTime = 0f;
 
 		public List<int> TopLevelActiveJoints {
 			get { return _topLevelActiveJoints; }
@@ -97,49 +102,54 @@ namespace SimpleScene
 			//System.Console.WriteLine ("play: {0}, repeat: {1}, transitionTime {2}, ichf: {3}",
 			//	animation != null ? animation.Name : "null", repeat, transitionTime, interChannelFade);
 
-
-			_repeat = repeat;
-			_transitionTime = transitionTime;
-			_interChannelFade = interChannelFade;
-
-			if (transitionTime == 0) {
-				_prevAnimation = null;
-				_prevT = 0;
-			} else {
-				if (_prevAnimation == null) {
-					if (_currAnimation == null) {
-						_interChannelFadeVelocity = (1f - _interChannelFadeIntensity) / _transitionTime;
-					} else {
-						_prevAnimation = _currAnimation;
-						_prevT = _currT;
-					}
-				} else {
-					Console.WriteLine ("test");
-				}
-				if (_prevAnimation != null) {
-					_prevTimeout = _prevT + _transitionTime;
-				}
-			}
-
 			// control interchannel fade intensity
 			if (animation == null) {
-				if (_transitionTime == 0) {
+				if (transitionTime == 0) {
 					_interChannelFadeIntensity = 0f;
 					_interChannelFadeVelocity = 0f;
 				} else {
-					_interChannelFadeVelocity = -_interChannelFadeIntensity / _transitionTime;
+					_interChannelFadeVelocity = -_interChannelFadeIntensity / transitionTime;
 				}
 			} else { // animation != null
-				if (_transitionTime == 0) {
+				if (transitionTime == 0) {
 					_interChannelFadeIntensity = 1f;
 					_interChannelFadeVelocity = 0f;
 				} else {
-					_interChannelFadeVelocity = (1f - _interChannelFadeIntensity) / _transitionTime;
+					_interChannelFadeVelocity = (1f - _interChannelFadeIntensity) / transitionTime;
+				}
+			}
+
+			// update "previous" variables
+			if (transitionTime == 0f) {
+				_prevAnimation = null;
+				_prevT = 0f;
+				_prevPrevAnimation = null;
+				_prevPrevT = 0f;
+			} else { // transitionTime != 0f
+
+				if (_currAnimation != null) {
+					if (_prevAnimation != null && _prevT < _transitionTime) {
+						// update "previous" previous variables
+						_prevPrevT = _prevT;
+						_prevPrevAnimation = _prevAnimation;
+						_prevTransitionTime = _transitionTime;
+					}
+					_prevAnimation = _currAnimation;
+					_prevT = _currT;
+				}
+				if (_prevAnimation != null) {
+					_prevTimeout = _prevT + transitionTime;
 				}
 			}
 
 			_currAnimation = animation;
-			_currT = 0f;
+			_currT = 0;
+
+			_repeat = repeat;
+			_interChannelFade = interChannelFade;
+			_transitionTime = transitionTime;
+
+
 		}
 
 		/// <summary>
