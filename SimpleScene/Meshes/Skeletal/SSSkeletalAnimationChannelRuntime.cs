@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define PREV_PREV_FADE
+
+using System;
 using System.Collections.Generic;
 
 using OpenTK.Graphics;
@@ -24,13 +26,10 @@ namespace SimpleScene
 
 		protected SSSkeletalAnimation _currAnimation = null;
 		protected SSSkeletalAnimation _prevAnimation = null;
-		protected SSSkeletalAnimation _prevPrevAnimation = null;
 
 		protected float _transitionTime = 0f;
-		protected float _prevTransitionTime = 0f;
 		protected float _currT = 0f;
 		protected float _prevT = 0f;
-		protected float _prevPrevT = 0f;
 		protected float _prevTimeout = 0f;
 
 		protected bool _interChannelFade = false;
@@ -38,6 +37,12 @@ namespace SimpleScene
 		protected float _interChannelFadeVelocity = 0f;
 
 		protected bool _repeat = false;
+
+		#if PREV_PREV_FADE
+		protected SSSkeletalAnimation _prevPrevAnimation = null;
+		protected float _prevPrevT = 0f;
+		protected float _prevTransitionTime = 0f;
+		#endif
 
 		public List<int> TopLevelActiveJoints {
 			get { return _topLevelActiveJoints; }
@@ -69,12 +74,6 @@ namespace SimpleScene
 					return false;
 				}
 				return _currAnimation == null && _currT < _transitionTime;
-			}
-		}
-
-		public float FadeInRatio {
-			get { 
-				return _currT / _transitionTime;
 			}
 		}
 
@@ -123,17 +122,20 @@ namespace SimpleScene
 			if (transitionTime == 0f) {
 				_prevAnimation = null;
 				_prevT = 0f;
+				#if PREV_PREV_FADE
 				_prevPrevAnimation = null;
 				_prevPrevT = 0f;
+				#endif
 			} else { // transitionTime != 0f
-
 				if (_currAnimation != null) {
+					#if PREV_PREV_FADE
 					if (_prevAnimation != null && _prevT < _transitionTime) {
 						// update "previous" previous variables
 						_prevPrevT = _prevT;
 						_prevPrevAnimation = _prevAnimation;
 						_prevTransitionTime = _transitionTime;
 					}
+					#endif
 					_prevAnimation = _currAnimation;
 					_prevT = _currT;
 				}
@@ -148,8 +150,6 @@ namespace SimpleScene
 			_repeat = repeat;
 			_interChannelFade = interChannelFade;
 			_transitionTime = transitionTime;
-
-
 		}
 
 		/// <summary>
@@ -158,9 +158,19 @@ namespace SimpleScene
 		/// <param name="timeElapsed">Time elapsed in seconds</param>
 		public void Update(float timeElapsed)
 		{
+			#if PREV_PREV_FADE
+			if (_prevPrevAnimation != null) {
+				_prevPrevT += timeElapsed;
+				if (_prevPrevT >= _prevTransitionTime) {
+					_prevPrevAnimation = null;
+					_prevPrevT = 0f;
+				}
+			}
+			#endif
+
 			if (_prevAnimation != null) {
 				_prevT += timeElapsed;
-				if (_prevT > _prevTimeout) {
+				if (_prevT >= _prevTimeout) {
 					_prevAnimation = null;
 					_prevT = 0f;
 				}
@@ -209,12 +219,18 @@ namespace SimpleScene
 					//GL.Color3 (1f, 0f, 0f);
 					return loc;
 				} else {
-					GL.Color3 (FadeInRatio, 1f - FadeInRatio, 0);
 					var prevTime = Math.Min(_prevT, _prevAnimation.TotalDuration);
 					var prevLoc = _prevAnimation.ComputeJointFrame (jointIdx, prevTime);
-					var ret =  SSSkeletalJointLocation.Interpolate (
-						prevLoc, loc, FadeInRatio);
-					return ret;
+					#if PREV_PREV_FADE
+					if (_prevPrevAnimation != null) {
+						var prevPrevLoc = _prevPrevAnimation.ComputeJointFrame (jointIdx, _prevPrevT);
+						var prevFade = _prevT / _prevTransitionTime;
+						prevLoc = SSSkeletalJointLocation.Interpolate (prevPrevLoc, prevLoc, prevFade);
+					}
+					#endif
+					var fadeInRatio = _currT / _transitionTime;
+					GL.Color3 (fadeInRatio, 1f - fadeInRatio, 0);
+					return SSSkeletalJointLocation.Interpolate (prevLoc, loc, fadeInRatio);
 				}
 			} else if (_prevAnimation != null) {
 				//GL.Color3 (0f, 1f, 0f);
