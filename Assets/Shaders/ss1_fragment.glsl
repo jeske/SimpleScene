@@ -48,7 +48,7 @@ void main()
 	   outputColor = ambientColor * ambientStrength;
 	   outputColor += glowColor * gl_FrontMaterial.emission;
 
-	   float diffuseIllumination = clamp(dot(vertexNormal, lightPosition), 0, 1);
+	   float diffuseIllumination = clamp(dot(vertexNormal, lightPosition), 0, 1) * 0.1;
 	   // boost the diffuse color by the glowmap .. poor mans bloom
 	   float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
 	   outputColor += diffuseColor * max(diffuseIllumination, glowFactor);
