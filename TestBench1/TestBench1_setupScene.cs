@@ -123,7 +123,7 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
-					#if false
+					#if true
 					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh1.AddChannel(0, "all");
 					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
@@ -207,7 +207,7 @@ namespace TestBench0
 			}
 			#endif
 
-			#if false
+			#if true
 			// bob mesh test
 			{
 				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(
@@ -367,7 +367,8 @@ namespace TestBench0
 				techinqueInfo = scene.DrawWireFrameMode;
 			}
 			wireframeDisplay.Label = String.Format (
-				"press '1' to toggle wireframe mode: [{0}:{1}]",
+				"press '1' to toggle wireframe mode: [{0}:{1}]\n" +
+				"press 'Q' to \"attack\"",
 				selectionInfo, techinqueInfo.ToString()
 			);
 		}

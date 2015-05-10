@@ -11,8 +11,8 @@ namespace SimpleScene
 	/// Every animation state is defined by a set of channel IDs and corresponding animations to be played for that channel
 	/// State transitions are defined by a source state, target state, and transition/blend time
 	/// 
-	/// Note that it should be possible to apply multiple state machines effectively so long as they affect non-overlapping 
-	/// channels.
+	/// Note that it should be possible to apply multiple state machines effectively to a single skeletal mesh so long
+	/// as they affect non-overlapping channels.
 	/// 
 	/// </summary>
 	public class SSSkeletalAnimationStateMachine
