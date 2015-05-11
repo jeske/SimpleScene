@@ -3,39 +3,17 @@ using System.Collections.Generic;
 
 namespace SimpleScene
 {
-	// TODO repeat count of sorts
-
-	/// <summary>
-	/// Simple skeletal animation state machine.
-	/// 
-	/// Every animation state is defined by a set of channel IDs and corresponding animations to be played for that channel
-	/// State transitions are defined by a source state, target state, and transition/blend time
-	/// 
-	/// Note that it should be possible to apply multiple state machines effectively to a single skeletal mesh so long
-	/// as they affect non-overlapping channels.
-	/// 
-	/// </summary>
 	public class SSSkeletalAnimationStateMachine
 	{
 		protected readonly Dictionary<string, AnimationState> _animationStates = new Dictionary<string, AnimationState>();
 		protected readonly List<TransitionInfo> _transitions = new List<TransitionInfo>();
 
-		protected AnimationState _activeState = null;
-		protected Dictionary<int, SSSkeletalAnimationChannelRuntime> _channelsRuntime = null;
-
-		public SSSkeletalAnimationStateMachine (Dictionary<int, SSSkeletalAnimationChannelRuntime> chanRuntime = null)
-		{
-			ConnectRuntimeChannels (chanRuntime);
+		public Dictionary<string, AnimationState> States {
+			get { return _animationStates; }
 		}
 
-		public void ConnectRuntimeChannels(Dictionary<int, SSSkeletalAnimationChannelRuntime> chanRuntime)
-		{
-			if (_channelsRuntime != chanRuntime) {
-				_channelsRuntime = chanRuntime;
-				if (_activeState != null) {
-					forceState (_activeState);
-				}
-			}
+		public List<TransitionInfo> Transitions {
+			get { return _transitions; }
 		}
 
 		/// <summary>
@@ -43,22 +21,31 @@ namespace SimpleScene
 		/// </summary>
 		/// <param name="stateName">State name.</param>
 		/// <param name="makeDefault">If set to <c>true</c> forces the state machine into this state.</param>
-		public void AddState(string stateName, bool makeActive = false)
+		public void AddState(string stateName, bool makeDefault = false)
 		{
-			var newState = new AnimationState ();
-			_animationStates.Add (stateName, newState);
-			if (_activeState == null || makeActive) {
-				forceState (newState);
+			if (makeDefault) {
+				foreach (var state in _animationStates.Values) {
+					if (state.isDefault) {
+						var errMsg = "Default state already defined.";
+						System.Console.WriteLine (errMsg);
+						throw new Exception (errMsg);
+					}
+				}
 			}
+
+			var newState = new AnimationState ();
+			newState.isDefault = makeDefault;
+			_animationStates.Add (stateName, newState);
 		}
 
 		/// <summary>
 		/// Adds animation for a state at a specified channel
 		/// </summary>
-		public void AddStateAnimation(string stateName, 
-									  int channelId, 
-									  SSSkeletalAnimation animation,
-									  bool interChannelFade = false)
+		public void AddStateAnimation(
+			string stateName, 
+			int channelId, 
+			SSSkeletalAnimation animation,
+			bool interChannelFade = false)
 		{
 			AnimationState animState = _animationStates [stateName];
 			foreach (var channelState in animState.channelStates) {
@@ -105,8 +92,8 @@ namespace SimpleScene
 		}
 
 		public void AddAnimationEndsTransition(string fromStateStr, string targetStateStr, float transitionTime,
-											   int animationChannel)
-		                                    
+			int animationChannel)
+
 		{
 			if (fromStateStr == null || fromStateStr.Length == 0) {
 				var errMsg = "from state must be specified for after-playback transitions";
@@ -128,47 +115,8 @@ namespace SimpleScene
 			addStateTransition (fromState, targetState, transitionTime, animationChannel);
 		}
 
-		public void TriggerAutomaticTransitions()
-		{
-			foreach (var transition in _transitions) {
-				if (transition.sorce == _activeState && transition.channelEndsTrigger >= 0) {
-					foreach (var chanState in _activeState.channelStates) {
-						int cid = chanState.channelId;
-						if (cid == transition.channelEndsTrigger) {
-							var chanRuntime = _channelsRuntime [cid];
-							if (transition.transitionTime == 0 && !chanRuntime.IsActive) {
-								requestTransition (transition, 0f);
-							}
-							else if (chanRuntime.TimeRemaining <= transition.transitionTime) {
-								requestTransition (transition, chanRuntime.TimeRemaining);
-							}
-							return;
-						}
-					}
-				}
-			}
-		}
-
-		public void RequestTransition(string targetStateName)
-		{
-			var targetState = _animationStates [targetStateName];
-			foreach (var transition in _transitions) {
-				if (transition.target == targetState
-				    && (transition.sorce == null || transition.sorce == _activeState)) {
-					requestTransition (transition, transition.transitionTime);
-					return;
-				}
-			}
-		}
-
-		public void ForceState(string targetStateName)
-		{
-			var targetState = _animationStates [targetStateName];
-			forceState (targetState);
-		}
-
 		protected void addStateTransition(AnimationState fromState, AnimationState targetState, float transitionTime,
-										  int channelEndsTrigger)
+			int channelEndsTrigger)
 		{
 			var newTransition = new TransitionInfo ();
 			newTransition.sorce = fromState;
@@ -186,28 +134,7 @@ namespace SimpleScene
 			_transitions.Add (newTransition);
 		}
 
-		protected void requestTransition(TransitionInfo transition, float transitionTime)
-		{
-			foreach (var chanState in transition.target.channelStates) {
-				var channel = _channelsRuntime [chanState.channelId];
-				channel.PlayAnimation (
-					chanState.animation, false, transitionTime, chanState.interChannelFade);
-			}
-			_activeState = transition.target;
-		}
-
-		protected void forceState(AnimationState targetState)
-		{
-			if (_channelsRuntime != null) {
-				foreach (var channelState in targetState.channelStates) {
-					_channelsRuntime [channelState.channelId].PlayAnimation (
-						channelState.animation, false, 0f, channelState.interChannelFade);
-				}
-			}
-			_activeState = targetState;
-		}
-
-		protected class TransitionInfo
+		public class TransitionInfo
 		{
 			public AnimationState sorce = null;
 			public AnimationState target = null;
@@ -215,19 +142,18 @@ namespace SimpleScene
 			public int channelEndsTrigger = -1; // transition will be triggered when animation at this channel id expires 
 		}
 
-		protected class ChannelState
+		public class ChannelState
 		{
 			public int channelId;
 			public SSSkeletalAnimation animation;
 			public bool interChannelFade;
 		}
 
-		protected class AnimationState
+		public class AnimationState
 		{
 			public List<ChannelState> channelStates = new List<ChannelState>();
+			public bool isDefault = false;
 		}
-
-
 	}
 }
 

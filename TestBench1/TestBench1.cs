@@ -44,8 +44,9 @@ namespace TestBench0
         SSInstancedMeshRenderer asteroidRingRenderer;
 		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);
 
-		SSSkeletalAnimationStateMachine skeletonWalkSm = null;
-		SSSkeletalAnimationStateMachine skeletonAttackSm = null;
+		SSSkeletalAnimationStateMachineRuntime skeletonAttackSm1 = null;
+		SSSkeletalAnimationStateMachineRuntime skeletonAttackSm2 = null;
+
 
 		/// <summary>
 		/// The main entry point for the application.

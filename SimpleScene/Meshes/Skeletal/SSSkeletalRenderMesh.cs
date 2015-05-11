@@ -19,8 +19,8 @@ namespace SimpleScene
 		protected readonly List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
 		protected readonly Dictionary<int, SSSkeletalAnimationChannelRuntime> _chanRuntimes
 			= new Dictionary<int, SSSkeletalAnimationChannelRuntime>();
-		protected readonly List<SSSkeletalAnimationStateMachine> _animStateMachines
-			= new List<SSSkeletalAnimationStateMachine> ();
+		protected readonly List<SSSkeletalAnimationStateMachineRuntime> _animStateMachines
+			= new List<SSSkeletalAnimationStateMachineRuntime> ();
 		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
 
 		protected SSSphere _boundingSphere;
@@ -87,17 +87,12 @@ namespace SimpleScene
 			channel.PlayAnimation (anim, repeat, fadeInTime, interChannelFade);
 		}
 
-		public void AddStateMachine(SSSkeletalAnimationStateMachine stateMachine)
+		public SSSkeletalAnimationStateMachineRuntime AddStateMachine(
+			SSSkeletalAnimationStateMachine stateMachine)
 		{
-			_animStateMachines.Add (stateMachine);
-			stateMachine.ConnectRuntimeChannels (_chanRuntimes);
-		}
-
-		public SSSkeletalAnimationStateMachine AddNewStateMachine()
-		{
-			var newSM = new SSSkeletalAnimationStateMachine (_chanRuntimes);
-			_animStateMachines.Add (newSM);
-			return newSM;
+			var newSMRuntime = new SSSkeletalAnimationStateMachineRuntime (stateMachine, _chanRuntimes);
+			_animStateMachines.Add (newSMRuntime);
+			return newSMRuntime;
 		}
 
 		/// <summary>

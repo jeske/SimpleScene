@@ -174,35 +174,52 @@ namespace TestBench0
 
 					#if true
 					renderMesh4.AddChannel(0, "all");
-					skeletonWalkSm = renderMesh4.AddNewStateMachine();
+					var skeletonWalkDescr = new SSSkeletalAnimationStateMachine();
 
-					skeletonWalkSm.AddState("idle");
-					skeletonWalkSm.AddStateAnimation("idle", 0, animIdle);
+					skeletonWalkDescr.AddState("idle", true);
+					skeletonWalkDescr.AddStateAnimation("idle", 0, animIdle);
 
-					skeletonWalkSm.AddState("running1");
-					skeletonWalkSm.AddStateAnimation("running1", 0, animRunning);
+					skeletonWalkDescr.AddState("running1");
+					skeletonWalkDescr.AddStateAnimation("running1", 0, animRunning);
 
-					skeletonWalkSm.AddState("running2");
-					skeletonWalkSm.AddStateAnimation("running2", 0, animRunning);
+					skeletonWalkDescr.AddState("running2");
+					skeletonWalkDescr.AddStateAnimation("running2", 0, animRunning);
 
-					skeletonWalkSm.AddAnimationEndsTransition("idle", "running1", 0.3f, 0);
-					skeletonWalkSm.AddAnimationEndsTransition("running1", "running2", 0f, 0);
-					skeletonWalkSm.AddAnimationEndsTransition("running2", "idle", 0.3f, 0);
+					skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f, 0);
+					skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f, 0);
+					skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f, 0);
+
+					var skeletonWalkSm1 = renderMesh4.AddStateMachine(skeletonWalkDescr);
 					#endif
 
 					#if true
 					renderMesh4.AddChannel(1, "LeftClavicle", "RightClavicle");
-					skeletonAttackSm = renderMesh4.AddNewStateMachine();
+					var skeletonAttackDescr = new SSSkeletalAnimationStateMachine();
 
-					skeletonAttackSm.AddState("inactive");
-					skeletonAttackSm.AddStateAnimation("inactive", 1, null, true);
+					skeletonAttackDescr.AddState("inactive", true);
+					skeletonAttackDescr.AddStateAnimation("inactive", 1, null, true);
 
-					skeletonAttackSm.AddState("attack");
-					skeletonAttackSm.AddStateAnimation("attack", 1, animAttack, true);
+					skeletonAttackDescr.AddState("attack");
+					skeletonAttackDescr.AddStateAnimation("attack", 1, animAttack, true);
 
-					skeletonAttackSm.AddStateTransition(null, "attack", 0.5f);
-					skeletonAttackSm.AddAnimationEndsTransition("attack", "inactive", 0.5f, 1);
+					skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
+					skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f, 1);
+
+					skeletonAttackSm1 = renderMesh4.AddStateMachine(skeletonAttackDescr);
 					#endif
+
+					var renderMesh5 = new SSSkeletalRenderMesh(skeliMesh);
+					renderMesh5.AddChannel(0, "all");
+					renderMesh5.AddChannel(1, "LeftClavicle", "RightClavicle");
+
+					var skeletonWalkSm2 = renderMesh5.AddStateMachine(skeletonWalkDescr);
+					skeletonAttackSm2 = renderMesh5.AddStateMachine(skeletonAttackDescr);
+					var obj5 = new SSObjectMesh(renderMesh5);
+					obj5.Name = "orange bones";
+					obj5.Pos = new Vector3(12f, 0f, 0f);
+					obj5.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+					obj5.MainColor = Color4.DarkOrange;
+					scene.AddObject(obj5);
 				}
 			}
 			#endif
@@ -329,6 +346,7 @@ namespace TestBench0
 			updateWireframeDisplayText ();
 
 			// HUD text....
+			#if false
 			var testDisplay = new SSObject2DSurface_AGGText ();
 			testDisplay.backgroundColor = Color.Transparent;
 			testDisplay.alphaBlendingEnabled = true;
@@ -336,6 +354,7 @@ namespace TestBench0
 			hudScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
+			#endif
 		}
 
 		private void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
@@ -371,7 +390,7 @@ namespace TestBench0
 				techinqueInfo = scene.DrawWireFrameMode;
 			}
 			wireframeDisplay.Label = String.Format (
-				"press '1' to toggle wireframe mode: [{0}:{1}]\n" +
+				"press '1' to toggle wireframe mode: [{0}:{1}]\n\n" +
 				"press 'Q' to \"attack\"",
 				selectionInfo, techinqueInfo.ToString()
 			);
