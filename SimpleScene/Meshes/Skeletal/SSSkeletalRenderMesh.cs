@@ -79,14 +79,30 @@ namespace SimpleScene
 			AddChannel (channelId, topLevelActiveJointsIds);
 		}
 
+		/// <summary>
+		/// This can be used to play once or loop an animation.
+		/// For a more sophisticated control use AddStateMachine()
+		/// </summary>
 		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
 								  bool repeat = true, float fadeInTime = 0f, bool interChannelFade = false)
 		{
+			if (_animStateMachines.Count > 0) {
+				var errMsg = "do not use PlayAnimation() when the mesh is already controlled by state machines";
+				System.Console.WriteLine (errMsg);
+				throw new Exception (errMsg);
+			}
 			_hierarchy.VerifyAnimation (anim);
 			var channel = _chanRuntimes [channelId];
 			channel.PlayAnimation (anim, repeat, fadeInTime, interChannelFade);
 		}
 
+		/// <summary>
+		/// Adds the state machine that will control the mesh.
+		/// </summary>
+		/// <param name="stateMachine">
+		/// A runtime state machine component that can be used to trigger animation state transitions on demand,
+		/// from keyboard etc.
+		/// </param>
 		public SSSkeletalAnimationStateMachineRuntime AddStateMachine(
 			SSSkeletalAnimationStateMachine stateMachine)
 		{
