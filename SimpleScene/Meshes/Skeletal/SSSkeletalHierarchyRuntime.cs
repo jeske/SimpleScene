@@ -139,21 +139,22 @@ namespace SimpleScene
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
 				//GL.Color4 (Color4.LightSkyBlue); // debugging
 			} else {
-				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
-				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				int parentIdx = joint.BaseInfo.ParentIndex;
+				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
+				if (joint.BaseInfo.ParentIndex != -1) {
+					activeLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
+				}
+				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				if (activeChannel.InterChannelFade && activeChannel.InterChannelFadeIntensity < 1f) {
 					// TODO smarter, multi layer fallback
 					SSSkeletalJointLocation fallbackLoc;
 					if (fallbackActiveChannel == null || fallbackActiveChannel.IsFadingOut) {
 						// fall back to bind bose
 						fallbackLoc = joint.BaseInfo.BaseLocation;
-						if (joint.BaseInfo.ParentIndex != -1) {
-							fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation.Inverted());
-						}
 						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
 					} else {
 						fallbackLoc = fallbackActiveChannel.ComputeJointFrame (jointIdx);
+						fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
 					}
 					float activeChannelRatio = activeChannel.InterChannelFadeIntensity;
 					GL.Color3(activeChannelRatio, activeChannelRatio, 1f - activeChannelRatio);
@@ -161,9 +162,6 @@ namespace SimpleScene
 						fallbackLoc, activeLoc, activeChannelRatio);
 				} else {
 					joint.CurrentLocation = activeLoc;
-				}
-				if (joint.BaseInfo.ParentIndex != -1) {
-					joint.CurrentLocation.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
 				}
 			}
 
