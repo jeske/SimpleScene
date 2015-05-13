@@ -11,7 +11,7 @@ namespace SimpleScene
 		public static readonly string _quotedStrRegex = @"(?<="")[^\""]*(?="")";
 		public static readonly string _uintRegex = @"(\d+)";
 		public static readonly string _intRegex = @"(-*\d+)";
-		public static readonly string _floatRegex = @"(-*\d*\.\d*[Ee]*-*\d*)";
+		public static readonly string _floatRegex = @"(-*\d*\.*\d*[Ee]*-*\d*)";
 		public static readonly string _parOpen = @"\(";
 		public static readonly string _parClose = @"\)";
 
