@@ -118,7 +118,7 @@ namespace SimpleScene
             }
 
             return (currentNormalEndpoint - currentPos).Normalized();
-		}        
+		}
 
 		/// <summary>
 		/// Retrieve bind pose normal for a vertex

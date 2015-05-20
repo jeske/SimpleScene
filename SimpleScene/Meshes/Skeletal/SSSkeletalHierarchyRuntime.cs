@@ -12,43 +12,43 @@ namespace SimpleScene
 		public List<int> Children = new List<int>();
 		public SSSkeletalJointLocation CurrentLocation;
 
-		protected SSSkeletalJoint m_baseInfo;
+		protected SSSkeletalJoint _baseInfo;
 
 		public SSSkeletalJoint BaseInfo {
-			get { return m_baseInfo; }
+			get { return _baseInfo; }
 		}
 
 		public SSSkeletalJointRuntime(SSSkeletalJoint baseInfo)
 		{
-			m_baseInfo = baseInfo;
-			CurrentLocation = m_baseInfo.BaseLocation;
+			_baseInfo = baseInfo;
+			CurrentLocation = _baseInfo.BaseLocation;
 		}
 	}
 
 	public class SSSkeletalHierarchyRuntime
 	{
-		protected readonly SSSkeletalJointRuntime[] m_joints = null;
-		protected readonly List<int> m_topLevelJoints = new List<int> ();
+		protected readonly SSSkeletalJointRuntime[] _joints = null;
+		protected readonly List<int> _topLevelJoints = new List<int> ();
 
 		public SSSkeletalJointRuntime[] Joints {
-			get { return m_joints; }
+			get { return _joints; }
 		}
 
 		public int NumJoints {
-			get { return m_joints.Length; }
+			get { return _joints.Length; }
 		}
 
 		public SSSkeletalHierarchyRuntime(SSSkeletalJoint[] joints)
 		{
-			m_joints = new SSSkeletalJointRuntime[joints.Length];
+			_joints = new SSSkeletalJointRuntime[joints.Length];
 			for (int j = 0; j < joints.Length; ++j) {
 				var jointInput = joints [j];
-				m_joints [j] = new SSSkeletalJointRuntime(jointInput);
+				_joints [j] = new SSSkeletalJointRuntime(jointInput);
 				int parentIdx = jointInput.ParentIndex;
 				if (parentIdx < 0) {
-					m_topLevelJoints.Add (j);
+					_topLevelJoints.Add (j);
 				} else {
-					m_joints [parentIdx].Children.Add (j);
+					_joints [parentIdx].Children.Add (j);
 				}
 			}
 		}
@@ -59,8 +59,8 @@ namespace SimpleScene
 				return -1;
 			}
 
-			for (int j = 0; j < m_joints.Length; ++j) {
-				if (m_joints [j].BaseInfo.Name == jointName) {
+			for (int j = 0; j < _joints.Length; ++j) {
+				if (_joints [j].BaseInfo.Name == jointName) {
 					return j;
 				}
 			}
@@ -71,11 +71,11 @@ namespace SimpleScene
 
 		public SSSkeletalJointLocation JointLocation(int jointIdx) 
 		{
-			return m_joints [jointIdx].CurrentLocation;
+			return _joints [jointIdx].CurrentLocation;
 		}
 
 		public int[] TopLevelJoints {
-			get { return m_topLevelJoints.ToArray (); }
+			get { return _topLevelJoints.ToArray (); }
 		}
 
 		public void VerifyAnimation(SSSkeletalAnimation animation)
@@ -88,7 +88,7 @@ namespace SimpleScene
 				throw new Exception (str);
 			}
 			for (int j = 0; j < NumJoints; ++j) {
-				SSSkeletalJoint meshInfo = this.m_joints [j].BaseInfo;
+				SSSkeletalJoint meshInfo = this._joints [j].BaseInfo;
 				SSSkeletalJoint animInfo = animation.JointHierarchy [j];
 				if (meshInfo.Name != animInfo.Name) {
 					string str = string.Format (
@@ -107,28 +107,21 @@ namespace SimpleScene
 			}
 		}
 
-		public void LoadAnimationFrame(SSSkeletalAnimation anim, float t)
-		{
-			for (int j = 0; j < NumJoints; ++j) {
-				m_joints [j].CurrentLocation = anim.ComputeJointFrame (j, t);
-			}
-		}
-
 		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannelRuntime> channels)
 		{
-			foreach (int j in m_topLevelJoints) {
+			foreach (int j in _topLevelJoints) {
 				traverseWithChannels (j, channels, null, null);
 			}
 		}
 
 		public void SetJointPosition(int jointIdx, Vector3 pos)
 		{
-			m_joints [jointIdx].CurrentLocation.Position = pos;
+			_joints [jointIdx].CurrentLocation.Position = pos;
 		}
 
 		public void SetJointOrientation(int jointIdx, Quaternion quat)
 		{
-			m_joints [jointIdx].CurrentLocation.Orientation = quat;
+			_joints [jointIdx].CurrentLocation.Orientation = quat;
 		}
 
 		private void traverseWithChannels(int jointIdx, 
@@ -144,7 +137,7 @@ namespace SimpleScene
 					activeChannel = channel;
 				}
 			}
-			SSSkeletalJointRuntime joint = m_joints [jointIdx];
+			SSSkeletalJointRuntime joint = _joints [jointIdx];
 
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
@@ -153,7 +146,7 @@ namespace SimpleScene
 				int parentIdx = joint.BaseInfo.ParentIndex;
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				if (joint.BaseInfo.ParentIndex != -1) {
-					activeLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
+					activeLoc.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
 				}
 				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				if (activeChannel.InterChannelFade && activeChannel.InterChannelFadeIntensity < 1f) {
@@ -165,7 +158,7 @@ namespace SimpleScene
 						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
 					} else {
 						fallbackLoc = fallbackActiveChannel.ComputeJointFrame (jointIdx);
-						fallbackLoc.ApplyParentTransform (m_joints [parentIdx].CurrentLocation);
+						fallbackLoc.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
 					}
 					float activeChannelRatio = activeChannel.InterChannelFadeIntensity;
 					GL.Color3(activeChannelRatio, activeChannelRatio, 1f - activeChannelRatio);
