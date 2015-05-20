@@ -88,19 +88,48 @@ namespace SimpleScene
 				throw new Exception (str);
 			}
 			for (int j = 0; j < NumJoints; ++j) {
-				SSSkeletalJoint meshInfo = this._joints [j].BaseInfo;
-				SSSkeletalJoint animInfo = animation.JointHierarchy [j];
-				if (meshInfo.Name != animInfo.Name) {
+				SSSkeletalJoint thisJointInfo = this._joints [j].BaseInfo;
+				SSSkeletalJoint animJointInfo = animation.JointHierarchy [j];
+				if (thisJointInfo.Name != animJointInfo.Name) {
 					string str = string.Format (
 						"Joint name mismatch: {0} in md5mesh, {1} in md5anim",
-						meshInfo.Name, animInfo.Name);
+						thisJointInfo.Name, animJointInfo.Name);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
-				if (meshInfo.ParentIndex != animInfo.ParentIndex) {
+				if (thisJointInfo.ParentIndex != animJointInfo.ParentIndex) {
 					string str = string.Format (
 						"Hierarchy parent mismatch for joint \"{0}\": {1} in md5mesh, {2} in md5anim",
-						meshInfo.Name, meshInfo.ParentIndex, animInfo.ParentIndex);
+						thisJointInfo.Name, thisJointInfo.ParentIndex, animJointInfo.ParentIndex);
+					Console.WriteLine (str);
+					throw new Exception (str);
+				}
+			}
+		}
+
+		public void VerifyJoints(SSSkeletalJoint[] joints)
+		{
+			if (this.NumJoints != joints.Length) {
+				string str = string.Format (
+					"Joint number mismatch: {0} in this hierarchy, {1} in other joints",
+					this.NumJoints, joints.Length);
+				Console.WriteLine (str);
+				throw new Exception (str);
+			}
+			for (int j = 0; j < NumJoints; ++j) {
+				SSSkeletalJoint thisJointInfo = this._joints [j].BaseInfo;
+				SSSkeletalJoint otherJointInfo = joints [j];
+				if (thisJointInfo.Name != otherJointInfo.Name) {
+					string str = string.Format (
+						"Joint name mismatch: {0} in this hierarchy, {1} in other joints",
+						thisJointInfo.Name, otherJointInfo.Name);
+					Console.WriteLine (str);
+					throw new Exception (str);
+				}
+				if (thisJointInfo.ParentIndex != otherJointInfo.ParentIndex) {
+					string str = string.Format (
+						"Hierarchy parent mismatch for joint \"{0}\": {1} in this hierarchy, {2} in other joints",
+						thisJointInfo.Name, thisJointInfo.ParentIndex, otherJointInfo.ParentIndex);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}

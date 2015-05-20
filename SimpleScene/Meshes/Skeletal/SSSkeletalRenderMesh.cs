@@ -40,8 +40,9 @@ namespace SimpleScene
 		public SSSkeletalRenderMesh(SSSkeletalMesh[] subMeshArray)
 		{
 			_hierarchy = new SSSkeletalHierarchyRuntime (subMeshArray [0].Joints);
-			foreach (var mesh in subMeshArray) {
-				AttachMesh (mesh);
+			foreach (var subMesh in subMeshArray) {
+				_hierarchy.VerifyJoints (subMesh.Joints);
+				AttachMesh (subMesh);
 			}
 		}
 
