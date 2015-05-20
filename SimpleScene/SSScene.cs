@@ -40,7 +40,6 @@ namespace SimpleScene
 		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
 		public bool renderBoundingSpheres = false;
-        public bool renderCollisionShells = false;
 
         public bool frustumCulling = true;
 

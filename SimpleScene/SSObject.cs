@@ -146,16 +146,12 @@ namespace SimpleScene
 		}
 
 		public SSObjectSphere boundingSphere=null;  // TODO: fix this, it's object-space radius, world-space position
-		public SSObject collisionShell=null;
+
 		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
 			distanceAlongRay = 0.0f;
 			if (boundingSphere != null) {
 				if (boundingSphere.Intersect(ref worldSpaceRay, out distanceAlongRay)) {					
-			        if (collisionShell != null) {			            
-				        return collisionShell.Intersect(ref worldSpaceRay, out distanceAlongRay);
-		            } else {
-						return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
-					}
+					return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
 				}
 			}
 			return false;

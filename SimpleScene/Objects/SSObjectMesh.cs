@@ -45,12 +45,6 @@ namespace SimpleScene
 
 				if (renderConfig.renderBoundingSpheres && this.boundingSphere != null) {
                     this.boundingSphere.Render(ref renderConfig);
-
-				}
-				if (renderConfig.renderCollisionShells && this.collisionShell != null) {
-                    this.collisionShell.Pos = this.Pos;
-                    this.collisionShell.Scale = this.Scale;
-                    this.collisionShell.Render(ref renderConfig);
 				}
             }
         }
