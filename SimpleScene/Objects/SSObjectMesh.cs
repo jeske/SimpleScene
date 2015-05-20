@@ -42,10 +42,6 @@ namespace SimpleScene
 			if (_mesh != null) {
 				base.Render (ref renderConfig);
 				this._mesh.RenderMesh (ref renderConfig);
-
-				if (renderConfig.renderBoundingSpheres && this.boundingSphere.radius > 0f) {
-                    //this.boundingSphere.Render(ref renderConfig);
-				}
             }
         }
 

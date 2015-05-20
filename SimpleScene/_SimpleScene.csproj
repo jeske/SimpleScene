@@ -97,7 +97,6 @@
     <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
     <Compile Include="Util\GDIviaAGG.cs" />
     <Compile Include="Util\IcoSphereCreator.cs" />
-    <Compile Include="Objects\SSObjectSphere.cs" />
     <Compile Include="Meshes\Shapes\SSMesh_SphereICO.cs" />
     <Compile Include="Core\SSMainShaderProgram.cs" />
     <Compile Include="Core\SSShaderProgram.cs" />
@@ -154,6 +153,7 @@
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationChannelRuntime.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachineRuntime.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachine.cs" />
+    <Compile Include="Meshes\Shapes\SSMeshBoundingSphere.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

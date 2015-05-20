@@ -13,8 +13,11 @@ namespace SimpleScene
 {
 
 	// abstract base class for "tangible" Renderable objects
+
 	public abstract class SSObject : SSObjectBase {
-        public Color4 MainColor = Color4.White;
+		protected static SSMeshBoundingSphere _boundingSphereMesh = new SSMeshBoundingSphere (1f);
+
+		public Color4 MainColor = Color4.White;
 		public bool Selectable = true;
 
 	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
@@ -106,11 +109,30 @@ namespace SimpleScene
             }
         }
 
+		protected void renderBoundingSphereMesh(ref SSRenderConfig renderConfig)
+		{
+			if (boundingSphere.radius > 0f 
+			&& (renderConfig.renderBoundingSpheresLines || renderConfig.renderBoundingSpheresSolid)) {
+				GL.Color4 (MainColor);
+				Matrix4 modelViewMat 
+					= Matrix4.CreateScale(this.Scale * boundingSphere.radius)
+						* Matrix4.CreateTranslation(boundingSphere.center) 
+						* renderConfig.invCameraViewMat;
+				GL.MatrixMode(MatrixMode.Modelview);
+				GL.LoadMatrix(ref modelViewMat);
+
+				//GL.Translate (boundingSphere.center);
+				//GL.Scale (new Vector3 (this.scaleMax * boundingSphere.radius));
+				_boundingSphereMesh.RenderMesh (ref renderConfig);
+			}
+		}
+
 		public virtual void Render (ref SSRenderConfig renderConfig) {
 			// compute and set the modelView matrix, by combining the cameraViewMat
 			// with the object's world matrix
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
+			renderBoundingSphereMesh (ref  renderConfig);
 
 			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
 			GL.MatrixMode(MatrixMode.Modelview);

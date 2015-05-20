@@ -39,7 +39,8 @@ namespace SimpleScene
         public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
-		public bool renderBoundingSpheres = false;
+		public bool renderBoundingSpheresLines = false;
+		public bool renderBoundingSpheresSolid = false;
 
         public bool frustumCulling = true;
 
@@ -144,10 +145,15 @@ namespace SimpleScene
             set { m_renderConfig.drawWireframeMode = value; }
         }
 
-        public bool RenderBoundingSpheres {
-            get { return m_renderConfig.renderBoundingSpheres; }
-            set { m_renderConfig.renderBoundingSpheres = value; }
+        public bool RenderBoundingSpheresSolid {
+            get { return m_renderConfig.renderBoundingSpheresSolid; }
+            set { m_renderConfig.renderBoundingSpheresSolid = value; }
         }
+
+		public bool RenderBoundingSpheresLines {
+			get { return m_renderConfig.renderBoundingSpheresLines; }
+			set { m_renderConfig.renderBoundingSpheresLines = value; }
+		}
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
