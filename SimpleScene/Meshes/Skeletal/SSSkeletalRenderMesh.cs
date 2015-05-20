@@ -179,6 +179,16 @@ namespace SimpleScene
 			return _boundingSphere.radius;
 		}
 
+		public void SetJointPosition(int jointIdx, Vector3 pos)
+		{
+			_hierarchy.SetJointPosition (jointIdx, pos);
+		}
+
+		public void SetJointOrientation(int jointIdx, Quaternion quat)
+		{
+			_hierarchy.SetJointOrientation (jointIdx, quat);
+		}
+
 		// *****************************
 
 		/// <summary>

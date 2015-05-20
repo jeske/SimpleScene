@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL; // debug hacks
 
@@ -118,6 +119,16 @@ namespace SimpleScene
 			foreach (int j in m_topLevelJoints) {
 				traverseWithChannels (j, channels, null, null);
 			}
+		}
+
+		public void SetJointPosition(int jointIdx, Vector3 pos)
+		{
+			m_joints [jointIdx].CurrentLocation.Position = pos;
+		}
+
+		public void SetJointOrientation(int jointIdx, Quaternion quat)
+		{
+			m_joints [jointIdx].CurrentLocation.Orientation = quat;
 		}
 
 		private void traverseWithChannels(int jointIdx, 
