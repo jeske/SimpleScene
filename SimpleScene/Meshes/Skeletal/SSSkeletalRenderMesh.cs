@@ -179,14 +179,12 @@ namespace SimpleScene
 			return _boundingSphere.radius;
 		}
 
-		public void SetJointPosition(int jointIdx, Vector3 pos)
+		/// <summary>
+		/// Updating all joints manually requires settings all of the joints and in order
+		/// </summary>
+		public void SetJointLocation(int jointIdx, Vector3 pos, Quaternion orient)
 		{
-			_hierarchy.SetJointPosition (jointIdx, pos);
-		}
-
-		public void SetJointOrientation(int jointIdx, Quaternion quat)
-		{
-			_hierarchy.SetJointOrientation (jointIdx, quat);
+			_hierarchy.SetJointLocation (jointIdx, pos, orient);
 		}
 
 		// *****************************

@@ -114,14 +114,18 @@ namespace SimpleScene
 			}
 		}
 
-		public void SetJointPosition(int jointIdx, Vector3 pos)
+		/// <summary>
+		/// Updating all joints manually requires settings all of the joints and in order
+		/// </summary>
+		public void SetJointLocation(int jointIdx, Vector3 pos, Quaternion orient)
 		{
-			_joints [jointIdx].CurrentLocation.Position = pos;
-		}
-
-		public void SetJointOrientation(int jointIdx, Quaternion quat)
-		{
-			_joints [jointIdx].CurrentLocation.Orientation = quat;
+			var joint = _joints [jointIdx];
+			joint.CurrentLocation.Position = pos;
+			joint.CurrentLocation.Orientation = orient;
+			int parentIdx = joint.BaseInfo.ParentIndex;
+			if (parentIdx != -1) {
+				joint.CurrentLocation.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
+			}
 		}
 
 		private void traverseWithChannels(int jointIdx, 
