@@ -280,8 +280,8 @@ namespace SimpleScene
                 #if true
 				if (m_renderConfig.frustumCulling && obj.renderState.frustumCulling &&
                     fc != null &&
-                    obj.boundingSphere != null &&
-					!fc.isSphereInsideFrustum(obj.boundingSphere.Pos, obj.ScaledRadius)) {
+					obj.boundingSphere.radius > 0f &&
+					!fc.isSphereInsideFrustum(obj.boundingSphere.center, obj.ScaledRadius)) {
                     m_renderConfig.renderStats.objectsCulled++;
                     continue; // skip the object
                 }

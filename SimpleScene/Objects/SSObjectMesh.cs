@@ -43,8 +43,8 @@ namespace SimpleScene
 				base.Render (ref renderConfig);
 				this._mesh.RenderMesh (ref renderConfig);
 
-				if (renderConfig.renderBoundingSpheres && this.boundingSphere != null) {
-                    this.boundingSphere.Render(ref renderConfig);
+				if (renderConfig.renderBoundingSpheres && this.boundingSphere.radius > 0f) {
+                    //this.boundingSphere.Render(ref renderConfig);
 				}
             }
         }
@@ -68,12 +68,8 @@ namespace SimpleScene
 
 		private void updateBoundingSphere(SSObject sender)
 		{
-			if (this.boundingSphere == null) {
-				this.boundingSphere = new SSObjectSphere (0f);
-			}
 			this.boundingSphere.radius = _mesh.Radius();
-			this.boundingSphere.Pos = Vector3.Transform(_mesh.Center(), this.worldMat);
-			this.boundingSphere.Scale = this.Scale;
+			this.boundingSphere.center = Vector3.Transform(_mesh.Center(), this.worldMat);
 		}
 			
 		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)

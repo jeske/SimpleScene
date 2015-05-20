@@ -29,7 +29,7 @@ namespace SimpleScene
             GL.End();
         }
         public SSObjectTriangle () : base() {
-			this.boundingSphere = new SSObjectSphere(1.0f);
+			this.boundingSphere = new SSSphere(new Vector3(0f), 1.0f);
         }
     }
 }

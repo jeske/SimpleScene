@@ -28,17 +28,19 @@ namespace SimpleScene
 
 		public string Name = "";
 
+		public float scaleMax {
+			get {
+				float ret = float.NegativeInfinity;
+				for (int i = 0; i < 3; ++i) {
+					ret = Math.Max(ret, Scale [i]);
+				}
+				return ret;
+			}
+		}
+
         public float ScaledRadius {
             get {
-                if (boundingSphere == null) {
-                    return 0f;
-                } else {
-                    float scaleMax = float.NegativeInfinity;
-                    for (int i = 0; i < 3; ++i) {
-                        scaleMax = Math.Max(scaleMax, Scale [i]);
-                    }
-                    return boundingSphere.radius * scaleMax;
-                }
+				return boundingSphere.radius * scaleMax;
             }
         }
 
@@ -145,15 +147,18 @@ namespace SimpleScene
             }
 		}
 
-		public SSObjectSphere boundingSphere=null;  // TODO: fix this, it's object-space radius, world-space position
+		public SSSphere boundingSphere = new SSSphere(new Vector3(0f), 0f);
 
-		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
-			distanceAlongRay = 0.0f;
-			if (boundingSphere != null) {
-				if (boundingSphere.Intersect(ref worldSpaceRay, out distanceAlongRay)) {					
-					return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
+		public virtual bool Intersect(ref SSRay worldSpaceRay, out float scaledDistanceAlongRay) {
+			var distanceAlongRay = 0.0f;
+			if (boundingSphere.radius > 0f) {
+				var scaledSphere = new SSSphere (boundingSphere.center, ScaledRadius); 
+				if (scaledSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
+					scaledDistanceAlongRay = scaleMax * distanceAlongRay;
+					return PreciseIntersect(ref worldSpaceRay, ref scaledDistanceAlongRay);
 				}
 			}
+			scaledDistanceAlongRay = 0f;
 			return false;
 		}
 

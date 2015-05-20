@@ -82,7 +82,7 @@ namespace SimpleScene
 			if (particleSystem.activeBlockLength <= 0) return;
 
 			// allow frustum culling to react to particle system expanding/shrinking
-			this.boundingSphere = new SSObjectSphere (particleSystem.radius);
+			this.boundingSphere = new SSSphere (this.Pos, particleSystem.radius);
 
             base.Render(ref renderConfig);
 

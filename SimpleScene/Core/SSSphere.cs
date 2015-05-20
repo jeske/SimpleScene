@@ -28,6 +28,13 @@ namespace SimpleScene
 			return addedRSq >= distSq;
 		}
 
+		public bool IntersectsRay (ref SSRay worldSpaceRay, out float distanceAlongRay)
+		{
+			float distanceToSphereOrigin = OpenTKHelper.DistanceToLine(
+				worldSpaceRay, this.center, out distanceAlongRay);
+			return distanceToSphereOrigin <= this.radius;
+		}
+
 		public bool IntersectsAABB(SSAABB aabb)
 		{
 			return aabb.IntersectsSphere (this);

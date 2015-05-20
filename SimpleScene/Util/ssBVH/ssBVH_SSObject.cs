@@ -26,7 +26,7 @@ namespace SimpleScene.Util.ssBVH
             return obj.Pos;
         }
         public float radius(SSObject obj) {
-            if (obj.boundingSphere != null) {
+			if (obj.boundingSphere.radius > 0f) {
                 // extract the object scale...
                 var objmat = obj.worldMat.ExtractScale();
                 float max_scale = Math.Max(objmat.X,Math.Max(objmat.Y,objmat.Z));
