@@ -181,7 +181,11 @@ namespace SimpleScene
         public override void Update (float fElapsedMS)
         {
             if (simulateOnUpdate) {
+				float prevRadius = particleSystem.radius;
                 particleSystem.simulate(fElapsedMS);
+				if (particleSystem.radius != prevRadius) {
+					NotifyPositionOrSizeChanged ();
+				}
             }
         }
 

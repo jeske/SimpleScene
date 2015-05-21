@@ -10,7 +10,13 @@ namespace SimpleScene
 {
 	public abstract class SSAbstractMesh 
 	{
-		public event SSObject.ChangedEventHandler OnMeshChanged;
+		public delegate void MeshPositionOrSizeChangedHandler();
+		public event MeshPositionOrSizeChangedHandler OnMeshPositionOrSizeChanged = null;
+		protected void NotifyMeshPositionOrSizeChanged() {
+			if (OnMeshPositionOrSizeChanged != null) {
+				OnMeshPositionOrSizeChanged ();
+			}
+		}
 
 		public virtual bool alphaBlendingEnabled { get; set; }
 		public virtual SSTextureMaterial textureMaterial { get; set; }
@@ -62,13 +68,6 @@ namespace SimpleScene
 		}
 
 		public virtual void Update(float timeElapsed) { }
-
-		protected void MeshChanged()
-		{
-			if (OnMeshChanged != null) {
-				OnMeshChanged (null);
-			}
-		}
 	}
 }
 

@@ -44,7 +44,7 @@ namespace SimpleScene.Util.ssBVH
         }
         public void mapObjectToBVHLeaf(SSObject obj, ssBVHNode<SSObject> leaf) {            
             // this allows us to be notified when an object moves, so we can adjust the BVH
-            obj.OnChanged += obj_OnChanged;
+            obj.OnPositionOrSizeChanged += obj_OnChanged;
 
             // TODO: add a hook to handle SSObject deletion... (either a weakref GC notify, or OnDestroy)
 

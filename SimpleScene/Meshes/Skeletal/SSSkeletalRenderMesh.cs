@@ -158,7 +158,7 @@ namespace SimpleScene
 			var sphere = totalAABB.ToSphere ();
 			base.boundingSphereCenter = sphere.center;
 			base.boundingSphereRadius = sphere.radius;
-			MeshChanged ();
+			NotifyMeshPositionOrSizeChanged ();
 		}
 
 		public void RenderInstanced(ref SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 

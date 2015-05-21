@@ -64,7 +64,7 @@ namespace SimpleScene
 				// TODO: make a more detailed collision mesh
 
 				// notify listeners..
-				ObjectChanged(); 
+				NotifyPositionOrSizeChanged(); 
 			} 
         }
 
@@ -98,6 +98,10 @@ namespace SimpleScene
 
 		public override void Update(float elapsedS) {
 			Mesh.Update (elapsedS);
+		}
+
+		private void MeshPositionOrSizeChanged() {
+			NotifyPositionOrSizeChanged ();
 		}
     }
 }

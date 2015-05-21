@@ -194,14 +194,13 @@ namespace SimpleScene
 			return true;
 		}
 
-	    public delegate void ChangedEventHandler(SSObject sender);
-		public event ChangedEventHandler OnChanged;
-		public override void ObjectChanged ()
+		public delegate void PositionOrSizeChangedHandler(SSObject sender);
+		public event PositionOrSizeChangedHandler OnPositionOrSizeChanged;
+		protected override void NotifyPositionOrSizeChanged ()
 		{
-			if (OnChanged != null) {
-				OnChanged(this);
+			if (OnPositionOrSizeChanged != null) {
+				OnPositionOrSizeChanged(this);
 			}
-
 		}
 	}
 
@@ -221,7 +220,7 @@ namespace SimpleScene
 		protected Vector3 _pos;
 		public Vector3 Pos {  
 			get { return _pos; } 
- 			set { _pos = value; this.calcMatFromState();}
+			set { _pos = value; this.calcMatFromState(); }
 		}
 		protected Vector3 _scale = new Vector3 (1.0f);
 		public Vector3 Scale { 
@@ -337,7 +336,7 @@ namespace SimpleScene
 			this.localMat = newLocalMat;
 			this.worldMat = newWorldMat;
 
-			ObjectChanged();
+			NotifyPositionOrSizeChanged();
 		}
 
 		protected void calcScaleMax()
@@ -349,7 +348,7 @@ namespace SimpleScene
 			_scaleMax = scaleMax;
 		}
 
-		public virtual void ObjectChanged() { }
+		protected virtual void NotifyPositionOrSizeChanged() { }
 
 		public virtual void Update (float fElapsedS) {}
 
