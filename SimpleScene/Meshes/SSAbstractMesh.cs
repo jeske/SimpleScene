@@ -15,7 +15,17 @@ namespace SimpleScene
 		public virtual bool alphaBlendingEnabled { get; set; }
 		public virtual SSTextureMaterial textureMaterial { get; set; }
 
+		public virtual float boundingSphereRadius { get; set; }
+		public virtual Vector3 boundingSphereCenter	{ get; set; }
+
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
+
+		public SSAbstractMesh()
+		{
+			alphaBlendingEnabled = false;
+			boundingSphereRadius = 1f;
+			boundingSphereCenter = Vector3.Zero;
+		}
 
 		public virtual void RenderMesh (ref SSRenderConfig renderConfig)
 		{
@@ -39,16 +49,6 @@ namespace SimpleScene
 				GL.Enable (EnableCap.Blend);
 				GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 			}
-		}
-
-        public virtual float Radius()
-        {
-            return 1f;
-        }
-
-		public virtual Vector3 Center()
-		{
-			return Vector3.Zero;
 		}
 
         public virtual bool TraverseTriangles<T>(T state, traverseFn<T> fn) 

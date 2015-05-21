@@ -23,8 +23,6 @@ namespace SimpleScene
 			= new List<SSSkeletalAnimationStateMachineRuntime> ();
 		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
 
-		protected SSSphere _boundingSphere;
-
 		public override bool alphaBlendingEnabled {
 			get { return base.alphaBlendingEnabled; }
 			set {
@@ -35,6 +33,14 @@ namespace SimpleScene
 					}
 				}
 			}
+		}
+
+		public override Vector3 boundingSphereCenter {
+			get { return base.boundingSphereCenter; }
+		}
+
+		public override float boundingSphereRadius {
+			get { return base.boundingSphereRadius; }
 		}
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh[] subMeshArray)
@@ -148,7 +154,10 @@ namespace SimpleScene
 				sub.RenderMesh (ref renderConfig);
 				totalAABB.ExpandBy (aabb);
 			}
-			_boundingSphere = totalAABB.ToSphere ();
+			// update the bounding sphere
+			var sphere = totalAABB.ToSphere ();
+			base.boundingSphereCenter = sphere.center;
+			base.boundingSphereRadius = sphere.radius;
 			MeshChanged ();
 		}
 
@@ -168,16 +177,6 @@ namespace SimpleScene
 				}
 			}
 			return false;
-		}
-
-		public override Vector3 Center ()
-		{
-			return _boundingSphere.center;
-		}
-
-		public override float Radius ()
-		{
-			return _boundingSphere.radius;
 		}
 
 		/// <summary>

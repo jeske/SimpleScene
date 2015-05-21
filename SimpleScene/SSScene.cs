@@ -36,8 +36,8 @@ namespace SimpleScene
 
         public bool usePoissonSampling = true;
         public int numPoissonSamples = 8;
-        public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
-		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
+        //public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
+		public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
 		public bool renderBoundingSpheresLines = false;
 		public bool renderBoundingSpheresSolid = false;
@@ -284,10 +284,11 @@ namespace SimpleScene
 
                 // frustum test... 
                 #if true
-				if (m_renderConfig.frustumCulling && obj.renderState.frustumCulling &&
-                    fc != null &&
-					obj.boundingSphere.radius > 0f &&
-					!fc.isSphereInsideFrustum(obj.boundingSphere.center, obj.ScaledRadius)) {
+				if (m_renderConfig.frustumCulling 
+				 && obj.localBoundingSphereRadius >= 0f
+				 && obj.renderState.frustumCulling
+                 && fc != null 
+				 && !fc.isSphereInsideFrustum(obj.worldBoundingSphere)) {
                     m_renderConfig.renderStats.objectsCulled++;
                     continue; // skip the object
                 }

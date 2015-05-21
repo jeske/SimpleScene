@@ -26,12 +26,10 @@ namespace SimpleScene.Util.ssBVH
             return obj.Pos;
         }
         public float radius(SSObject obj) {
-			if (obj.boundingSphere.radius > 0f) {
+			if (obj.localBoundingSphereRadius >= 0f) {
                 // extract the object scale...
-                var objmat = obj.worldMat.ExtractScale();
-                float max_scale = Math.Max(objmat.X,Math.Max(objmat.Y,objmat.Z));
                 // use it to transform the object-space bounding-sphere radius into a world-space radius
-                return obj.boundingSphere.radius * max_scale;
+				return obj.worldBoundingSphereRadius;
             } else {
                 return 1.0f;
             }

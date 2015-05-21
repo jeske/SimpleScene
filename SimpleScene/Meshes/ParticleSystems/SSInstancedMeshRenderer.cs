@@ -44,6 +44,14 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> _spriteSizeUBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _spriteSizeVBuffer;
 
+		public override Vector3 localBoundingSphereCenter {
+			get { return Vector3.Zero; }
+		}
+
+		public override float localBoundingSphereRadius {
+			get { return particleSystem.radius; }
+		}
+
         public SSInstancedMeshRenderer (SSParticleSystem ps, 
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
@@ -80,9 +88,6 @@ namespace SimpleScene
 
 			// do we have anything to draw?
 			if (particleSystem.activeBlockLength <= 0) return;
-
-			// allow frustum culling to react to particle system expanding/shrinking
-			this.boundingSphere = new SSSphere (this.Pos, particleSystem.radius);
 
             base.Render(ref renderConfig);
 

@@ -36,6 +36,18 @@ namespace SimpleScene
 				base.alphaBlendingEnabled = value;
 			}
 		}
+
+		public override Vector3 localBoundingSphereCenter {
+			get {
+				return _mesh.boundingSphereCenter;
+			}
+		}
+
+		public override float localBoundingSphereRadius {
+			get {
+				return _mesh.boundingSphereRadius;
+			}
+		}
         
         public override void Render (ref SSRenderConfig renderConfig)
 		{
@@ -49,12 +61,6 @@ namespace SimpleScene
             if (_mesh != null) {
                 // compute and setup bounding sphere
 
-                // TODO: fix this confusion -> currently boundingSphere is object-space radius, world-space position
-                //  this affects collision intersect, bounding-sphere rendering, and the SSObjectBVHNodeAdaptor
-				this.OnChanged += updateBoundingSphere;
-				_mesh.OnMeshChanged += updateBoundingSphere;
-				// Console.WriteLine("constructed collision shell of radius {0}",radius);
-
 				// TODO: make a more detailed collision mesh
 
 				// notify listeners..
@@ -62,12 +68,6 @@ namespace SimpleScene
 			} 
         }
 
-		private void updateBoundingSphere(SSObject sender)
-		{
-			this.boundingSphere.radius = _mesh.Radius();
-			this.boundingSphere.center = Vector3.Transform(_mesh.Center(), this.worldMat);
-		}
-			
 		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
 		{
 			SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());

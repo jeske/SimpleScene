@@ -162,16 +162,16 @@ namespace SimpleScene
             }
             foreach (var obj in objects) {
                 // pass through all shadow casters and receivers
-                if (obj.renderState.toBeDeleted  || obj.boundingSphere.radius <= 0f
+				if (obj.renderState.toBeDeleted  || obj.localBoundingSphereRadius <= 0f
                  || !obj.renderState.visible || !obj.renderState.receivesShadows) {
                     continue;
                 } else {
                     for (int i = 0; i < c_numberOfSplits; ++i) {
-						if (m_splitFrustums[i].isSphereInsideFrustum(obj.boundingSphere.center, obj.ScaledRadius)) {
+						if (m_splitFrustums[i].isSphereInsideFrustum(obj.worldBoundingSphere)) {
                             // determine AABB in light coordinates of the objects so far
                             m_shrink[i] = true;                        
-							Vector3 lightAlignedPos = Vector3.Transform(obj.boundingSphere.center, lightTransform);
-                            Vector3 rad = new Vector3(obj.ScaledRadius);
+							Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+							Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                             Vector3 localMin = lightAlignedPos - rad;
                             Vector3 localMax = lightAlignedPos + rad;
 
@@ -218,12 +218,12 @@ namespace SimpleScene
 
             // extend Z of the AABB to cover shadow-casters closer to the light
             foreach (var obj in objects) {
-				if (obj.renderState.toBeDeleted || obj.boundingSphere.radius <= 0f 
+				if (obj.renderState.toBeDeleted || obj.localBoundingSphereRadius <= 0f 
                  || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
                 } else {
-					Vector3 lightAlignedPos = Vector3.Transform(obj.boundingSphere.center, lightTransform);
-                    Vector3 rad = new Vector3(obj.ScaledRadius);
+					Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+					Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
 

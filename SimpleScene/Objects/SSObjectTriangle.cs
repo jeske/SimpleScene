@@ -29,7 +29,8 @@ namespace SimpleScene
             GL.End();
         }
         public SSObjectTriangle () : base() {
-			this.boundingSphere = new SSSphere(new Vector3(0f), 1.0f);
+			this.localBoundingSphereCenter = Vector3.Zero;
+			this.localBoundingSphereRadius = 1f;
         }
     }
 }

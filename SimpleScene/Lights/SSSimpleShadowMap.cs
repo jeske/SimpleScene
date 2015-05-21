@@ -84,14 +84,14 @@ namespace SimpleScene
 
             foreach (var obj in objects) {
                 // pass through all shadow casters and receivers
-				if (obj.renderState.toBeDeleted || obj.boundingSphere.radius <= 0f 
+				if (obj.renderState.toBeDeleted || obj.localBoundingSphereRadius <= 0f 
                  || !obj.renderState.visible || !obj.renderState.receivesShadows) {
                     continue;
-				} else if (cameraFrustum.isSphereInsideFrustum(obj.boundingSphere.center, obj.ScaledRadius)) {
+				} else if (cameraFrustum.isSphereInsideFrustum(obj.worldBoundingSphere)) {
                     // determine AABB in light coordinates of the objects so far
                     shrink = true;                        
-					Vector3 lightAlignedPos = Vector3.Transform(obj.boundingSphere.center, lightTransform);
-                    Vector3 rad = new Vector3(obj.ScaledRadius);
+					Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+					Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
                     objsLightBB.UpdateMin(localMin);
@@ -118,12 +118,12 @@ namespace SimpleScene
             // Now extend Z of the result AABB to cover shadow-casters closer to the light inside the
             // original box
             foreach (var obj in objects) {
-				if (obj.renderState.toBeDeleted || obj.boundingSphere.radius <= 0f
+				if (obj.renderState.toBeDeleted || obj.localBoundingSphereRadius <= 0f
                  || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
                 }
-				Vector3 lightAlignedPos = Vector3.Transform(obj.boundingSphere.center, lightTransform);
-                Vector3 rad = new Vector3(obj.ScaledRadius);
+				Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+				Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                 Vector3 localMin = lightAlignedPos - rad;
                 if (localMin.Z < resultLightBB.Min.Z) {
                     Vector3 localMax = lightAlignedPos + rad;

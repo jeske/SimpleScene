@@ -102,16 +102,21 @@ namespace SimpleScene
 			GL.Disable(EnableCap.Lighting);
 		}
 
-        public override float Radius ()
-		{
-            float maxRadSq = 0f;
-            Vector3 maxCoponent = new Vector3(0f);
-		    foreach (var subset in geometrySubsets) {
-				foreach (var vtx in subset.vertices) {
-                    maxRadSq = Math.Max(maxRadSq, vtx.Position.LengthSquared);
+		public override float boundingSphereRadius {
+			get {
+				float maxRadSq = 0f;
+				Vector3 maxCoponent = new Vector3 (0f);
+				foreach (var subset in geometrySubsets) {
+					foreach (var vtx in subset.vertices) {
+						maxRadSq = Math.Max (maxRadSq, vtx.Position.LengthSquared);
+					}
 				}
+				return (float)Math.Sqrt (maxRadSq);
 			}
-            return (float)Math.Sqrt(maxRadSq);
+		}
+
+		public override Vector3 boundingSphereCenter {
+			get { return Vector3.Zero; }
 		}
 
 		public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {

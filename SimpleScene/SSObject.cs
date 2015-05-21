@@ -29,26 +29,34 @@ namespace SimpleScene
 		public virtual SSTextureMaterial textureMaterial { get; set; }
 		public virtual bool alphaBlendingEnabled { get; set; }
 
-		public string Name = "";
+		public virtual Vector3 localBoundingSphereCenter { get; set; }
+		public virtual float localBoundingSphereRadius { get; set; }
 
-		public float scaleMax {
+		public Vector3 worldBoundingSphereCenter {
 			get {
-				float ret = float.NegativeInfinity;
-				for (int i = 0; i < 3; ++i) {
-					ret = Math.Max(ret, Scale [i]);
-				}
-				return ret;
+				return Vector3.Transform(localBoundingSphereCenter, this.worldMat);
 			}
 		}
 
-        public float ScaledRadius {
-            get {
-				return boundingSphere.radius * scaleMax;
-            }
-        }
+		public float worldBoundingSphereRadius {
+			get {
+				return localBoundingSphereRadius * ScaleMax;
+			}
+		}
+
+		public SSSphere worldBoundingSphere {
+			get { 
+				return new SSSphere (worldBoundingSphereCenter, worldBoundingSphereRadius); 
+			}
+		}
+
+		public string Name = "";
 
 		public SSObject() : base() {
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
+			localBoundingSphereCenter = Vector3.Zero;
+			localBoundingSphereRadius = 1f;
+			alphaBlendingEnabled = false;
 		}
 
         protected static void resetTexturingState()
@@ -111,13 +119,13 @@ namespace SimpleScene
 
 		protected void renderBoundingSphereMesh(ref SSRenderConfig renderConfig)
 		{
-			if (boundingSphere.radius > 0f 
+			if (worldBoundingSphereRadius > 0f 
 			&& (renderConfig.renderBoundingSpheresLines || renderConfig.renderBoundingSpheresSolid)) {
 				GL.Color4 (MainColor);
 				Matrix4 modelViewMat 
-					= Matrix4.CreateScale(this.Scale * boundingSphere.radius)
-						* Matrix4.CreateTranslation(boundingSphere.center) 
-						* renderConfig.invCameraViewMat;
+					= Matrix4.CreateScale(worldBoundingSphereRadius) 
+					* Matrix4.CreateTranslation(worldBoundingSphereCenter) 
+					* renderConfig.invCameraViewMat;
 				GL.MatrixMode(MatrixMode.Modelview);
 				GL.LoadMatrix(ref modelViewMat);
 
@@ -169,14 +177,12 @@ namespace SimpleScene
             }
 		}
 
-		public SSSphere boundingSphere = new SSSphere(new Vector3(0f), 0f);
-
 		public virtual bool Intersect(ref SSRay worldSpaceRay, out float scaledDistanceAlongRay) {
 			var distanceAlongRay = 0.0f;
-			if (boundingSphere.radius > 0f) {
-				var scaledSphere = new SSSphere (boundingSphere.center, ScaledRadius); 
-				if (scaledSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
-					scaledDistanceAlongRay = scaleMax * distanceAlongRay;
+			if (localBoundingSphereRadius > 0f) {
+				var objBoundingSphere = worldBoundingSphere;
+				if (objBoundingSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
+					scaledDistanceAlongRay = ScaleMax * distanceAlongRay;
 					return PreciseIntersect(ref worldSpaceRay, ref scaledDistanceAlongRay);
 				}
 			}
@@ -220,7 +226,7 @@ namespace SimpleScene
 		protected Vector3 _scale = new Vector3 (1.0f);
 		public Vector3 Scale { 
 			get { return _scale; } 
-			set { _scale = value; this.calcMatFromState (); }
+			set { _scale = value; this.calcMatFromState (); this.calcScaleMax (); }
 		}
 		public float Size {
 		    set { Scale = new Vector3(value); }
@@ -238,6 +244,9 @@ namespace SimpleScene
 		public Matrix4 worldMat;
 
 		public SSOBRenderState renderState = new SSOBRenderState();
+
+		private float _scaleMax = 1f;
+		public float ScaleMax { get { return _scaleMax; } }
 
 		// TODO: use these!
 		private SSObject parent;
@@ -329,6 +338,15 @@ namespace SimpleScene
 			this.worldMat = newWorldMat;
 
 			ObjectChanged();
+		}
+
+		protected void calcScaleMax()
+		{
+			float scaleMax = float.NegativeInfinity;
+			for (int i = 0; i < 3; ++i) {
+				scaleMax = Math.Max (scaleMax, _scale [i]);
+			}
+			_scaleMax = scaleMax;
 		}
 
 		public virtual void ObjectChanged() { }

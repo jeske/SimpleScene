@@ -115,13 +115,18 @@ namespace SimpleScene
 
 		}
 
-        public override float Radius ()
-		{
-            float radSq = 0f;
-			foreach (var point in geom.Positions) {
-                radSq = Math.Max(radSq, point.LengthSquared);
+		public override float boundingSphereRadius {
+			get {
+				float radSq = 0f;
+				foreach (var point in geom.Positions) {
+					radSq = Math.Max (radSq, point.LengthSquared);
+				}
+				return (float)Math.Sqrt (radSq);
 			}
-            return (float)Math.Sqrt(radSq);
+		}
+
+		public override Vector3 boundingSphereCenter {
+			get { return Vector3.Zero; }
 		}
 	}
 }

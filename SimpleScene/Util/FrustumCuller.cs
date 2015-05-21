@@ -4,6 +4,7 @@
 using System;
 
 using OpenTK;
+using SimpleScene;
 
 namespace Util3d
 {
@@ -125,6 +126,11 @@ namespace Util3d
 				}
 			}
 			return true;
+		}
+
+		public bool isSphereInsideFrustum (SSSphere sphere)
+		{
+			return isSphereInsideFrustum (sphere.center, sphere.radius);
 		}
 
 	}
