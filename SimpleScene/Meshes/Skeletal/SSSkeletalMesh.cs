@@ -63,9 +63,16 @@ namespace SimpleScene
 		{
 			Position = parentLoc.Position 
 				+ Vector3.Transform (Position, parentLoc.Orientation);
-			Orientation = Quaternion.Multiply (parentLoc.Orientation, 
-				Orientation);
+			Orientation = Quaternion.Multiply (parentLoc.Orientation, Orientation);
 			Orientation.Normalize ();
+		}
+
+		public void UndoParentTransform(SSSkeletalJointLocation parentLoc)
+		{
+			var parOrientInverse = parentLoc.Orientation.Inverted ();
+			Orientation = Quaternion.Multiply (parOrientInverse, Orientation);
+			Orientation.Normalize ();
+			Position = Vector3.Transform (Position - parentLoc.Position, parOrientInverse);
 		}
 
 		public SSSkeletalJointLocation Inverted()

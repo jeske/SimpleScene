@@ -44,6 +44,8 @@ namespace TestBench0
         SSInstancedMeshRenderer asteroidRingRenderer;
 		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);
 
+		SSSkeletalRenderMesh renderMesh4 = null;
+		float renderMesh4NeckAngle = 0f;
 		SSSkeletalAnimationStateMachineRuntime skeletonAttackSm1 = null;
 		SSSkeletalAnimationStateMachineRuntime skeletonAttackSm2 = null;
 
@@ -153,6 +155,12 @@ namespace TestBench0
 			//ringAngularPosition += (float)e.Time * ringAngularVelocity;
 			if (asteroidRingRenderer != null) {
 				asteroidRingRenderer.EulerDegAngleOrient (ringAngularVelocity.X, ringAngularVelocity.Y);
+			}
+
+			if (renderMesh4 != null) {
+				renderMesh4NeckAngle += (float)Math.PI / 2f * (float)e.Time;
+				renderMesh4.OverrideJointOrientation (10, Quaternion.FromAxisAngle (
+					new Vector3(0f, 1f, 0f),  renderMesh4NeckAngle));
 			}
 		}
 

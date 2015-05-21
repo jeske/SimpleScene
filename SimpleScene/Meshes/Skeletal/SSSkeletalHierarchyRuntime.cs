@@ -136,51 +136,44 @@ namespace SimpleScene
 			}
 		}
 
-		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannelRuntime> channels)
+		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannelRuntime> channels,
+										   Dictionary<int, Vector3> jointPositionOverride,
+										   Dictionary<int, Quaternion> jointOrientationOverride)
 		{
 			foreach (int j in _topLevelJoints) {
-				traverseWithChannels (j, channels, null, null);
-			}
-		}
-
-		/// <summary>
-		/// Updating all joints manually requires settings all of the joints and in order
-		/// </summary>
-		public void SetJointLocation(int jointIdx, Vector3 pos, Quaternion orient)
-		{
-			var joint = _joints [jointIdx];
-			joint.CurrentLocation.Position = pos;
-			joint.CurrentLocation.Orientation = orient;
-			int parentIdx = joint.BaseInfo.ParentIndex;
-			if (parentIdx != -1) {
-				joint.CurrentLocation.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
+				traverseWithChannels (j, channels, jointPositionOverride, jointOrientationOverride, null, null);
 			}
 		}
 
 		private void traverseWithChannels(int jointIdx, 
 			List<SSSkeletalAnimationChannelRuntime> channels,
+			Dictionary<int, Vector3> jointPositionOverride,
+			Dictionary<int, Quaternion> jointOrientationOverride,
 			SSSkeletalAnimationChannelRuntime activeChannel,
 			SSSkeletalAnimationChannelRuntime fallbackActiveChannel)
 		{
-			foreach (var channel in channels) {
-				if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {
-					if (activeChannel != null) {
-						fallbackActiveChannel = activeChannel;
+			if (channels != null) {
+				foreach (var channel in channels) {
+					if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {
+						if (activeChannel != null) {
+							fallbackActiveChannel = activeChannel;
+						}
+						activeChannel = channel;
 					}
-					activeChannel = channel;
 				}
 			}
+
 			SSSkeletalJointRuntime joint = _joints [jointIdx];
+			int parentIdx = joint.BaseInfo.ParentIndex;
 
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
-				//GL.Color4 (Color4.LightSkyBlue); // debugging
-			} else {
-				int parentIdx = joint.BaseInfo.ParentIndex;
-				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				if (joint.BaseInfo.ParentIndex != -1) {
-					activeLoc.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
+					joint.CurrentLocation.UndoParentTransform (_joints [parentIdx].CurrentLocation);
 				}
+			} else {
+				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
+
 				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
 				if (activeChannel.InterChannelFade && activeChannel.InterChannelFadeIntensity < 1f) {
 					// TODO smarter, multi layer fallback
@@ -188,10 +181,12 @@ namespace SimpleScene
 					if (fallbackActiveChannel == null || fallbackActiveChannel.IsFadingOut) {
 						// fall back to bind bose
 						fallbackLoc = joint.BaseInfo.BaseLocation;
+						if (joint.BaseInfo.ParentIndex != -1) {
+							fallbackLoc.UndoParentTransform (_joints [parentIdx].CurrentLocation);
+						}
 						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
 					} else {
 						fallbackLoc = fallbackActiveChannel.ComputeJointFrame (jointIdx);
-						fallbackLoc.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
 					}
 					float activeChannelRatio = activeChannel.InterChannelFadeIntensity;
 					GL.Color3(activeChannelRatio, activeChannelRatio, 1f - activeChannelRatio);
@@ -202,8 +197,20 @@ namespace SimpleScene
 				}
 			}
 
+			if (jointPositionOverride != null && jointPositionOverride.ContainsKey (jointIdx)) {
+				joint.CurrentLocation.Position = jointPositionOverride [jointIdx];
+			}
+			if (jointOrientationOverride != null && jointOrientationOverride.ContainsKey (jointIdx)) {
+				joint.CurrentLocation.Orientation = jointOrientationOverride [jointIdx];
+			}
+
+			if (parentIdx != -1) {
+				joint.CurrentLocation.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
+			}
+
 			foreach (int child in joint.Children) {
-				traverseWithChannels (child, channels, activeChannel, fallbackActiveChannel);
+				traverseWithChannels (child, channels, jointPositionOverride, jointOrientationOverride,
+									  activeChannel, fallbackActiveChannel);
 			}
 		}
 	}

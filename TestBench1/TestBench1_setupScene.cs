@@ -161,7 +161,7 @@ namespace TestBench0
 					#endif
 
 					// state machine test
-					var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
+					renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 					//renderMesh4.AddChannel(0, "all");
 					renderMesh4.TimeScale = 0.25f;
 

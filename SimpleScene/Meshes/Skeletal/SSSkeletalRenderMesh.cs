@@ -21,6 +21,10 @@ namespace SimpleScene
 			= new Dictionary<int, SSSkeletalAnimationChannelRuntime>();
 		protected readonly List<SSSkeletalAnimationStateMachineRuntime> _animStateMachines
 			= new List<SSSkeletalAnimationStateMachineRuntime> ();
+		protected readonly Dictionary<int, Vector3> _jointPositionOverride 
+			= new Dictionary<int, Vector3>();
+		protected readonly Dictionary<int, Quaternion> _jointOrientationOverride
+			= new Dictionary<int, Quaternion> ();
 		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
 
 		public override bool alphaBlendingEnabled {
@@ -146,7 +150,7 @@ namespace SimpleScene
 			// apply animation channels
 			var channels = new List<SSSkeletalAnimationChannelRuntime> ();
 			channels.AddRange (_chanRuntimes.Values);
-			_hierarchy.ApplyAnimationChannels (channels);
+			_hierarchy.ApplyAnimationChannels (channels, _jointPositionOverride, _jointOrientationOverride);
 
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
 			foreach (var sub in _renderSubMeshes) {
@@ -179,12 +183,24 @@ namespace SimpleScene
 			return false;
 		}
 
-		/// <summary>
-		/// Updating all joints manually requires settings all of the joints and in order
-		/// </summary>
-		public void SetJointLocation(int jointIdx, Vector3 pos, Quaternion orient)
+		public void OverrideJointPosition(int jointIdx, Vector3 pos)
 		{
-			_hierarchy.SetJointLocation (jointIdx, pos, orient);
+			_jointPositionOverride [jointIdx] = pos;
+		}
+
+		public void ReleaseJointPosition(int jointIdx)
+		{
+			_jointPositionOverride.Remove (jointIdx);
+		}
+
+		public void OverrideJointOrientation(int jointIdx, Quaternion orient)
+		{
+			_jointOrientationOverride [jointIdx] = orient;
+		}
+
+		public void ReleaseJointOrientation(int jointIdx)
+		{
+			_jointOrientationOverride.Remove (jointIdx);
 		}
 
 		// *****************************
