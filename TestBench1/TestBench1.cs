@@ -159,8 +159,9 @@ namespace TestBench0
 
 			if (renderMesh4 != null) {
 				renderMesh4NeckAngle += (float)Math.PI / 2f * (float)e.Time;
-				renderMesh4.OverrideJointOrientation (10, Quaternion.FromAxisAngle (
-					new Vector3(0f, 1f, 0f),  renderMesh4NeckAngle));
+				renderMesh4.OverrideJointOrientation (10, 
+					Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/6f)
+					* Quaternion.FromAxisAngle (Vector3.UnitY,  renderMesh4NeckAngle));
 			}
 		}
 
