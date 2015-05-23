@@ -169,7 +169,7 @@ namespace SimpleScene
 			if (activeChannel == null) {
 				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
 				if (joint.BaseInfo.ParentIndex != -1) {
-					joint.CurrentLocation.UndoParentTransform (_joints [parentIdx].CurrentLocation);
+					joint.CurrentLocation.UndoPrecedingTransform (_joints [parentIdx].CurrentLocation);
 				}
 			} else {
 				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
@@ -182,7 +182,7 @@ namespace SimpleScene
 						// fall back to bind bose
 						fallbackLoc = joint.BaseInfo.BaseLocation;
 						if (joint.BaseInfo.ParentIndex != -1) {
-							fallbackLoc.UndoParentTransform (_joints [parentIdx].CurrentLocation);
+							fallbackLoc.UndoPrecedingTransform (_joints [parentIdx].CurrentLocation);
 						}
 						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
 					} else {
@@ -205,7 +205,7 @@ namespace SimpleScene
 			}
 
 			if (parentIdx != -1) {
-				joint.CurrentLocation.ApplyParentTransform (_joints [parentIdx].CurrentLocation);
+				joint.CurrentLocation.ApplyPrecedingTransform (_joints [parentIdx].CurrentLocation);
 			}
 
 			foreach (int child in joint.Children) {

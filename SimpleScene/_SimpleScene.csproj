@@ -154,6 +154,7 @@
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachineRuntime.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachine.cs" />
     <Compile Include="Meshes\Shapes\SSMeshBoundingSphere.cs" />
+    <Compile Include="Meshes\Skeletal\SSAbstractControlJoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

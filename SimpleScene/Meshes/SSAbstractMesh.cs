@@ -27,7 +27,8 @@ namespace SimpleScene
 		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
 
 		/// <summary>
-		/// Ensures there is no redundant Update() calls when the mesh is shared by multiple SSObjectMesh
+		/// Keeps track of where the Updates() are to be coming from to prevents redundant Update() calls 
+		/// when the mesh is shared by multiple SSObjectMesh's
 		/// </summary>
 		public WeakReference updateSource = new WeakReference (null);
 

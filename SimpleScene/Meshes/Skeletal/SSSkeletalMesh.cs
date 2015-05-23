@@ -59,7 +59,7 @@ namespace SimpleScene
 			Orientation.W = t < 0f ? 0f : -(float)Math.Sqrt(t);
 		}
 
-		public void ApplyParentTransform(SSSkeletalJointLocation parentLoc)
+		public void ApplyPrecedingTransform(SSSkeletalJointLocation parentLoc)
 		{
 			Position = parentLoc.Position 
 				+ Vector3.Transform (Position, parentLoc.Orientation);
@@ -67,20 +67,12 @@ namespace SimpleScene
 			Orientation.Normalize ();
 		}
 
-		public void UndoParentTransform(SSSkeletalJointLocation parentLoc)
+		public void UndoPrecedingTransform(SSSkeletalJointLocation parentLoc)
 		{
 			var parOrientInverse = parentLoc.Orientation.Inverted ();
 			Orientation = Quaternion.Multiply (parOrientInverse, Orientation);
 			Orientation.Normalize ();
 			Position = Vector3.Transform (Position - parentLoc.Position, parOrientInverse);
-		}
-
-		public SSSkeletalJointLocation Inverted()
-		{
-			var ret = new SSSkeletalJointLocation ();
-			ret.Position = -this.Position;
-			ret.Orientation = this.Orientation.Inverted ();
-			return ret;
 		}
 	}
 }
