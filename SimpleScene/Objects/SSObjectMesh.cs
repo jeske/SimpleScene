@@ -96,8 +96,14 @@ namespace SimpleScene
 			}			     
 		}
 
-		public override void Update(float elapsedS) {
-			Mesh.Update (elapsedS);
+		public override void Update(float elapsedS) 
+		{
+			if (Mesh.updateSource.Target == null) {
+				Mesh.updateSource.Target = this;
+			}
+			if (Mesh.updateSource.Target == this) {
+				Mesh.Update (elapsedS);
+			}
 		}
 
 		private void MeshPositionOrSizeChanged() {
