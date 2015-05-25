@@ -9,9 +9,10 @@ namespace SimpleScene
 {
 	public class SSSkeletalJointRuntime
 	{
-		public List<int> Children = new List<int>();
+		public List<SSSkeletalJointRuntime> Children = new List<SSSkeletalJointRuntime>();
+		public SSSkeletalJointRuntime Parent = null;
+
 		public SSSkeletalJointLocation CurrentLocation;
-		public SSSkeletalJointRuntime parent = null;
 
 		protected SSSkeletalJoint _baseInfo;
 
@@ -49,8 +50,8 @@ namespace SimpleScene
 				if (parentIdx < 0) {
 					_topLevelJoints.Add (j);
 				} else {
-					_joints [parentIdx].Children.Add (j);
-					_joints [j].parent = _joints[parentIdx];
+					_joints [j].Parent = _joints [parentIdx];
+					_joints [parentIdx].Children.Add (_joints[j]);
 				}
 			}
 		}
@@ -141,12 +142,18 @@ namespace SimpleScene
 		public void ApplySkeletalControllers(List<SSSkeletalChannelController> channelControllers)
 		{
 			foreach (int j in _topLevelJoints) {
-				traverseWithChannels (j, channelControllers);
+				traverseWithControllers (_joints[j], channelControllers);
 			}
 		}
 
-		private void traverseWithChannels(int jointIdx, List<SSSkeletalChannelController> channelControllers)
+		private void traverseWithControllers(SSSkeletalJointRuntime joint, List<SSSkeletalChannelController> controllers)
 		{
+			joint.CurrentLocation = computeJointLocWithControllers (joint, controllers, controllers.Count - 1);
+
+			foreach (var child in joint.Children) {
+				traverseWithControllers (child, controllers);
+			}
+
 			#if false
 			if (channelControllers != null) {
 				foreach (var channel in channels) {
@@ -209,6 +216,32 @@ namespace SimpleScene
 									  activeChannel, fallbackActiveChannel);
 			}
 			#endif
+		}
+
+		private SSSkeletalJointLocation computeJointLocWithControllers(
+			SSSkeletalJointRuntime joint, List<SSSkeletalChannelController> controllers, int controllerIdx)
+		{
+			var channel = controllers [controllerIdx];
+			if (channel.isActive(joint)) {
+				var channelLoc = channel.computeJointLocation (joint);
+				if (!channel.interChannelFade 
+					|| channel.interChannelFadeIndentisy() >= 1f 
+					|| controllerIdx == 0) {
+					return channelLoc;
+				} else {
+					var fallbackLoc 
+					= computeJointLocWithControllers (joint, controllers, controllerIdx - 1);
+					return SSSkeletalJointLocation.Interpolate (
+						fallbackLoc, channelLoc, channel.interChannelFadeIndentisy());
+				}
+			} else {
+				if (controllerIdx > 0) {
+					return computeJointLocWithControllers (joint, controllers, controllerIdx - 1);
+				} else {
+					throw new Exception ("fell through without an active skeletal channel controller");
+				}
+			}
+
 		}
 	}
 }

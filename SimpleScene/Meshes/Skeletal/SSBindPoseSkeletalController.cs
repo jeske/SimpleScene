@@ -8,7 +8,7 @@ namespace SimpleScene
 		{
 		}
 
-		public override SSSkeletalJointLocation computeJointLocation (int jointIdx, SSSkeletalJointRuntime joint)
+		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
 			return joint.BaseInfo.BaseLocation;
 		}

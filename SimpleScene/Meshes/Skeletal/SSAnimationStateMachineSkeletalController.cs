@@ -47,19 +47,21 @@ namespace SimpleScene
 			throw new Exception (errMsg);
 		}
 
-		public override bool isActive (int jointIdx, SSSkeletalJointRuntime joint)
+		#region SSSkeletalChannelController compliance
+		public override bool isActive (SSSkeletalJointRuntime joint)
 		{
 			if (!_channelManager.IsActive) {
 				return false;
 			} else {
 				bool jointIsControlled;
+				int jointIdx = joint.BaseInfo.JointIndex;
 				if (_activeJoints.ContainsKey (jointIdx)) {
 					jointIsControlled = _activeJoints [jointIdx] ;
 				} else {
-					if (joint.parent == null) {
+					if (joint.BaseInfo.ParentIndex == -1) {
 						jointIsControlled = _topLevelActiveJoints.Contains (jointIdx);
 					} else {
-						jointIsControlled = isActive (joint.BaseInfo.ParentIndex, joint.parent);
+						jointIsControlled = isActive (joint.Parent);
 					}
 					_activeJoints [jointIdx] = jointIsControlled;
 				}
@@ -67,16 +69,16 @@ namespace SimpleScene
 			}
 		}
 
-		public override bool isFadingOut (int jointIdx, SSSkeletalJointRuntime joint)
+		public override bool isFadingOut (SSSkeletalJointRuntime joint)
 		{
 			return _channelManager.IsFadingOut;
 		}
 
-		public override SSSkeletalJointLocation computeJointLocation (int jointIdx, SSSkeletalJointRuntime joint)
+		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			var ret = _channelManager.ComputeJointFrame (jointIdx);
-			if (joint.parent != null) {
-				ret.ApplyPrecedingTransform (joint.parent.CurrentLocation);
+			var ret = _channelManager.ComputeJointFrame (joint.BaseInfo.JointIndex);
+			if (joint.Parent != null) {
+				ret.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
 			}
 			return ret;
 		}
@@ -96,9 +98,9 @@ namespace SimpleScene
 				_interChannelFadeVelocity = 0f;
 			}
 		}
+		#endregion
 
-		//----------------------------------
-
+		#region API for user interaction
 		public void RequestTransition(string targetStateName)
 		{
 			var targetState = _description.states [targetStateName];
@@ -116,6 +118,7 @@ namespace SimpleScene
 			var targetState = _description.states [targetStateName];
 			forceState (targetState);
 		}
+		#endregion
 
 		private void triggerAutomaticTransitions()
 		{

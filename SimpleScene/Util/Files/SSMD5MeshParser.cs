@@ -37,6 +37,7 @@ namespace SimpleScene
 			seekEntry ("joints", "{");
 			for (int j = 0; j < joints.Length; ++j) {
 				joints[j] = readJoint();
+				joints [j].JointIndex = j;
 			}
 			seekEntry ("}");
 

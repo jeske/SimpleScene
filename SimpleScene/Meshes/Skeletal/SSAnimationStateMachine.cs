@@ -25,8 +25,7 @@ namespace SimpleScene
 		/// <param name="makeDefault">If set to <c>true</c> forces the state machine into this state.</param>
 		public void AddState(string stateName, 
 							 SSSkeletalAnimation animation,
-							 bool makeDefault = false,
-							 bool interChannelFade = true)
+							 bool makeDefault = false)
 		{
 			if (makeDefault) {
 				foreach (var state in _animationStates.Values) {
@@ -40,7 +39,6 @@ namespace SimpleScene
 
 			var newState = new AnimationState ();
 			newState.isDefault = makeDefault;
-			newState.interChannelFade = interChannelFade;
 			newState.animation = animation;
 			_animationStates.Add (stateName, newState);
 		}
@@ -125,7 +123,6 @@ namespace SimpleScene
 		{
 			public SSSkeletalAnimation animation;
 			public bool isDefault = false;
-			public bool interChannelFade = true;
 		}
 	}
 }

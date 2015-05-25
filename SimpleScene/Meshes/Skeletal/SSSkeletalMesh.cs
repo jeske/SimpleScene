@@ -31,6 +31,7 @@ namespace SimpleScene
 	public class SSSkeletalJoint
 	{
 		public string Name;
+		public int JointIndex;
 		public int ParentIndex;
 		public SSSkeletalJointLocation BaseLocation;
 	}
