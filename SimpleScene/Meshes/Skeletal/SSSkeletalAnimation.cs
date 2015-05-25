@@ -36,6 +36,10 @@ namespace SimpleScene
 			get { return (float)(_frames.Length-1) / (float)_frameRate; }
 		}
 
+		public SSSkeletalJoint[] Hierarchy {
+			get { return _hierarchy; }
+		}
+
 		public SSAABB[] Bounds {
 			get { return _bounds; }
 		}

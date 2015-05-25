@@ -109,7 +109,7 @@ namespace TestBench0
 			#endif
 
 			// skeleton mesh test
-			#if true
+			#if false
 			{
 				SSSkeletalAnimation animIdle
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");
@@ -172,9 +172,9 @@ namespace TestBench0
 					obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					scene.AddObject(obj4);
 
-					#if true
+					#if false
 					renderMesh4.AddChannel(0, "all");
-					var skeletonWalkDescr = new SSSkeletalAnimationStateMachine();
+					var skeletonWalkDescr = new SSAnimationStateMachineController();
 
 					skeletonWalkDescr.AddState("idle", true);
 					skeletonWalkDescr.AddStateAnimation("idle", 0, animIdle);
@@ -192,9 +192,9 @@ namespace TestBench0
 					var skeletonWalkSm1 = renderMesh4.AddStateMachine(skeletonWalkDescr);
 					#endif
 
-					#if true
+					#if false
 					renderMesh4.AddChannel(1, "LeftClavicle", "RightClavicle");
-					var skeletonAttackDescr = new SSSkeletalAnimationStateMachine();
+					var skeletonAttackDescr = new SSAnimationStateMachineController();
 
 					skeletonAttackDescr.AddState("inactive", true);
 					skeletonAttackDescr.AddStateAnimation("inactive", 1, null, true);
@@ -224,7 +224,7 @@ namespace TestBench0
 			}
 			#endif
 
-			#if true
+			#if false
 			// bob mesh test
 			{
 				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(

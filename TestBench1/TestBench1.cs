@@ -46,8 +46,8 @@ namespace TestBench0
 
 		SSSkeletalRenderMesh renderMesh4 = null;
 		float renderMesh4NeckAngle = 0f;
-		SSSkeletalAnimationStateMachineRuntime skeletonAttackSm1 = null;
-		SSSkeletalAnimationStateMachineRuntime skeletonAttackSm2 = null;
+		SSAnimationStateMachineController skeletonAttackSm1 = null;
+		SSAnimationStateMachineController skeletonAttackSm2 = null;
 
 
 		/// <summary>
@@ -158,10 +158,13 @@ namespace TestBench0
 			}
 
 			if (renderMesh4 != null) {
+				// TODO
+				#if false
 				renderMesh4NeckAngle += (float)Math.PI / 2f * (float)e.Time;
 				renderMesh4.OverrideJointOrientation (10, 
 					Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/6f)
 					* Quaternion.FromAxisAngle (Vector3.UnitY,  renderMesh4NeckAngle));
+				#endif
 			}
 		}
 

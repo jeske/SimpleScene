@@ -17,15 +17,9 @@ namespace SimpleScene
 		public float TimeScale = 1f;
 
 		protected readonly List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
-		protected readonly Dictionary<int, SSSkeletalAnimationChannelRuntime> _chanRuntimes
-			= new Dictionary<int, SSSkeletalAnimationChannelRuntime>();
-		protected readonly List<SSSkeletalAnimationStateMachineRuntime> _animStateMachines
-			= new List<SSSkeletalAnimationStateMachineRuntime> ();
-		protected readonly Dictionary<int, Vector3> _jointPositionOverride 
-			= new Dictionary<int, Vector3>();
-		protected readonly Dictionary<int, Quaternion> _jointOrientationOverride
-			= new Dictionary<int, Quaternion> ();
 		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
+		protected readonly List<SSSkeletalChannelController> _channelControllers
+		= new List<SSSkeletalChannelController> ();
 
 		public override bool alphaBlendingEnabled {
 			get { return base.alphaBlendingEnabled; }
@@ -62,34 +56,6 @@ namespace SimpleScene
 			AttachMesh (mesh);
 		}
 
-
-		public void AddChannel(int channelId, params int[] topLevelActiveJointIds)
-		{
-			if (channelId < -1) {
-				string errMsg = "channel id must be >= 0";
-				System.Console.WriteLine (channelId);
-				throw new Exception (errMsg);
-			}
-
-			foreach (int cid in topLevelActiveJointIds) {
-				if (cid == -1) { // means include all
-					topLevelActiveJointIds = _hierarchy.TopLevelJoints;
-					break;
-				}
-			}
-			var channel = new SSSkeletalAnimationChannelRuntime (channelId, topLevelActiveJointIds);
-			_chanRuntimes.Add (channelId, channel);
-		}
-
-		public void AddChannel(int channelId, params string[] topLevelActiveJointNames)
-		{
-			int[] topLevelActiveJointsIds = new int[topLevelActiveJointNames.Length];
-			for (int n = 0; n < topLevelActiveJointsIds.Length; ++n) {
-				topLevelActiveJointsIds [n] = _hierarchy.JointIndex (topLevelActiveJointNames [n]);
-			}
-			AddChannel (channelId, topLevelActiveJointsIds);
-		}
-
 		/// <summary>
 		/// This can be used to play once or loop an animation.
 		/// For a more sophisticated control use AddStateMachine()
@@ -97,6 +63,8 @@ namespace SimpleScene
 		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
 								  bool repeat = true, float fadeInTime = 0f, bool interChannelFade = false)
 		{
+			// TODO
+			#if false
 			if (_animStateMachines.Count > 0) {
 				var errMsg = "do not use PlayAnimation() when the mesh is already controlled by state machines";
 				System.Console.WriteLine (errMsg);
@@ -105,6 +73,12 @@ namespace SimpleScene
 			_hierarchy.VerifyAnimation (anim);
 			var channel = _chanRuntimes [channelId];
 			channel.PlayAnimation (anim, repeat, fadeInTime, interChannelFade);
+			#endif
+		}
+
+		public void AddController(SSSkeletalChannelController controller)
+		{
+			_channelControllers.Add (controller);
 		}
 
 		/// <summary>
@@ -114,11 +88,11 @@ namespace SimpleScene
 		/// A runtime state machine component that can be used to trigger animation state transitions on demand,
 		/// from keyboard etc.
 		/// </param>
-		public SSSkeletalAnimationStateMachineRuntime AddStateMachine(
-			SSSkeletalAnimationStateMachine stateMachine)
+		public SSAnimationStateMachineController AddStateMachine(
+			SSAnimationStateMachine stateMachine)
 		{
-			var newSMRuntime = new SSSkeletalAnimationStateMachineRuntime (stateMachine, _chanRuntimes);
-			_animStateMachines.Add (newSMRuntime);
+			var newSMRuntime = new SSAnimationStateMachineController (stateMachine);
+			_channelControllers.Add (newSMRuntime);
 			return newSMRuntime;
 		}
 
@@ -135,22 +109,15 @@ namespace SimpleScene
 		public override void Update(float elapsedS)
 		{
 			elapsedS *= TimeScale;
-			foreach (var channel in _chanRuntimes.Values) {
-				channel.Update (elapsedS);
-			}
-			// do automated state transitions immediately after channel updates to avoid
-			// "gaps" (periods of time with undefined animation) when using instant transitions
-			foreach (var sm in _animStateMachines) {
-				sm.TriggerAutomaticTransitions ();
+			foreach (var channelController in _channelControllers) {
+				channelController.update (elapsedS);
 			}
 		}
 
 		public override void RenderMesh (ref SSRenderConfig renderConfig)
 		{
 			// apply animation channels
-			var channels = new List<SSSkeletalAnimationChannelRuntime> ();
-			channels.AddRange (_chanRuntimes.Values);
-			_hierarchy.ApplyAnimationChannels (channels, _jointPositionOverride, _jointOrientationOverride);
+			_hierarchy.ApplySkeletalControllers (_channelControllers);
 
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
 			foreach (var sub in _renderSubMeshes) {
@@ -181,26 +148,6 @@ namespace SimpleScene
 				}
 			}
 			return false;
-		}
-
-		public void OverrideJointPosition(int jointIdx, Vector3 pos)
-		{
-			_jointPositionOverride [jointIdx] = pos;
-		}
-
-		public void ReleaseJointPosition(int jointIdx)
-		{
-			_jointPositionOverride.Remove (jointIdx);
-		}
-
-		public void OverrideJointOrientation(int jointIdx, Quaternion orient)
-		{
-			_jointOrientationOverride [jointIdx] = orient;
-		}
-
-		public void ReleaseJointOrientation(int jointIdx)
-		{
-			_jointOrientationOverride.Remove (jointIdx);
 		}
 
 		// *****************************

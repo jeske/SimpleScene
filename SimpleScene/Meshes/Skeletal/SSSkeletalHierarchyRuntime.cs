@@ -11,6 +11,7 @@ namespace SimpleScene
 	{
 		public List<int> Children = new List<int>();
 		public SSSkeletalJointLocation CurrentLocation;
+		public SSSkeletalJointRuntime parent = null;
 
 		protected SSSkeletalJoint _baseInfo;
 
@@ -49,6 +50,7 @@ namespace SimpleScene
 					_topLevelJoints.Add (j);
 				} else {
 					_joints [parentIdx].Children.Add (j);
+					_joints [j].parent = _joints[parentIdx];
 				}
 			}
 		}
@@ -136,23 +138,17 @@ namespace SimpleScene
 			}
 		}
 
-		public void ApplyAnimationChannels(List<SSSkeletalAnimationChannelRuntime> channels,
-										   Dictionary<int, Vector3> jointPositionOverride,
-										   Dictionary<int, Quaternion> jointOrientationOverride)
+		public void ApplySkeletalControllers(List<SSSkeletalChannelController> channelControllers)
 		{
 			foreach (int j in _topLevelJoints) {
-				traverseWithChannels (j, channels, jointPositionOverride, jointOrientationOverride, null, null);
+				traverseWithChannels (j, channelControllers);
 			}
 		}
 
-		private void traverseWithChannels(int jointIdx, 
-			List<SSSkeletalAnimationChannelRuntime> channels,
-			Dictionary<int, Vector3> jointPositionOverride,
-			Dictionary<int, Quaternion> jointOrientationOverride,
-			SSSkeletalAnimationChannelRuntime activeChannel,
-			SSSkeletalAnimationChannelRuntime fallbackActiveChannel)
+		private void traverseWithChannels(int jointIdx, List<SSSkeletalChannelController> channelControllers)
 		{
-			if (channels != null) {
+			#if false
+			if (channelControllers != null) {
 				foreach (var channel in channels) {
 					if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {
 						if (activeChannel != null) {
@@ -212,6 +208,7 @@ namespace SimpleScene
 				traverseWithChannels (child, channels, jointPositionOverride, jointOrientationOverride,
 									  activeChannel, fallbackActiveChannel);
 			}
+			#endif
 		}
 	}
 }

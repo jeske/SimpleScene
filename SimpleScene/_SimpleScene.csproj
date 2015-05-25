@@ -150,11 +150,11 @@
     <Compile Include="Util\Files\SSWavefrontMTLInfo.cs" />
     <Compile Include="Util\Files\SSWavefrontParser.cs" />
     <Compile Include="Util\Files\SSMD5Parser.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalAnimationChannelRuntime.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachineRuntime.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalAnimationStateMachine.cs" />
     <Compile Include="Meshes\Shapes\SSMeshBoundingSphere.cs" />
     <Compile Include="Meshes\Skeletal\SSAbstractControlJoint.cs" />
+    <Compile Include="Meshes\Skeletal\SSSkeletalChannelController.cs" />
+    <Compile Include="Meshes\Skeletal\SSAnimationStateMachine.cs" />
+    <Compile Include="Meshes\Skeletal\SSAnimationStateMachineController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
