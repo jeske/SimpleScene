@@ -88,10 +88,10 @@ namespace SimpleScene
 		/// A runtime state machine component that can be used to trigger animation state transitions on demand,
 		/// from keyboard etc.
 		/// </param>
-		public SSAnimationStateMachineController AddStateMachine(
+		public SSAnimationStateMachineSkeletalController AddStateMachine(
 			SSAnimationStateMachine stateMachine)
 		{
-			var newSMRuntime = new SSAnimationStateMachineController (stateMachine);
+			var newSMRuntime = new SSAnimationStateMachineSkeletalController (stateMachine);
 			_channelControllers.Add (newSMRuntime);
 			return newSMRuntime;
 		}

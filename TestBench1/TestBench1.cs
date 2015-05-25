@@ -46,8 +46,8 @@ namespace TestBench0
 
 		SSSkeletalRenderMesh renderMesh4 = null;
 		float renderMesh4NeckAngle = 0f;
-		SSAnimationStateMachineController skeletonAttackSm1 = null;
-		SSAnimationStateMachineController skeletonAttackSm2 = null;
+		SSAnimationStateMachineSkeletalController skeletonAttackSm1 = null;
+		SSAnimationStateMachineSkeletalController skeletonAttackSm2 = null;
 
 
 		/// <summary>

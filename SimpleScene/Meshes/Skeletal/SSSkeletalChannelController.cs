@@ -6,11 +6,7 @@ namespace SimpleScene
 	{
 		protected bool interChannelFade = true;
 
-		public SSSkeletalChannelController ()
-		{
-		}
-
-		public abstract void computeJointLocation(int jointIdx, SSSkeletalJointRuntime joint);
+		public abstract SSSkeletalJointLocation computeJointLocation(int jointIdx, SSSkeletalJointRuntime joint);
 
 		public virtual void update(float timeElapsed) { }
 		public virtual bool isActive(int jointIdx, SSSkeletalJointRuntime joint) { return true; }

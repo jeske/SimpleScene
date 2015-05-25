@@ -18,7 +18,7 @@ namespace SimpleScene
 	/// as they affect non-overlapping channels.
 	/// 
 	/// </summary>
-	public class SSAnimationStateMachineController : SSSkeletalChannelController
+	public class SSAnimationStateMachineSkeletalController : SSSkeletalChannelController
 	{
 		protected SSAnimationStateMachine _description;
 		protected SSAnimationStateMachine.AnimationState _activeState = null;
@@ -30,7 +30,7 @@ namespace SimpleScene
 		protected float _interChannelFadeIntensity = 0f;
 		protected float _interChannelFadeVelocity = 0f;
 
-		public SSAnimationStateMachineController (
+		public SSAnimationStateMachineSkeletalController (
 			SSAnimationStateMachine description,
 			params int[] topLevelJoints)
 		{
@@ -72,12 +72,13 @@ namespace SimpleScene
 			return _channelManager.IsFadingOut;
 		}
 
-		public override void computeJointLocation (int jointIdx, SSSkeletalJointRuntime joint)
+		public override SSSkeletalJointLocation computeJointLocation (int jointIdx, SSSkeletalJointRuntime joint)
 		{
-			joint.CurrentLocation = _channelManager.ComputeJointFrame (jointIdx);
+			var ret = _channelManager.ComputeJointFrame (jointIdx);
 			if (joint.parent != null) {
-				joint.CurrentLocation.ApplyPrecedingTransform (joint.parent.CurrentLocation);
+				ret.ApplyPrecedingTransform (joint.parent.CurrentLocation);
 			}
+			return ret;
 		}
 
 		public override void update (float timeElapsed)
