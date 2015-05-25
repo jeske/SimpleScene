@@ -96,6 +96,8 @@ namespace SimpleScene
 			}
 		}
 
+		//----------------------------------
+
 		public void RequestTransition(string targetStateName)
 		{
 			var targetState = _description.states [targetStateName];
@@ -133,12 +135,37 @@ namespace SimpleScene
 			SSAnimationStateMachine.TransitionInfo transition, float transitionTime)
 		{
 			_activeState = transition.target;
+
+			if (_activeState.animation == null) {
+				if (transitionTime == 0) {
+					_interChannelFadeIntensity = 0f;
+					_interChannelFadeVelocity = 0f;
+				} else {
+					_interChannelFadeVelocity = -_interChannelFadeIntensity / transitionTime;
+				}
+			} else { // animation != null
+				if (transitionTime == 0) {
+					_interChannelFadeIntensity = 1f;
+					_interChannelFadeVelocity = 0f;
+				} else {
+					_interChannelFadeVelocity = (1f - _interChannelFadeIntensity) / transitionTime;
+				}
+			}
+
 			_channelManager.PlayAnimation(_activeState.animation, false, transitionTime);
 		}
 
 		protected void forceState(SSAnimationStateMachine.AnimationState targetState)
 		{
 			_activeState = targetState;
+
+			_interChannelFadeVelocity = 0f;
+			if (_activeState.animation == null) {
+				_interChannelFadeIntensity = 0f;
+			} else {
+				_interChannelFadeIntensity = 1f;
+			}
+			
 			_channelManager.PlayAnimation(_activeState.animation, false, 0f);
 		}
 
@@ -170,7 +197,7 @@ namespace SimpleScene
 			public float TransitionTime {
 				get { return _transitionTime; }
 			}
-
+				
 			public float TimeRemaining {
 				get {
 					if (_currAnimation != null) {
