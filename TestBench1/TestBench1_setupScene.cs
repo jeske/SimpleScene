@@ -123,16 +123,27 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
+				#if false
+				var renderMesh0 = new SSSkeletalRenderMesh(skeliMesh);
+				var obj0 = new SSObjectMesh(renderMesh0);
+				obj0.MainColor = Color4.DarkGray;
+				obj0.Name = "grey bones (bind pose)";
+				obj0.Pos = new Vector3(-18f, 0f, -18f);
+				obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(obj0);
+				#endif
+
 				#if true
 				var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 				var obj1 = new SSObjectMesh(renderMesh1);
 				obj1.MainColor = Color4.DarkRed;
-				obj1.Name = "red bones";
+				obj1.Name = "red bones (running)";
 				obj1.Pos = new Vector3(6f, 0f, -12f);
 				obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj1);
 
-				renderMesh1.PlayAnimation(animRunning, 0f);
+				renderMesh1.PlayAnimationLoop(animRunning, 0f);
+				#endif
 
 				/*
 				var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
@@ -164,7 +175,6 @@ namespace TestBench0
 				obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj3);
 				*/
-				#endif
 
 				// state machine test
 				#if false

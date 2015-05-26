@@ -22,7 +22,7 @@ namespace SimpleScene
 	{
 		protected SSAnimationStateMachine _smDescription;
 		protected SSAnimationStateMachine.AnimationState _activeState = null;
-		protected readonly List<int> _topLevelActiveJoints = new List<int>();
+		protected readonly List<int> _topLevelActiveJoints = null;
 		protected readonly Dictionary<int, bool> _jointIsControlledCache = new Dictionary<int, bool>();
 
 		protected readonly ChannelManager _channelManager = new ChannelManager();
@@ -35,10 +35,8 @@ namespace SimpleScene
 			params int[] topLevelJoints)
 		{
 			_smDescription = description;
-			if (topLevelJoints == null || topLevelJoints.Length == 0) {
-				_topLevelActiveJoints.Add (0); // root joint?
-			} else {
-				_topLevelActiveJoints.AddRange (topLevelJoints);
+			if (topLevelJoints != null && topLevelJoints.Length > 0) {
+				_topLevelActiveJoints = new List<int> (topLevelJoints);
 			}
 			foreach (var state in _smDescription.states.Values) {
 				if (state.isDefault) {
@@ -56,6 +54,8 @@ namespace SimpleScene
 		{
 			if (!_channelManager.IsActive) {
 				return false;
+			} else if (_topLevelActiveJoints == null) {
+				return true;
 			} else {
 				bool jointIsControlled;
 				int jointIdx = joint.BaseInfo.JointIndex;
@@ -89,8 +89,9 @@ namespace SimpleScene
 
 		public override void update (float timeElapsed)
 		{
-			triggerAutomaticTransitions ();
 			_channelManager.update (timeElapsed);
+
+			triggerAutomaticTransitions (); // after channel manager to avoid null states during transitions
 
 			if (_channelManager.IsActive) {
 				_interChannelFadeIntensity += (_interChannelFadeVelocity * timeElapsed);

@@ -62,8 +62,15 @@ namespace SimpleScene
 		/// This can be used to loop an animation without having to set up a state machine explicitly
 		/// For a more sophisticated control use AddController()
 		/// </summary>
-		public void PlayAnimation(SSSkeletalAnimation anim, float fadeInTime = 0f)
+		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f)
 		{
+			var loopSM = new SSAnimationStateMachine ();
+			loopSM.AddState ("default", anim, true);
+			loopSM.AddAnimationEndsTransition ("default", "default", transitionTime);
+			var loopController 
+				= new SSAnimationStateMachineSkeletalController (loopSM, _hierarchy.TopLevelJoints);
+			_channelControllers.Add (loopController);
+
 			// TODO
 			#if false
 			if (_animStateMachines.Count > 0) {
