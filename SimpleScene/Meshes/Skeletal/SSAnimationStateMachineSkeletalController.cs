@@ -20,10 +20,10 @@ namespace SimpleScene
 	/// </summary>
 	public class SSAnimationStateMachineSkeletalController : SSSkeletalChannelController
 	{
-		protected SSAnimationStateMachine _description;
+		protected SSAnimationStateMachine _smDescription;
 		protected SSAnimationStateMachine.AnimationState _activeState = null;
-		protected readonly List<int> _topLevelActiveJoints = null;
-		protected readonly Dictionary<int, bool> _activeJoints = new Dictionary<int, bool>();
+		protected readonly List<int> _topLevelActiveJoints = new List<int>();
+		protected readonly Dictionary<int, bool> _jointIsControlledCache = new Dictionary<int, bool>();
 
 		protected readonly ChannelManager _channelManager = new ChannelManager();
 
@@ -34,9 +34,13 @@ namespace SimpleScene
 			SSAnimationStateMachine description,
 			params int[] topLevelJoints)
 		{
-			_description = description;
-			_topLevelActiveJoints = new List<int>(topLevelJoints);
-			foreach (var state in _description.states.Values) {
+			_smDescription = description;
+			if (topLevelJoints == null || topLevelJoints.Length == 0) {
+				_topLevelActiveJoints.Add (0); // root joint?
+			} else {
+				_topLevelActiveJoints.AddRange (topLevelJoints);
+			}
+			foreach (var state in _smDescription.states.Values) {
 				if (state.isDefault) {
 					forceState (state);
 					return;
@@ -55,15 +59,15 @@ namespace SimpleScene
 			} else {
 				bool jointIsControlled;
 				int jointIdx = joint.BaseInfo.JointIndex;
-				if (_activeJoints.ContainsKey (jointIdx)) {
-					jointIsControlled = _activeJoints [jointIdx] ;
+				if (_jointIsControlledCache.ContainsKey (jointIdx)) {
+					jointIsControlled = _jointIsControlledCache [jointIdx] ;
 				} else {
 					if (joint.BaseInfo.ParentIndex == -1) {
 						jointIsControlled = _topLevelActiveJoints.Contains (jointIdx);
 					} else {
 						jointIsControlled = isActive (joint.Parent);
 					}
-					_activeJoints [jointIdx] = jointIsControlled;
+					_jointIsControlledCache [jointIdx] = jointIsControlled;
 				}
 				return jointIsControlled;
 			}
@@ -103,8 +107,8 @@ namespace SimpleScene
 		#region API for user interaction
 		public void RequestTransition(string targetStateName)
 		{
-			var targetState = _description.states [targetStateName];
-			foreach (var transition in _description.transitions) {
+			var targetState = _smDescription.states [targetStateName];
+			foreach (var transition in _smDescription.transitions) {
 				if (transition.target == targetState
 				    && (transition.sorce == null || transition.sorce == _activeState)) {
 					requestTransition (transition, transition.transitionTime);
@@ -115,14 +119,14 @@ namespace SimpleScene
 
 		public void ForceState(string targetStateName)
 		{
-			var targetState = _description.states [targetStateName];
+			var targetState = _smDescription.states [targetStateName];
 			forceState (targetState);
 		}
 		#endregion
 
 		private void triggerAutomaticTransitions()
 		{
-			foreach (var transition in _description.transitions) {
+			foreach (var transition in _smDescription.transitions) {
 				if (transition.sorce == _activeState && transition.triggerOnAnimationEnd) {
 					if (transition.transitionTime == 0 && !_channelManager.IsActive) {
 						requestTransition (transition, 0f);

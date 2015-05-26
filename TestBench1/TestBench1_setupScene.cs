@@ -109,7 +109,7 @@ namespace TestBench0
 			#endif
 
 			// skeleton mesh test
-			#if false
+			#if true
 			{
 				SSSkeletalAnimation animIdle
 					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");
@@ -123,54 +123,62 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
-					#if true
-					var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh1.AddChannel(0, "all");
-					renderMesh1.PlayAnimation(0, animRunning, true, 0f);
+				#if true
+				var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
+				var obj1 = new SSObjectMesh(renderMesh1);
+				obj1.MainColor = Color4.DarkRed;
+				obj1.Name = "red bones";
+				obj1.Pos = new Vector3(6f, 0f, -12f);
+				obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(obj1);
 
-					var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh2.AddChannel(0, "all");
-					renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
-					renderMesh2.PlayAnimation(0, animIdle, true, 0f);
-					renderMesh2.PlayAnimation(1, animRunning, true, 0f);
+				renderMesh1.PlayAnimation(animRunning, 0f);
 
-					var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh3.AddChannel(0, "all");
-					renderMesh3.PlayAnimation(0, animIdle, true, 0f);
+				/*
+				var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
+				renderMesh2.AddChannel(0, "all");
+				renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
+				renderMesh2.PlayAnimation(0, animIdle, true, 0f);
+				renderMesh2.PlayAnimation(1, animRunning, true, 0f);
 
-					var obj1 = new SSObjectMesh(renderMesh1);
-					obj1.MainColor = Color4.DarkRed;
-					obj1.Name = "red bones";
-					obj1.Pos = new Vector3(6f, 0f, -12f);
-					obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					scene.AddObject(obj1);
+				var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
+				renderMesh3.AddChannel(0, "all");
+				renderMesh3.PlayAnimation(0, animIdle, true, 0f);
+				*/
 
-					var obj2 = new SSObjectMesh(renderMesh2);
-					obj2.MainColor = Color.Green;
-					obj2.Name = "green bones";
-					obj2.Pos = new Vector3(0f, 0f, -12f);
-					obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					scene.AddObject(obj2);
 
-					var obj3 = new SSObjectMesh(renderMesh3);
-					obj3.MainColor = Color.DarkCyan;
-					obj3.Name = "blue bones";
-					obj3.Pos = new Vector3(-6f, 0f, -12f);
-					obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					scene.AddObject(obj3);
-					#endif
 
-					// state machine test
-					renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
-					//renderMesh4.AddChannel(0, "all");
-					renderMesh4.TimeScale = 0.25f;
+				/*
 
-					var obj4 = new SSObjectMesh(renderMesh4);
-					obj4.MainColor = Color.DarkMagenta;
-					obj4.Name = "magenta bones";
-					obj4.Pos = new Vector3(-12f, 0f, 0f);
-					obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					scene.AddObject(obj4);
+				var obj2 = new SSObjectMesh(renderMesh2);
+				obj2.MainColor = Color.Green;
+				obj2.Name = "green bones";
+				obj2.Pos = new Vector3(0f, 0f, -12f);
+				obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(obj2);
+
+				var obj3 = new SSObjectMesh(renderMesh3);
+				obj3.MainColor = Color.DarkCyan;
+				obj3.Name = "blue bones";
+				obj3.Pos = new Vector3(-6f, 0f, -12f);
+				obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(obj3);
+				*/
+				#endif
+
+				// state machine test
+				#if false
+				renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
+				//renderMesh4.AddChannel(0, "all");
+				renderMesh4.TimeScale = 0.25f;
+
+				var obj4 = new SSObjectMesh(renderMesh4);
+				obj4.MainColor = Color.DarkMagenta;
+				obj4.Name = "magenta bones";
+				obj4.Pos = new Vector3(-12f, 0f, 0f);
+				obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(obj4);
+				#endif
 
 					#if false
 					renderMesh4.AddChannel(0, "all");
@@ -208,6 +216,7 @@ namespace TestBench0
 					skeletonAttackSm1 = renderMesh4.AddStateMachine(skeletonAttackDescr);
 					#endif
 
+					#if false
 					var renderMesh5 = new SSSkeletalRenderMesh(skeliMesh);
 					renderMesh5.AddChannel(0, "all");
 					renderMesh5.AddChannel(1, "LeftClavicle", "RightClavicle");
@@ -220,6 +229,7 @@ namespace TestBench0
 					obj5.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 					obj5.MainColor = Color4.DarkOrange;
 					scene.AddObject(obj5);
+					#endif
 				}
 			}
 			#endif

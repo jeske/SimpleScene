@@ -48,20 +48,21 @@ namespace SimpleScene
 				_hierarchy.VerifyJoints (subMesh.Joints);
 				AttachMesh (subMesh);
 			}
+			_channelControllers.Add (new SSBindPoseSkeletalController ());
 		}
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh mesh) 
 		{
 			_hierarchy = new SSSkeletalHierarchyRuntime (mesh.Joints);
 			AttachMesh (mesh);
+			_channelControllers.Add (new SSBindPoseSkeletalController ());
 		}
 
 		/// <summary>
-		/// This can be used to play once or loop an animation.
-		/// For a more sophisticated control use AddStateMachine()
+		/// This can be used to loop an animation without having to set up a state machine explicitly
+		/// For a more sophisticated control use AddController()
 		/// </summary>
-		public void PlayAnimation(int channelId, SSSkeletalAnimation anim,
-								  bool repeat = true, float fadeInTime = 0f, bool interChannelFade = false)
+		public void PlayAnimation(SSSkeletalAnimation anim, float fadeInTime = 0f)
 		{
 			// TODO
 			#if false
