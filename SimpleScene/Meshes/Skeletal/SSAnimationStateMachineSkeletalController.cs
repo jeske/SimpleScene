@@ -163,7 +163,7 @@ namespace SimpleScene
 				}
 			}
 
-			_channelManager.PlayAnimation(_activeState.animation, false, transitionTime);
+			_channelManager.PlayAnimation(_activeState.animation, transitionTime);
 		}
 
 		protected void forceState(SSAnimationStateMachine.AnimationState targetState)
@@ -177,7 +177,7 @@ namespace SimpleScene
 				_interChannelFadeIntensity = 1f;
 			}
 			
-			_channelManager.PlayAnimation(_activeState.animation, false, 0f);
+			_channelManager.PlayAnimation(_activeState.animation, 0f);
 		}
 
 
@@ -196,8 +196,6 @@ namespace SimpleScene
 			protected float _currT = 0f;
 			protected float _prevT = 0f;
 			protected float _prevTimeout = 0f;
-
-			protected bool _repeat = false;
 
 			#if PREV_PREV_FADE
 			protected SSSkeletalAnimation _prevPrevAnimation = null;
@@ -225,8 +223,7 @@ namespace SimpleScene
 				get { return _currAnimation != null || _prevAnimation != null; }
 			}
 
-			public void PlayAnimation(SSSkeletalAnimation animation, 
-									  bool repeat, float transitionTime)
+			public void PlayAnimation(SSSkeletalAnimation animation, float transitionTime)
 			{
 				//System.Console.WriteLine ("play: {0}, repeat: {1}, transitionTime {2}, ichf: {3}",
 				//	animation != null ? animation.Name : "null", repeat, transitionTime, interChannelFade);
@@ -261,7 +258,6 @@ namespace SimpleScene
 				_currAnimation = animation;
 				_currT = 0;
 
-				_repeat = repeat;
 				_transitionTime = transitionTime;
 			}
 
@@ -291,26 +287,18 @@ namespace SimpleScene
 
 				if (_currAnimation != null) {
 					_currT += timeElapsed;
-					if (_repeat) {
-						if (_currT >= _currAnimation.TotalDuration - _transitionTime) {
-							PlayAnimation (_currAnimation, true, _transitionTime);
-						}
-					} else {
-						if (_currT >= _transitionTime) {
-							_transitionTime = 0;
-						}
-						if (_currT >= _currAnimation.TotalDuration) {
-							_currAnimation = null;
-							_currT = 0;
-						}
+					if (_currT >= _transitionTime) {
+						_transitionTime = 0;
+					}
+					if (_currT >= _currAnimation.TotalDuration) {
+						_currAnimation = null;
+						_currT = 0;
 					}
 				} 
-				#if true
 				else if (_currT < _transitionTime) {
-					// maintain FadeIn ratio for use with interchannel interpolation, until 
+					// maintain FadeIn ratio for use with interchannel interpolation
 					_currT += timeElapsed;
 				}
-				#endif
 			}
 
 			public SSSkeletalJointLocation ComputeJointFrame(int jointIdx)
@@ -346,4 +334,3 @@ namespace SimpleScene
 		}
 	}
 }
-
