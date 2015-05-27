@@ -75,9 +75,9 @@ namespace SimpleScene
 			}
 		}
 
-		public override bool isFadingOut (SSSkeletalJointRuntime joint)
+		public override float interChannelFadeIndentisy ()
 		{
-			return _channelManager.IsFadingOut;
+			return _interChannelFadeIntensity;
 		}
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
@@ -223,15 +223,6 @@ namespace SimpleScene
 
 			public bool IsActive {
 				get { return _currAnimation != null || _prevAnimation != null; }
-			}
-
-			public bool IsFadingOut {
-				get {
-					if (_repeat) {
-						return false;
-					}
-					return _currAnimation == null && _currT < _transitionTime;
-				}
 			}
 
 			public void PlayAnimation(SSSkeletalAnimation animation, 

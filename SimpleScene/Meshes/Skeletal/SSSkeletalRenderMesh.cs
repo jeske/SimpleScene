@@ -82,6 +82,19 @@ namespace SimpleScene
 			PlayAnimationLoop (anim, transitionTime, _hierarchy.jointIndices(topLevelJointNames));
 		}
 
+		public SSAnimationStateMachineSkeletalController AddStateMachine(SSAnimationStateMachine description,
+																		 int[] topLevelJoints = null)
+		{
+			var smController = new SSAnimationStateMachineSkeletalController (description, topLevelJoints);
+			_channelControllers.Add (smController);
+			return smController;
+		}
+
+		public SSAnimationStateMachineSkeletalController AddStateMachine(SSAnimationStateMachine description, 
+																		 params string[] topLevelJointNames)
+		{
+			return AddStateMachine (description, _hierarchy.jointIndices (topLevelJointNames));
+		}
 
 		public void AddController(SSSkeletalChannelController controller)
 		{

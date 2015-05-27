@@ -168,24 +168,9 @@ namespace TestBench0
 				scene.AddObject(obj3);
 				#endif
 
-
-
-				/*
-
-
-
-				var obj3 = new SSObjectMesh(renderMesh3);
-				obj3.MainColor = Color.DarkCyan;
-				obj3.Name = "blue bones";
-				obj3.Pos = new Vector3(-6f, 0f, -12f);
-				obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				scene.AddObject(obj3);
-				*/
-
-				// state machine test
-				#if false
+				#if true
+				// state machine test (in slow motion)
 				renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
-				//renderMesh4.AddChannel(0, "all");
 				renderMesh4.TimeScale = 0.25f;
 
 				var obj4 = new SSObjectMesh(renderMesh4);
@@ -194,63 +179,41 @@ namespace TestBench0
 				obj4.Pos = new Vector3(-12f, 0f, 0f);
 				obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj4);
+
+				var skeletonWalkDescr = new SSAnimationStateMachine();
+				skeletonWalkDescr.AddState("idle", animIdle, true);		
+				skeletonWalkDescr.AddState("running1", animRunning);
+				skeletonWalkDescr.AddState("running2", animRunning);
+				skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f);
+				skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f);
+				skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f);
+				var skeletonWalkSm1 = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
+	
+				var skeletonAttackDescr = new SSAnimationStateMachine();
+				skeletonAttackDescr.AddState("inactive", null, true);
+				skeletonAttackDescr.AddState("attack", animAttack);
+				skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
+				skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f);
+				skeletonAttackSm1 = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 				#endif
 
-					#if false
-					renderMesh4.AddChannel(0, "all");
-					var skeletonWalkDescr = new SSAnimationStateMachineController();
-
-					skeletonWalkDescr.AddState("idle", true);
-					skeletonWalkDescr.AddStateAnimation("idle", 0, animIdle);
-
-					skeletonWalkDescr.AddState("running1");
-					skeletonWalkDescr.AddStateAnimation("running1", 0, animRunning);
-
-					skeletonWalkDescr.AddState("running2");
-					skeletonWalkDescr.AddStateAnimation("running2", 0, animRunning);
-
-					skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f, 0);
-					skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f, 0);
-					skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f, 0);
-
-					var skeletonWalkSm1 = renderMesh4.AddStateMachine(skeletonWalkDescr);
-					#endif
-
-					#if false
-					renderMesh4.AddChannel(1, "LeftClavicle", "RightClavicle");
-					var skeletonAttackDescr = new SSAnimationStateMachineController();
-
-					skeletonAttackDescr.AddState("inactive", true);
-					skeletonAttackDescr.AddStateAnimation("inactive", 1, null, true);
-
-					skeletonAttackDescr.AddState("attack");
-					skeletonAttackDescr.AddStateAnimation("attack", 1, animAttack, true);
-
-					skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
-					skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f, 1);
-
-					skeletonAttackSm1 = renderMesh4.AddStateMachine(skeletonAttackDescr);
-					#endif
-
-					#if false
-					var renderMesh5 = new SSSkeletalRenderMesh(skeliMesh);
-					renderMesh5.AddChannel(0, "all");
-					renderMesh5.AddChannel(1, "LeftClavicle", "RightClavicle");
-
-					var skeletonWalkSm2 = renderMesh5.AddStateMachine(skeletonWalkDescr);
-					skeletonAttackSm2 = renderMesh5.AddStateMachine(skeletonAttackDescr);
-					var obj5 = new SSObjectMesh(renderMesh5);
-					obj5.Name = "orange bones";
-					obj5.Pos = new Vector3(12f, 0f, 0f);
-					obj5.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-					obj5.MainColor = Color4.DarkOrange;
-					scene.AddObject(obj5);
-					#endif
+				#if true
+				// another mesh, using the same state machine but running at normal speed
+				var renderMesh5 = new SSSkeletalRenderMesh(skeliMesh);
+				var skeletonWalkSm2 = renderMesh5.AddStateMachine(skeletonWalkDescr, "all");
+				skeletonAttackSm2 = renderMesh5.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
+				var obj5 = new SSObjectMesh(renderMesh5);
+				obj5.Name = "orange bones";
+				obj5.Pos = new Vector3(12f, 0f, 0f);
+				obj5.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				obj5.MainColor = Color4.DarkOrange;
+				scene.AddObject(obj5);
+				#endif
 				}
 			}
 			#endif
 
-			#if false
+			#if true
 			// bob mesh test
 			{
 				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(
@@ -260,8 +223,7 @@ namespace TestBench0
 				var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
 					"./bob_lamp/", "bob_body.png");
 				var bobRender = new SSSkeletalRenderMesh(bobMeshes);
-				bobRender.AddChannel(0, "all");
-				bobRender.PlayAnimation(0, bobAnim, true, 0f);
+				bobRender.PlayAnimationLoop(bobAnim, 0f);
 				bobRender.textureMaterial = new SSTextureMaterial(bobBodyTex);
 				bobRender.alphaBlendingEnabled = true;
 				bobRender.TimeScale = 0.5f;
@@ -270,54 +232,6 @@ namespace TestBench0
 				bobObj.Pos = new Vector3(10f, 0f, 10f);
 				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(bobObj);
-			}
-			#endif
-
-			// particle system test
-			// particle systems should be drawn last (if it requires alpha blending)
-			#if false			
-			{
-				// setup an emitter
-				var box = new ParticlesSphereGenerator (new Vector3(0f, 0f, 0f), 10f);
-				var emitter = new SSParticlesFieldEmitter (box);
-				//emitter.EmissionDelay = 5f;
-				emitter.particlesPerEmission = 1;
-				emitter.emissionInterval = 0.5f;
-				emitter.life = 1000f;
-				emitter.colorOffsetComponentMin = new Color4 (0.5f, 0.5f, 0.5f, 1f);
-				emitter.colorOffsetComponentMax = new Color4 (1f, 1f, 1f, 1f);
-				emitter.velocityComponentMax = new Vector3 (.3f);
-				emitter.velocityComponentMin = new Vector3 (-.3f);
-				emitter.angularVelocityMin = new Vector3 (-0.5f);
-				emitter.angularVelocityMax = new Vector3 (0.5f);
-				emitter.dragMin = 0f;
-				emitter.dragMax = .1f;
-				RectangleF[] uvRects = new RectangleF[18*6];
-				float tileWidth = 1f / 18f;
-				float tileHeight = 1f / 6f;
-				for (int r = 0; r < 6; ++r) {
-					for (int c = 0; c < 18; ++c) {
-						uvRects [r*18 + c] = new RectangleF (tileWidth * (float)r, 
-							tileHeight * (float)c,
-							tileWidth, 
-							tileHeight);
-					}
-				}
-				emitter.spriteRectangles = uvRects;
-
-				var periodicExplosiveForce = new SSPeriodicExplosiveForceEffector ();
-				periodicExplosiveForce.effectInterval = 3f;
-				periodicExplosiveForce.explosiveForceMin = 1000f;
-				periodicExplosiveForce.explosiveForceMax = 5000f;
-				periodicExplosiveForce.effectDelay = 5f;
-				periodicExplosiveForce.centerMin = new Vector3 (-30f, -30f, -30f);
-				periodicExplosiveForce.centerMax = new Vector3 (30f, 30f, 30f);
-				//periodicExplosiveForce.Center = new Vector3 (10f);
-
-				// make a particle system
-				SSParticleSystem cubesPs = new SSParticleSystem (1000);
-				cubesPs.addEmitter(emitter);
-				cubesPs.addEffector (periodicExplosiveForce);
 			}
 			#endif
 		}
