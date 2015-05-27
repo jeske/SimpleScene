@@ -28,12 +28,14 @@ namespace SimpleScene
 				bool jointIsControlled;
 				int jointIdx = joint.BaseInfo.JointIndex;
 				if (_jointIsControlledCache.ContainsKey (jointIdx)) {
-					jointIsControlled = _jointIsControlledCache [jointIdx];
+					jointIsControlled = _jointIsControlledCache [jointIdx] ;
 				} else {
-					if (joint.BaseInfo.ParentIndex == -1) {
-						jointIsControlled = _topLevelActiveJoints.Contains (jointIdx);
+					if (_topLevelActiveJoints.Contains (jointIdx)) {
+						jointIsControlled = true;
+					} else if (joint.BaseInfo.ParentIndex == -1) {
+						jointIsControlled = false;
 					} else {
-						jointIsControlled = isActive (joint.Parent);
+						jointIsControlled = isActive(joint.Parent);
 					}
 					_jointIsControlledCache [jointIdx] = jointIsControlled;
 				}

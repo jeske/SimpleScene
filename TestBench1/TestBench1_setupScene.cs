@@ -123,7 +123,7 @@ namespace TestBench0
 				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
 				foreach (var skeliMesh in meshes) {
 
-				#if false
+				#if true
 				var renderMesh0 = new SSSkeletalRenderMesh(skeliMesh);
 				var obj0 = new SSObjectMesh(renderMesh0);
 				obj0.MainColor = Color4.DarkGray;
@@ -137,7 +137,7 @@ namespace TestBench0
 				var renderMesh1 = new SSSkeletalRenderMesh(skeliMesh);
 				var obj1 = new SSObjectMesh(renderMesh1);
 				obj1.MainColor = Color4.DarkRed;
-				obj1.Name = "red bones (running)";
+				obj1.Name = "red bones (running loop)";
 				obj1.Pos = new Vector3(6f, 0f, -12f);
 				obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj1);
@@ -145,28 +145,34 @@ namespace TestBench0
 				renderMesh1.PlayAnimationLoop(animRunning, 0f);
 				#endif
 
-				/*
+				#if true
 				var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
-				renderMesh2.AddChannel(0, "all");
-				renderMesh2.AddChannel(1, "LeftClavicle", "RightClavicle");
-				renderMesh2.PlayAnimation(0, animIdle, true, 0f);
-				renderMesh2.PlayAnimation(1, animRunning, true, 0f);
-
-				var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
-				renderMesh3.AddChannel(0, "all");
-				renderMesh3.PlayAnimation(0, animIdle, true, 0f);
-				*/
-
-
-
-				/*
-
+				renderMesh2.PlayAnimationLoop(animIdle, 0f, "all");
+				renderMesh2.PlayAnimationLoop(animRunning, 0f, "LeftClavicle", "RightClavicle");
 				var obj2 = new SSObjectMesh(renderMesh2);
 				obj2.MainColor = Color.Green;
-				obj2.Name = "green bones";
+				obj2.Name = "green bones (idle + running loop mixed)";
 				obj2.Pos = new Vector3(0f, 0f, -12f);
 				obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj2);
+				#endif
+
+				#if true
+				var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
+				renderMesh3.PlayAnimationLoop(animIdle, 0f, "all");
+				var obj3 = new SSObjectMesh(renderMesh3);
+				obj3.MainColor = Color.DarkCyan;
+				obj3.Name = "blue bones (idle loop)";
+				obj3.Pos = new Vector3(-6f, 0f, -12f);
+				obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				scene.AddObject(obj3);
+				#endif
+
+
+
+				/*
+
+
 
 				var obj3 = new SSObjectMesh(renderMesh3);
 				obj3.MainColor = Color.DarkCyan;

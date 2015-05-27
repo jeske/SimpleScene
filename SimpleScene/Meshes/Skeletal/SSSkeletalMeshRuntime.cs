@@ -89,7 +89,7 @@ namespace SimpleScene
 
 			for (int w = 0; w < vertex.WeightCount; ++w) {
 				var weight = m_weights [vertex.WeightStartIndex + w];
-				var joint = m_hierarchy.Joints[weight.BaseInfo.JointIndex];
+				var joint = m_hierarchy.joints[weight.BaseInfo.JointIndex];
 
 				Vector3 currWeightPos = Vector3.Transform (weight.BaseInfo.Position, joint.CurrentLocation.Orientation); 
 				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
@@ -108,7 +108,7 @@ namespace SimpleScene
 
             for (int w = 0; w < vertex.WeightCount; ++w) {
                 var weight = m_weights[vertex.WeightStartIndex + w];
-				var joint = m_hierarchy.Joints[weight.BaseInfo.JointIndex];
+				var joint = m_hierarchy.joints[weight.BaseInfo.JointIndex];
 
 				Vector3 currWeightPos = Vector3.Transform(weight.BaseInfo.Position, joint.CurrentLocation.Orientation);
 				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
@@ -174,7 +174,7 @@ namespace SimpleScene
 				var vertBaseInfo = m_vertices [v].BaseInfo;
                 for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
 					var weight = m_weights [vertBaseInfo.WeightStartIndex + w];
-					var joint = m_hierarchy.Joints [weight.BaseInfo.JointIndex];
+					var joint = m_hierarchy.joints [weight.BaseInfo.JointIndex];
 
                     // write the joint local normal
                     m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     

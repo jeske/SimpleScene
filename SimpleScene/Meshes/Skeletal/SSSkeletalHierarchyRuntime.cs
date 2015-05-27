@@ -32,11 +32,11 @@ namespace SimpleScene
 		protected readonly SSSkeletalJointRuntime[] _joints = null;
 		protected readonly List<int> _topLevelJoints = new List<int> ();
 
-		public SSSkeletalJointRuntime[] Joints {
+		public SSSkeletalJointRuntime[] joints {
 			get { return _joints; }
 		}
 
-		public int NumJoints {
+		public int numJoints {
 			get { return _joints.Length; }
 		}
 
@@ -56,7 +56,7 @@ namespace SimpleScene
 			}
 		}
 
-		public int JointIndex(string jointName)
+		public int jointIndex(string jointName)
 		{
 			if (String.Compare (jointName, "all", true) == 0) {
 				return -1;
@@ -72,25 +72,42 @@ namespace SimpleScene
 			throw new Exception (errMsg);
 		}
 
-		public SSSkeletalJointLocation JointLocation(int jointIdx) 
+		public int[] jointIndices(string[] jointNames) 
+		{
+			if (jointNames == null || jointNames.Length == 0) {
+				return null;
+			}
+			int count = jointNames.Length;
+			int[] ret = new int[count];
+			for (int i = 0; i < count; ++i) {
+				int idx = jointIndex (jointNames [i]);
+				if (idx == -1) {
+					return null;
+				}
+				ret [i] = idx;
+			}
+			return ret;
+		}
+
+		public SSSkeletalJointLocation jointLocation(int jointIdx) 
 		{
 			return _joints [jointIdx].CurrentLocation;
 		}
 
-		public int[] TopLevelJoints {
+		public int[] topLevelJoints {
 			get { return _topLevelJoints.ToArray (); }
 		}
 
-		public void VerifyAnimation(SSSkeletalAnimation animation)
+		public void verifyAnimation(SSSkeletalAnimation animation)
 		{
-			if (this.NumJoints != animation.NumJoints) {
+			if (this.numJoints != animation.NumJoints) {
 				string str = string.Format (
 					"Joint number mismatch: {0} in md5mesh, {1} in md5anim",
-					this.NumJoints, animation.NumJoints);
+					this.numJoints, animation.NumJoints);
 				Console.WriteLine (str);
 				throw new Exception (str);
 			}
-			for (int j = 0; j < NumJoints; ++j) {
+			for (int j = 0; j < numJoints; ++j) {
 				SSSkeletalJoint thisJointInfo = this._joints [j].BaseInfo;
 				SSSkeletalJoint animJointInfo = animation.JointHierarchy [j];
 				if (thisJointInfo.Name != animJointInfo.Name) {
@@ -110,16 +127,16 @@ namespace SimpleScene
 			}
 		}
 
-		public void VerifyJoints(SSSkeletalJoint[] joints)
+		public void verifyJoints(SSSkeletalJoint[] joints)
 		{
-			if (this.NumJoints != joints.Length) {
+			if (this.numJoints != joints.Length) {
 				string str = string.Format (
 					"Joint number mismatch: {0} in this hierarchy, {1} in other joints",
-					this.NumJoints, joints.Length);
+					this.numJoints, joints.Length);
 				Console.WriteLine (str);
 				throw new Exception (str);
 			}
-			for (int j = 0; j < NumJoints; ++j) {
+			for (int j = 0; j < numJoints; ++j) {
 				SSSkeletalJoint thisJointInfo = this._joints [j].BaseInfo;
 				SSSkeletalJoint otherJointInfo = joints [j];
 				if (thisJointInfo.Name != otherJointInfo.Name) {
@@ -139,7 +156,7 @@ namespace SimpleScene
 			}
 		}
 
-		public void ApplySkeletalControllers(List<SSSkeletalChannelController> channelControllers)
+		public void applySkeletalControllers(List<SSSkeletalChannelController> channelControllers)
 		{
 			foreach (int j in _topLevelJoints) {
 				traverseWithControllers (_joints[j], channelControllers);

@@ -45,7 +45,7 @@ namespace SimpleScene
 		{
 			_hierarchy = new SSSkeletalHierarchyRuntime (subMeshArray [0].Joints);
 			foreach (var subMesh in subMeshArray) {
-				_hierarchy.VerifyJoints (subMesh.Joints);
+				_hierarchy.verifyJoints (subMesh.Joints);
 				AttachMesh (subMesh);
 			}
 			_channelControllers.Add (new SSBindPoseSkeletalController ());
@@ -62,27 +62,26 @@ namespace SimpleScene
 		/// This can be used to loop an animation without having to set up a state machine explicitly
 		/// For a more sophisticated control use AddController()
 		/// </summary>
-		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f)
+		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f, 
+									  int[] topLevelJoints = null)
 		{
+			_hierarchy.verifyAnimation (anim);
 			var loopSM = new SSAnimationStateMachine ();
 			loopSM.AddState ("default", anim, true);
 			loopSM.AddAnimationEndsTransition ("default", "default", transitionTime);
-			var loopController 
-				= new SSAnimationStateMachineSkeletalController (loopSM, _hierarchy.TopLevelJoints);
-			_channelControllers.Add (loopController);
-
-			// TODO
-			#if false
-			if (_animStateMachines.Count > 0) {
-				var errMsg = "do not use PlayAnimation() when the mesh is already controlled by state machines";
-				System.Console.WriteLine (errMsg);
-				throw new Exception (errMsg);
+			if (topLevelJoints == null) {
+				topLevelJoints = _hierarchy.topLevelJoints;
 			}
-			_hierarchy.VerifyAnimation (anim);
-			var channel = _chanRuntimes [channelId];
-			channel.PlayAnimation (anim, repeat, fadeInTime, interChannelFade);
-			#endif
+			var loopController = new SSAnimationStateMachineSkeletalController (loopSM, topLevelJoints);
+			_channelControllers.Add (loopController);
 		}
+
+		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f,
+									  params string[] topLevelJointNames) 
+		{
+			PlayAnimationLoop (anim, transitionTime, _hierarchy.jointIndices(topLevelJointNames));
+		}
+
 
 		public void AddController(SSSkeletalChannelController controller)
 		{
@@ -125,7 +124,7 @@ namespace SimpleScene
 		public override void RenderMesh (ref SSRenderConfig renderConfig)
 		{
 			// apply animation channels
-			_hierarchy.ApplySkeletalControllers (_channelControllers);
+			_hierarchy.applySkeletalControllers (_channelControllers);
 
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
 			foreach (var sub in _renderSubMeshes) {
