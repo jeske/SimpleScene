@@ -220,11 +220,8 @@ namespace TestBench0
 					"./bob_lamp/", "bob_lamp_update.md5mesh");
 				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
 					"./bob_lamp/", "bob_lamp_update.md5anim");
-				var bobBodyTex = SSAssetManager.GetInstance<SSTexture>(
-					"./bob_lamp/", "bob_body.png");
 				var bobRender = new SSSkeletalRenderMesh(bobMeshes);
 				bobRender.PlayAnimationLoop(bobAnim, 0f);
-				bobRender.textureMaterial = new SSTextureMaterial(bobBodyTex);
 				bobRender.alphaBlendingEnabled = true;
 				bobRender.TimeScale = 0.5f;
 				var bobObj = new SSObjectMesh(bobRender);
