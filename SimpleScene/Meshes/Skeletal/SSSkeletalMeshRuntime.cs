@@ -178,7 +178,7 @@ namespace SimpleScene
 
                     // write the joint local normal
                     m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     
-                        Vector3.Transform(normal, joint.BaseInfo.BaseLocation.Orientation.Inverted());
+                        Vector3.Transform(normal, joint.BaseInfo.BindPoseLocation.Orientation.Inverted());
 
                     Console.WriteLine("Joint-Weight local normal: {0}", weight.JointLocalNormal);                       
 				}

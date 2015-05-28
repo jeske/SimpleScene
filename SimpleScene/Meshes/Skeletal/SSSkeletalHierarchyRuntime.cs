@@ -23,7 +23,7 @@ namespace SimpleScene
 		public SSSkeletalJointRuntime(SSSkeletalJoint baseInfo)
 		{
 			_baseInfo = baseInfo;
-			CurrentLocation = _baseInfo.BaseLocation;
+			CurrentLocation = _baseInfo.BindPoseLocation;
 		}
 	}
 

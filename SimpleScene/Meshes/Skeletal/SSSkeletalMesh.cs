@@ -33,13 +33,26 @@ namespace SimpleScene
 		public string Name;
 		public int JointIndex;
 		public int ParentIndex;
-		public SSSkeletalJointLocation BaseLocation;
+
+		/// <summary>
+		/// The bind pose location in global (mesh) coordinates.
+		/// </summary>
+		public SSSkeletalJointLocation BindPoseLocation;
 	}
 
 	public struct SSSkeletalJointLocation
 	{
 		public Vector3 Position;
 		public Quaternion Orientation;
+
+		public static SSSkeletalJointLocation Identity {
+			get {
+				var ret = new SSSkeletalJointLocation();
+				ret.Position = Vector3.Zero;
+				ret.Orientation = Quaternion.Identity;
+				return ret;
+			}
+		}
 
 		public static SSSkeletalJointLocation Interpolate(
 			SSSkeletalJointLocation left, 

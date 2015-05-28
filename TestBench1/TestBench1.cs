@@ -41,13 +41,10 @@ namespace TestBench0
 		SSInstanceShaderProgram instancingShader;
 		SSInstancePssmShaderProgram instancingPssmShader;
 
-        SSInstancedMeshRenderer asteroidRingRenderer;
-		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);
-
-		SSSkeletalRenderMesh renderMesh4 = null;
 		float renderMesh4NeckAngle = 0f;
-		SSAnimationStateMachineSkeletalController skeletonAttackSm1 = null;
-		SSAnimationStateMachineSkeletalController skeletonAttackSm2 = null;
+		SSPolarJointController renderMesh5NeckController =  null;
+		SSAnimationStateMachineSkeletalController renderMesh4AttackSm = null;
+		SSAnimationStateMachineSkeletalController renderMesh5AttackSm = null;
 
 
 		/// <summary>
@@ -152,19 +149,9 @@ namespace TestBench0
 
 			driveCamera ((float)e.Time);
 
-			//ringAngularPosition += (float)e.Time * ringAngularVelocity;
-			if (asteroidRingRenderer != null) {
-				asteroidRingRenderer.EulerDegAngleOrient (ringAngularVelocity.X, ringAngularVelocity.Y);
-			}
-
-			if (renderMesh4 != null) {
-				// TODO
-				#if false
+			if (renderMesh5NeckController != null) {
 				renderMesh4NeckAngle += (float)Math.PI / 2f * (float)e.Time;
-				renderMesh4.OverrideJointOrientation (10, 
-					Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/6f)
-					* Quaternion.FromAxisAngle (Vector3.UnitY,  renderMesh4NeckAngle));
-				#endif
+				renderMesh5NeckController.phi.value = renderMesh4NeckAngle;
 			}
 		}
 

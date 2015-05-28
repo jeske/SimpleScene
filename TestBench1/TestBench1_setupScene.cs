@@ -170,12 +170,12 @@ namespace TestBench0
 
 				#if true
 				// state machine test (in slow motion)
-				renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
+				var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
 				renderMesh4.TimeScale = 0.25f;
 
 				var obj4 = new SSObjectMesh(renderMesh4);
 				obj4.MainColor = Color.DarkMagenta;
-				obj4.Name = "magenta bones";
+				obj4.Name = "magenta bones (looping idle/walk; interactive attack; slowmo)";
 				obj4.Pos = new Vector3(-12f, 0f, 0f);
 				obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj4);
@@ -187,27 +187,38 @@ namespace TestBench0
 				skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f);
 				skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f);
 				skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f);
-				var skeletonWalkSm1 = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
+				var renderMesh4WallSm = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
 	
 				var skeletonAttackDescr = new SSAnimationStateMachine();
 				skeletonAttackDescr.AddState("inactive", null, true);
 				skeletonAttackDescr.AddState("attack", animAttack);
 				skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
 				skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f);
-				skeletonAttackSm1 = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
+				renderMesh4AttackSm = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 				#endif
 
 				#if true
 				// another mesh, using the same state machine but running at normal speed
 				var renderMesh5 = new SSSkeletalRenderMesh(skeliMesh);
-				var skeletonWalkSm2 = renderMesh5.AddStateMachine(skeletonWalkDescr, "all");
-				skeletonAttackSm2 = renderMesh5.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
+				var renderMesh5WalkSm = renderMesh5.AddStateMachine(skeletonWalkDescr, "all");
+				renderMesh5AttackSm = renderMesh5.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 				var obj5 = new SSObjectMesh(renderMesh5);
-				obj5.Name = "orange bones";
+				obj5.Name = "orange bones (looping idle/walk, interactive attack + parametric neck rotation)";
 				obj5.Pos = new Vector3(12f, 0f, 0f);
 				obj5.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				obj5.MainColor = Color4.DarkOrange;
 				scene.AddObject(obj5);
+
+				//renderMesh5NeckController = new SSPolarJointController(10);
+				renderMesh5NeckController = new SSPolarJointController(10);
+				renderMesh5NeckController.baseOffset.Position = new Vector3(0f, 2f, 0f);
+				renderMesh5NeckController.baseOffset.Orientation 
+					= Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/6f);
+
+				renderMesh5NeckController.theta.min = float.NegativeInfinity;
+				renderMesh5NeckController.theta.max = float.PositiveInfinity;
+
+				renderMesh5.AddController(renderMesh5NeckController);
 				#endif
 				}
 			}

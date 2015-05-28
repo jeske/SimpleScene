@@ -76,7 +76,7 @@ namespace SimpleScene
 			// base frame
 			seekEntry ("baseframe", "{");
 			for (int j = 0; j < numJoints; ++j) {
-				hierarchy[j].BaseLocation = readBaseFrame ();
+				hierarchy[j].BindPoseLocation = readBaseFrame ();
 			}
 			seekEntry ("}");
 
@@ -170,7 +170,7 @@ namespace SimpleScene
 			for (int j = 0; j < jointInfos.Length; ++j) {
 				byte flags = jointFlags[j];
 				SSSkeletalJoint jointInfo = jointInfos [j];
-				SSSkeletalJointLocation loc = jointInfo.BaseLocation;
+				SSSkeletalJointLocation loc = jointInfo.BindPoseLocation;
 				if ((flags & (byte)LocationFlags.Tx) != 0) {
 					loc.Position.X = floatComponents [compIdx++];
 				}

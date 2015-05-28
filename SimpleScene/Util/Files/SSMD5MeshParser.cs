@@ -64,14 +64,14 @@ namespace SimpleScene
 			ret.Name = matches[0].Captures[0].Value;
 			ret.ParentIndex = Convert.ToInt32(matches[1].Value);
 
-			ret.BaseLocation.Position.X = (float)Convert.ToDouble(matches[3].Value);
-			ret.BaseLocation.Position.Y = (float)Convert.ToDouble(matches[4].Value); 
-			ret.BaseLocation.Position.Z = (float)Convert.ToDouble(matches[5].Value);
+			ret.BindPoseLocation.Position.X = (float)Convert.ToDouble(matches[3].Value);
+			ret.BindPoseLocation.Position.Y = (float)Convert.ToDouble(matches[4].Value); 
+			ret.BindPoseLocation.Position.Z = (float)Convert.ToDouble(matches[5].Value);
 
-			ret.BaseLocation.Orientation.X = (float)Convert.ToDouble(matches[8].Value);
-			ret.BaseLocation.Orientation.Y = (float)Convert.ToDouble(matches[9].Value); 
-			ret.BaseLocation.Orientation.Z = (float)Convert.ToDouble(matches[10].Value);
-			ret.BaseLocation.ComputeQuatW();
+			ret.BindPoseLocation.Orientation.X = (float)Convert.ToDouble(matches[8].Value);
+			ret.BindPoseLocation.Orientation.Y = (float)Convert.ToDouble(matches[9].Value); 
+			ret.BindPoseLocation.Orientation.Z = (float)Convert.ToDouble(matches[10].Value);
+			ret.BindPoseLocation.ComputeQuatW();
 			return ret;
 		}
 

@@ -17,7 +17,7 @@ namespace SimpleScene
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			return joint.BaseInfo.BaseLocation;
+			return joint.BaseInfo.BindPoseLocation;
 		}
 
 		public override bool isActive (SSSkeletalJointRuntime joint)

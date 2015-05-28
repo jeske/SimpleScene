@@ -151,11 +151,11 @@
     <Compile Include="Util\Files\SSWavefrontParser.cs" />
     <Compile Include="Util\Files\SSMD5Parser.cs" />
     <Compile Include="Meshes\Shapes\SSMeshBoundingSphere.cs" />
-    <Compile Include="Meshes\Skeletal\SSAbstractControlJoint.cs" />
     <Compile Include="Meshes\Skeletal\SSSkeletalChannelController.cs" />
     <Compile Include="Meshes\Skeletal\SSAnimationStateMachine.cs" />
     <Compile Include="Meshes\Skeletal\SSBindPoseSkeletalController.cs" />
     <Compile Include="Meshes\Skeletal\SSAnimationStateMachineSkeletalController.cs" />
+    <Compile Include="Meshes\Skeletal\SSParametricJointController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
