@@ -9,6 +9,9 @@ namespace SimpleScene
 		/// </summary>
 		public bool interChannelFade = true;
 
+		/// <summary>
+		/// Returns joint location as defined by controller in mesh coordinates
+		/// </summary>
 		public abstract SSSkeletalJointLocation computeJointLocation(SSSkeletalJointRuntime joint);
 
 		public virtual void update(float timeElapsed) { }

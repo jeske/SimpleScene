@@ -42,7 +42,7 @@ namespace TestBench0
 		SSInstancePssmShaderProgram instancingPssmShader;
 
 		float renderMesh4NeckAngle = 0f;
-		SSPolarJointController renderMesh5NeckController =  null;
+		SSPolarJoint renderMesh5NeckJoint =  null;
 		SSAnimationStateMachineSkeletalController renderMesh4AttackSm = null;
 		SSAnimationStateMachineSkeletalController renderMesh5AttackSm = null;
 
@@ -149,9 +149,9 @@ namespace TestBench0
 
 			driveCamera ((float)e.Time);
 
-			if (renderMesh5NeckController != null) {
+			if (renderMesh5NeckJoint != null) {
 				renderMesh4NeckAngle += (float)Math.PI / 2f * (float)e.Time;
-				renderMesh5NeckController.phi.value = renderMesh4NeckAngle;
+				renderMesh5NeckJoint.phi.value = renderMesh4NeckAngle;
 			}
 		}
 

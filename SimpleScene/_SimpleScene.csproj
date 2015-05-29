@@ -155,7 +155,7 @@
     <Compile Include="Meshes\Skeletal\SSAnimationStateMachine.cs" />
     <Compile Include="Meshes\Skeletal\SSBindPoseSkeletalController.cs" />
     <Compile Include="Meshes\Skeletal\SSAnimationStateMachineSkeletalController.cs" />
-    <Compile Include="Meshes\Skeletal\SSParametricJointController.cs" />
+    <Compile Include="Meshes\Skeletal\SSParametricJointsController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

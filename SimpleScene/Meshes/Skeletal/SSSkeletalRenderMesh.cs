@@ -73,7 +73,7 @@ namespace SimpleScene
 				topLevelJoints = _hierarchy.topLevelJoints;
 			}
 			var loopController = new SSAnimationStateMachineSkeletalController (loopSM, topLevelJoints);
-			_channelControllers.Add (loopController);
+			AddController (loopController);
 		}
 
 		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f,
@@ -86,7 +86,7 @@ namespace SimpleScene
 																		 int[] topLevelJoints = null)
 		{
 			var smController = new SSAnimationStateMachineSkeletalController (description, topLevelJoints);
-			_channelControllers.Add (smController);
+			AddController (smController);
 			return smController;
 		}
 
@@ -94,6 +94,36 @@ namespace SimpleScene
 																		 params string[] topLevelJointNames)
 		{
 			return AddStateMachine (description, _hierarchy.jointIndices (topLevelJointNames));
+		}
+
+		public void AddParametricJoint(int jointIdx, SSParametricJoint parJoint)
+		{
+			SSParametricJointsController ctrl = null;
+			if (_channelControllers.Count > 0) {
+				// avoid adding chains of parametric joint controllers if they can be combined
+				// in one controller
+				ctrl = _channelControllers [_channelControllers.Count - 1] as SSParametricJointsController;
+			}
+			if (ctrl == null) {
+				ctrl = new SSParametricJointsController ();
+				AddController (ctrl);
+			}
+			ctrl.addJoint (jointIdx, parJoint);
+		}
+
+		public void AddParametricJoint(string jointName, SSParametricJoint parJoint)
+		{
+			AddParametricJoint (_hierarchy.jointIndex (jointName), parJoint);
+		}
+
+		public void RemoveParametricJoint(int jointIdx)
+		{
+			foreach (var ctrl in _channelControllers) {
+				var parCtrl = ctrl as SSParametricJointsController;
+				if (parCtrl != null && parCtrl.isActive (_hierarchy.joints [jointIdx])) {
+					parCtrl.removeJoint (jointIdx);
+				}
+			}
 		}
 
 		public void AddController(SSSkeletalChannelController controller)

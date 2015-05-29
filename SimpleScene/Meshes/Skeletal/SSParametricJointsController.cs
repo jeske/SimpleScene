@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 
 namespace SimpleScene
@@ -6,38 +7,57 @@ namespace SimpleScene
 	/// <summary>
 	/// Define only a method by which a joint creates a transform
 	/// </summary>
-	public abstract class SSParametricJointController : SSSkeletalChannelController
+	public class SSParametricJointsController : SSSkeletalChannelController
 	{
-		public SSSkeletalJointLocation baseOffset = SSSkeletalJointLocation.Identity;
-		protected readonly int _jointIdx;
+		protected Dictionary<int, SSParametricJoint> _joints = new Dictionary<int, SSParametricJoint>();
 
-		public SSParametricJointController(int jointIdx)
+		public SSParametricJointsController()
 		{
-			_jointIdx = jointIdx;
+		}
+
+		public void addJoint(int jointIdx, SSParametricJoint joint)
+		{
+			_joints [jointIdx] = joint;
+		}
+
+		public void removeJoint(int jointIdx)
+		{
+			_joints.Remove (jointIdx);
 		}
 
 		public override bool isActive (SSSkeletalJointRuntime joint)
 		{
-			return joint.BaseInfo.JointIndex == _jointIdx;
+			return _joints.ContainsKey(joint.BaseInfo.JointIndex);
 		}
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			if (joint.BaseInfo.JointIndex != _jointIdx) {
-				throw new Exception ("computeJointLocation() called for a wrong joint");
-			}
-			var jointLoc = _createTransform ();
-			jointLoc.ApplyPrecedingTransform (baseOffset);
+			var jointLoc = _joints [joint.BaseInfo.JointIndex].computeJointLocation ();
 			if (joint.Parent != null) {
 				jointLoc.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
 			}
 			return jointLoc;
 		}
-
-		protected abstract SSSkeletalJointLocation _createTransform();
 	}
 
 	// ----------------------------------------------------------
+
+	public abstract class SSParametricJoint 
+	{
+		public SSSkeletalJointLocation baseOffset = SSSkeletalJointLocation.Identity;
+
+		/// <summary>
+		/// In joint-local coordinates
+		/// </summary>
+		public SSSkeletalJointLocation computeJointLocation()
+		{
+			var ret = _createTransform ();
+			ret.ApplyPrecedingTransform (baseOffset);
+			return ret;
+		}
+
+		protected abstract SSSkeletalJointLocation _createTransform();
+	}
 
 	public class SSSimpleJointParameter<T>
 	{
@@ -96,7 +116,7 @@ namespace SimpleScene
 	/// <summary>
 	/// See Common Robot Configurations: http://nptel.ac.in/courses/112103174/module7/lec5/3.html
 	/// </summary>
-	public class SSPolarJointController : SSParametricJointController
+	public class SSPolarJoint : SSParametricJoint
 	{
 		public SSComparableJointParameter<float> theta 
 			= new SSComparableJointParameter<float>(float.NegativeInfinity, float.PositiveInfinity, 0f);
@@ -104,12 +124,6 @@ namespace SimpleScene
 			= new SSComparableJointParameter<float>(float.NegativeInfinity, float.PositiveInfinity, 0f);
 		public SSComparableJointParameter<float> r
 			= new SSComparableJointParameter<float>(float.NegativeInfinity, float.PositiveInfinity, 0f);
-
-		public SSPolarJointController(int jointIdx)
-			: base(jointIdx) { }
-
-		public SSPolarJointController(SSSkeletalHierarchyRuntime hierarchy, string jointName)
-			: this(hierarchy.jointIndex(jointName)) { }
 
 		protected override SSSkeletalJointLocation _createTransform ()
 		{

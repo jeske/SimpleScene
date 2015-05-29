@@ -210,15 +210,9 @@ namespace TestBench0
 				scene.AddObject(obj5);
 
 				//renderMesh5NeckController = new SSPolarJointController(10);
-				renderMesh5NeckController = new SSPolarJointController(10);
-				renderMesh5NeckController.baseOffset.Position = new Vector3(0f, 2f, 0f);
-				renderMesh5NeckController.baseOffset.Orientation 
-					= Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/6f);
-
-				renderMesh5NeckController.theta.min = float.NegativeInfinity;
-				renderMesh5NeckController.theta.max = float.PositiveInfinity;
-
-				renderMesh5.AddController(renderMesh5NeckController);
+				renderMesh5NeckJoint = new SSPolarJoint();
+				renderMesh5NeckJoint.baseOffset.Position = new Vector3(0f, 0.5f, 0f);
+				renderMesh5.AddParametricJoint("UpperNek", renderMesh5NeckJoint);
 				#endif
 				}
 			}
