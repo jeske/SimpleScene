@@ -8,13 +8,13 @@ namespace SimpleScene
 {
     public class SSObjectBillboard : SSObjectMesh
     {
-        private bool m_isOcclusionQueueryEnabled;
-        private int m_queuery;
+        private bool isOcclusionQueueryEnabled;
+        private int GL_query_id;
 
         public int OcclusionQueueryResult {
             get {
                 int ret;
-                GL.GetQueryObject(m_queuery, GetQueryObjectParam.QueryResult, out ret);
+                GL.GetQueryObject(GL_query_id, GetQueryObjectParam.QueryResult, out ret);
                 return ret;
             }
         }
@@ -22,9 +22,9 @@ namespace SimpleScene
         public SSObjectBillboard(SSAbstractMesh mesh, bool enableOcclusionTest = false)
         {
             Mesh = mesh;
-            m_isOcclusionQueueryEnabled = enableOcclusionTest;
-            if (m_isOcclusionQueueryEnabled) {
-                m_queuery = GL.GenQuery();
+            isOcclusionQueueryEnabled = enableOcclusionTest;
+            if (isOcclusionQueueryEnabled) {
+                GL_query_id = GL.GenQuery();
             }
         }
 
@@ -33,18 +33,18 @@ namespace SimpleScene
             if (Mesh != null) {
                 base.Render(ref renderConfig);
 
-                Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
+                Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref modelView);
 
-                if (m_isOcclusionQueueryEnabled) {
-                    GL.BeginQuery(QueryTarget.SamplesPassed, m_queuery);
+                if (isOcclusionQueueryEnabled) {
+                    GL.BeginQuery(QueryTarget.SamplesPassed, GL_query_id);
                 }
 
                 Mesh.RenderMesh(ref renderConfig);
 
-                if (m_isOcclusionQueueryEnabled) {
+                if (isOcclusionQueueryEnabled) {
                     GL.EndQuery(QueryTarget.SamplesPassed);
                 }
             }

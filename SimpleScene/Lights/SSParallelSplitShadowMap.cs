@@ -66,7 +66,7 @@ namespace SimpleScene
 
             ComputeProjections(
                 objects,
-                renderConfig.invCameraViewMat,
+                renderConfig.invCameraViewMatrix,
                 renderConfig.projectionMatrix,
                 fov, aspect, cameraNearZ, cameraFarZ);
 

@@ -17,18 +17,18 @@ namespace TestBench0
 
 		public void setupScene1() {
 			scene.MainShader = mainShader;
-			scene.PssmShader = pssmShader;
-			scene.InstanceShader = instancingShader;
-			scene.InstancePssmShader = instancingPssmShader;
-			scene.FrustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
-			scene.BeforeRenderObject += beforeRenderObjectHandler;
+            scene.renderConfig.PssmShader = pssmShader;
+            scene.renderConfig.InstanceShader = instancingShader;
+            scene.renderConfig.InstancePssmShader = instancingPssmShader;
+            scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+            scene.BeforeRenderObject += beforeRenderObjectHandler;
 
 			// 0. Add Lights
 			var light = new SSDirectionalLight (LightName.Light0);
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-				if (scene.PssmShader != null && scene.InstancePssmShader != null) {
+                if (scene.renderConfig.PssmShader != null && scene.renderConfig.InstancePssmShader != null) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);
@@ -269,7 +269,7 @@ namespace TestBench0
 
 		public void setupHUD() 
 		{
-			hudScene.ProjectionMatrix = Matrix4.Identity;
+            hudScene.renderConfig.projectionMatrix = Matrix4.Identity;
 
 			// HUD Triangle...
 			//SSObject triObj = new SSObjectTriangle ();
@@ -317,7 +317,7 @@ namespace TestBench0
                     showWireFrames = false;
 				}
 			} else { // manual
-                showWireFrames = (scene.DrawWireFrameMode == WireframeMode.GLSL_SinglePass);
+                showWireFrames = (scene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
 			}
             mainShader.Activate();
             mainShader.UniShowWireframes = showWireFrames;
@@ -335,7 +335,7 @@ namespace TestBench0
 				techinqueInfo = (selectedObject == null ? WireframeMode.None : WireframeMode.GLSL_SinglePass);
 			} else {
 				selectionInfo = "all";
-				techinqueInfo = scene.DrawWireFrameMode;
+                techinqueInfo = scene.renderConfig.drawWireframeMode;
 			}
 			wireframeDisplay.Label = String.Format (
 				"press '1' to toggle wireframe mode: [{0}:{1}]\n\n" +

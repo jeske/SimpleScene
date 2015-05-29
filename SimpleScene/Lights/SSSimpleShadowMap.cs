@@ -25,7 +25,7 @@ namespace SimpleScene
             base.PrepareForRenderBase(renderConfig, objects);
 
             ComputeProjections(objects, m_light,
-                                renderConfig.invCameraViewMat, renderConfig.projectionMatrix);
+                                renderConfig.invCameraViewMatrix, renderConfig.projectionMatrix);
 
             // update info for the regular draw pass later
 			Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
@@ -34,7 +34,7 @@ namespace SimpleScene
 
             // setup for render shadowmap pass
             renderConfig.projectionMatrix = m_shadowProjMatrix;
-            renderConfig.invCameraViewMat = m_shadowViewMatrix;
+            renderConfig.invCameraViewMatrix = m_shadowViewMatrix;
             SSShaderProgram.DeactivateAll();
 		}
 

@@ -125,7 +125,7 @@ namespace SimpleScene
 				Matrix4 modelViewMat 
 					= Matrix4.CreateScale(worldBoundingSphereRadius) 
 					* Matrix4.CreateTranslation(worldBoundingSphereCenter) 
-					* renderConfig.invCameraViewMat;
+					* renderConfig.invCameraViewMatrix;
 				GL.MatrixMode(MatrixMode.Modelview);
 				GL.LoadMatrix(ref modelViewMat);
 
@@ -142,7 +142,7 @@ namespace SimpleScene
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 			renderBoundingSphereMesh (ref  renderConfig);
 
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMat;
+			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 

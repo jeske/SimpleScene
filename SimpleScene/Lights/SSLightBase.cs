@@ -43,7 +43,7 @@ namespace SimpleScene
 
         public virtual void SetupLight(ref SSRenderConfig renderConfig) {
             // we only use the invCameraViewMatrix, because we specify the pos/dir later below...
-            Matrix4 modelViewMatrix = renderConfig.invCameraViewMat;
+            Matrix4 modelViewMatrix = renderConfig.invCameraViewMatrix;
             GL.MatrixMode (MatrixMode.Modelview);
             GL.LoadMatrix (ref modelViewMatrix);
 

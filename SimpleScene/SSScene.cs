@@ -45,7 +45,7 @@ namespace SimpleScene
         public bool frustumCulling = true;
 
 		public WireframeMode drawWireframeMode;
-		public Matrix4 invCameraViewMat = Matrix4.Identity;
+		public Matrix4 invCameraViewMatrix = Matrix4.Identity;
 		public Matrix4 projectionMatrix = Matrix4.Identity;
 
 		public ISSInstancableShaderProgram ActiveInstanceShader {
@@ -82,78 +82,27 @@ namespace SimpleScene
 
     public sealed class SSScene
     {
-        private SSCamera m_activeCamera = null;
-        private SSRenderConfig m_renderConfig = new SSRenderConfig();
-        private List<SSObject> m_objects = new List<SSObject>();
-        private List<SSLightBase> m_lights = new List<SSLightBase>();
-
-        public List <SSObject> Objects { get { return m_objects; } }
-
-        public List<SSLightBase> Lights { get { return m_lights; } }
+        private SSCamera activeCamera = null;
+        public SSRenderConfig renderConfig = new SSRenderConfig();
+        public List<SSObject> objects = new List<SSObject>();
+        public List<SSLightBase> lights = new List<SSLightBase>();
 
         public SSCamera ActiveCamera { 
-            get { return m_activeCamera; }
-            set { m_activeCamera = value; }
+            get { return activeCamera; }
+            set { activeCamera = value; }
         }
 
-        #region convenience pass-through parameters
         public SSMainShaderProgram MainShader {
-            get { return m_renderConfig.MainShader; }
+            get { return renderConfig.MainShader; }
             set { 
-                m_renderConfig.MainShader = value;
-                if (m_renderConfig.MainShader != null) {
-                    m_renderConfig.MainShader.Activate();
-                    m_renderConfig.MainShader.SetupShadowMap(m_lights);
-                    m_renderConfig.MainShader.Deactivate();
+                renderConfig.MainShader = value;
+                if (renderConfig.MainShader != null) {
+                    renderConfig.MainShader.Activate();
+                    renderConfig.MainShader.SetupShadowMap(lights);
+                    renderConfig.MainShader.Deactivate();
                 }
             }
         }
-
-        public SSPssmShaderProgram PssmShader {
-            get { return m_renderConfig.PssmShader; }
-            set { m_renderConfig.PssmShader = value; }
-        }
-
-        public SSInstanceShaderProgram InstanceShader {
-            get { return m_renderConfig.InstanceShader; }
-            set { m_renderConfig.InstanceShader = value; }
-        }
-
-		public SSInstancePssmShaderProgram InstancePssmShader {
-			get { return m_renderConfig.InstancePssmShader; }
-			set { m_renderConfig.InstancePssmShader = value; }
-		}
-        #endregion
-
-        public bool FrustumCulling {
-            get { return m_renderConfig.frustumCulling; }
-            set { m_renderConfig.frustumCulling = value; }
-        }
-
-        public Matrix4 ProjectionMatrix {
-            get { return m_renderConfig.projectionMatrix; }
-            set { m_renderConfig.projectionMatrix = value; }
-        }
-
-        public Matrix4 InvCameraViewMatrix {
-            get { return m_renderConfig.invCameraViewMat; }
-            set { m_renderConfig.invCameraViewMat = value; }
-        }
-
-        public WireframeMode DrawWireFrameMode {
-            get { return m_renderConfig.drawWireframeMode; }
-            set { m_renderConfig.drawWireframeMode = value; }
-        }
-
-        public bool RenderBoundingSpheresSolid {
-            get { return m_renderConfig.renderBoundingSpheresSolid; }
-            set { m_renderConfig.renderBoundingSpheresSolid = value; }
-        }
-
-		public bool RenderBoundingSpheresLines {
-			get { return m_renderConfig.renderBoundingSpheresLines; }
-			set { m_renderConfig.renderBoundingSpheresLines = value; }
-		}
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
@@ -161,37 +110,37 @@ namespace SimpleScene
         #endregion
 
         public void AddObject(SSObject obj) {
-            m_objects.Add(obj);
+            objects.Add(obj);
         }
 
         public void RemoveObject(SSObject obj) {
             // todo threading
-            m_objects.Remove(obj);
+            objects.Remove(obj);
         }
 
         public void AddLight(SSLightBase light) {
-            if (m_lights.Contains(light)) {
+            if (lights.Contains(light)) {
                 return;
             }
-            m_lights.Add(light);
+            lights.Add(light);
             if (MainShader != null) {
-                MainShader.SetupShadowMap(m_lights);
+                MainShader.SetupShadowMap(lights);
             }
-			if (InstanceShader != null) {
-				InstanceShader.SetupShadowMap(m_lights);
+			if (renderConfig.InstanceShader != null) {
+				renderConfig.InstanceShader.SetupShadowMap(lights);
 			}
         }
 
         public void RemoveLight(SSLightBase light) {
-            if (!m_lights.Contains(light)) {
+            if (!lights.Contains(light)) {
                 throw new Exception ("Light not found.");
             }
-            m_lights.Remove(light);
+            lights.Remove(light);
             if (MainShader != null) {
                 MainShader.Activate();
             }
-			if (InstanceShader != null) {
-				InstanceShader.Activate();
+			if (renderConfig.InstanceShader != null) {
+                renderConfig.InstanceShader.Activate();
 			}
         }
 
@@ -199,7 +148,7 @@ namespace SimpleScene
             SSObject nearestIntersection = null;
             float nearestDistance = float.MinValue;
             // distances get "smaller" as they move in camera direction for some reason (why?)
-            foreach (var obj in m_objects) {
+            foreach (var obj in objects) {
                 float distanceAlongRay;
 				if (obj.Selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
@@ -219,7 +168,7 @@ namespace SimpleScene
 
         public void Update(float fElapsedMS) {
             // update all objects.. TODO: add elapsed time since last update..
-            foreach (var obj in m_objects) {
+            foreach (var obj in objects) {
                 obj.Update(fElapsedMS);
             }
         }
@@ -227,11 +176,11 @@ namespace SimpleScene
         #region Render Pass Logic
         public void RenderShadowMap(float fov, float aspect, float nearZ, float farZ) {
 			// Shadow Map Pass(es)
-            foreach (var light in m_lights) {
+            foreach (var light in lights) {
                 if (light.ShadowMap != null) {
-                    light.ShadowMap.PrepareForRender(m_renderConfig, m_objects, fov, aspect, nearZ, farZ);
+                    light.ShadowMap.PrepareForRender(renderConfig, objects, fov, aspect, nearZ, farZ);
                     renderPass(false, light.ShadowMap.FrustumCuller);
-                    light.ShadowMap.FinishRender(m_renderConfig);
+                    light.ShadowMap.FinishRender(renderConfig);
                 }
             }
 		}
@@ -240,7 +189,7 @@ namespace SimpleScene
 			setupLighting ();
             
             // compute a world-space frustum matrix, so we can test against world-space object positions
-            Matrix4 frustumMatrix = m_renderConfig.invCameraViewMat * m_renderConfig.projectionMatrix;
+            Matrix4 frustumMatrix = renderConfig.invCameraViewMatrix * renderConfig.projectionMatrix;
             renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
 
             disableLighting();
@@ -248,62 +197,62 @@ namespace SimpleScene
 
         private void setupLighting() {
             GL.Enable(EnableCap.Lighting);
-            foreach (var light in m_lights) {
-                light.SetupLight(ref m_renderConfig);
+            foreach (var light in lights) {
+                light.SetupLight(ref renderConfig);
             }
             if (MainShader != null) {
                 MainShader.Activate();
-                MainShader.UniLightingMode = m_renderConfig.lightingMode;
+                MainShader.UniLightingMode = renderConfig.lightingMode;
             }
-			if (InstanceShader != null) {
-				InstanceShader.Activate();
-				InstanceShader.UniLightingMode = m_renderConfig.lightingMode;
+            if (renderConfig.InstanceShader != null) {
+                renderConfig.InstanceShader.Activate();
+                renderConfig.InstanceShader.UniLightingMode = renderConfig.lightingMode;
 			}
         }
 
         private void disableLighting() {
             GL.Disable(EnableCap.Lighting);
-            foreach (var light in m_lights) {
+            foreach (var light in lights) {
                 light.DisableLight();
             }
         }
 
         private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
             // reset stats
-            m_renderConfig.renderStats = new SSRenderStats();
+            renderConfig.renderStats = new SSRenderStats();
 
             GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref m_renderConfig.projectionMatrix);
+            GL.LoadMatrix(ref renderConfig.projectionMatrix);
 
             bool needObjectDelete = false;
 
-            foreach (var obj in m_objects) {
+            foreach (var obj in objects) {
                 if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
                 if (!obj.renderState.visible) continue; // skip invisible objects
-                if (m_renderConfig.drawingShadowMap && !obj.renderState.castsShadow) continue; // skip non-shadow casters
+                if (renderConfig.drawingShadowMap && !obj.renderState.castsShadow) continue; // skip non-shadow casters
 
                 // frustum test... 
                 #if true
-				if (m_renderConfig.frustumCulling 
+				if (renderConfig.frustumCulling 
 				 && obj.localBoundingSphereRadius >= 0f
 				 && obj.renderState.frustumCulling
                  && fc != null 
 				 && !fc.isSphereInsideFrustum(obj.worldBoundingSphere)) {
-                    m_renderConfig.renderStats.objectsCulled++;
+                    renderConfig.renderStats.objectsCulled++;
                     continue; // skip the object
                 }
                 #endif
 
                 // finally, render object
                 if (notifyBeforeRender && BeforeRenderObject != null) {
-                    BeforeRenderObject(obj, m_renderConfig);
+                    BeforeRenderObject(obj, renderConfig);
                 }
-                m_renderConfig.renderStats.objectsDrawn++;
-                obj.Render(ref m_renderConfig);
+                renderConfig.renderStats.objectsDrawn++;
+                obj.Render(ref renderConfig);
             }
 
             if (needObjectDelete) {
-                m_objects.RemoveAll(o => o.renderState.toBeDeleted);
+                objects.RemoveAll(o => o.renderState.toBeDeleted);
             }
         }
 

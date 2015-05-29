@@ -8,14 +8,14 @@ namespace SimpleScene
 	public class SSVertexMesh<V> : SSAbstractMesh, ISSInstancable
 		where V : struct, ISSVertexLayout
 	{
-		protected SSVertexBuffer<V> m_vbo;
+		protected SSVertexBuffer<V> vbo;
 
 		/// <summary>
 		/// Initialize based on buffer usage. Default to dynamic draw.
 		/// </summary>
 		public SSVertexMesh (BufferUsageHint vertUsage = BufferUsageHint.DynamicDraw)
 		{
-			m_vbo = new SSVertexBuffer<V> (vertUsage);
+			vbo = new SSVertexBuffer<V> (vertUsage);
 		}
 
 		/// <summary>
@@ -24,36 +24,36 @@ namespace SimpleScene
 		public SSVertexMesh(V[] vertices)
 		{
 			if (vertices == null) {
-				m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
+				vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
 			} else {
-				m_vbo = new SSVertexBuffer<V> (vertices);
+				vbo = new SSVertexBuffer<V> (vertices);
 			}
 		}
 
 		public SSVertexMesh(SSVertexBuffer<V> vbo)
 		{
 			if (vbo == null) {
-				m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
+				vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
 			} else {
-				m_vbo = vbo;
+				vbo = vbo;
 			}
 		}
 
 		public override void RenderMesh(ref SSRenderConfig renderConfig)
 		{
 			base.RenderMesh (ref renderConfig);
-			m_vbo.DrawArrays (ref renderConfig, PrimitiveType.Triangles);
+			vbo.DrawArrays (ref renderConfig, PrimitiveType.Triangles);
 		}
 
 		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
 		{
 			base.RenderMesh (ref renderConfig);
-			m_vbo.RenderInstanced (ref renderConfig, instanceCount, primType);
+			vbo.RenderInstanced (ref renderConfig, instanceCount, primType);
 		}
 
 		public void computeVertices (V[] vertices)
 		{
-			m_vbo.UpdateBufferData(vertices);
+			vbo.UpdateBufferData(vertices);
 		}
 	}
 }
