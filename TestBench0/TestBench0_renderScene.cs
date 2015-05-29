@@ -70,8 +70,8 @@ namespace TestBench0
 			// render the "shadowMap" 
 			// 
 			#if true
-			scene.ProjectionMatrix = mainSceneProj;
-			scene.InvCameraViewMatrix = mainSceneView;
+            scene.renderConfig.projectionMatrix = mainSceneProj;
+            scene.renderConfig.invCameraViewMatrix = mainSceneView;
 
 			// clear some basics 
 			GL.Disable(EnableCap.Lighting);
@@ -101,9 +101,9 @@ namespace TestBench0
 			//  test, because it's more efficient when it doesn't have to write every pixel
 			{
 				// setup infinite projection for cubemap
-				environmentScene.ProjectionMatrix 
+                environmentScene.renderConfig.projectionMatrix 
 					= Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
-				environmentScene.InvCameraViewMatrix = rotationOnlyView;
+                environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -116,8 +116,8 @@ namespace TestBench0
 			/////////////////////////////////////////
 			// rendering the "main" 3d scene....
 			{
-				scene.InvCameraViewMatrix = mainSceneView;
-				scene.ProjectionMatrix = mainSceneProj;
+                scene.renderConfig.invCameraViewMatrix = mainSceneView;
+                scene.renderConfig.projectionMatrix = mainSceneProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -134,8 +134,8 @@ namespace TestBench0
 			/////////////////////////////////////////
 			// rendering the sun dsk scene....
 			{
-				sunDiskScene.InvCameraViewMatrix = rotationOnlyView;
-				sunDiskScene.ProjectionMatrix = mainSceneProj;
+                sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
+                sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
 
 				GL.Enable(EnableCap.CullFace);
 				GL.CullFace(CullFaceMode.Back);
@@ -154,7 +154,7 @@ namespace TestBench0
 			//  render the sun flare scene
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed	
-				sunFlareScene.ProjectionMatrix = screenProj;
+                sunFlareScene.renderConfig.projectionMatrix = screenProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -169,7 +169,7 @@ namespace TestBench0
 			//  render the HUD scene
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed
-				hudScene.ProjectionMatrix = screenProj;
+                hudScene.renderConfig.projectionMatrix = screenProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);

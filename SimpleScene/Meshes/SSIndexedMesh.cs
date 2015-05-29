@@ -8,8 +8,8 @@ namespace SimpleScene
     public class SSIndexedMesh<V> : SSAbstractMesh, ISSInstancable
         where V : struct, ISSVertexLayout
     {
-        protected SSVertexBuffer<V> m_vbo;
-        protected SSIndexBuffer m_ibo;
+        protected SSVertexBuffer<V> vbo;
+        protected SSIndexBuffer ibo;
 
         /// <summary>
         /// Initialize based on buffer usage. Default to dynamic draw.
@@ -17,8 +17,8 @@ namespace SimpleScene
         public SSIndexedMesh (BufferUsageHint vertUsage = BufferUsageHint.DynamicDraw, 
                               BufferUsageHint indexUsage = BufferUsageHint.DynamicDraw)
         {
-            m_vbo = new SSVertexBuffer<V> (vertUsage);
-            m_ibo = new SSIndexBuffer (m_vbo, indexUsage);
+            vbo = new SSVertexBuffer<V> (vertUsage);
+            ibo = new SSIndexBuffer (vbo, indexUsage);
         }
 
         /// <summary>
@@ -28,53 +28,53 @@ namespace SimpleScene
 			: base()
         {
             if (vertices == null) {
-                m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
+                vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
             } else {
-                m_vbo = new SSVertexBuffer<V> (vertices);
+                vbo = new SSVertexBuffer<V> (vertices);
             }
 
             if (indices == null) {
-                m_ibo = new SSIndexBuffer (m_vbo, BufferUsageHint.DynamicDraw);
+                ibo = new SSIndexBuffer (vbo, BufferUsageHint.DynamicDraw);
             } else {
-                m_ibo = new SSIndexBuffer (indices, m_vbo);
+                ibo = new SSIndexBuffer (indices, vbo);
             }
         }
 
 		public SSIndexedMesh(SSVertexBuffer<V> vbo, SSIndexBuffer ibo)
 		{
 			if (vbo == null) {
-				m_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
+				vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
 			} else {
-				m_vbo = vbo;
+				vbo = vbo;
 			}
 
 			if (ibo == null) {
-				m_ibo = new SSIndexBuffer (m_vbo, BufferUsageHint.DynamicDraw);
+				ibo = new SSIndexBuffer (vbo, BufferUsageHint.DynamicDraw);
 			} else {
-				m_ibo = ibo;
+				ibo = ibo;
 			}
 		}
 
         public override void RenderMesh(ref SSRenderConfig renderConfig)
         {
 			base.RenderMesh (ref renderConfig);
-			m_ibo.DrawElements (ref renderConfig, PrimitiveType.Triangles);
+			ibo.DrawElements (ref renderConfig, PrimitiveType.Triangles);
         }
 
 		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
 			base.RenderMesh (ref renderConfig);
-			m_ibo.RenderInstanced (ref renderConfig, instanceCount, primType);
+			ibo.RenderInstanced (ref renderConfig, instanceCount, primType);
         }
 
         public void UpdateVertices (V[] vertices)
         {
-            m_vbo.UpdateBufferData(vertices);
+            vbo.UpdateBufferData(vertices);
         }
 
         public void UpdateIndices (UInt16[] indices)
         {
-            m_ibo.UpdateBufferData(indices);
+            ibo.UpdateBufferData(indices);
         }
     }
 }

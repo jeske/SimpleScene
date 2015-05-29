@@ -13,21 +13,21 @@ namespace SimpleScene
         // (make it more friendly for generic use)
 
         #region Instance-Specific Drawing Constructs
-        private SSVertex_PosTex[] m_vertices;
+        private SSVertex_PosTex[] vertices;
 
-        private Vector2[] m_spriteScales;
-        private int m_numElements;
+        private Vector2[] spriteScales;
+        private int numElements;
         #endregion
 
         #region Source of Per-Frame Input
-        private SSScene m_sunScene;
-        private SSObjectBillboard m_sun;
+        private SSScene sunScene;
+        private SSObjectBillboard sunBillboard;
         #endregion
 
         #region Per-Frame Temp Variables
-        private Matrix4 m_sunSceneViewProj;
-        private Vector2 m_screenCenter;
-        private Vector2 m_clientRect;
+        private Matrix4 sunSceneViewProj;
+        private Vector2 screenCenter;
+        private Vector2 clientRect;
         #endregion
 
 		public new SSIndexedMesh<SSVertex_PosTex> Mesh {
@@ -38,10 +38,10 @@ namespace SimpleScene
 		public override bool alphaBlendingEnabled { get { return true; } }
 
         private Vector2 worldToScreen(Vector3 worldPos) {
-            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), m_sunSceneViewProj);
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), sunSceneViewProj);
             pos /= pos.W;
             pos.Y = -pos.Y;
-            return m_screenCenter + pos.Xy * m_clientRect / 2f;
+            return screenCenter + pos.Xy * clientRect / 2f;
         }
 
         public SSObjectSunFlare (SSScene sunScene,
@@ -67,26 +67,26 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
-            int queryResult = m_sun.OcclusionQueueryResult;
+            int queryResult = sunBillboard.OcclusionQueueryResult;
             if (queryResult <= 0) return;
 
             // Begin the quest to update VBO vertices
-            Matrix4 viewInverted = m_sunScene.InvCameraViewMatrix.Inverted();
+            Matrix4 viewInverted = sunScene.renderConfig.invCameraViewMatrix.Inverted();
             Vector3 viewRight = Vector3.Transform(new Vector3 (1f, 0f, 0f), viewInverted);
             Vector3 viewUp = Vector3.Transform(new Vector3 (0f, 1f, 0f), viewInverted);
-            Vector3 sunRightMost = m_sun.Pos + viewRight.Normalized() * m_sun.Scale.X;
-            Vector3 sunTopMost = m_sun.Pos + viewUp.Normalized() * m_sun.Scale.Y;
+            Vector3 sunRightMost = sunBillboard.Pos + viewRight.Normalized() * sunBillboard.Scale.X;
+            Vector3 sunTopMost = sunBillboard.Pos + viewUp.Normalized() * sunBillboard.Scale.Y;
 
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             Vector2 screenOrig = new Vector2 (viewport [0], viewport [1]);
-			m_clientRect = new Vector2 (viewport [2], viewport [3]) / 2f;
-            m_screenCenter = screenOrig + m_clientRect / 2f;
-            m_sunSceneViewProj = m_sunScene.InvCameraViewMatrix * m_sunScene.ProjectionMatrix;
-            Vector2 sunScreenPos = worldToScreen(m_sun.Pos);
+			clientRect = new Vector2 (viewport [2], viewport [3]) / 2f;
+            screenCenter = screenOrig + clientRect / 2f;
+            sunSceneViewProj = sunScene.renderConfig.invCameraViewMatrix * sunScene.renderConfig.projectionMatrix;
+            Vector2 sunScreenPos = worldToScreen(sunBillboard.Pos);
             Vector2 sunScreenRightMost = worldToScreen(sunRightMost);
             Vector2 sunScreenTopMost = worldToScreen(sunTopMost);
-            Vector2 towardsCenter = m_screenCenter - sunScreenPos;
+            Vector2 towardsCenter = screenCenter - sunScreenPos;
 
             Vector2 tileVecBase = new Vector2 (sunScreenRightMost.X - sunScreenPos.X, sunScreenPos.Y - sunScreenTopMost.Y);
             float sunFullEstimate = (float)Math.PI * tileVecBase.X * tileVecBase.Y;
@@ -99,32 +99,32 @@ namespace SimpleScene
             tileVecBase.X *= Scale.X; 
             tileVecBase.Y *= Scale.Y;
 
-            for (int i = 0; i < m_numElements; ++i) {
+            for (int i = 0; i < numElements; ++i) {
                 //assign positions
-                Vector2 center = sunScreenPos + towardsCenter * 2.5f / (float)m_numElements * (float)i;
-                Vector2 tileVec = tileVecBase * m_spriteScales [i];
+                Vector2 center = sunScreenPos + towardsCenter * 2.5f / (float)numElements * (float)i;
+                Vector2 tileVec = tileVecBase * spriteScales [i];
 
                 int baseIdx = i * 4;
-                m_vertices [baseIdx].Position.X = center.X - tileVec.X;
-                m_vertices [baseIdx].Position.Y = center.Y - tileVec.Y;
+                vertices [baseIdx].Position.X = center.X - tileVec.X;
+                vertices [baseIdx].Position.Y = center.Y - tileVec.Y;
 
-                m_vertices [baseIdx+1].Position.X = center.X + tileVec.X;
-                m_vertices [baseIdx+1].Position.Y = center.Y - tileVec.Y;
+                vertices [baseIdx+1].Position.X = center.X + tileVec.X;
+                vertices [baseIdx+1].Position.Y = center.Y - tileVec.Y;
 
-                m_vertices [baseIdx+2].Position.X = center.X + tileVec.X;
-                m_vertices [baseIdx+2].Position.Y = center.Y + tileVec.Y;
+                vertices [baseIdx+2].Position.X = center.X + tileVec.X;
+                vertices [baseIdx+2].Position.Y = center.Y + tileVec.Y;
 
-                m_vertices [baseIdx+3].Position.X = center.X - tileVec.X;
-                m_vertices [baseIdx+3].Position.Y = center.Y + tileVec.Y;
+                vertices [baseIdx+3].Position.X = center.X - tileVec.X;
+                vertices [baseIdx+3].Position.Y = center.Y + tileVec.Y;
             }
-			Mesh.UpdateVertices(m_vertices);
+			Mesh.UpdateVertices(vertices);
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             SSShaderProgram.DeactivateAll(); // disable shaders
 
             // modulate color alpha with the intensity fraction
-			this.MainColor = m_sun.MainColor;
+			this.MainColor = sunBillboard.MainColor;
 			this.MainColor.A = intensityFraction;
 
 			// now, actually draw
@@ -138,26 +138,27 @@ namespace SimpleScene
                           Vector2[] spriteScales)
         {
 			base.textureMaterial = new SSTextureMaterial (texture);
-            m_sun = sun;
-            m_sunScene = sunScene;
-            m_numElements = spriteRects.Length;
+            this.sunBillboard = sun;
+            this.sunScene = sunScene;
+            this.numElements = spriteRects.Length;
             if (spriteScales == null) {
-                m_spriteScales = new Vector2[m_numElements];
-                for (int i = 0; i < m_numElements; ++i) {
-                    m_spriteScales [i] = new Vector2(1f);
+                spriteScales = new Vector2[numElements];
+                for (int i = 0; i < numElements; ++i) {
+                    spriteScales [i] = new Vector2(1f);
                 }
-            } else {
-                m_spriteScales = spriteScales;
-                if (m_spriteScales.Length != m_numElements) {
+            } else {                
+                if (spriteScales.Length != numElements) {
                     throw new Exception ("texture coordinate array size does not match that of sprite scale array");
-                    m_spriteScales = new Vector2[m_numElements];
-                    for (int i = 0; i < m_numElements; ++i) {
-                        m_spriteScales [i] = new Vector2(1f);
+                    spriteScales = new Vector2[numElements];
+                    for (int i = 0; i < numElements; ++i) {
+                        spriteScales [i] = new Vector2(1f);
                     }
                 }
             }
-            UInt16[] indices = new UInt16[m_numElements*6];
-            for (int i = 0; i < m_numElements; ++i) {
+            this.spriteScales = spriteScales;
+
+            UInt16[] indices = new UInt16[numElements*6];
+            for (int i = 0; i < numElements; ++i) {
                 int baseLoc = i * 6;
                 int baseVal = i * 4;
                 indices [baseLoc] = (UInt16)baseVal;
@@ -169,14 +170,14 @@ namespace SimpleScene
             }
 			Mesh = new SSIndexedMesh<SSVertex_PosTex> (null, indices);
 
-            m_vertices = new SSVertex_PosTex[m_numElements * 4];
+            vertices = new SSVertex_PosTex[numElements * 4];
             for (int r = 0; r < spriteRects.Length; ++r) {
                 RectangleF rect = spriteRects [r];
                 int baseIdx = r * 4;
-                m_vertices [baseIdx]   = new SSVertex_PosTex (0f, 0f, 0f, rect.Left, rect.Bottom);
-                m_vertices [baseIdx+1] = new SSVertex_PosTex (0f, 0f, 0f, rect.Right, rect.Bottom);
-                m_vertices [baseIdx+2] = new SSVertex_PosTex (0f, 0f, 0f, rect.Right, rect.Top);
-                m_vertices [baseIdx+3] = new SSVertex_PosTex (0f, 0f, 0f, rect.Left, rect.Top);
+                vertices [baseIdx]   = new SSVertex_PosTex (0f, 0f, 0f, rect.Left, rect.Bottom);
+                vertices [baseIdx+1] = new SSVertex_PosTex (0f, 0f, 0f, rect.Right, rect.Bottom);
+                vertices [baseIdx+2] = new SSVertex_PosTex (0f, 0f, 0f, rect.Right, rect.Top);
+                vertices [baseIdx+3] = new SSVertex_PosTex (0f, 0f, 0f, rect.Left, rect.Top);
             }
         }
     }

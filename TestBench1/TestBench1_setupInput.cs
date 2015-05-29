@@ -38,7 +38,7 @@ namespace TestBench0
 			Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
 			SSRay ray = OpenTKHelper.MouseToWorldRay(
-				this.scene.ProjectionMatrix,this.scene.InvCameraViewMatrix, clientRect, mouseLoc);
+                this.scene.renderConfig.projectionMatrix, this.scene.renderConfig.invCameraViewMatrix, clientRect, mouseLoc);
 
 			// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 			// scene.addObject(new SSObjectRay(ray));
@@ -83,8 +83,8 @@ namespace TestBench0
 				if (autoWireframeMode == true) {
 					autoWireframeMode = false;
 				} else {
-					scene.DrawWireFrameMode = SSRenderConfig.NextWireFrameMode (scene.DrawWireFrameMode);
-					if (scene.DrawWireFrameMode == WireframeMode.None) {
+                    scene.renderConfig.drawWireframeMode = SSRenderConfig.NextWireFrameMode(scene.renderConfig.drawWireframeMode);
+                    if (scene.renderConfig.drawWireframeMode == WireframeMode.None) {
 						autoWireframeMode = true; // rollover completes toggling modes
 					}
 				}

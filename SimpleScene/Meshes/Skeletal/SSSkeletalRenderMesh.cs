@@ -288,7 +288,7 @@ namespace SimpleScene
 					// normal
 					m_vertices [v].Normal = m_runtimeMesh.ComputeVertexNormal (v);
 				}
-				m_vbo.UpdateBufferData (m_vertices);
+				vbo.UpdateBufferData (m_vertices);
 				return aabb;
 			}
 

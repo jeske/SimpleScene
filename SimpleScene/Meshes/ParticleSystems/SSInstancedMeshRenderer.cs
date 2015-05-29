@@ -81,7 +81,7 @@ namespace SimpleScene
 
         public override void Render (ref SSRenderConfig renderConfig)
         {
-			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMat;
+			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
 
 			// allow particle system to react to camera/worldview
 			particleSystem.updateCamera (ref modelView, ref renderConfig.projectionMatrix);
