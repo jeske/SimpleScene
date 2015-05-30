@@ -167,6 +167,22 @@ namespace TestBench0
 				obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj3);
 				#endif
+				
+				// state machine setup for skeletal render mesh 4 and 5
+				var skeletonWalkDescr = new SSAnimationStateMachine();
+				skeletonWalkDescr.AddState("idle", animIdle, true);		
+				skeletonWalkDescr.AddState("running1", animRunning);
+				skeletonWalkDescr.AddState("running2", animRunning);
+				skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f);
+				skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f);
+				skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f);
+
+
+				var skeletonAttackDescr = new SSAnimationStateMachine();
+				skeletonAttackDescr.AddState("inactive", null, true);
+				skeletonAttackDescr.AddState("attack", animAttack);
+				skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
+				skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f);
 
 				#if true
 				// state machine test (in slow motion)
@@ -180,21 +196,14 @@ namespace TestBench0
 				obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj4);
 
-				var skeletonWalkDescr = new SSAnimationStateMachine();
-				skeletonWalkDescr.AddState("idle", animIdle, true);		
-				skeletonWalkDescr.AddState("running1", animRunning);
-				skeletonWalkDescr.AddState("running2", animRunning);
-				skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f);
-				skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f);
-				skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f);
 				var renderMesh4WallSm = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
-	
-				var skeletonAttackDescr = new SSAnimationStateMachine();
-				skeletonAttackDescr.AddState("inactive", null, true);
-				skeletonAttackDescr.AddState("attack", animAttack);
-				skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
-				skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f);
 				renderMesh4AttackSm = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
+
+				SSSimpleObjectTrackingController tracker = new SSSimpleObjectTrackingController(11, obj4);
+				tracker.eyePositionOffset = new Vector3(0f, 1f, 0f);
+				tracker.jointPositionOffset = new Vector3(0f, 0.75f, 0f);
+				tracker.targetObject = scene.ActiveCamera;
+				renderMesh4.AddController(tracker);
 				#endif
 
 				#if true

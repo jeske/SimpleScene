@@ -11,14 +11,19 @@ namespace SimpleScene
 		public Vector3 eyePositionOffset = Vector3.Zero;
 
 		/// <summary>
+		/// For computing the final position of the joint; joint-local coordinates
+		/// </summary>
+		public Vector3 jointPositionOffset = Vector3.Zero;
+
+		/// <summary>
 		/// Where the eyes are facing in the absense of a target; in joint-local coordinates
 		/// </summary>
-		public Vector3 eyeViewNeutralDirection = Vector3.UnitY;
+		public Vector3 eyeViewNeutralDirection = Vector3.UnitZ;
 
 		/// <summary>
 		/// Target object to be viewed
 		/// </summary>
-		public readonly SSObject targetObject = null;
+		public SSObject targetObject = null;
 
 		protected readonly SSObjectMesh _hostObject;
 		protected readonly int _jointIdx;
@@ -39,25 +44,28 @@ namespace SimpleScene
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
 			Vector3 targetVecWorld = (targetObject.Pos - _hostObject.Pos);
-			Quaternion targetOrientationWorld = targetObject.worldMat.ExtractRotation ();
-			Vector3 targetVecMesh = Vector3.Transform (targetVecWorld, targetOrientationWorld.Inverted()); 
+			Vector3 targetVecMesh = Vector3.Transform (targetVecWorld, _hostObject.worldMat.Inverted()); 
 
 			Vector3 targetVecJoint = targetVecMesh - eyePositionOffset;
 			if (joint.Parent != null) {
 				targetVecJoint -= joint.Parent.CurrentLocation.Position;
+				targetVecJoint = Vector3.Transform (targetVecJoint, joint.Parent.CurrentLocation.Orientation.Inverted ());
 			}
+			targetVecJoint.Normalize ();
 
 			Vector3 cross = Vector3.Cross (targetVecJoint, eyeViewNeutralDirection);
 			float rotAngle 	= (float)Math.Asin (
 				cross.LengthFast / targetVecJoint.LengthFast / eyeViewNeutralDirection.LengthFast);
-			Quaternion rot = Quaternion.FromAxisAngle (cross, rotAngle);
+			Quaternion rot = Quaternion.FromAxisAngle (cross.Normalized(), rotAngle);
 
 			SSSkeletalJointLocation ret;
-			ret.Position = eyePositionOffset;
+			ret.Position = jointPositionOffset;
 			ret.Orientation = rot;
+			if (joint.Parent != null) {
+				ret.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
+			}
 			return ret;
 		}
-
 	}
 }
 
