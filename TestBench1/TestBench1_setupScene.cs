@@ -211,7 +211,7 @@ namespace TestBench0
 
 				//renderMesh5NeckController = new SSPolarJointController(10);
 				renderMesh5NeckJoint = new SSPolarJoint();
-				renderMesh5NeckJoint.baseOffset.Position = new Vector3(0f, 0.5f, 0f);
+				renderMesh5NeckJoint.positionOffset = new Vector3(0f, 0.75f, 0f);
 				renderMesh5.AddParametricJoint("UpperNek", renderMesh5NeckJoint);
 				#endif
 				}

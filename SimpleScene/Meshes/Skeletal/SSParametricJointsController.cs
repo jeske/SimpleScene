@@ -44,19 +44,10 @@ namespace SimpleScene
 
 	public abstract class SSParametricJoint 
 	{
-		public SSSkeletalJointLocation baseOffset = SSSkeletalJointLocation.Identity;
-
 		/// <summary>
-		/// In joint-local coordinates
+		/// In joint-local coordinates, as defined by individual parametric joints
 		/// </summary>
-		public SSSkeletalJointLocation computeJointLocation()
-		{
-			var ret = _createTransform ();
-			ret.ApplyPrecedingTransform (baseOffset);
-			return ret;
-		}
-
-		protected abstract SSSkeletalJointLocation _createTransform();
+		public abstract SSSkeletalJointLocation computeJointLocation ();
 	}
 
 	public class SSSimpleJointParameter<T>
@@ -118,21 +109,22 @@ namespace SimpleScene
 	/// </summary>
 	public class SSPolarJoint : SSParametricJoint
 	{
+		public Vector3 thetaAxis = Vector3.UnitY;
+		public Vector3 phiAxis = Vector3.UnitZ;
+		public Vector3 positionOffset = Vector3.Zero; 
+
 		public SSComparableJointParameter<float> theta 
 			= new SSComparableJointParameter<float>(float.NegativeInfinity, float.PositiveInfinity, 0f);
 		public SSComparableJointParameter<float> phi
 			= new SSComparableJointParameter<float>(float.NegativeInfinity, float.PositiveInfinity, 0f);
-		public SSComparableJointParameter<float> r
-			= new SSComparableJointParameter<float>(float.NegativeInfinity, float.PositiveInfinity, 0f);
 
-		protected override SSSkeletalJointLocation _createTransform ()
+		public override SSSkeletalJointLocation computeJointLocation ()
 		{
 			SSSkeletalJointLocation ret;
-			ret.Position = new Vector3 (r.value, 0f, 0f);
+			ret.Position = positionOffset;
 
-			var thetaRot = Quaternion.FromAxisAngle (Vector3.UnitZ, theta.value);
-			var phiRot = Quaternion.FromAxisAngle (Vector3.UnitY, phi.value);
-			//ret.Orientation = Quaternion.Multiply (phiRot, thetaRot);
+			var thetaRot = Quaternion.FromAxisAngle (thetaAxis, theta.value);
+			var phiRot = Quaternion.FromAxisAngle (phiAxis, phi.value);
 			ret.Orientation = Quaternion.Multiply (thetaRot, phiRot);
 			return ret;
 		}
