@@ -131,6 +131,14 @@ namespace TestBench0
 				obj0.Pos = new Vector3(-18f, 0f, -18f);
 				obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj0);
+
+			#if false
+				SSSimpleObjectTrackingController tracker0 = new SSSimpleObjectTrackingController(11, obj0);
+				tracker0.jointPositionOffset = new Vector3(0f, 0.75f, 0f);
+				tracker0.eyeViewNeutralDirection = new Vector3(0f, 0f, 0f);
+				tracker0.targetObject = scene.ActiveCamera;
+				renderMesh0.AddController(tracker0);
+			#endif
 				#endif
 
 				#if true
@@ -168,7 +176,7 @@ namespace TestBench0
 				scene.AddObject(obj3);
 				#endif
 				
-				// state machine setup for skeletal render mesh 4 and 5
+				// state machines setup for skeletal render mesh 4 and 5
 				var skeletonWalkDescr = new SSAnimationStateMachine();
 				skeletonWalkDescr.AddState("idle", animIdle, true);		
 				skeletonWalkDescr.AddState("running1", animRunning);
@@ -176,7 +184,6 @@ namespace TestBench0
 				skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f);
 				skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f);
 				skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f);
-
 
 				var skeletonAttackDescr = new SSAnimationStateMachine();
 				skeletonAttackDescr.AddState("inactive", null, true);
@@ -199,11 +206,13 @@ namespace TestBench0
 				var renderMesh4WallSm = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
 				renderMesh4AttackSm = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 
-				SSSimpleObjectTrackingController tracker = new SSSimpleObjectTrackingController(11, obj4);
-				tracker.eyePositionOffset = new Vector3(0f, 1f, 0f);
-				tracker.jointPositionOffset = new Vector3(0f, 0.75f, 0f);
-				tracker.targetObject = scene.ActiveCamera;
-				renderMesh4.AddController(tracker);
+				SSSimpleObjectTrackingController tracker4 = new SSSimpleObjectTrackingController(11, obj4);
+				tracker4.jointPositionLocal = animRunning.ComputeJointFrame(11, 0).Position;
+				tracker4.neutralViewOrientationLocal = animRunning.ComputeJointFrame(11, 0).Orientation;
+				tracker4.neutralViewDirectionMesh = new Vector3(1f, 0f, 0f);
+				//tracker4.targetObject = obj1;
+				tracker4.targetObject = scene.ActiveCamera;
+				renderMesh4.AddController(tracker4);
 				#endif
 
 				#if true

@@ -298,6 +298,56 @@ namespace SimpleScene
             yAxis = Vector3.Cross(zAxis, xAxis);
         }
 
+		/// <summary>
+		/// https://bitbucket.org/sinbad/ogre/src/9db75e3ba05c/OgreMain/include/OgreVector3.h#cl-651
+		/// </summary>
+		public static Quaternion getRotationTo(Vector3 src, Vector3 dst, Vector3 fallbackAxis)
+		{
+			// Based on Stan Melax's article in Game Programming Gems
+			Quaternion q = new Quaternion();
+			// Copy, since cannot modify local
+			Vector3 v0 = src.Normalized();
+			Vector3 v1 = dst.Normalized();
+
+			float d = Vector3.Dot (v0, v1);
+			// If dot == 1, vectors are the same
+			if (d >= 1.0f)
+			{
+				return Quaternion.Identity;
+			}
+			if (d < (1e-6f - 1.0f))
+			{
+				if (fallbackAxis != Vector3.Zero)
+				{
+					// rotate 180 degrees about the fallback axis
+					q = Quaternion.FromAxisAngle (fallbackAxis, (float)Math.PI);
+				}
+				else
+				{
+					// Generate an axis
+					Vector3 axis = Vector3.Cross(Vector3.UnitX, v0);
+					if (axis.Length <= 0.001f) // pick another if colinear
+						axis = Vector3.Cross(Vector3.UnitY, v0);
+					axis.Normalize();
+					q = Quaternion.FromAxisAngle (axis, (float)Math.PI);
+				}
+			}
+			else
+			{
+				float s = (float)Math.Sqrt( (1f+d)*2f );
+				float invs = 1f / s;
+
+				Vector3 c = Vector3.Cross (v0, v1);
+
+				q.X = c.X * invs;
+				q.Y = c.Y * invs;
+				q.Z = c.Z * invs;
+				q.W = s * 0.5f;
+				q.Normalize();
+			}
+			return q;
+		}
+
         public static Vector3 ProjectCoord(Vector3 pt, 
             Vector3 dirX, Vector3 dirY, Vector3 dirZ) 
         {

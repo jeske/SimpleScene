@@ -88,6 +88,11 @@ namespace SimpleScene
 			Orientation.Normalize ();
 			Position = Vector3.Transform (Position - parentLoc.Position, parOrientInverse);
 		}
+
+		public Vector3 ApplyTransformTo(Vector3 pos)
+		{
+			return Position + Vector3.Transform (pos, Orientation);
+		}
 	}
 }
 

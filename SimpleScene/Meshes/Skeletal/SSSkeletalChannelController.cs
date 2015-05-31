@@ -10,7 +10,10 @@ namespace SimpleScene
 		public bool interChannelFade = true;
 
 		/// <summary>
-		/// Returns joint location as defined by controller in mesh coordinates
+		/// Returns joint location as defined by controller in mesh coordinates.
+		/// 
+		/// When implementing this subfunction remember that the location of parent in mesh-coordinates
+		/// is already available and accessible via joint.parent.currentLocation
 		/// </summary>
 		public abstract SSSkeletalJointLocation computeJointLocation(SSSkeletalJointRuntime joint);
 
