@@ -207,12 +207,11 @@ namespace TestBench0
 				var renderMesh4WallSm = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
 				renderMesh4AttackSm = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 
-			#if false
+			#if true
 				SSSimpleObjectTrackingController tracker4 = new SSSimpleObjectTrackingController(11, obj4);
 				tracker4.jointPositionLocal = animRunning.ComputeJointFrame(11, 0).Position;
 				tracker4.neutralViewOrientationLocal = animRunning.ComputeJointFrame(11, 0).Orientation;
-				//tracker4.neutralViewDirectionLocal = new Vector3(1f, 0f, 0f);
-				//tracker4.targetObject = obj1;
+				tracker4.neutralViewDirectionMesh = Vector3.UnitX;
 				tracker4.targetObject = scene.ActiveCamera;
 				renderMesh4.AddController(tracker4);
 			#endif

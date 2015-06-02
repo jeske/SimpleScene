@@ -32,11 +32,7 @@ namespace SimpleScene
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			var jointLoc = _joints [joint.BaseInfo.JointIndex].computeJointLocation ();
-			if (joint.Parent != null) {
-				jointLoc.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
-			}
-			return jointLoc;
+			return _joints [joint.BaseInfo.JointIndex].computeJointLocation ();
 		}
 	}
 

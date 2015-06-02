@@ -93,6 +93,11 @@ namespace SimpleScene
 		{
 			return Position + Vector3.Transform (pos, Orientation);
 		}
+
+		public Vector3 UndoTransformTo(Vector3 pos)
+		{
+			return Vector3.Transform (pos - Position, Orientation.Inverted ());
+		}
 	}
 }
 

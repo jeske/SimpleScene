@@ -16,7 +16,7 @@ namespace SimpleScene
 		public Quaternion neutralViewOrientationLocal = Quaternion.Identity;
 
 		/// <summary>
-		/// Direction, in mesh coordinates, where the joint should be "looking" when neutral (nothing to see)
+		/// Direction, in joint-local coordinates, where the joint should be "looking" when neutral (nothing to see)
 		/// </summary>
 		public Vector3 neutralViewDirectionMesh = Vector3.UnitX;
 
@@ -44,29 +44,26 @@ namespace SimpleScene
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
 			SSSkeletalJointLocation ret = new SSSkeletalJointLocation ();
-			Vector3 jointPosMesh = jointPositionLocal;
-			if (joint.Parent != null) {
-				jointPosMesh = joint.Parent.CurrentLocation.ApplyTransformTo (jointPosMesh);
-			}
-			ret.Position = jointPosMesh;
+			ret.Position = jointPositionLocal;
 
 			if (targetObject != null) {
-				Vector3 eyesPosWorld = Vector3.Transform (jointPosMesh, _hostObject.worldMat);
-				Vector3 targetVecWorld = (targetObject.Pos - eyesPosWorld).Normalized ();
+				Vector3 targetPosInMesh 
+					= Vector3.Transform (targetObject.Pos, _hostObject.worldMat.Inverted());
+				Vector3 targetPosInLocal = targetPosInMesh;
+				Vector3 neutralDirLocal = neutralViewDirectionMesh;
+				if (joint.Parent != null) {
+					targetPosInLocal = joint.Parent.CurrentLocation.UndoTransformTo (targetPosInLocal);
+					neutralDirLocal = Vector3.Transform (neutralDirLocal, joint.Parent.CurrentLocation.Orientation.Inverted ());
+				}
 
-				Quaternion rotOnly = _hostObject.worldMat.ExtractRotation ();
-				Vector3 targetVecMesh = Vector3.Transform (targetVecWorld, rotOnly.Inverted ());
-				Quaternion neededRotation = OpenTKHelper.getRotationTo (neutralViewDirectionMesh, targetVecMesh, Vector3.UnitX);
-				Vector4 test = neededRotation.ToAxisAngle ();
-
-				ret.Orientation = Quaternion.Multiply (neededRotation,
-					Quaternion.Multiply (joint.Parent.CurrentLocation.Orientation, neutralViewOrientationLocal)
-					);
+				Vector3 targetDirLocal = targetPosInLocal - jointPositionLocal;
+				Quaternion neededRotation = OpenTKHelper.getRotationTo (
+					neutralDirLocal, 
+					targetDirLocal, Vector3.UnitX);
+				ret.Orientation = Quaternion.Multiply(neutralViewOrientationLocal, neededRotation);
+				//Vector4 test = neededRotation.ToAxisAngle ();
 			} else {
 				ret.Orientation = neutralViewOrientationLocal;
-				if (joint.Parent != null) {
-					ret.Orientation = Quaternion.Multiply (joint.Parent.CurrentLocation.Orientation, ret.Orientation);
-				}
 			}
 			return ret;
 		}

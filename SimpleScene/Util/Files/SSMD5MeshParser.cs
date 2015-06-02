@@ -40,6 +40,7 @@ namespace SimpleScene
 				joints [j].JointIndex = j;
 			}
 			seekEntry ("}");
+			transformBindPoseToJointLocal (joints);
 
 			for (int m = 0; m < meshes.Length; ++m) {
 				seekEntry ("mesh", "{");
@@ -57,8 +58,16 @@ namespace SimpleScene
 			Match[] matches = seekEntry (
 				SSMD5Parser._quotedStrRegex, // joint name
 				SSMD5Parser._intRegex,  // parent index
-				SSMD5Parser._parOpen, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._parClose, // position
-				SSMD5Parser._parOpen, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._floatRegex, SSMD5Parser._parClose  // orientation			
+				SSMD5Parser._parOpen, 
+					SSMD5Parser._floatRegex, 
+					SSMD5Parser._floatRegex, 
+					SSMD5Parser._floatRegex, 
+				SSMD5Parser._parClose, // position
+				SSMD5Parser._parOpen, 
+					SSMD5Parser._floatRegex, 
+					SSMD5Parser._floatRegex, 
+					SSMD5Parser._floatRegex, 
+				SSMD5Parser._parClose  // orientation			
 			);
 			SSSkeletalJoint ret = new SSSkeletalJoint();
 			ret.Name = matches[0].Captures[0].Value;
@@ -73,6 +82,18 @@ namespace SimpleScene
 			ret.BindPoseLocation.Orientation.Z = (float)Convert.ToDouble(matches[10].Value);
 			ret.BindPoseLocation.ComputeQuatW();
 			return ret;
+		}
+
+		/// <summary>
+		/// Transform bind pose coordinates from mesh global form into joint-local form
+		/// </summary>
+		private static void transformBindPoseToJointLocal(SSSkeletalJoint[] joints)
+		{
+			for (int j = joints.Length-1; j > 0; --j) {
+				var joint = joints [j];
+				var parLoc = joints [joint.ParentIndex].BindPoseLocation;
+				joint.BindPoseLocation.UndoPrecedingTransform (parLoc);
+			}
 		}
 
 		private SSSkeletalMeshMD5 readMesh(SSSkeletalJoint[] joints)

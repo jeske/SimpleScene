@@ -82,11 +82,7 @@ namespace SimpleScene
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			var ret = _channelManager.ComputeJointFrame (joint.BaseInfo.JointIndex);
-			if (joint.Parent != null) {
-				ret.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
-			}
-			return ret;
+			return _channelManager.ComputeJointFrame (joint.BaseInfo.JointIndex);
 		}
 
 		public override void update (float timeElapsed)

@@ -241,6 +241,9 @@ namespace SimpleScene
 			var channel = controllers [controllerIdx];
 			if (channel.isActive(joint)) {
 				var channelLoc = channel.computeJointLocation (joint);
+				if (joint.Parent != null) {
+					channelLoc.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
+				}
 				if (!channel.interChannelFade 
 					|| channel.interChannelFadeIndentisy() >= 1f 
 					|| controllerIdx == 0) {
