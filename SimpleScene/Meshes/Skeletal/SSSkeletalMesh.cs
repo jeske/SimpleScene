@@ -5,98 +5,98 @@ namespace SimpleScene
 {
 	public class SSSkeletalMesh
 	{
-		public SSSkeletalVertex[] Vertices = null;
-		public SSSkeletalWeight[] Weights = null;
-		public UInt16[] TriangleIndices = null;
-		public SSSkeletalJoint[] Joints = null;
-		public string MaterialShaderString = null;
+		public SSSkeletalVertex[] vertices = null;
+		public SSSkeletalWeight[] weights = null;
+		public UInt16[] triangleIndices = null;
+		public SSSkeletalJoint[] joints = null;
+		public string materialShaderString = null;
 
-		public SSAssetManager.Context AssetContext = null;
+		public SSAssetManager.Context assetContext = null;
 	}
 
 	public struct SSSkeletalVertex
 	{
-		public Vector2 TextureCoords;
-		public int WeightStartIndex;
-		public int WeightCount;
+		public Vector2 textureCoords;
+		public int weightStartIndex;
+		public int weightCount;
 	}
 
 	public struct SSSkeletalWeight
 	{
-		public int JointIndex;
-		public float Bias;
-		public Vector3 Position;
+		public int jointIndex;
+		public float bias;
+		public Vector3 position;
 	}
 
 	public class SSSkeletalJoint
 	{
-		public string Name;
-		public int JointIndex;
-		public int ParentIndex;
+		public string name;
+		public int jointIndex;
+		public int parentIndex;
 
 		/// <summary>
 		/// The bind pose location in global (mesh) coordinates.
 		/// </summary>
-		public SSSkeletalJointLocation BindPoseLocation;
+		public SSSkeletalJointLocation bindPoseLocation;
 	}
 
 	public struct SSSkeletalJointLocation
 	{
-		public Vector3 Position;
-		public Quaternion Orientation;
+		public Vector3 position;
+		public Quaternion orientation;
 
-		public static SSSkeletalJointLocation Identity {
+		public static SSSkeletalJointLocation identity {
 			get {
 				var ret = new SSSkeletalJointLocation();
-				ret.Position = Vector3.Zero;
-				ret.Orientation = Quaternion.Identity;
+				ret.position = Vector3.Zero;
+				ret.orientation = Quaternion.Identity;
 				return ret;
 			}
 		}
 
-		public static SSSkeletalJointLocation Interpolate(
+		public static SSSkeletalJointLocation interpolate(
 			SSSkeletalJointLocation left, 
 			SSSkeletalJointLocation right, 
 			float blend)
 		{
 			SSSkeletalJointLocation ret;
-			ret.Position = Vector3.Lerp(left.Position, right.Position, blend);
-			ret.Orientation = Quaternion.Slerp (left.Orientation, right.Orientation, blend);
+			ret.position = Vector3.Lerp(left.position, right.position, blend);
+			ret.orientation = Quaternion.Slerp (left.orientation, right.orientation, blend);
 			return ret;
 		}
 
-		public void ComputeQuatW()
+		public void computeQuatW()
 		{
-			float t = 1f - Orientation.X * Orientation.X 
-				- Orientation.Y * Orientation.Y 
-				- Orientation.Z * Orientation.Z;
-			Orientation.W = t < 0f ? 0f : -(float)Math.Sqrt(t);
+			float t = 1f - orientation.X * orientation.X 
+				- orientation.Y * orientation.Y 
+				- orientation.Z * orientation.Z;
+			orientation.W = t < 0f ? 0f : -(float)Math.Sqrt(t);
 		}
 
-		public void ApplyPrecedingTransform(SSSkeletalJointLocation parentLoc)
+		public void applyPrecedingTransform(SSSkeletalJointLocation parentLoc)
 		{
-			Position = parentLoc.Position 
-				+ Vector3.Transform (Position, parentLoc.Orientation);
-			Orientation = Quaternion.Multiply (parentLoc.Orientation, Orientation);
-			Orientation.Normalize ();
+			position = parentLoc.position 
+				+ Vector3.Transform (position, parentLoc.orientation);
+			orientation = Quaternion.Multiply (parentLoc.orientation, orientation);
+			orientation.Normalize ();
 		}
 
-		public void UndoPrecedingTransform(SSSkeletalJointLocation parentLoc)
+		public void undoPrecedingTransform(SSSkeletalJointLocation parentLoc)
 		{
-			var parOrientInverse = parentLoc.Orientation.Inverted ();
-			Orientation = Quaternion.Multiply (parOrientInverse, Orientation);
-			Orientation.Normalize ();
-			Position = Vector3.Transform (Position - parentLoc.Position, parOrientInverse);
+			var parOrientInverse = parentLoc.orientation.Inverted ();
+			orientation = Quaternion.Multiply (parOrientInverse, orientation);
+			orientation.Normalize ();
+			position = Vector3.Transform (position - parentLoc.position, parOrientInverse);
 		}
 
-		public Vector3 ApplyTransformTo(Vector3 pos)
+		public Vector3 applyTransformTo(Vector3 pos)
 		{
-			return Position + Vector3.Transform (pos, Orientation);
+			return position + Vector3.Transform (pos, orientation);
 		}
 
-		public Vector3 UndoTransformTo(Vector3 pos)
+		public Vector3 undoTransformTo(Vector3 pos)
 		{
-			return Vector3.Transform (pos - Position, Orientation.Inverted ());
+			return Vector3.Transform (pos - position, orientation.Inverted ());
 		}
 	}
 }

@@ -36,7 +36,7 @@ namespace SimpleScene
         /// <summary>
         /// Draws the arrays instanced. Attribute arrays must be prepared prior to use.
         /// </summary>
-		public void RenderInstanced(ref SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
+		public void renderInstanced(ref SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
         {
 			DrawBind(ref renderConfig);
             GL.DrawArraysInstanced(primType, 0, NumElements, numInstances);

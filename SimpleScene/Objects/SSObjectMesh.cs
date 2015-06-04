@@ -53,7 +53,7 @@ namespace SimpleScene
 		{
 			if (_mesh != null) {
 				base.Render (ref renderConfig);
-				this._mesh.RenderMesh (ref renderConfig);
+				this._mesh.renderMesh (ref renderConfig);
             }
         }
 
@@ -78,7 +78,7 @@ namespace SimpleScene
 				return true; // no mesh to test
 			} else {
 				// precise meshIntersect
-				bool global_hit = mesh.TraverseTriangles ((state, V1, V2, V3) => {
+				bool global_hit = mesh.traverseTriangles ((state, V1, V2, V3) => {
 					float contact;
 					if (OpenTKHelper.TriangleRayIntersectionTest (V1, V2, V3, localRay.pos, localRay.dir, out contact)) {
 						hit = true;
@@ -102,7 +102,7 @@ namespace SimpleScene
 				Mesh.updateSource.Target = this;
 			}
 			if (Mesh.updateSource.Target == this) {
-				Mesh.Update (elapsedS);
+				Mesh.update (elapsedS);
 			}
 		}
 

@@ -61,7 +61,7 @@ namespace SimpleScene
             }
         }
 
-		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
+		public void renderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
 			m_vbo.DrawBind(ref renderConfig);
             Bind();

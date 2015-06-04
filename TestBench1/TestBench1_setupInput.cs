@@ -91,8 +91,8 @@ namespace TestBench0
 				updateWireframeDisplayText ();
 				break;
 			case Key.Q:
-				renderMesh4AttackSm.RequestTransition ("attack");
-				renderMesh5AttackSm.RequestTransition ("attack");
+				renderMesh4AttackSm.requestTransition ("attack");
+				renderMesh5AttackSm.requestTransition ("attack");
 				break;
 			case Key.Escape:
 				Exit ();

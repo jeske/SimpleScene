@@ -54,12 +54,12 @@ namespace SimpleScene
         }
 #endregion
 
-		public void RenderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
+		public void renderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
-			base.RenderMesh (ref renderConfig);
+			base.renderMesh (ref renderConfig);
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 				_renderSetupGLSL(ref renderConfig, renderConfig.InstanceShader, subset);
-				subset.ibo.RenderInstanced(ref renderConfig, instanceCount, primType);
+				subset.ibo.renderInstanced(ref renderConfig, instanceCount, primType);
 			}
 		}
 
@@ -119,7 +119,7 @@ namespace SimpleScene
 			get { return Vector3.Zero; }
 		}
 
-		public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {
+		public override bool traverseTriangles<T>(T state, traverseFn<T> fn) {
 			foreach(var subset in geometrySubsets) {
 				for(int idx=0;idx < subset.indicies.Length;idx+=3) {
 					var V1 = subset.vertices[subset.indicies[idx]].Position;
@@ -194,8 +194,8 @@ namespace SimpleScene
 		}
 
 
-		public override void RenderMesh(ref SSRenderConfig renderConfig) {
-			base.RenderMesh (ref renderConfig);
+		public override void renderMesh(ref SSRenderConfig renderConfig) {
+			base.renderMesh (ref renderConfig);
             foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
                 if (renderConfig.drawingShadowMap) {
                     _renderSendVBOTriangles(ref renderConfig, subset);

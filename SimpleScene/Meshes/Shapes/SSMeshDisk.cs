@@ -43,7 +43,7 @@ namespace SimpleScene
             UpdateIndices(indices);
         }
 
-        public override void RenderMesh(ref SSRenderConfig renderConfig)
+        public override void renderMesh(ref SSRenderConfig renderConfig)
         {
             SSShaderProgram.DeactivateAll();
 
@@ -53,7 +53,7 @@ namespace SimpleScene
             GL.Enable (EnableCap.Blend);
             GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            base.RenderMesh(ref renderConfig);
+            base.renderMesh(ref renderConfig);
         }
     }
 }

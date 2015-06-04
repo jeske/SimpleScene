@@ -27,12 +27,12 @@ namespace SimpleScene
 
 		public override bool isActive (SSSkeletalJointRuntime joint)
 		{
-			return _joints.ContainsKey(joint.BaseInfo.JointIndex);
+			return _joints.ContainsKey(joint.baseInfo.jointIndex);
 		}
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			return _joints [joint.BaseInfo.JointIndex].computeJointLocation ();
+			return _joints [joint.baseInfo.jointIndex].computeJointLocation ();
 		}
 	}
 
@@ -117,11 +117,11 @@ namespace SimpleScene
 		public override SSSkeletalJointLocation computeJointLocation ()
 		{
 			SSSkeletalJointLocation ret;
-			ret.Position = positionOffset;
+			ret.position = positionOffset;
 
 			var thetaRot = Quaternion.FromAxisAngle (thetaAxis, theta.value);
 			var phiRot = Quaternion.FromAxisAngle (phiAxis, phi.value);
-			ret.Orientation = Quaternion.Multiply (thetaRot, phiRot);
+			ret.orientation = Quaternion.Multiply (thetaRot, phiRot);
 			return ret;
 		}
 	}

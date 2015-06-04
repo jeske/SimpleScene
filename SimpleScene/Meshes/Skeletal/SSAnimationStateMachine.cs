@@ -23,7 +23,7 @@ namespace SimpleScene
 		/// </summary>
 		/// <param name="stateName">State name.</param>
 		/// <param name="makeDefault">If set to <c>true</c> forces the state machine into this state.</param>
-		public void AddState(string stateName, 
+		public void addState(string stateName, 
 							 SSSkeletalAnimation animation,
 							 bool makeDefault = false)
 		{
@@ -53,7 +53,7 @@ namespace SimpleScene
 		///     If specified, animation ending on this channel of the source animation state will trigger the transition to the
 		///     target animation state
 		/// </param>
-		public void AddStateTransition(string fromStateStr, string targetStateStr, float transitionTime)
+		public void addStateTransition(string fromStateStr, string targetStateStr, float transitionTime)
 		{
 			AnimationState fromState;
 			if (fromStateStr == null || fromStateStr.Length == 0) {
@@ -68,10 +68,10 @@ namespace SimpleScene
 			}
 			AnimationState targetState = _animationStates [targetStateStr];
 
-			addStateTransition (fromState, targetState, transitionTime, false);
+			_addStateTransition (fromState, targetState, transitionTime, false);
 		}
 
-		public void AddAnimationEndsTransition(string fromStateStr, string targetStateStr, 
+		public void addAnimationEndsTransition(string fromStateStr, string targetStateStr, 
 											   float transitionTime)
 
 		{
@@ -87,10 +87,10 @@ namespace SimpleScene
 			}
 			AnimationState fromState = _animationStates [fromStateStr];
 			AnimationState targetState = _animationStates [targetStateStr];
-			addStateTransition (fromState, targetState, transitionTime, true);
+			_addStateTransition (fromState, targetState, transitionTime, true);
 		}
 
-		protected void addStateTransition(AnimationState fromState, 
+		protected void _addStateTransition(AnimationState fromState, 
 										  AnimationState targetState, 
 									      float transitionTime,
 										  bool triggerOnAnimationEnd)

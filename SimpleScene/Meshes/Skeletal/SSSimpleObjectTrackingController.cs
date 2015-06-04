@@ -49,16 +49,16 @@ namespace SimpleScene
 
 		public override bool isActive (SSSkeletalJointRuntime joint)
 		{
-			return joint.BaseInfo.JointIndex == _jointIdx;
+			return joint.baseInfo.jointIndex == _jointIdx;
 		}
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
 			if (_neutralViewDirectionDirty) {
 				Quaternion precedingBindPoseOrient = Quaternion.Identity;
-				for (var j = joint.Parent; j != null; j = j.Parent) {
+				for (var j = joint.parent; j != null; j = j.parent) {
 					precedingBindPoseOrient = Quaternion.Multiply (
-						joint.BaseInfo.BindPoseLocation.Orientation, precedingBindPoseOrient);
+						joint.baseInfo.bindPoseLocation.orientation, precedingBindPoseOrient);
 				}
 				_neutralViewDirectionLocal = Vector3.Transform (
 					_neutralViewDirectionBindPose, precedingBindPoseOrient.Inverted());
@@ -66,24 +66,24 @@ namespace SimpleScene
 			}
 
 			SSSkeletalJointLocation ret = new SSSkeletalJointLocation ();
-			ret.Position = jointPositionLocal;
+			ret.position = jointPositionLocal;
 
 			if (targetObject != null) {
 				Vector3 targetPosInMesh 
 					= Vector3.Transform (targetObject.Pos, _hostObject.worldMat.Inverted());
 				Vector3 targetPosInLocal = targetPosInMesh;
-				if (joint.Parent != null) {
-					targetPosInLocal = joint.Parent.CurrentLocation.UndoTransformTo (targetPosInLocal);
+				if (joint.parent != null) {
+					targetPosInLocal = joint.parent.currentLocation.undoTransformTo (targetPosInLocal);
 				}
 				Vector3 targetDirLocal = targetPosInLocal - jointPositionLocal;
 
 				Quaternion neededRotation = OpenTKHelper.getRotationTo (
 					_neutralViewDirectionLocal, 
 					targetDirLocal, Vector3.UnitX);
-				ret.Orientation = Quaternion.Multiply(neutralViewOrientationLocal, neededRotation);
+				ret.orientation = Quaternion.Multiply(neutralViewOrientationLocal, neededRotation);
 				//Vector4 test = neededRotation.ToAxisAngle ();
 			} else {
-				ret.Orientation = neutralViewOrientationLocal;
+				ret.orientation = neutralViewOrientationLocal;
 			}
 			return ret;
 		}

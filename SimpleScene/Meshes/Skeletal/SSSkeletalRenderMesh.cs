@@ -14,12 +14,12 @@ namespace SimpleScene
 	{
 		// TODO Fix multiple objects updating a single mesh twice
 
-		public float TimeScale = 1f;
+		public float timeScale = 1f;
 
 		protected readonly List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
 		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
 		protected readonly List<SSSkeletalChannelController> _channelControllers
-		= new List<SSSkeletalChannelController> ();
+			= new List<SSSkeletalChannelController> ();
 
 		public override bool alphaBlendingEnabled {
 			get { return base.alphaBlendingEnabled; }
@@ -43,18 +43,18 @@ namespace SimpleScene
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh[] subMeshArray)
 		{
-			_hierarchy = new SSSkeletalHierarchyRuntime (subMeshArray [0].Joints);
+			_hierarchy = new SSSkeletalHierarchyRuntime (subMeshArray [0].joints);
 			foreach (var subMesh in subMeshArray) {
-				_hierarchy.verifyJoints (subMesh.Joints);
-				AttachMesh (subMesh);
+				_hierarchy.verifyJoints (subMesh.joints);
+				attachMesh (subMesh);
 			}
 			_channelControllers.Add (new SSBindPoseSkeletalController ());
 		}
 
 		public SSSkeletalRenderMesh(SSSkeletalMesh mesh) 
 		{
-			_hierarchy = new SSSkeletalHierarchyRuntime (mesh.Joints);
-			AttachMesh (mesh);
+			_hierarchy = new SSSkeletalHierarchyRuntime (mesh.joints);
+			attachMesh (mesh);
 			_channelControllers.Add (new SSBindPoseSkeletalController ());
 		}
 
@@ -62,41 +62,41 @@ namespace SimpleScene
 		/// This can be used to loop an animation without having to set up a state machine explicitly
 		/// For a more sophisticated control use AddController()
 		/// </summary>
-		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f, 
+		public void playAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f, 
 									  int[] topLevelJoints = null)
 		{
 			_hierarchy.verifyAnimation (anim);
 			var loopSM = new SSAnimationStateMachine ();
-			loopSM.AddState ("default", anim, true);
-			loopSM.AddAnimationEndsTransition ("default", "default", transitionTime);
+			loopSM.addState ("default", anim, true);
+			loopSM.addAnimationEndsTransition ("default", "default", transitionTime);
 			if (topLevelJoints == null) {
 				topLevelJoints = _hierarchy.topLevelJoints;
 			}
 			var loopController = new SSAnimationStateMachineSkeletalController (loopSM, topLevelJoints);
-			AddController (loopController);
+			addController (loopController);
 		}
 
-		public void PlayAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f,
+		public void playAnimationLoop(SSSkeletalAnimation anim, float transitionTime = 0f,
 									  params string[] topLevelJointNames) 
 		{
-			PlayAnimationLoop (anim, transitionTime, _hierarchy.jointIndices(topLevelJointNames));
+			playAnimationLoop (anim, transitionTime, _hierarchy.jointIndices(topLevelJointNames));
 		}
 
-		public SSAnimationStateMachineSkeletalController AddStateMachine(SSAnimationStateMachine description,
+		public SSAnimationStateMachineSkeletalController addStateMachine(SSAnimationStateMachine description,
 																		 int[] topLevelJoints = null)
 		{
 			var smController = new SSAnimationStateMachineSkeletalController (description, topLevelJoints);
-			AddController (smController);
+			addController (smController);
 			return smController;
 		}
 
-		public SSAnimationStateMachineSkeletalController AddStateMachine(SSAnimationStateMachine description, 
+		public SSAnimationStateMachineSkeletalController addStateMachine(SSAnimationStateMachine description, 
 																		 params string[] topLevelJointNames)
 		{
-			return AddStateMachine (description, _hierarchy.jointIndices (topLevelJointNames));
+			return addStateMachine (description, _hierarchy.jointIndices (topLevelJointNames));
 		}
 
-		public void AddParametricJoint(int jointIdx, SSParametricJoint parJoint)
+		public void addParametricJoint(int jointIdx, SSParametricJoint parJoint)
 		{
 			SSParametricJointsController ctrl = null;
 			if (_channelControllers.Count > 0) {
@@ -106,17 +106,17 @@ namespace SimpleScene
 			}
 			if (ctrl == null) {
 				ctrl = new SSParametricJointsController ();
-				AddController (ctrl);
+				addController (ctrl);
 			}
 			ctrl.addJoint (jointIdx, parJoint);
 		}
 
-		public void AddParametricJoint(string jointName, SSParametricJoint parJoint)
+		public void addParametricJoint(string jointName, SSParametricJoint parJoint)
 		{
-			AddParametricJoint (_hierarchy.jointIndex (jointName), parJoint);
+			addParametricJoint (_hierarchy.jointIndex (jointName), parJoint);
 		}
 
-		public void RemoveParametricJoint(int jointIdx)
+		public void removeParametricJoint(int jointIdx)
 		{
 			foreach (var ctrl in _channelControllers) {
 				var parCtrl = ctrl as SSParametricJointsController;
@@ -126,7 +126,7 @@ namespace SimpleScene
 			}
 		}
 
-		public void AddController(SSSkeletalChannelController controller)
+		public void addController(SSSkeletalChannelController controller)
 		{
 			_channelControllers.Add (controller);
 		}
@@ -138,7 +138,7 @@ namespace SimpleScene
 		/// A runtime state machine component that can be used to trigger animation state transitions on demand,
 		/// from keyboard etc.
 		/// </param>
-		public SSAnimationStateMachineSkeletalController AddStateMachine(
+		public SSAnimationStateMachineSkeletalController addStateMachine(
 			SSAnimationStateMachine stateMachine)
 		{
 			var newSMRuntime = new SSAnimationStateMachineSkeletalController (stateMachine);
@@ -149,22 +149,22 @@ namespace SimpleScene
 		/// <summary>
 		/// Adds a sumbesh that will share the existing joint hierarchy
 		/// </summary>
-		public void AttachMesh(SSSkeletalMesh mesh)
+		public void attachMesh(SSSkeletalMesh mesh)
 		{
 			var newRender = new RenderSubMesh (mesh, _hierarchy);
 			newRender.alphaBlendingEnabled = this.alphaBlendingEnabled;
 			_renderSubMeshes.Add (newRender);
 		}
 
-		public override void Update(float elapsedS)
+		public override void update(float elapsedS)
 		{
-			elapsedS *= TimeScale;
+			elapsedS *= timeScale;
 			foreach (var channelController in _channelControllers) {
 				channelController.update (elapsedS);
 			}
 		}
 
-		public override void RenderMesh (ref SSRenderConfig renderConfig)
+		public override void renderMesh (ref SSRenderConfig renderConfig)
 		{
 			// apply animation channels
 			_hierarchy.applySkeletalControllers (_channelControllers);
@@ -172,7 +172,7 @@ namespace SimpleScene
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
 			foreach (var sub in _renderSubMeshes) {
 				SSAABB aabb = sub.ComputeVertices ();
-				sub.RenderMesh (ref renderConfig);
+				sub.renderMesh (ref renderConfig);
 				totalAABB.ExpandBy (aabb);
 			}
 			// update the bounding sphere
@@ -182,17 +182,17 @@ namespace SimpleScene
 			NotifyMeshPositionOrSizeChanged ();
 		}
 
-		public void RenderInstanced(ref SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
+		public void renderInstanced(ref SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
 		{
 			foreach (var sub in _renderSubMeshes) {
-				sub.RenderInstanced (ref cfg, instanceCount, primType);
+				sub.renderInstanced (ref cfg, instanceCount, primType);
 			}
 		}
 
-		public override bool TraverseTriangles<T> (T state, traverseFn<T> fn)
+		public override bool traverseTriangles<T> (T state, traverseFn<T> fn)
 		{
 			foreach (var s in _renderSubMeshes) {
-				bool finished = s.TraverseTriangles (state, fn);
+				bool finished = s.traverseTriangles (state, fn);
 				if (finished) {
 					return true;
 				}
@@ -212,27 +212,27 @@ namespace SimpleScene
 			protected readonly SSVertex_PosNormTex[] m_vertices;
 
 			public RenderSubMesh (SSSkeletalMesh skeletalMesh, SSSkeletalHierarchyRuntime hierarchy=null)
-				: base(null, skeletalMesh.TriangleIndices)
+				: base(null, skeletalMesh.triangleIndices)
 			{
 				m_runtimeMesh = new SSSkeletalMeshRuntime(skeletalMesh, hierarchy);
 
-				m_vertices = new SSVertex_PosNormTex[m_runtimeMesh.NumVertices];
-				for (int v = 0; v < m_runtimeMesh.NumVertices; ++v) {
-					m_vertices [v].TexCoord = m_runtimeMesh.TextureCoords (v);
-					m_vertices [v].Normal = m_runtimeMesh.BindPoseNormal(v);
+				m_vertices = new SSVertex_PosNormTex[m_runtimeMesh.numVertices];
+				for (int v = 0; v < m_runtimeMesh.numVertices; ++v) {
+					m_vertices [v].TexCoord = m_runtimeMesh.textureCoords (v);
+					m_vertices [v].Normal = m_runtimeMesh.bindPoseNormal(v);
 				}
 				ComputeVertices ();
 
-				string matString = skeletalMesh.MaterialShaderString;
+				string matString = skeletalMesh.materialShaderString;
 				if (matString != null && matString.Length > 0) {
 					base.textureMaterial 
-					= SSTextureMaterial.FromMaterialString (skeletalMesh.AssetContext, matString);
+					= SSTextureMaterial.FromMaterialString (skeletalMesh.assetContext, matString);
 				}
 			}
 
-			public override void RenderMesh(ref SSRenderConfig renderConfig)
+			public override void renderMesh(ref SSRenderConfig renderConfig)
 			{
-				base.RenderMesh (ref renderConfig);
+				base.renderMesh (ref renderConfig);
 
 				// debugging vertex normals... 
 				#if false
@@ -258,11 +258,11 @@ namespace SimpleScene
 				#endif
 			}
 
-			public override bool TraverseTriangles<T>(T state, traverseFn<T> fn) {
-				for(int idx=0; idx < m_runtimeMesh.Indices.Length; idx+=3) {
-					var v1 = m_runtimeMesh.ComputeVertexPos (m_runtimeMesh.Indices[idx]);
-					var v2 = m_runtimeMesh.ComputeVertexPos (m_runtimeMesh.Indices[idx+1]);
-					var v3 = m_runtimeMesh.ComputeVertexPos (m_runtimeMesh.Indices[idx+2]);
+			public override bool traverseTriangles<T>(T state, traverseFn<T> fn) {
+				for(int idx=0; idx < m_runtimeMesh.indices.Length; idx+=3) {
+					var v1 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx]);
+					var v2 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx+1]);
+					var v3 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx+2]);
 					bool finished = fn(state, v1, v2, v3);
 					if (finished) { 
 						return true;
@@ -279,14 +279,14 @@ namespace SimpleScene
 			public SSAABB ComputeVertices()
 			{
 				SSAABB aabb= new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
-				for (int v = 0; v < m_runtimeMesh.NumVertices; ++v) {
+				for (int v = 0; v < m_runtimeMesh.numVertices; ++v) {
 					// position
-					Vector3 pos = m_runtimeMesh.ComputeVertexPos (v);
+					Vector3 pos = m_runtimeMesh.computeVertexPos (v);
 					m_vertices [v].Position = pos;
 					aabb.UpdateMin (pos);
 					aabb.UpdateMax (pos);
 					// normal
-					m_vertices [v].Normal = m_runtimeMesh.ComputeVertexNormal (v);
+					m_vertices [v].Normal = m_runtimeMesh.computeVertexNormal (v);
 				}
 				vbo.UpdateBufferData (m_vertices);
 				return aabb;
@@ -297,11 +297,11 @@ namespace SimpleScene
 			{
 				SSShaderProgram.DeactivateAll();
 				GL.Color4(Color4.Green);
-				for (int i=0;i<m_runtimeMesh.NumTriangles;i++) {
+				for (int i=0;i<m_runtimeMesh.numTriangles;i++) {
 					int baseIdx = i * 3;                
-					Vector3 p0 = m_runtimeMesh.ComputeVertexPosFromTriIndex(baseIdx);
-					Vector3 p1 = m_runtimeMesh.ComputeVertexPosFromTriIndex(baseIdx + 1);
-					Vector3 p2 = m_runtimeMesh.ComputeVertexPosFromTriIndex(baseIdx + 2);
+					Vector3 p0 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx);
+					Vector3 p1 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 1);
+					Vector3 p2 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 2);
 
 					Vector3 face_center = (p0 + p1 + p2) / 3.0f;
 					Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
@@ -332,25 +332,25 @@ namespace SimpleScene
 				for (int v = 0; v < m_vertices.Length; ++v) {                
 					GL.Begin (PrimitiveType.Lines);
 					GL.Vertex3 (m_vertices [v].Position);
-					GL.Vertex3 (m_vertices [v].Position + m_runtimeMesh.BindPoseNormal(v) * 0.3f); 
+					GL.Vertex3 (m_vertices [v].Position + m_runtimeMesh.bindPoseNormal(v) * 0.3f); 
 					GL.End ();
 				}
 			}
 
 			public void renderFaceAveragedVertexNormals() {
-				Vector3[] perVertexNormals = new Vector3[m_runtimeMesh.NumVertices];
+				Vector3[] perVertexNormals = new Vector3[m_runtimeMesh.numVertices];
 
-				for (int i = 0; i < m_runtimeMesh.NumTriangles; i++) {
+				for (int i = 0; i < m_runtimeMesh.numTriangles; i++) {
 					int baseIdx = i * 3;
-					Vector3 p0 = m_runtimeMesh.ComputeVertexPosFromTriIndex(baseIdx);
-					Vector3 p1 = m_runtimeMesh.ComputeVertexPosFromTriIndex(baseIdx + 1);
-					Vector3 p2 = m_runtimeMesh.ComputeVertexPosFromTriIndex(baseIdx + 2);
+					Vector3 p0 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx);
+					Vector3 p1 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 1);
+					Vector3 p2 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 2);
 
 					Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
 
-					int v0 = m_runtimeMesh.Indices[baseIdx];
-					int v1 = m_runtimeMesh.Indices[baseIdx + 1];
-					int v2 = m_runtimeMesh.Indices[baseIdx + 2];
+					int v0 = m_runtimeMesh.indices[baseIdx];
+					int v1 = m_runtimeMesh.indices[baseIdx + 1];
+					int v2 = m_runtimeMesh.indices[baseIdx + 2];
 
 					perVertexNormals[v0] += face_normal;
 					perVertexNormals[v1] += face_normal;
@@ -364,8 +364,8 @@ namespace SimpleScene
 				GL.Color4(Color4.Yellow);
 				for (int v=0;v<perVertexNormals.Length;v++) {
 					GL.Begin(PrimitiveType.Lines);
-					GL.Vertex3(m_runtimeMesh.ComputeVertexPos(v));
-					GL.Vertex3(m_runtimeMesh.ComputeVertexPos(v) + perVertexNormals[v].Normalized() * 0.5f);
+					GL.Vertex3(m_runtimeMesh.computeVertexPos(v));
+					GL.Vertex3(m_runtimeMesh.computeVertexPos(v) + perVertexNormals[v].Normalized() * 0.5f);
 					GL.End();
 				}
 			}

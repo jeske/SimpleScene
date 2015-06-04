@@ -21,7 +21,7 @@ namespace SimpleScene
 		{
 			var parser = new SSMD5AnimParser(ctx, filename);
 			var anim = parser.readAnimation ();
-			anim.Name = filename;
+			anim.name = filename;
 			return anim;
 		}
 
@@ -76,7 +76,7 @@ namespace SimpleScene
 			// base frame
 			seekEntry ("baseframe", "{");
 			for (int j = 0; j < numJoints; ++j) {
-				hierarchy[j].BindPoseLocation = readBaseFrame ();
+				hierarchy[j].bindPoseLocation = readBaseFrame ();
 			}
 			seekEntry ("}");
 
@@ -100,8 +100,8 @@ namespace SimpleScene
 				SSMD5Parser._uintRegex // start index (currently not used)
 			);
 			SSSkeletalJoint ret = new SSSkeletalJoint();
-			ret.Name = matches[0].Value;
-			ret.ParentIndex = Convert.ToInt32(matches[1].Value);
+			ret.name = matches[0].Value;
+			ret.parentIndex = Convert.ToInt32(matches[1].Value);
 			flags = Convert.ToByte(matches[2].Value);
 			//m_startIndex = Convert.ToInt32(matches[3].Value);
 			return ret;
@@ -147,14 +147,14 @@ namespace SimpleScene
 					SSMD5Parser._parClose
 			);
 			SSSkeletalJointLocation loc;
-			loc.Position.X = (float)Convert.ToDouble (matches [1].Value);
-			loc.Position.Y = (float)Convert.ToDouble (matches [2].Value);
-			loc.Position.Z = (float)Convert.ToDouble (matches [3].Value);
-			loc.Orientation = new Quaternion ();
-			loc.Orientation.X = (float)Convert.ToDouble (matches [6].Value);
-			loc.Orientation.Y = (float)Convert.ToDouble (matches [7].Value);
-			loc.Orientation.Z = (float)Convert.ToDouble (matches [8].Value);
-			loc.ComputeQuatW ();
+			loc.position.X = (float)Convert.ToDouble (matches [1].Value);
+			loc.position.Y = (float)Convert.ToDouble (matches [2].Value);
+			loc.position.Z = (float)Convert.ToDouble (matches [3].Value);
+			loc.orientation = new Quaternion ();
+			loc.orientation.X = (float)Convert.ToDouble (matches [6].Value);
+			loc.orientation.Y = (float)Convert.ToDouble (matches [7].Value);
+			loc.orientation.Z = (float)Convert.ToDouble (matches [8].Value);
+			loc.computeQuatW ();
 			return loc;
 		}
 
@@ -170,26 +170,26 @@ namespace SimpleScene
 			for (int j = 0; j < jointInfos.Length; ++j) {
 				byte flags = jointFlags[j];
 				SSSkeletalJoint jointInfo = jointInfos [j];
-				SSSkeletalJointLocation loc = jointInfo.BindPoseLocation;
+				SSSkeletalJointLocation loc = jointInfo.bindPoseLocation;
 				if ((flags & (byte)LocationFlags.Tx) != 0) {
-					loc.Position.X = floatComponents [compIdx++];
+					loc.position.X = floatComponents [compIdx++];
 				}
 				if ((flags & (byte)LocationFlags.Ty) != 0) {
-					loc.Position.Y = floatComponents [compIdx++];
+					loc.position.Y = floatComponents [compIdx++];
 				}
 				if ((flags & (byte)LocationFlags.Tz) != 0) {
-					loc.Position.Z = floatComponents [compIdx++];
+					loc.position.Z = floatComponents [compIdx++];
 				}
 				if ((flags & (byte)LocationFlags.Qx) != 0) {
-					loc.Orientation.X = floatComponents [compIdx++];
+					loc.orientation.X = floatComponents [compIdx++];
 				}
 				if ((flags & (byte)LocationFlags.Qy) != 0) {
-					loc.Orientation.Y = floatComponents [compIdx++];
+					loc.orientation.Y = floatComponents [compIdx++];
 				}
 				if ((flags & (byte)LocationFlags.Qz) != 0) {
-					loc.Orientation.Z = floatComponents [compIdx++];
+					loc.orientation.Z = floatComponents [compIdx++];
 				}
-				loc.ComputeQuatW ();
+				loc.computeQuatW ();
 
 				#if false
 				if (jointInfo.ParentIndex >= 0) { // has a parent

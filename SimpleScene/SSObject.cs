@@ -131,7 +131,7 @@ namespace SimpleScene
 
 				//GL.Translate (boundingSphere.center);
 				//GL.Scale (new Vector3 (this.scaleMax * boundingSphere.radius));
-				_boundingSphereMesh.RenderMesh (ref renderConfig);
+				_boundingSphereMesh.renderMesh (ref renderConfig);
 			}
 		}
 

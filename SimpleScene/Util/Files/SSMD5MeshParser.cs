@@ -37,7 +37,7 @@ namespace SimpleScene
 			seekEntry ("joints", "{");
 			for (int j = 0; j < joints.Length; ++j) {
 				joints[j] = readJoint();
-				joints [j].JointIndex = j;
+				joints [j].jointIndex = j;
 			}
 			seekEntry ("}");
 			transformBindPoseToJointLocal (joints);
@@ -45,10 +45,10 @@ namespace SimpleScene
 			for (int m = 0; m < meshes.Length; ++m) {
 				seekEntry ("mesh", "{");
 				meshes [m] = readMesh (joints);
-				meshes [m].Joints = joints;
+				meshes [m].joints = joints;
 				seekEntry ("}");
 
-				meshes [m].AssetContext = Context;
+				meshes [m].assetContext = Context;
 			}
 			return meshes;
 		}
@@ -70,17 +70,17 @@ namespace SimpleScene
 				SSMD5Parser._parClose  // orientation			
 			);
 			SSSkeletalJoint ret = new SSSkeletalJoint();
-			ret.Name = matches[0].Captures[0].Value;
-			ret.ParentIndex = Convert.ToInt32(matches[1].Value);
+			ret.name = matches[0].Captures[0].Value;
+			ret.parentIndex = Convert.ToInt32(matches[1].Value);
 
-			ret.BindPoseLocation.Position.X = (float)Convert.ToDouble(matches[3].Value);
-			ret.BindPoseLocation.Position.Y = (float)Convert.ToDouble(matches[4].Value); 
-			ret.BindPoseLocation.Position.Z = (float)Convert.ToDouble(matches[5].Value);
+			ret.bindPoseLocation.position.X = (float)Convert.ToDouble(matches[3].Value);
+			ret.bindPoseLocation.position.Y = (float)Convert.ToDouble(matches[4].Value); 
+			ret.bindPoseLocation.position.Z = (float)Convert.ToDouble(matches[5].Value);
 
-			ret.BindPoseLocation.Orientation.X = (float)Convert.ToDouble(matches[8].Value);
-			ret.BindPoseLocation.Orientation.Y = (float)Convert.ToDouble(matches[9].Value); 
-			ret.BindPoseLocation.Orientation.Z = (float)Convert.ToDouble(matches[10].Value);
-			ret.BindPoseLocation.ComputeQuatW();
+			ret.bindPoseLocation.orientation.X = (float)Convert.ToDouble(matches[8].Value);
+			ret.bindPoseLocation.orientation.Y = (float)Convert.ToDouble(matches[9].Value); 
+			ret.bindPoseLocation.orientation.Z = (float)Convert.ToDouble(matches[10].Value);
+			ret.bindPoseLocation.computeQuatW();
 			return ret;
 		}
 
@@ -91,8 +91,8 @@ namespace SimpleScene
 		{
 			for (int j = joints.Length-1; j > 0; --j) {
 				var joint = joints [j];
-				var parLoc = joints [joint.ParentIndex].BindPoseLocation;
-				joint.BindPoseLocation.UndoPrecedingTransform (parLoc);
+				var parLoc = joints [joint.parentIndex].bindPoseLocation;
+				joint.bindPoseLocation.undoPrecedingTransform (parLoc);
 			}
 		}
 
@@ -102,32 +102,32 @@ namespace SimpleScene
 
 			Match[] matches;
 			matches = seekEntry("shader", SSMD5Parser._quotedStrRegex);
-			newMesh.MaterialShaderString = matches[1].Value;
+			newMesh.materialShaderString = matches[1].Value;
 
 			matches = seekEntry ("numverts", SSMD5Parser._uintRegex);
 			int numVertices = Convert.ToInt32 (matches [1].Value);
-			newMesh.Vertices = new SSSkeletalVertex[numVertices];
+			newMesh.vertices = new SSSkeletalVertex[numVertices];
 
 			for (int v = 0; v < numVertices; ++v) {
 				int vertexIndex;
 				var vertex = readVertex (out vertexIndex);
-				newMesh.Vertices [vertexIndex] = vertex;
+				newMesh.vertices [vertexIndex] = vertex;
 			}
 
 			matches = seekEntry ("numtris", SSMD5Parser._uintRegex);
 			int numTris = Convert.ToUInt16 (matches [1].Value);
-			newMesh.TriangleIndices = new UInt16[numTris * 3];
+			newMesh.triangleIndices = new UInt16[numTris * 3];
 			for (int t = 0; t < numTris; ++t) {
-				readTriangle (newMesh.TriangleIndices);
+				readTriangle (newMesh.triangleIndices);
 			}
 
 			matches = seekEntry ("numweights", SSMD5Parser._uintRegex);
 			int numWeights = Convert.ToInt32 (matches [1].Value);
-			newMesh.Weights = new SSSkeletalWeight[numWeights];
+			newMesh.weights = new SSSkeletalWeight[numWeights];
 			for (int w = 0; w < numWeights; ++w) {
 				int weightIdx;
 				SSSkeletalWeight weight = readWeight(out weightIdx);
-				newMesh.Weights [weightIdx] = weight;
+				newMesh.weights [weightIdx] = weight;
 			}
 
 			return newMesh;
@@ -144,10 +144,10 @@ namespace SimpleScene
 			);
 			vertexIndex = Convert.ToInt32(matches[1].Value);
 			SSSkeletalVertex ret;
-			ret.TextureCoords.X = (float)Convert.ToDouble(matches[3].Value);
-			ret.TextureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
-			ret.WeightStartIndex = Convert.ToInt32(matches[6].Value);
-			ret.WeightCount = Convert.ToInt32(matches[7].Value);
+			ret.textureCoords.X = (float)Convert.ToDouble(matches[3].Value);
+			ret.textureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
+			ret.weightStartIndex = Convert.ToInt32(matches[6].Value);
+			ret.weightCount = Convert.ToInt32(matches[7].Value);
 			return ret;
 		}
 
@@ -178,11 +178,11 @@ namespace SimpleScene
 
 			weightIndex = Convert.ToInt32(matches[1].Value);
 			SSSkeletalWeight ret;
-			ret.JointIndex = Convert.ToInt32(matches[2].Value);
-			ret.Bias = (float)Convert.ToDouble(matches[3].Value);
-			ret.Position.X = (float)Convert.ToDouble(matches[5].Value);
-			ret.Position.Y = (float)Convert.ToDouble(matches[6].Value);
-			ret.Position.Z = (float)Convert.ToDouble(matches[7].Value);
+			ret.jointIndex = Convert.ToInt32(matches[2].Value);
+			ret.bias = (float)Convert.ToDouble(matches[3].Value);
+			ret.position.X = (float)Convert.ToDouble(matches[5].Value);
+			ret.position.Y = (float)Convert.ToDouble(matches[6].Value);
+			ret.position.Z = (float)Convert.ToDouble(matches[7].Value);
 			return ret;
 		}
 	}

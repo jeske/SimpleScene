@@ -9,21 +9,21 @@ namespace SimpleScene
 {
 	public class SSSkeletalJointRuntime
 	{
-		public List<SSSkeletalJointRuntime> Children = new List<SSSkeletalJointRuntime>();
-		public SSSkeletalJointRuntime Parent = null;
+		public List<SSSkeletalJointRuntime> children = new List<SSSkeletalJointRuntime>();
+		public SSSkeletalJointRuntime parent = null;
 
-		public SSSkeletalJointLocation CurrentLocation;
+		public SSSkeletalJointLocation currentLocation;
 
 		protected SSSkeletalJoint _baseInfo;
 
-		public SSSkeletalJoint BaseInfo {
+		public SSSkeletalJoint baseInfo {
 			get { return _baseInfo; }
 		}
 
 		public SSSkeletalJointRuntime(SSSkeletalJoint baseInfo)
 		{
 			_baseInfo = baseInfo;
-			CurrentLocation = _baseInfo.BindPoseLocation;
+			currentLocation = _baseInfo.bindPoseLocation;
 		}
 	}
 
@@ -46,12 +46,12 @@ namespace SimpleScene
 			for (int j = 0; j < joints.Length; ++j) {
 				var jointInput = joints [j];
 				_joints [j] = new SSSkeletalJointRuntime(jointInput);
-				int parentIdx = jointInput.ParentIndex;
+				int parentIdx = jointInput.parentIndex;
 				if (parentIdx < 0) {
 					_topLevelJoints.Add (j);
 				} else {
-					_joints [j].Parent = _joints [parentIdx];
-					_joints [parentIdx].Children.Add (_joints[j]);
+					_joints [j].parent = _joints [parentIdx];
+					_joints [parentIdx].children.Add (_joints[j]);
 				}
 			}
 		}
@@ -63,7 +63,7 @@ namespace SimpleScene
 			}
 
 			for (int j = 0; j < _joints.Length; ++j) {
-				if (_joints [j].BaseInfo.Name == jointName) {
+				if (_joints [j].baseInfo.name == jointName) {
 					return j;
 				}
 			}
@@ -91,7 +91,7 @@ namespace SimpleScene
 
 		public SSSkeletalJointLocation jointLocation(int jointIdx) 
 		{
-			return _joints [jointIdx].CurrentLocation;
+			return _joints [jointIdx].currentLocation;
 		}
 
 		public int[] topLevelJoints {
@@ -100,27 +100,27 @@ namespace SimpleScene
 
 		public void verifyAnimation(SSSkeletalAnimation animation)
 		{
-			if (this.numJoints != animation.NumJoints) {
+			if (this.numJoints != animation.numJoints) {
 				string str = string.Format (
 					"Joint number mismatch: {0} in md5mesh, {1} in md5anim",
-					this.numJoints, animation.NumJoints);
+					this.numJoints, animation.numJoints);
 				Console.WriteLine (str);
 				throw new Exception (str);
 			}
 			for (int j = 0; j < numJoints; ++j) {
-				SSSkeletalJoint thisJointInfo = this._joints [j].BaseInfo;
-				SSSkeletalJoint animJointInfo = animation.JointHierarchy [j];
-				if (thisJointInfo.Name != animJointInfo.Name) {
+				SSSkeletalJoint thisJointInfo = this._joints [j].baseInfo;
+				SSSkeletalJoint animJointInfo = animation.jointHierarchy [j];
+				if (thisJointInfo.name != animJointInfo.name) {
 					string str = string.Format (
 						"Joint name mismatch: {0} in md5mesh, {1} in md5anim",
-						thisJointInfo.Name, animJointInfo.Name);
+						thisJointInfo.name, animJointInfo.name);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
-				if (thisJointInfo.ParentIndex != animJointInfo.ParentIndex) {
+				if (thisJointInfo.parentIndex != animJointInfo.parentIndex) {
 					string str = string.Format (
 						"Hierarchy parent mismatch for joint \"{0}\": {1} in md5mesh, {2} in md5anim",
-						thisJointInfo.Name, thisJointInfo.ParentIndex, animJointInfo.ParentIndex);
+						thisJointInfo.name, thisJointInfo.parentIndex, animJointInfo.parentIndex);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
@@ -137,19 +137,19 @@ namespace SimpleScene
 				throw new Exception (str);
 			}
 			for (int j = 0; j < numJoints; ++j) {
-				SSSkeletalJoint thisJointInfo = this._joints [j].BaseInfo;
+				SSSkeletalJoint thisJointInfo = this._joints [j].baseInfo;
 				SSSkeletalJoint otherJointInfo = joints [j];
-				if (thisJointInfo.Name != otherJointInfo.Name) {
+				if (thisJointInfo.name != otherJointInfo.name) {
 					string str = string.Format (
 						"Joint name mismatch: {0} in this hierarchy, {1} in other joints",
-						thisJointInfo.Name, otherJointInfo.Name);
+						thisJointInfo.name, otherJointInfo.name);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
-				if (thisJointInfo.ParentIndex != otherJointInfo.ParentIndex) {
+				if (thisJointInfo.parentIndex != otherJointInfo.parentIndex) {
 					string str = string.Format (
 						"Hierarchy parent mismatch for joint \"{0}\": {1} in this hierarchy, {2} in other joints",
-						thisJointInfo.Name, thisJointInfo.ParentIndex, otherJointInfo.ParentIndex);
+						thisJointInfo.name, thisJointInfo.parentIndex, otherJointInfo.parentIndex);
 					Console.WriteLine (str);
 					throw new Exception (str);
 				}
@@ -159,90 +159,27 @@ namespace SimpleScene
 		public void applySkeletalControllers(List<SSSkeletalChannelController> channelControllers)
 		{
 			foreach (int j in _topLevelJoints) {
-				traverseWithControllers (_joints[j], channelControllers);
+				_traverseWithControllers (_joints[j], channelControllers);
 			}
 		}
 
-		private void traverseWithControllers(SSSkeletalJointRuntime joint, List<SSSkeletalChannelController> controllers)
+		private void _traverseWithControllers(SSSkeletalJointRuntime joint, List<SSSkeletalChannelController> controllers)
 		{
-			joint.CurrentLocation = computeJointLocWithControllers (joint, controllers, controllers.Count - 1);
+			joint.currentLocation = _computeJointLocWithControllers (joint, controllers, controllers.Count - 1);
 
-			foreach (var child in joint.Children) {
-				traverseWithControllers (child, controllers);
+			foreach (var child in joint.children) {
+				_traverseWithControllers (child, controllers);
 			}
-
-			#if false
-			if (channelControllers != null) {
-				foreach (var channel in channels) {
-					if (channel.IsActive && channel.TopLevelActiveJoints.Contains (jointIdx)) {
-						if (activeChannel != null) {
-							fallbackActiveChannel = activeChannel;
-						}
-						activeChannel = channel;
-					}
-				}
-			}
-
-			SSSkeletalJointRuntime joint = _joints [jointIdx];
-			int parentIdx = joint.BaseInfo.ParentIndex;
-
-			if (activeChannel == null) {
-				joint.CurrentLocation = joint.BaseInfo.BaseLocation;
-				if (joint.BaseInfo.ParentIndex != -1) {
-					joint.CurrentLocation.UndoPrecedingTransform (_joints [parentIdx].CurrentLocation);
-				}
-			} else {
-				SSSkeletalJointLocation activeLoc = activeChannel.ComputeJointFrame (jointIdx);
-
-				//activeLoc = activeChannel.ComputeJointFrame (jointIdx);
-				if (activeChannel.InterChannelFade && activeChannel.InterChannelFadeIntensity < 1f) {
-					// TODO smarter, multi layer fallback
-					SSSkeletalJointLocation fallbackLoc;
-					if (fallbackActiveChannel == null || fallbackActiveChannel.IsFadingOut) {
-						// fall back to bind bose
-						fallbackLoc = joint.BaseInfo.BaseLocation;
-						if (joint.BaseInfo.ParentIndex != -1) {
-							fallbackLoc.UndoPrecedingTransform (_joints [parentIdx].CurrentLocation);
-						}
-						GL.Color4 (Color4.LightGoldenrodYellow); // debugging
-					} else {
-						fallbackLoc = fallbackActiveChannel.ComputeJointFrame (jointIdx);
-					}
-					float activeChannelRatio = activeChannel.InterChannelFadeIntensity;
-					GL.Color3(activeChannelRatio, activeChannelRatio, 1f - activeChannelRatio);
-					joint.CurrentLocation = SSSkeletalJointLocation.Interpolate (
-						fallbackLoc, activeLoc, activeChannelRatio);
-				} else {
-					joint.CurrentLocation = activeLoc;
-				}
-			}
-
-			if (jointPositionOverride != null && jointPositionOverride.ContainsKey (jointIdx)) {
-				joint.CurrentLocation.Position = jointPositionOverride [jointIdx];
-			}
-			if (jointOrientationOverride != null && jointOrientationOverride.ContainsKey (jointIdx)) {
-				joint.CurrentLocation.Orientation = jointOrientationOverride [jointIdx];
-			}
-
-			if (parentIdx != -1) {
-				joint.CurrentLocation.ApplyPrecedingTransform (_joints [parentIdx].CurrentLocation);
-			}
-
-			foreach (int child in joint.Children) {
-				traverseWithChannels (child, channels, jointPositionOverride, jointOrientationOverride,
-									  activeChannel, fallbackActiveChannel);
-			}
-			#endif
 		}
 
-		private SSSkeletalJointLocation computeJointLocWithControllers(
+		private SSSkeletalJointLocation _computeJointLocWithControllers(
 			SSSkeletalJointRuntime joint, List<SSSkeletalChannelController> controllers, int controllerIdx)
 		{
 			var channel = controllers [controllerIdx];
 			if (channel.isActive(joint)) {
 				var channelLoc = channel.computeJointLocation (joint);
-				if (joint.Parent != null) {
-					channelLoc.ApplyPrecedingTransform (joint.Parent.CurrentLocation);
+				if (joint.parent != null) {
+					channelLoc.applyPrecedingTransform (joint.parent.currentLocation);
 				}
 				if (!channel.interChannelFade 
 					|| channel.interChannelFadeIndentisy() >= 1f 
@@ -250,13 +187,13 @@ namespace SimpleScene
 					return channelLoc;
 				} else {
 					var fallbackLoc 
-					= computeJointLocWithControllers (joint, controllers, controllerIdx - 1);
-					return SSSkeletalJointLocation.Interpolate (
+					= _computeJointLocWithControllers (joint, controllers, controllerIdx - 1);
+					return SSSkeletalJointLocation.interpolate (
 						fallbackLoc, channelLoc, channel.interChannelFadeIndentisy());
 				}
 			} else {
 				if (controllerIdx > 0) {
-					return computeJointLocWithControllers (joint, controllers, controllerIdx - 1);
+					return _computeJointLocWithControllers (joint, controllers, controllerIdx - 1);
 				} else {
 					throw new Exception ("fell through without an active skeletal channel controller");
 				}

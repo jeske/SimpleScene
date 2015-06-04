@@ -19,7 +19,7 @@ namespace SimpleScene
 		{
 			// play nice with the rest of the controllers by applying a change in coordinates; not
 			// just setting absolute coordinates:
-			return joint.BaseInfo.BindPoseLocation;
+			return joint.baseInfo.bindPoseLocation;
 		}
 
 		public override bool isActive (SSSkeletalJointRuntime joint)
@@ -28,16 +28,16 @@ namespace SimpleScene
 				return true;
 			} else {
 				bool jointIsControlled;
-				int jointIdx = joint.BaseInfo.JointIndex;
+				int jointIdx = joint.baseInfo.jointIndex;
 				if (_jointIsControlledCache.ContainsKey (jointIdx)) {
 					jointIsControlled = _jointIsControlledCache [jointIdx] ;
 				} else {
 					if (_topLevelActiveJoints.Contains (jointIdx)) {
 						jointIsControlled = true;
-					} else if (joint.BaseInfo.ParentIndex == -1) {
+					} else if (joint.baseInfo.parentIndex == -1) {
 						jointIsControlled = false;
 					} else {
-						jointIsControlled = isActive(joint.Parent);
+						jointIsControlled = isActive(joint.parent);
 					}
 					_jointIsControlledCache [jointIdx] = jointIsControlled;
 				}

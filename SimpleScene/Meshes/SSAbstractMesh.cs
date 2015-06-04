@@ -39,7 +39,7 @@ namespace SimpleScene
 			boundingSphereCenter = Vector3.Zero;
 		}
 
-		public virtual void RenderMesh (ref SSRenderConfig renderConfig)
+		public virtual void renderMesh (ref SSRenderConfig renderConfig)
 		{
 			if (!renderConfig.drawingShadowMap && textureMaterial != null) {
 				if (renderConfig.ActiveDrawShader != null) {
@@ -63,17 +63,17 @@ namespace SimpleScene
 			}
 		}
 
-        public virtual bool TraverseTriangles<T>(T state, traverseFn<T> fn) 
+        public virtual bool traverseTriangles<T>(T state, traverseFn<T> fn) 
         {
             return true;
         }
 
-		public bool TraverseTriangles(traverseFn<Object> fn) 
+		public bool traverseTriangles(traverseFn<Object> fn) 
         {
-			return this.TraverseTriangles<Object>(new Object(), fn);
+			return this.traverseTriangles<Object>(new Object(), fn);
 		}
 
-		public virtual void Update(float timeElapsed) { }
+		public virtual void update(float timeElapsed) { }
 	}
 }
 

@@ -40,7 +40,7 @@ namespace SimpleScene
 			}
 			foreach (var state in _smDescription.states.Values) {
 				if (state.isDefault) {
-					forceState (state);
+					_forceState (state);
 					return;
 				}
 			}
@@ -52,22 +52,22 @@ namespace SimpleScene
 		#region SSSkeletalChannelController compliance
 		public override bool isActive (SSSkeletalJointRuntime joint)
 		{
-			if (!_channelManager.IsActive) {
+			if (!_channelManager.isActive) {
 				return false;
 			} else if (_topLevelActiveJoints == null) {
 				return true;
 			} else {
 				bool jointIsControlled;
-				int jointIdx = joint.BaseInfo.JointIndex;
+				int jointIdx = joint.baseInfo.jointIndex;
 				if (_jointIsControlledCache.ContainsKey (jointIdx)) {
 					jointIsControlled = _jointIsControlledCache [jointIdx] ;
 				} else {
 					if (_topLevelActiveJoints.Contains (jointIdx)) {
 						jointIsControlled = true;
-					} else if (joint.BaseInfo.ParentIndex == -1) {
+					} else if (joint.baseInfo.parentIndex == -1) {
 						jointIsControlled = false;
 					} else {
-						jointIsControlled = isActive(joint.Parent);
+						jointIsControlled = isActive(joint.parent);
 					}
 					_jointIsControlledCache [jointIdx] = jointIsControlled;
 				}
@@ -82,16 +82,16 @@ namespace SimpleScene
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			return _channelManager.ComputeJointFrame (joint.BaseInfo.JointIndex);
+			return _channelManager.computeJointFrame (joint.baseInfo.jointIndex);
 		}
 
 		public override void update (float timeElapsed)
 		{
 			_channelManager.update (timeElapsed);
 
-			triggerAutomaticTransitions (); // after channel manager to avoid null states during transitions
+			_triggerAutomaticTransitions (); // after channel manager to avoid null states during transitions
 
-			if (_channelManager.IsActive) {
+			if (_channelManager.isActive) {
 				_interChannelFadeIntensity += (_interChannelFadeVelocity * timeElapsed);
 				// clamp
 				_interChannelFadeIntensity = Math.Max (_interChannelFadeIntensity, 0f);
@@ -103,42 +103,42 @@ namespace SimpleScene
 		}
 		#endregion
 
-		#region API for user interaction
-		public void RequestTransition(string targetStateName)
+		#region API for runtime user interaction
+		public void requestTransition(string targetStateName)
 		{
 			var targetState = _smDescription.states [targetStateName];
 			foreach (var transition in _smDescription.transitions) {
 				if (transition.target == targetState
 				    && (transition.sorce == null || transition.sorce == _activeState)) {
-					requestTransition (transition, transition.transitionTime);
+					_requestTransition (transition, transition.transitionTime);
 					return;
 				}
 			}
 		}
 
-		public void ForceState(string targetStateName)
+		public void forceState(string targetStateName)
 		{
 			var targetState = _smDescription.states [targetStateName];
-			forceState (targetState);
+			_forceState (targetState);
 		}
 		#endregion
 
-		private void triggerAutomaticTransitions()
+		private void _triggerAutomaticTransitions()
 		{
 			foreach (var transition in _smDescription.transitions) {
 				if (transition.sorce == _activeState && transition.triggerOnAnimationEnd) {
-					if (transition.transitionTime == 0 && !_channelManager.IsActive) {
-						requestTransition (transition, 0f);
+					if (transition.transitionTime == 0 && !_channelManager.isActive) {
+						_requestTransition (transition, 0f);
 					}
-					else if (_channelManager.TimeRemaining <= transition.transitionTime) {
-						requestTransition (transition, _channelManager.TimeRemaining);
+					else if (_channelManager.timeRemaining <= transition.transitionTime) {
+						_requestTransition (transition, _channelManager.timeRemaining);
 					}
 					return;
 				}
 			}
 		}
 
-		protected void requestTransition(
+		protected void _requestTransition(
 			SSAnimationStateMachine.TransitionInfo transition, float transitionTime)
 		{
 			_activeState = transition.target;
@@ -159,10 +159,10 @@ namespace SimpleScene
 				}
 			}
 
-			_channelManager.PlayAnimation(_activeState.animation, transitionTime);
+			_channelManager.playAnimation(_activeState.animation, transitionTime);
 		}
 
-		protected void forceState(SSAnimationStateMachine.AnimationState targetState)
+		protected void _forceState(SSAnimationStateMachine.AnimationState targetState)
 		{
 			_activeState = targetState;
 
@@ -173,7 +173,7 @@ namespace SimpleScene
 				_interChannelFadeIntensity = 1f;
 			}
 			
-			_channelManager.PlayAnimation(_activeState.animation, 0f);
+			_channelManager.playAnimation(_activeState.animation, 0f);
 		}
 
 
@@ -199,27 +199,27 @@ namespace SimpleScene
 			protected float _prevTransitionTime = 0f;
 			#endif
 
-			public float TransitionTime {
+			public float transitionTime {
 				get { return _transitionTime; }
 			}
 				
-			public float TimeRemaining {
+			public float timeRemaining {
 				get {
 					if (_currAnimation != null) {
-						return _currAnimation.TotalDuration - _currT;
+						return _currAnimation.totalDuration - _currT;
 					} else if (_prevAnimation != null) {
-						return _prevAnimation.TotalDuration - _prevT;
+						return _prevAnimation.totalDuration - _prevT;
 					} else {
 						return 0f;
 					}
 				}
 			}
 
-			public bool IsActive {
+			public bool isActive {
 				get { return _currAnimation != null || _prevAnimation != null; }
 			}
 
-			public void PlayAnimation(SSSkeletalAnimation animation, float transitionTime)
+			public void playAnimation(SSSkeletalAnimation animation, float transitionTime)
 			{
 				//System.Console.WriteLine ("play: {0}, repeat: {1}, transitionTime {2}, ichf: {3}",
 				//	animation != null ? animation.Name : "null", repeat, transitionTime, interChannelFade);
@@ -286,7 +286,7 @@ namespace SimpleScene
 					if (_currT >= _transitionTime) {
 						_transitionTime = 0;
 					}
-					if (_currT >= _currAnimation.TotalDuration) {
+					if (_currT >= _currAnimation.totalDuration) {
 						_currAnimation = null;
 						_currT = 0;
 					}
@@ -297,16 +297,16 @@ namespace SimpleScene
 				}
 			}
 
-			public SSSkeletalJointLocation ComputeJointFrame(int jointIdx)
+			public SSSkeletalJointLocation computeJointFrame(int jointIdx)
 			{
 				if (_currAnimation != null) {
-					var loc = _currAnimation.ComputeJointFrame (jointIdx, _currT);
+					var loc = _currAnimation.computeJointFrame (jointIdx, _currT);
 					if (_prevAnimation == null) {
 						//GL.Color3 (1f, 0f, 0f);
 						return loc;
 					} else {
-						var prevTime = Math.Min(_prevT, _prevAnimation.TotalDuration);
-						var prevLoc = _prevAnimation.ComputeJointFrame (jointIdx, prevTime);
+						var prevTime = Math.Min(_prevT, _prevAnimation.totalDuration);
+						var prevLoc = _prevAnimation.computeJointFrame (jointIdx, prevTime);
 						#if PREV_PREV_FADE
 						if (_prevPrevAnimation != null) {
 						var prevPrevLoc = _prevPrevAnimation.ComputeJointFrame (jointIdx, _prevPrevT);
@@ -316,11 +316,11 @@ namespace SimpleScene
 						#endif
 						var fadeInRatio = _currT / _transitionTime;
 						GL.Color3 (fadeInRatio, 1f - fadeInRatio, 0);
-						return SSSkeletalJointLocation.Interpolate (prevLoc, loc, fadeInRatio);
+						return SSSkeletalJointLocation.interpolate (prevLoc, loc, fadeInRatio);
 					}
 				} else if (_prevAnimation != null) {
 					//GL.Color3 (0f, 1f, 0f);
-					return _prevAnimation.ComputeJointFrame (jointIdx, _prevT);
+					return _prevAnimation.computeJointFrame (jointIdx, _prevT);
 				} else {
 					var errMsg = "Attempting to compute a joint frame location from an inactive channel.";
 					System.Console.WriteLine (errMsg);

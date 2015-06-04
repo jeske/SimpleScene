@@ -8,91 +8,91 @@ namespace SimpleScene
 {
 	public struct SSSkeletalVertexRuntime
 	{
-		public Vector3 BindPoseNormal;        
-		private SSSkeletalVertex m_baseInfo;
+		public Vector3 bindPoseNormal;        
+		private SSSkeletalVertex _baseInfo;
 
-		public SSSkeletalVertex BaseInfo {
-			get { return m_baseInfo; }
+		public SSSkeletalVertex baseInfo {
+			get { return _baseInfo; }
 		}
 
 		public SSSkeletalVertexRuntime(SSSkeletalVertex vertex)
 		{
-			m_baseInfo = vertex;
-			BindPoseNormal = Vector3.Zero;            
+			_baseInfo = vertex;
+			bindPoseNormal = Vector3.Zero;            
 		}
 	}
 
 	public struct SSSkeletalWeightRuntime
 	{
-		public SSSkeletalWeight BaseInfo;
-		public Vector3 JointLocalNormal;
+		public SSSkeletalWeight baseInfo;
+		public Vector3 jointLocalNormal;
 
 		public SSSkeletalWeightRuntime(SSSkeletalWeight weight)
 		{
-			BaseInfo = weight;
-			JointLocalNormal = Vector3.Zero;
+			baseInfo = weight;
+			jointLocalNormal = Vector3.Zero;
 		}
 	}
 
 	public class SSSkeletalMeshRuntime
 	{
-		protected SSSkeletalHierarchyRuntime m_hierarchy = null;
-		protected SSSkeletalVertexRuntime[] m_vertices = null;
-		protected SSSkeletalWeightRuntime[] m_weights = null;
-		protected UInt16[] m_triangleIndices = null;
+		protected SSSkeletalHierarchyRuntime _hierarchy = null;
+		protected SSSkeletalVertexRuntime[] _vertices = null;
+		protected SSSkeletalWeightRuntime[] _weights = null;
+		protected UInt16[] _triangleIndices = null;
 
-		public int NumVertices {
-			get { return m_vertices.Length; }
+		public int numVertices {
+			get { return _vertices.Length; }
 		}
 
-		public int NumIndices {
-			get { return m_triangleIndices.Length; }
+		public int numIndices {
+			get { return _triangleIndices.Length; }
 		}
 
-		public int NumTriangles {
-			get { return m_triangleIndices.Length / 3; }
+		public int numTriangles {
+			get { return _triangleIndices.Length / 3; }
 		}
 
-		public ushort[] Indices {
-			get { return m_triangleIndices; }
+		public ushort[] indices {
+			get { return _triangleIndices; }
 		}
 
 		public SSSkeletalMeshRuntime (SSSkeletalMesh mesh, SSSkeletalHierarchyRuntime hierarchy)
 		{
-			m_hierarchy = hierarchy;
+			_hierarchy = hierarchy;
 
-			m_vertices = new SSSkeletalVertexRuntime[mesh.Vertices.Length];
-			for (int v = 0; v < mesh.Vertices.Length; ++v) {
-				m_vertices [v] = new SSSkeletalVertexRuntime (mesh.Vertices [v]);
+			_vertices = new SSSkeletalVertexRuntime[mesh.vertices.Length];
+			for (int v = 0; v < mesh.vertices.Length; ++v) {
+				_vertices [v] = new SSSkeletalVertexRuntime (mesh.vertices [v]);
 			}
 
-			m_weights = new SSSkeletalWeightRuntime[mesh.Weights.Length];
-			for (int w = 0; w < mesh.Weights.Length; ++w) {
-				m_weights [w] = new SSSkeletalWeightRuntime (mesh.Weights [w]);
+			_weights = new SSSkeletalWeightRuntime[mesh.weights.Length];
+			for (int w = 0; w < mesh.weights.Length; ++w) {
+				_weights [w] = new SSSkeletalWeightRuntime (mesh.weights [w]);
 			}
-			m_triangleIndices = mesh.TriangleIndices;
-			preComputeNormals ();
+			_triangleIndices = mesh.triangleIndices;
+			_preComputeNormals ();
 		}
 
-        public Vector3 ComputeVertexPosFromTriIndex(int triangleVertexIndex) {
-            int vertexIndex = m_triangleIndices[triangleVertexIndex];
-            return ComputeVertexPos(vertexIndex);
+        public Vector3 computeVertexPosFromTriIndex(int triangleVertexIndex) {
+            int vertexIndex = _triangleIndices[triangleVertexIndex];
+            return computeVertexPos(vertexIndex);
         }
 
 		/// <summary>
 		/// Computes a vertex position based on the state of runtime joint hierarchy
 		/// </summary>
-		public Vector3 ComputeVertexPos(int vertexIndex)
+		public Vector3 computeVertexPos(int vertexIndex)
 		{
 			Vector3 currentPos = Vector3.Zero;
-			SSSkeletalVertex vertex = m_vertices [vertexIndex].BaseInfo;
+			SSSkeletalVertex vertex = _vertices [vertexIndex].baseInfo;
 
-			for (int w = 0; w < vertex.WeightCount; ++w) {
-				var weight = m_weights [vertex.WeightStartIndex + w];
-				var joint = m_hierarchy.joints[weight.BaseInfo.JointIndex];
+			for (int w = 0; w < vertex.weightCount; ++w) {
+				var weight = _weights [vertex.weightStartIndex + w];
+				var joint = _hierarchy.joints[weight.baseInfo.jointIndex];
 
-				Vector3 currWeightPos = Vector3.Transform (weight.BaseInfo.Position, joint.CurrentLocation.Orientation); 
-				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
+				Vector3 currWeightPos = Vector3.Transform (weight.baseInfo.position, joint.currentLocation.orientation); 
+				currentPos += weight.baseInfo.bias * (joint.currentLocation.position + currWeightPos);
 			}
 			return currentPos;
 		}
@@ -100,21 +100,21 @@ namespace SimpleScene
 		/// <summary>
 		/// Computes a vertex normal based on the state of runtime joint hierarchy
 		/// </summary>
-		public Vector3 ComputeVertexNormal(int vertexIndex)
+		public Vector3 computeVertexNormal(int vertexIndex)
 		{            
-            SSSkeletalVertex vertex = m_vertices[vertexIndex].BaseInfo;
+            SSSkeletalVertex vertex = _vertices[vertexIndex].baseInfo;
             Vector3 currentPos = Vector3.Zero;
             Vector3 currentNormalEndpoint = Vector3.Zero;
 
-            for (int w = 0; w < vertex.WeightCount; ++w) {
-                var weight = m_weights[vertex.WeightStartIndex + w];
-				var joint = m_hierarchy.joints[weight.BaseInfo.JointIndex];
+            for (int w = 0; w < vertex.weightCount; ++w) {
+                var weight = _weights[vertex.weightStartIndex + w];
+				var joint = _hierarchy.joints[weight.baseInfo.jointIndex];
 
-				Vector3 currWeightPos = Vector3.Transform(weight.BaseInfo.Position, joint.CurrentLocation.Orientation);
-				currentPos += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightPos);
+				Vector3 currWeightPos = Vector3.Transform(weight.baseInfo.position, joint.currentLocation.orientation);
+				currentPos += weight.baseInfo.bias * (joint.currentLocation.position + currWeightPos);
 
-				Vector3 currWeightNormalEndpointPos = Vector3.Transform(weight.BaseInfo.Position + weight.JointLocalNormal, joint.CurrentLocation.Orientation);
-				currentNormalEndpoint += weight.BaseInfo.Bias * (joint.CurrentLocation.Position + currWeightNormalEndpointPos);
+				Vector3 currWeightNormalEndpointPos = Vector3.Transform(weight.baseInfo.position + weight.jointLocalNormal, joint.currentLocation.orientation);
+				currentNormalEndpoint += weight.baseInfo.bias * (joint.currentLocation.position + currWeightNormalEndpointPos);
             }
 
             return (currentNormalEndpoint - currentPos).Normalized();
@@ -123,64 +123,64 @@ namespace SimpleScene
 		/// <summary>
 		/// Retrieve bind pose normal for a vertex
 		/// </summary>
-        public Vector3 BindPoseNormal(int vertexIndex) 
+        public Vector3 bindPoseNormal(int vertexIndex) 
 		{
-            return m_vertices[vertexIndex].BindPoseNormal;
+            return _vertices[vertexIndex].bindPoseNormal;
         }
 
 		/// <summary>
 		/// Retrieve texture coordinates for a vertex
 		/// </summary>
-		public Vector2 TextureCoords(int vertexIndex)
+		public Vector2 textureCoords(int vertexIndex)
 		{
-			return m_vertices [vertexIndex].BaseInfo.TextureCoords;
+			return _vertices [vertexIndex].baseInfo.textureCoords;
 		}
 
 		/// <summary>
 		/// Precompute normals in joint-local space
 		/// http://3dgep.com/loading-and-animating-md5-models-with-opengl/#The_MD5Mesh::PrepareNormals_Method
 		/// </summary>
-		private void preComputeNormals()
+		private void _preComputeNormals()
 		{
             // step 0: initialize per-vertex normals to zero..
-            for (int v = 0; v < m_vertices.Length; ++v) {
-                m_vertices[v].BindPoseNormal = Vector3.Zero;
+            for (int v = 0; v < _vertices.Length; ++v) {
+                _vertices[v].bindPoseNormal = Vector3.Zero;
             }
 
 			// step 1: walk each triangle, and add the triangle normal contribution to it's verticies.
-			for (int i = 0; i < NumTriangles; ++i) {
+			for (int i = 0; i < numTriangles; ++i) {
 				int baseIdx = i * 3;
-				int v0 = m_triangleIndices [baseIdx];
-				int v1 = m_triangleIndices [baseIdx + 1];
-				int v2 = m_triangleIndices [baseIdx + 2];
-				Vector3 p0 = ComputeVertexPos (v0);
-				Vector3 p1 = ComputeVertexPos (v1);
-				Vector3 p2 = ComputeVertexPos (v2);
+				int v0 = _triangleIndices [baseIdx];
+				int v1 = _triangleIndices [baseIdx + 1];
+				int v2 = _triangleIndices [baseIdx + 2];
+				Vector3 p0 = computeVertexPos (v0);
+				Vector3 p1 = computeVertexPos (v1);
+				Vector3 p2 = computeVertexPos (v2);
 				Vector3 triNormal = Vector3.Cross (p1 - p0, p2 - p0);
-				m_vertices [v0].BindPoseNormal += triNormal;
-				m_vertices [v1].BindPoseNormal += triNormal;
-				m_vertices [v2].BindPoseNormal += triNormal;
+				_vertices [v0].bindPoseNormal += triNormal;
+				_vertices [v1].bindPoseNormal += triNormal;
+				_vertices [v2].bindPoseNormal += triNormal;
 			}
 
 			// step 2: walk each vertex, normalize the normal, and convert into joint-local space
-			for (int v = 0; v < m_vertices.Length; ++v) {
+			for (int v = 0; v < _vertices.Length; ++v) {
 				// Normalize
-				Vector3 normal = m_vertices [v].BindPoseNormal.Normalized();				
-				m_vertices [v].BindPoseNormal = normal;
+				Vector3 normal = _vertices [v].bindPoseNormal.Normalized();				
+				_vertices [v].bindPoseNormal = normal;
                 Console.WriteLine("normal = {0}",normal);
 
 				// Put the bind-pose normal into joint-local space
 				// so the animated normal can be computed faster later
-				var vertBaseInfo = m_vertices [v].BaseInfo;
-                for (int w = 0; w < vertBaseInfo.WeightCount; ++w) {
-					var weight = m_weights [vertBaseInfo.WeightStartIndex + w];
-					var joint = m_hierarchy.joints [weight.BaseInfo.JointIndex];
+				var vertBaseInfo = _vertices [v].baseInfo;
+                for (int w = 0; w < vertBaseInfo.weightCount; ++w) {
+					var weight = _weights [vertBaseInfo.weightStartIndex + w];
+					var joint = _hierarchy.joints [weight.baseInfo.jointIndex];
 
                     // write the joint local normal
-                    m_weights[vertBaseInfo.WeightStartIndex + w].JointLocalNormal =                     
-                        Vector3.Transform(normal, joint.BaseInfo.BindPoseLocation.Orientation.Inverted());
+                    _weights[vertBaseInfo.weightStartIndex + w].jointLocalNormal =                     
+                        Vector3.Transform(normal, joint.baseInfo.bindPoseLocation.orientation.Inverted());
 
-                    Console.WriteLine("Joint-Weight local normal: {0}", weight.JointLocalNormal);                       
+                    Console.WriteLine("Joint-Weight local normal: {0}", weight.jointLocalNormal);                       
 				}
 
 			}

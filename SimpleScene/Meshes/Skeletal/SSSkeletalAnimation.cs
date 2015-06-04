@@ -5,7 +5,7 @@ namespace SimpleScene
 {
 	public class SSSkeletalAnimation
 	{
-		public string Name;
+		public string name;
 
 		protected int _frameRate;
 
@@ -16,35 +16,35 @@ namespace SimpleScene
 		// temp use
 		protected float[] _floatComponents;
 
-		public int NumFrames {
+		public int numFrames {
 			get { return _frames.Length; }
 		}
 
-		public int NumJoints {
+		public int numJoints {
 			get { return _hierarchy.Length; }
 		}
 
-		public int FrameRate {
+		public int frameRate {
 			get { return _frameRate; }
 		}
 
-		public float FrameDuration {
+		public float frameDuration {
 			get { return 1f / (float)_frameRate; }
 		}
 
-		public float TotalDuration {
+		public float totalDuration {
 			get { return (float)(_frames.Length-1) / (float)_frameRate; }
 		}
 
-		public SSSkeletalJoint[] Hierarchy {
+		public SSSkeletalJoint[] hierarchy {
 			get { return _hierarchy; }
 		}
 
-		public SSAABB[] Bounds {
+		public SSAABB[] bounds {
 			get { return _bounds; }
 		}
 
-		public SSSkeletalJoint[] JointHierarchy {
+		public SSSkeletalJoint[] jointHierarchy {
 			get { return _hierarchy; }
 		}
 
@@ -59,17 +59,20 @@ namespace SimpleScene
 			_frameRate = frameRate;
 		}
 
-		public SSSkeletalJointLocation ComputeJointFrame(int jointIdx, float t)
+		/// <summary>
+		/// Retrieves a joint location for a particular timestamp; in joint-local coordinates
+		/// </summary>
+		public SSSkeletalJointLocation computeJointFrame(int jointIdx, float t)
 		{
-			int leftFrameIdx = (int)(t / FrameDuration);
+			int leftFrameIdx = (int)(t / frameDuration);
 			SSSkeletalJointLocation leftJointFrame = _frames [leftFrameIdx] [jointIdx];
-			float remainder = t - ((float)leftFrameIdx * FrameDuration);
+			float remainder = t - ((float)leftFrameIdx * frameDuration);
 			if (remainder == 0) {
 				return leftJointFrame;
 			} else {
 				SSSkeletalJointLocation rightJointFrame = _frames [leftFrameIdx+1] [jointIdx];
-				return SSSkeletalJointLocation.Interpolate (
-					leftJointFrame,	rightJointFrame, remainder / FrameDuration);
+				return SSSkeletalJointLocation.interpolate (
+					leftJointFrame,	rightJointFrame, remainder / frameDuration);
 			}
 		}
 	}

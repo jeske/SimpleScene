@@ -27,10 +27,10 @@ namespace SimpleScene
 			this.radius = radius;
 		}
 
-		public override void RenderMesh(ref SSRenderConfig renderConfig) 
+		public override void renderMesh(ref SSRenderConfig renderConfig) 
 		{
 
-			base.RenderMesh(ref renderConfig);
+			base.renderMesh(ref renderConfig);
 
 			if (renderConfig.renderBoundingSpheresSolid) {
 				this._RenderSolid(ref renderConfig);

@@ -133,11 +133,11 @@ namespace TestBench0
 				scene.AddObject(obj0);
 
 				SSSimpleObjectTrackingController tracker0 = new SSSimpleObjectTrackingController(11, obj0);
-				tracker0.jointPositionLocal = animIdle.ComputeJointFrame(11, 0).Position;
-				tracker0.neutralViewOrientationLocal = animIdle.ComputeJointFrame(11, 0).Orientation;
+				tracker0.jointPositionLocal = animIdle.computeJointFrame(11, 0).position;
+				tracker0.neutralViewOrientationLocal = animIdle.computeJointFrame(11, 0).orientation;
 				tracker0.neutralViewDirectionBindPose = Vector3.UnitY;
 				tracker0.targetObject = scene.ActiveCamera;
-				renderMesh0.AddController(tracker0);
+				renderMesh0.addController(tracker0);
 				#endif
 
 				#if true
@@ -149,13 +149,13 @@ namespace TestBench0
 				obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj1);
 
-				renderMesh1.PlayAnimationLoop(animRunning, 0f);
+				renderMesh1.playAnimationLoop(animRunning, 0f);
 				#endif
 
 				#if true
 				var renderMesh2 = new SSSkeletalRenderMesh(skeliMesh);
-				renderMesh2.PlayAnimationLoop(animIdle, 0f, "all");
-				renderMesh2.PlayAnimationLoop(animRunning, 0f, "LeftClavicle", "RightClavicle");
+				renderMesh2.playAnimationLoop(animIdle, 0f, "all");
+				renderMesh2.playAnimationLoop(animRunning, 0f, "LeftClavicle", "RightClavicle");
 				var obj2 = new SSObjectMesh(renderMesh2);
 				obj2.MainColor = Color.Green;
 				obj2.Name = "green bones (idle + running loop mixed)";
@@ -166,7 +166,7 @@ namespace TestBench0
 
 				#if true
 				var renderMesh3 = new SSSkeletalRenderMesh(skeliMesh);
-				renderMesh3.PlayAnimationLoop(animIdle, 0f, "all");
+				renderMesh3.playAnimationLoop(animIdle, 0f, "all");
 				var obj3 = new SSObjectMesh(renderMesh3);
 				obj3.MainColor = Color.DarkCyan;
 				obj3.Name = "blue bones (idle loop)";
@@ -177,23 +177,23 @@ namespace TestBench0
 				
 				// state machines setup for skeletal render mesh 4 and 5
 				var skeletonWalkDescr = new SSAnimationStateMachine();
-				skeletonWalkDescr.AddState("idle", animIdle, true);		
-				skeletonWalkDescr.AddState("running1", animRunning);
-				skeletonWalkDescr.AddState("running2", animRunning);
-				skeletonWalkDescr.AddAnimationEndsTransition("idle", "running1", 0.3f);
-				skeletonWalkDescr.AddAnimationEndsTransition("running1", "running2", 0f);
-				skeletonWalkDescr.AddAnimationEndsTransition("running2", "idle", 0.3f);
+				skeletonWalkDescr.addState("idle", animIdle, true);		
+				skeletonWalkDescr.addState("running1", animRunning);
+				skeletonWalkDescr.addState("running2", animRunning);
+				skeletonWalkDescr.addAnimationEndsTransition("idle", "running1", 0.3f);
+				skeletonWalkDescr.addAnimationEndsTransition("running1", "running2", 0f);
+				skeletonWalkDescr.addAnimationEndsTransition("running2", "idle", 0.3f);
 
 				var skeletonAttackDescr = new SSAnimationStateMachine();
-				skeletonAttackDescr.AddState("inactive", null, true);
-				skeletonAttackDescr.AddState("attack", animAttack);
-				skeletonAttackDescr.AddStateTransition(null, "attack", 0.5f);
-				skeletonAttackDescr.AddAnimationEndsTransition("attack", "inactive", 0.5f);
+				skeletonAttackDescr.addState("inactive", null, true);
+				skeletonAttackDescr.addState("attack", animAttack);
+				skeletonAttackDescr.addStateTransition(null, "attack", 0.5f);
+				skeletonAttackDescr.addAnimationEndsTransition("attack", "inactive", 0.5f);
 
 				#if true
 				// state machine test (in slow motion)
 				var renderMesh4 = new SSSkeletalRenderMesh(skeliMesh);
-				renderMesh4.TimeScale = 0.25f;
+				renderMesh4.timeScale = 0.25f;
 
 				var obj4 = new SSObjectMesh(renderMesh4);
 				obj4.MainColor = Color.DarkMagenta;
@@ -202,22 +202,22 @@ namespace TestBench0
 				obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj4);
 
-				var renderMesh4WallSm = renderMesh4.AddStateMachine(skeletonWalkDescr, "all");
-				renderMesh4AttackSm = renderMesh4.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
+				var renderMesh4WallSm = renderMesh4.addStateMachine(skeletonWalkDescr, "all");
+				renderMesh4AttackSm = renderMesh4.addStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 
 				SSSimpleObjectTrackingController tracker4 = new SSSimpleObjectTrackingController(11, obj4);
-				tracker4.jointPositionLocal = animRunning.ComputeJointFrame(11, 0).Position;
-				tracker4.neutralViewOrientationLocal = animRunning.ComputeJointFrame(11, 0).Orientation;
+				tracker4.jointPositionLocal = animRunning.computeJointFrame(11, 0).position;
+				tracker4.neutralViewOrientationLocal = animRunning.computeJointFrame(11, 0).orientation;
 				tracker4.neutralViewDirectionBindPose = Vector3.UnitY;
 				tracker4.targetObject = scene.ActiveCamera;
-				renderMesh4.AddController(tracker4);
+				renderMesh4.addController(tracker4);
 				#endif
 
 				#if true
 				// another mesh, using the same state machine but running at normal speed
 				var renderMesh5 = new SSSkeletalRenderMesh(skeliMesh);
-				var renderMesh5WalkSm = renderMesh5.AddStateMachine(skeletonWalkDescr, "all");
-				renderMesh5AttackSm = renderMesh5.AddStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
+				var renderMesh5WalkSm = renderMesh5.addStateMachine(skeletonWalkDescr, "all");
+				renderMesh5AttackSm = renderMesh5.addStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 				var obj5 = new SSObjectMesh(renderMesh5);
 				obj5.Name = "orange bones (looping idle/walk, interactive attack + parametric neck rotation)";
 				obj5.Pos = new Vector3(12f, 0f, 0f);
@@ -227,7 +227,7 @@ namespace TestBench0
 
 				renderMesh5NeckJoint = new SSPolarJoint();
 				renderMesh5NeckJoint.positionOffset = new Vector3(0f, 0.75f, 0f);
-				renderMesh5.AddParametricJoint("UpperNek", renderMesh5NeckJoint);
+				renderMesh5.addParametricJoint("UpperNek", renderMesh5NeckJoint);
 				#endif
 				}
 			}
@@ -241,9 +241,9 @@ namespace TestBench0
 				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
 					"./bob_lamp/", "bob_lamp_update.md5anim");
 				var bobRender = new SSSkeletalRenderMesh(bobMeshes);
-				bobRender.PlayAnimationLoop(bobAnim, 0f);
+				bobRender.playAnimationLoop(bobAnim, 0f);
 				bobRender.alphaBlendingEnabled = true;
-				bobRender.TimeScale = 0.5f;
+				bobRender.timeScale = 0.5f;
 				var bobObj = new SSObjectMesh(bobRender);
 				bobObj.Name = "Bob";
 				bobObj.Pos = new Vector3(10f, 0f, 10f);
