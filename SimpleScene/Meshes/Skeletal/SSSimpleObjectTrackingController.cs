@@ -6,24 +6,35 @@ namespace SimpleScene
 	public class SSSimpleObjectTrackingController : SSSkeletalChannelController
 	{
 		/// <summary>
-		/// For computing the final position of the joint; in joint-local coordinates
+		/// Fixed position of the joint in joint-local coordinates
 		/// </summary>
 		public Vector3 jointPositionLocal = Vector3.Zero;
 
 		/// <summary>
-		/// Orientation, in joint-local coordinates, needed to make the joint "look" in the neutral direction
+		/// Orientation, in joint-local coordinates, that makes the joint "look" at nothing (neutral)
 		/// </summary>
 		public Quaternion neutralViewOrientationLocal = Quaternion.Identity;
 
 		/// <summary>
-		/// Direction, in joint-local coordinates, where the joint should be "looking" when neutral (nothing to see)
+		/// Direction, in mesh coordinates, where the joint should be "looking" while in bind pose with 
+		/// nothing to see
 		/// </summary>
-		public Vector3 neutralViewDirectionMesh = Vector3.UnitX;
+		public Vector3 neutralViewDirectionBindPose {
+			get { return _neutralViewDirectionBindPose; }
+			set { 
+				_neutralViewDirectionBindPose = value;
+				_neutralViewDirectionDirty = true;
+			}
+		}
 
 		/// <summary>
 		/// Target object to be viewed
 		/// </summary>
 		public SSObject targetObject = null;
+
+		protected Vector3 _neutralViewDirectionBindPose = Vector3.UnitX;
+		protected Vector3 _neutralViewDirectionLocal;
+		protected bool _neutralViewDirectionDirty = true;
 
 		protected readonly SSObjectMesh _hostObject;
 		protected readonly int _jointIdx;
@@ -43,6 +54,17 @@ namespace SimpleScene
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
+			if (_neutralViewDirectionDirty) {
+				Quaternion precedingBindPoseOrient = Quaternion.Identity;
+				for (var j = joint.Parent; j != null; j = j.Parent) {
+					precedingBindPoseOrient = Quaternion.Multiply (
+						joint.BaseInfo.BindPoseLocation.Orientation, precedingBindPoseOrient);
+				}
+				_neutralViewDirectionLocal = Vector3.Transform (
+					_neutralViewDirectionBindPose, precedingBindPoseOrient.Inverted());
+				_neutralViewDirectionDirty = false;
+			}
+
 			SSSkeletalJointLocation ret = new SSSkeletalJointLocation ();
 			ret.Position = jointPositionLocal;
 
@@ -50,15 +72,13 @@ namespace SimpleScene
 				Vector3 targetPosInMesh 
 					= Vector3.Transform (targetObject.Pos, _hostObject.worldMat.Inverted());
 				Vector3 targetPosInLocal = targetPosInMesh;
-				Vector3 neutralDirLocal = neutralViewDirectionMesh;
 				if (joint.Parent != null) {
 					targetPosInLocal = joint.Parent.CurrentLocation.UndoTransformTo (targetPosInLocal);
-					neutralDirLocal = Vector3.Transform (neutralDirLocal, joint.Parent.CurrentLocation.Orientation.Inverted ());
 				}
-
 				Vector3 targetDirLocal = targetPosInLocal - jointPositionLocal;
+
 				Quaternion neededRotation = OpenTKHelper.getRotationTo (
-					neutralDirLocal, 
+					_neutralViewDirectionLocal, 
 					targetDirLocal, Vector3.UnitX);
 				ret.Orientation = Quaternion.Multiply(neutralViewOrientationLocal, neededRotation);
 				//Vector4 test = neededRotation.ToAxisAngle ();
