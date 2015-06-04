@@ -155,6 +155,8 @@ namespace TestBench0
 
 		private void driveCamera(float deltaT)
 		{
+			if (!base.Focused) return; // no window focus = no action
+
 			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
 			KeyboardState state = OpenTK.Input.Keyboard.GetState ();
 			float cameraDisplacement = (ctp.followDistance + 5f) * deltaT * -0.33f;
