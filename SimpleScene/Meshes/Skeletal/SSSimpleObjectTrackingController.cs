@@ -23,7 +23,15 @@ namespace SimpleScene
 			get { return _neutralViewDirectionBindPose; }
 			set { 
 				_neutralViewDirectionBindPose = value;
-				_neutralViewDirectionDirty = true;
+				_neutralViewDirty = true;
+			}
+		}
+
+		public Vector3 neutralViewUpBindPose {
+			get { return _neutralViewUpBindPose; }
+			set {
+				_neutralViewUpBindPose = value;
+				_neutralViewDirty = true;
 			}
 		}
 
@@ -32,9 +40,15 @@ namespace SimpleScene
 		/// </summary>
 		public SSObject targetObject = null;
 
-		protected Vector3 _neutralViewDirectionBindPose = Vector3.UnitX;
-		protected Vector3 _neutralViewDirectionLocal;
-		protected bool _neutralViewDirectionDirty = true;
+		protected Vector3 _neutralViewDirectionBindPose = Vector3.UnitY;
+		protected Vector3 _neutralViewUpBindPose = Vector3.UnitZ;
+
+		protected Vector3 _neutralViewDirectionLocal; // "X"
+		protected Vector3 _neutralViewUpLocal;        // "Z"
+		protected Vector3 _neutralViewYLocal;         // "Y"
+		protected Matrix4 _neutralViewTransform;
+
+		protected bool _neutralViewDirty = true;
 
 		protected readonly SSObjectMesh _hostObject;
 		protected readonly int _jointIdx;
@@ -54,15 +68,31 @@ namespace SimpleScene
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
 		{
-			if (_neutralViewDirectionDirty) {
+			if (_neutralViewDirty) {
 				Quaternion precedingBindPoseOrient = Quaternion.Identity;
 				for (var j = joint.parent; j != null; j = j.parent) {
 					precedingBindPoseOrient = Quaternion.Multiply (
 						joint.baseInfo.bindPoseLocation.orientation, precedingBindPoseOrient);
 				}
-				_neutralViewDirectionLocal = Vector3.Transform (
-					_neutralViewDirectionBindPose, precedingBindPoseOrient.Inverted());
-				_neutralViewDirectionDirty = false;
+				Quaternion precedingInverted = precedingBindPoseOrient.Inverted ();
+				_neutralViewDirectionLocal = Vector3.Transform (_neutralViewDirectionBindPose, precedingInverted)
+					.Normalized();
+				_neutralViewUpLocal = Vector3.Transform (_neutralViewUpBindPose, precedingInverted)
+					.Normalized();
+				_neutralViewYLocal = Vector3.Transform (
+					Vector3.Cross (_neutralViewDirectionBindPose, _neutralViewUpBindPose), precedingInverted)
+					.Normalized();
+				_neutralViewTransform = new Matrix4 (
+					//new Vector4 (_neutralViewDirectionLocal, 0f),
+					//new Vector4 (_neutralViewYLocal, 0f),
+					//new Vector4 (_neutralViewUpLocal, 0f),
+					//new Vector4 (0f)
+					_neutralViewDirectionLocal.X, _neutralViewDirectionLocal.Y, _neutralViewDirectionLocal.Z, 0f,
+					_neutralViewYLocal.X, _neutralViewYLocal.Y, _neutralViewYLocal.Z, 0f,
+					_neutralViewUpLocal.X, _neutralViewUpLocal.Y, _neutralViewUpLocal.Z, 0f,
+					0f, 0f, 0f, 0f
+				);
+				_neutralViewDirty = false;
 			}
 
 			SSSkeletalJointLocation ret = new SSSkeletalJointLocation ();
@@ -75,11 +105,28 @@ namespace SimpleScene
 				if (joint.parent != null) {
 					targetPosInLocal = joint.parent.currentLocation.undoTransformTo (targetPosInLocal);
 				}
-				Vector3 targetDirLocal = targetPosInLocal - jointPositionLocal;
+				targetPosInLocal -= jointPositionLocal;
+				Vector3 targetDirLocal = Vector3.Transform (targetPosInLocal, _neutralViewTransform);
+				targetDirLocal.Normalize ();
 
-				Quaternion neededRotation = OpenTKHelper.getRotationTo (
-					_neutralViewDirectionLocal, 
-					targetDirLocal, Vector3.UnitX);
+
+				float theta = (float)Math.Atan2 (targetDirLocal.Y, targetDirLocal.X);
+				float phi = (float)Math.Atan2 (targetDirLocal.Z, targetDirLocal.Xy.LengthFast);
+
+				//Quaternion neededRotation = Quaternion.FromAxisAngle (_neutralViewUpLocal, theta);
+				//Quaternion neededRotation = Quaternion.FromAxisAngle (_neutralViewYLocal, phi);
+				//Quaternion neededRotation = Quaternion.Identity;
+
+
+				Quaternion neededRotation = Quaternion.Multiply(
+				Quaternion.FromAxisAngle (_neutralViewYLocal, phi),
+				Quaternion.FromAxisAngle (_neutralViewUpLocal, theta));
+
+				//Quaternion neededRotation = OpenTKHelper.getRotationTo (
+				//	_neutralViewDirectionLocal, 
+				//	targetDirLocal, Vector3.UnitX);
+
+
 				ret.orientation = Quaternion.Multiply(neutralViewOrientationLocal, neededRotation);
 				//Vector4 test = neededRotation.ToAxisAngle ();
 			} else {

@@ -129,13 +129,14 @@ namespace TestBench0
 				obj0.MainColor = Color4.DarkGray;
 				obj0.Name = "grey bones (bind pose)";
 				obj0.Pos = new Vector3(-18f, 0f, -18f);
-				obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				//obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj0);
 
 				SSSimpleObjectTrackingController tracker0 = new SSSimpleObjectTrackingController(11, obj0);
 				tracker0.jointPositionLocal = animIdle.computeJointFrame(11, 0).position;
 				tracker0.neutralViewOrientationLocal = animIdle.computeJointFrame(11, 0).orientation;
 				tracker0.neutralViewDirectionBindPose = Vector3.UnitY;
+				tracker0.neutralViewUpBindPose = Vector3.UnitZ;
 				tracker0.targetObject = scene.ActiveCamera;
 				renderMesh0.addController(tracker0);
 				#endif
@@ -205,12 +206,14 @@ namespace TestBench0
 				var renderMesh4WallSm = renderMesh4.addStateMachine(skeletonWalkDescr, "all");
 				renderMesh4AttackSm = renderMesh4.addStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
 
+			#if false
 				SSSimpleObjectTrackingController tracker4 = new SSSimpleObjectTrackingController(11, obj4);
 				tracker4.jointPositionLocal = animRunning.computeJointFrame(11, 0).position;
 				tracker4.neutralViewOrientationLocal = animRunning.computeJointFrame(11, 0).orientation;
 				tracker4.neutralViewDirectionBindPose = Vector3.UnitY;
 				tracker4.targetObject = scene.ActiveCamera;
 				renderMesh4.addController(tracker4);
+			#endif
 				#endif
 
 				#if true
