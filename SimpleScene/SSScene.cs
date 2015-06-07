@@ -24,10 +24,10 @@ namespace SimpleScene
 	public class SSRenderConfig {
         public SSRenderStats renderStats;
 
-		public SSMainShaderProgram MainShader;
-        public SSPssmShaderProgram PssmShader;
-        public SSInstanceShaderProgram InstanceShader;
-		public SSInstancePssmShaderProgram InstancePssmShader;
+		public readonly SSMainShaderProgram mainShader;
+        public readonly SSPssmShaderProgram pssmShader;
+        public readonly SSInstanceShaderProgram instanceShader;
+		public readonly SSInstancePssmShaderProgram instancePssmShader;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
@@ -50,10 +50,10 @@ namespace SimpleScene
 
 		public ISSInstancableShaderProgram ActiveInstanceShader {
 			get {
-				if (InstanceShader != null && InstanceShader.IsActive) {
-					return InstanceShader;
-				} else if (InstancePssmShader != null && InstancePssmShader.IsActive) {
-					return InstancePssmShader;
+				if (instanceShader != null && instanceShader.IsActive) {
+					return instanceShader;
+				} else if (instancePssmShader != null && instancePssmShader.IsActive) {
+					return instancePssmShader;
 				}
 				return null;
 			}
@@ -61,10 +61,10 @@ namespace SimpleScene
 
 		public SSMainShaderProgram ActiveDrawShader {
 			get {
-				if (MainShader != null && MainShader.IsActive) {
-					return MainShader;
-				} else if (InstanceShader != null && InstanceShader.IsActive) {
-					return InstanceShader;
+				if (mainShader != null && mainShader.IsActive) {
+					return mainShader;
+				} else if (instanceShader != null && instanceShader.IsActive) {
+					return instanceShader;
 				}
 				return null;
 			}
@@ -78,12 +78,23 @@ namespace SimpleScene
 			}
 			return (WireframeMode)newVal;
 		}
+
+		public SSRenderConfig(SSMainShaderProgram main,
+							  SSPssmShaderProgram pssm,
+							  SSInstanceShaderProgram instance,
+							  SSInstancePssmShaderProgram instancePssm)
+		{
+			mainShader = main;
+			pssmShader = pssm;
+			instanceShader = instance;
+			instancePssmShader = instancePssm;
+		}
 	}
 
     public sealed class SSScene
     {
         private SSCamera activeCamera = null;
-        public SSRenderConfig renderConfig = new SSRenderConfig();
+        public readonly SSRenderConfig renderConfig;
         public List<SSObject> objects = new List<SSObject>();
         public List<SSLightBase> lights = new List<SSLightBase>();
 
@@ -92,17 +103,13 @@ namespace SimpleScene
             set { activeCamera = value; }
         }
 
-        public SSMainShaderProgram MainShader {
-            get { return renderConfig.MainShader; }
-            set { 
-                renderConfig.MainShader = value;
-                if (renderConfig.MainShader != null) {
-                    renderConfig.MainShader.Activate();
-                    renderConfig.MainShader.SetupShadowMap(lights);
-                    renderConfig.MainShader.Deactivate();
-                }
-            }
-        }
+		public SSScene(SSMainShaderProgram main = null,
+					   SSPssmShaderProgram pssm = null,
+					   SSInstanceShaderProgram instance = null,
+					   SSInstancePssmShaderProgram instancePssm = null)
+		{
+			renderConfig = new SSRenderConfig (main, pssm, instance, instancePssm);
+		}
 
         #region SSScene Events
         public delegate void BeforeRenderObjectHandler(SSObject obj, SSRenderConfig renderConfig);
@@ -123,11 +130,11 @@ namespace SimpleScene
                 return;
             }
             lights.Add(light);
-            if (MainShader != null) {
-                MainShader.SetupShadowMap(lights);
+			if (renderConfig.mainShader != null) {
+				renderConfig.mainShader.SetupShadowMap(lights);
             }
-			if (renderConfig.InstanceShader != null) {
-				renderConfig.InstanceShader.SetupShadowMap(lights);
+			if (renderConfig.instanceShader != null) {
+				renderConfig.instanceShader.SetupShadowMap(lights);
 			}
         }
 
@@ -136,11 +143,11 @@ namespace SimpleScene
                 throw new Exception ("Light not found.");
             }
             lights.Remove(light);
-            if (MainShader != null) {
-                MainShader.Activate();
+            if (renderConfig.mainShader != null) {
+                renderConfig.mainShader.Activate();
             }
-			if (renderConfig.InstanceShader != null) {
-                renderConfig.InstanceShader.Activate();
+			if (renderConfig.instanceShader != null) {
+                renderConfig.instanceShader.Activate();
 			}
         }
 
@@ -198,15 +205,15 @@ namespace SimpleScene
         private void setupLighting() {
             GL.Enable(EnableCap.Lighting);
             foreach (var light in lights) {
-                light.SetupLight(ref renderConfig);
+                light.setupLight(renderConfig);
             }
-            if (MainShader != null) {
-                MainShader.Activate();
-                MainShader.UniLightingMode = renderConfig.lightingMode;
+            if (renderConfig.mainShader != null) {
+                renderConfig.mainShader.Activate();
+                renderConfig.mainShader.UniLightingMode = renderConfig.lightingMode;
             }
-            if (renderConfig.InstanceShader != null) {
-                renderConfig.InstanceShader.Activate();
-                renderConfig.InstanceShader.UniLightingMode = renderConfig.lightingMode;
+            if (renderConfig.instanceShader != null) {
+                renderConfig.instanceShader.Activate();
+                renderConfig.instanceShader.UniLightingMode = renderConfig.lightingMode;
 			}
         }
 
@@ -248,7 +255,7 @@ namespace SimpleScene
                     BeforeRenderObject(obj, renderConfig);
                 }
                 renderConfig.renderStats.objectsDrawn++;
-                obj.Render(ref renderConfig);
+                obj.Render(renderConfig);
             }
 
             if (needObjectDelete) {
@@ -256,36 +263,7 @@ namespace SimpleScene
             }
         }
 
-        #endregion
-        
-
-        public SSScene() {
-            // Register SS types for loading by SSAssetManager
-            SSAssetManager.RegisterLoadDelegate<SSTexture>(
-                (ctx, filename) => { return new SSTexture(ctx, filename); }
-            );
-            SSAssetManager.RegisterLoadDelegate<SSTextureWithAlpha>(
-                (ctx, filename) => { return new SSTextureWithAlpha(ctx, filename); }
-            );
-            SSAssetManager.RegisterLoadDelegate<SSMesh_wfOBJ>(
-                (ctx, filename) => { return new SSMesh_wfOBJ(ctx, filename); }
-            );
-            SSAssetManager.RegisterLoadDelegate<SSVertexShader>(
-                (ctx, filename) => { return new SSVertexShader(ctx, filename); }
-            );
-            SSAssetManager.RegisterLoadDelegate<SSFragmentShader>(
-                (ctx, filename) => { return new SSFragmentShader(ctx, filename); }
-            );
-            SSAssetManager.RegisterLoadDelegate<SSGeometryShader>(
-                (ctx, filename) => { return new SSGeometryShader(ctx, filename); }
-            );
-			SSAssetManager.RegisterLoadDelegate<SSSkeletalMeshMD5[]> (
-				(ctx, filename) => { return SSMD5MeshParser.ReadMeshes(ctx, filename); }
-			);
-			SSAssetManager.RegisterLoadDelegate<SSSkeletalAnimationMD5> (
-				(ctx, filename) => { return SSMD5AnimParser.ReadAnimation(ctx, filename); }
-			);
-        }
+        #endregion      
     }
 }
 

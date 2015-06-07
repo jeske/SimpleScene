@@ -16,11 +16,13 @@ namespace TestBench0
 		private bool autoWireframeMode = true;
 
 		public void setupScene0() {
-			scene.MainShader = mainShader;
-            scene.renderConfig.PssmShader = pssmShader;
-            scene.renderConfig.InstanceShader = instancingShader;
-            scene.renderConfig.InstancePssmShader = instancingPssmShader;
-            scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+			sunDiskScene = new SSScene ();
+			sunFlareScene = new SSScene ();
+			hudScene = new SSScene ();
+			environmentScene = new SSScene ();
+
+			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
 			scene.BeforeRenderObject += beforeRenderObjectHandler;
 
 			// 0. Add Lights
@@ -28,7 +30,7 @@ namespace TestBench0
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-                if (scene.renderConfig.PssmShader != null && scene.renderConfig.InstancePssmShader != null) {
+                if (scene.renderConfig.pssmShader != null && scene.renderConfig.instancePssmShader != null) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);

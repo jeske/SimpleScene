@@ -79,7 +79,7 @@ namespace SimpleScene
 			this.mesh = mesh;
 		}
 
-        public override void Render (ref SSRenderConfig renderConfig)
+        public override void Render (SSRenderConfig renderConfig)
         {
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
 
@@ -89,16 +89,16 @@ namespace SimpleScene
 			// do we have anything to draw?
 			if (particleSystem.activeBlockLength <= 0) return;
 
-            base.Render(ref renderConfig);
+            base.Render(renderConfig);
 
 			// select either instance shader or instance pssm shader
-			ISSInstancableShaderProgram instanceShader = renderConfig.InstanceShader;
+			ISSInstancableShaderProgram instanceShader = renderConfig.instanceShader;
 
 			if (renderConfig.drawingShadowMap) {
 				if (renderConfig.drawingPssm) {
-					renderConfig.InstancePssmShader.Activate ();
-					renderConfig.InstancePssmShader.UniObjectWorldTransform = this.worldMat;
-					instanceShader = renderConfig.InstancePssmShader;
+					renderConfig.instancePssmShader.Activate ();
+					renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
+					instanceShader = renderConfig.instancePssmShader;
 				}
 			} else {
 				if (!globalBillboarding && base.alphaBlendingEnabled) {
@@ -117,10 +117,10 @@ namespace SimpleScene
 				GL.DepthMask (depthWrite);
 
 				// texture binding setup
-                renderConfig.InstanceShader.Activate();
-				renderConfig.InstanceShader.UniObjectWorldTransform = this.worldMat;
+                renderConfig.instanceShader.Activate();
+				renderConfig.instanceShader.UniObjectWorldTransform = this.worldMat;
 				if (base.textureMaterial != null) {
-					renderConfig.InstanceShader.SetupTextures (base.textureMaterial);
+					renderConfig.instanceShader.SetupTextures (base.textureMaterial);
 				}
 			}
 

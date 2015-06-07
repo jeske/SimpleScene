@@ -12,8 +12,8 @@ namespace SimpleScene
     {
 		int GLu_textureID;
 
-		public override void Render(ref SSRenderConfig renderConfig) {
-			base.Render (ref renderConfig);
+		public override void Render(SSRenderConfig renderConfig) {
+			base.Render (renderConfig);
 
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL

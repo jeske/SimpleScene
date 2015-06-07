@@ -65,7 +65,7 @@ namespace SimpleScene
             init(sunScene, sun, texture, spriteRects, spriteScalesV2);
         }
 
-        public override void Render (ref SSRenderConfig renderConfig)
+        public override void Render (SSRenderConfig renderConfig)
         {
             int queryResult = sunBillboard.OcclusionQueueryResult;
             if (queryResult <= 0) return;
@@ -128,7 +128,7 @@ namespace SimpleScene
 			this.MainColor.A = intensityFraction;
 
 			// now, actually draw
-			base.Render(ref renderConfig);
+			base.Render(renderConfig);
         }
 
         private void init(SSScene sunScene,

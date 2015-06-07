@@ -135,7 +135,7 @@ namespace SimpleScene
 			}
 		}
 
-		public virtual void Render (ref SSRenderConfig renderConfig) {
+		public virtual void Render (SSRenderConfig renderConfig) {
 			// compute and set the modelView matrix, by combining the cameraViewMat
 			// with the object's world matrix
 			//    ... http://www.songho.ca/opengl/gl_transform.html
@@ -149,17 +149,17 @@ namespace SimpleScene
             resetTexturingState();
 
 			if (renderConfig.drawingShadowMap) {
-                if (renderConfig.drawingPssm && renderConfig.PssmShader != null) {
-					renderConfig.PssmShader.Activate ();
-					renderConfig.PssmShader.UniObjectWorldTransform = this.worldMat;
+                if (renderConfig.drawingPssm && renderConfig.pssmShader != null) {
+					renderConfig.pssmShader.Activate ();
+					renderConfig.pssmShader.UniObjectWorldTransform = this.worldMat;
                 } else {
                     SSShaderProgram.DeactivateAll();
                 }
             } else {
-                if (renderConfig.MainShader != null) {
-                    setDefaultShaderState(renderConfig.MainShader);
+                if (renderConfig.mainShader != null) {
+                    setDefaultShaderState(renderConfig.mainShader);
                 }
-				setMaterialState(renderConfig.MainShader);
+				setMaterialState(renderConfig.mainShader);
 
 				if (alphaBlendingEnabled) {
 					GL.Enable (EnableCap.Blend);

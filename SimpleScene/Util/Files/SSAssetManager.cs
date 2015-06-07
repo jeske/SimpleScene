@@ -114,6 +114,16 @@ namespace SimpleScene
         #region Public User Functions
         public delegate object LoadDelegate(Context ctx, string filename);
 
+		static SSAssetManager()
+		{
+			SSAssetManagerRegisterDefaultTypes.RegisterTypes ();
+		}
+
+		public SSAssetManager()
+		{
+			// static constructor doesnt get called without it
+		}
+
         static public void RegisterLoadDelegate<T>(LoadDelegate dlg) {
             s_mgr.registerLoadDelegate<T>(dlg);
         }

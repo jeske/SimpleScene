@@ -71,12 +71,12 @@ namespace SimpleScene
                 fov, aspect, cameraNearZ, cameraFarZ);
 
             // update info for the regular draw pass later
-			configureDrawShader (ref renderConfig, renderConfig.MainShader);
-			configureDrawShader (ref renderConfig, renderConfig.InstanceShader);
+			configureDrawShader (ref renderConfig, renderConfig.mainShader);
+			configureDrawShader (ref renderConfig, renderConfig.instanceShader);
 
             // setup for render shadowmap pass
-			configurePssmShader (renderConfig.PssmShader);
-			configurePssmShader (renderConfig.InstancePssmShader);
+			configurePssmShader (renderConfig.pssmShader);
+			configurePssmShader (renderConfig.instancePssmShader);
 
 			renderConfig.drawingPssm = true;
         }

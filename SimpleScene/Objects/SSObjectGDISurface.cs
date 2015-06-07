@@ -51,10 +51,10 @@ namespace SimpleScene {
 
         public abstract Bitmap RepaintGDI(out Size gdiSize);
 
-        public override void Render(ref SSRenderConfig renderConfig) {            
+        public override void Render(SSRenderConfig renderConfig) {            
             UpdateTexture();            
 
-            base.Render(ref renderConfig);
+            base.Render(renderConfig);
 
 			SSShaderProgram.DeactivateAll (); // disable GLSL
 

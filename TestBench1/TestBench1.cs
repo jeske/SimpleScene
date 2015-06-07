@@ -27,11 +27,11 @@ namespace TestBench0
 	partial class TestBench1 : OpenTK.GameWindow
 	{
 
-		SSScene scene = new SSScene();
-		SSScene sunDiskScene = new SSScene ();
-		SSScene sunFlareScene = new SSScene ();
-		SSScene hudScene = new SSScene();
-		SSScene environmentScene = new SSScene();
+		SSScene scene;
+		SSScene sunDiskScene;
+		SSScene sunFlareScene;
+		SSScene hudScene;
+		SSScene environmentScene;
 
 		bool mouseButtonDown = false;
 		SSObject activeModel;

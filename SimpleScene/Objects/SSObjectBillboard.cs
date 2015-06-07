@@ -28,10 +28,10 @@ namespace SimpleScene
             }
         }
 
-        public override void Render(ref SSRenderConfig renderConfig)
+        public override void Render(SSRenderConfig renderConfig)
         {
             if (Mesh != null) {
-                base.Render(ref renderConfig);
+                base.Render(renderConfig);
 
                 Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
                 modelView = OpenTKHelper.BillboardMatrix(ref modelView);

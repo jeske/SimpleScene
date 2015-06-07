@@ -24,8 +24,8 @@ namespace SimpleScene
             GL.Vertex3(p3);
         }
 
-		public override void Render(ref SSRenderConfig renderConfig) {
-            base.Render (ref renderConfig);
+		public override void Render(SSRenderConfig renderConfig) {
+            base.Render (renderConfig);
 
 			var p0 = new Vector3 (-1, -1,  1);  
 			var p1 = new Vector3 ( 1, -1,  1);

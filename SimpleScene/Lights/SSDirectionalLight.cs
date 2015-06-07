@@ -26,8 +26,8 @@ namespace SimpleScene
             this.Direction = new Vector3 (0f, 0f, 1f);
 		}
 
-        public override void SetupLight(ref SSRenderConfig renderConfig) {
-            base.SetupLight(ref renderConfig);
+        public override void setupLight(SSRenderConfig renderConfig) {
+            base.setupLight(renderConfig);
             GL.Light (m_lightName, LightParameter.Position, new Vector4(Direction, 0f)); 
         }
 

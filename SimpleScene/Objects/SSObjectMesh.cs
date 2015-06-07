@@ -49,10 +49,10 @@ namespace SimpleScene
 			}
 		}
         
-        public override void Render (ref SSRenderConfig renderConfig)
+        public override void Render (SSRenderConfig renderConfig)
 		{
 			if (_mesh != null) {
-				base.Render (ref renderConfig);
+				base.Render (renderConfig);
 				this._mesh.renderMesh (ref renderConfig);
             }
         }

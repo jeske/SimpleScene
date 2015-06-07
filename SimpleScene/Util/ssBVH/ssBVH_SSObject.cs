@@ -132,9 +132,9 @@ namespace SimpleScene.Util.ssBVH
             if (n.left != null) renderCells(ref renderConfig, n.left, ref n.box, depth:depth + 1);
         }
 
-        public override void Render(ref SSRenderConfig renderConfig) {
+        public override void Render(SSRenderConfig renderConfig) {
             if (renderConfig.drawingShadowMap) return;
-			base.Render(ref renderConfig);
+			base.Render(renderConfig);
 			SSShaderProgram.DeactivateAll();
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	

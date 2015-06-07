@@ -58,7 +58,7 @@ namespace SimpleScene
 		{
 			base.renderMesh (ref renderConfig);
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
-				_renderSetupGLSL(ref renderConfig, renderConfig.InstanceShader, subset);
+				_renderSetupGLSL(ref renderConfig, renderConfig.instanceShader, subset);
 				subset.ibo.renderInstanced(ref renderConfig, instanceCount, primType);
 			}
 		}
@@ -201,8 +201,8 @@ namespace SimpleScene
                     _renderSendVBOTriangles(ref renderConfig, subset);
                 } else {
                     if (renderConfig.drawGLSL) {
-						_renderSetupGLSL(ref renderConfig, renderConfig.MainShader, subset);
-                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
+						_renderSetupGLSL(ref renderConfig, renderConfig.mainShader, subset);
+                        if (renderConfig.useVBO && renderConfig.mainShader != null) {
                             _renderSendVBOTriangles(ref renderConfig, subset);
                         } else {
                             _renderSendTriangles(subset);
@@ -210,7 +210,7 @@ namespace SimpleScene
                     }
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();
-                        if (renderConfig.useVBO && renderConfig.MainShader != null) {
+                        if (renderConfig.useVBO && renderConfig.mainShader != null) {
                             _renderSendVBOLines(ref renderConfig, subset);
                         } else {
                             _renderSendLines(subset);

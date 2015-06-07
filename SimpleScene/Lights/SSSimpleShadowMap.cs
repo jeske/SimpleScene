@@ -29,8 +29,8 @@ namespace SimpleScene
 
             // update info for the regular draw pass later
 			Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
-			configureDrawShader (ref renderConfig, renderConfig.MainShader, vp);
-			configureDrawShader (ref renderConfig, renderConfig.InstanceShader, vp);
+			configureDrawShader (ref renderConfig, renderConfig.mainShader, vp);
+			configureDrawShader (ref renderConfig, renderConfig.instanceShader, vp);
 
             // setup for render shadowmap pass
             renderConfig.projectionMatrix = m_shadowProjMatrix;
