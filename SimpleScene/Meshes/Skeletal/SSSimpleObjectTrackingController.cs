@@ -46,7 +46,6 @@ namespace SimpleScene
 		protected Vector3 _neutralViewDirectionLocal; // "X"
 		protected Vector3 _neutralViewUpLocal;        // "Z"
 		protected Vector3 _neutralViewYLocal;         // "Y"
-		protected Matrix4 _neutralViewTransform;
 
 		protected bool _neutralViewDirty = true;
 
@@ -82,16 +81,6 @@ namespace SimpleScene
 				_neutralViewYLocal = Vector3.Transform (
 					Vector3.Cross (_neutralViewDirectionBindPose, _neutralViewUpBindPose), precedingInverted)
 					.Normalized();
-				_neutralViewTransform = new Matrix4 (
-					//new Vector4 (_neutralViewDirectionLocal, 0f),
-					//new Vector4 (_neutralViewYLocal, 0f),
-					//new Vector4 (_neutralViewUpLocal, 0f),
-					//new Vector4 (0f)
-					_neutralViewDirectionLocal.X, _neutralViewDirectionLocal.Y, _neutralViewDirectionLocal.Z, 0f,
-					_neutralViewYLocal.X, _neutralViewYLocal.Y, _neutralViewYLocal.Z, 0f,
-					_neutralViewUpLocal.X, _neutralViewUpLocal.Y, _neutralViewUpLocal.Z, 0f,
-					0f, 0f, 0f, 0f
-				);
 				_neutralViewDirty = false;
 			}
 
@@ -105,30 +94,18 @@ namespace SimpleScene
 				if (joint.parent != null) {
 					targetPosInLocal = joint.parent.currentLocation.undoTransformTo (targetPosInLocal);
 				}
-				targetPosInLocal -= jointPositionLocal;
-				Vector3 targetDirLocal = Vector3.Transform (targetPosInLocal, _neutralViewTransform);
-				targetDirLocal.Normalize ();
+				Vector3 targetDirLocal = targetPosInLocal - jointPositionLocal;
+				Vector3 nvDir = new Vector3();
+				nvDir.X = Vector3.Dot (targetDirLocal, _neutralViewDirectionLocal);
+				nvDir.Y = Vector3.Dot (targetDirLocal, _neutralViewYLocal);
+				nvDir.Z = Vector3.Dot (targetDirLocal, _neutralViewUpLocal);
 
+				float theta = -(float)Math.Atan2 (nvDir.Y, nvDir.X);
+				float phi = (float)Math.Atan2 (nvDir.Z, nvDir.Xy.LengthFast);
 
-				float theta = (float)Math.Atan2 (targetDirLocal.Y, targetDirLocal.X);
-				float phi = (float)Math.Atan2 (targetDirLocal.Z, targetDirLocal.Xy.LengthFast);
-
-				//Quaternion neededRotation = Quaternion.FromAxisAngle (_neutralViewUpLocal, theta);
-				//Quaternion neededRotation = Quaternion.FromAxisAngle (_neutralViewYLocal, phi);
-				//Quaternion neededRotation = Quaternion.Identity;
-
-
-				Quaternion neededRotation = Quaternion.Multiply(
-				Quaternion.FromAxisAngle (_neutralViewYLocal, phi),
-				Quaternion.FromAxisAngle (_neutralViewUpLocal, theta));
-
-				//Quaternion neededRotation = OpenTKHelper.getRotationTo (
-				//	_neutralViewDirectionLocal, 
-				//	targetDirLocal, Vector3.UnitX);
-
-
-				ret.orientation = Quaternion.Multiply(neutralViewOrientationLocal, neededRotation);
-				//Vector4 test = neededRotation.ToAxisAngle ();
+				Quaternion neededRotation = Quaternion.FromAxisAngle (_neutralViewUpLocal, theta) 
+										  * Quaternion.FromAxisAngle (_neutralViewYLocal, phi);
+				ret.orientation = neutralViewOrientationLocal * neededRotation;
 			} else {
 				ret.orientation = neutralViewOrientationLocal;
 			}

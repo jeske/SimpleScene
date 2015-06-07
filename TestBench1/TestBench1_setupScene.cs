@@ -129,7 +129,7 @@ namespace TestBench0
 				obj0.MainColor = Color4.DarkGray;
 				obj0.Name = "grey bones (bind pose)";
 				obj0.Pos = new Vector3(-18f, 0f, -18f);
-				//obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
+				obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				scene.AddObject(obj0);
 
 				SSSimpleObjectTrackingController tracker0 = new SSSimpleObjectTrackingController(11, obj0);
