@@ -96,30 +96,30 @@ namespace SimpleScene
 			return addStateMachine (description, _hierarchy.jointIndices (topLevelJointNames));
 		}
 
-		public void addParametricJoint(int jointIdx, SSParametricJoint parJoint)
+		public void addCustomizedJoint(int jointIdx, SSCustomizedJoint parJoint)
 		{
-			SSParametricJointsController ctrl = null;
+			SSCustomizedJointsController ctrl = null;
 			if (_channelControllers.Count > 0) {
 				// avoid adding chains of parametric joint controllers if they can be combined
 				// in one controller
-				ctrl = _channelControllers [_channelControllers.Count - 1] as SSParametricJointsController;
+				ctrl = _channelControllers [_channelControllers.Count - 1] as SSCustomizedJointsController;
 			}
 			if (ctrl == null) {
-				ctrl = new SSParametricJointsController ();
+				ctrl = new SSCustomizedJointsController ();
 				addController (ctrl);
 			}
 			ctrl.addJoint (jointIdx, parJoint);
 		}
 
-		public void addParametricJoint(string jointName, SSParametricJoint parJoint)
+		public void addCustomizedJoint(string jointName, SSCustomizedJoint parJoint)
 		{
-			addParametricJoint (_hierarchy.jointIndex (jointName), parJoint);
+			addCustomizedJoint (_hierarchy.jointIndex (jointName), parJoint);
 		}
 
 		public void removeParametricJoint(int jointIdx)
 		{
 			foreach (var ctrl in _channelControllers) {
-				var parCtrl = ctrl as SSParametricJointsController;
+				var parCtrl = ctrl as SSCustomizedJointsController;
 				if (parCtrl != null && parCtrl.isActive (_hierarchy.joints [jointIdx])) {
 					parCtrl.removeJoint (jointIdx);
 				}

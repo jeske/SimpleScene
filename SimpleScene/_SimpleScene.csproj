@@ -155,8 +155,9 @@
     <Compile Include="Meshes\Skeletal\SSAnimationStateMachine.cs" />
     <Compile Include="Meshes\Skeletal\SSBindPoseSkeletalController.cs" />
     <Compile Include="Meshes\Skeletal\SSAnimationStateMachineSkeletalController.cs" />
-    <Compile Include="Meshes\Skeletal\SSParametricJointsController.cs" />
-    <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingController.cs" />
+    <Compile Include="Meshes\Skeletal\SSCustomizedJointsController.cs" />
+    <Compile Include="Meshes\Skeletal\SSPolarJoint.cs" />
+    <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingJoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

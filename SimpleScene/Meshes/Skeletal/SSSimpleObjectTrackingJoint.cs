@@ -3,7 +3,7 @@ using OpenTK;
 
 namespace SimpleScene
 {
-	public class SSSimpleObjectTrackingController : SSSkeletalChannelController
+	public class SSSimpleObjectTrackingJoint : SSCustomizedJoint
 	{
 		/// <summary>
 		/// Fixed position of the joint in joint-local coordinates
@@ -50,19 +50,11 @@ namespace SimpleScene
 		protected bool _neutralViewDirty = true;
 
 		protected readonly SSObjectMesh _hostObject;
-		protected readonly int _jointIdx;
 
-		public int JointIndex { get { return _jointIdx; } }
-
-		public SSSimpleObjectTrackingController (int jointIdx, SSObjectMesh hostObject)
+		public SSSimpleObjectTrackingJoint (SSObjectMesh hostObject, SSObject target = null)
 		{
-			_jointIdx = jointIdx;
 			_hostObject = hostObject;
-		}
-
-		public override bool isActive (SSSkeletalJointRuntime joint)
-		{
-			return joint.baseInfo.jointIndex == _jointIdx;
+			targetObject = target;
 		}
 
 		public override SSSkeletalJointLocation computeJointLocation (SSSkeletalJointRuntime joint)
