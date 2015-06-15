@@ -117,7 +117,7 @@ namespace SimpleScene
             }
         }
 
-		protected void renderBoundingSphereMesh(ref SSRenderConfig renderConfig)
+		protected void renderBoundingSphereMesh(SSRenderConfig renderConfig)
 		{
 			if (worldBoundingSphereRadius > 0f 
 			&& (renderConfig.renderBoundingSpheresLines || renderConfig.renderBoundingSpheresSolid)) {
@@ -131,7 +131,7 @@ namespace SimpleScene
 
 				//GL.Translate (boundingSphere.center);
 				//GL.Scale (new Vector3 (this.scaleMax * boundingSphere.radius));
-				_boundingSphereMesh.renderMesh (ref renderConfig);
+				_boundingSphereMesh.renderMesh (renderConfig);
 			}
 		}
 
@@ -140,7 +140,7 @@ namespace SimpleScene
 			// with the object's world matrix
 			//    ... http://www.songho.ca/opengl/gl_transform.html
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
-			renderBoundingSphereMesh (ref  renderConfig);
+			renderBoundingSphereMesh (renderConfig);
 
 			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
 			GL.MatrixMode(MatrixMode.Modelview);

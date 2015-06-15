@@ -42,7 +42,7 @@ namespace SimpleScene
                     GL.BeginQuery(QueryTarget.SamplesPassed, GL_query_id);
                 }
 
-                Mesh.renderMesh(ref renderConfig);
+                Mesh.renderMesh(renderConfig);
 
                 if (isOcclusionQueueryEnabled) {
                     GL.EndQuery(QueryTarget.SamplesPassed);

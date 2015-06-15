@@ -43,7 +43,7 @@ namespace TestBench0
             }
 		}
 
-		public override void renderMesh(ref SSRenderConfig renderConfig) {
+		public override void renderMesh(SSRenderConfig renderConfig) {
 			SSShaderProgram.DeactivateAll ();
 
 			GL.Disable(EnableCap.Texture2D);

@@ -45,10 +45,10 @@ namespace SimpleScene
             Unbind();
         }
 
-		public void DrawElements(ref SSRenderConfig renderConfig, PrimitiveType primType, bool doBind = true) 
+		public void DrawElements(SSRenderConfig renderConfig, PrimitiveType primType, bool doBind = true) 
         {
             if (doBind) {
-				m_vbo.DrawBind(ref renderConfig);
+				m_vbo.DrawBind(renderConfig);
                 Bind();
             }
             GL.DrawElements(primType,
@@ -61,9 +61,9 @@ namespace SimpleScene
             }
         }
 
-		public void renderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
+		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
-			m_vbo.DrawBind(ref renderConfig);
+			m_vbo.DrawBind(renderConfig);
             Bind();
             GL.DrawElementsInstanced(
                 primType,

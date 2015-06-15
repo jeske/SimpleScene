@@ -164,7 +164,7 @@ namespace SimpleScene
 			}
 		}
 
-		public override void renderMesh (ref SSRenderConfig renderConfig)
+		public override void renderMesh (SSRenderConfig renderConfig)
 		{
 			// apply animation channels
 			_hierarchy.applySkeletalControllers (_channelControllers);
@@ -172,7 +172,7 @@ namespace SimpleScene
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
 			foreach (var sub in _renderSubMeshes) {
 				SSAABB aabb = sub.ComputeVertices ();
-				sub.renderMesh (ref renderConfig);
+				sub.renderMesh (renderConfig);
 				totalAABB.ExpandBy (aabb);
 			}
 			// update the bounding sphere
@@ -182,10 +182,10 @@ namespace SimpleScene
 			NotifyMeshPositionOrSizeChanged ();
 		}
 
-		public void renderInstanced(ref SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
+		public void renderInstanced(SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
 		{
 			foreach (var sub in _renderSubMeshes) {
-				sub.renderInstanced (ref cfg, instanceCount, primType);
+				sub.renderInstanced (cfg, instanceCount, primType);
 			}
 		}
 
@@ -230,9 +230,9 @@ namespace SimpleScene
 				}
 			}
 
-			public override void renderMesh(ref SSRenderConfig renderConfig)
+			public override void renderMesh(SSRenderConfig renderConfig)
 			{
-				base.renderMesh (ref renderConfig);
+				base.renderMesh (renderConfig);
 
 				// debugging vertex normals... 
 				#if false

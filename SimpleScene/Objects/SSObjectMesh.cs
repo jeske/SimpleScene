@@ -53,7 +53,7 @@ namespace SimpleScene
 		{
 			if (_mesh != null) {
 				base.Render (renderConfig);
-				this._mesh.renderMesh (ref renderConfig);
+				this._mesh.renderMesh (renderConfig);
             }
         }
 

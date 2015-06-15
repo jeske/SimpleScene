@@ -10,7 +10,7 @@ namespace SimpleScene
         /// <summary>
         /// Render a number of instances of the mesh. Attribute arrays must be prepared prior to use.
         /// </summary>
-		void renderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
+		void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ namespace SimpleScene
 				particleSystem.SpriteSizesV);
 
             // do the draw
-            mesh.renderInstanced(ref renderConfig, particleSystem.activeBlockLength, PrimitiveType.Triangles);
+            mesh.renderInstanced(renderConfig, particleSystem.activeBlockLength, PrimitiveType.Triangles);
              
             GL.PopClientAttrib();
             //this.boundingSphere.Render(ref renderConfig);

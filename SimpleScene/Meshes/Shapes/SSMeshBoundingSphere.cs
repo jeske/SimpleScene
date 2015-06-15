@@ -27,21 +27,21 @@ namespace SimpleScene
 			this.radius = radius;
 		}
 
-		public override void renderMesh(ref SSRenderConfig renderConfig) 
+		public override void renderMesh(SSRenderConfig renderConfig) 
 		{
 
-			base.renderMesh(ref renderConfig);
+			base.renderMesh(renderConfig);
 
 			if (renderConfig.renderBoundingSpheresSolid) {
-				this._RenderSolid(ref renderConfig);
+				this._RenderSolid(renderConfig);
 			}
 			if (renderConfig.renderBoundingSpheresLines) {
-				this._RenderLines_ICO(ref renderConfig);
+				this._RenderLines_ICO(renderConfig);
 			}
 			// this._RenderLines_UV(ref renderConfig);
 		}
 
-		private void _RenderSolid(ref SSRenderConfig renderConfig) {
+		private void _RenderSolid(SSRenderConfig renderConfig) {
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.Texture2D);
@@ -85,7 +85,7 @@ namespace SimpleScene
 		}
 
 
-		private void _RenderLines_ICO(ref SSRenderConfig renderConfig) {
+		private void _RenderLines_ICO(SSRenderConfig renderConfig) {
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.Texture2D);
@@ -107,7 +107,7 @@ namespace SimpleScene
 			GL.End();
 		}
 
-		private void _RenderLines_UV(ref SSRenderConfig renderConfig) {
+		private void _RenderLines_UV(SSRenderConfig renderConfig) {
 
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL

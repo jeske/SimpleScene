@@ -71,8 +71,8 @@ namespace SimpleScene
                 fov, aspect, cameraNearZ, cameraFarZ);
 
             // update info for the regular draw pass later
-			configureDrawShader (ref renderConfig, renderConfig.mainShader);
-			configureDrawShader (ref renderConfig, renderConfig.instanceShader);
+			configureDrawShader (renderConfig, renderConfig.mainShader);
+			configureDrawShader (renderConfig, renderConfig.instanceShader);
 
             // setup for render shadowmap pass
 			configurePssmShader (renderConfig.pssmShader);
@@ -88,7 +88,7 @@ namespace SimpleScene
 			renderConfig.drawingPssm = false;
 		}
 
-		protected void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
+		protected void configureDrawShader(SSRenderConfig renderConfig, SSMainShaderProgram pgm)
 		{
 			if (pgm == null) return;
 			pgm.Activate();

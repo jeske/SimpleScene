@@ -55,16 +55,16 @@ namespace SimpleScene
 			}
 		}
 
-        public override void renderMesh(ref SSRenderConfig renderConfig)
+        public override void renderMesh(SSRenderConfig renderConfig)
         {
-			base.renderMesh (ref renderConfig);
-			ibo.DrawElements (ref renderConfig, PrimitiveType.Triangles);
+			base.renderMesh (renderConfig);
+			ibo.DrawElements (renderConfig, PrimitiveType.Triangles);
         }
 
-		public void renderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
+		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
         {
-			base.renderMesh (ref renderConfig);
-			ibo.renderInstanced (ref renderConfig, instanceCount, primType);
+			base.renderMesh (renderConfig);
+			ibo.renderInstanced (renderConfig, instanceCount, primType);
         }
 
         public void UpdateVertices (V[] vertices)

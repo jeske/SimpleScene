@@ -54,16 +54,16 @@ namespace SimpleScene
         }
 #endregion
 
-		public void renderInstanced(ref SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
+		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
-			base.renderMesh (ref renderConfig);
+			base.renderMesh (renderConfig);
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
-				_renderSetupGLSL(ref renderConfig, renderConfig.instanceShader, subset);
-				subset.ibo.renderInstanced(ref renderConfig, instanceCount, primType);
+				_renderSetupGLSL(renderConfig, renderConfig.instanceShader, subset);
+				subset.ibo.renderInstanced(renderConfig, instanceCount, primType);
 			}
 		}
 
-		private void _renderSetupGLSL(ref SSRenderConfig renderConfig, SSMainShaderProgram shaderPgm, SSMeshOBJSubsetData subset) {
+		private void _renderSetupGLSL(SSRenderConfig renderConfig, SSMainShaderProgram shaderPgm, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
 
 			// GL.Enable(EnableCap.Lighting);
@@ -136,8 +136,8 @@ namespace SimpleScene
 
 
 
-		private void _renderSendVBOTriangles(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
-            subset.ibo.DrawElements(ref renderConfig, PrimitiveType.Triangles);
+		private void _renderSendVBOTriangles(SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+            subset.ibo.DrawElements(renderConfig, PrimitiveType.Triangles);
 		}
 
 		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
@@ -160,12 +160,12 @@ namespace SimpleScene
 			GL.End();
 		}
 			
-		private void _renderSendVBOLines(ref SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
+		private void _renderSendVBOLines(SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
 			// TODO: this currently has classic problems with z-fighting between the model and the wireframe
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
             GL.LineWidth(1.5f);
             GL.Color4(0.8f, 0.5f, 0.5f, 0.5f);		
-            subset.ibo_wireframe.DrawElements(ref renderConfig, PrimitiveType.Lines);
+            subset.ibo_wireframe.DrawElements(renderConfig, PrimitiveType.Lines);
 		}
 
 		private void _renderSendLines(SSMeshOBJSubsetData subset) {
@@ -194,16 +194,16 @@ namespace SimpleScene
 		}
 
 
-		public override void renderMesh(ref SSRenderConfig renderConfig) {
-			base.renderMesh (ref renderConfig);
+		public override void renderMesh(SSRenderConfig renderConfig) {
+			base.renderMesh (renderConfig);
             foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
                 if (renderConfig.drawingShadowMap) {
-                    _renderSendVBOTriangles(ref renderConfig, subset);
+                    _renderSendVBOTriangles(renderConfig, subset);
                 } else {
                     if (renderConfig.drawGLSL) {
-						_renderSetupGLSL(ref renderConfig, renderConfig.mainShader, subset);
+						_renderSetupGLSL(renderConfig, renderConfig.mainShader, subset);
                         if (renderConfig.useVBO && renderConfig.mainShader != null) {
-                            _renderSendVBOTriangles(ref renderConfig, subset);
+                            _renderSendVBOTriangles(renderConfig, subset);
                         } else {
                             _renderSendTriangles(subset);
                         }
@@ -211,7 +211,7 @@ namespace SimpleScene
                     if (renderConfig.drawWireframeMode == WireframeMode.GL_Lines) {
                         _renderSetupWireframe();
                         if (renderConfig.useVBO && renderConfig.mainShader != null) {
-                            _renderSendVBOLines(ref renderConfig, subset);
+                            _renderSendVBOLines(renderConfig, subset);
                         } else {
                             _renderSendLines(subset);
                         }

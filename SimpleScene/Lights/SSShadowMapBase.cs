@@ -179,13 +179,13 @@ namespace SimpleScene
 
 			GL.Clear(ClearBufferMask.DepthBufferBit);
 
-			configureDrawShader (ref renderConfig, renderConfig.mainShader);
-			configureDrawShader (ref renderConfig, renderConfig.instanceShader);
+			configureDrawShader (renderConfig, renderConfig.mainShader);
+			configureDrawShader (renderConfig, renderConfig.instanceShader);
 
             renderConfig.drawingShadowMap = true;
         }
 
-		private void configureDrawShader(ref SSRenderConfig renderConfig, SSMainShaderProgram pgm)
+		private void configureDrawShader(SSRenderConfig renderConfig, SSMainShaderProgram pgm)
 		{
 			if (pgm != null) {
 				pgm.Activate();

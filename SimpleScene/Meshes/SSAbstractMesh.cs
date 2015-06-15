@@ -39,7 +39,7 @@ namespace SimpleScene
 			boundingSphereCenter = Vector3.Zero;
 		}
 
-		public virtual void renderMesh (ref SSRenderConfig renderConfig)
+		public virtual void renderMesh (SSRenderConfig renderConfig)
 		{
 			if (!renderConfig.drawingShadowMap && textureMaterial != null) {
 				if (renderConfig.ActiveDrawShader != null) {

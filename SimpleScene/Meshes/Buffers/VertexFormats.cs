@@ -27,7 +27,7 @@ namespace SimpleScene
             GL.ColorPointer(4, ColorPointerType.UnsignedByte, stride, offset);
         }
 
-		public static void PrepareNormal(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
+		public static void PrepareNormal(SSRenderConfig renderConfig, int stride, IntPtr offset)
 		{
 			ISSInstancableShaderProgram isp = renderConfig.ActiveInstanceShader;
 			if (isp == null) { // no instancing
@@ -40,7 +40,7 @@ namespace SimpleScene
 			}
 		}
 
-		public static void PrepareTexCoord(ref SSRenderConfig renderConfig, int stride, IntPtr offset)
+		public static void PrepareTexCoord(SSRenderConfig renderConfig, int stride, IntPtr offset)
 		{
 			ISSInstancableShaderProgram isp = renderConfig.ActiveInstanceShader;
 			if (isp == null) { // no instancing
@@ -96,10 +96,10 @@ namespace SimpleScene
 			set { TexCoord.Y = value; }
 		}
 
-		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
-			SSVertexFormatHelper.PrepareNormal (ref renderConfig, Size, NormalOffset);
-			SSVertexFormatHelper.PrepareTexCoord (ref renderConfig, Size, TexCoordOffset);
+			SSVertexFormatHelper.PrepareNormal (renderConfig, Size, NormalOffset);
+			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
         }
     }
 
@@ -142,10 +142,10 @@ namespace SimpleScene
 			TexCoord = texCoord;
 		}
 
-		public void  BindGlAttributes(ref SSRenderConfig renderConfig) {
+		public void  BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
-			SSVertexFormatHelper.PrepareNormal (ref renderConfig, Size, NormalOffset);
-			SSVertexFormatHelper.PrepareTexCoord (ref renderConfig, Size, TexCoordOffset);
+			SSVertexFormatHelper.PrepareNormal (renderConfig, Size, NormalOffset);
+			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
 		}
 	}
 
@@ -183,7 +183,7 @@ namespace SimpleScene
 			Position = pos;
 		}
 
-		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
         }
     }
@@ -213,7 +213,7 @@ namespace SimpleScene
             Color = Color4Helper.ToUInt32(color);
         }
 
-        public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+        public void BindGlAttributes(SSRenderConfig renderConfig) {
             SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
             SSVertexFormatHelper.PrepareColor(Size, ColorOffset);
         }
@@ -250,9 +250,9 @@ namespace SimpleScene
 			Position = position;
 		}
 
-		public void BindGlAttributes(ref SSRenderConfig renderConfig) {
+		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
-			SSVertexFormatHelper.PrepareTexCoord (ref renderConfig, Size, TexCoordOffset);
+			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
         }
     }
 }

@@ -5,12 +5,12 @@ namespace SimpleScene
 {
     public interface ISSVertexLayout 
     {
-		void BindGlAttributes(ref SSRenderConfig renderConfig);
+		void BindGlAttributes(SSRenderConfig renderConfig);
     }
 
     public interface ISSVertexBuffer
     {
-		void DrawBind(ref SSRenderConfig renderConfig);
+		void DrawBind(SSRenderConfig renderConfig);
         void DrawUnbind();
     }
 
@@ -27,8 +27,8 @@ namespace SimpleScene
             : base(vertices, hint)
         { }
 
-		public void DrawArrays(ref SSRenderConfig renderConfig, PrimitiveType primType, bool doBind = true) {
-			if (doBind) DrawBind(ref renderConfig);
+		public void DrawArrays(SSRenderConfig renderConfig, PrimitiveType primType, bool doBind = true) {
+			if (doBind) DrawBind(renderConfig);
             drawPrivate(primType);
             if (doBind) DrawUnbind();
         }
@@ -36,30 +36,30 @@ namespace SimpleScene
         /// <summary>
         /// Draws the arrays instanced. Attribute arrays must be prepared prior to use.
         /// </summary>
-		public void renderInstanced(ref SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
+		public void renderInstanced(SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
         {
-			DrawBind(ref renderConfig);
+			DrawBind(renderConfig);
             GL.DrawArraysInstanced(primType, 0, NumElements, numInstances);
             DrawUnbind();
         }
 
-		public void UpdateAndDrawArrays(ref SSRenderConfig renderConfig, 
+		public void UpdateAndDrawArrays(SSRenderConfig renderConfig, 
 										Vertex[] vertices,
                                         PrimitiveType primType,
                                         bool doBind = true)
         {
             genBufferPrivate();
-			if (doBind) DrawBind(ref renderConfig);
+			if (doBind) DrawBind(renderConfig);
             updatePrivate(vertices);
             drawPrivate(primType);
             if (doBind) DrawUnbind();
         }
 
-		public void DrawBind(ref SSRenderConfig renderConfig) {
+		public void DrawBind(SSRenderConfig renderConfig) {
             // bind for use and setup for drawing
             bind();
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-			c_dummyElement.BindGlAttributes(ref renderConfig);
+			c_dummyElement.BindGlAttributes(renderConfig);
         }
 
         public void DrawUnbind() {
