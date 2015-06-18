@@ -7,6 +7,8 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>WavefrontOBJViewer</RootNamespace>
     <AssemblyName>TestBench0</AssemblyName>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -47,11 +49,11 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="SSMesh_Starfield.cs" />
-    <Compile Include="AcmeExplosionSystem.cs" />
     <Compile Include="TestBench0.cs" />
     <Compile Include="TestBench0_renderScene.cs" />
     <Compile Include="TestBench0_setupScene.cs" />
     <Compile Include="TestBench0_setupInput.cs" />
+    <Compile Include="SimpleExplosionRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />

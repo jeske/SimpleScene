@@ -212,7 +212,7 @@ namespace TestBench0
 				// test explositons
 				//if (false)
 				{
-					AcmeExplosionRenderer aer = new AcmeExplosionRenderer (100);
+					SimpleExplosionRenderer aer = new SimpleExplosionRenderer (100);
 					aer.Pos = cubesRenderer.Pos;
 					scene.AddObject (aer);
 

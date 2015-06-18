@@ -11,14 +11,14 @@ using OpenTK.Graphics;
 namespace SimpleScene
 {
 
-	public class AcmeExplosionRenderer : SSInstancedMeshRenderer
+	public class SimpleExplosionRenderer : SSInstancedMeshRenderer
 	{
-		new public AcmeExplosionSystem particleSystem {
-			get { return base.particleSystem as AcmeExplosionSystem; }
+		new public SimpleExplosionSystem particleSystem {
+			get { return base.particleSystem as SimpleExplosionSystem; }
 		}
 
-		public AcmeExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
-			: base(new AcmeExplosionSystem(particleCapacity),
+		public SimpleExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
+			: base(new SimpleExplosionSystem(particleCapacity),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   _defaultUsageHint
 			 )
@@ -38,7 +38,7 @@ namespace SimpleScene
 			base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
 			base.ShininessMatColor = 0f;
 
-			var tex = texture ?? AcmeExplosionSystem.getDefaultTexture();
+			var tex = texture ?? SimpleExplosionSystem.getDefaultTexture();
 			textureMaterial = new SSTextureMaterial(null, null, tex, null);
 		}
 
@@ -51,7 +51,7 @@ namespace SimpleScene
 		/// An explosion system based on a a gamedev.net article
 		/// http://www.gamedev.net/page/resources/_/creative/visual-arts/make-a-particle-explosion-effect-r2701
 		/// </summary>
-		public class AcmeExplosionSystem : SSParticleSystem
+		public class SimpleExplosionSystem : SSParticleSystem
 		{
 			public static SSTexture getDefaultTexture()
 			{
@@ -315,7 +315,7 @@ namespace SimpleScene
 				= new RadialBillboardOrientator();
 			#endregion
 
-			public AcmeExplosionSystem (int particleCapacity)
+			public SimpleExplosionSystem (int particleCapacity)
 				: base(particleCapacity)
 			{
 				// flame/smoke
