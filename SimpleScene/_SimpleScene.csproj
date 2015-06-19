@@ -156,7 +156,7 @@
     <Compile Include="Meshes\Skeletal\SSPolarJoint.cs" />
     <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingJoint.cs" />
     <Compile Include="Util\Files\SSAssetManagerRegisterDefaultTypes.cs" />
-    <Compile Include="Objects\SSObjectLaserRenderer.cs" />
+    <Compile Include="Objects\SSObjectLaser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
