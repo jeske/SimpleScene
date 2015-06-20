@@ -12,8 +12,8 @@
 *.blend5
 
 # output directories
-*/bin/**
-*/obj/**
+**/bin/**
+**/obj/**
 
 
 
