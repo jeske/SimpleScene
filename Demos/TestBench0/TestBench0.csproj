@@ -44,7 +44,6 @@
     <ProjectReference Include="..\DemosCommon\DemosCommon.csproj">
       <Project>{FE371EFA-9B89-4AC4-84DF-428E0ADF5A57}</Project>
       <Name>DemosCommon</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

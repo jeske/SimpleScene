@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>TestBench1</RootNamespace>
     <AssemblyName>TestBench1</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <StartupObject>TestBench1.TestBench1</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,7 +45,6 @@
     <ProjectReference Include="..\DemosCommon\DemosCommon.csproj">
       <Project>{FE371EFA-9B89-4AC4-84DF-428E0ADF5A57}</Project>
       <Name>DemosCommon</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
