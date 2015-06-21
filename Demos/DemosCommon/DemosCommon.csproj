@@ -43,6 +43,7 @@
     <Compile Include="TestBenchBaseWindow_renderScene.cs" />
     <Compile Include="TestBenchBaseWindow_setupInput.cs" />
     <Compile Include="TestBenchBaseWindow_setupScene.cs" />
+    <Compile Include="SimpleLaserRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
