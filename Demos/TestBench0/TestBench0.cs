@@ -44,9 +44,8 @@ namespace TestBench0
 			}
 		}
 
-		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public TestBench0()
-			: base("TestBench0")
+			: base("TestBench0: particle systems")
 		{
 		}
 
