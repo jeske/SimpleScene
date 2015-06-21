@@ -12,9 +12,6 @@ namespace TestBench2
 		{
 		}
 
-		/// <summary>
-		/// How to declare a window in a derived test bench:
-		/// </summary>
 		static void Main()
 		{
 			// The 'using' idiom guarantees proper resource cleanup.

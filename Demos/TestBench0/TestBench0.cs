@@ -45,7 +45,7 @@ namespace TestBench0
 		}
 
 		public TestBench0()
-			: base("TestBench0: particle systems")
+			: base("TestBench0: Particle Systems")
 		{
 		}
 

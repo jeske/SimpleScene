@@ -46,7 +46,7 @@ namespace TestBench1
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
 		public TestBench1()
-			: base("TestBench1")
+			: base("TestBench1: Skeletal System")
 		{
 		}
 
