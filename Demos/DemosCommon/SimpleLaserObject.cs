@@ -15,7 +15,7 @@ namespace SimpleScene
 
 	public class SSLaserParameters
 	{
-		public Color4 backgroundColor = Color4.Purple;
+		public Color4 backgroundColor = Color4.White;
 		public Color4 overlayColor = Color4.White;
 		public float backgroundWidth = 0.1f;    // width in world units
 		public float overlayWidthRatio = 0.3f;  // ratio, 0-1, of how much of the background is covered by overlay
@@ -30,7 +30,7 @@ namespace SimpleScene
 		public float laserOpacity;
 	}
 
-	public class SSObjectLaser : SSObject
+	public class SimpleLaserObject : SSObject
 	{
 		public SSLaser laser = null;
 		public SSTexture middleBackgroundSprite = null;
@@ -38,13 +38,20 @@ namespace SimpleScene
 		public SSTexture startBackgroundSprite = null;
 		public SSTexture startOverlaySprite = null;
 
-
-		public SSObjectLaser (SSLaser laser = null)
+		public SimpleLaserObject (SSLaser laser = null, 
+							      SSTexture middleBackgroundSprite = null,
+								  SSTexture middleOverlaySprite = null)
 		{
 			this.laser = laser;
 
 			this.renderState.castsShadow = false;
 			this.renderState.receivesShadows = false;
+
+			this.middleBackgroundSprite = middleBackgroundSprite 
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laser.png");
+				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./boneman", "skin.png");
+			this.middleOverlaySprite = middleOverlaySprite
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laserOverlayStatic.png");
 		}
 
 		#if false
@@ -72,21 +79,11 @@ namespace SimpleScene
 
 		public override void Render(SSRenderConfig renderConfig)
 		{
-			base.Render (renderConfig);
 
 			// step: compute endpoints in view space
 			var startView = Vector3.Transform(laser.start, renderConfig.invCameraViewMatrix);
 			var endView = Vector3.Transform (laser.end, renderConfig.invCameraViewMatrix);
 			var middleView = (startView + endView) / 2f;
-
-			// step: setup render settings
-			GL.Enable(EnableCap.Blend);
-			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
-
-			GL.MatrixMode (MatrixMode.Modelview);
-			SSShaderProgram.DeactivateAll ();
-
-			// step: draw middle section:
 
 			// theta and phi
 			Vector3 diff = endView - startView;
@@ -97,11 +94,27 @@ namespace SimpleScene
 				Matrix4.CreateTranslation(middleView)
 				* Matrix4.CreateRotationZ (theta) * Matrix4.CreateRotationY (phi);
 
-
 			float laserLength = diff.LengthSquared;
 
+			base.Render (renderConfig);
+
+			// step: setup render settings
+			//GL.Enable(EnableCap.Blend);
+			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+
+			GL.Enable (EnableCap.Blend);
+			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+			SSShaderProgram.DeactivateAll ();
+			GL.ActiveTexture (TextureUnit.Texture0);
+			GL.Enable (EnableCap.Texture2D);
+
+			// step: draw middle section:
+
 			if (middleBackgroundSprite != null) {
+				
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
+				GL.Color4 (laser.parameters.backgroundColor);
 
 				Matrix4 middlebackgroundScale = Matrix4.CreateScale (
 					laserLength, laser.parameters.backgroundWidth, 1f);
@@ -111,8 +124,10 @@ namespace SimpleScene
 				// TODO single fance instance
 				SSTexturedQuad.DoubleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
+			#if false
 			if (middleOverlaySprite != null) {
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
+				GL.Color4 (laser.parameters.overlayColor);
 
 				Matrix4 middleOverlayScale = Matrix4.CreateScale (
                      laserLength, laser.parameters.backgroundWidth * laser.parameters.overlayWidthRatio, 1f);
@@ -122,12 +137,7 @@ namespace SimpleScene
 				// TODO single fance instance
 				SSTexturedQuad.DoubleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
-
-
-
-
-
-
+			#endif
 		}
 	}
 }

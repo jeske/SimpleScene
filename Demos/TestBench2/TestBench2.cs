@@ -1,7 +1,8 @@
 ﻿using System;
-
 using SimpleScene;
 using SimpleScene.Demos;
+using OpenTK;
+using OpenTK.Graphics;
 
 namespace TestBench2
 {
@@ -20,6 +21,24 @@ namespace TestBench2
 			using (var game = new TestBench2()) {
 				game.Run(30.0);
 			}
+		}
+
+		protected override void setupScene ()
+		{
+			base.setupScene ();
+
+			SSLaserParameters laserParams = new SSLaserParameters();
+			laserParams.backgroundColor = Color4.Green;
+			laserParams.overlayColor = Color4.White;
+			laserParams.backgroundWidth = 10f;
+
+			SSLaser laser = new SSLaser ();
+			laser.start = new Vector3 (-10f, 0f, 0f);
+			laser.end = new Vector3 (10f, 0f, 0f);
+			laser.parameters = laserParams;
+
+			SimpleLaserObject lo = new SimpleLaserObject (laser);
+			scene.AddObject (lo);
 		}
 	}
 }
