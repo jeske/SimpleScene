@@ -28,7 +28,7 @@ namespace TestBench2
 			base.setupScene ();
 
 			SSLaserParameters laserParams = new SSLaserParameters();
-			laserParams.backgroundColor = Color4.Green;
+			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
 			laserParams.backgroundWidth = 10f;
 

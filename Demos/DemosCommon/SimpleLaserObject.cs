@@ -91,19 +91,17 @@ namespace SimpleScene
 			float phi = (float)Math.Atan2 (diff.Z, diff_xy);
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
 			Matrix4 middlePlacementMat = 
-				Matrix4.CreateTranslation(middleView)
-				* Matrix4.CreateRotationZ (theta) * Matrix4.CreateRotationY (phi);
+				Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta)
+				* Matrix4.CreateTranslation (middleView);
 
 			float laserLength = diff.LengthSquared;
 
 			base.Render (renderConfig);
 
 			// step: setup render settings
-			//GL.Enable(EnableCap.Blend);
-			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
-
-			GL.Enable (EnableCap.Blend);
-			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+			GL.Enable(EnableCap.Blend);
+			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
 			SSShaderProgram.DeactivateAll ();
 			GL.ActiveTexture (TextureUnit.Texture0);
@@ -118,20 +116,21 @@ namespace SimpleScene
 
 				Matrix4 middlebackgroundScale = Matrix4.CreateScale (
 					laserLength, laser.parameters.backgroundWidth, 1f);
-				Matrix4 middleBackgroundMatrix = middlePlacementMat * middlebackgroundScale;
+				Matrix4 middleBackgroundMatrix = middlebackgroundScale * middlePlacementMat;
 				GL.LoadMatrix (ref middleBackgroundMatrix);
 
 				// TODO single fance instance
 				SSTexturedQuad.DoubleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
-			#if false
+			#if true
 			if (middleOverlaySprite != null) {
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.Color4 (laser.parameters.overlayColor);
 
 				Matrix4 middleOverlayScale = Matrix4.CreateScale (
                      laserLength, laser.parameters.backgroundWidth * laser.parameters.overlayWidthRatio, 1f);
-				Matrix4 middleOverlayMatrix = middlePlacementMat * middleOverlayScale;
+				Matrix4 middleOverlayMatrix = middleOverlayScale * middlePlacementMat
+					* Matrix4.CreateTranslation(0f, 0f, 0.1f);
 				GL.LoadMatrix (ref middleOverlayMatrix);
 
 				// TODO single fance instance
