@@ -86,7 +86,7 @@ namespace TestBench2
 
 			GL.Enable (EnableCap.CullFace);
 			GL.CullFace (CullFaceMode.Back);
-			GL.Disable(EnableCap.DepthTest);
+			GL.Enable(EnableCap.DepthTest);
 			GL.Disable(EnableCap.DepthClamp);
 			GL.DepthFunc(DepthFunction.Less);
 			GL.DepthMask (false);
