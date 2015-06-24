@@ -88,13 +88,13 @@ namespace SimpleScene
 			// theta and phi
 			Vector3 diff = endView - startView;
 			float diff_xy = diff.Xy.LengthFast;
-			float phi = (float)Math.Atan2 (diff.Z, diff_xy);
+			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
 			Matrix4 middlePlacementMat = 
 				Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta)
 				* Matrix4.CreateTranslation (middleView);
 
-			float laserLength = diff.LengthSquared;
+			float laserLength = diff.LengthFast;
 
 			base.Render (renderConfig);
 

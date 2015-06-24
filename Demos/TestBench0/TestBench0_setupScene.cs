@@ -45,7 +45,7 @@ namespace TestBench0
 			droneObj.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.ShininessMatColor = 10.0f;
 			//droneObj.EulerDegAngleOrient(-40.0f,0.0f);
-			droneObj.Pos = new OpenTK.Vector3(0,0,-15f);
+			droneObj.Pos = new OpenTK.Vector3(0f, 0f, -15f);
 			droneObj.Name = "drone 1";
 
 			// add second drone

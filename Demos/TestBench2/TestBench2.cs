@@ -27,17 +27,45 @@ namespace TestBench2
 		{
 			base.setupScene ();
 
+			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
+
+			// add drones
+			var droneObj1 = new SSObjectMesh (mesh);
+			scene.AddObject (droneObj1);
+			droneObj1.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
+			droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
+			droneObj1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+			droneObj1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj1.Name = "green drone";
+			droneObj1.MainColor = Color4.Green;
+			scene.AddObject (droneObj1);
+
+			var droneObj2 = new SSObjectMesh (mesh);
+			scene.AddObject (droneObj2);
+			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
+			droneObj2.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+			droneObj2.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj2.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+			droneObj2.Name = "red drone";
+			droneObj2.MainColor = Color4.Red;
+			scene.AddObject (droneObj2);
+
+			// add lasers
 			SSLaserParameters laserParams = new SSLaserParameters();
 			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
 			laserParams.backgroundWidth = 10f;
 
 			SSLaser laser = new SSLaser ();
-			laser.start = new Vector3 (-10f, 0f, 0f);
-			laser.end = new Vector3 (10f, 0f, 0f);
+			laser.start = new Vector3 (-16f, 1f, -15f);
+			laser.end = new Vector3 (19f, 0f, -15f);
 			laser.parameters = laserParams;
 
 			SimpleLaserObject lo = new SimpleLaserObject (laser);
+			lo.Name = "laser test";
 			scene.AddObject (lo);
 		}
 	}
