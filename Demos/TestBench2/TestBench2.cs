@@ -3,11 +3,14 @@ using SimpleScene;
 using SimpleScene.Demos;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace TestBench2
 {
 	public class TestBench2 : TestBenchBaseWindow
 	{
+		protected SSScene laserScene = new SSScene ();
+
 		public TestBench2 ()
 			: base("TestBench2: Lasers")
 		{
@@ -66,7 +69,29 @@ namespace TestBench2
 
 			SimpleLaserObject lo = new SimpleLaserObject (laser);
 			lo.Name = "laser test";
-			scene.AddObject (lo);
+			laserScene.AddObject (lo);
+		}
+
+		protected override void renderScenes (
+			float fovy, float aspect, float nearPlane, float farPlane, 
+			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
+			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+		{
+			base.renderScenes (
+				fovy, aspect, nearPlane, farPlane, 
+				ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+
+			laserScene.renderConfig.invCameraViewMatrix = mainSceneView;
+			laserScene.renderConfig.projectionMatrix = mainSceneProj;
+
+			GL.Enable (EnableCap.CullFace);
+			GL.CullFace (CullFaceMode.Back);
+			GL.Disable(EnableCap.DepthTest);
+			GL.Disable(EnableCap.DepthClamp);
+			GL.DepthFunc(DepthFunction.Less);
+			GL.DepthMask (false);
+
+			laserScene.Render ();
 		}
 	}
 }

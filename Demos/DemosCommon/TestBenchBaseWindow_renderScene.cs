@@ -65,12 +65,25 @@ namespace SimpleScene.Demos
 			// create an orthographic projection matrix looking down the +Z matrix; for hud scene and sun flare scene
 			Matrix4 screenProj = Matrix4.CreateOrthographicOffCenter (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
 
-			/////////////////////////////////////////
-			// render the "shadowMap" 
-			// 
+
+			renderShadowmaps (fovy, aspect, nearPlane, farPlane, 
+					          ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+			renderScenes (fovy, aspect, nearPlane, farPlane, 
+						  ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+
+			// setup the view-bounds.
+			SwapBuffers();
+		}
+
+		protected virtual void renderShadowmaps(
+			float fovy, float aspect, float nearPlane, float farPlane,
+			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
+			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj
+			)
+		{
 			#if true
-            scene.renderConfig.projectionMatrix = mainSceneProj;
-            scene.renderConfig.invCameraViewMatrix = mainSceneView;
+			scene.renderConfig.projectionMatrix = mainSceneProj;
+			scene.renderConfig.invCameraViewMatrix = mainSceneView;
 
 			// clear some basics 
 			GL.Disable(EnableCap.Lighting);
@@ -88,10 +101,15 @@ namespace SimpleScene.Demos
 
 			scene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
 			#endif
+		}
 
-			// setup the view-bounds.
+		protected virtual void renderScenes(
+			float fovy, float aspect, float nearPlane, float farPlane,
+			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
+			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+		{
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, 
-						ClientRectangle.Width, ClientRectangle.Height);
+					    ClientRectangle.Width, ClientRectangle.Height);
 
 			/////////////////////////////////////////
 			// render the "environment" scene
@@ -100,9 +118,9 @@ namespace SimpleScene.Demos
 			//  test, because it's more efficient when it doesn't have to write every pixel
 			{
 				// setup infinite projection for cubemap
-                environmentScene.renderConfig.projectionMatrix 
-					= Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
-                environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
+				environmentScene.renderConfig.projectionMatrix 
+				= Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
+				environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -115,8 +133,8 @@ namespace SimpleScene.Demos
 			/////////////////////////////////////////
 			// rendering the "main" 3d scene....
 			{
-                scene.renderConfig.invCameraViewMatrix = mainSceneView;
-                scene.renderConfig.projectionMatrix = mainSceneProj;
+				scene.renderConfig.invCameraViewMatrix = mainSceneView;
+				scene.renderConfig.projectionMatrix = mainSceneProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -124,7 +142,7 @@ namespace SimpleScene.Demos
 				GL.Enable (EnableCap.DepthClamp);
 				GL.DepthFunc(DepthFunction.Less);
 				GL.DepthMask (true);
-				
+
 				// render 3d content...
 				// scene.renderConfig.renderBoundingSpheres = true;
 				scene.Render ();
@@ -133,8 +151,8 @@ namespace SimpleScene.Demos
 			/////////////////////////////////////////
 			// rendering the sun dsk scene....
 			{
-                sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
-                sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
+				sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
+				sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
 
 				GL.Enable(EnableCap.CullFace);
 				GL.CullFace(CullFaceMode.Back);
@@ -153,7 +171,7 @@ namespace SimpleScene.Demos
 			//  render the sun flare scene
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed	
-                sunFlareScene.renderConfig.projectionMatrix = screenProj;
+				sunFlareScene.renderConfig.projectionMatrix = screenProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -168,7 +186,7 @@ namespace SimpleScene.Demos
 			//  render the HUD scene
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed
-                hudScene.renderConfig.projectionMatrix = screenProj;
+				hudScene.renderConfig.projectionMatrix = screenProj;
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
@@ -178,10 +196,7 @@ namespace SimpleScene.Demos
 
 				hudScene.Render ();
 			}
-
-			SwapBuffers();
 		}
-
 
 		/// <summary>
 		/// Called when your window is resized. Set your viewport here. It is also
