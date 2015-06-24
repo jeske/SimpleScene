@@ -38,6 +38,28 @@ namespace SimpleScene
 		public SSTexture startBackgroundSprite = null;
 		public SSTexture startOverlaySprite = null;
 
+		// TODO cache these computations
+		public override Vector3 localBoundingSphereCenter {
+			get {
+				if (laser == null) {
+					return Vector3.Zero;
+				}
+				Vector3 middleWorld = (laser.start + laser.end) / 2f;
+				return Vector3.Transform (middleWorld, this.worldMat.Inverted ());
+			}
+		}
+
+		// TODO cache these computations
+		public override float localBoundingSphereRadius {
+			get {
+				if (laser == null) {
+					return 0f;
+				}
+				Vector3 diff = (laser.end - laser.start);
+				return diff.LengthFast/2f;
+			}
+		}
+
 		public SimpleLaserObject (SSLaser laser = null, 
 							      SSTexture middleBackgroundSprite = null,
 								  SSTexture middleOverlaySprite = null)
@@ -53,29 +75,6 @@ namespace SimpleScene
 			this.middleOverlaySprite = middleOverlaySprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laserOverlayStatic.png");
 		}
-
-		#if false
-		/// <summary>
-		/// Adds the laser to a list of lasers. Laser start, ends, fade and other effects
-		/// are to be updated from somewhere else.
-		/// </summary>
-		/// <returns>The handle to LaserInfo which can be used for updating start and 
-		/// end.</returns>
-		public SSLaser addLaser(SSLaserParameters parameters)
-		{
-			var li = new SSLaser();
-			li.start = Vector3.Zero;
-			li.end = Vector3.Zero;
-			li.parameters = parameters;
-			_lasers.Add (li);
-			return li;
-		}
-
-		public void removeLaser(SSLaser laser)
-		{
-			_lasers.Remove (laser);
-		}
-		#endif
 
 		public override void Render(SSRenderConfig renderConfig)
 		{
@@ -107,6 +106,8 @@ namespace SimpleScene
 			GL.ActiveTexture (TextureUnit.Texture0);
 			GL.Enable (EnableCap.Texture2D);
 
+			GL.DepthMask (false);
+
 			// step: draw middle section:
 
 			if (middleBackgroundSprite != null) {
@@ -119,8 +120,7 @@ namespace SimpleScene
 				Matrix4 middleBackgroundMatrix = middlebackgroundScale * middlePlacementMat;
 				GL.LoadMatrix (ref middleBackgroundMatrix);
 
-				// TODO single fance instance
-				SSTexturedQuad.DoubleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
 			#if true
 			if (middleOverlaySprite != null) {
@@ -133,11 +133,33 @@ namespace SimpleScene
 					* Matrix4.CreateTranslation(0f, 0f, 0.1f);
 				GL.LoadMatrix (ref middleOverlayMatrix);
 
-				// TODO single fance instance
-				SSTexturedQuad.DoubleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
 			#endif
 		}
+
+		#if false
+		/// <summary>
+		/// Adds the laser to a list of lasers. Laser start, ends, fade and other effects
+		/// are to be updated from somewhere else.
+		/// </summary>
+		/// <returns>The handle to LaserInfo which can be used for updating start and 
+		/// end.</returns>
+		public SSLaser addLaser(SSLaserParameters parameters)
+		{
+		var li = new SSLaser();
+		li.start = Vector3.Zero;
+		li.end = Vector3.Zero;
+		li.parameters = parameters;
+		_lasers.Add (li);
+		return li;
+		}
+
+		public void removeLaser(SSLaser laser)
+		{
+		_lasers.Remove (laser);
+		}
+		#endif
 	}
 }
 

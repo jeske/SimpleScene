@@ -161,8 +161,8 @@ namespace TestBench0
 				periodicExplosiveForce.explosiveForceMin = 1000f;
 				periodicExplosiveForce.explosiveForceMax = 5000f;
 				periodicExplosiveForce.effectDelay = 5f;
-				periodicExplosiveForce.centerMin = new Vector3 (-30f, -30f, -30f);
-				periodicExplosiveForce.centerMax = new Vector3 (30f, 30f, 30f);
+				periodicExplosiveForce.centerMin = new Vector3 (0f, 0f, +60f);
+				periodicExplosiveForce.centerMax = new Vector3 (0f, 0f, +60f);
 				//periodicExplosiveForce.Center = new Vector3 (10f);
 
 				// make a particle system
