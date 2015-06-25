@@ -74,6 +74,11 @@ namespace SimpleScene
 				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./boneman", "skin.png");
 			this.middleOverlaySprite = middleOverlaySprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laserOverlayStatic.png");
+
+			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
+			this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
+			this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
+			this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
 		}
 
 		public override void Render(SSRenderConfig renderConfig)
@@ -106,14 +111,13 @@ namespace SimpleScene
 			GL.ActiveTexture (TextureUnit.Texture0);
 			GL.Enable (EnableCap.Texture2D);
 
-			GL.DepthMask (false);
-
 			// step: draw middle section:
 
 			if (middleBackgroundSprite != null) {
 				
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
-				GL.Color4 (laser.parameters.backgroundColor);
+				//GL.Color4 (laser.parameters.backgroundColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
 
 				Matrix4 middlebackgroundScale = Matrix4.CreateScale (
 					laserLength, laser.parameters.backgroundWidth, 1f);
@@ -125,7 +129,8 @@ namespace SimpleScene
 			#if true
 			if (middleOverlaySprite != null) {
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
-				GL.Color4 (laser.parameters.overlayColor);
+				//GL.Color4 (laser.parameters.overlayColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
 
 				Matrix4 middleOverlayScale = Matrix4.CreateScale (
                      laserLength, laser.parameters.backgroundWidth * laser.parameters.overlayWidthRatio, 1f);
