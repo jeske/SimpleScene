@@ -62,18 +62,24 @@ namespace SimpleScene
 
 		public SimpleLaserObject (SSLaser laser = null, 
 							      SSTexture middleBackgroundSprite = null,
-								  SSTexture middleOverlaySprite = null)
+								  SSTexture middleOverlaySprite = null,
+								  SSTexture startBackgroundSprite = null,
+								  SSTexture startOverlaySprite = null)
 		{
 			this.laser = laser;
 
 			this.renderState.castsShadow = false;
 			this.renderState.receivesShadows = false;
 
+			var ctx = new SSAssetManager.Context ("./lasers");
 			this.middleBackgroundSprite = middleBackgroundSprite 
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laser.png");
-				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./boneman", "skin.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "laser.png");
 			this.middleOverlaySprite = middleOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laserOverlayStatic.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "laserOverlayStatic.png");
+			this.startBackgroundSprite = startBackgroundSprite
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "start2.png");
+			this.startOverlaySprite = startOverlaySprite
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "start2Over.png");
 
 			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
@@ -83,22 +89,6 @@ namespace SimpleScene
 
 		public override void Render(SSRenderConfig renderConfig)
 		{
-
-			// step: compute endpoints in view space
-			var startView = Vector3.Transform(laser.start, renderConfig.invCameraViewMatrix);
-			var endView = Vector3.Transform (laser.end, renderConfig.invCameraViewMatrix);
-			var middleView = (startView + endView) / 2f;
-
-			// theta and phi
-			Vector3 diff = endView - startView;
-			float diff_xy = diff.Xy.LengthFast;
-			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
-			float theta = (float)Math.Atan2 (diff.Y, diff.X);
-			Matrix4 middlePlacementMat = 
-				Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta)
-				* Matrix4.CreateTranslation (middleView);
-
-			float laserLength = diff.LengthFast;
 
 			base.Render (renderConfig);
 
@@ -111,7 +101,20 @@ namespace SimpleScene
 			GL.ActiveTexture (TextureUnit.Texture0);
 			GL.Enable (EnableCap.Texture2D);
 
+			// step: compute endpoints in view space
+			var startView = Vector3.Transform(laser.start, renderConfig.invCameraViewMatrix);
+			var endView = Vector3.Transform (laser.end, renderConfig.invCameraViewMatrix);
+			var middleView = (startView + endView) / 2f;
+
 			// step: draw middle section:
+			Vector3 diff = endView - startView;
+			float laserLength = diff.LengthFast;
+			float diff_xy = diff.Xy.LengthFast;
+			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
+			float theta = (float)Math.Atan2 (diff.Y, diff.X);
+			Matrix4 middlePlacementMat = 
+				Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta)
+				* Matrix4.CreateTranslation (middleView);
 
 			if (middleBackgroundSprite != null) {
 				
@@ -126,7 +129,6 @@ namespace SimpleScene
 
 				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
-			#if true
 			if (middleOverlaySprite != null) {
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				//GL.Color4 (laser.parameters.overlayColor);
@@ -140,7 +142,24 @@ namespace SimpleScene
 
 				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
-			#endif
+
+			// step: start section
+			Matrix4 startPlacementMatrix = 
+				Matrix4.CreateRotationY(phi) * Matrix4.CreateRotationZ(theta)
+				* Matrix4.CreateTranslation (startView);
+
+			if (startBackgroundSprite != null) {
+				GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
+				//GL.Color4 (laser.parameters.backgroundColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
+
+				Matrix4 startBackgroundScale = Matrix4.CreateScale (
+					laser.parameters.backgroundWidth, laser.parameters.backgroundWidth, 1f);
+				Matrix4 startBackgroundMatrix = startBackgroundScale * startPlacementMatrix;
+				GL.LoadMatrix (ref startBackgroundMatrix);
+
+				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+			}
 		}
 
 		#if false
