@@ -163,6 +163,7 @@ namespace SimpleScene
 
 				if (alphaBlendingEnabled) {
 					GL.Enable (EnableCap.Blend);
+					GL.BlendEquation (BlendEquationMode.FuncAdd);
 					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 				} else {
 					GL.Disable (EnableCap.Blend);

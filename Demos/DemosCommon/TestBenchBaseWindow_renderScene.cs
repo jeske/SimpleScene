@@ -48,6 +48,7 @@ namespace SimpleScene.Demos
 			/////////////////////////////////////////
 			// clear the render buffer....
 			GL.DepthMask (true);
+			GL.ColorMask (true, true, true, true);
 			GL.ClearColor (0.0f, 0.0f, 0.0f, 0.0f); // black
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 

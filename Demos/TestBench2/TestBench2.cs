@@ -91,6 +91,10 @@ namespace TestBench2
 			GL.DepthFunc(DepthFunction.Less);
 			GL.DepthMask (false);
 
+			//GL.ColorMask (false, false, false, true);
+			//GL.ClearColor (0f, 0f, 0f, 1f);
+			//GL.Clear (ClearBufferMask.ColorBufferBit);
+
 			laserScene.Render ();
 		}
 	}
