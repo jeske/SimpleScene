@@ -33,7 +33,8 @@ namespace SimpleScene
 	public class SimpleLaserObject : SSObject
 	{
 		public SSLaser laser = null;
-		public SSTexture middleBackgroundSprite = null;
+		public SSTexture backgroundMiddleSprite = null;
+		public SSTexture backgroundCapSprite = null;
 		public SSTexture middleOverlaySprite = null;
 		public SSTexture startBackgroundSprite = null;
 		public SSTexture startOverlaySprite = null;
@@ -72,8 +73,11 @@ namespace SimpleScene
 			this.renderState.receivesShadows = false;
 
 			var ctx = new SSAssetManager.Context ("./lasers");
-			this.middleBackgroundSprite = middleBackgroundSprite 
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "laser.png");
+			this.backgroundMiddleSprite = middleBackgroundSprite 
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background_middle.png");
+			this.backgroundCapSprite =
+				SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "background_cap.png");
+
 			this.middleOverlaySprite = middleOverlaySprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "laserOverlayStatic.png");
 			this.startBackgroundSprite = startBackgroundSprite
@@ -110,9 +114,9 @@ namespace SimpleScene
 			float diff_xy = diff.Xy.LengthFast;
 			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
-			Matrix4 middlePlacementMat = 
-				Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta)
-				* Matrix4.CreateTranslation (middleView);
+			Matrix4 backgroundOrientMat = Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta);
+			Matrix4 middlePlacementMat = backgroundOrientMat * Matrix4.CreateTranslation (middleView);
+			Matrix4 startCapPlacement = backgroundOrientMat * Matrix4.CreateTranslation (startView + new Vector3(+0.075f, 0f, 0f));
 
 			float backgroundWidth = laser.parameters.backgroundWidth;
 			float overlayWidth = laser.parameters.backgroundWidth * laser.parameters.overlayWidthRatio;
@@ -123,20 +127,28 @@ namespace SimpleScene
 			//GL.BlendFuncSeparate (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One,
 			//					  BlendingFactorSrc.One, BlendingFactorDest.Zero);
 
-			if (middleBackgroundSprite != null) {
+			if (backgroundMiddleSprite != null) {
 				
-				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
+				GL.BindTexture (TextureTarget.Texture2D, backgroundMiddleSprite.TextureID);
 				//GL.Color4 (laser.parameters.backgroundColor);
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
 
-				Matrix4 middlebackgroundScale = Matrix4.CreateScale (
-					//laserLength - 3.5f, backgroundWidth, 1f);
-					laserLength, backgroundWidth, 1f);
+				Matrix4 middlebackgroundScale = Matrix4.CreateScale (laserLength, backgroundWidth, 1f);
 				Matrix4 middleBackgroundMatrix = middlebackgroundScale * middlePlacementMat;
 				GL.LoadMatrix (ref middleBackgroundMatrix);
 
 				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+
+				// caps
+				Matrix4 capBackgroundScale = Matrix4.CreateScale (backgroundWidth, backgroundWidth, 1f);
+				if (backgroundCapSprite != null) {
+					GL.BindTexture (TextureTarget.Texture2D, backgroundCapSprite.TextureID);
+					Matrix4 startCapBackgroundMatrix = capBackgroundScale * startCapPlacement;
+					GL.LoadMatrix (ref startCapBackgroundMatrix);
+					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				}
 			}
+			#if false
 			if (middleOverlaySprite != null) {
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				//GL.Color4 (laser.parameters.overlayColor);
@@ -150,6 +162,7 @@ namespace SimpleScene
 
 				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
+			#endif
 
 			// step: start section
 			Matrix4 startPlacementMatrix = 
@@ -165,7 +178,9 @@ namespace SimpleScene
 			//GL.BlendEquation (BlendEquationMode.Max);
 
 
-			#if true
+			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+
+			#if false
 			if (startBackgroundSprite != null) {
 				GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
 				//GL.Color4 (laser.parameters.backgroundColor);
