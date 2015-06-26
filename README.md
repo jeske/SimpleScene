@@ -1,9 +1,10 @@
+SimpleScene -- Simple 3d OpenGL/OpenTK Scene manager in C#.
 
-SimpleScene -- Simple 3d OpenGL/OpenTK Scene manager in C#. 
+TestBench0 -- A test case featuring wavefrontOBJ models and particle systems with instanced drawing
 
-WavefrontOBJ -- Simple wavefrontOBJ model viewer example.
-
-(C) Copyright 2014 by David W. Jeske
+TestBench1 -- A test case of using md5mesh skeletal meshes, md5anim animations, and some dynamic ways of using the skeletal structures
+ 
+(C) Copyright 2015 by David W. Jeske
 
 Released to the Public Domain AND under the Apache 2.0 license.
 
