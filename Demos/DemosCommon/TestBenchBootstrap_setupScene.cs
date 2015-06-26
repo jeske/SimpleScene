@@ -11,7 +11,7 @@ using SimpleScene;
 
 namespace SimpleScene.Demos
 {
-	partial class TestBenchBaseWindow : OpenTK.GameWindow
+	partial class TestBenchBootstrap : OpenTK.GameWindow
 	{
 		protected bool autoWireframeMode = true;
 		protected SSObjectGDISurface_Text fpsDisplay;

@@ -14,7 +14,7 @@ using SimpleScene;
 
 namespace SimpleScene.Demos
 {
-	partial class TestBenchBaseWindow : OpenTK.GameWindow
+	partial class TestBenchBootstrap : OpenTK.GameWindow
 	{
 		FPSCalculator fpsCalc = new FPSCalculator();
 		float animateSecondsOffset;

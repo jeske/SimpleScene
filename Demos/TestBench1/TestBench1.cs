@@ -17,11 +17,9 @@ using OpenTK.Input;
 using SimpleScene;
 using SimpleScene.Demos;
 
-// http://www.opentk.com/book/export/html/1039
-
 namespace TestBench1
 {
-	partial class TestBench1 : TestBenchBaseWindow
+	partial class TestBench1 : TestBenchBootstrap
 	{
 		protected SSPolarJoint renderMesh5NeckJoint =  null;
 		protected SSAnimationStateMachineSkeletalController renderMesh4AttackSm = null;

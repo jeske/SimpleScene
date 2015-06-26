@@ -17,15 +17,9 @@ using OpenTK.Input;
 using SimpleScene;
 using SimpleScene.Demos;
 
-// http://www.opentk.com/book/export/html/1039
-
 namespace TestBench0
 {
-
-	// here we setup a basic "game window" and hook some input functions
-
-
-	partial class TestBench0 : TestBenchBaseWindow
+	partial class TestBench0 : TestBenchBootstrap
 	{
         SSInstancedMeshRenderer asteroidRingRenderer = null;
 		Vector2 ringAngularVelocity = new Vector2 (0.03f, 0.01f);

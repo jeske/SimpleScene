@@ -12,7 +12,7 @@ using SimpleScene.Demos;
 
 namespace TestBench1
 {
-	partial class TestBench1 : TestBenchBaseWindow
+	partial class TestBench1 : TestBenchBootstrap
 	{
 		protected override void setupScene()
 		{

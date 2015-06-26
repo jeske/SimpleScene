@@ -8,6 +8,8 @@
     <RootNamespace>TestBench0</RootNamespace>
     <AssemblyName>TestBench0</AssemblyName>
     <StartupObject>TestBench0.TestBench0</StartupObject>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>

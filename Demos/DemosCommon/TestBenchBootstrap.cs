@@ -16,14 +16,57 @@ using OpenTK.Input;
 
 using SimpleScene;
 
-// http://www.opentk.com/book/export/html/1039
-
 namespace SimpleScene.Demos
 {
-
-	// here we setup a basic "game window" and hook some input functions
-
-	public abstract partial class TestBenchBaseWindow : OpenTK.GameWindow
+	/// <summary>
+	/// This class provides a bootstrap mechanism to setup a basic "game window", hook some input 
+	/// functions, and add a few rendered objects to jump-start testing or development of SimpleScene
+	/// features. When done carefully this shouldn't take more than a few minutes. Most of the bootstrap 
+	/// functionality details are based on GL tutorial for OpenTK 
+	/// (http://www.opentk.com/book/export/html/1039)
+	/// 
+	/// To start a new test bench project:
+	/// 
+	/// 1) Create a new empty project under SimpleDemos (lets say TestBenchX)
+	/// 
+	/// 2) Add a class derived from TestBenchBootstrap (lets say TestBenchX); 
+	///    set as main class in the project settings
+	///
+	/// 3) Setup the static Main() function of the derived class like this:
+	/// 
+	/// <code>
+	/// static void Main()
+	/// {
+	///	    // The 'using' idiom guarantees proper resource cleanup.
+	///	    // We request 30 UpdateFrame events per second, and unlimited
+	///	    // RenderFrame events (as fast as the computer can handle).
+	///	    using (var game = new TestBenchX()) {
+	///         game.Run(30.0);
+	///	    }
+	/// }
+	/// </code>
+	/// 
+	/// 4) Provide a constructor that at least sets the window title:
+	/// 
+	/// <code>
+	/// public TestBenchX()
+	///	    : base("TestBenchX")
+	/// {
+	/// }
+	/// 
+	/// This should be enough to get the new game window project working. Next you can...
+	/// 
+	/// 5) Override one or more functions to change or extend the bootstrap functionality:
+	/// - Override setupScene() or setupEnvironment() to change or extend scene setup.
+	/// - Override renderScenes() (and renderShadowmaps(), if needed) if you have added another instance 
+	///   of a SSScene and need to render it
+	/// - Override setupInput() to change existing or add new key input handlers
+	/// - etc; most functions are made virtual to encourage customizability and experimenting
+	/// 
+	/// See TestBench0, TestBench1, etc. for example uses of this base class.
+	/// </code>
+	/// </summary>
+	public abstract partial class TestBenchBootstrap : OpenTK.GameWindow
 	{
 		protected SSScene scene = new SSScene();
 		protected SSScene sunDiskScene = new SSScene ();
@@ -54,7 +97,7 @@ namespace SimpleScene.Demos
 		#endif
 
 		/// <summary>Creates a 800x600 window with the specified title.</summary>
-		public TestBenchBaseWindow(string windowName)
+		public TestBenchBootstrap(string windowName)
 			: base(
 				#if false
 				800, 600, 
@@ -146,6 +189,8 @@ namespace SimpleScene.Demos
 			if (!base.Focused) return; // no window focus = no action
 
 			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
+			if (ctp == null) return;
+
 			KeyboardState state = OpenTK.Input.Keyboard.GetState ();
 			float cameraDisplacement = (ctp.followDistance + 5f) * deltaT * -0.33f;
 			if (state.IsKeyDown(Key.W)) {
