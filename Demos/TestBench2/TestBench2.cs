@@ -45,8 +45,10 @@ namespace TestBench2
 			scene.AddObject (droneObj1);
 
 			// more precise debugging of the laser starting point:
-			//droneObj1.Scale = new Vector3 (0.01f);
-			//droneObj1.Pos = new Vector3 (-17f, 1f, -15f);
+			#if false
+			droneObj1.Scale = new Vector3 (0.01f);
+			droneObj1.Pos = new Vector3 (-17f, 1f, -15f);
+			#endif
 
 			var droneObj2 = new SSObjectMesh (mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
@@ -56,13 +58,14 @@ namespace TestBench2
 			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.Name = "red drone";
 			droneObj2.MainColor = Color4.Red;
-			//scene.AddObject (droneObj2);
+			scene.AddObject (droneObj2);
 
 			// add lasers
 			SSLaserParameters laserParams = new SSLaserParameters();
 			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
 			laserParams.backgroundWidth = 2f;
+			laserParams.startPointScale = 2f;
 
 			SSLaser laser = new SSLaser ();
 			laser.start = new Vector3 (-17f, 1f, -15f);
@@ -72,6 +75,11 @@ namespace TestBench2
 			SimpleLaserObject lo = new SimpleLaserObject (laser);
 			lo.Name = "laser test";
 			laserScene.AddObject (lo);
+
+			#if false
+			droneObj1.Scale = new Vector3 (0.01f);
+			droneObj1.Pos = laser.start;
+			#endif
 		}
 
 		protected override void renderScenes (

@@ -17,8 +17,18 @@ namespace SimpleScene
 	{
 		public Color4 backgroundColor = Color4.White;
 		public Color4 overlayColor = Color4.White;
-		public float backgroundWidth = 0.1f;    // width in world units
-		public float overlayWidthRatio = 0.15f;  // ratio, 0-1, of how much of the background is covered by overlay
+		/// <summary>
+		/// width of the middle section sprite (in world units)
+		/// </summary>
+		public float backgroundWidth = 0.1f;
+		/// <summary>
+		/// ratio, 0-1, of how much of the background is covered by overlay
+		/// </summary>
+		public float overlayWidthRatio = 0.15f;
+		/// <summary>
+		/// start (emission) sprite will be drawn x times larger than the middle section
+		/// </summary>
+		public float startPointScale = 1.2f; 
 	}
 
 	public class SSLaser
@@ -122,13 +132,16 @@ namespace SimpleScene
 			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
 			Matrix4 backgroundOrientMat = Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta);
-			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 			Matrix4 middlePlacementMat = backgroundOrientMat * Matrix4.CreateTranslation (middleView);
+			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
-			float middleBackgroundLength = diff.LengthFast;
+			float laserLength = diff.LengthFast;
 			float middleBackgroundWidth = laser.parameters.backgroundWidth;
+			float middleBackgroundLength = laserLength + middleBackgroundWidth;
 			float overlayBackgroundWidth = middleBackgroundWidth * laser.parameters.overlayWidthRatio;
-			float overlayBackgroundLength = middleBackgroundLength - middleBackgroundWidth + overlayBackgroundWidth;
+			float overlayBackgroundLength = laserLength + overlayBackgroundWidth;
+			float startBackgroundWidth = middleBackgroundWidth * laser.parameters.startPointScale;
+			float startOverlayWidth = startBackgroundWidth * laser.parameters.overlayWidthRatio;
 
 			if (middleBackgroundSprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
@@ -137,14 +150,33 @@ namespace SimpleScene
 
 				_updateMiddleMesh (middleBackgroundLength, middleBackgroundWidth);
 				_middleMesh.renderMesh (renderConfig);
+
+				if (startBackgroundSprite != null) {
+				//if (false) {
+					GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
+					var mat = Matrix4.CreateScale (startBackgroundWidth, startBackgroundWidth, 1f)
+					               * startPlacementMat;
+					GL.LoadMatrix (ref mat);
+					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				}
 			}
 			if (middleOverlaySprite != null) {
+			//if (false) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
 				_updateMiddleMesh (overlayBackgroundLength, overlayBackgroundWidth);
 				_middleMesh.renderMesh (renderConfig);
+
+				if (startOverlaySprite != null) {
+					//if (false) {
+					GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
+					var mat = Matrix4.CreateScale (startOverlayWidth, startOverlayWidth, 1f)
+						* startPlacementMat;
+					GL.LoadMatrix (ref mat);
+					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				}
 			}
 		}
 
