@@ -1,4 +1,4 @@
-﻿using System;
+﻿	using System;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
@@ -18,7 +18,7 @@ namespace SimpleScene
 		public Color4 backgroundColor = Color4.White;
 		public Color4 overlayColor = Color4.White;
 		public float backgroundWidth = 0.1f;    // width in world units
-		public float overlayWidthRatio = 0.3f;  // ratio, 0-1, of how much of the background is covered by overlay
+		public float overlayWidthRatio = 0.15f;  // ratio, 0-1, of how much of the background is covered by overlay
 	}
 
 	public class SSLaser
@@ -33,11 +33,18 @@ namespace SimpleScene
 	public class SimpleLaserObject : SSObject
 	{
 		public SSLaser laser = null;
-		public SSTexture backgroundMiddleSprite = null;
-		public SSTexture backgroundCapSprite = null;
+		public SSTexture middleBackgroundSprite = null;
 		public SSTexture middleOverlaySprite = null;
 		public SSTexture startBackgroundSprite = null;
 		public SSTexture startOverlaySprite = null;
+
+		static readonly protected UInt16[] _middleIndices = {
+			0,1,2, 1,3,2, // left cap
+			2,3,4, 3,5,4, // middle
+			//4,5,6, 5,7,6  // right cap
+		};
+		protected SSVertex_PosTex[] _middleVertices;
+		protected SSIndexedMesh<SSVertex_PosTex> _middleMesh;
 
 		// TODO cache these computations
 		public override Vector3 localBoundingSphereCenter {
@@ -73,35 +80,36 @@ namespace SimpleScene
 			this.renderState.receivesShadows = false;
 
 			var ctx = new SSAssetManager.Context ("./lasers");
-			this.backgroundMiddleSprite = middleBackgroundSprite 
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background_middle.png");
-			this.backgroundCapSprite =
-				SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "background_cap.png");
-
+			this.middleBackgroundSprite = middleBackgroundSprite 
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
 			this.middleOverlaySprite = middleOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "laserOverlayStatic.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
 			this.startBackgroundSprite = startBackgroundSprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "start_background.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
 			this.startOverlaySprite = startOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "start_overlay.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
 
+			// reset all mat colors. emission will be controlled during rendering
 			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
+
+			// initialize non-changing vertex data
+			_initMiddleMesh ();
 		}
 
 		public override void Render(SSRenderConfig renderConfig)
 		{
-
 			base.Render (renderConfig);
 
 			// step: setup render settings
-			GL.Enable(EnableCap.Blend);
-
 			SSShaderProgram.DeactivateAll ();
 			GL.ActiveTexture (TextureUnit.Texture0);
 			GL.Enable (EnableCap.Texture2D);
+
+			GL.Enable(EnableCap.Blend);
+			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
 			// step: compute endpoints in view space
 			var startView = Vector3.Transform(laser.start, renderConfig.invCameraViewMatrix);
@@ -110,121 +118,73 @@ namespace SimpleScene
 
 			// step: draw middle section:
 			Vector3 diff = endView - startView;
-			float laserLength = diff.LengthFast;
 			float diff_xy = diff.Xy.LengthFast;
 			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
 			Matrix4 backgroundOrientMat = Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta);
+			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 			Matrix4 middlePlacementMat = backgroundOrientMat * Matrix4.CreateTranslation (middleView);
-			Matrix4 startCapPlacement = backgroundOrientMat * Matrix4.CreateTranslation (startView + new Vector3(+0.075f, 0f, 0f));
 
-			float backgroundWidth = laser.parameters.backgroundWidth;
-			float overlayWidth = laser.parameters.backgroundWidth * laser.parameters.overlayWidthRatio;
+			float middleBackgroundLength = diff.LengthFast;
+			float middleBackgroundWidth = laser.parameters.backgroundWidth;
+			float overlayBackgroundWidth = middleBackgroundWidth * laser.parameters.overlayWidthRatio;
+			float overlayBackgroundLength = middleBackgroundLength - middleBackgroundWidth + overlayBackgroundWidth;
 
-			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
-			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-			//GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
-			//GL.BlendFuncSeparate (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One,
-			//					  BlendingFactorSrc.One, BlendingFactorDest.Zero);
-
-			if (backgroundMiddleSprite != null) {
-				
-				GL.BindTexture (TextureTarget.Texture2D, backgroundMiddleSprite.TextureID);
-				//GL.Color4 (laser.parameters.backgroundColor);
+			if (middleBackgroundSprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
+				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
+				GL.LoadMatrix (ref middlePlacementMat);
 
-				Matrix4 middlebackgroundScale = Matrix4.CreateScale (laserLength, backgroundWidth, 1f);
-				Matrix4 middleBackgroundMatrix = middlebackgroundScale * middlePlacementMat;
-				GL.LoadMatrix (ref middleBackgroundMatrix);
-
-				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-
-				// caps
-				Matrix4 capBackgroundScale = Matrix4.CreateScale (backgroundWidth, backgroundWidth, 1f);
-				if (backgroundCapSprite != null) {
-					GL.BindTexture (TextureTarget.Texture2D, backgroundCapSprite.TextureID);
-					Matrix4 startCapBackgroundMatrix = capBackgroundScale * startCapPlacement;
-					GL.LoadMatrix (ref startCapBackgroundMatrix);
-					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-				}
+				_updateMiddleMesh (middleBackgroundLength, middleBackgroundWidth);
+				_middleMesh.renderMesh (renderConfig);
 			}
-			#if false
 			if (middleOverlaySprite != null) {
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
-				//GL.Color4 (laser.parameters.overlayColor);
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
+				GL.LoadMatrix (ref middlePlacementMat);
 
-				Matrix4 middleOverlayScale = Matrix4.CreateScale (
-					laserLength, overlayWidth, 1f);
-				Matrix4 middleOverlayMatrix = middleOverlayScale * middlePlacementMat
-					* Matrix4.CreateTranslation(0f, 0f, 0.1f);
-				GL.LoadMatrix (ref middleOverlayMatrix);
-
-				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				_updateMiddleMesh (overlayBackgroundLength, overlayBackgroundWidth);
+				_middleMesh.renderMesh (renderConfig);
 			}
-			#endif
+		}
 
-			// step: start section
-			Matrix4 startPlacementMatrix = 
-				//Matrix4.CreateRotationY(phi) * Matrix4.CreateRotationZ(theta) *
-				Matrix4.CreateTranslation (startView);
-			//GL.BlendEquationSeparate (BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
-			//GL.BlendFuncSeparate (BlendingFactorSrc.Zero, BlendingFactorDest.DstColor,
-			//	BlendingFactorSrc.Zero, BlendingFactorDest.Zero);
-			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-			//GL.BlendEquation (BlendEquationMode.Max);
+		protected void _initMiddleMesh()
+		{
+			_middleVertices = new SSVertex_PosTex[8];
+			_middleVertices [0].TexCoord = new Vector2 (0f, 0f);
+			_middleVertices [1].TexCoord = new Vector2 (0f, 1f);
 
-			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.Zero);
-			//GL.BlendEquation (BlendEquationMode.Max);
+			_middleVertices [2].TexCoord = new Vector2 (0.5f, 0f);
+			_middleVertices [3].TexCoord = new Vector2 (0.5f, 1f);
 
+			_middleVertices [4].TexCoord = new Vector2 (0.5f, 0f);
+			_middleVertices [5].TexCoord = new Vector2 (0.5f, 1f);
 
-			//GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+			_middleVertices [6].TexCoord = new Vector2 (1f, 0f);
+			_middleVertices [7].TexCoord = new Vector2 (1f, 1f);
 
-			#if false
-			if (startBackgroundSprite != null) {
-				GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
-				//GL.Color4 (laser.parameters.backgroundColor);
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
+			_middleVertices [4].TexCoord = new Vector2 (0.5f, 0f);
+			_middleVertices [5].TexCoord = new Vector2 (0.5f, 1f);
 
-				Matrix4 startBackgroundScale = Matrix4.CreateScale (
-					backgroundWidth*1.5f, backgroundWidth*1.5f, 1f);
-				Matrix4 startBackgroundMatrix = startBackgroundScale * startPlacementMatrix;
-				GL.LoadMatrix (ref startBackgroundMatrix);
+			_middleMesh = new SSIndexedMesh<SSVertex_PosTex>(_middleVertices, _middleIndices);
+		}
 
-				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+		protected void _updateMiddleMesh(float laserLength, float meshWidth)
+		{
+			float halfWidth = meshWidth / 2f;
+			float halfLength = laserLength / 2f;
+
+			for (int i = 0; i < 8; i += 2) {
+				_middleVertices [i].Position.Y = +halfWidth;
+				_middleVertices [i + 1].Position.Y = -halfWidth;
 			}
-			#endif
-			#if false
-			if (startOverlaySprite != null) {
-				GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
-				//GL.Color4 (laser.parameters.backgroundColor);
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
 
-				Matrix4 startOverlayScale = Matrix4.CreateScale (
-					overlayWidth, overlayWidth, 1f);
-				Matrix4 startOverlayMatrix = startOverlayScale * startPlacementMatrix;
-				GL.LoadMatrix (ref startOverlayMatrix);
+			_middleVertices [0].Position.X = _middleVertices[1].Position.X = -halfLength - halfWidth;
+			_middleVertices [2].Position.X = _middleVertices[3].Position.X = -halfLength + halfWidth;
+			_middleVertices [4].Position.X = _middleVertices[5].Position.X = +halfLength - halfWidth;
+			_middleVertices [6].Position.X = _middleVertices[7].Position.X = +halfLength + halfWidth;
 
-				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-			}
-			#endif
-
-
-
-			#if false
-			if (startBackgroundSprite != null) {
-			GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
-			//GL.Color4 (laser.parameters.backgroundColor);
-			GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
-
-			Matrix4 startBackgroundScale = Matrix4.CreateScale (
-			laser.parameters.backgroundWidth, laser.parameters.backgroundWidth, 1f);
-			Matrix4 startBackgroundMatrix = startBackgroundScale * startPlacementMatrix;
-			GL.LoadMatrix (ref startBackgroundMatrix);
-
-			SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-			}
-			#endif
+			_middleMesh.UpdateVertices (_middleVertices);
 		}
 
 		#if false

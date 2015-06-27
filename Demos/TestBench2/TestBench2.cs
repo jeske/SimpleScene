@@ -34,7 +34,6 @@ namespace TestBench2
 
 			// add drones
 			var droneObj1 = new SSObjectMesh (mesh);
-			scene.AddObject (droneObj1);
 			droneObj1.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
 			droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
 			droneObj1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
@@ -45,8 +44,11 @@ namespace TestBench2
 			droneObj1.MainColor = Color4.Green;
 			scene.AddObject (droneObj1);
 
+			// more precise debugging of the laser starting point:
+			//droneObj1.Scale = new Vector3 (0.01f);
+			//droneObj1.Pos = new Vector3 (-17f, 1f, -15f);
+
 			var droneObj2 = new SSObjectMesh (mesh);
-			scene.AddObject (droneObj2);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
 			droneObj2.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
 			droneObj2.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -54,16 +56,16 @@ namespace TestBench2
 			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.Name = "red drone";
 			droneObj2.MainColor = Color4.Red;
-			scene.AddObject (droneObj2);
+			//scene.AddObject (droneObj2);
 
 			// add lasers
 			SSLaserParameters laserParams = new SSLaserParameters();
 			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
-			laserParams.backgroundWidth = 10f;
+			laserParams.backgroundWidth = 2f;
 
 			SSLaser laser = new SSLaser ();
-			laser.start = new Vector3 (-16f, 1f, -15f);
+			laser.start = new Vector3 (-17f, 1f, -15f);
 			laser.end = new Vector3 (19f, 0f, -15f);
 			laser.parameters = laserParams;
 
