@@ -64,7 +64,7 @@ namespace TestBench2
 			SSLaser laser = new SSLaser ();
 			laser.start = new Vector3 (-17f, 1f, -15f);
 			//laser.end = new Vector3 (19f, 0f, -15f);
-			laser.end = new Vector3 (200f, 0f, -15f);
+			laser.end = new Vector3 (19f, 0f, -15f);
 			laser.parameters = laserParams;
 
 			SimpleLaserObject lo = new SimpleLaserObject (laser);
@@ -76,6 +76,14 @@ namespace TestBench2
 			droneObj1.Scale = new Vector3 (0.01f);
 			droneObj1.Pos = laser.start;
 			#endif
+
+			#if false
+			// debug end location of the laser
+			droneObj2.Scale = new Vector3 (0.01f);
+			droneObj2.Pos = laser.end;
+			#endif
+
+			//scene.renderConfig.renderBoundingSpheresLines = true;
 		}
 
 		protected override void renderScenes (

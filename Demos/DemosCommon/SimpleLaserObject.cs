@@ -144,9 +144,7 @@ namespace SimpleScene
 
 			float laserLength = diff.LengthFast;
 			float middleBackgroundWidth = laser.parameters.backgroundWidth;
-			float middleBackgroundLength = laserLength + middleBackgroundWidth;
 			float overlayBackgroundWidth = middleBackgroundWidth;
-			float overlayBackgroundLength = laserLength + overlayBackgroundWidth;
 			float startBackgroundWidth = middleBackgroundWidth * laser.parameters.startPointScale;
 			float startOverlayWidth = startBackgroundWidth;
 
@@ -155,7 +153,7 @@ namespace SimpleScene
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
-				_updateMiddleMesh (middleBackgroundLength, middleBackgroundWidth);
+				_updateMiddleMesh (laserLength, middleBackgroundWidth);
 				_middleMesh.renderMesh (renderConfig);
 
 				#if true
@@ -174,7 +172,7 @@ namespace SimpleScene
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
-				_updateMiddleMesh (overlayBackgroundLength, overlayBackgroundWidth);
+				_updateMiddleMesh (laserLength, overlayBackgroundWidth);
 				_middleMesh.renderMesh (renderConfig);
 				
 				#if true
@@ -200,8 +198,8 @@ namespace SimpleScene
 			_middleVertices [2].TexCoord = new Vector2 (1f-padding, padding);
 			_middleVertices [3].TexCoord = new Vector2 (1f-padding, 1f-padding);
 
-			_middleVertices [4].TexCoord = new Vector2 (1f, padding);
-			_middleVertices [5].TexCoord = new Vector2 (1f, 1f-padding);
+			_middleVertices [4].TexCoord = new Vector2 (1f-padding, padding);
+			_middleVertices [5].TexCoord = new Vector2 (1f-padding, 1f-padding);
 
 			_middleVertices [6].TexCoord = new Vector2 (1f, padding);
 			_middleVertices [7].TexCoord = new Vector2 (1f, 1f-padding);
@@ -219,8 +217,8 @@ namespace SimpleScene
 				_middleVertices [i + 1].Position.Y = -halfWidth;
 			}
 
-			_middleVertices [0].Position.X = _middleVertices[1].Position.X = -halfLength + halfWidth - halfWidth;
-			_middleVertices [2].Position.X = _middleVertices[3].Position.X = -halfLength + halfWidth + halfWidth;
+			_middleVertices [0].Position.X = _middleVertices[1].Position.X = -halfLength - halfWidth;
+			_middleVertices [2].Position.X = _middleVertices[3].Position.X = -halfLength + halfWidth;
 			_middleVertices [4].Position.X = _middleVertices[5].Position.X = +halfLength - halfWidth;
 			_middleVertices [6].Position.X = _middleVertices[7].Position.X = +halfLength + halfWidth;
 
