@@ -15,20 +15,24 @@ namespace SimpleScene
 
 	public class SSLaserParameters
 	{
-		public Color4 backgroundColor = Color4.White;
+		public Color4 backgroundColor = Color4.Magenta;
 		public Color4 overlayColor = Color4.White;
+
 		/// <summary>
-		/// width of the middle section sprite (in world units)
+		/// padding for the start+middle stretched sprite. Mid section vertices gets streched 
+		/// beyond this padding.
 		/// </summary>
-		public float backgroundWidth = 0.1f;
+		public float laserSpritePadding = 0.05f;
+
 		/// <summary>
-		/// ratio, 0-1, of how much of the background is covered by overlay
+		/// width of the start+middle section sprite (in world units)
 		/// </summary>
-		public float overlayWidthRatio = 0.15f;
+		public float backgroundWidth = 2f;
+
 		/// <summary>
-		/// start (emission) sprite will be drawn x times larger than the middle section
+		/// start-only (emission) sprites will be drawn x times larger than the start+middle section width
 		/// </summary>
-		public float startPointScale = 1.2f; 
+		public float startPointScale = 1.0f; 
 	}
 
 	public class SSLaser
@@ -47,6 +51,9 @@ namespace SimpleScene
 		public SSTexture middleOverlaySprite = null;
 		public SSTexture startBackgroundSprite = null;
 		public SSTexture startOverlaySprite = null;
+
+		public SSTexture backgroundSprite = null;
+		public SSTexture overlaySprite = null;
 
 		static readonly protected UInt16[] _middleIndices = {
 			0,1,2, 1,3,2, // left cap
@@ -91,13 +98,13 @@ namespace SimpleScene
 
 			var ctx = new SSAssetManager.Context ("./lasers");
 			this.middleBackgroundSprite = middleBackgroundSprite 
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start2.png");
 			this.middleOverlaySprite = middleOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start2Over.png");
 			this.startBackgroundSprite = startBackgroundSprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
 			this.startOverlaySprite = startOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start_overlay.png");
 
 			// reset all mat colors. emission will be controlled during rendering
 			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
@@ -138,10 +145,10 @@ namespace SimpleScene
 			float laserLength = diff.LengthFast;
 			float middleBackgroundWidth = laser.parameters.backgroundWidth;
 			float middleBackgroundLength = laserLength + middleBackgroundWidth;
-			float overlayBackgroundWidth = middleBackgroundWidth * laser.parameters.overlayWidthRatio;
+			float overlayBackgroundWidth = middleBackgroundWidth;
 			float overlayBackgroundLength = laserLength + overlayBackgroundWidth;
 			float startBackgroundWidth = middleBackgroundWidth * laser.parameters.startPointScale;
-			float startOverlayWidth = startBackgroundWidth * laser.parameters.overlayWidthRatio;
+			float startOverlayWidth = startBackgroundWidth;
 
 			if (middleBackgroundSprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
@@ -151,52 +158,53 @@ namespace SimpleScene
 				_updateMiddleMesh (middleBackgroundLength, middleBackgroundWidth);
 				_middleMesh.renderMesh (renderConfig);
 
+				#if true
 				if (startBackgroundSprite != null) {
-				//if (false) {
 					GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
 					var mat = Matrix4.CreateScale (startBackgroundWidth, startBackgroundWidth, 1f)
 					               * startPlacementMat;
 					GL.LoadMatrix (ref mat);
 					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 				}
+				#endif
 			}
+			#if true
 			if (middleOverlaySprite != null) {
-			//if (false) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
 				_updateMiddleMesh (overlayBackgroundLength, overlayBackgroundWidth);
 				_middleMesh.renderMesh (renderConfig);
-
+				
+				#if true
 				if (startOverlaySprite != null) {
-					//if (false) {
 					GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
 					var mat = Matrix4.CreateScale (startOverlayWidth, startOverlayWidth, 1f)
 						* startPlacementMat;
 					GL.LoadMatrix (ref mat);
 					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 				}
+				#endif
 			}
+			#endif
 		}
 
 		protected void _initMiddleMesh()
 		{
+			float padding = laser.parameters.laserSpritePadding;
 			_middleVertices = new SSVertex_PosTex[8];
-			_middleVertices [0].TexCoord = new Vector2 (0f, 0f);
-			_middleVertices [1].TexCoord = new Vector2 (0f, 1f);
+			_middleVertices [0].TexCoord = new Vector2 (padding, padding);
+			_middleVertices [1].TexCoord = new Vector2 (padding, 1f-padding);
 
-			_middleVertices [2].TexCoord = new Vector2 (0.5f, 0f);
-			_middleVertices [3].TexCoord = new Vector2 (0.5f, 1f);
+			_middleVertices [2].TexCoord = new Vector2 (1f-padding, padding);
+			_middleVertices [3].TexCoord = new Vector2 (1f-padding, 1f-padding);
 
-			_middleVertices [4].TexCoord = new Vector2 (0.5f, 0f);
-			_middleVertices [5].TexCoord = new Vector2 (0.5f, 1f);
+			_middleVertices [4].TexCoord = new Vector2 (1f, padding);
+			_middleVertices [5].TexCoord = new Vector2 (1f, 1f-padding);
 
-			_middleVertices [6].TexCoord = new Vector2 (1f, 0f);
-			_middleVertices [7].TexCoord = new Vector2 (1f, 1f);
-
-			_middleVertices [4].TexCoord = new Vector2 (0.5f, 0f);
-			_middleVertices [5].TexCoord = new Vector2 (0.5f, 1f);
+			_middleVertices [6].TexCoord = new Vector2 (1f, padding);
+			_middleVertices [7].TexCoord = new Vector2 (1f, 1f-padding);
 
 			_middleMesh = new SSIndexedMesh<SSVertex_PosTex>(_middleVertices, _middleIndices);
 		}
@@ -211,8 +219,8 @@ namespace SimpleScene
 				_middleVertices [i + 1].Position.Y = -halfWidth;
 			}
 
-			_middleVertices [0].Position.X = _middleVertices[1].Position.X = -halfLength - halfWidth;
-			_middleVertices [2].Position.X = _middleVertices[3].Position.X = -halfLength + halfWidth;
+			_middleVertices [0].Position.X = _middleVertices[1].Position.X = -halfLength + halfWidth - halfWidth;
+			_middleVertices [2].Position.X = _middleVertices[3].Position.X = -halfLength + halfWidth + halfWidth;
 			_middleVertices [4].Position.X = _middleVertices[5].Position.X = +halfLength - halfWidth;
 			_middleVertices [6].Position.X = _middleVertices[7].Position.X = +halfLength + halfWidth;
 
