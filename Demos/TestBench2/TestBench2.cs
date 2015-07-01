@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace TestBench2
 {
-	public class TestBench2 : TestBenchBaseWindow
+	public class TestBench2 : TestBenchBootstrap
 	{
 		protected SSScene laserScene = new SSScene ();
 

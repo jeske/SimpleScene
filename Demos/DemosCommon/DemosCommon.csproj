@@ -41,10 +41,10 @@
     <Compile Include="SimpleExplosionRenderer.cs" />
     <Compile Include="SimpleSunFlareMesh.cs" />
     <Compile Include="SimpleStarfieldMesh.cs" />
-    <Compile Include="TestBenchBaseWindow.cs" />
-    <Compile Include="TestBenchBaseWindow_renderScene.cs" />
-    <Compile Include="TestBenchBaseWindow_setupInput.cs" />
-    <Compile Include="TestBenchBaseWindow_setupScene.cs" />
+    <Compile Include="TestBenchBootstrap.cs" />
+    <Compile Include="TestBenchBootstrap_renderScene.cs" />
+    <Compile Include="TestBenchBootstrap_setupInput.cs" />
+    <Compile Include="TestBenchBootstrap_setupScene.cs" />
     <Compile Include="SimpleLaserObject.cs" />
   </ItemGroup>
   <ItemGroup>

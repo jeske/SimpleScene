@@ -15,7 +15,7 @@ using SimpleScene.Demos;
 
 namespace TestBench1
 {
-	partial class TestBench1 : TestBenchBaseWindow
+	partial class TestBench1 : TestBenchBootstrap
 	{
 		private void keyUpHandler1(object sender, KeyboardKeyEventArgs e)
 		{
