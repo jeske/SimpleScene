@@ -30,7 +30,6 @@ namespace SimpleScene
 						
 			this.Orient(qResult);
 		}
-
 	}
 }
 

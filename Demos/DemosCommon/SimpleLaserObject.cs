@@ -55,10 +55,12 @@ namespace SimpleScene
 		public SSTexture backgroundSprite = null;
 		public SSTexture overlaySprite = null;
 
+		public SSScene cameraScene = null;
+
 		static readonly protected UInt16[] _middleIndices = {
 			0,1,2, 1,3,2, // left cap
 			2,3,4, 3,5,4, // middle
-			//4,5,6, 5,7,6  // right cap
+			//4,5,6, 5,7,6  // right cap?
 		};
 		protected SSVertex_PosTex[] _middleVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _middleMesh;
@@ -143,23 +145,27 @@ namespace SimpleScene
 			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
 			float laserLength = diff.LengthFast;
-			float middleBackgroundWidth = laser.parameters.backgroundWidth;
-			float overlayBackgroundWidth = middleBackgroundWidth;
-			float startBackgroundWidth = middleBackgroundWidth * laser.parameters.startPointScale;
-			float startOverlayWidth = startBackgroundWidth;
+			float middleWidth = laser.parameters.backgroundWidth;
+
+			Vector3 laserDir = (laser.end - laser.start).Normalized ();
+			Vector3 cameraDir = Vector3.Transform(
+				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
+			float dot = Vector3.Dot (cameraDir, laserDir);
+			dot = Math.Max (dot, 0f);
+			float startWidth = middleWidth * laser.parameters.startPointScale * (1f-dot);
 
 			if (middleBackgroundSprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
-				_updateMiddleMesh (laserLength, middleBackgroundWidth);
+				_updateMiddleMesh (laserLength, middleWidth);
 				_middleMesh.renderMesh (renderConfig);
 
 				#if true
 				if (startBackgroundSprite != null) {
 					GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
-					var mat = Matrix4.CreateScale (startBackgroundWidth, startBackgroundWidth, 1f)
+					var mat = Matrix4.CreateScale (startWidth, startWidth, 1f)
 					               * startPlacementMat;
 					GL.LoadMatrix (ref mat);
 					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
@@ -172,13 +178,13 @@ namespace SimpleScene
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
-				_updateMiddleMesh (laserLength, overlayBackgroundWidth);
+				_updateMiddleMesh (laserLength, middleWidth);
 				_middleMesh.renderMesh (renderConfig);
 				
 				#if true
 				if (startOverlaySprite != null) {
 					GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
-					var mat = Matrix4.CreateScale (startOverlayWidth, startOverlayWidth, 1f)
+					var mat = Matrix4.CreateScale (startWidth, startWidth, 1f)
 						* startPlacementMat;
 					GL.LoadMatrix (ref mat);
 					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);

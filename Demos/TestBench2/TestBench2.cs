@@ -10,6 +10,7 @@ namespace TestBench2
 	public class TestBench2 : TestBenchBootstrap
 	{
 		protected SSScene laserScene = new SSScene ();
+		protected SimpleLaserObject lo = null;
 
 		public TestBench2 ()
 			: base("TestBench2: Lasers")
@@ -67,8 +68,9 @@ namespace TestBench2
 			laser.end = new Vector3 (19f, 0f, -15f);
 			laser.parameters = laserParams;
 
-			SimpleLaserObject lo = new SimpleLaserObject (laser);
+			lo = new SimpleLaserObject (laser);
 			lo.Name = "laser test";
+			lo.cameraScene = scene;
 			laserScene.AddObject (lo);
 
 			#if false
