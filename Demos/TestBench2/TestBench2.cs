@@ -101,6 +101,7 @@ namespace TestBench2
 			laserScene.renderConfig.projectionMatrix = mainSceneProj;
 
 			GL.Enable (EnableCap.CullFace);
+			//GL.Disable (EnableCap.CullFace);
 			GL.CullFace (CullFaceMode.Back);
 			GL.Enable(EnableCap.DepthTest);
 			GL.Disable(EnableCap.DepthClamp);
@@ -112,6 +113,12 @@ namespace TestBench2
 			//GL.Clear (ClearBufferMask.ColorBufferBit);
 
 			laserScene.Render ();
+		}
+
+		protected override void OnUpdateFrame (FrameEventArgs e)
+		{
+			base.OnUpdateFrame (e);
+			laserScene.Update ((float)e.Time);
 		}
 	}
 }
