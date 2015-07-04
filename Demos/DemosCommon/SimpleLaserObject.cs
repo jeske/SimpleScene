@@ -13,6 +13,11 @@ namespace SimpleScene
 	// TODO pulse, interference effects
 	// TODO laser "drift"
 
+	/// <summary>
+	/// Intensity as a function of period fraction t (from 0 to 1)
+	/// </summary>
+	public delegate float SSLaserIntensityFunction(float t);
+
 	public class SSLaserParameters
 	{
 		public Color4 backgroundColor = Color4.Magenta;
@@ -44,6 +49,14 @@ namespace SimpleScene
 		/// Interference sprite will be drawn X times thicker than the start+middle section width
 		/// </summary>
 		public float interferenceScale = 2.0f;
+
+		public float intensityFunctionFrequency = 7f; // in Hz
+
+		/// <summary>
+		/// Intensity as a function of period fraction t (from 0 to 1)
+		/// </summary>
+		public SSLaserIntensityFunction intensityFunc = 
+			t => 0.85f + 0.15f * (float)Math.Sin(2.0 * Math.PI * t);
 	}
 
 	public class SSLaser
@@ -86,6 +99,8 @@ namespace SimpleScene
 		protected SSVertex_PosTex[] _interferenceVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _interferenceMesh;
 		protected float _interferenceOffset = 0f; // TODO randomize?
+		protected float _localIntensity = 0.5f;
+		protected float _intensityT = 0f;
 		#endregion
 			
 		// TODO cache these computations
@@ -183,6 +198,8 @@ namespace SimpleScene
 
 			float interferenceWidth = middleWidth * laser.parameters.interferenceScale;
 
+			GL.Color4 (1f, 1f, 1f, _localIntensity);
+
 			#if true
 			if (middleBackgroundSprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
@@ -243,6 +260,11 @@ namespace SimpleScene
 			_interferenceOffset -= laser.parameters.interferenceVelocity * fElapsedS;
 			if (_interferenceOffset >= 1f || _interferenceOffset < 0f) {
 				_interferenceOffset %= 1f;
+			}
+
+			if (laser.parameters.intensityFunc != null) {
+				_intensityT += fElapsedS * laser.parameters.intensityFunctionFrequency;
+				_localIntensity = laser.parameters.intensityFunc (_intensityT);
 			}
 		}
 
