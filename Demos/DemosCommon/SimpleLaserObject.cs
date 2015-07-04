@@ -38,7 +38,7 @@ namespace SimpleScene
 		/// <summary>
 		/// How fast (in world-units/sec) the interference texture coordinates are moving
 		/// </summary>
-		public float interferenceVelocity = -1f;
+		public float interferenceVelocity = -0.5f;
 
 		/// <summary>
 		/// Interference sprite will be drawn X times thicker than the start+middle section width
@@ -223,21 +223,6 @@ namespace SimpleScene
 				#endif
 			}
 			#endif
-			#if false
-			if (laser.parameters.interferenceScale > 0f && interferenceSprite != null)
-			{
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.interferenceColor);
-				//GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
-				GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
-				GL.LoadMatrix(ref middlePlacementMat);
-
-				_updateInterfernenceMesh(laserLength, interferenceWidth);
-				_interferenceMesh.renderMesh(renderConfig);
-
-				//_middleMesh.renderMesh(renderConfig);
-				//SSTexturedQuad.SingleFaceInstance.DrawArrays(renderConfig, PrimitiveType.Triangles);
-			}
-			#endif
 			#if true
 			if (laser.parameters.interferenceScale > 0f && interferenceSprite != null)
 			{
@@ -247,23 +232,15 @@ namespace SimpleScene
 				var mat = Matrix4.CreateScale(laserLength + startWidth, interferenceWidth, 1f) * middlePlacementMat;
 				GL.LoadMatrix(ref mat);
 
-				_updateInterfernenceVertices();
+				_updateInterfernenceVertices(laserLength, interferenceWidth);
 				_interferenceMesh.renderMesh(renderConfig);
-
-				//SSTexturedQuad.SingleFaceInstance.DrawArrays(renderConfig, PrimitiveType.Triangles);
-
-				//_updateInterfernenceMesh(laserLength, interferenceWidth);
-				//_interferenceMesh.renderMesh(renderConfig);
-
-				//_middleMesh.renderMesh(renderConfig);
-				//SSTexturedQuad.SingleFaceInstance.DrawArrays(renderConfig, PrimitiveType.Triangles);
 			}
 			#endif
 		}
 
 		public override void Update (float fElapsedS)
 		{
-			_interferenceOffset += laser.parameters.interferenceVelocity * fElapsedS;
+			_interferenceOffset -= laser.parameters.interferenceVelocity * fElapsedS;
 			if (_interferenceOffset >= 1f || _interferenceOffset < 0f) {
 				_interferenceOffset %= 1f;
 			}
@@ -320,16 +297,16 @@ namespace SimpleScene
 			_interferenceVertices[1].TexCoord.Y = _interferenceVertices[3].TexCoord.Y = 0f;
 		}
 
-		protected void _updateInterfernenceVertices()
+		protected void _updateInterfernenceVertices(float laserLength, float interferenceWidth)
 		{
+			float vScale = (interferenceWidth != 0f) ? (laserLength / interferenceWidth) : 0f;
+
 			_interferenceVertices [0].TexCoord.X = _interferenceVertices [1].TexCoord.X
-				= _interferenceOffset;
+				= _interferenceOffset * vScale;
 			_interferenceVertices [2].TexCoord.X = _interferenceVertices [3].TexCoord.X
-				= _interferenceOffset + 1f;
+				= (_interferenceOffset + 1f) * vScale;
 			_interferenceMesh.UpdateVertices (_interferenceVertices);
 		}
-
-
 
 		#if false
 		/// <summary>
