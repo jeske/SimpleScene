@@ -16,7 +16,7 @@ namespace SimpleScene
 	/// <summary>
 	/// Intensity as a function of period fraction t (from 0 to 1)
 	/// </summary>
-	public delegate float SSLaserIntensityFunction(float t);
+	public delegate float SSLaserPeriodicFunction(float t);
 
 	public class SSLaserParameters
 	{
@@ -50,13 +50,14 @@ namespace SimpleScene
 		/// </summary>
 		public float interferenceScale = 2.0f;
 
-		public float intensityFunctionFrequency = 7f; // in Hz
+		public float intensityFunctionFrequency = 10f; // in Hz
 
 		/// <summary>
 		/// Intensity as a function of period fraction t (from 0 to 1)
 		/// </summary>
-		public SSLaserIntensityFunction intensityFunc = 
-			t => 0.85f + 0.15f * (float)Math.Sin(2.0 * Math.PI * t);
+		public SSLaserPeriodicFunction intensityFunc = 
+			t => 0.8f + 0.1f * (float)Math.Sin(2.0 * Math.PI * t) 
+							 * (float)Math.Sin(2.0 * Math.PI * t * 0.3) ;
 	}
 
 	public class SSLaser
@@ -101,6 +102,7 @@ namespace SimpleScene
 		protected float _interferenceOffset = 0f; // TODO randomize?
 		protected float _localIntensity = 0.5f;
 		protected float _intensityT = 0f;
+		protected float _modulationT = 0f;
 		#endregion
 			
 		// TODO cache these computations

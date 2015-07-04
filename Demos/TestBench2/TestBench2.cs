@@ -63,7 +63,7 @@ namespace TestBench2
 			laserParams.backgroundWidth = 2f;
 			laserParams.startPointScale = 1f;
 			laserParams.interferenceScale = 2f;
-			laserParams.interferenceVelocity = 0.5f;
+			laserParams.interferenceVelocity = 0.75f;
 
 			SSLaser laser = new SSLaser ();
 			laser.start = new Vector3 (-17f, 1f, -15f);
