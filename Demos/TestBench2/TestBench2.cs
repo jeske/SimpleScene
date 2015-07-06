@@ -59,7 +59,7 @@ namespace TestBench2
 			SSLaserParameters laserParams = new SSLaserParameters();
 			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
-			laserParams.interferenceColor = Color4.Lime;
+			laserParams.interferenceColor = Color4.White;
 			laserParams.backgroundWidth = 2f;
 			laserParams.startPointScale = 1f;
 			laserParams.interferenceScale = 2f;

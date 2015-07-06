@@ -13,13 +13,13 @@ namespace SimpleScene
 	// TODO pulse, interference effects
 	// TODO laser "drift"
 
-	/// <summary>
-	/// Intensity as a function of period fraction t (from 0 to 1)
-	/// </summary>
-	public delegate float SSLaserPeriodicFunction(float t);
-
 	public class SSLaserParameters
 	{
+		/// <summary>
+		/// Intensity as a function of period fraction t (from 0 to 1)
+		/// </summary>
+		public delegate float PeriodicFunction(float t);
+
 		public Color4 backgroundColor = Color4.Magenta;
 		public Color4 overlayColor = Color4.White;
 		public Color4 interferenceColor = Color4.White;
@@ -55,9 +55,21 @@ namespace SimpleScene
 		/// <summary>
 		/// Intensity as a function of period fraction t (from 0 to 1)
 		/// </summary>
-		public SSLaserPeriodicFunction intensityFunc = 
-			t => 0.8f + 0.1f * (float)Math.Sin(2.0 * Math.PI * t) 
-							 * (float)Math.Sin(2.0 * Math.PI * t * 0.3) ;
+		public PeriodicFunction intensityFunc = 
+			t => 0.8f + 0.3f * (float)Math.Sin(2.0 * Math.PI * t) 
+							 * (float)Math.Sin(2.0 * Math.PI * t * 0.2) ;
+
+		public PeriodicFunction intensityModulationFunc =
+			t => 1f;
+
+		public PeriodicFunction driftXFunc = 
+			t => (float)Math.Cos (2.0 * Math.PI * 0.1 * t) * (float)Math.Cos(2.0 * Math.PI * 0.53 * t);
+
+		public PeriodicFunction driftYFunc =
+			t => (float)Math.Sin (2.0 * Math.PI * 0.1 * t) * (float)Math.Cos(2.0 * Math.PI * 0.57 * t);
+
+		public PeriodicFunction driftModulationFunc =
+			t => 0.07f;
 	}
 
 	public class SSLaser
@@ -99,10 +111,12 @@ namespace SimpleScene
 		public SSTexture interferenceSprite = null;
 		protected SSVertex_PosTex[] _interferenceVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _interferenceMesh;
+		protected float _localT = 0f;
+
 		protected float _interferenceOffset = 0f; // TODO randomize?
 		protected float _localIntensity = 0.5f;
-		protected float _intensityT = 0f;
-		protected float _modulationT = 0f;
+		protected float _driftX = 0f;
+		protected float _driftY = 0f;
 		#endregion
 			
 		// TODO cache these computations
@@ -174,9 +188,15 @@ namespace SimpleScene
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
+			Vector3 targetDir = (laser.end - laser.start);
+			Vector3 driftXAxis, driftYAxis;
+			OpenTKHelper.TwoPerpAxes (targetDir, out driftXAxis, out driftYAxis);
+
+			Vector3 driftedEnd = laser.end + _driftX * driftXAxis + _driftY * driftYAxis;
+
 			// step: compute endpoints in view space
 			var startView = Vector3.Transform(laser.start, renderConfig.invCameraViewMatrix);
-			var endView = Vector3.Transform (laser.end, renderConfig.invCameraViewMatrix);
+			var endView = Vector3.Transform (driftedEnd, renderConfig.invCameraViewMatrix);
 			var middleView = (startView + endView) / 2f;
 
 			// step: draw middle section:
@@ -264,9 +284,34 @@ namespace SimpleScene
 				_interferenceOffset %= 1f;
 			}
 
+			_localT += fElapsedS * laser.parameters.intensityFunctionFrequency;
+
 			if (laser.parameters.intensityFunc != null) {
-				_intensityT += fElapsedS * laser.parameters.intensityFunctionFrequency;
-				_localIntensity = laser.parameters.intensityFunc (_intensityT);
+				_localIntensity = laser.parameters.intensityFunc (_localT);
+			} else {
+				_localIntensity = 1f;
+			}
+
+			if (laser.parameters.intensityModulationFunc != null) {
+				_localIntensity *= laser.parameters.intensityModulationFunc (_localT);
+			}
+
+			if (laser.parameters.driftXFunc != null) {
+				_driftX = laser.parameters.driftXFunc (_localT);
+			} else {
+				_driftX = 0f;
+			}
+
+			if (laser.parameters.driftYFunc != null) {
+				_driftY = laser.parameters.driftYFunc (_localT);
+			} else {
+				_driftY = 0f;
+			}
+
+			if (laser.parameters.driftModulationFunc != null) {
+				var driftMod = laser.parameters.driftModulationFunc (_localT);
+				_driftX *= driftMod;
+				_driftY *= driftMod;
 			}
 		}
 
