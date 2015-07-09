@@ -63,13 +63,15 @@ namespace SimpleScene
 			t => 1f;
 
 		public PeriodicFunction driftXFunc = 
-			t => (float)Math.Cos (2.0 * Math.PI * 0.1 * t) * (float)Math.Cos(2.0 * Math.PI * 0.53 * t);
+			t => (float)Math.Cos (2.0f * (float)Math.PI * 0.1f * t) 
+			   * (float)Math.Cos (2.0f * (float)Math.PI * 0.53f * t);
 
 		public PeriodicFunction driftYFunc =
-			t => (float)Math.Sin (2.0 * Math.PI * 0.1 * t) * (float)Math.Cos(2.0 * Math.PI * 0.57 * t);
+			t => (float)Math.Sin (2.0f * (float)Math.PI * 0.1f * t) 
+			   * (float)Math.Cos (2.0f * (float)Math.PI * 0.57f * t);
 
 		public PeriodicFunction driftModulationFunc =
-			t => 0.07f;
+			t => 0.1f;
 	}
 
 	public class SSLaser
