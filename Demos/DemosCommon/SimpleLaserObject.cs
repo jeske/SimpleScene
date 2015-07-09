@@ -56,8 +56,8 @@ namespace SimpleScene
 		/// Intensity as a function of period fraction t (from 0 to 1)
 		/// </summary>
 		public PeriodicFunction intensityFunc = 
-			t => 0.8f + 0.3f * (float)Math.Sin(2.0 * Math.PI * t) 
-							 * (float)Math.Sin(2.0 * Math.PI * t * 0.2) ;
+			t => 0.8f + 0.3f * (float)Math.Sin(2.0f * (float)Math.PI * t) 
+							 * (float)Math.Sin(2.0f * (float)Math.PI * t * 0.2f) ;
 
 		public PeriodicFunction intensityModulationFunc =
 			t => 1f;
