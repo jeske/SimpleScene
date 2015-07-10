@@ -12,18 +12,20 @@ namespace SimpleScene.Demos
 
 		protected List<SimpleLaserObject> _laserObjects;
 
-		public void update()
+		public SimpleLaserManager (SSScene scene)
 		{
-			// TODO implement laser ADSR
+			this.scene = scene;
 		}
 
-		public SSLaser addLaser(SSLaserParameters laserParams, 
-								SSObject srcObject, SSObject dstObject)
+		public SimpleLaser addLaser(SimpleLaserParameters laserParams, 
+								SSObject srcObject, SSObject dstObject,
+								float sustainDuration = float.PositiveInfinity)
 		{
-			var newLaser = new SSLaser ();
-			newLaser.parameters = laserParams;
-			newLaser.srcObj = srcObject;
-			newLaser.dstObj = dstObject;
+			var newLaser = new SimpleLaser (laserParams);
+			newLaser.parameters.intensityEnvelope.sustainDuration = sustainDuration;
+			newLaser.sourceObject = srcObject;
+			newLaser.destObject = dstObject;
+			newLaser.postReleaseFunc = this._deleteLaser;
 
 			var newObj = new SimpleLaserObject (newLaser);
 			_laserObjects.Add (newObj);
@@ -33,9 +35,11 @@ namespace SimpleScene.Demos
 			return newLaser;
 		}
 
-		// TODO update laser destination and source
-		// TODO move laser
-		public void removeLaser(SSLaser laser)
+
+		/// <summary>
+		/// To be called by laser objects
+		/// </summary>
+		protected void _deleteLaser(SimpleLaser laser)
 		{
 			for (int i = 0; i < _laserObjects.Count; ++i) {
 				var lo = _laserObjects [i];
@@ -45,11 +49,6 @@ namespace SimpleScene.Demos
 					return;
 				}
 			}
-		}
-
-		public SimpleLaserManager (SSScene scene)
-		{
-			this.scene = scene;
 		}
 	}
 }

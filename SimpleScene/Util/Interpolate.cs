@@ -68,6 +68,14 @@ namespace SimpleScene.Util
 			this.sustainLevel = sustainLevel;
 		}
 
+		public ADSREnvelope Clone()
+		{
+			return new ADSREnvelope (
+				this.attackDuration, this.decayDuration,
+				this.sustainDuration, this.releaseDuration,
+				this.peakLevel, this.sustainLevel);
+		}
+
 		public float computeLevel(float time)
 		{
             if (time < 0f) {

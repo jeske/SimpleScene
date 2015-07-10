@@ -3,112 +3,9 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using SimpleScene.Util;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
-	// TODO have an easy way to update laser start and finish
-	// TODO ability to "hold" laser active
-
-	// TODO pulse, interference effects
-	// TODO laser "drift"
-
-	public class SSLaserParameters
-	{
-		/// <summary>
-		/// Intensity as a function of period fraction t (from 0 to 1)
-		/// </summary>
-		public delegate float PeriodicFunction(float t);
-
-		public Color4 backgroundColor = Color4.Magenta;
-		public Color4 overlayColor = Color4.White;
-		public Color4 interferenceColor = Color4.White;
-
-		/// <summary>
-		/// padding for the start+middle stretched sprite. Mid section vertices gets streched 
-		/// beyond this padding.
-		/// </summary>
-		public float laserSpritePadding = 0.05f;
-
-		/// <summary>
-		/// width of the start+middle section sprite (in world units)
-		/// </summary>
-		public float backgroundWidth = 2f;
-
-		/// <summary>
-		/// start-only (emission) sprites will be drawn x times larger than the start+middle section width
-		/// </summary>
-		public float startPointScale = 1.0f; 
-
-		#region interference sprite
-		/// <summary>
-		/// How fast (in world-units/sec) the interference texture coordinates are moving
-		/// </summary>
-		public float interferenceVelocity = -0.5f;
-
-		/// <summary>
-		/// Interference sprite will be drawn X times thicker than the start+middle section width
-		/// </summary>
-		public float interferenceScale = 2.0f;
-		#endregion
-
-		#region periodic intensity		
-		public float intensityFrequency = 10f; // in Hz
-
-		/// <summary>
-		/// Intensity as a function of period fraction t (from 0 to 1)
-		/// </summary>
-		public PeriodicFunction intensityPeriodicFunction = 
-			t => 0.8f + 0.3f * (float)Math.Sin(2.0f * (float)Math.PI * t) 
-							 * (float)Math.Sin(2.0f * (float)Math.PI * t * 0.2f) ;
-
-		public PeriodicFunction intensityModulation =
-			t => 1f;
-		#endregion
-
-		#region intensity ADSR envelope
-		/// <summary>
-		/// Attack-decay-sustain-release envelope, with infinite sustain to simulate
-		/// "engaged-until-released" lasers by default
-		/// </summary>
-		public ADSREnvelope intensityEnvelope 
-			= new ADSREnvelope (0.2f, 0.2f, float.PositiveInfinity, 0.2f, 1.5f, 1f);
-		#endregion
-
-		#region periodic drift
-		public PeriodicFunction driftXFunc = 
-			t => (float)Math.Cos (2.0f * (float)Math.PI * 0.1f * t) 
-			   * (float)Math.Cos (2.0f * (float)Math.PI * 0.53f * t);
-
-		public PeriodicFunction driftYFunc =
-			t => (float)Math.Sin (2.0f * (float)Math.PI * 0.1f * t) 
-			   * (float)Math.Sin (2.0f * (float)Math.PI * 0.57f * t);
-
-		public PeriodicFunction driftModulationFunc =
-			t => 0.1f;
-		#endregion
-	}
-
-	public class SSLaser
-	{
-		public SSObject srcObj = null;
-		public SSObject dstObj = null;
-		public Matrix4 srcTxfm = Matrix4.Identity;
-		public Matrix4 dstTxfm = Matrix4.Identity;
-
-		public SSLaserParameters parameters = null;
-
-		public Vector3 start()
-		{
-			return Vector3.Transform (srcObj.Pos, srcTxfm);
-		}
-
-		public Vector3 end()
-		{
-			return Vector3.Transform (dstObj.Pos, dstTxfm);
-		}
-	}
-
 	public class SimpleLaserObject : SSObject
 	{
 		static readonly protected UInt16[] _middleIndices = {
@@ -120,7 +17,7 @@ namespace SimpleScene
 			0,1,2, 1,3,2
 		};
 
-		public SSLaser laser = null;
+		public SimpleLaser laser = null;
 		public SSScene cameraScene = null;
 
 		#region intensity (alpha component strength)
@@ -160,7 +57,7 @@ namespace SimpleScene
 				if (laser == null) {
 					return Vector3.Zero;
 				}
-				Vector3 middleWorld = (laser.start() + laser.end()) / 2f;
+				Vector3 middleWorld = (laser.sourcePos() + laser.destPos()) / 2f;
 				return Vector3.Transform (middleWorld, this.worldMat.Inverted ());
 			}
 		}
@@ -171,12 +68,12 @@ namespace SimpleScene
 				if (laser == null) {
 					return 0f;
 				}
-				Vector3 diff = (laser.end() - laser.start());
+				Vector3 diff = (laser.destPos() - laser.sourcePos());
 				return diff.LengthFast/2f;
 			}
 		}
 
-		public SimpleLaserObject (SSLaser laser = null, 
+		public SimpleLaserObject (SimpleLaser laser = null, 
 							      SSTexture middleBackgroundSprite = null,
 								  SSTexture middleOverlaySprite = null,
 								  SSTexture startBackgroundSprite = null,
@@ -223,8 +120,8 @@ namespace SimpleScene
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
-			Vector3 laserStart = laser.start ();
-			Vector3 laserEnd = laser.end ();
+			Vector3 laserStart = laser.sourcePos ();
+			Vector3 laserEnd = laser.destPos ();
 			Vector3 targetDir = (laserEnd - laserStart);
 			Vector3 driftXAxis, driftYAxis;
 			OpenTKHelper.TwoPerpAxes (targetDir, out driftXAxis, out driftYAxis);
@@ -322,24 +219,36 @@ namespace SimpleScene
 			}
 
 			// compute local time
-			_localT += fElapsedS * laser.parameters.intensityFrequency;
+			_localT += fElapsedS;
+
+			// envelope intensity
+			if (laser.parameters.intensityEnvelope != null) {
+				var envelope = laser.localIntensityEnvelope;
+				if (laser.releaseDirty == true) {
+					// hacky way to have on-demand release and still use ADSR envelope
+					envelope.attackDuration = 0f;
+					envelope.decayDuration = 0f;
+					envelope.sustainDuration = _localT;
+					laser.releaseDirty = false;
+				}
+				_envelopeIntensity = envelope.computeLevel (_localT);
+				if (_localT > envelope.totalDuration && laser.postReleaseFunc != null) {
+					laser.postReleaseFunc (laser);
+				}
+			} else {
+				_envelopeIntensity = 1f;
+			}
 
 			// periodic intensity
+			float periodicT = _localT * laser.parameters.intensityFrequency;
 			if (laser.parameters.intensityPeriodicFunction != null) {
-				_periodicIntensity = laser.parameters.intensityPeriodicFunction (_localT);
+				_periodicIntensity = laser.parameters.intensityPeriodicFunction (periodicT);
 			} else {
 				_periodicIntensity = 1f;
 			}
 
 			if (laser.parameters.intensityModulation != null) {
-				_periodicIntensity *= laser.parameters.intensityModulation (_localT);
-			}
-
-			// envelope intensity
-			if (laser.parameters.intensityEnvelope != null) {
-				_envelopeIntensity = laser.parameters.intensityEnvelope.computeLevel (_localT);
-			} else {
-				_envelopeIntensity = 1f;
+				_periodicIntensity *= laser.parameters.intensityModulation (periodicT);
 			}
 
 			// periodic world-coordinate drift
@@ -361,7 +270,12 @@ namespace SimpleScene
 				_driftY *= driftMod;
 			}
 
-
+			#if true
+			// debugging hacks
+			if (_localT > 10f) {
+				_localT = 0f;
+			}
+			#endif
 		}
 
 		protected void _initMiddleMesh()

@@ -56,7 +56,7 @@ namespace TestBench2
 			scene.AddObject (droneObj2);
 
 			// add lasers
-			SSLaserParameters laserParams = new SSLaserParameters();
+			SimpleLaserParameters laserParams = new SimpleLaserParameters();
 			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
 			laserParams.interferenceColor = Color4.White;
@@ -65,11 +65,12 @@ namespace TestBench2
 			laserParams.interferenceScale = 2f;
 			laserParams.interferenceVelocity = 0.75f;
 
-			SSLaser laser = new SSLaser ();
-			laser.start = new Vector3 (-17f, 1f, -15f);
+			// TODO use manager instead
+			SimpleLaser laser = new SimpleLaser (laserParams);
+			//laser.start = new Vector3 (-17f, 1f, -15f);
 			//laser.end = new Vector3 (19f, 0f, -15f);
-			laser.end = new Vector3 (19f, 0f, -15f);
-			laser.parameters = laserParams;
+			laser.sourceObject = droneObj1;
+			laser.destObject = droneObj2;
 
 			lo = new SimpleLaserObject (laser);
 			lo.Name = "laser test";
