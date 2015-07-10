@@ -46,6 +46,7 @@
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
     <Compile Include="SimpleLaserObject.cs" />
+    <Compile Include="SimpleLaserManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

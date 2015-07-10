@@ -40,10 +40,10 @@ namespace SimpleScene.Util
 	/// </summary>
 	public class ADSREnvelope
 	{
-		public float attackDuration = 1f;
-		public float decayDuration = 1f;
-		public float sustainDuration = 1f;
-		public float releaseDuration = 1f;
+		public float attackDuration;
+		public float decayDuration;
+		public float sustainDuration;
+		public float releaseDuration;
 
 		public float totalDuration {
 			get { return attackDuration + decayDuration + sustainDuration + releaseDuration; }
@@ -53,8 +53,20 @@ namespace SimpleScene.Util
         IInterpolater decayInterpolater = new LinearInterpolater();
         IInterpolater releaseInterpolater = new LinearInterpolater();
 
-		public float amplitude = 1f;
-		public float sustainLevel = 0.5f;
+		public float peakLevel;
+		public float sustainLevel;
+
+		public ADSREnvelope(float attackDuration = 1f, float decayDuration = 1f, 
+							float sustainDuration = 1f, float releaseDuration = 1f,
+							float peakLevel = 1f, float sustainLevel = 0.5f)
+		{
+			this.attackDuration = attackDuration;
+			this.decayDuration = decayDuration;
+			this.sustainDuration = sustainDuration;
+			this.releaseDuration = releaseDuration;
+			this.peakLevel = peakLevel;
+			this.sustainLevel = sustainLevel;
+		}
 
 		public float computeLevel(float time)
 		{
@@ -63,12 +75,12 @@ namespace SimpleScene.Util
             }
 
 			if (time < attackDuration) {
-				return attackInterpolater.compute (0f, amplitude, time / attackDuration);
+				return attackInterpolater.compute (0f, peakLevel, time / attackDuration);
 			}
 			time -= attackDuration;
 
 			if (time < decayDuration) {
-				return decayInterpolater.compute (amplitude, sustainLevel, time / decayDuration);
+				return decayInterpolater.compute (peakLevel, sustainLevel, time / decayDuration);
 			}
 			time -= decayDuration;
 

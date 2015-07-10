@@ -284,7 +284,7 @@ namespace SimpleScene
 		public SSPeriodicExplosiveForceEffector()
 		{
 			_adsr = new ADSREnvelope ();
-			_adsr.amplitude = 1f;
+			_adsr.peakLevel = 1f;
 			_adsr.sustainLevel = 0.5f;
 
 			_adsr.attackDuration = 0.01f;
