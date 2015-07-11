@@ -73,7 +73,8 @@ namespace SimpleScene.Demos
 			}
 		}
 
-		public SimpleLaserObject (SimpleLaser laser = null, 
+		public SimpleLaserObject (SimpleLaser laser = null,
+								  SSScene cameraScene = null,
 							      SSTexture middleBackgroundSprite = null,
 								  SSTexture middleOverlaySprite = null,
 								  SSTexture startBackgroundSprite = null,
@@ -81,6 +82,7 @@ namespace SimpleScene.Demos
 								  SSTexture inteferenceSprite = null)
 		{
 			this.laser = laser;
+			this.cameraScene = cameraScene;
 
 			this.renderState.castsShadow = false;
 			this.renderState.receivesShadows = false;
@@ -273,7 +275,7 @@ namespace SimpleScene.Demos
 			#if true
 			// debugging hacks
 			if (_localT > 10f) {
-				_localT = 0f;
+				laser.releaseDirty = true;
 			}
 			#endif
 		}

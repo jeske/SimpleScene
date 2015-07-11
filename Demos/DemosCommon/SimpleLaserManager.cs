@@ -10,7 +10,7 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public SSScene scene;
 
-		protected List<SimpleLaserObject> _laserObjects;
+		protected List<SimpleLaserObject> _laserObjects = new List<SimpleLaserObject>();
 
 		public SimpleLaserManager (SSScene scene)
 		{
@@ -27,7 +27,7 @@ namespace SimpleScene.Demos
 			newLaser.destObject = dstObject;
 			newLaser.postReleaseFunc = this._deleteLaser;
 
-			var newObj = new SimpleLaserObject (newLaser);
+			var newObj = new SimpleLaserObject (newLaser, this.scene);
 			_laserObjects.Add (newObj);
 
 			scene.AddObject (newObj);
@@ -44,7 +44,7 @@ namespace SimpleScene.Demos
 			for (int i = 0; i < _laserObjects.Count; ++i) {
 				var lo = _laserObjects [i];
 				if (lo.laser == laser) {
-					scene.RemoveObject (lo);
+					lo.renderState.toBeDeleted = true;
 					_laserObjects.RemoveAt (i);
 					return;
 				}

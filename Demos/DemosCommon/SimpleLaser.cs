@@ -106,7 +106,7 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Hack to bend the ADSR envelope to skip the infinite sustain part
 		/// </summary>
-		public bool releaseDirty = false;
+		internal bool releaseDirty = false;
 
 		/// <summary>
 		/// Points to the intensity envelope actually used
@@ -124,12 +124,17 @@ namespace SimpleScene.Demos
 
 		public Vector3 sourcePos()
 		{
-			return Vector3.Transform (sourceObject.Pos, sourceTxfm);
+			return Vector3.Transform (Vector3.Zero, sourceTxfm * sourceObject.worldMat);
 		}
 
 		public Vector3 destPos()
 		{
-			return Vector3.Transform (destObject.Pos, destTxfm);
+			return Vector3.Transform (Vector3.Zero, destTxfm * destObject.worldMat);
+		}
+
+		public void release()
+		{
+			this.releaseDirty = true;
 		}
 	}
 }

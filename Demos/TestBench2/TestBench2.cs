@@ -2,6 +2,7 @@
 using SimpleScene;
 using SimpleScene.Demos;
 using OpenTK;
+using OpenTK.Input;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
@@ -10,7 +11,14 @@ namespace TestBench2
 	public class TestBench2 : TestBenchBootstrap
 	{
 		protected SSScene laserScene = new SSScene ();
-		protected SimpleLaserObject lo = null;
+		protected SimpleLaserManager laserManager = null;
+		protected SimpleLaserParameters laserParams = null;
+		protected WeakReference activeLaser = new WeakReference (null);
+
+		protected SSObjectMesh droneObj1;
+		protected Matrix4 laserSourceTxfm;
+
+		protected SSObjectMesh droneObj2;
 
 		public TestBench2 ()
 			: base("TestBench2: Lasers")
@@ -34,7 +42,7 @@ namespace TestBench2
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 
 			// add drones
-			var droneObj1 = new SSObjectMesh (mesh);
+			droneObj1 = new SSObjectMesh (mesh);
 			droneObj1.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
 			droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
 			droneObj1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
@@ -45,7 +53,7 @@ namespace TestBench2
 			droneObj1.MainColor = Color4.Green;
 			 scene.AddObject (droneObj1);
 
-			var droneObj2 = new SSObjectMesh (mesh);
+			droneObj2 = new SSObjectMesh (mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
 			droneObj2.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
 			droneObj2.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -55,8 +63,10 @@ namespace TestBench2
 			droneObj2.MainColor = Color4.Red;
 			scene.AddObject (droneObj2);
 
-			// add lasers
-			SimpleLaserParameters laserParams = new SimpleLaserParameters();
+			// play with lasers
+			laserManager = new SimpleLaserManager(laserScene);
+
+			laserParams = new SimpleLaserParameters ();
 			laserParams.backgroundColor = Color4.Lime;
 			laserParams.overlayColor = Color4.White;
 			laserParams.interferenceColor = Color4.White;
@@ -65,6 +75,10 @@ namespace TestBench2
 			laserParams.interferenceScale = 2f;
 			laserParams.interferenceVelocity = 0.75f;
 
+			// tweak the laser start point (by adding an offset in object-local coordinates)
+			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 3f);
+
+			#if false
 			// TODO use manager instead
 			SimpleLaser laser = new SimpleLaser (laserParams);
 			//laser.start = new Vector3 (-17f, 1f, -15f);
@@ -76,6 +90,7 @@ namespace TestBench2
 			lo.Name = "laser test";
 			lo.cameraScene = scene;
 			laserScene.AddObject (lo);
+			#endif
 
 			#if false
 			// debug start location of the laser
@@ -105,16 +120,11 @@ namespace TestBench2
 			laserScene.renderConfig.projectionMatrix = mainSceneProj;
 
 			GL.Enable (EnableCap.CullFace);
-			//GL.Disable (EnableCap.CullFace);
 			GL.CullFace (CullFaceMode.Back);
 			GL.Enable(EnableCap.DepthTest);
 			GL.Disable(EnableCap.DepthClamp);
 			GL.DepthFunc(DepthFunction.Less);
 			GL.DepthMask (false);
-
-			//GL.ColorMask (false, false, false, true);
-			//GL.ClearColor (0f, 0f, 0f, 1f);
-			//GL.Clear (ClearBufferMask.ColorBufferBit);
 
 			laserScene.Render ();
 		}
@@ -123,6 +133,36 @@ namespace TestBench2
 		{
 			base.OnUpdateFrame (e);
 			laserScene.Update ((float)e.Time);
+		}
+
+		protected void laserKeyDownHandler(object sender, KeyboardKeyEventArgs e)
+		{
+			if (!base.Focused) return;
+
+			if (e.Key == Key.Q) {
+				if (activeLaser.Target == null) {
+					var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
+					newLaser.sourceTxfm = laserSourceTxfm;
+					activeLaser.Target = newLaser;
+				}
+			}
+		}
+
+		protected void laserKeyUpHandler(object sender, KeyboardKeyEventArgs e)
+		{
+			if (e.Key == Key.Q) {
+				if (activeLaser.Target != null) {
+					var laser = activeLaser.Target as SimpleLaser;
+					laser.release ();
+				}
+			}
+		}
+
+		protected override void setupInput ()
+		{
+			base.setupInput ();
+			this.KeyUp += laserKeyUpHandler;
+			this.KeyDown += laserKeyDownHandler;
 		}
 	}
 }
