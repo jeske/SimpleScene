@@ -73,7 +73,7 @@ namespace SimpleScene.Demos
 		/// "engaged-until-released" lasers by default
 		/// </summary>
 		public ADSREnvelope intensityEnvelope 
-			= new ADSREnvelope (0.3f, 0.3f, float.PositiveInfinity, 30f, 3f, 1f);
+			= new ADSREnvelope (0.15f, 0.3f, float.PositiveInfinity, 0.3f, 3f, 1f);
 		#endregion
 
 		#region periodic drift

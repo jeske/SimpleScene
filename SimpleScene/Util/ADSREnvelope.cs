@@ -67,7 +67,7 @@ namespace SimpleScene.Util
 			time -= sustainDuration;
 
 			if (time < releaseDuration) {
-				return releaseInterpolater.compute (sustainLevel, 0f, time / sustainDuration);
+				return releaseInterpolater.compute (sustainLevel, 0f, time / releaseDuration);
 			}
 			return 0f;
 		}
