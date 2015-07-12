@@ -145,7 +145,7 @@ namespace SimpleScene.Demos
 			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
 			float laserLength = diff.LengthFast;
-			float middleWidth = laser.parameters.backgroundWidth;
+			float middleWidth = laser.parameters.backgroundWidth * _envelopeIntensity;
 
 			Vector3 laserDir = (laserEnd - laserStart).Normalized ();
 			Vector3 cameraDir = Vector3.Transform(

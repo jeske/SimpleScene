@@ -59,7 +59,7 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public PeriodicFunction intensityPeriodicFunction = 
 			t => 0.8f + 0.3f * (float)Math.Sin(2.0f * (float)Math.PI * t) 
-			* (float)Math.Sin(2.0f * (float)Math.PI * t * 0.2f) ;
+							 * (float)Math.Sin(2.0f * (float)Math.PI * t * 0.2f) ;
 		/// <summary>
 		/// Further periodic modulation, if needed
 		/// </summary>
@@ -73,17 +73,17 @@ namespace SimpleScene.Demos
 		/// "engaged-until-released" lasers by default
 		/// </summary>
 		public ADSREnvelope intensityEnvelope 
-			= new ADSREnvelope (0.15f, 0.3f, float.PositiveInfinity, 0.3f, 3f, 1f);
+			= new ADSREnvelope (0.10f, 0.10f, float.PositiveInfinity, 0.15f, 1f, 0.8f);
 		#endregion
 
 		#region periodic drift
 		public PeriodicFunction driftXFunc = 
 			t => (float)Math.Cos (2.0f * (float)Math.PI * 0.1f * t) 
-			* (float)Math.Cos (2.0f * (float)Math.PI * 0.53f * t);
+		       * (float)Math.Cos (2.0f * (float)Math.PI * 0.53f * t);
 
 		public PeriodicFunction driftYFunc =
 			t => (float)Math.Sin (2.0f * (float)Math.PI * 0.1f * t) 
-			* (float)Math.Sin (2.0f * (float)Math.PI * 0.57f * t);
+			   * (float)Math.Sin (2.0f * (float)Math.PI * 0.57f * t);
 
 		public PeriodicFunction driftModulationFunc =
 			t => 0.1f;
