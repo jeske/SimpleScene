@@ -29,7 +29,7 @@ namespace SimpleScene.Demos
 
 		#region timekeeping
 		protected float _localT = 0f;
-		protected float _periodicTOffset = 0f;
+		protected readonly float _periodicTOffset;
 		#endregion
 
 		#region intensity (alpha component strength)
@@ -59,7 +59,7 @@ namespace SimpleScene.Demos
 		public SSTexture interferenceSprite = null;
 		protected SSVertex_PosTex[] _interferenceVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _interferenceMesh;
-		protected float _interferenceOffset = 0f; // TODO randomize?
+		protected float _interferenceOffset = 0f;
 		#endregion
 
 		// TODO cache these computations
@@ -243,6 +243,7 @@ namespace SimpleScene.Demos
 
 			// compute local time
 			_localT += fElapsedS;
+			float offsetT = _localT + _periodicTOffset;
 
 			// envelope intensity
 			if (laserParams.intensityEnvelope != null) {
@@ -263,7 +264,7 @@ namespace SimpleScene.Demos
 			}
 
 			// periodic intensity
-			float periodicT = (_periodicTOffset + _localT) * laserParams.intensityFrequency;
+			float periodicT = offsetT * laserParams.intensityFrequency;
 			if (laserParams.intensityPeriodicFunction != null) {
 				_periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
 			} else {
@@ -276,19 +277,19 @@ namespace SimpleScene.Demos
 
 			// periodic world-coordinate drift
 			if (laserParams.driftXFunc != null) {
-				_driftX = laserParams.driftXFunc (_localT);
+				_driftX = laserParams.driftXFunc (offsetT);
 			} else {
 				_driftX = 0f;
 			}
 
 			if (laserParams.driftYFunc != null) {
-				_driftY = laserParams.driftYFunc (_localT);
+				_driftY = laserParams.driftYFunc (offsetT);
 			} else {
 				_driftY = 0f;
 			}
 
 			if (laserParams.driftModulationFunc != null) {
-				var driftMod = laserParams.driftModulationFunc (_localT);
+				var driftMod = laserParams.driftModulationFunc (offsetT);
 				_driftX *= driftMod;
 				_driftY *= driftMod;
 			}

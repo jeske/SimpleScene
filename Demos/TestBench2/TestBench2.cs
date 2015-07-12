@@ -162,7 +162,7 @@ namespace TestBench2
 			var laserParams = new SimpleLaserParameters ();
 			laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
-				// 2's don't look so great
+				// 2's don't look too great
 				laserParams.numBeams = 1;
 			}
 			laserParams.beamPlacementScale = 2f * (float)rand.NextDouble ();
