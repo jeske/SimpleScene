@@ -150,6 +150,12 @@ namespace TestBench2
 			}
 		}
 
+		protected override void updateTextDisplay ()
+		{
+			base.updateTextDisplay ();
+			textDisplay.Label += "\n\nPress Q to engage a laser";
+		}
+
 		protected override void setupInput ()
 		{
 			base.setupInput ();

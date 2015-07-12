@@ -15,7 +15,7 @@ namespace SimpleScene.Demos
 	{
 		protected bool autoWireframeMode = true;
 		protected SSObjectGDISurface_Text fpsDisplay;
-		protected SSObjectGDISurface_Text wireframeDisplay;
+		protected SSObjectGDISurface_Text textDisplay;
 
 		protected virtual void setupScene() {
 			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
@@ -127,12 +127,12 @@ namespace SimpleScene.Demos
 			fpsDisplay.Scale = new Vector3 (1.0f);
 
 			// wireframe mode text....
-			wireframeDisplay = new SSObjectGDISurface_Text ();
-			wireframeDisplay.alphaBlendingEnabled = true;
-			hudScene.AddObject (wireframeDisplay);
-			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
-			wireframeDisplay.Scale = new Vector3 (1.0f);
-			updateWireframeDisplayText ();
+			textDisplay = new SSObjectGDISurface_Text ();
+			textDisplay.alphaBlendingEnabled = true;
+			hudScene.AddObject (textDisplay);
+			textDisplay.Pos = new Vector3 (10f, 40f, 0f);
+			textDisplay.Scale = new Vector3 (1.0f);
+			updateTextDisplay ();
 		}
 
 		protected virtual void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)

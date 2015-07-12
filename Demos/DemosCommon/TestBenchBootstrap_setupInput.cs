@@ -44,7 +44,7 @@ namespace SimpleScene.Demos
 			// scene.addObject(new SSObjectRay(ray));
 
 			selectedObject = scene.Intersect(ref ray);
-			updateWireframeDisplayText ();
+			updateTextDisplay ();
 		}
 
 		protected virtual void mouseUpHandler(object sender, MouseButtonEventArgs e)
@@ -88,7 +88,7 @@ namespace SimpleScene.Demos
 						autoWireframeMode = true; // rollover completes toggling modes
 					}
 				}
-				updateWireframeDisplayText ();
+				updateTextDisplay ();
 				break;
 			case Key.Escape:
 				Exit ();

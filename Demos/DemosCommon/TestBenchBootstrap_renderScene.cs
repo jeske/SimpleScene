@@ -223,7 +223,7 @@ namespace SimpleScene.Demos
 			saveClientWindowLocation ();
 		}
 
-		protected virtual void updateWireframeDisplayText() 
+		protected virtual void updateTextDisplay() 
 		{
 			string selectionInfo;
 			WireframeMode techinqueInfo;
@@ -234,7 +234,7 @@ namespace SimpleScene.Demos
 				selectionInfo = "all";
 				techinqueInfo = scene.renderConfig.drawWireframeMode;
 			}
-			wireframeDisplay.Label = String.Format (
+			textDisplay.Label = String.Format (
 				"press '1' to toggle wireframe mode: [{0}:{1}]",
 				selectionInfo, techinqueInfo.ToString()
 			);
