@@ -35,7 +35,6 @@ namespace SimpleScene.Demos
 			return newLaser;
 		}
 
-
 		/// <summary>
 		/// To be called by laser objects
 		/// </summary>

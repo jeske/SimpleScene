@@ -113,6 +113,9 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public readonly ADSREnvelope localIntensityEnvelope = null;
 
+		/// <summary>
+		/// Called when the laser has fully faded and is safe to delete by laser management systems
+		/// </summary>
 		public ReleaseCallbackDelegate postReleaseFunc = null;
 		#endregion
 
