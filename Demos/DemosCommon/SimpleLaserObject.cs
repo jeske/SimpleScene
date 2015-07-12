@@ -221,7 +221,7 @@ namespace SimpleScene.Demos
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.interferenceColor);
 				//GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
 				GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
-				var mat = Matrix4.CreateScale(laserLength + startWidth, interferenceWidth, 1f) * middlePlacementMat;
+				var mat = Matrix4.CreateScale(laserLength + middleWidth/2f, interferenceWidth, 1f) * middlePlacementMat;
 				GL.LoadMatrix(ref mat);
 
 				_updateInterfernenceVertices(laserLength, interferenceWidth);

@@ -51,9 +51,10 @@ namespace TestBench2
 			droneObj1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj1.Name = "green drone";
+			droneObj1.Name = "attacker drone";
 			//droneObj1.MainColor = Color4.Green;
-			 scene.AddObject (droneObj1);
+			//droneObj1.renderState.visible = false;
+			scene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
@@ -61,7 +62,7 @@ namespace TestBench2
 			droneObj2.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj2.Name = "red drone";
+			droneObj2.Name = "target drone";
 			droneObj2.MainColor = Color4.Red;
 			scene.AddObject (droneObj2);
 
@@ -98,6 +99,34 @@ namespace TestBench2
 			#endif
 
 			//scene.renderConfig.renderBoundingSpheresLines = true;
+		}
+
+		protected void _createLaser()
+		{
+			var laserParams = new SimpleLaserParameters ();
+			laserParams.numBeams = rand.Next (1, 6);
+			if (laserParams.numBeams == 2) {
+				// 2's don't look too great
+				laserParams.numBeams = 1;
+			}
+			laserParams.beamPlacementScale = 2f * (float)rand.NextDouble ();
+			laserParams.beamDestSpread = (float)Math.Pow ((float)rand.NextDouble (), 3f)
+				* laserParams.beamPlacementScale;
+
+			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
+			laserParams.overlayColor = Color4.White;
+			laserParams.interferenceColor = Color4.White;
+			laserParams.backgroundWidth = 2f;
+			laserParams.startPointScale = 1f;
+			laserParams.interferenceScale = 2f;
+			laserParams.interferenceVelocity = 0.75f;
+
+			var driftScale = (float)rand.NextDouble() * 0.1f;
+			laserParams.driftModulationFunc = (t) => driftScale;
+
+			var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
+			newLaser.sourceTxfm = laserSourceTxfm;
+			activeLaser.Target = newLaser;
 		}
 
 		protected override void renderScenes (
@@ -161,34 +190,6 @@ namespace TestBench2
 			base.setupInput ();
 			this.KeyUp += laserKeyUpHandler;
 			this.KeyDown += laserKeyDownHandler;
-		}
-
-		protected void _createLaser()
-		{
-			var laserParams = new SimpleLaserParameters ();
-			laserParams.numBeams = rand.Next (1, 6);
-			if (laserParams.numBeams == 2) {
-				// 2's don't look too great
-				laserParams.numBeams = 1;
-			}
-			laserParams.beamPlacementScale = 2f * (float)rand.NextDouble ();
-			laserParams.beamDestSpread = (float)Math.Pow ((float)rand.NextDouble (), 3f)
-				* laserParams.beamPlacementScale;
-
-			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
-			laserParams.overlayColor = Color4.White;
-			laserParams.interferenceColor = Color4.White;
-			laserParams.backgroundWidth = 2f;
-			laserParams.startPointScale = 1f;
-			laserParams.interferenceScale = 2f;
-			laserParams.interferenceVelocity = 0.75f;
-
-			var driftScale = (float)rand.NextDouble() * 0.1f;
-			laserParams.driftModulationFunc = (t) => driftScale;
-
-			var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
-			newLaser.sourceTxfm = laserSourceTxfm;
-			activeLaser.Target = newLaser;
 		}
 	}
 }
