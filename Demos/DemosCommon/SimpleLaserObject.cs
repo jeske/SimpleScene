@@ -271,13 +271,6 @@ namespace SimpleScene.Demos
 				_driftX *= driftMod;
 				_driftY *= driftMod;
 			}
-
-			#if true
-			// debugging hacks
-			if (_localT > 10f) {
-				laser.releaseDirty = true;
-			}
-			#endif
 		}
 
 		protected void _initMiddleMesh()

@@ -158,6 +158,7 @@
     <Compile Include="Meshes\Skeletal\SSPolarJoint.cs" />
     <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingJoint.cs" />
     <Compile Include="Util\Files\SSAssetManagerRegisterDefaultTypes.cs" />
+    <Compile Include="Util\ADSREnvelope.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
