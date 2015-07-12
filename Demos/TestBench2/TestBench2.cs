@@ -65,7 +65,7 @@ namespace TestBench2
 			droneObj2.MainColor = Color4.Red;
 			scene.AddObject (droneObj2);
 
-			// play with lasers
+			// manages laser objects
 			laserManager = new SimpleLaserManager(laserScene);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
@@ -166,6 +166,9 @@ namespace TestBench2
 				laserParams.numBeams = 1;
 			}
 			laserParams.beamPlacementScale = 2f * (float)rand.NextDouble ();
+			laserParams.beamDestSpread = (float)Math.Pow ((float)rand.NextDouble (), 3f)
+				* laserParams.beamPlacementScale;
+
 			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
 			laserParams.overlayColor = Color4.White;
 			laserParams.interferenceColor = Color4.White;
@@ -174,7 +177,7 @@ namespace TestBench2
 			laserParams.interferenceScale = 2f;
 			laserParams.interferenceVelocity = 0.75f;
 
-			var driftScale = (float)rand.NextDouble() * 0.2f;
+			var driftScale = (float)rand.NextDouble() * 0.1f;
 			laserParams.driftModulationFunc = (t) => driftScale;
 
 			var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);

@@ -114,6 +114,11 @@ namespace SimpleScene.Demos
 		};
 
 		public float beamPlacementScale = 1f;
+
+		/// <summary>
+		/// Spread, in world coordinates, between multiple beams where they hit the target
+		/// </summary>
+		public float beamDestSpread = 0f;
 		#endregion
 	}
 

@@ -25,6 +25,7 @@ namespace SimpleScene.Demos
 		#region multi-beam placement
 		protected readonly int _beamId;
 		protected Vector3 _beamStart;
+		protected Vector3 _beamEnd;
 		#endregion
 
 		#region timekeeping
@@ -141,16 +142,14 @@ namespace SimpleScene.Demos
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
-			Vector3 beamStart = _beamStart;
-			Vector3 laserEnd = laser.destPos ();
-			Vector3 targetDir = (laserEnd - beamStart);
+			Vector3 laserDir = (_beamEnd - _beamStart).Normalized();
 			Vector3 driftXAxis, driftYAxis;
-			OpenTKHelper.TwoPerpAxes (targetDir, out driftXAxis, out driftYAxis);
+			OpenTKHelper.TwoPerpAxes (laserDir, out driftXAxis, out driftYAxis);
 
-			Vector3 driftedEnd = laserEnd + _driftX * driftXAxis + _driftY * driftYAxis;
+			Vector3 driftedEnd = _beamEnd + _driftX * driftXAxis + _driftY * driftYAxis;
 
 			// step: compute endpoints in view space
-			var startView = Vector3.Transform(beamStart, renderConfig.invCameraViewMatrix);
+			var startView = Vector3.Transform(_beamStart, renderConfig.invCameraViewMatrix);
 			var endView = Vector3.Transform (driftedEnd, renderConfig.invCameraViewMatrix);
 			var middleView = (startView + endView) / 2f;
 
@@ -166,7 +165,6 @@ namespace SimpleScene.Demos
 			float laserLength = diff.LengthFast;
 			float middleWidth = laser.parameters.backgroundWidth * _envelopeIntensity;
 
-			Vector3 laserDir = (laserEnd - beamStart).Normalized ();
 			Vector3 cameraDir = Vector3.Transform(
 				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, laserDir);
@@ -304,8 +302,10 @@ namespace SimpleScene.Demos
 				var localPlacement = laserParams.beamPlacementFunc (_beamId, laserParams.numBeams, _localT);
 				var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
 				_beamStart = src + laserParams.beamPlacementScale * placement;
+				_beamEnd = dst + laserParams.beamDestSpread * placement;
 			} else {
 				_beamStart = src;
+				_beamEnd = dst;
 			}
 		}
 
