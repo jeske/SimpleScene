@@ -8,20 +8,26 @@ namespace SimpleScene.Demos
 {
 	public class SimpleLaserObject : SSObject
 	{
-		static readonly protected UInt16[] _middleIndices = {
+		protected static readonly UInt16[] _middleIndices = {
 			0,1,2, 1,3,2, // left cap
 			2,3,4, 3,5,4, // middle
 			//4,5,6, 5,7,6  // right cap?
 		};
-		static readonly protected UInt16[] _interferenceIndices = {
+		protected static readonly UInt16[] _interferenceIndices = {
 			0,1,2, 1,3,2
 		};
+
+		protected static readonly Random _random = new Random();
 
 		public SimpleLaser laser = null;
 		public SSScene cameraScene = null;
 
-		#region intensity (alpha component strength)
+		#region timekeeping
 		protected float _localT = 0f;
+		protected float _periodicTOffset = 0f;
+		#endregion
+
+		#region intensity (alpha component strength)
 		protected float _periodicIntensity = 1f;
 		protected float _envelopeIntensity = 1f;
 		#endregion
@@ -104,6 +110,9 @@ namespace SimpleScene.Demos
 			this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
+
+			// some randomization for more varied experience
+			_periodicTOffset = (float)_random.NextDouble() * 10f;
 
 			// initialize non-changing vertex data
 			_initMiddleMesh ();
@@ -242,7 +251,7 @@ namespace SimpleScene.Demos
 			}
 
 			// periodic intensity
-			float periodicT = _localT * laser.parameters.intensityFrequency;
+			float periodicT = (_periodicTOffset + _localT) * laser.parameters.intensityFrequency;
 			if (laser.parameters.intensityPeriodicFunction != null) {
 				_periodicIntensity = laser.parameters.intensityPeriodicFunction (periodicT);
 			} else {
