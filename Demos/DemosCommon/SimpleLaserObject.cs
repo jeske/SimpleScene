@@ -124,6 +124,9 @@ namespace SimpleScene.Demos
 			// initialize non-changing vertex data
 			_initMiddleMesh ();
 			_initInterferenceVertices ();
+
+			// force an update to make sure we are not rendering (very noticable) bogus
+			Update(0f);
 		}
 
 		public override void Render(SSRenderConfig renderConfig)
@@ -138,16 +141,16 @@ namespace SimpleScene.Demos
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
-			Vector3 laserStart = laser.sourcePos ();
+			Vector3 beamStart = _beamStart;
 			Vector3 laserEnd = laser.destPos ();
-			Vector3 targetDir = (laserEnd - laserStart);
+			Vector3 targetDir = (laserEnd - beamStart);
 			Vector3 driftXAxis, driftYAxis;
 			OpenTKHelper.TwoPerpAxes (targetDir, out driftXAxis, out driftYAxis);
 
 			Vector3 driftedEnd = laserEnd + _driftX * driftXAxis + _driftY * driftYAxis;
 
 			// step: compute endpoints in view space
-			var startView = Vector3.Transform(laserStart, renderConfig.invCameraViewMatrix);
+			var startView = Vector3.Transform(beamStart, renderConfig.invCameraViewMatrix);
 			var endView = Vector3.Transform (driftedEnd, renderConfig.invCameraViewMatrix);
 			var middleView = (startView + endView) / 2f;
 
@@ -163,7 +166,7 @@ namespace SimpleScene.Demos
 			float laserLength = diff.LengthFast;
 			float middleWidth = laser.parameters.backgroundWidth * _envelopeIntensity;
 
-			Vector3 laserDir = (laserEnd - laserStart).Normalized ();
+			Vector3 laserDir = (laserEnd - beamStart).Normalized ();
 			Vector3 cameraDir = Vector3.Transform(
 				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, laserDir);

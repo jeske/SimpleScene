@@ -69,7 +69,7 @@ namespace TestBench2
 			laserManager = new SimpleLaserManager(laserScene);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
-			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 3f);
+			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
 
 			#if false
 			// TODO use manager instead
@@ -134,20 +134,7 @@ namespace TestBench2
 
 			if (e.Key == Key.Q) {
 				if (activeLaser.Target == null) {
-					var laserParams = new SimpleLaserParameters ();
-					laserParams.numBeams = rand.Next (1, 6);
-					laserParams.beamPlacementScale = 10f;
-					laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
-					laserParams.overlayColor = Color4.White;
-					laserParams.interferenceColor = Color4.White;
-					laserParams.backgroundWidth = 2f;
-					laserParams.startPointScale = 1f;
-					laserParams.interferenceScale = 2f;
-					laserParams.interferenceVelocity = 0.75f;
-
-					var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
-					newLaser.sourceTxfm = laserSourceTxfm;
-					activeLaser.Target = newLaser;
+					_createLaser ();
 				}
 			}
 		}
@@ -168,6 +155,31 @@ namespace TestBench2
 			base.setupInput ();
 			this.KeyUp += laserKeyUpHandler;
 			this.KeyDown += laserKeyDownHandler;
+		}
+
+		protected void _createLaser()
+		{
+			var laserParams = new SimpleLaserParameters ();
+			laserParams.numBeams = rand.Next (1, 6);
+			if (laserParams.numBeams == 2) {
+				// 2's don't look so great
+				laserParams.numBeams = 1;
+			}
+			laserParams.beamPlacementScale = 2f * (float)rand.NextDouble ();
+			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
+			laserParams.overlayColor = Color4.White;
+			laserParams.interferenceColor = Color4.White;
+			laserParams.backgroundWidth = 2f;
+			laserParams.startPointScale = 1f;
+			laserParams.interferenceScale = 2f;
+			laserParams.interferenceVelocity = 0.75f;
+
+			var driftScale = (float)rand.NextDouble() * 0.2f;
+			laserParams.driftModulationFunc = (t) => driftScale;
+
+			var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
+			newLaser.sourceTxfm = laserSourceTxfm;
+			activeLaser.Target = newLaser;
 		}
 	}
 }
