@@ -334,29 +334,6 @@ namespace SimpleScene.Demos
 				= (_interferenceOffset + 1f) * vScale;
 			_interferenceMesh.UpdateVertices (_interferenceVertices);
 		}
-
-		#if false
-		/// <summary>
-		/// Adds the laser to a list of lasers. Laser start, ends, fade and other effects
-		/// are to be updated from somewhere else.
-		/// </summary>
-		/// <returns>The handle to LaserInfo which can be used for updating start and 
-		/// end.</returns>
-		public SSLaser addLaser(SSLaserParameters parameters)
-		{
-		var li = new SSLaser();
-		li.start = Vector3.Zero;
-		li.end = Vector3.Zero;
-		li.parameters = parameters;
-		_lasers.Add (li);
-		return li;
-		}
-
-		public void removeLaser(SSLaser laser)
-		{
-		_lasers.Remove (laser);
-		}
-		#endif
 	}
 }
 
