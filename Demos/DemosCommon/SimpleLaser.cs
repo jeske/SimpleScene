@@ -13,11 +13,20 @@ namespace SimpleScene.Demos
 
 	public class SimpleLaserParameters
 	{
+		#region types
 		/// <summary>
 		/// Intensity as a function of period fraction t (from 0 to 1)
 		/// </summary>
 		public delegate float PeriodicFunction(float t);
 
+		/// <summary>
+		/// Beam placement functions positions beam origins for one or more laser beams. When implementing
+		/// assume laser origin is at (0, 0, 0) and the target is in the +z direction
+		/// </summary>
+		public delegate Vector3 BeamPlacementFunction(int beamID, int numBeams, float t);
+		#endregion
+
+		#region middle sprites
 		public Color4 backgroundColor = Color4.Magenta;
 		public Color4 overlayColor = Color4.White;
 
@@ -28,14 +37,10 @@ namespace SimpleScene.Demos
 		public float laserSpritePadding = 0.05f;
 
 		/// <summary>
-		/// width of the start+middle section sprite (in world units)
+		/// width of the middle section sprite (in world units)
 		/// </summary>
 		public float backgroundWidth = 2f;
-
-		/// <summary>
-		/// start-only (emission) sprites will be drawn x times larger than the start+middle section width
-		/// </summary>
-		public float startPointScale = 1.0f; 
+		#endregion
 
 		#region interference sprite
 		public Color4 interferenceColor = Color4.White;
@@ -49,6 +54,13 @@ namespace SimpleScene.Demos
 		/// Interference sprite will be drawn X times thicker than the start+middle section width
 		/// </summary>
 		public float interferenceScale = 2.0f;
+		#endregion
+
+		#region start-only sprite
+		/// <summary>
+		/// start-only (emission) sprites will be drawn x times larger than the start+middle section width
+		/// </summary>
+		public float startPointScale = 1.0f;
 		#endregion
 
 		#region periodic intensity		
@@ -87,6 +99,21 @@ namespace SimpleScene.Demos
 
 		public PeriodicFunction driftModulationFunc =
 			t => 0.1f;
+		#endregion
+
+		#region multi-beam settings
+		public int numBeams = 1;
+
+		public BeamPlacementFunction beamPlacementFunc = (beamID, numBeams, t) => {
+			if (numBeams <= 1) {
+				return Vector3.Zero;
+			} else {
+				float a = 2f * (float)Math.PI / (float)numBeams * beamID;
+				return new Vector3((float)Math.Cos(a), (float)Math.Sin(a), 0f);
+			}
+		};
+
+		public float beamPlacementScale = 1f;
 		#endregion
 	}
 

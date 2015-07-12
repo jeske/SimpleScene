@@ -27,10 +27,11 @@ namespace SimpleScene.Demos
 			newLaser.destObject = dstObject;
 			newLaser.postReleaseFunc = this._deleteLaser;
 
-			var newObj = new SimpleLaserObject (newLaser, this.scene);
-			_laserObjects.Add (newObj);
-
-			scene.AddObject (newObj);
+			for (int i = 0; i < laserParams.numBeams; ++i) {
+				var newObj = new SimpleLaserObject (newLaser, i, this.scene);
+				_laserObjects.Add (newObj);
+				scene.AddObject (newObj);
+			}
 
 			return newLaser;
 		}
@@ -49,6 +50,8 @@ namespace SimpleScene.Demos
 				}
 			}
 		}
+
+		// TODO switch targets while firing
 	}
 }
 

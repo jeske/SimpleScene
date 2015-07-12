@@ -22,6 +22,11 @@ namespace SimpleScene.Demos
 		public SimpleLaser laser = null;
 		public SSScene cameraScene = null;
 
+		#region multi-beam placement
+		protected readonly int _beamId;
+		protected Vector3 _beamStart;
+		#endregion
+
 		#region timekeeping
 		protected float _localT = 0f;
 		protected float _periodicTOffset = 0f;
@@ -80,6 +85,7 @@ namespace SimpleScene.Demos
 		}
 
 		public SimpleLaserObject (SimpleLaser laser = null,
+								  int beamId = 0,
 								  SSScene cameraScene = null,
 							      SSTexture middleBackgroundSprite = null,
 								  SSTexture middleOverlaySprite = null,
@@ -88,6 +94,7 @@ namespace SimpleScene.Demos
 								  SSTexture inteferenceSprite = null)
 		{
 			this.laser = laser;
+			this._beamId = beamId;
 			this.cameraScene = cameraScene;
 
 			this.renderState.castsShadow = false;
@@ -224,7 +231,9 @@ namespace SimpleScene.Demos
 
 		public override void Update (float fElapsedS)
 		{
-			_interferenceOffset -= laser.parameters.interferenceVelocity * fElapsedS;
+			var laserParams = laser.parameters;
+
+			_interferenceOffset -= laserParams.interferenceVelocity * fElapsedS;
 			if (_interferenceOffset >= 1f || _interferenceOffset < 0f) {
 				_interferenceOffset %= 1f;
 			}
@@ -233,7 +242,7 @@ namespace SimpleScene.Demos
 			_localT += fElapsedS;
 
 			// envelope intensity
-			if (laser.parameters.intensityEnvelope != null) {
+			if (laserParams.intensityEnvelope != null) {
 				var envelope = laser.localIntensityEnvelope;
 				if (laser.releaseDirty == true) {
 					// hacky way to have on-demand release and still use ADSR envelope
@@ -251,34 +260,48 @@ namespace SimpleScene.Demos
 			}
 
 			// periodic intensity
-			float periodicT = (_periodicTOffset + _localT) * laser.parameters.intensityFrequency;
-			if (laser.parameters.intensityPeriodicFunction != null) {
-				_periodicIntensity = laser.parameters.intensityPeriodicFunction (periodicT);
+			float periodicT = (_periodicTOffset + _localT) * laserParams.intensityFrequency;
+			if (laserParams.intensityPeriodicFunction != null) {
+				_periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
 			} else {
 				_periodicIntensity = 1f;
 			}
 
-			if (laser.parameters.intensityModulation != null) {
-				_periodicIntensity *= laser.parameters.intensityModulation (periodicT);
+			if (laserParams.intensityModulation != null) {
+				_periodicIntensity *= laserParams.intensityModulation (periodicT);
 			}
 
 			// periodic world-coordinate drift
-			if (laser.parameters.driftXFunc != null) {
-				_driftX = laser.parameters.driftXFunc (_localT);
+			if (laserParams.driftXFunc != null) {
+				_driftX = laserParams.driftXFunc (_localT);
 			} else {
 				_driftX = 0f;
 			}
 
-			if (laser.parameters.driftYFunc != null) {
-				_driftY = laser.parameters.driftYFunc (_localT);
+			if (laserParams.driftYFunc != null) {
+				_driftY = laserParams.driftYFunc (_localT);
 			} else {
 				_driftY = 0f;
 			}
 
-			if (laser.parameters.driftModulationFunc != null) {
-				var driftMod = laser.parameters.driftModulationFunc (_localT);
+			if (laserParams.driftModulationFunc != null) {
+				var driftMod = laserParams.driftModulationFunc (_localT);
 				_driftX *= driftMod;
 				_driftY *= driftMod;
+			}
+
+			// beam start
+			var src = laser.sourcePos();
+			var dst = laser.destPos ();
+			if (laserParams.beamPlacementFunc != null) {
+				var zAxis = (dst - src).Normalized ();
+				Vector3 xAxis, yAxis;
+				OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
+				var localPlacement = laserParams.beamPlacementFunc (_beamId, laserParams.numBeams, _localT);
+				var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
+				_beamStart = src + laserParams.beamPlacementScale * placement;
+			} else {
+				_beamStart = src;
 			}
 		}
 

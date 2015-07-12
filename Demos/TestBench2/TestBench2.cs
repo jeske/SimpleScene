@@ -10,6 +10,8 @@ namespace TestBench2
 {
 	public class TestBench2 : TestBenchBootstrap
 	{
+		protected Random rand = new Random();
+
 		protected SSScene laserScene = new SSScene ();
 		protected SimpleLaserManager laserManager = null;
 		//protected SimpleLaserParameters laserParams = null;
@@ -133,6 +135,8 @@ namespace TestBench2
 			if (e.Key == Key.Q) {
 				if (activeLaser.Target == null) {
 					var laserParams = new SimpleLaserParameters ();
+					laserParams.numBeams = rand.Next (1, 6);
+					laserParams.beamPlacementScale = 10f;
 					laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
 					laserParams.overlayColor = Color4.White;
 					laserParams.interferenceColor = Color4.White;
