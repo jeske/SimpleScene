@@ -52,8 +52,8 @@ namespace SimpleScene.Demos
 		#endregion
 
 		#region start-only radial sprites
-		public SSTexture flareBackgroundSprites = null;
-		public SSTexture flareOverlaySprites = null;
+		public SSTexture[] flareBackgroundSprites = null;
+		public SSTexture[] flareOverlaySprites = null;
 		#endregion
 
 		#region interference sprite
@@ -90,8 +90,8 @@ namespace SimpleScene.Demos
 								  SSScene cameraScene = null,
 							      SSTexture middleBackgroundSprite = null,
 								  SSTexture middleOverlaySprite = null,
-								  SSTexture startBackgroundSprite = null,
-								  SSTexture startOverlaySprite = null,
+								  SSTexture[] flareBackgroundSprites = null,
+								  SSTexture[] flareOverlaySprites = null,
 								  SSTexture inteferenceSprite = null)
 		{
 			this.laser = laser;
@@ -106,14 +106,24 @@ namespace SimpleScene.Demos
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleBackground.png");
 			this.middleOverlaySprite = middleOverlaySprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleOverlay.png");
-			this.flareBackgroundSprites = startBackgroundSprite
-				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareBackground.png");
-			this.flareOverlaySprites = startOverlaySprite
-				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start_overlay.png");
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareOverlay.png");
 			this.interferenceSprite = interferenceSprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "interference.png");
+
+			if (flareBackgroundSprites != null && flareBackgroundSprites.Length > 0) { 
+				this.flareBackgroundSprites = flareBackgroundSprites;
+			} else {
+				this.flareBackgroundSprites = new SSTexture[1];
+				this.flareBackgroundSprites[0]
+					= SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareBackground.png");
+			}
+
+			if (flareOverlaySprites != null && flareOverlaySprites.Length > 0) { 
+				this.flareOverlaySprites = flareOverlaySprites;
+			} else {
+				this.flareOverlaySprites = new SSTexture[1];
+				this.flareOverlaySprites[0]
+					= SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareOverlay.png");
+			}
 
 			// reset all mat colors. emission will be controlled during rendering
 			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
@@ -202,20 +212,24 @@ namespace SimpleScene.Demos
 			// start radial flare background sprites
 			if (flareBackgroundSprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
-				GL.BindTexture (TextureTarget.Texture2D, flareBackgroundSprites.TextureID);
 				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
 				GL.LoadMatrix (ref mat);
-				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				foreach (var tex in flareBackgroundSprites) {
+					GL.BindTexture (TextureTarget.Texture2D, tex.TextureID);
+					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				}
 			}
 			#endif
 			#if true
 			// start radial flare overlay sprites
 			if (flareOverlaySprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
-				GL.BindTexture (TextureTarget.Texture2D, flareOverlaySprites.TextureID);
 				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
 				GL.LoadMatrix (ref mat);
-				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				foreach (var tex in flareOverlaySprites) {
+					GL.BindTexture (TextureTarget.Texture2D, tex.TextureID);
+					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+				}
 			}
 			#endif
 			#if true
