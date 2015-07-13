@@ -61,7 +61,7 @@ namespace SimpleScene.Demos
 		/// start-only radial emission sprites will be drawn x times larger than the middle section width
 		/// when at full intensity (looking straight into the laser)
 		/// </summary>
-		public float startPointScale = 2f;
+		public float startPointScale = 1f;
 		#endregion
 
 		#region periodic intensity		

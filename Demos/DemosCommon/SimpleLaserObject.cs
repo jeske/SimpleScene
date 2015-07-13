@@ -52,8 +52,8 @@ namespace SimpleScene.Demos
 		#endregion
 
 		#region start-only radial sprites
-		public SSTexture startBackgroundSprite = null;
-		public SSTexture startOverlaySprite = null;
+		public SSTexture flareBackgroundSprites = null;
+		public SSTexture flareOverlaySprites = null;
 		#endregion
 
 		#region interference sprite
@@ -103,15 +103,17 @@ namespace SimpleScene.Demos
 
 			var ctx = new SSAssetManager.Context ("./lasers");
 			this.middleBackgroundSprite = middleBackgroundSprite 
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start2.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleBackground.png");
 			this.middleOverlaySprite = middleOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start2Over.png");
-			this.startBackgroundSprite = startBackgroundSprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
-			this.startOverlaySprite = startOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start_overlay.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleOverlay.png");
+			this.flareBackgroundSprites = startBackgroundSprite
+				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "background.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareBackground.png");
+			this.flareOverlaySprites = startOverlaySprite
+				//?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "start_overlay.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareOverlay.png");
 			this.interferenceSprite = interferenceSprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "laseroverlay01.png");
+				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "interference.png");
 
 			// reset all mat colors. emission will be controlled during rendering
 			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
@@ -169,7 +171,7 @@ namespace SimpleScene.Demos
 				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, laserDir);
 			dot = Math.Max (dot, 0f);
-			float startWidth = middleWidth * laser.parameters.startPointScale * (1f - dot);
+			float flareSpriteWidth = middleWidth * laser.parameters.startPointScale * (1f - dot);
 			float interferenceWidth = middleWidth * laser.parameters.interferenceScale;
 
 			GL.Color4 (1f, 1f, 1f, _periodicIntensity * _envelopeIntensity);
@@ -197,21 +199,21 @@ namespace SimpleScene.Demos
 			}
 			#endif
 			#if true
-			// start radial background sprite
-			if (startBackgroundSprite != null) {
+			// start radial flare background sprites
+			if (flareBackgroundSprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
-				GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
-				var mat = Matrix4.CreateScale (startWidth, startWidth, 1f) * startPlacementMat;
+				GL.BindTexture (TextureTarget.Texture2D, flareBackgroundSprites.TextureID);
+				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
 				GL.LoadMatrix (ref mat);
 				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
 			#endif
 			#if true
-			// start radial overlay sprite
-			if (startOverlaySprite != null) {
+			// start radial flare overlay sprites
+			if (flareOverlaySprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
-				GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
-				var mat = Matrix4.CreateScale (startWidth, startWidth, 1f) * startPlacementMat;
+				GL.BindTexture (TextureTarget.Texture2D, flareOverlaySprites.TextureID);
+				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
 				GL.LoadMatrix (ref mat);
 				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
 			}
