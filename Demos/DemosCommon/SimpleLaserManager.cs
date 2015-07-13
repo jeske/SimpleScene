@@ -31,10 +31,18 @@ namespace SimpleScene.Demos
 
 			var newLaserRuntime = new LaserRuntime ();
 			newLaserRuntime.laser = newLaser;
-			newLaserRuntime.beams = new List<BeamRuntime> (laserParams.numBeams);
+			newLaserRuntime.beamRuntimes = new BeamRuntime[laserParams.numBeams];
 			for (int i = 0; i < laserParams.numBeams; ++i) {
-				var beam = new BeamRuntime ();
-				beam.beamObj = new SimpleLaserBeamObject (newLaser, i, this.scene);
+				var newBeamRuntime = new BeamRuntime ();
+
+				newBeamRuntime.emissionBillboard = new SSObjectBillboard (new SSMeshDisk (), true);
+				newBeamRuntime.emissionBillboard.Pos = newLaser.sourcePos ();
+				scene.AddObject (newBeamRuntime.emissionBillboard);
+
+				newBeamRuntime.beamObj = new SimpleLaserBeamObject (newLaser, i, this.scene);
+				scene.AddObject (newBeamRuntime.beamObj);
+
+				newLaserRuntime.beamRuntimes [i] = newBeamRuntime;
 			}
 			_laserRuntimes.Add (newLaserRuntime);
 
@@ -49,7 +57,7 @@ namespace SimpleScene.Demos
 			for (int i = 0; i < _laserRuntimes.Count; ++i) {
 				var runTime = _laserRuntimes [i];
 				if (runTime.laser == laser) {
-					foreach (var beam in runTime.beams) {
+					foreach (var beam in runTime.beamRuntimes) {
 						if (beam.beamObj != null) {
 							beam.beamObj.renderState.toBeDeleted = true;
 						}
@@ -78,7 +86,7 @@ namespace SimpleScene.Demos
 		protected class LaserRuntime
 		{
 			public SimpleLaser laser;
-			public List<BeamRuntime> beams;
+			public BeamRuntime[] beamRuntimes;
 		}
 	}
 }
