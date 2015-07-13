@@ -104,7 +104,8 @@ namespace TestBench2
 		protected void _createLaser()
 		{
 			var laserParams = new SimpleLaserParameters ();
-			laserParams.numBeams = rand.Next (1, 6);
+			laserParams.numBeams = 1;
+			//laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;

@@ -240,18 +240,21 @@ namespace SimpleScene.Demos
 
 			// envelope intensity
 			if (laserParams.intensityEnvelope != null) {
-				var envelope = laser.localIntensityEnvelope;
-				if (laser.releaseDirty == true) {
-					// hacky way to have on-demand release and still use ADSR envelope
-					envelope.attackDuration = 0f;
-					envelope.decayDuration = 0f;
-					envelope.sustainDuration = _localT;
+				var env = laser.localIntensityEnvelope;
+				if (_localT > env.totalDuration && laser.postReleaseFunc != null) {
+					laser.postReleaseFunc (laser);
+					return;
+				} else if (laser.releaseDirty == true 
+					    && _localT < (env.attackDuration + env.decayDuration + env.sustainDuration))
+				{
+					// force the existing envelope into release. this is hacky.
+					env.attackDuration = 0f;
+					env.decayDuration = 0f;
+					env.sustainDuration = _localT;
 					laser.releaseDirty = false;
 				}
-				_envelopeIntensity = envelope.computeLevel (_localT);
-				if (_localT > envelope.totalDuration && laser.postReleaseFunc != null) {
-					laser.postReleaseFunc (laser);
-				}
+				_envelopeIntensity = env.computeLevel (_localT);
+
 			} else {
 				_envelopeIntensity = 1f;
 			}
@@ -293,7 +296,7 @@ namespace SimpleScene.Demos
 				_driftY *= driftMod;
 			}
 
-			// beam start
+			// beam emission point placement
 			var src = laser.sourcePos();
 			var dst = laser.destPos ();
 			if (laserParams.beamStartPlacementFunc != null) {

@@ -13,7 +13,7 @@ namespace SimpleScene.Demos
 
 	public class SimpleLaserParameters
 	{
-		#region types
+		#region auxiliary function types
 		/// <summary>
 		/// Intensity as a function of period fraction t (from 0 to 1)
 		/// </summary>
