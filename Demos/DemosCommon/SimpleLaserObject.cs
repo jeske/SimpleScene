@@ -234,14 +234,9 @@ namespace SimpleScene.Demos
 		{
 			var laserParams = laser.parameters;
 
-			_interferenceOffset -= laserParams.interferenceVelocity * fElapsedS;
-			if (_interferenceOffset >= 1f || _interferenceOffset < 0f) {
-				_interferenceOffset %= 1f;
-			}
-
 			// compute local time
 			_localT += fElapsedS;
-			float offsetT = _localT + _periodicTOffset;
+			float periodicT = _localT + _periodicTOffset;
 
 			// envelope intensity
 			if (laserParams.intensityEnvelope != null) {
@@ -261,8 +256,14 @@ namespace SimpleScene.Demos
 				_envelopeIntensity = 1f;
 			}
 
+			// interference sprite U coordinates' offset
+			if (laser.parameters.interferenceUFunc != null) {
+				_interferenceOffset = laserParams.interferenceUFunc (periodicT);
+			} else {
+				_interferenceOffset = 0f;
+			}
+
 			// periodic intensity
-			float periodicT = offsetT * laserParams.intensityFrequency;
 			if (laserParams.intensityPeriodicFunction != null) {
 				_periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
 			} else {
@@ -275,19 +276,19 @@ namespace SimpleScene.Demos
 
 			// periodic world-coordinate drift
 			if (laserParams.driftXFunc != null) {
-				_driftX = laserParams.driftXFunc (offsetT);
+				_driftX = laserParams.driftXFunc (periodicT);
 			} else {
 				_driftX = 0f;
 			}
 
 			if (laserParams.driftYFunc != null) {
-				_driftY = laserParams.driftYFunc (offsetT);
+				_driftY = laserParams.driftYFunc (periodicT);
 			} else {
 				_driftY = 0f;
 			}
 
 			if (laserParams.driftModulationFunc != null) {
-				var driftMod = laserParams.driftModulationFunc (offsetT);
+				var driftMod = laserParams.driftModulationFunc (periodicT);
 				_driftX *= driftMod;
 				_driftY *= driftMod;
 			}
@@ -295,13 +296,13 @@ namespace SimpleScene.Demos
 			// beam start
 			var src = laser.sourcePos();
 			var dst = laser.destPos ();
-			if (laserParams.beamPlacementFunc != null) {
+			if (laserParams.beamStartPlacementFunc != null) {
 				var zAxis = (dst - src).Normalized ();
 				Vector3 xAxis, yAxis;
 				OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
-				var localPlacement = laserParams.beamPlacementFunc (_beamId, laserParams.numBeams, _localT);
+				var localPlacement = laserParams.beamStartPlacementFunc (_beamId, laserParams.numBeams, _localT);
 				var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
-				_beamStart = src + laserParams.beamPlacementScale * placement;
+				_beamStart = src + laserParams.beamStartPlacementScale * placement;
 				_beamEnd = dst + laserParams.beamDestSpread * placement;
 			} else {
 				_beamStart = src;

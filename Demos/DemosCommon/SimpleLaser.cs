@@ -46,34 +46,33 @@ namespace SimpleScene.Demos
 		public Color4 interferenceColor = Color4.White;
 
 		/// <summary>
-		/// How fast (in world-units/sec) the interference texture coordinates are moving
-		/// </summary>
-		public float interferenceVelocity = -0.5f;
-
-		/// <summary>
 		/// Interference sprite will be drawn X times thicker than the start+middle section width
 		/// </summary>
 		public float interferenceScale = 2.0f;
+
+		/// <summary>
+		/// Describes the value of the U-coordinate offset for the interference as a function of time
+		/// </summary>
+		public PeriodicFunction interferenceUFunc = (t) => -0.75f * t;
 		#endregion
 
-		#region start-only sprite
+		#region start-only radial sprite
 		/// <summary>
-		/// start-only (emission) sprites will be drawn x times larger than the start+middle section width
+		/// start-only radial emission sprites will be drawn x times larger than the middle section width
 		/// </summary>
 		public float startPointScale = 1.0f;
 		#endregion
 
 		#region periodic intensity		
-		public float intensityFrequency = 10f; // in Hz
-
 		/// <summary>
 		/// Intensity as a function of period fraction t (from 0 to 1)
 		/// </summary>
 		public PeriodicFunction intensityPeriodicFunction = 
-			t => 0.8f + 0.3f * (float)Math.Sin(2.0f * (float)Math.PI * t) 
-							 * (float)Math.Sin(2.0f * (float)Math.PI * t * 0.2f) ;
+			t => 0.8f + 0.3f * (float)Math.Sin(2.0f * (float)Math.PI * 10f * t) 
+							 * (float)Math.Sin(2.0f * (float)Math.PI * 2f * t) ;
+
 		/// <summary>
-		/// Further periodic modulation, if needed
+		/// Further periodic modulation or scale, if needed
 		/// </summary>
 		public PeriodicFunction intensityModulation =
 			t => 1f;
@@ -85,7 +84,8 @@ namespace SimpleScene.Demos
 		/// "engaged-until-released" lasers by default
 		/// </summary>
 		public ADSREnvelope intensityEnvelope 
-			= new ADSREnvelope (0.10f, 0.10f, float.PositiveInfinity, 0.15f, 1f, 0.8f);
+			= new ADSREnvelope (0.15f, 0.15f, float.PositiveInfinity, 0.5f, 1f, 0.7f);
+			//= new ADSREnvelope (0.20f, 0.20f, float.PositiveInfinity, 1f, 1f, 0.7f);
 		#endregion
 
 		#region periodic drift
@@ -102,9 +102,15 @@ namespace SimpleScene.Demos
 		#endregion
 
 		#region multi-beam settings
+
 		public int numBeams = 1;
 
-		public BeamPlacementFunction beamPlacementFunc = (beamID, numBeams, t) => {
+		/// <summary>
+		/// Beam placement functions positions beam origins for one or more laser beams. When implementing
+		/// assume laser origin is at (0, 0, 0) and the target is in the +z direction. Default function
+		/// arranges beams in a circle around the origin
+		/// </summary>
+		public BeamPlacementFunction beamStartPlacementFunc = (beamID, numBeams, t) => {
 			if (numBeams <= 1) {
 				return Vector3.Zero;
 			} else {
@@ -113,10 +119,14 @@ namespace SimpleScene.Demos
 			}
 		};
 
-		public float beamPlacementScale = 1f;
+		/// <summary>
+		/// Beam-placement function output will be scaled by this much to produce the final beam start
+		/// positions
+		/// </summary>
+		public float beamStartPlacementScale = 1f;
 
 		/// <summary>
-		/// Spread, in world coordinates, between multiple beams where they hit the target
+		/// Multiple beams will be this far apart from the laser end point. (in world coordinates)
 		/// </summary>
 		public float beamDestSpread = 0f;
 		#endregion
@@ -124,26 +134,49 @@ namespace SimpleScene.Demos
 
 	public class SimpleLaser
 	{
+		// TODO nextDestObject??
+
+		/// <summary>
+		/// Called when the laser has fully faded and is safe to delete by laser management systems
+		/// </summary>
 		public delegate void ReleaseCallbackDelegate(SimpleLaser invoker);
 
+		/// <summary>
+		/// Laser parameters. This is NOT to be tempered with by laser render and update code.
+		/// </summary>
 		public readonly SimpleLaserParameters parameters = null;
 
+		/// <summary>
+		/// object emitting the laser
+		/// </summary>
 		public SSObject sourceObject = null;
-		public SSObject destObject = null;
-		// TODO nextDestObject??
+
+		/// <summary>
+		/// Transform for the beam emission point in coordinates local to the source object
+		/// </summary>
 		public Matrix4 sourceTxfm = Matrix4.Identity;
+
+		/// <summary>
+		/// Object that the laser hits
+		/// </summary>
+		public SSObject destObject = null;
+
+		/// <summary>
+		/// Transform for the beam end point in coordinates local to the destination object
+		/// </summary>
 		public Matrix4 destTxfm = Matrix4.Identity;
 
-		#region envelope release and self-destroy callback
+		#region local-copy intensity envelope
 		/// <summary>
-		/// Hack to bend the ADSR envelope to skip the infinite sustain part
-		/// </summary>
-		internal bool releaseDirty = false;
-
-		/// <summary>
-		/// Points to the intensity envelope actually used
+		/// Points to the intensity envelope actually used (so as to not temper with the original one
+		/// that may be shared with other lasers)
 		/// </summary>
 		public readonly ADSREnvelope localIntensityEnvelope = null;
+
+		/// <summary>
+		/// Hack for the ADSR envelope to skip the infinite sustain part and begin releasing the laser
+		/// </summary>
+		internal bool releaseDirty = false;
 
 		/// <summary>
 		/// Called when the laser has fully faded and is safe to delete by laser management systems

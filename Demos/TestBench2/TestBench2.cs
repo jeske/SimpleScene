@@ -109,9 +109,9 @@ namespace TestBench2
 				// 2's don't look too great
 				laserParams.numBeams = 1;
 			}
-			laserParams.beamPlacementScale = 2f * (float)rand.NextDouble ();
+			laserParams.beamStartPlacementScale = 2f * (float)rand.NextDouble ();
 			laserParams.beamDestSpread = (float)Math.Pow ((float)rand.NextDouble (), 3f)
-				* laserParams.beamPlacementScale;
+				* laserParams.beamStartPlacementScale;
 
 			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
 			laserParams.overlayColor = Color4.White;
@@ -119,7 +119,6 @@ namespace TestBench2
 			laserParams.backgroundWidth = 2f;
 			laserParams.startPointScale = 1f;
 			laserParams.interferenceScale = 2f;
-			laserParams.interferenceVelocity = 0.75f;
 
 			var driftScale = (float)rand.NextDouble() * 0.1f;
 			laserParams.driftModulationFunc = (t) => driftScale;
