@@ -64,36 +64,6 @@ namespace TestBench0
 			drone2Obj.Pos = new OpenTK.Vector3(0f, 0f, 0f);
 			drone2Obj.Name = "drone 2";
 
-			// setup a sun billboard object and a sun flare spriter renderer
-			{
-				var sunDisk = new SSMeshDisk ();
-				var sunBillboard = new SSObjectBillboard (sunDisk, true);
-				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
-				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
-				sunBillboard.Scale = new Vector3 (600f);
-				sunBillboard.renderState.frustumCulling = false;
-				sunBillboard.renderState.lighted = false;
-				sunBillboard.renderState.castsShadow = false;
-				sunDiskScene.AddObject(sunBillboard);
-
-				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
-				const float bigOffset = 0.8889f;
-				const float smallOffset = 0.125f;
-				RectangleF[] flareSpriteRects = {
-					new RectangleF(0f, 0f, 1f, bigOffset),
-					new RectangleF(0f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
-				};
-				float[] spriteScales = { 20f, 1f, 2f, 1f, 1f };
-				var sunFlare = new SimpleSunFlareMesh (sunDiskScene, sunBillboard, flareTex, 
-													   flareSpriteRects, spriteScales);
-				sunFlare.Scale = new Vector3 (2f);
-				sunFlare.renderState.lighted = false;
-				sunFlareScene.AddObject(sunFlare);
-			}
-
 			// instanced asteroid ring
 			//if (false)
 			{
