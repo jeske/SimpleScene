@@ -169,13 +169,13 @@ namespace SimpleScene.Demos
 				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, laserDir);
 			dot = Math.Max (dot, 0f);
-			float startWidth = middleWidth * laser.parameters.startPointScale * (1f-dot);
-
+			float startWidth = middleWidth * laser.parameters.startPointScale * (1f - dot);
 			float interferenceWidth = middleWidth * laser.parameters.interferenceScale;
 
 			GL.Color4 (1f, 1f, 1f, _periodicIntensity * _envelopeIntensity);
 
 			#if true
+			// stretched middle background sprite
 			if (middleBackgroundSprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
@@ -183,39 +183,41 @@ namespace SimpleScene.Demos
 
 				_updateMiddleMesh (laserLength, middleWidth);
 				_middleMesh.renderMesh (renderConfig);
-
-				#if true
-				if (startBackgroundSprite != null) {
-					GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
-					var mat = Matrix4.CreateScale (startWidth, startWidth, 1f)
-					               * startPlacementMat;
-					GL.LoadMatrix (ref mat);
-					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-				}
-				#endif
 			}
 			#endif
 			#if true
+			// stretched middle overlay sprite
 			if (middleOverlaySprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
 				_updateMiddleMesh (laserLength, middleWidth);
-				_middleMesh.renderMesh (renderConfig);
-				
-				#if true
-				if (startOverlaySprite != null) {
-					GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
-					var mat = Matrix4.CreateScale (startWidth, startWidth, 1f)
-						* startPlacementMat;
-					GL.LoadMatrix (ref mat);
-					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-				}
-				#endif
+				_middleMesh.renderMesh (renderConfig);			
 			}
 			#endif
 			#if true
+			// start radial background sprite
+			if (startBackgroundSprite != null) {
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
+				GL.BindTexture (TextureTarget.Texture2D, startBackgroundSprite.TextureID);
+				var mat = Matrix4.CreateScale (startWidth, startWidth, 1f) * startPlacementMat;
+				GL.LoadMatrix (ref mat);
+				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+			}
+			#endif
+			#if true
+			// start radial overlay sprite
+			if (startOverlaySprite != null) {
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
+				GL.BindTexture (TextureTarget.Texture2D, startOverlaySprite.TextureID);
+				var mat = Matrix4.CreateScale (startWidth, startWidth, 1f) * startPlacementMat;
+				GL.LoadMatrix (ref mat);
+				SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
+			}
+			#endif
+			#if true
+			// interference sprite with a moving U-coordinate offset
 			if (laser.parameters.interferenceScale > 0f && interferenceSprite != null)
 			{
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.interferenceColor);

@@ -104,8 +104,8 @@ namespace TestBench2
 		protected void _createLaser()
 		{
 			var laserParams = new SimpleLaserParameters ();
-			laserParams.numBeams = 1;
-			//laserParams.numBeams = rand.Next (1, 6);
+			//laserParams.numBeams = 1;
+			laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;
@@ -117,9 +117,6 @@ namespace TestBench2
 			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
 			laserParams.overlayColor = Color4.White;
 			laserParams.interferenceColor = Color4.White;
-			laserParams.backgroundWidth = 2f;
-			laserParams.startPointScale = 1f;
-			laserParams.interferenceScale = 2f;
 
 			var driftScale = (float)rand.NextDouble() * 0.1f;
 			laserParams.driftModulationFunc = (t) => driftScale;
