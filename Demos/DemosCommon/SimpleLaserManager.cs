@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenTK;
 
 namespace SimpleScene.Demos
 {
@@ -20,8 +21,8 @@ namespace SimpleScene.Demos
 		}
 
 		public SimpleLaser addLaser(SimpleLaserParameters laserParams, 
-								SSObject srcObject, SSObject dstObject,
-								float sustainDuration = float.PositiveInfinity)
+						     		SSObject srcObject, SSObject dstObject,
+							    	float sustainDuration = float.PositiveInfinity)
 		{
 			var newLaser = new SimpleLaser (laserParams);
 			newLaser.parameters.intensityEnvelope.sustainDuration = sustainDuration;
@@ -35,9 +36,9 @@ namespace SimpleScene.Demos
 			for (int i = 0; i < laserParams.numBeams; ++i) {
 				var newBeamRuntime = new BeamRuntime ();
 
-				newBeamRuntime.emissionBillboard = new SSObjectBillboard (new SSMeshDisk (), true);
-				newBeamRuntime.emissionBillboard.Pos = newLaser.sourcePos ();
-				scene.AddObject (newBeamRuntime.emissionBillboard);
+				//newBeamRuntime.emissionBillboard = new SSObjectBillboard (new SSMeshDisk (), true);
+				//newBeamRuntime.emissionBillboard.Pos = newLaser.sourcePos ();
+				//scene.AddObject (newBeamRuntime.emissionBillboard);
 
 				newBeamRuntime.beamObj = new SimpleLaserBeamObject (newLaser, i, this.scene);
 				scene.AddObject (newBeamRuntime.beamObj);
@@ -45,6 +46,10 @@ namespace SimpleScene.Demos
 				newLaserRuntime.beamRuntimes [i] = newBeamRuntime;
 			}
 			_laserRuntimes.Add (newLaserRuntime);
+
+			// debug hacks
+			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
+			//newLaser.sourceTxfm = Matrix4.Identity;
 
 			return newLaser;
 		}

@@ -45,19 +45,19 @@ namespace SimpleScene.Demos
         }
 
         public SimpleSunFlareMesh (SSScene sunScene,
-                                 SSObjectBillboard sun,
-                                 SSTexture texture,
-                                 RectangleF[] spriteRects,
-                                 Vector2[] spriteScales = null)
+                                   SSObjectBillboard sun,
+                                   SSTexture texture,
+                                   RectangleF[] spriteRects,
+                                   Vector2[] spriteScales = null)
         {
             init(sunScene, sun, texture, spriteRects, spriteScales);
         }
 
         public SimpleSunFlareMesh(SSScene sunScene,
-                                SSObjectBillboard sun,
-                                SSTexture texture,
-                                RectangleF[] spriteRects,
-                                float[] spriteScales) {
+                                  SSObjectBillboard sun,
+                                  SSTexture texture,
+                                  RectangleF[] spriteRects,
+                                  float[] spriteScales) {
             Vector2[] spriteScalesV2 = new Vector2[spriteScales.Length];
             for (int i = 0; i < spriteScalesV2.Length; ++i) {
                 spriteScalesV2 [i] = new Vector2 (spriteScales [i]);
