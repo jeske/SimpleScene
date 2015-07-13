@@ -102,13 +102,15 @@ namespace SimpleScene.Demos
 		#endregion
 
 		#region multi-beam settings
-
+		/// <summary>
+		/// Each "laser" entry can produce multiple rendered beams to model synchronized laser cannon arrays
+		/// </summary>
 		public int numBeams = 1;
 
 		/// <summary>
 		/// Beam placement functions positions beam origins for one or more laser beams. When implementing
 		/// assume laser origin is at (0, 0, 0) and the target is in the +z direction. Default function
-		/// arranges beams in a circle around the origin
+		/// arranges beams in a circle around the origin.
 		/// </summary>
 		public BeamPlacementFunction beamStartPlacementFunc = (beamID, numBeams, t) => {
 			if (numBeams <= 1) {
@@ -121,12 +123,12 @@ namespace SimpleScene.Demos
 
 		/// <summary>
 		/// Beam-placement function output will be scaled by this much to produce the final beam start
-		/// positions
+		/// positions in world coordinates
 		/// </summary>
 		public float beamStartPlacementScale = 1f;
 
 		/// <summary>
-		/// Multiple beams will be this far apart from the laser end point. (in world coordinates)
+		/// Multiple beams ends will be this far apart from the laser endpoint. (in world coordinates)
 		/// </summary>
 		public float beamDestSpread = 0f;
 		#endregion
