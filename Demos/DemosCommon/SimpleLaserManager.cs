@@ -13,7 +13,8 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public SSScene scene;
 
-		protected List<LaserRuntime> _laserRuntimes = new List<LaserRuntime>();
+		protected Dictionary<SimpleLaser, LaserRuntime> _laserRuntimes 
+			= new Dictionary<SimpleLaser, LaserRuntime> ();
 
 		public SimpleLaserManager (SSScene scene)
 		{
@@ -31,7 +32,7 @@ namespace SimpleScene.Demos
 			newLaser.postReleaseFunc = this._deleteLaser;
 
 			var newLaserRuntime = new LaserRuntime ();
-			newLaserRuntime.laser = newLaser;
+			//newLaserRuntime.laser = newLaser;
 			newLaserRuntime.beamRuntimes = new BeamRuntime[laserParams.numBeams];
 			for (int i = 0; i < laserParams.numBeams; ++i) {
 				var newBeamRuntime = new BeamRuntime ();
@@ -45,7 +46,7 @@ namespace SimpleScene.Demos
 
 				newLaserRuntime.beamRuntimes [i] = newBeamRuntime;
 			}
-			_laserRuntimes.Add (newLaserRuntime);
+			_laserRuntimes.Add (newLaser, newLaserRuntime);
 
 			// debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
@@ -59,23 +60,20 @@ namespace SimpleScene.Demos
 		/// </summary>
 		protected void _deleteLaser(SimpleLaser laser)
 		{
-			for (int i = 0; i < _laserRuntimes.Count; ++i) {
-				var runTime = _laserRuntimes [i];
-				if (runTime.laser == laser) {
-					foreach (var beam in runTime.beamRuntimes) {
-						if (beam.beamObj != null) {
-							beam.beamObj.renderState.toBeDeleted = true;
-						}
-						if (beam.emissionBillboard != null) {
-							beam.emissionBillboard.renderState.toBeDeleted = true;
-						}
-						if (beam.emissionFlareObj != null) {
-							beam.emissionFlareObj.renderState.toBeDeleted = true;
-						}
+			if (_laserRuntimes.ContainsKey(laser)) {
+				LaserRuntime runTime = _laserRuntimes [laser];
+				foreach (var beam in runTime.beamRuntimes) {
+					if (beam.beamObj != null) {
+						beam.beamObj.renderState.toBeDeleted = true;
 					}
-					_laserRuntimes.RemoveAt (i);
-					return;
+					if (beam.emissionBillboard != null) {
+						beam.emissionBillboard.renderState.toBeDeleted = true;
+					}
+					if (beam.emissionFlareObj != null) {
+						beam.emissionFlareObj.renderState.toBeDeleted = true;
+					}
 				}
+				_laserRuntimes.Remove (laser);
 			}
 		}
 
@@ -90,7 +88,7 @@ namespace SimpleScene.Demos
 
 		protected class LaserRuntime
 		{
-			public SimpleLaser laser;
+			//public SimpleLaser laser;
 			public BeamRuntime[] beamRuntimes;
 		}
 	}
