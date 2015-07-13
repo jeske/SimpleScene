@@ -5,12 +5,14 @@ namespace SimpleScene.Demos
 {
 	public class SimpleLaserManager
 	{
+		// TODO switch targets while firing
+
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
 		/// </summary>
 		public SSScene scene;
 
-		protected List<SimpleLaserObject> _laserObjects = new List<SimpleLaserObject>();
+		protected List<LaserRuntime> _laserRuntimes = new List<LaserRuntime>();
 
 		public SimpleLaserManager (SSScene scene)
 		{
@@ -27,11 +29,14 @@ namespace SimpleScene.Demos
 			newLaser.destObject = dstObject;
 			newLaser.postReleaseFunc = this._deleteLaser;
 
+			var newLaserRuntime = new LaserRuntime ();
+			newLaserRuntime.laser = newLaser;
+			newLaserRuntime.beams = new List<BeamRuntime> (laserParams.numBeams);
 			for (int i = 0; i < laserParams.numBeams; ++i) {
-				var newObj = new SimpleLaserObject (newLaser, i, this.scene);
-				_laserObjects.Add (newObj);
-				scene.AddObject (newObj);
+				var beam = new BeamRuntime ();
+				beam.beamObj = new SimpleLaserBeamObject (newLaser, i, this.scene);
 			}
+			_laserRuntimes.Add (newLaserRuntime);
 
 			return newLaser;
 		}
@@ -41,17 +46,40 @@ namespace SimpleScene.Demos
 		/// </summary>
 		protected void _deleteLaser(SimpleLaser laser)
 		{
-			for (int i = 0; i < _laserObjects.Count; ++i) {
-				var lo = _laserObjects [i];
-				if (lo.laser == laser) {
-					lo.renderState.toBeDeleted = true;
-					_laserObjects.RemoveAt (i);
+			for (int i = 0; i < _laserRuntimes.Count; ++i) {
+				var runTime = _laserRuntimes [i];
+				if (runTime.laser == laser) {
+					foreach (var beam in runTime.beams) {
+						if (beam.beamObj != null) {
+							beam.beamObj.renderState.toBeDeleted = true;
+						}
+						if (beam.emissionBillboard != null) {
+							beam.emissionBillboard.renderState.toBeDeleted = true;
+						}
+						if (beam.emissionFlareObj != null) {
+							beam.emissionFlareObj.renderState.toBeDeleted = true;
+						}
+					}
+					_laserRuntimes.RemoveAt (i);
 					return;
 				}
 			}
 		}
 
-		// TODO switch targets while firing
+		protected class BeamRuntime
+		{
+			public SimpleLaserBeamObject beamObj;
+
+			public SSObjectBillboard emissionBillboard = null;
+			public SimpleSunFlareMesh emissionFlareMesh = null;
+			public SSObjectMesh emissionFlareObj = null;
+		}
+
+		protected class LaserRuntime
+		{
+			public SimpleLaser laser;
+			public List<BeamRuntime> beams;
+		}
 	}
 }
 

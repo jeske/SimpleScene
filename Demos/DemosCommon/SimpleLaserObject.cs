@@ -6,7 +6,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
-	public class SimpleLaserObject : SSObject
+	public class SimpleLaserBeamObject : SSObject
 	{
 		protected static readonly UInt16[] _middleIndices = {
 			0,1,2, 1,3,2, // left cap
@@ -85,7 +85,7 @@ namespace SimpleScene.Demos
 			}
 		}
 
-		public SimpleLaserObject (SimpleLaser laser = null,
+		public SimpleLaserBeamObject (SimpleLaser laser = null,
 								  int beamId = 0,
 								  SSScene cameraScene = null,
 							      SSTexture middleBackgroundSprite = null,
