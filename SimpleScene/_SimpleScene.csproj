@@ -115,7 +115,6 @@
     <Compile Include="Meshes\Buffers\SSVertexBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSAttributeBuffer.cs" />
     <Compile Include="Util\Interpolate.cs" />
-    <Compile Include="Meshes\ParticleSystems\SSParticleSystem.cs" />
     <Compile Include="Meshes\ParticleSystems\ParticlesFieldGenerators.cs" />
     <Compile Include="Meshes\ParticleSystems\ParticlesPlaneGenerators.cs" />
     <Compile Include="Meshes\ParticleSystems\BodiesFieldGenerators.cs" />
@@ -159,6 +158,7 @@
     <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingJoint.cs" />
     <Compile Include="Util\Files\SSAssetManagerRegisterDefaultTypes.cs" />
     <Compile Include="Util\ADSREnvelope.cs" />
+    <Compile Include="Meshes\ParticleSystems\SSParticleSystemData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

@@ -20,7 +20,7 @@ namespace SimpleScene.Demos
 		protected virtual void setupScene() {
 			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 			sunDiskScene = new SSScene ();
-			sunFlareScene = new SSScene ();
+			sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
 			hudScene = new SSScene ();
 			environmentScene = new SSScene ();
 
@@ -73,12 +73,25 @@ namespace SimpleScene.Demos
 					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
 					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
 				};
-				float[] spriteScales = { 20f, 1f, 2f, 1f, 1f };
-				var sunFlare = new SimpleSunFlareMesh (sunDiskScene, sunBillboard, flareTex, 
-													 flareSpriteRects, spriteScales);
-				sunFlare.Scale = new Vector3 (2f);
-				sunFlare.renderState.lighted = false;
-				sunFlareScene.AddObject(sunFlare);
+				float[] spriteScales = { 20f, 2f, 4f, 2f, 2f };
+				//float[] spriteScales = { 1f, 1f, 1f, 1f, 1f };
+				#if false
+				{
+					var sunFlare = new SimpleSunFlareMesh (sunDiskScene, sunBillboard, flareTex, 
+														 flareSpriteRects, spriteScales);
+					sunFlare.Scale = new Vector3 (2f);
+					sunFlare.renderState.lighted = false;
+					sunFlareScene.AddObject (sunFlare);
+				}
+				#endif
+
+				#if true
+				{
+					var sunFlare = new InstancedFlareEffect (sunDiskScene, sunBillboard, flareTex, 
+						              flareSpriteRects, spriteScales);
+					sunFlareScene.AddObject (sunFlare);
+				}
+				#endif
 			}
 
 		}

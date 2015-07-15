@@ -62,10 +62,10 @@ namespace SimpleScene
     /// For more advanced effects on particles (simulate gravity, fields, etc.) SSParticleEffector's are used
     /// </summary>
 
-    public class SSParticleSystem
-    {
-        protected static readonly SSAttributeVec3 _notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
-        protected static Random _rand = new Random(); // for quicksorting
+    public class SSParticleSystemData : SSInstancesData
+	{
+		protected static readonly SSAttributeVec3 _notAPosition = new SSAttributeVec3(new Vector3 (float.NaN));
+		protected static Random _rand = new Random(); // for quicksorting
 
 		/// <summary>
 		/// Defines a unit step for the thic particle system's simulation. 
@@ -120,23 +120,23 @@ namespace SimpleScene
         protected float _radius;
         protected float _timeDeltaAccumulator;
 
-        public int apacity { get { return _capacity; } }
-        public int activeBlockLength { get { return _activeBlockLength; } }
-        public float radius { get { return _radius; } }
-        public SSAttributeVec3[] positions { get { return _positions; } }
-		public SSAttributeVec2[] orientationsXY { get { return _orientationsXY; } }
-		public SSAttributeFloat[] orientationsZ { get { return _orientationsZ; } }
-        public SSAttributeColor[] colors { get { return _colors; } }
-        public SSAttributeFloat[] masterScales { get { return _masterScales; } }
-        public SSAttributeVec2[] componentScalesXY { get { return _componentScalesXY; } }
-		public SSAttributeFloat[] componentScalesZ { get { return _componentScalesZ; } }
+        public override int capacity { get { return _capacity; } }
+		public override int activeBlockLength { get { return _activeBlockLength; } }
+		public override float radius { get { return _radius; } }
+		public override SSAttributeVec3[] positions { get { return _positions; } }
+		public override SSAttributeVec2[] orientationsXY { get { return _orientationsXY; } }
+		public override SSAttributeFloat[] orientationsZ { get { return _orientationsZ; } }
+		public override SSAttributeColor[] colors { get { return _colors; } }
+		public override SSAttributeFloat[] masterScales { get { return _masterScales; } }
+		public override SSAttributeVec2[] componentScalesXY { get { return _componentScalesXY; } }
+		public override SSAttributeFloat[] componentScalesZ { get { return _componentScalesZ; } }
 		//public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
-        public SSAttributeFloat[] spriteOffsetsU { get { return _spriteOffsetsU; ; } }
-        public SSAttributeFloat[] SpriteOffsetsV { get { return _spriteOffsetsV; } }
-        public SSAttributeFloat[] SpriteSizesU { get { return _spriteSizesU; } }
-        public SSAttributeFloat[] SpriteSizesV { get { return _spriteSizesV; } }
+		public override SSAttributeFloat[] spriteOffsetsU { get { return _spriteOffsetsU; ; } }
+		public override SSAttributeFloat[] SpriteOffsetsV { get { return _spriteOffsetsV; } }
+		public override SSAttributeFloat[] SpriteSizesU { get { return _spriteSizesU; } }
+		public override SSAttributeFloat[] SpriteSizesV { get { return _spriteSizesV; } }
 
-        public SSParticleSystem (int capacity)
+        public SSParticleSystemData (int capacity)
         {
             _capacity = capacity;
             _lives = new float[_capacity];
@@ -205,17 +205,15 @@ namespace SimpleScene
             }
         }
 
-		public virtual void simulate(float timeDelta)
+		public override void update(float elapsedS)
         {
-            timeDelta += _timeDeltaAccumulator;
-            while (timeDelta >= simulationStep) {
+            elapsedS += _timeDeltaAccumulator;
+            while (elapsedS >= simulationStep) {
                 simulateStep();
-                timeDelta -= simulationStep;
+                elapsedS -= simulationStep;
             }
-            _timeDeltaAccumulator = timeDelta;
+            _timeDeltaAccumulator = elapsedS;
         }
-
-		public virtual void updateCamera(ref Matrix4 modelView, ref Matrix4 projection) { }
 
 		public virtual void addEmitter(SSParticleEmitter emitter)
         {

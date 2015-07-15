@@ -14,7 +14,7 @@ namespace SimpleScene.Demos
 	public class SimpleExplosionRenderer : SSInstancedMeshRenderer
 	{
 		new public SimpleExplosionSystem particleSystem {
-			get { return base.particleSystem as SimpleExplosionSystem; }
+			get { return base.instanceData as SimpleExplosionSystem; }
 		}
 
 		public SimpleExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
@@ -51,7 +51,7 @@ namespace SimpleScene.Demos
 		/// An explosion system based on a a gamedev.net article
 		/// http://www.gamedev.net/page/resources/_/creative/visual-arts/make-a-particle-explosion-effect-r2701
 		/// </summary>
-		public class SimpleExplosionSystem : SSParticleSystem
+		public class SimpleExplosionSystem : SSParticleSystemData
 		{
 			public static SSTexture getDefaultTexture()
 			{
@@ -410,10 +410,10 @@ namespace SimpleScene.Demos
 				emitShockwave (position, intensity);
 			}
 
-			public override void simulate(float timeDelta)
+			public override void update(float timeDelta)
 			{
 				timeDelta *= _timeScale;
-				base.simulate(timeDelta);
+				base.update(timeDelta);
 			}
 
 			public override void updateCamera (ref Matrix4 modelView, ref Matrix4 projection)

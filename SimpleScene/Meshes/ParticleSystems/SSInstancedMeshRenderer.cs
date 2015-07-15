@@ -13,6 +13,29 @@ namespace SimpleScene
 		void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
     }
 
+	public abstract class SSInstancesData
+	{
+		public abstract int capacity { get; }
+		public abstract int activeBlockLength { get; }
+		public abstract float radius { get; }
+
+		public abstract SSAttributeVec3[] positions { get; }
+		public abstract SSAttributeVec2[] orientationsXY { get; }
+		public abstract SSAttributeFloat[] orientationsZ { get; }
+		public abstract SSAttributeColor[] colors { get; }
+		public abstract SSAttributeFloat[] masterScales { get; }
+		public abstract SSAttributeVec2[] componentScalesXY { get; }
+		public abstract SSAttributeFloat[] componentScalesZ { get; }
+		public abstract SSAttributeFloat[] spriteOffsetsU { get; }
+		public abstract SSAttributeFloat[] SpriteOffsetsV { get; }
+		public abstract SSAttributeFloat[] SpriteSizesU { get; }
+		public abstract SSAttributeFloat[] SpriteSizesV { get; }
+
+		public virtual void sortByDepth(ref Matrix4 viewMatrix) { }
+		public virtual void update(float elapsedS) { }
+		public virtual void updateCamera(ref Matrix4 modelView, ref Matrix4 projection) { }
+	}
+
     /// <summary>
     /// Renders particle system with attribute buffers and an ISSInstancable object
     /// </summary>
@@ -22,7 +45,7 @@ namespace SimpleScene
 
         public const BufferUsageHint _defaultUsageHint = BufferUsageHint.StreamDraw;
 
-		public SSParticleSystem particleSystem;
+		public SSInstancesData instanceData;
 
         public bool simulateOnUpdate = true;
 		public bool depthRead = true;
@@ -49,13 +72,13 @@ namespace SimpleScene
 		}
 
 		public override float localBoundingSphereRadius {
-			get { return particleSystem.radius; }
+			get { return instanceData.radius; }
 		}
 
-        public SSInstancedMeshRenderer (SSParticleSystem ps, 
+        public SSInstancedMeshRenderer (SSInstancesData ps, 
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
-            particleSystem = ps;
+            instanceData = ps;
 			_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
 			_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
 			_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
@@ -71,7 +94,7 @@ namespace SimpleScene
 			_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
         }
 
-		public SSInstancedMeshRenderer (SSParticleSystem ps, 
+		public SSInstancedMeshRenderer (SSInstancesData ps, 
 			ISSInstancable mesh = null,
 			BufferUsageHint hint = BufferUsageHint.StreamDraw)
 			: this(ps, hint)
@@ -84,10 +107,10 @@ namespace SimpleScene
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
 
 			// allow particle system to react to camera/worldview
-			particleSystem.updateCamera (ref modelView, ref renderConfig.projectionMatrix);
+			instanceData.updateCamera (ref modelView, ref renderConfig.projectionMatrix);
 
 			// do we have anything to draw?
-			if (particleSystem.activeBlockLength <= 0) return;
+			if (instanceData.activeBlockLength <= 0) return;
 
             base.Render(renderConfig);
 
@@ -103,7 +126,7 @@ namespace SimpleScene
 			} else {
 				if (!globalBillboarding && base.alphaBlendingEnabled) {
 					// Must be called before updating buffers
-					particleSystem.sortByDepth (ref modelView);
+					instanceData.sortByDepth (ref modelView);
 
 					// Fixes flicker issues for particles with "fighting" view depth values
 					// Also assumes the particle system is the last to be drawn in a scene
@@ -137,32 +160,32 @@ namespace SimpleScene
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             prepareAttribute(_posBuffer, instanceShader.AttrInstancePos, 
-				particleSystem.positions);
+				instanceData.positions);
 			prepareAttribute(_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
-				particleSystem.orientationsXY);
+				instanceData.orientationsXY);
 			prepareAttribute(_orientationZBuffer, instanceShader.AttrInstanceOrientationZ, 
-				particleSystem.orientationsZ);
+				instanceData.orientationsZ);
             prepareAttribute(_masterScaleBuffer, instanceShader.AttrInstanceMasterScale, 
-				particleSystem.masterScales);
+				instanceData.masterScales);
 			prepareAttribute(_componentScaleXYBuffer, instanceShader.AttrInstanceComponentScaleXY, 
-				particleSystem.componentScalesXY);
+				instanceData.componentScalesXY);
 			prepareAttribute(_componentScaleZBuffer, instanceShader.AttrInstanceComponentScaleZ,
-				particleSystem.componentScalesZ);
+				instanceData.componentScalesZ);
             prepareAttribute(_colorBuffer, instanceShader.AttrInstanceColor, 
-				particleSystem.colors);
+				instanceData.colors);
 
 			//prepareAttribute(m_spriteIndexBuffer, instanceShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
             prepareAttribute(_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
-				particleSystem.spriteOffsetsU);
+				instanceData.spriteOffsetsU);
             prepareAttribute(_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
-				particleSystem.SpriteOffsetsV);
+				instanceData.SpriteOffsetsV);
             prepareAttribute(_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
-				particleSystem.SpriteSizesU);
+				instanceData.SpriteSizesU);
             prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
-				particleSystem.SpriteSizesV);
+				instanceData.SpriteSizesV);
 
             // do the draw
-            mesh.renderInstanced(renderConfig, particleSystem.activeBlockLength, PrimitiveType.Triangles);
+            mesh.renderInstanced(renderConfig, instanceData.activeBlockLength, PrimitiveType.Triangles);
              
             GL.PopClientAttrib();
             //this.boundingSphere.Render(ref renderConfig);
@@ -173,7 +196,7 @@ namespace SimpleScene
             where A : struct, ISSAttributeLayout 
             where AB : SSAttributeBuffer<A>
         {
-            int numActive = particleSystem.activeBlockLength;
+            int numActive = instanceData.activeBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
 			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
@@ -181,9 +204,9 @@ namespace SimpleScene
         public override void Update (float fElapsedMS)
         {
             if (simulateOnUpdate) {
-				float prevRadius = particleSystem.radius;
-                particleSystem.simulate(fElapsedMS);
-				if (particleSystem.radius != prevRadius) {
+				float prevRadius = instanceData.radius;
+                instanceData.update(fElapsedMS);
+				if (instanceData.radius != prevRadius) {
 					NotifyPositionOrSizeChanged ();
 				}
             }

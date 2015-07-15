@@ -27,7 +27,7 @@ namespace SimpleScene
 		public float ShininessMatColor = 10.0f;
         
 		public virtual SSTextureMaterial textureMaterial { get; set; }
-		public virtual bool alphaBlendingEnabled { get; set; }
+		public virtual bool alphaBlendingEnabled { get; set; } // TODO move to renderState??
 
 		public virtual Vector3 localBoundingSphereCenter { get; set; }
 		public virtual float localBoundingSphereRadius { get; set; }
