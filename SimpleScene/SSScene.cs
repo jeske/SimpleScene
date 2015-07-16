@@ -93,10 +93,13 @@ namespace SimpleScene
 
     public sealed class SSScene
     {
+		public delegate void SceneUpdateDelegate(float timeElapsedS);
+
         private SSCamera activeCamera = null;
         public readonly SSRenderConfig renderConfig;
         public List<SSObject> objects = new List<SSObject>();
         public List<SSLightBase> lights = new List<SSLightBase>();
+		public SceneUpdateDelegate preUpdateHooks = null;
 
         public SSCamera ActiveCamera { 
             get { return activeCamera; }
@@ -173,10 +176,13 @@ namespace SimpleScene
             return nearestIntersection;
         }
 
-        public void Update(float fElapsedMS) {
+        public void Update(float fElapsedS) {
+			if (preUpdateHooks != null) {
+				preUpdateHooks (fElapsedS);
+			}
             // update all objects.. TODO: add elapsed time since last update..
             foreach (var obj in objects) {
-                obj.Update(fElapsedMS);
+                obj.Update(fElapsedS);
             }
         }
 

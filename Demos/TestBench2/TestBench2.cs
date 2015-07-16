@@ -67,7 +67,7 @@ namespace TestBench2
 			scene.AddObject (droneObj2);
 
 			// manages laser objects
-			laserManager = new SimpleLaserManager(laserScene);
+			laserManager = new SimpleLaserManager(laserScene, sunFlareScene);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
@@ -195,6 +195,8 @@ namespace TestBench2
 			camera.followDistance = 80.0f;
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
+
+			camera.FollowTarget = null;
 		}
 	}
 }

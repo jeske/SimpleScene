@@ -11,14 +11,18 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
 		/// </summary>
-		public SSScene scene;
+		public SSScene mainScene;
+		public SSScene flareScene;
 
 		protected Dictionary<SimpleLaser, LaserRuntime> _laserRuntimes 
 			= new Dictionary<SimpleLaser, LaserRuntime> ();
 
-		public SimpleLaserManager (SSScene scene)
+		public SimpleLaserManager (SSScene mainScene, SSScene flareScene)
 		{
-			this.scene = scene;
+			this.mainScene = mainScene;
+			this.flareScene = flareScene;
+
+			mainScene.preUpdateHooks += _update;
 		}
 
 		public SimpleLaser addLaser(SimpleLaserParameters laserParams, 
@@ -37,12 +41,8 @@ namespace SimpleScene.Demos
 			for (int i = 0; i < laserParams.numBeams; ++i) {
 				var newBeamRuntime = new BeamRuntime ();
 
-				//newBeamRuntime.emissionBillboard = new SSObjectBillboard (new SSMeshDisk (), true);
-				//newBeamRuntime.emissionBillboard.Pos = newLaser.sourcePos ();
-				//scene.AddObject (newBeamRuntime.emissionBillboard);
-
-				newBeamRuntime.beamObj = new SimpleLaserBeamObject (newLaser, i, this.scene);
-				scene.AddObject (newBeamRuntime.beamObj);
+				newBeamRuntime.beamObj = new SimpleLaserBeamObject (newLaser, i, this.mainScene);
+				mainScene.AddObject (newBeamRuntime.beamObj);
 
 				newLaserRuntime.beamRuntimes [i] = newBeamRuntime;
 			}
@@ -74,6 +74,22 @@ namespace SimpleScene.Demos
 					}
 				}
 				_laserRuntimes.Remove (laser);
+			}
+		}
+
+		protected void _update(float timeElapsed)
+		{
+			foreach (var hashPair in _laserRuntimes) {
+				var laser = hashPair.Key;
+				var sourcePos = laser.sourcePos();
+				foreach (var beam in hashPair.Value.beamRuntimes) {
+					if (beam.emissionBillboard == null) {
+						beam.emissionBillboard = new SSObjectBillboard (new SSMeshDisk (), true);
+						beam.emissionBillboard.MainColor = laser.parameters.backgroundColor;
+						mainScene.AddObject (beam.emissionBillboard);
+					}
+					beam.emissionBillboard.Pos = sourcePos;
+				}
 			}
 		}
 
