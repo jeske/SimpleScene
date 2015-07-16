@@ -54,7 +54,8 @@ namespace SimpleScene.Demos
 			// setup a sun billboard object and a sun flare spriter renderer
 			{
 				var sunDisk = new SSMeshDisk ();
-				var sunBillboard = new SSObjectBillboard (sunDisk, true);
+				var sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
+				sunBillboard.doBillboarding = true;
 				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
 				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
 				sunBillboard.Scale = new Vector3 (600f);

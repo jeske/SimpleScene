@@ -53,7 +53,7 @@ namespace TestBench2
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.Name = "attacker drone";
 			//droneObj1.MainColor = Color4.Green;
-			droneObj1.renderState.visible = false;
+			//droneObj1.renderState.visible = false;
 			scene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
@@ -193,10 +193,11 @@ namespace TestBench2
 			var camera = new SSCameraThirdPerson (droneObj1);
 			camera.Pos = Vector3.Zero;
 			camera.followDistance = 80.0f;
+
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
-
-			camera.FollowTarget = null;
+			laserScene.ActiveCamera = camera;
+			laserScene.AddObject (camera);
 		}
 	}
 }

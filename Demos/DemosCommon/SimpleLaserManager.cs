@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
@@ -22,7 +23,7 @@ namespace SimpleScene.Demos
 			this.mainScene = mainScene;
 			this.flareScene = flareScene;
 
-			mainScene.preUpdateHooks += _update;
+			mainScene.postUpdateHooks += _update;
 		}
 
 		public SimpleLaser addLaser(SimpleLaserParameters laserParams, 
@@ -81,14 +82,23 @@ namespace SimpleScene.Demos
 		{
 			foreach (var hashPair in _laserRuntimes) {
 				var laser = hashPair.Key;
-				var sourcePos = laser.sourcePos();
+				var bbPos = laser.sourcePos ();
+				var bbOrient = laser.sourceOrient ();
+				if (mainScene.ActiveCamera != null) {
+					bbPos += mainScene.ActiveCamera.Dir.Normalized ();
+				}
 				foreach (var beam in hashPair.Value.beamRuntimes) {
 					if (beam.emissionBillboard == null) {
-						beam.emissionBillboard = new SSObjectBillboard (new SSMeshDisk (), true);
-						beam.emissionBillboard.MainColor = laser.parameters.backgroundColor;
+						beam.emissionBillboard = new SSObjectOcclusionQueuery (new SSMeshDisk ());
+						beam.emissionBillboard.doBillboarding = false;
+						var color = laser.parameters.backgroundColor; // debugging
+						color.A = 0.5f;
+						beam.emissionBillboard.MainColor = color;
 						mainScene.AddObject (beam.emissionBillboard);
 					}
-					beam.emissionBillboard.Pos = sourcePos;
+					beam.emissionBillboard.Pos = bbPos;
+					// TODO consider orientation of multiple beams
+					beam.emissionBillboard.Orient(bbOrient);
 				}
 			}
 		}
@@ -97,7 +107,7 @@ namespace SimpleScene.Demos
 		{
 			public SimpleLaserBeamObject beamObj;
 
-			public SSObjectBillboard emissionBillboard = null;
+			public SSObjectOcclusionQueuery emissionBillboard = null;
 			public SimpleSunFlareMesh emissionFlareMesh = null;
 			public SSObjectMesh emissionFlareObj = null;
 		}

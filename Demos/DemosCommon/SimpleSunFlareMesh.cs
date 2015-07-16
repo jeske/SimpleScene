@@ -21,7 +21,7 @@ namespace SimpleScene.Demos
 
         #region Source of Per-Frame Input
         private SSScene sunScene;
-        private SSObjectBillboard sunBillboard;
+        private SSObjectOcclusionQueuery sunBillboard;
         #endregion
 
         #region Per-Frame Temp Variables
@@ -45,7 +45,7 @@ namespace SimpleScene.Demos
         }
 
         public SimpleSunFlareMesh (SSScene sunScene,
-                                   SSObjectBillboard sun,
+                                   SSObjectOcclusionQueuery sun,
                                    SSTexture texture,
                                    RectangleF[] spriteRects,
                                    Vector2[] spriteScales = null)
@@ -54,7 +54,7 @@ namespace SimpleScene.Demos
         }
 
         public SimpleSunFlareMesh(SSScene sunScene,
-                                  SSObjectBillboard sun,
+                                  SSObjectOcclusionQueuery sun,
                                   SSTexture texture,
                                   RectangleF[] spriteRects,
                                   float[] spriteScales) {
@@ -132,7 +132,7 @@ namespace SimpleScene.Demos
         }
 
         private void init(SSScene sunScene,
-                          SSObjectBillboard sun,
+                          SSObjectOcclusionQueuery sun,
                           SSTexture texture,
                           RectangleF[] spriteRects,
                           Vector2[] spriteScales)

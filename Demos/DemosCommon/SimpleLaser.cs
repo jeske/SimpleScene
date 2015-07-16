@@ -198,6 +198,11 @@ namespace SimpleScene.Demos
 			return Vector3.Transform (Vector3.Zero, sourceTxfm * sourceObject.worldMat);
 		}
 
+		public Quaternion sourceOrient()
+		{
+			return sourceObject.worldMat.ExtractRotation () * sourceTxfm.ExtractRotation();
+		}
+
 		public Vector3 destPos()
 		{
 			return Vector3.Transform (Vector3.Zero, destTxfm * destObject.worldMat);

@@ -315,7 +315,8 @@ namespace SimpleScene
                             while (_activeBlockLength > 0 && isDead(_activeBlockLength - 1)) {
                                 --_activeBlockLength;
                             }
-                        }                        --_numParticles;
+                        }                        
+						--_numParticles;
                         if (_numParticles == 0) {
                             // all particles gone. reset write and overwrite locations for better packing
                             _nextIdxToWrite = 0;

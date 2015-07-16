@@ -11,11 +11,11 @@ namespace SimpleScene.Demos
 	{
 		#region Source of Per-Frame Input
 		private SSScene bbScene;
-		private SSObjectBillboard bbObj;
+		private SSObjectOcclusionQueuery bbObj;
 		#endregion
 
 		public InstancedFlareEffect (SSScene bbScene,
-									 SSObjectBillboard bbObj,
+									 SSObjectOcclusionQueuery bbObj,
 									 SSTexture texture,
 									 RectangleF[] spriteRects,
 									 Vector2[] spriteScales = null)
@@ -28,7 +28,7 @@ namespace SimpleScene.Demos
 
 		public InstancedFlareEffect (
 			SSScene bbScene,
-			SSObjectBillboard bbObj,
+			SSObjectOcclusionQueuery bbObj,
 			SSTexture texture,
 			RectangleF[] spriteRects,
 			float[] spriteScales)
@@ -90,7 +90,7 @@ namespace SimpleScene.Demos
 		}
 
 		protected void _init(SSScene bbScene,
-			SSObjectBillboard bbObj,
+			SSObjectOcclusionQueuery bbObj,
 			SSTexture texture)
 		{
 			base.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
