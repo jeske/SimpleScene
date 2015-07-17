@@ -53,7 +53,7 @@ namespace TestBench2
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.Name = "attacker drone";
 			//droneObj1.MainColor = Color4.Green;
-			droneObj1.renderState.visible = false;
+			//droneObj1.renderState.visible = false;
 			scene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
@@ -71,42 +71,12 @@ namespace TestBench2
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
-
-			#if false
-			// TODO use manager instead
-			SimpleLaser laser = new SimpleLaser (laserParams);
-			//laser.start = new Vector3 (-17f, 1f, -15f);
-			//laser.end = new Vector3 (19f, 0f, -15f);
-			laser.sourceObject = droneObj1;
-			laser.destObject = droneObj2;
-
-			lo = new SimpleLaserObject (laser);
-			lo.Name = "laser test";
-			lo.cameraScene = scene;
-			laserScene.AddObject (lo);
-			#endif
-
-			#if false
-			// debug start location of the laser
-			var obj = new SSObjectTriangle();
-			obj.Scale = new Vector3 (1f);
-			obj.Pos = ;
-			scene.AddObject(obj);
-			#endif
-
-			#if false
-			// debug end location of the laser
-			droneObj2.Scale = new Vector3 (0.01f);
-			droneObj2.Pos = laser.end;
-			#endif
-
-			//scene.renderConfig.renderBoundingSpheresLines = true;
 		}
 
 		protected void _createLaser()
 		{
 			var laserParams = new SimpleLaserParameters ();
-			//laserParams.numBeams = rand.Next (1, 6);
+			laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;
