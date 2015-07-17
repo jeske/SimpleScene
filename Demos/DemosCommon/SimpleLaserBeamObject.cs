@@ -175,7 +175,7 @@ namespace SimpleScene.Demos
 				_middleMesh.renderMesh (renderConfig);			
 			}
 			#endif
-			#if false
+			#if true
 			// start radial flare background sprites
 			if (flareBackgroundSprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.backgroundColor);
@@ -187,7 +187,7 @@ namespace SimpleScene.Demos
 				}
 			}
 			#endif
-			#if false
+			#if true
 			// start radial flare overlay sprites
 			if (flareOverlaySprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.overlayColor);

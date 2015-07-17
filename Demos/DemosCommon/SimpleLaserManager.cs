@@ -125,6 +125,9 @@ namespace SimpleScene.Demos
 				for (int i = 0; i < numBeams; ++i) {
 					_beams[i] = new BeamRuntimeInfo(laser, i, beamScene, flareScene);
 				}
+
+				// do an early update to make sure we don't render bogus data on the first render frame
+				update(0f);
 			}
 
 			public void update(float timeElapsedS)
