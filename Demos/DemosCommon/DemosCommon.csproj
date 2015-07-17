@@ -45,10 +45,10 @@
     <Compile Include="TestBenchBootstrap_renderScene.cs" />
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
-    <Compile Include="SimpleLaserObject.cs" />
     <Compile Include="SimpleLaserManager.cs" />
     <Compile Include="SimpleLaser.cs" />
     <Compile Include="InstancedFlareEffect.cs" />
+    <Compile Include="SimpleLaserBeamObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

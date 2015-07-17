@@ -208,6 +208,11 @@ namespace SimpleScene.Demos
 			return Vector3.Transform (Vector3.Zero, destTxfm * destObject.worldMat);
 		}
 
+		public Vector3 direction()
+		{
+			return (destPos () - sourcePos ()).Normalized ();
+		}
+
 		public void release()
 		{
 			this.releaseDirty = true;

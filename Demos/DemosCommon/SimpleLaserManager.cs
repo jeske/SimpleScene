@@ -82,21 +82,23 @@ namespace SimpleScene.Demos
 		{
 			foreach (var hashPair in _laserRuntimes) {
 				var laser = hashPair.Key;
+				#if false
 				var bbPos = laser.sourcePos ();
-				var bbOrient = laser.sourceOrient ();
 				if (mainScene.ActiveCamera != null) {
 					bbPos += mainScene.ActiveCamera.Dir.Normalized ();
 				}
+				#endif
+				var bbOrient = laser.sourceOrient ();
 				foreach (var beam in hashPair.Value.beamRuntimes) {
 					if (beam.emissionBillboard == null) {
 						beam.emissionBillboard = new SSObjectOcclusionQueuery (new SSMeshDisk ());
 						beam.emissionBillboard.doBillboarding = false;
 						var color = laser.parameters.backgroundColor; // debugging
-						color.A = 0.5f;
+						color.A = 0.1f;
 						beam.emissionBillboard.MainColor = color;
 						mainScene.AddObject (beam.emissionBillboard);
 					}
-					beam.emissionBillboard.Pos = bbPos;
+					beam.emissionBillboard.Pos = beam.beamObj.beamStart;
 					// TODO consider orientation of multiple beams
 					beam.emissionBillboard.Orient(bbOrient);
 				}

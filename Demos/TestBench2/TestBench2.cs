@@ -53,7 +53,7 @@ namespace TestBench2
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.Name = "attacker drone";
 			//droneObj1.MainColor = Color4.Green;
-			//droneObj1.renderState.visible = false;
+			droneObj1.renderState.visible = false;
 			scene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
@@ -88,8 +88,10 @@ namespace TestBench2
 
 			#if false
 			// debug start location of the laser
-			droneObj1.Scale = new Vector3 (0.01f);
-			droneObj1.Pos = laser.start;
+			var obj = new SSObjectTriangle();
+			obj.Scale = new Vector3 (1f);
+			obj.Pos = ;
+			scene.AddObject(obj);
 			#endif
 
 			#if false

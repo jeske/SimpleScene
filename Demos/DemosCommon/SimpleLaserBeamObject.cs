@@ -85,6 +85,10 @@ namespace SimpleScene.Demos
 			}
 		}
 
+		public Vector3 beamStart {
+			get { return _beamStart; }
+		}
+
 		public SimpleLaserBeamObject (SimpleLaser laser = null,
 								  int beamId = 0,
 								  SSScene cameraScene = null,
@@ -208,7 +212,7 @@ namespace SimpleScene.Demos
 				_middleMesh.renderMesh (renderConfig);			
 			}
 			#endif
-			#if true
+			#if false
 			// start radial flare background sprites
 			if (flareBackgroundSprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
@@ -220,7 +224,7 @@ namespace SimpleScene.Demos
 				}
 			}
 			#endif
-			#if true
+			#if false
 			// start radial flare overlay sprites
 			if (flareOverlaySprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
