@@ -17,31 +17,10 @@ namespace SimpleScene.Demos
 			0,1,2, 1,3,2
 		};
 
-		protected static readonly Random _random = new Random();
-
-		public SimpleLaser laser = null;
-		public SSScene cameraScene = null;
-
-		#region multi-beam placement
+		#region per-frame data sources
+		protected readonly SimpleLaser _laser;
 		protected readonly int _beamId;
-		protected Vector3 _beamStart;
-		protected Vector3 _beamEnd;
-		#endregion
-
-		#region timekeeping
-		protected float _localT = 0f;
-		protected readonly float _periodicTOffset;
-		#endregion
-
-		#region intensity (alpha component strength)
-		protected float _periodicIntensity = 1f;
-		protected float _envelopeIntensity = 1f;
-		#endregion
-
-		#region periodic world-coordinate drift
-		// TODO tie to target surface mesh instead of world coordinates?
-		protected float _driftX = 0f;
-		protected float _driftY = 0f;
+		protected readonly SSScene cameraScene;
 		#endregion
 
 		#region stretched middle sprites
@@ -60,16 +39,12 @@ namespace SimpleScene.Demos
 		public SSTexture interferenceSprite = null;
 		protected SSVertex_PosTex[] _interferenceVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _interferenceMesh;
-		protected float _interferenceOffset = 0f;
 		#endregion
 
 		// TODO cache these computations
 		public override Vector3 localBoundingSphereCenter {
 			get {
-				if (laser == null) {
-					return Vector3.Zero;
-				}
-				Vector3 middleWorld = (laser.sourcePos() + laser.destPos()) / 2f;
+				Vector3 middleWorld = (_laser.sourcePos() + _laser.destPos()) / 2f;
 				return Vector3.Transform (middleWorld, this.worldMat.Inverted ());
 			}
 		}
@@ -77,28 +52,21 @@ namespace SimpleScene.Demos
 		// TODO cache these computations
 		public override float localBoundingSphereRadius {
 			get {
-				if (laser == null) {
-					return 0f;
-				}
-				Vector3 diff = (laser.destPos() - laser.sourcePos());
+				Vector3 diff = (_laser.destPos() - _laser.sourcePos());
 				return diff.LengthFast/2f;
 			}
 		}
 
-		public Vector3 beamStart {
-			get { return _beamStart; }
-		}
-
-		public SimpleLaserBeamObject (SimpleLaser laser = null,
-								  int beamId = 0,
-								  SSScene cameraScene = null,
-							      SSTexture middleBackgroundSprite = null,
-								  SSTexture middleOverlaySprite = null,
-								  SSTexture[] flareBackgroundSprites = null,
-								  SSTexture[] flareOverlaySprites = null,
-								  SSTexture inteferenceSprite = null)
+		public SimpleLaserBeamObject (SimpleLaser laser,
+									  int beamId,
+									  SSScene cameraScene = null,
+								      SSTexture middleBackgroundSprite = null,
+									  SSTexture middleOverlaySprite = null,
+									  SSTexture[] flareBackgroundSprites = null,
+									  SSTexture[] flareOverlaySprites = null,
+									  SSTexture inteferenceSprite = null)
 		{
-			this.laser = laser;
+			this._laser = laser;
 			this._beamId = beamId;
 			this.cameraScene = cameraScene;
 
@@ -135,9 +103,6 @@ namespace SimpleScene.Demos
 			this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
 			this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
 
-			// some randomization for more varied experience
-			_periodicTOffset = (float)_random.NextDouble() * 10f;
-
 			// initialize non-changing vertex data
 			_initMiddleMesh ();
 			_initInterferenceVertices ();
@@ -148,6 +113,9 @@ namespace SimpleScene.Demos
 
 		public override void Render(SSRenderConfig renderConfig)
 		{
+			var beam = _laser.beam(_beamId);
+			if (beam == null) return; 
+
 			base.Render (renderConfig);
 
 			// step: setup render settings
@@ -158,15 +126,10 @@ namespace SimpleScene.Demos
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
-			Vector3 laserDir = (_beamEnd - _beamStart).Normalized();
-			Vector3 driftXAxis, driftYAxis;
-			OpenTKHelper.TwoPerpAxes (laserDir, out driftXAxis, out driftYAxis);
+			var laserParams = _laser.parameters;
 
-			Vector3 driftedEnd = _beamEnd + _driftX * driftXAxis + _driftY * driftYAxis;
-
-			// step: compute endpoints in view space
-			var startView = Vector3.Transform(_beamStart, renderConfig.invCameraViewMatrix);
-			var endView = Vector3.Transform (driftedEnd, renderConfig.invCameraViewMatrix);
+			var startView = Vector3.Transform(beam.startPos, renderConfig.invCameraViewMatrix);
+			var endView = Vector3.Transform (beam.endPos, renderConfig.invCameraViewMatrix);
 			var middleView = (startView + endView) / 2f;
 
 			// step: draw middle section:
@@ -179,21 +142,21 @@ namespace SimpleScene.Demos
 			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
 			float laserLength = diff.LengthFast;
-			float middleWidth = laser.parameters.backgroundWidth * _envelopeIntensity;
+			float middleWidth = laserParams.backgroundWidth * _laser.envelopeIntensity;
 
 			Vector3 cameraDir = Vector3.Transform(
 				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
-			float dot = Vector3.Dot (cameraDir, laserDir);
+			float dot = Vector3.Dot (cameraDir, _laser.direction());
 			dot = Math.Max (dot, 0f);
-			float flareSpriteWidth = middleWidth * laser.parameters.startPointScale * (1f - dot);
-			float interferenceWidth = middleWidth * laser.parameters.interferenceScale;
+			float flareSpriteWidth = middleWidth * laserParams.startPointScale * (1f - dot);
+			float interferenceWidth = middleWidth * laserParams.interferenceScale;
 
-			GL.Color4 (1f, 1f, 1f, _periodicIntensity * _envelopeIntensity);
+			GL.Color4 (1f, 1f, 1f, beam.periodicIntensity * beam.periodicIntensity);
 
 			#if true
 			// stretched middle background sprite
 			if (middleBackgroundSprite != null) {
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.backgroundColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
@@ -204,7 +167,7 @@ namespace SimpleScene.Demos
 			#if true
 			// stretched middle overlay sprite
 			if (middleOverlaySprite != null) {
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.overlayColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
 				GL.LoadMatrix (ref middlePlacementMat);
 
@@ -238,9 +201,9 @@ namespace SimpleScene.Demos
 			#endif
 			#if true
 			// interference sprite with a moving U-coordinate offset
-			if (laser.parameters.interferenceScale > 0f && interferenceSprite != null)
+			if (laserParams.interferenceScale > 0f && interferenceSprite != null)
 			{
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.interferenceColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.interferenceColor);
 				//GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
 				GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
 				var mat = Matrix4.CreateScale(laserLength + middleWidth/2f, interferenceWidth, 1f) * middlePlacementMat;
@@ -254,90 +217,12 @@ namespace SimpleScene.Demos
 
 		public override void Update (float fElapsedS)
 		{
-			var laserParams = laser.parameters;
 
-			// compute local time
-			_localT += fElapsedS;
-			float periodicT = _localT + _periodicTOffset;
-
-			// envelope intensity
-			if (laserParams.intensityEnvelope != null) {
-				var env = laser.localIntensityEnvelope;
-				if (_localT > env.totalDuration && laser.postReleaseFunc != null) {
-					laser.postReleaseFunc (laser);
-					return;
-				} else if (laser.releaseDirty == true 
-					    && _localT < (env.attackDuration + env.decayDuration + env.sustainDuration))
-				{
-					// force the existing envelope into release. this is hacky.
-					env.attackDuration = 0f;
-					env.decayDuration = 0f;
-					env.sustainDuration = _localT;
-					laser.releaseDirty = false;
-				}
-				_envelopeIntensity = env.computeLevel (_localT);
-
-			} else {
-				_envelopeIntensity = 1f;
-			}
-
-			// interference sprite U coordinates' offset
-			if (laser.parameters.interferenceUFunc != null) {
-				_interferenceOffset = laserParams.interferenceUFunc (periodicT);
-			} else {
-				_interferenceOffset = 0f;
-			}
-
-			// periodic intensity
-			if (laserParams.intensityPeriodicFunction != null) {
-				_periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
-			} else {
-				_periodicIntensity = 1f;
-			}
-
-			if (laserParams.intensityModulation != null) {
-				_periodicIntensity *= laserParams.intensityModulation (periodicT);
-			}
-
-			// periodic world-coordinate drift
-			if (laserParams.driftXFunc != null) {
-				_driftX = laserParams.driftXFunc (periodicT);
-			} else {
-				_driftX = 0f;
-			}
-
-			if (laserParams.driftYFunc != null) {
-				_driftY = laserParams.driftYFunc (periodicT);
-			} else {
-				_driftY = 0f;
-			}
-
-			if (laserParams.driftModulationFunc != null) {
-				var driftMod = laserParams.driftModulationFunc (periodicT);
-				_driftX *= driftMod;
-				_driftY *= driftMod;
-			}
-
-			// beam emission point placement
-			var src = laser.sourcePos();
-			var dst = laser.destPos ();
-			if (laserParams.beamStartPlacementFunc != null) {
-				var zAxis = (dst - src).Normalized ();
-				Vector3 xAxis, yAxis;
-				OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
-				var localPlacement = laserParams.beamStartPlacementFunc (_beamId, laserParams.numBeams, _localT);
-				var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
-				_beamStart = src + laserParams.beamStartPlacementScale * placement;
-				_beamEnd = dst + laserParams.beamDestSpread * placement;
-			} else {
-				_beamStart = src;
-				_beamEnd = dst;
-			}
 		}
 
 		protected void _initMiddleMesh()
 		{
-			float padding = laser.parameters.laserSpritePadding;
+			float padding = _laser.parameters.laserSpritePadding;
 			_middleVertices = new SSVertex_PosTex[8];
 			_middleVertices [0].TexCoord = new Vector2 (padding, padding);
 			_middleVertices [1].TexCoord = new Vector2 (padding, 1f-padding);
@@ -388,12 +273,15 @@ namespace SimpleScene.Demos
 
 		protected void _updateInterfernenceVertices(float laserLength, float interferenceWidth)
 		{
+			var beam = _laser.beam (_beamId);
+			if (beam == null) 		return;
+
 			float vScale = (interferenceWidth != 0f) ? (laserLength / interferenceWidth) : 0f;
 
 			_interferenceVertices [0].TexCoord.X = _interferenceVertices [1].TexCoord.X
-				= _interferenceOffset * vScale;
+				=  beam.interferenceOffset * vScale;
 			_interferenceVertices [2].TexCoord.X = _interferenceVertices [3].TexCoord.X
-				= (_interferenceOffset + 1f) * vScale;
+				= (beam.interferenceOffset + 1f) * vScale;
 			_interferenceMesh.UpdateVertices (_interferenceVertices);
 		}
 	}

@@ -135,10 +135,11 @@ namespace SimpleScene.Demos
 		#endregion
 	}
 
+	/// <summary>
+	/// Data model for a laser (which is to be used in conjunction with one or more laser beams)
+	/// </summary>
 	public class SimpleLaser
 	{
-		// TODO nextDestObject??
-
 		/// <summary>
 		/// Called when the laser has fully faded and is safe to delete by laser management systems
 		/// </summary>
@@ -174,12 +175,12 @@ namespace SimpleScene.Demos
 		/// Points to the intensity envelope actually used (so as to not temper with the original one
 		/// that may be shared with other lasers)
 		/// </summary>
-		public readonly ADSREnvelope localIntensityEnvelope = null;
+		protected readonly ADSREnvelope _localIntensityEnvelope = null;
 
 		/// <summary>
 		/// Hack for the ADSR envelope to skip the infinite sustain part and begin releasing the laser
 		/// </summary>
-		internal bool releaseDirty = false;
+		protected bool _releaseDirty = false;
 
 		/// <summary>
 		/// Called when the laser has fully faded and is safe to delete by laser management systems
@@ -187,10 +188,19 @@ namespace SimpleScene.Demos
 		public ReleaseCallbackDelegate postReleaseFunc = null;
 		#endregion
 
+		public float time { get { return _localT; } }
+		public float envelopeIntensity { get { return _envelopeIntensity; } }
+
+		#region run-time updated variables
+		protected float _localT = 0f;
+		protected float _envelopeIntensity = 1f;
+		protected SimpleLaserBeam[] _beams = null;
+		#endregion
+
 		public SimpleLaser(SimpleLaserParameters laserParams)
 		{
 			this.parameters = laserParams;
-			this.localIntensityEnvelope = laserParams.intensityEnvelope.Clone();
+			this._localIntensityEnvelope = laserParams.intensityEnvelope.Clone();
 		}
 
 		public Vector3 sourcePos()
@@ -213,9 +223,159 @@ namespace SimpleScene.Demos
 			return (destPos () - sourcePos ()).Normalized ();
 		}
 
+		public SimpleLaserBeam beam(int id)
+		{
+			if (_beams == null || _beams.Length <= id) {
+				return null;
+			}
+			return _beams [id];
+		}
+
 		public void release()
 		{
-			this.releaseDirty = true;
+			this._releaseDirty = true;
+		}
+
+		public void update(float elapsedS)
+		{
+			// compute local time
+			_localT += elapsedS;
+
+			// envelope intensity
+			if (parameters.intensityEnvelope != null) {
+				var env = _localIntensityEnvelope;
+				if (_localT > env.totalDuration && postReleaseFunc != null) {
+					postReleaseFunc (this);
+					return;
+				} else if (_releaseDirty == true 
+					&& _localT < (env.attackDuration + env.decayDuration + env.sustainDuration))
+				{
+					// force the existing envelope into release. this is hacky.
+					env.attackDuration = 0f;
+					env.decayDuration = 0f;
+					env.sustainDuration = _localT;
+					_releaseDirty = false;
+				}
+				_envelopeIntensity = env.computeLevel (_localT);
+
+			} else {
+				_envelopeIntensity = 1f;
+			}
+
+			// update beam models
+			if (_beams == null || _beams.Length != parameters.numBeams) {
+				_beams = new SimpleLaserBeam[parameters.numBeams];
+				for (int i = 0; i < parameters.numBeams; ++i) {
+					_beams[i] = new SimpleLaserBeam(this, i);
+				}
+			}
+			foreach (var beam in _beams) {
+				beam.update (_localT);
+			}
+		}
+	}
+
+	/// <summary>
+	/// Data model for a laser beam
+	/// </summary>
+	public class SimpleLaserBeam
+	{
+		protected static readonly Random _random = new Random();
+
+		protected readonly int _beamId;
+		protected readonly SimpleLaser _laser;
+
+		protected float _periodicTOffset = 0f;
+
+		protected float _periodicT = 0f;
+		protected float _periodicIntensity = 1f;
+		protected Vector3 _beamStart = Vector3.Zero;
+		protected Vector3 _beamEnd = Vector3.Zero;
+		protected float _interferenceOffset = 0f;
+
+		public Vector3 startPos { get { return _beamStart; } }
+		public Vector3 endPos { get { return _beamEnd; } }
+		public float periodicIntensity { get { return _periodicIntensity; } }
+		public float interferenceOffset { get { return _interferenceOffset; } }
+
+		public Vector3 direction()
+		{
+			return (_beamEnd - _beamStart).Normalized ();
+		}
+
+		public SimpleLaserBeam(SimpleLaser laser, int beamId)
+		{
+			_laser = laser;
+			_beamId = beamId;
+
+			// make periodic beam effects slightly out of sync with each other
+			_periodicTOffset = (float)_random.NextDouble() * 10f;
+		}
+
+		public void update(float absoluteTimeS)
+		{
+			float periodicT = absoluteTimeS + _periodicTOffset;
+			var laserParams = _laser.parameters;
+
+			// interference sprite U coordinates' offset
+			if (laserParams.interferenceUFunc != null) {
+				_interferenceOffset = laserParams.interferenceUFunc (periodicT);
+			} else {
+				_interferenceOffset = 0f;
+			}
+
+			// periodic intensity
+			if (laserParams.intensityPeriodicFunction != null) {
+				_periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
+			} else {
+				_periodicIntensity = 1f;
+			}
+
+			if (laserParams.intensityModulation != null) {
+				_periodicIntensity *= laserParams.intensityModulation (periodicT);
+			}
+
+			// beam emission point placement
+			var src = _laser.sourcePos();
+			var dst = _laser.destPos();
+			if (laserParams.beamStartPlacementFunc != null) {
+				var zAxis = (dst - src).Normalized ();
+				Vector3 xAxis, yAxis;
+				OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
+				var localPlacement = laserParams.beamStartPlacementFunc (_beamId, laserParams.numBeams, absoluteTimeS);
+				var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
+				_beamStart = src + laserParams.beamStartPlacementScale * placement;
+				_beamEnd = dst + laserParams.beamDestSpread * placement;
+			} else {
+				_beamStart = src;
+				_beamEnd = dst;
+			}
+
+			// periodic world-coordinate drift
+			float driftX, driftY;
+			if (laserParams.driftXFunc != null) {
+				driftX = laserParams.driftXFunc (periodicT);
+			} else {
+				driftX = 0f;
+			}
+
+			if (laserParams.driftYFunc != null) {
+				driftY = laserParams.driftYFunc (periodicT);
+			} else {
+				driftY = 0f;
+			}
+
+			if (laserParams.driftModulationFunc != null) {
+				var driftMod = laserParams.driftModulationFunc (periodicT);
+				driftX *= driftMod;
+				driftY *= driftMod;
+			}
+
+			if (driftX != 0f && driftY != 0f) {
+				Vector3 driftXAxis, driftYAxis;
+				OpenTKHelper.TwoPerpAxes (_laser.direction(), out driftXAxis, out driftYAxis);
+				_beamEnd += (driftX * driftXAxis + driftY * driftYAxis);
+			}
 		}
 	}
 }

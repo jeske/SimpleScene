@@ -99,7 +99,7 @@ namespace SimpleScene
         public readonly SSRenderConfig renderConfig;
         public List<SSObject> objects = new List<SSObject>();
         public List<SSLightBase> lights = new List<SSLightBase>();
-		public SceneUpdateDelegate postUpdateHooks = null;
+		public SceneUpdateDelegate preUpdateHooks = null;
 
         public SSCamera ActiveCamera { 
             get { return activeCamera; }
@@ -177,14 +177,13 @@ namespace SimpleScene
         }
 
         public void Update(float fElapsedS) {
+			if (preUpdateHooks != null) {
+				preUpdateHooks (fElapsedS);
+			}
             // update all objects.. TODO: add elapsed time since last update..
             foreach (var obj in objects) {
                 obj.Update(fElapsedS);
             }
-
-			if (postUpdateHooks != null) {
-				postUpdateHooks (fElapsedS);
-			}
         }
 
         #region Render Pass Logic
