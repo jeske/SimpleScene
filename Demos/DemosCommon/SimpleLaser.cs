@@ -141,11 +141,6 @@ namespace SimpleScene.Demos
 	public class SimpleLaser
 	{
 		/// <summary>
-		/// Called when the laser has fully faded and is safe to delete by laser management systems
-		/// </summary>
-		public delegate void ReleaseCallbackDelegate(SimpleLaser invoker);
-
-		/// <summary>
 		/// Laser parameters. This is NOT to be tempered with by laser render and update code.
 		/// </summary>
 		public readonly SimpleLaserParameters parameters = null;
@@ -181,15 +176,11 @@ namespace SimpleScene.Demos
 		/// Hack for the ADSR envelope to skip the infinite sustain part and begin releasing the laser
 		/// </summary>
 		protected bool _releaseDirty = false;
-
-		/// <summary>
-		/// Called when the laser has fully faded and is safe to delete by laser management systems
-		/// </summary>
-		public ReleaseCallbackDelegate postReleaseFunc = null;
 		#endregion
 
 		public float time { get { return _localT; } }
 		public float envelopeIntensity { get { return _envelopeIntensity; } }
+		public bool hasExpired { get { return _localT > _localIntensityEnvelope.totalDuration; } }
 
 		#region run-time updated variables
 		protected float _localT = 0f;
@@ -244,13 +235,10 @@ namespace SimpleScene.Demos
 			// envelope intensity
 			if (parameters.intensityEnvelope != null) {
 				var env = _localIntensityEnvelope;
-				if (_localT > env.totalDuration && postReleaseFunc != null) {
-					postReleaseFunc (this);
-					return;
-				} else if (_releaseDirty == true 
+				if(_releaseDirty == true 
 					&& _localT < (env.attackDuration + env.decayDuration + env.sustainDuration))
 				{
-					// force the existing envelope into release. this is hacky.
+					// force the existing envelope into release. this is a bit hacky.
 					env.attackDuration = 0f;
 					env.decayDuration = 0f;
 					env.sustainDuration = _localT;

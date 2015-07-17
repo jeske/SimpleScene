@@ -12,16 +12,15 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
 		/// </summary>
-		public SSScene mainScene;
-		public SSScene flareScene;
+		protected SSScene _mainScene;
+		protected SSScene _flareScene;
 
-		protected Dictionary<SimpleLaser, BeamRuntimeInfo[]> _laserRuntimes 
-			= new Dictionary<SimpleLaser, BeamRuntimeInfo[]> ();
+		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
 		public SimpleLaserManager (SSScene mainScene, SSScene flareScene)
 		{
-			this.mainScene = mainScene;
-			this.flareScene = flareScene;
+			this._mainScene = mainScene;
+			this._flareScene = flareScene;
 
 			mainScene.preUpdateHooks += _update;
 		}
@@ -33,14 +32,9 @@ namespace SimpleScene.Demos
 			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
 			newLaser.destObject = dstObject;
-			newLaser.postReleaseFunc = this._deleteLaser;
 
-			var beamInfos = new BeamRuntimeInfo[laserParams.numBeams];
-			for (int i = 0; i < laserParams.numBeams; ++i) {
-				var newBeamInfo = new BeamRuntimeInfo (newLaser, i, mainScene, flareScene);
-				beamInfos [i] = newBeamInfo;
-			}
-			_laserRuntimes.Add (newLaser, beamInfos);
+			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _mainScene, _flareScene);
+			_laserRuntimes.Add (newLaserRuntime);
 
 			// debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
@@ -49,28 +43,15 @@ namespace SimpleScene.Demos
 			return newLaser;
 		}
 
-		/// <summary>
-		/// To be called by laser objects
-		/// </summary>
-		protected void _deleteLaser(SimpleLaser laser)
+		protected void _update(float timeElapsedS)
 		{
-			if (_laserRuntimes.ContainsKey(laser)) {
-				BeamRuntimeInfo[] beamInfos = _laserRuntimes [laser];
-				foreach (var beam in beamInfos) {
-					beam.requestDeleteFromScene ();
-				}
-				_laserRuntimes.Remove (laser);
-			}
-		}
-
-		protected void _update(float timeElapsed)
-		{
-			foreach (var hashPair in _laserRuntimes) {
-				var laser = hashPair.Key;
-				laser.update (timeElapsed); // updates laser and beam data models
-
-				foreach (var beamRuntime in hashPair.Value) {
-					beamRuntime.update (timeElapsed);
+			for (int i = 0; i < _laserRuntimes.Count; ++i) {
+				var lrt = _laserRuntimes [i];
+				lrt.update (timeElapsedS);
+				if (lrt.laser.hasExpired) {
+					lrt.requestDeleteFromScene ();
+					_laserRuntimes.RemoveAt (i);
+					--i;
 				}
 			}
 		}
@@ -122,11 +103,44 @@ namespace SimpleScene.Demos
 					_mainScene.AddObject (_emissionBillboard);
 				}
 				_emissionBillboard.Pos = beam.startPos;
-				// TODO consider per-beam orientation
+				// TODO consider per-beam orient
 				_emissionBillboard.Orient(_laser.sourceOrient());
 			}
 		}
-			
+
+		protected class LaserRuntimeInfo
+		{
+			protected readonly SimpleLaser _laser;
+			protected readonly BeamRuntimeInfo[] _beams;
+
+			public SimpleLaser laser { get { return _laser; } }
+
+			public LaserRuntimeInfo(SimpleLaser laser, SSScene beamScene, SSScene flareScene)
+			{
+				_laser = laser;
+				var numBeams = laser.parameters.numBeams;
+				_beams = new BeamRuntimeInfo[numBeams];
+				for (int i = 0; i < numBeams; ++i) {
+					_beams[i] = new BeamRuntimeInfo(laser, i, beamScene, flareScene);
+				}
+			}
+
+			public void update(float timeElapsedS)
+			{
+				_laser.update (timeElapsedS);
+
+				foreach (var beam in _beams) {
+					beam.update (timeElapsedS);
+				}
+			}
+
+			public void requestDeleteFromScene()
+			{
+				foreach (var beam in _beams) {
+					beam.requestDeleteFromScene ();
+				}
+			}
+		}
 	}
 }
 

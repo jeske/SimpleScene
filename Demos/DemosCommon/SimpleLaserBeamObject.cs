@@ -178,7 +178,7 @@ namespace SimpleScene.Demos
 			#if false
 			// start radial flare background sprites
 			if (flareBackgroundSprites != null) {
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.backgroundColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.backgroundColor);
 				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
 				GL.LoadMatrix (ref mat);
 				foreach (var tex in flareBackgroundSprites) {
@@ -190,7 +190,7 @@ namespace SimpleScene.Demos
 			#if false
 			// start radial flare overlay sprites
 			if (flareOverlaySprites != null) {
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laser.parameters.overlayColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.overlayColor);
 				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
 				GL.LoadMatrix (ref mat);
 				foreach (var tex in flareOverlaySprites) {
