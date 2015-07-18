@@ -190,6 +190,7 @@ namespace SimpleScene
 
             if (this.renderState.depthTest) {
                 GL.Enable (EnableCap.DepthTest);
+                GL.DepthFunc(renderState.depthFunc);
             } else {
                 GL.Disable (EnableCap.DepthTest);
             }
@@ -229,6 +230,7 @@ namespace SimpleScene
 	    public bool visible = true;
         public bool doBillboarding = false;
         public bool depthTest = true;
+        public DepthFunction depthFunc = DepthFunction.Less;
         public bool depthWrite = true;
         public bool castsShadow = false;
         public bool receivesShadows = false;

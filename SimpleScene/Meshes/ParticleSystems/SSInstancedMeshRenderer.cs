@@ -89,6 +89,9 @@ namespace SimpleScene
 			_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
 			_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+
+            // Fixes flicker issues for particles with "fighting" view depth values
+            this.renderState.depthFunc = DepthFunction.Lequal;
         }
 
 		public SSInstancedMeshRenderer (SSInstancesData ps, 
@@ -124,10 +127,6 @@ namespace SimpleScene
                 if (!renderState.doBillboarding && base.alphaBlendingEnabled) {
 					// Must be called before updating buffers
 					instanceData.sortByDepth (ref modelView);
-
-					// Fixes flicker issues for particles with "fighting" view depth values
-					// Also assumes the particle system is the last to be drawn in a scene
-					GL.DepthFunc (DepthFunction.Lequal); // TODO make part of renderState?
 				}
 
 				// texture binding setup

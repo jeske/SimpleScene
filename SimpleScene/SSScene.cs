@@ -39,6 +39,10 @@ namespace SimpleScene
         public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
 
+        public bool enableFaceCulling = true;
+        public CullFaceMode cullFaceMode = CullFaceMode.Back;
+        public bool enableDepthClamp = true;
+
 		public bool renderBoundingSpheresLines = false;
 		public bool renderBoundingSpheresSolid = false;
 
@@ -188,6 +192,19 @@ namespace SimpleScene
 
         #region Render Pass Logic
         public void RenderShadowMap(float fov, float aspect, float nearZ, float farZ) {
+            // clear some basics 
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Texture2D);
+            GL.ShadeModel(ShadingModel.Flat);
+            GL.Disable(EnableCap.ColorMaterial);
+
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Front);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.DepthClamp);
+            GL.DepthMask(true);
+
 			// Shadow Map Pass(es)
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
@@ -199,6 +216,18 @@ namespace SimpleScene
 		}
 
         public void Render() {
+            if (renderConfig.enableFaceCulling) {
+                GL.Enable(EnableCap.CullFace);
+                GL.CullFace(renderConfig.cullFaceMode);
+            } else {
+                GL.Disable(EnableCap.CullFace);
+            }
+            if (renderConfig.enableDepthClamp) {
+                GL.Enable(EnableCap.DepthClamp);
+            } else {
+                GL.Disable(EnableCap.DepthClamp);
+            }
+
 			setupLighting ();
             
             // compute a world-space frustum matrix, so we can test against world-space object positions

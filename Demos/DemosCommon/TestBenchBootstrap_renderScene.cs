@@ -86,19 +86,6 @@ namespace SimpleScene.Demos
 			scene.renderConfig.projectionMatrix = mainSceneProj;
 			scene.renderConfig.invCameraViewMatrix = mainSceneView;
 
-			// clear some basics 
-			GL.Disable(EnableCap.Lighting);
-			GL.Disable(EnableCap.Blend);
-			GL.Disable(EnableCap.Texture2D);
-			GL.ShadeModel(ShadingModel.Flat);
-			GL.Disable(EnableCap.ColorMaterial);
-
-			GL.Enable(EnableCap.CullFace);
-			GL.CullFace(CullFaceMode.Front);
-			GL.Enable(EnableCap.DepthTest);
-			GL.Enable(EnableCap.DepthClamp);
-			GL.DepthMask(true);
-
 			scene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
 			#endif
 		}
@@ -119,12 +106,8 @@ namespace SimpleScene.Demos
 			{
 				// setup infinite projection for cubemap
 				environmentScene.renderConfig.projectionMatrix 
-				= Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
+				    = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
 				environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Disable (EnableCap.DepthClamp);
 
 				environmentScene.Render ();
 			}
@@ -133,14 +116,7 @@ namespace SimpleScene.Demos
 			{
 				scene.renderConfig.invCameraViewMatrix = mainSceneView;
 				scene.renderConfig.projectionMatrix = mainSceneProj;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Enable (EnableCap.DepthClamp);
-				GL.DepthFunc(DepthFunction.Less);
-
-				// render 3d content...
-				// scene.renderConfig.renderBoundingSpheres = true;
+                //scene.renderConfig.renderBoundingSpheresLines = true;
 				scene.Render ();
 			}
 
@@ -149,14 +125,6 @@ namespace SimpleScene.Demos
 			{
 				sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
 				sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
-
-				GL.Enable(EnableCap.CullFace);
-				GL.CullFace(CullFaceMode.Back);
-
-				// make sure the sun shows up even if it's beyond the far plane...
-				GL.Enable(EnableCap.DepthClamp);      // this clamps Z values to far plane.
-				GL.DepthFunc(DepthFunction.Lequal);   // this makes to objects clamped to far plane are visible
-
 				sunDiskScene.Render();
 			}
 
@@ -165,12 +133,6 @@ namespace SimpleScene.Demos
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed	
 				sunFlareScene.renderConfig.projectionMatrix = screenProj;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Disable(EnableCap.DepthClamp);
-				GL.DepthMask(false);
-
 				sunFlareScene.Render ();
 			}
 
@@ -179,12 +141,6 @@ namespace SimpleScene.Demos
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed
 				hudScene.renderConfig.projectionMatrix = screenProj;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Disable(EnableCap.DepthClamp);
-				GL.DepthMask(false);
-
 				hudScene.Render ();
 			}
 		}

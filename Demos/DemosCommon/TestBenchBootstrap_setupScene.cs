@@ -19,6 +19,7 @@ namespace SimpleScene.Demos
 
 		protected virtual void setupScene() {
 			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+
 			sunDiskScene = new SSScene ();
 			sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
 			hudScene = new SSScene ();
@@ -59,6 +60,7 @@ namespace SimpleScene.Demos
 				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
 				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
 				sunBillboard.Scale = new Vector3 (600f);
+                sunBillboard.renderState.depthFunc = DepthFunction.Lequal;
 				sunBillboard.renderState.frustumCulling = false;
 				sunBillboard.renderState.lighted = false;
 				sunBillboard.renderState.castsShadow = false;
@@ -75,7 +77,7 @@ namespace SimpleScene.Demos
 					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
 					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
 				};
-				float[] spriteScales = { 20f, 2f, 4f, 2f, 2f };
+				float[] spriteScales = { 40f, 2f, 4f, 2f, 2f };
 				//float[] spriteScales = { 1f, 1f, 1f, 1f, 1f };
 				#if false
 				{
