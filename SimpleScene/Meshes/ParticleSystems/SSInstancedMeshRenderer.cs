@@ -27,9 +27,9 @@ namespace SimpleScene
 		public abstract SSAttributeVec2[] componentScalesXY { get; }
 		public abstract SSAttributeFloat[] componentScalesZ { get; }
 		public abstract SSAttributeFloat[] spriteOffsetsU { get; }
-		public abstract SSAttributeFloat[] SpriteOffsetsV { get; }
-		public abstract SSAttributeFloat[] SpriteSizesU { get; }
-		public abstract SSAttributeFloat[] SpriteSizesV { get; }
+		public abstract SSAttributeFloat[] spriteOffsetsV { get; }
+		public abstract SSAttributeFloat[] spriteSizesU { get; }
+		public abstract SSAttributeFloat[] spriteSizesV { get; }
 
 		public virtual void sortByDepth(ref Matrix4 viewMatrix) { }
 		public virtual void update(float elapsedS) { }
@@ -160,11 +160,11 @@ namespace SimpleScene
             prepareAttribute(_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
 				instanceData.spriteOffsetsU);
             prepareAttribute(_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
-				instanceData.SpriteOffsetsV);
+				instanceData.spriteOffsetsV);
             prepareAttribute(_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
-				instanceData.SpriteSizesU);
+				instanceData.spriteSizesU);
             prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
-				instanceData.SpriteSizesV);
+				instanceData.spriteSizesV);
 
             // do the draw
             mesh.renderInstanced(renderConfig, instanceData.activeBlockLength, PrimitiveType.Triangles);

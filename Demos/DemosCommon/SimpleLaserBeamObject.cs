@@ -8,6 +8,8 @@ namespace SimpleScene.Demos
 {
 	public class SimpleLaserBeamObject : SSObject
 	{
+        // TODO restructure to use one texture?
+
 		protected static readonly UInt16[] _middleIndices = {
 			0,1,2, 1,3,2, // left cap
 			2,3,4, 3,5,4, // middle
@@ -178,7 +180,7 @@ namespace SimpleScene.Demos
 				_middleMesh.renderMesh (renderConfig);			
 			}
 			#endif
-			#if true
+			#if false
 			// start radial flare background sprites
 			if (flareBackgroundSprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.backgroundColor);
@@ -190,7 +192,7 @@ namespace SimpleScene.Demos
 				}
 			}
 			#endif
-			#if true
+			#if false
 			// start radial flare overlay sprites
 			if (flareOverlaySprites != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.overlayColor);

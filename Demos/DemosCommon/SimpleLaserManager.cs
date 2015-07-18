@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
 
@@ -65,7 +66,7 @@ namespace SimpleScene.Demos
 			protected readonly SSScene _flareScene;
 
 			protected SSObjectOcclusionQueuery _emissionOccDisk = null;
-			protected InstancedFlareEffect _emissionFlareObj = null;
+            protected SimpleLaserFlareEffect _emissionFlareObj = null;
 			protected SimpleLaserBeamObject _beamObj = null;
 
 			public BeamRuntimeInfo(SimpleLaser laser, int beamId, SSScene mainScene, SSScene flareScene)
@@ -110,7 +111,7 @@ namespace SimpleScene.Demos
                     _emissionOccDisk.renderState.lighted = false;
                     _emissionOccDisk.renderState.depthWrite = false;
                     var color = _laser.parameters.backgroundColor; // debugging
-                    color.A = 0.2f;
+                    color.A = 0.001f;
                     _emissionOccDisk.MainColor = color;
                     _beamScene.AddObject(_emissionOccDisk);
                 }
@@ -119,6 +120,16 @@ namespace SimpleScene.Demos
                     _beamObj = new SimpleLaserBeamObject (_laser, _beamId, _beamScene);
                     _beamScene.AddObject(_beamObj);
                 }
+
+                if (_emissionFlareObj == null) {
+                    var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
+                    var rect = new RectangleF (0f, 0f, 1f, 1f);
+                    _emissionFlareObj = new SimpleLaserFlareEffect (_laser, _beamId, _beamScene,_emissionOccDisk,
+                        tex, rect, rect);
+                    //_emissionFlareObj = new Simp (
+                        //_beamScene, _emissionOccDisk, tex, rects, scales, colors);
+                    _flareScene.AddObject(_emissionFlareObj);
+               }
             }
 		}
 

@@ -41,6 +41,7 @@
     <Compile Include="SimpleLaser.cs" />
     <Compile Include="InstancedFlareEffect.cs" />
     <Compile Include="SimpleLaserBeamObject.cs" />
+    <Compile Include="SimpleLaserFlareEffect.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

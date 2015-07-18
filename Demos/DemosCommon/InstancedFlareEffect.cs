@@ -15,15 +15,17 @@ namespace SimpleScene.Demos
 		#endregion
 
 		public InstancedFlareEffect (SSScene bbScene,
-									 SSObjectOcclusionQueuery bbObj,
+									 SSObjectOcclusionQueuery occObj,
 									 SSTexture texture,
 									 RectangleF[] spriteRects,
-									 Vector2[] spriteScales = null)
-			: base(new FlareSpriteData(spriteRects, spriteScales),
+									 Vector2[] spriteScales = null,
+                                     Color4[] colors = null
+        )
+			: base(new FlareSpriteData(spriteRects, spriteScales, colors),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   BufferUsageHint.StreamDraw)
 		{
-			_init(bbScene, bbObj, texture);
+			_init(bbScene, occObj, texture);
 		}
 
 		public InstancedFlareEffect (
@@ -31,8 +33,10 @@ namespace SimpleScene.Demos
 			SSObjectOcclusionQueuery bbObj,
 			SSTexture texture,
 			RectangleF[] spriteRects,
-			float[] spriteScales)
-			: base(new FlareSpriteData(spriteRects, spriteScales),
+			float[] spriteScales,
+            Color4[] colors = null
+        )
+			: base(new FlareSpriteData(spriteRects, spriteScales, colors),
 				SSTexturedQuad.DoubleFaceInstance,
 				BufferUsageHint.StreamDraw)
 		{
@@ -76,10 +80,20 @@ namespace SimpleScene.Demos
 			instanceData.masterScales [0].Value 
 				= Math.Max (bbRect.X, bbRect.Y) * Math.Min (1.5f, 1f / (1f - intensityFraction));
 
-			instanceData.updateScreenInstanceData (screenCenter, screenRect, bbPos, bbRect);
+			_updateScreenInstanceData (screenCenter, screenRect, bbPos, bbRect);
 
 			base.Render (renderConfig);
 		}
+
+        protected virtual void _updateScreenInstanceData(Vector2 screenCenter, Vector2 screenRect, Vector2 bbPos, Vector2 bbRect)
+        {
+            Vector2 towardsCenter = screenCenter - bbPos;
+            int numElements = instanceData.activeBlockLength;
+            for (int i = 0; i < numElements; ++i) {
+                Vector2 center = bbPos + towardsCenter * 2.5f / (float)numElements * (float)i;
+                instanceData.positions [i].Value.Xy = center;
+            }
+        }
 
 		private Vector2 worldToScreen(Vector3 worldPos, Vector2 screenCenter, Vector2 screenRect, Matrix4 bbSceneViewProj) 
 		{
@@ -144,36 +158,26 @@ namespace SimpleScene.Demos
 			public override SSAttributeFloat[] componentScalesZ { get { return _componentScalesZ; } }
 			//public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
 			public override SSAttributeFloat[] spriteOffsetsU { get { return _spriteOffsetsU; ; } }
-			public override SSAttributeFloat[] SpriteOffsetsV { get { return _spriteOffsetsV; } }
-			public override SSAttributeFloat[] SpriteSizesU { get { return _spriteSizesU; } }
-			public override SSAttributeFloat[] SpriteSizesV { get { return _spriteSizesV; } }
+			public override SSAttributeFloat[] spriteOffsetsV { get { return _spriteOffsetsV; } }
+			public override SSAttributeFloat[] spriteSizesU { get { return _spriteSizesU; } }
+			public override SSAttributeFloat[] spriteSizesV { get { return _spriteSizesV; } }
 			#endregion
 
-			public FlareSpriteData(RectangleF[] spriteRects, Vector2[] spriteScales = null)
+            public FlareSpriteData(RectangleF[] spriteRects, Vector2[] spriteScales, Color4[] colors)
 			{
-				_init(spriteRects, spriteScales);
+				_init(spriteRects, spriteScales, colors);
 			}
 
-			public FlareSpriteData(RectangleF[] spriteRects, float[] spriteScales)
+            public FlareSpriteData(RectangleF[] spriteRects, float[] spriteScales, Color4[] colors)
 			{
 				Vector2[] scales2d = new Vector2[spriteScales.Length];
 				for (int i = 0; i < spriteScales.Length; ++i) {
 					scales2d[i] = new Vector2(spriteScales[i]);
 				}
-				_init(spriteRects, scales2d);
+				_init(spriteRects, scales2d, colors);
 			}
 
-			public virtual void updateScreenInstanceData(Vector2 screenCenter, Vector2 screenRect, Vector2 bbPos, Vector2 bbRect)
-			{
-				Vector2 towardsCenter = screenCenter - bbPos;
-				int numElements = activeBlockLength;
-				for (int i = 0; i < numElements; ++i) {
-					Vector2 center = bbPos + towardsCenter * 2.5f / (float)numElements * (float)i;
-					_positions [i].Value.Xy = center;
-				}
-			}
-
-			private void _init(RectangleF[] spriteRects, Vector2[] spriteScales)
+            private void _init(RectangleF[] spriteRects, Vector2[] spriteScales, Color4[] colors)
 			{
 				_numElements = spriteRects.Length;
 				if (spriteScales == null) {
@@ -187,6 +191,12 @@ namespace SimpleScene.Demos
 				_spriteOffsetsV = new SSAttributeFloat[_numElements];
 				_spriteSizesU = new SSAttributeFloat[_numElements];
 				_spriteSizesV = new SSAttributeFloat[_numElements];
+                if (colors != null) {
+                    _colors = new SSAttributeColor[colors.Length];
+                    for (int i = 0; i < colors.Length; ++i) {
+                        _colors [i] = new SSAttributeColor(Color4Helper.ToUInt32(colors [i]));
+                    }
+                }
 
 				for (int i = 0; i < _numElements; ++i) {
 					var spriteRect = spriteRects[i];

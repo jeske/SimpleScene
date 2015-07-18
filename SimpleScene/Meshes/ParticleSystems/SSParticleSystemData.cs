@@ -132,9 +132,9 @@ namespace SimpleScene
 		public override SSAttributeFloat[] componentScalesZ { get { return _componentScalesZ; } }
 		//public SSAttributeByte[] SpriteIndices { get { return m_spriteIndices; } }
 		public override SSAttributeFloat[] spriteOffsetsU { get { return _spriteOffsetsU; ; } }
-		public override SSAttributeFloat[] SpriteOffsetsV { get { return _spriteOffsetsV; } }
-		public override SSAttributeFloat[] SpriteSizesU { get { return _spriteSizesU; } }
-		public override SSAttributeFloat[] SpriteSizesV { get { return _spriteSizesV; } }
+		public override SSAttributeFloat[] spriteOffsetsV { get { return _spriteOffsetsV; } }
+		public override SSAttributeFloat[] spriteSizesU { get { return _spriteSizesU; } }
+		public override SSAttributeFloat[] spriteSizesV { get { return _spriteSizesV; } }
 
         public SSParticleSystemData (int capacity)
         {
