@@ -209,7 +209,6 @@ namespace SimpleScene
         }
 
         private void setupLighting() {
-            GL.Enable(EnableCap.Lighting);
             foreach (var light in lights) {
                 light.setupLight(renderConfig);
             }
@@ -224,7 +223,6 @@ namespace SimpleScene
         }
 
         private void disableLighting() {
-            GL.Disable(EnableCap.Lighting);
             foreach (var light in lights) {
                 light.DisableLight();
             }

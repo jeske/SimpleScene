@@ -25,11 +25,13 @@ namespace SimpleScene.Demos
 		{
 			renderState.castsShadow = false;
 			renderState.receivesShadows = false;
-			globalBillboarding = false;
-			alphaBlendingEnabled = true;
-			depthRead = true;
-			depthWrite = false;
-			simulateOnUpdate = true;
+            renderState.doBillboarding = false;
+            renderState.alphaBlendingOn = true;
+			renderState.depthTest = true;
+            renderState.depthWrite = false;
+            renderState.lighted = false;
+			
+            simulateOnUpdate = true;
 			Name = "simple expolsion renderer";
 
 			base.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);

@@ -76,7 +76,7 @@ namespace SimpleScene.Demos
 				_flareScene = flareScene;
 
 				_emissionBillboard = new SSObjectOcclusionQueuery (new SSMeshDisk ());
-				_emissionBillboard.doBillboarding = false;
+				_emissionBillboard.renderState.doBillboarding = false;
 				var color = _laser.parameters.backgroundColor; // debugging
 				color.A = 0.1f;
 				_emissionBillboard.MainColor = color;

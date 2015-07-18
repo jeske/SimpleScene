@@ -27,12 +27,15 @@ namespace SimpleScene
 		public float ShininessMatColor = 10.0f;
         
 		public virtual SSTextureMaterial textureMaterial { get; set; }
-		public virtual bool alphaBlendingEnabled { get; set; } // TODO move to renderState??
+		public virtual bool alphaBlendingEnabled { 
+            get { return renderState.alphaBlendingOn; }
+            set { renderState.alphaBlendingOn = value; }
+        }
 
 		public virtual Vector3 localBoundingSphereCenter { get; set; }
 		public virtual float localBoundingSphereRadius { get; set; }
 
-		public Vector3 worldBoundingSphereCenter {
+		public virtual Vector3 worldBoundingSphereCenter {
 			get {
 				return Vector3.Transform(localBoundingSphereCenter, this.worldMat);
 			}
@@ -56,7 +59,6 @@ namespace SimpleScene
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 			localBoundingSphereCenter = Vector3.Zero;
 			localBoundingSphereRadius = 1f;
-			alphaBlendingEnabled = false;
 		}
 
         protected static void resetTexturingState()
@@ -142,7 +144,10 @@ namespace SimpleScene
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 			renderBoundingSphereMesh (renderConfig);
 
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
+            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
+            if (this.renderState.doBillboarding) {
+                modelViewMat = OpenTKHelper.BillboardMatrix(ref modelViewMat);
+            }
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
@@ -161,10 +166,10 @@ namespace SimpleScene
                 }
 				setMaterialState(renderConfig.mainShader);
 
-				if (alphaBlendingEnabled) {
+				if (this.alphaBlendingEnabled) {
 					GL.Enable (EnableCap.Blend);
-					GL.BlendEquation (BlendEquationMode.FuncAdd);
-					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                    GL.BlendEquation (renderState.blendEquationMode);
+                    GL.BlendFunc (renderState.blendFactorSrc, renderState.blendFactorDest);
 				} else {
 					GL.Disable (EnableCap.Blend);
 				}
@@ -176,6 +181,19 @@ namespace SimpleScene
                     GL.Disable(EnableCap.Lighting);
                 }
             }
+
+            if (this.renderState.alphaTest) {
+                GL.Enable(EnableCap.AlphaTest);
+            } else {
+                GL.Disable(EnableCap.AlphaTest);
+            }
+
+            if (this.renderState.depthTest) {
+                GL.Enable (EnableCap.DepthTest);
+            } else {
+                GL.Disable (EnableCap.DepthTest);
+            }
+            GL.DepthMask(this.renderState.depthWrite);
 		}
 
 		public virtual bool Intersect(ref SSRay worldSpaceRay, out float scaledDistanceAlongRay) {
@@ -206,12 +224,20 @@ namespace SimpleScene
 	}
 
 	public class SSOBRenderState {
-	    public bool lighted = true;
+        public bool toBeDeleted = false;
+        public bool frustumCulling = true;
 	    public bool visible = true;
+        public bool doBillboarding = false;
+        public bool depthTest = true;
+        public bool depthWrite = true;
         public bool castsShadow = false;
         public bool receivesShadows = false;
-		public bool frustumCulling = true;
-		public bool toBeDeleted = false;
+        public bool lighted = true;
+        public bool alphaTest = false;
+        public bool alphaBlendingOn = false;
+        public BlendEquationMode blendEquationMode = BlendEquationMode.FuncAdd;
+        public BlendingFactorSrc blendFactorSrc = BlendingFactorSrc.SrcAlpha;
+        public BlendingFactorDest blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)

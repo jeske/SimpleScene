@@ -10,7 +10,7 @@ namespace SimpleScene
 	/// Manages skeletal runtime hierarchy and animation channels.
 	/// Invokes draw on render submeshes.
 	/// </summary>
-	public class SSSkeletalRenderMesh : SSAbstractMesh, ISSInstancable
+    public class SSSkeletalRenderMesh : SSAbstractMesh, ISSInstancable
 	{
 		// TODO Fix multiple objects updating a single mesh twice
 

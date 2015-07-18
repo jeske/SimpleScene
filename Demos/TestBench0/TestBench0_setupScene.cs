@@ -86,8 +86,6 @@ namespace TestBench0
 				ps.emitAll();
 				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, roidmesh, BufferUsageHint.StaticDraw);
 				asteroidRingRenderer.simulateOnUpdate = false;
-				asteroidRingRenderer.depthRead = true;
-				asteroidRingRenderer.depthWrite = true;
 				asteroidRingRenderer.Name = "instanced asteroid renderer";
 				asteroidRingRenderer.renderState.castsShadow = true;
 				asteroidRingRenderer.renderState.receivesShadows = true;
@@ -145,8 +143,6 @@ namespace TestBench0
 				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
 				cubesRenderer.alphaBlendingEnabled = false;
-				cubesRenderer.depthRead = true;
-				cubesRenderer.depthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;

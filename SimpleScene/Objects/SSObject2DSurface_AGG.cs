@@ -23,6 +23,11 @@ namespace SimpleScene {
 
         public SSObject2DSurface_AGG() { 
 			textureSurface = new SSTexture();
+            this.renderState.alphaBlendingOn = true;
+            this.renderState.alphaTest = true;
+            this.renderState.lighted = false;
+            this.renderState.depthTest = false;
+            this.renderState.depthWrite = false;
 		}
 
         private int nextPowerOf2(int biggerThan) {
@@ -71,14 +76,6 @@ namespace SimpleScene {
 			// GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
 			// Step 2: setup our material mode and paramaters...
-
-			GL.Disable (EnableCap.Lighting);
-			// enable alpha blending 
-			{
-				GL.Enable (EnableCap.AlphaTest);
-				GL.Enable (EnableCap.Blend);
-				GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-			}
 	           
             // fixed function single-texture
             GL.ActiveTexture(TextureUnit.Texture0);

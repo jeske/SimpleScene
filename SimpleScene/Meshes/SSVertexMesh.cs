@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
 {
-	public class SSVertexMesh<V> : SSAbstractMesh, ISSInstancable
+    public class SSVertexMesh<V> : SSAbstractMesh, ISSInstancable
 		where V : struct, ISSVertexLayout
 	{
 		protected SSVertexBuffer<V> vbo;

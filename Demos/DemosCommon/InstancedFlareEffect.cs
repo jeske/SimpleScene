@@ -101,6 +101,8 @@ namespace SimpleScene.Demos
 
 			base.renderState.castsShadow = false;
 			base.renderState.receivesShadows = false;
+            base.renderState.depthTest = false;
+            base.renderState.depthWrite = false;
 			base.renderState.lighted = false;
 
 			base.textureMaterial = new SSTextureMaterial (texture);

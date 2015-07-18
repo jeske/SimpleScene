@@ -12,7 +12,7 @@ using Util3d;
 
 namespace SimpleScene
 {
-	public class SSMesh_wfOBJ : SSAbstractMesh, ISSInstancable {
+    public class SSMesh_wfOBJ : SSAbstractMesh, ISSInstancable {
  
 		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
 		SSAssetManager.Context ctx;

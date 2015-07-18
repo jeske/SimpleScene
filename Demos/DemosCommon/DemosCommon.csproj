@@ -7,8 +7,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SimpleScene.Demos</RootNamespace>
     <AssemblyName>TestBenchCommon</AssemblyName>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
-      <Project>{4a7a056c-cb90-4f29-95de-eac471a6cbd7}</Project>
+      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
       <Name>_SimpleScene</Name>
     </ProjectReference>
   </ItemGroup>

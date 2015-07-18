@@ -48,9 +48,6 @@ namespace SimpleScene
 		public SSInstancesData instanceData;
 
         public bool simulateOnUpdate = true;
-		public bool depthRead = true;
-		public bool depthWrite = true;
-		public bool globalBillboarding = false;
         public ISSInstancable mesh;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
@@ -124,20 +121,14 @@ namespace SimpleScene
 					instanceShader = renderConfig.instancePssmShader;
 				}
 			} else {
-				if (!globalBillboarding && base.alphaBlendingEnabled) {
+                if (!renderState.doBillboarding && base.alphaBlendingEnabled) {
 					// Must be called before updating buffers
 					instanceData.sortByDepth (ref modelView);
 
 					// Fixes flicker issues for particles with "fighting" view depth values
 					// Also assumes the particle system is the last to be drawn in a scene
-					GL.DepthFunc (DepthFunction.Lequal);
+					GL.DepthFunc (DepthFunction.Lequal); // TODO make part of renderState?
 				}
-				if (depthRead) {
-					GL.Enable (EnableCap.DepthTest);
-				} else {
-					GL.Disable (EnableCap.DepthTest);
-				}
-				GL.DepthMask (depthWrite);
 
 				// texture binding setup
                 renderConfig.instanceShader.Activate();
@@ -145,14 +136,6 @@ namespace SimpleScene
 				if (base.textureMaterial != null) {
 					renderConfig.instanceShader.SetupTextures (base.textureMaterial);
 				}
-			}
-
-			if (globalBillboarding) {
-				// Setup "global" billboarding. (entire particle system is rendered as a camera-facing
-				// billboard and will show the same position of particles from all angles)
-				modelView = OpenTKHelper.BillboardMatrix (ref modelView);
-				GL.MatrixMode (MatrixMode.Modelview);
-				GL.LoadMatrix (ref modelView);
 			}
 
 			instanceShader.Activate ();

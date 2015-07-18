@@ -8,8 +8,6 @@ namespace SimpleScene
 {
     public class SSObjectOcclusionQueuery : SSObjectMesh
     {
-		public bool doBillboarding = true;
-
         private int GL_query_id;
 
         public int OcclusionQueueryResult {
@@ -29,17 +27,8 @@ namespace SimpleScene
         public override void Render(SSRenderConfig renderConfig)
         {
             if (Mesh != null) {
-                base.Render(renderConfig);
-
-				if (doBillboarding) {
-					Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
-					modelView = OpenTKHelper.BillboardMatrix (ref modelView);
-					GL.MatrixMode (MatrixMode.Modelview);
-					GL.LoadMatrix (ref modelView);
-				}
-
                 GL.BeginQuery(QueryTarget.SamplesPassed, GL_query_id);
-                Mesh.renderMesh(renderConfig);
+                base.Render(renderConfig);
                 GL.EndQuery(QueryTarget.SamplesPassed);
             }
         }

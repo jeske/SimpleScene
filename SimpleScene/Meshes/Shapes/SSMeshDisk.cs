@@ -47,12 +47,6 @@ namespace SimpleScene
         {
             SSShaderProgram.DeactivateAll();
 
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.ColorMaterial);
-            GL.Enable (EnableCap.AlphaTest);
-            GL.Enable (EnableCap.Blend);
-            GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-
             base.renderMesh(renderConfig);
         }
     }

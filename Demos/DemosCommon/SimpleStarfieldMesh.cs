@@ -11,12 +11,19 @@ namespace SimpleScene.Demos
 
 	// TODO: this would be more attractive with some varied star-textures
 
-	public class SimpleStarfieldMesh : SSAbstractMesh
+	public class SimpleStarfieldObject : SSObject
 	{
 		SSVertex_PosNormDiff[] vertices = null;
 		int numstars;
 
-		public SimpleStarfieldMesh (int numstars) {
+        public override bool alphaBlendingEnabled { get { return true; } }
+
+		public SimpleStarfieldObject (int numstars) 
+        {
+            this.renderState.lighted = false;
+            this.renderState.depthTest = false;
+            this.renderState.depthWrite = false;
+
 		    // generate the stars
 		    this.numstars = numstars;
 		    vertices = new SSVertex_PosNormDiff[numstars];
@@ -43,16 +50,14 @@ namespace SimpleScene.Demos
             }
 		}
 
-		public override void renderMesh(SSRenderConfig renderConfig) {
+		public override void Render(SSRenderConfig renderConfig) {
 			SSShaderProgram.DeactivateAll ();
 
 			GL.Disable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.Lighting);	
 
 			GL.Enable(EnableCap.PointSmooth);
-			GL.Enable(EnableCap.Blend);
-			GL.BlendFunc(BlendingFactorSrc.SrcAlpha,BlendingFactorDest.OneMinusSrcAlpha);
-			
+
 			GL.PointSize(1.5f);
 			GL.Begin(BeginMode.Points);
 			for (int i = 0; i < this.numstars; i++) {			   
@@ -62,10 +67,7 @@ namespace SimpleScene.Demos
 			   GL.Vertex3(vertices[i].Position);
 			}
 			GL.End();
-
-			GL.Disable(EnableCap.Blend);
 		}	
-
 	}
 }
 

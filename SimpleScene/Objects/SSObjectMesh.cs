@@ -15,7 +15,7 @@ namespace SimpleScene
             this.renderState.castsShadow = true;    // SSObjectMesh casts shadow by default
             this.renderState.receivesShadows = true; // SSObjectMesh receives shadow by default
         }        
-		public SSObjectMesh (SSAbstractMesh mesh) : this() {
+        public SSObjectMesh (SSAbstractMesh mesh) : this() {
             this.Mesh = mesh;        
             this.renderState.castsShadow = true;    // SSObjectMesh casts shadow by default
             this.renderState.receivesShadows = true; // SSObjectMesh receives shadow by default
@@ -23,7 +23,7 @@ namespace SimpleScene
         }
 		
         private SSAbstractMesh _mesh;
-		public SSAbstractMesh Mesh {
+        public SSAbstractMesh Mesh {
           get { return _mesh; }
           set { _mesh = value; _setupMesh(); }
         }
@@ -71,7 +71,7 @@ namespace SimpleScene
 		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
 		{
 			SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
-			SSAbstractMesh mesh = this._mesh;
+            SSAbstractMesh mesh = this._mesh;
 			bool hit = false;			  
 			float localNearestContact = float.MaxValue;
 			if (mesh == null) {

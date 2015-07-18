@@ -55,7 +55,7 @@ namespace SimpleScene.Demos
 			{
 				var sunDisk = new SSMeshDisk ();
 				var sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
-				sunBillboard.doBillboarding = true;
+				sunBillboard.renderState.doBillboarding = true;
 				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
 				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
 				sunBillboard.Scale = new Vector3 (600f);
@@ -65,6 +65,7 @@ namespace SimpleScene.Demos
 				sunDiskScene.AddObject(sunBillboard);
 
 				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
+                //SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png");
 				const float bigOffset = 0.8889f;
 				const float smallOffset = 0.125f;
 				RectangleF[] flareSpriteRects = {
@@ -110,15 +111,16 @@ namespace SimpleScene.Demos
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
 			SSObject skyboxCube = new SSObjectMesh(mesh);
+            skyboxCube.renderState.depthTest = false;
+            skyboxCube.renderState.depthWrite = false;
+            skyboxCube.renderState.lighted = false;
 			environmentScene.AddObject(skyboxCube);
 			skyboxCube.Scale = new Vector3(0.7f);
-			skyboxCube.renderState.lighted = false;
 
 			// scene.addObject(skyboxCube);
 
-			SSObject skyboxStars = new SSObjectMesh(new SimpleStarfieldMesh(1600));
+			SSObject skyboxStars = new SimpleStarfieldObject(1600);
 			environmentScene.AddObject(skyboxStars);
-			skyboxStars.renderState.lighted = false;
 
 		}
 

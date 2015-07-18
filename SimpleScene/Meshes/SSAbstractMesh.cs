@@ -32,7 +32,7 @@ namespace SimpleScene
 		/// </summary>
 		public WeakReference updateSource = new WeakReference (null);
 
-		public SSAbstractMesh()
+        public SSAbstractMesh()
 		{
 			alphaBlendingEnabled = false;
 			boundingSphereRadius = 1f;
@@ -57,10 +57,12 @@ namespace SimpleScene
 				}
 			}
 
+            #if false
 			if (alphaBlendingEnabled) {
 				GL.Enable (EnableCap.Blend);
 				GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 			}
+            #endif
 		}
 
         public virtual bool traverseTriangles<T>(T state, traverseFn<T> fn) 

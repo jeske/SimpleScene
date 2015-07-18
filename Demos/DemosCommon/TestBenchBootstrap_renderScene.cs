@@ -90,7 +90,6 @@ namespace SimpleScene.Demos
 			GL.Disable(EnableCap.Lighting);
 			GL.Disable(EnableCap.Blend);
 			GL.Disable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.Lighting);
 			GL.ShadeModel(ShadingModel.Flat);
 			GL.Disable(EnableCap.ColorMaterial);
 
@@ -125,9 +124,7 @@ namespace SimpleScene.Demos
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
-				GL.Disable (EnableCap.DepthTest);
 				GL.Disable (EnableCap.DepthClamp);
-				GL.DepthMask (false);
 
 				environmentScene.Render ();
 			}
@@ -139,10 +136,8 @@ namespace SimpleScene.Demos
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
-				GL.Enable (EnableCap.DepthTest);
 				GL.Enable (EnableCap.DepthClamp);
 				GL.DepthFunc(DepthFunction.Less);
-				GL.DepthMask (true);
 
 				// render 3d content...
 				// scene.renderConfig.renderBoundingSpheres = true;
@@ -157,13 +152,10 @@ namespace SimpleScene.Demos
 
 				GL.Enable(EnableCap.CullFace);
 				GL.CullFace(CullFaceMode.Back);
-				GL.Enable(EnableCap.DepthTest);
 
 				// make sure the sun shows up even if it's beyond the far plane...
 				GL.Enable(EnableCap.DepthClamp);      // this clamps Z values to far plane.
 				GL.DepthFunc(DepthFunction.Lequal);   // this makes to objects clamped to far plane are visible
-
-				GL.DepthMask(true);
 
 				sunDiskScene.Render();
 			}
@@ -176,7 +168,6 @@ namespace SimpleScene.Demos
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
-				GL.Disable(EnableCap.DepthTest);
 				GL.Disable(EnableCap.DepthClamp);
 				GL.DepthMask(false);
 
@@ -191,7 +182,6 @@ namespace SimpleScene.Demos
 
 				GL.Enable (EnableCap.CullFace);
 				GL.CullFace (CullFaceMode.Back);
-				GL.Disable(EnableCap.DepthTest);
 				GL.Disable(EnableCap.DepthClamp);
 				GL.DepthMask(false);
 

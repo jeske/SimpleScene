@@ -70,8 +70,18 @@ namespace SimpleScene.Demos
 			this._beamId = beamId;
 			this.cameraScene = cameraScene;
 
-			this.renderState.castsShadow = false;
-			this.renderState.receivesShadows = false;
+            this.renderState.castsShadow = false;
+            this.renderState.receivesShadows = false;
+            this.renderState.alphaBlendingOn = true;
+            this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
+            this.renderState.blendFactorDest = BlendingFactorDest.One;
+
+            // reset all mat colors. emission will be controlled during rendering
+            this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
+            this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
+            this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
+            this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
+
 
 			var ctx = new SSAssetManager.Context ("./lasers");
 			this.middleBackgroundSprite = middleBackgroundSprite 
@@ -97,12 +107,6 @@ namespace SimpleScene.Demos
 					= SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareOverlay.png");
 			}
 
-			// reset all mat colors. emission will be controlled during rendering
-			this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
-			this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
-			this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
-			this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
-
 			// initialize non-changing vertex data
 			_initMiddleMesh ();
 			_initInterferenceVertices ();
@@ -122,9 +126,6 @@ namespace SimpleScene.Demos
 			SSShaderProgram.DeactivateAll ();
 			GL.ActiveTexture (TextureUnit.Texture0);
 			GL.Enable (EnableCap.Texture2D);
-
-			GL.Enable(EnableCap.Blend);
-			GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
 
 			var laserParams = _laser.parameters;
 

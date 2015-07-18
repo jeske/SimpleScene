@@ -17,8 +17,6 @@ namespace SimpleScene
 
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
-			GL.Disable(EnableCap.Blend);
-			GL.Disable(EnableCap.Lighting);
 
 			GL.ActiveTexture(TextureUnit.Texture0);
 			GL.Enable(EnableCap.Texture2D);
@@ -49,6 +47,10 @@ namespace SimpleScene
         public SSObjectHUDQuad (int GLu_textureID) : base() {
 			this.GLu_textureID = GLu_textureID;
             this.Pos = new Vector3(0,0,0);
+            this.renderState.alphaBlendingOn = false;
+            this.renderState.lighted = false;
+            this.renderState.depthTest = false;
+            this.renderState.depthWrite = false;
         }
     }
 }

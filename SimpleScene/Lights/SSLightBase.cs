@@ -47,9 +47,6 @@ namespace SimpleScene
             GL.MatrixMode (MatrixMode.Modelview);
             GL.LoadMatrix (ref modelViewMatrix);
 
-            GL.Enable (EnableCap.Lighting);
-            GL.ShadeModel (ShadingModel.Smooth);
-
             GL.Light (m_lightName, LightParameter.Ambient, this.Ambient); // ambient light color (R,G,B,A)
 
             GL.Light (m_lightName, LightParameter.Diffuse, this.Diffuse); // diffuse color (R,G,B,A)
