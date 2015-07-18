@@ -72,6 +72,8 @@ namespace SimpleScene.Demos
 
             this.renderState.castsShadow = false;
             this.renderState.receivesShadows = false;
+            this.renderState.depthTest = true;
+            this.renderState.depthWrite = false;
             this.renderState.alphaBlendingOn = true;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
             this.renderState.blendFactorDest = BlendingFactorDest.One;

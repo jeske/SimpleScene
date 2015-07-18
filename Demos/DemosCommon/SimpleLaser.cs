@@ -192,6 +192,11 @@ namespace SimpleScene.Demos
 		{
 			this.parameters = laserParams;
 			this._localIntensityEnvelope = laserParams.intensityEnvelope.Clone();
+
+            _beams = new SimpleLaserBeam[parameters.numBeams];
+            for (int i = 0; i < parameters.numBeams; ++i) {
+                _beams[i] = new SimpleLaserBeam(this, i);
+            }
 		}
 
 		public Vector3 sourcePos()
@@ -251,12 +256,6 @@ namespace SimpleScene.Demos
 			}
 
 			// update beam models
-			if (_beams == null || _beams.Length != parameters.numBeams) {
-				_beams = new SimpleLaserBeam[parameters.numBeams];
-				for (int i = 0; i < parameters.numBeams; ++i) {
-					_beams[i] = new SimpleLaserBeam(this, i);
-				}
-			}
 			foreach (var beam in _beams) {
 				beam.update (_localT);
 			}

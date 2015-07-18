@@ -61,29 +61,19 @@ namespace SimpleScene.Demos
 			protected readonly SimpleLaser _laser;
 			protected readonly int _beamId;
 
-			protected readonly SSScene _mainScene;
+			protected readonly SSScene _beamScene;
 			protected readonly SSScene _flareScene;
 
-			protected readonly SSObjectOcclusionQueuery _emissionBillboard = null;
-			protected readonly InstancedFlareEffect _emissionFlareObj = null;
-			protected readonly SimpleLaserBeamObject _beamObj = null;
+			protected SSObjectOcclusionQueuery _emissionOccDisk = null;
+			protected InstancedFlareEffect _emissionFlareObj = null;
+			protected SimpleLaserBeamObject _beamObj = null;
 
 			public BeamRuntimeInfo(SimpleLaser laser, int beamId, SSScene mainScene, SSScene flareScene)
 			{
 				_laser = laser;
 				_beamId = beamId;
-				_mainScene = mainScene;
+				_beamScene = mainScene;
 				_flareScene = flareScene;
-
-				_emissionBillboard = new SSObjectOcclusionQueuery (new SSMeshDisk ());
-				_emissionBillboard.renderState.doBillboarding = false;
-				var color = _laser.parameters.backgroundColor; // debugging
-				color.A = 0.1f;
-				_emissionBillboard.MainColor = color;
-				_mainScene.AddObject (_emissionBillboard);
-
-				_beamObj = new SimpleLaserBeamObject(_laser, _beamId, mainScene);
-				_mainScene.AddObject(_beamObj);
 			}
 
 			public void requestDeleteFromScene()
@@ -91,8 +81,8 @@ namespace SimpleScene.Demos
 				if (_beamObj != null) {
 					_beamObj.renderState.toBeDeleted = true;
 				}
-				if (_emissionBillboard != null) {
-					_emissionBillboard.renderState.toBeDeleted = true;
+				if (_emissionOccDisk != null) {
+					_emissionOccDisk.renderState.toBeDeleted = true;
 				}
 				if (_emissionFlareObj != null) {
 					_emissionFlareObj.renderState.toBeDeleted = true;
@@ -104,10 +94,32 @@ namespace SimpleScene.Demos
 				var beam = _laser.beam (_beamId);
 				if (beam == null) return;
 
-				_emissionBillboard.Pos = beam.startPos;
+                _createRenderObjects();
+
+				_emissionOccDisk.Pos = beam.startPos;
 				// TODO consider per-beam orient
-				_emissionBillboard.Orient(_laser.sourceOrient());
+				_emissionOccDisk.Orient(_laser.sourceOrient());
 			}
+
+            protected void _createRenderObjects()
+            {
+                if (_emissionOccDisk == null) {
+                    _emissionOccDisk = new SSObjectOcclusionQueuery (new SSMeshDisk ());
+                    _emissionOccDisk.renderState.doBillboarding = false;
+                    _emissionOccDisk.renderState.alphaBlendingOn = true;
+                    _emissionOccDisk.renderState.lighted = false;
+                    _emissionOccDisk.renderState.depthWrite = false;
+                    var color = _laser.parameters.backgroundColor; // debugging
+                    color.A = 0.2f;
+                    _emissionOccDisk.MainColor = color;
+                    _beamScene.AddObject(_emissionOccDisk);
+                }
+
+                if (_beamObj == null) {
+                    _beamObj = new SimpleLaserBeamObject (_laser, _beamId, _beamScene);
+                    _beamScene.AddObject(_beamObj);
+                }
+            }
 		}
 
 		protected class LaserRuntimeInfo
@@ -125,9 +137,6 @@ namespace SimpleScene.Demos
 				for (int i = 0; i < numBeams; ++i) {
 					_beams[i] = new BeamRuntimeInfo(laser, i, beamScene, flareScene);
 				}
-
-				// do an early update to make sure we don't render bogus data on the first render frame
-				update(0f);
 			}
 
 			public void update(float timeElapsedS)
