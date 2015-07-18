@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -32,12 +32,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
-      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
-      <Name>_SimpleScene</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="SimpleExplosionRenderer.cs" />
     <Compile Include="SimpleSunFlareMesh.cs" />
     <Compile Include="SimpleStarfieldMesh.cs" />
@@ -58,7 +52,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\" />
+    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4a7a056c-cb90-4f29-95de-eac471a6cbd7}</Project>
+      <Name>_SimpleScene</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\checkerboard.png" />
