@@ -97,7 +97,7 @@ namespace SimpleScene.Demos
 
                 _createRenderObjects();
 
-				_emissionOccDisk.Pos = beam.startPos;
+                _emissionOccDisk.Pos = beam.startPos + _laser.direction() * _laser.parameters.occDiskDirOffset;
 				// TODO consider per-beam orient
 				_emissionOccDisk.Orient(_laser.sourceOrient());
 			}
@@ -111,7 +111,8 @@ namespace SimpleScene.Demos
                     _emissionOccDisk.renderState.lighted = false;
                     _emissionOccDisk.renderState.depthWrite = false;
                     var color = _laser.parameters.backgroundColor; // debugging
-                    color.A = 0.001f;
+                    color.A = 0.0001f;
+                    //color.A = 0.5f;
                     _emissionOccDisk.MainColor = color;
                     _beamScene.AddObject(_emissionOccDisk);
                 }
@@ -126,8 +127,6 @@ namespace SimpleScene.Demos
                     var rect = new RectangleF (0f, 0f, 1f, 1f);
                     _emissionFlareObj = new SimpleLaserFlareEffect (_laser, _beamId, _beamScene,_emissionOccDisk,
                         tex, rect, rect);
-                    //_emissionFlareObj = new Simp (
-                        //_beamScene, _emissionOccDisk, tex, rects, scales, colors);
                     _flareScene.AddObject(_emissionFlareObj);
                }
             }

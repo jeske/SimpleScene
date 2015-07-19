@@ -133,6 +133,10 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public float beamDestSpread = 0f;
 		#endregion
+
+        #region flare mechanics settings
+        public float occDiskDirOffset = 0.5f;
+        #endregion
 	}
 
 	/// <summary>

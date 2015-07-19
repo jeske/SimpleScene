@@ -52,6 +52,7 @@ namespace SimpleScene.Demos
 			hudScene.AddObject(smapDebug);
 			#endif
 
+            #if true
 			// setup a sun billboard object and a sun flare spriter renderer
 			{
 				var sunDisk = new SSMeshDisk ();
@@ -66,38 +67,10 @@ namespace SimpleScene.Demos
 				sunBillboard.renderState.castsShadow = false;
 				sunDiskScene.AddObject(sunBillboard);
 
-				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
-                //SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png");
-				const float bigOffset = 0.8889f;
-				const float smallOffset = 0.125f;
-				RectangleF[] flareSpriteRects = {
-					new RectangleF(0f, 0f, 1f, bigOffset),
-					new RectangleF(0f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
-				};
-				float[] spriteScales = { 40f, 2f, 4f, 2f, 2f };
-				//float[] spriteScales = { 1f, 1f, 1f, 1f, 1f };
-				#if false
-				{
-					var sunFlare = new SimpleSunFlareMesh (sunDiskScene, sunBillboard, flareTex, 
-														 flareSpriteRects, spriteScales);
-					sunFlare.Scale = new Vector3 (2f);
-					sunFlare.renderState.lighted = false;
-					sunFlareScene.AddObject (sunFlare);
-				}
-				#endif
-
-				#if true
-				{
-					var sunFlare = new InstancedFlareEffect (sunDiskScene, sunBillboard, flareTex, 
-						              flareSpriteRects, spriteScales);
-					sunFlareScene.AddObject (sunFlare);
-				}
-				#endif
+                var sunFlare = new SimpleSunFlareEffect(sunDiskScene, sunBillboard);
+				sunFlareScene.AddObject (sunFlare);
 			}
-
+            #endif
 		}
 
 		protected virtual void setupCamera()

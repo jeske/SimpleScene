@@ -39,9 +39,10 @@
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
     <Compile Include="SimpleLaserManager.cs" />
     <Compile Include="SimpleLaser.cs" />
-    <Compile Include="InstancedFlareEffect.cs" />
     <Compile Include="SimpleLaserBeamObject.cs" />
     <Compile Include="SimpleLaserFlareEffect.cs" />
+    <Compile Include="Instanced2dEffect.cs" />
+    <Compile Include="SimpleSunFlareEffect.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
