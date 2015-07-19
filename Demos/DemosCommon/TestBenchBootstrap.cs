@@ -68,11 +68,11 @@ namespace SimpleScene.Demos
 	/// </summary>
 	public abstract partial class TestBenchBootstrap : OpenTK.GameWindow
 	{
-		protected SSScene scene = new SSScene();
-		protected SSScene sunDiskScene = new SSScene ();
-		protected SSScene sunFlareScene = new SSScene ();
-		protected SSScene hudScene = new SSScene();
-		protected SSScene environmentScene = new SSScene();
+        protected SSScene scene;
+        protected SSScene sunDiskScene;
+        protected SSScene sunFlareScene;
+        protected SSScene hudScene;
+        protected SSScene environmentScene;
 
 		protected bool mouseButtonDown = false;
 

@@ -47,7 +47,7 @@ namespace SimpleScene.Demos
             instanceData.writeColor(0, color4);
 
             Vector2 compScale = new Vector2(
-                Math.Max (_occRect.X, _occRect.Y) * Math.Min (1.5f, 1f / (1f - _occIntensity)));
+                Math.Max (_occSize.X, _occSize.Y) * Math.Min (1.5f, 1f / (1f - _occIntensity)));
             instanceData.writeComponentScale(0, compScale);
 
             Vector2 towardsCenter = _screenCenter - _occPos;

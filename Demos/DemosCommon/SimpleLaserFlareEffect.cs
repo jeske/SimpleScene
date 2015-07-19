@@ -30,15 +30,16 @@ namespace SimpleScene.Demos
         }
         protected override void _prepareSpritesData ()
         {
+            GL.Color4(Color4.White);
+
             var beam = _laser.beam(_beamId);
             var beamStartScreen = worldToScreen(beam.startPos);
             int numElements = instanceData.activeBlockLength;
-            //var intensity = _laser.envelopeIntensity * beam.periodicIntensity;
-            var intensity = 1f;
+            var intensity = _laser.envelopeIntensity * beam.periodicIntensity * _occIntensity;
             var laserParams = _laser.parameters;
             instanceData.writePosition(0, beamStartScreen);
             instanceData.writePosition(1, beamStartScreen);
-            float scale = laserParams.backgroundWidth * intensity;
+            float scale = _laser.parameters.flareSizePx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
             instanceData.writeMasterScale(0, scale);
             instanceData.writeMasterScale(1, scale * 0.5f); // TODO customize
             instanceData.writeColor(0, laserParams.backgroundColor);

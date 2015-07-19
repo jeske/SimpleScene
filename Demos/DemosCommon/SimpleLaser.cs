@@ -136,6 +136,7 @@ namespace SimpleScene.Demos
 
         #region flare mechanics settings
         public float occDiskDirOffset = 0.5f;
+        public float flareSizePx = 100;
         #endregion
 	}
 

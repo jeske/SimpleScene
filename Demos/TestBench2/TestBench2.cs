@@ -53,7 +53,7 @@ namespace TestBench2
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.Name = "attacker drone";
 			//droneObj1.MainColor = Color4.Green;
-			//droneObj1.renderState.visible = false;
+			droneObj1.renderState.visible = false;
 			scene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
@@ -67,7 +67,7 @@ namespace TestBench2
 			scene.AddObject (droneObj2);
 
 			// manages laser objects
-			laserManager = new SimpleLaserManager(laserScene, sunFlareScene);
+            laserManager = new SimpleLaserManager(laserScene, sunFlareScene);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
@@ -76,7 +76,7 @@ namespace TestBench2
 		protected void _createLaser()
 		{
 			var laserParams = new SimpleLaserParameters ();
-			laserParams.numBeams = rand.Next (1, 6);
+			//laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;

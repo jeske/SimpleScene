@@ -52,12 +52,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
-      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
-      <Name>_SimpleScene</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Assets\checkerboard.png" />
     <None Include="Assets\elements.png" />
     <None Include="Assets\sun_flare.png" />
@@ -127,5 +121,11 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox.png" />
     <None Include="Assets\skybox\skybox_readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
+      <Name>_SimpleScene</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

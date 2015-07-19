@@ -19,7 +19,7 @@ namespace SimpleScene.Demos
         protected Vector2 _screenCenter;
         protected Vector2 _screenSize;
         protected float _occIntensity = 1f;
-        protected Vector2 _occRect = Vector2.Zero;
+        protected Vector2 _occSize = Vector2.Zero;
         protected Vector2 _occPos = Vector2.Zero;
         #endregion
 
@@ -76,8 +76,8 @@ namespace SimpleScene.Demos
                 _occPos = worldToScreen(occObj.Pos);
                 Vector2 occRightMostPt = worldToScreen(occRightMost);
                 Vector2 occTopMostPt = worldToScreen(occTopMost);
-                _occRect = 2f * new Vector2 (occRightMostPt.X - _occPos.X, _occPos.Y - occTopMostPt.Y);
-                float bbFullEstimate = (float)Math.PI * (float)_occRect.X * (float)_occRect.Y / 4f;
+                _occSize = 2f * new Vector2 (occRightMostPt.X - _occPos.X, _occPos.Y - occTopMostPt.Y);
+                float bbFullEstimate = (float)Math.PI * (float)_occSize.X * (float)_occSize.Y / 4f;
                 _occIntensity = Math.Min((float)queryResult / bbFullEstimate, 1f);
             }
 

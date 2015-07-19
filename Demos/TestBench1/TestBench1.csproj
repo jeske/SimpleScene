@@ -44,13 +44,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
-      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
-      <Name>_SimpleScene</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DemosCommon\DemosCommon.csproj">
       <Project>{FE371EFA-9B89-4AC4-84DF-428E0ADF5A57}</Project>
       <Name>DemosCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
+      <Name>_SimpleScene</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
