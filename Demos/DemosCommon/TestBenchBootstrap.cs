@@ -177,9 +177,12 @@ namespace SimpleScene.Demos
 		{
 			base.OnUpdateFrame(e);
 
-			environmentScene.Update((float)e.Time);
-			scene.Update ((float)e.Time);
-			hudScene.Update ((float)e.Time);
+            float time = (float)e.Time;
+			environmentScene.Update(time);
+			scene.Update (time);
+			hudScene.Update (time);
+            sunDiskScene.Update(time);
+            sunFlareScene.Update(time);
 
 			driveCamera ((float)e.Time);
 		}

@@ -109,11 +109,6 @@ namespace TestBench2
 			laserScene.renderConfig.invCameraViewMatrix = mainSceneView;
 			laserScene.renderConfig.projectionMatrix = mainSceneProj;
 
-			GL.Enable (EnableCap.CullFace);
-			GL.CullFace (CullFaceMode.Back);
-			GL.Disable(EnableCap.DepthClamp);
-			//GL.DepthFunc(DepthFunction.Less);
-
 			laserScene.Render ();
 		}
 
