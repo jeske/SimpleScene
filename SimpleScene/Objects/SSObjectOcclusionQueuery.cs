@@ -8,28 +8,26 @@ namespace SimpleScene
 {
     public class SSObjectOcclusionQueuery : SSObjectMesh
     {
-        private int GL_query_id;
+        private int _gl_query_id;
+        protected int _result;
 
-        public int OcclusionQueueryResult {
-            get {
-                int ret;
-                GL.GetQueryObject(GL_query_id, GetQueryObjectParam.QueryResult, out ret);
-                return ret;
-            }
-        }
+        public int OcclusionQueueryResult { get { return _result; } }
 
         public SSObjectOcclusionQueuery(SSAbstractMesh mesh)
         {
             Mesh = mesh;
-            GL_query_id = GL.GenQuery();
+            _gl_query_id = GL.GenQuery();
         }
 
         public override void Render(SSRenderConfig renderConfig)
         {
             if (Mesh != null) {
-                GL.BeginQuery(QueryTarget.SamplesPassed, GL_query_id);
+                GL.BeginQuery(QueryTarget.SamplesPassed, _gl_query_id);
                 base.Render(renderConfig);
                 GL.EndQuery(QueryTarget.SamplesPassed);
+                GL.GetQueryObject(_gl_query_id, GetQueryObjectParam.QueryResult, out _result);
+            } else {
+                _result = 0;
             }
         }
     }

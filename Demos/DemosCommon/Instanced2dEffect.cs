@@ -11,23 +11,18 @@ namespace SimpleScene.Demos
 	{
 		#region Source of Per-Frame Input
         public SSScene cameraScene3d = null;
-		public SSObjectOcclusionQueuery occObj = null;
 		#endregion
 
         #region per-frame temp variables
         protected Matrix4 _viewProjMat3d;
         protected Vector2 _screenCenter;
         protected Vector2 _screenSize;
-        protected float _occIntensity = 1f;
-        protected Vector2 _occSize = Vector2.Zero;
-        protected Vector2 _occPos = Vector2.Zero;
         #endregion
 
         public Instanced2dEffect (
             int numElements,
             SSScene cameraScene3d,
-            SSTexture tex = null,
-            SSObjectOcclusionQueuery occObj = null
+            SSTexture tex = null
         )
             : base(new InstancedSpriteData(numElements),
 				   SSTexturedQuad.DoubleFaceInstance,
@@ -46,7 +41,6 @@ namespace SimpleScene.Demos
             base.ShininessMatColor = 0f;
 
             this.cameraScene3d = cameraScene3d;
-            this.occObj = occObj;
 		}
 
 		protected new InstancedSpriteData instanceData {
@@ -55,9 +49,6 @@ namespace SimpleScene.Demos
 
 		public override void Render (SSRenderConfig renderConfig)
 		{
-			int queryResult = occObj.OcclusionQueueryResult;
-			if (queryResult <= 0) return;
-
             var rc = cameraScene3d.renderConfig;
 			// Begin the quest to update VBO vertices
 
@@ -66,20 +57,6 @@ namespace SimpleScene.Demos
 			GL.GetInteger(GetPName.Viewport, viewport);
             _screenSize = new Vector2(viewport [2], viewport [3]);
             _screenCenter = new Vector2 (viewport [0], viewport [1]) + _screenSize / 2f;
-
-            if (occObj != null) {
-                Matrix4 viewInverted = rc.invCameraViewMatrix.Inverted();
-                Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
-                Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewInverted).Normalized();
-                Vector3 occRightMost = occObj.Pos + viewRight * occObj.Scale.X;
-                Vector3 occTopMost = occObj.Pos + viewUp * occObj.Scale.Y;
-                _occPos = worldToScreen(occObj.Pos);
-                Vector2 occRightMostPt = worldToScreen(occRightMost);
-                Vector2 occTopMostPt = worldToScreen(occTopMost);
-                _occSize = 2f * new Vector2 (occRightMostPt.X - _occPos.X, _occPos.Y - occTopMostPt.Y);
-                float bbFullEstimate = (float)Math.PI * (float)_occSize.X * (float)_occSize.Y / 4f;
-                _occIntensity = Math.Min((float)queryResult / bbFullEstimate, 1f);
-            }
 
             _prepareSpritesData();
 

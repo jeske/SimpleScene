@@ -9,17 +9,20 @@ namespace SimpleScene.Demos
     public class SimpleLaserFlareEffect : Instanced2dEffect
     {
         protected SimpleLaser _laser;
-        int _beamId;
+        protected int _beamId;
+
+        protected SSObjectOcclusionQueuery _beamOccObj;
 
         public SimpleLaserFlareEffect(
             SimpleLaser laser, int beamId, 
             SSScene beamScene, SSObjectOcclusionQueuery beamOccDisk, 
             SSTexture texture, 
             RectangleF backgroundRect, RectangleF overlayRect)
-            : base(2, beamScene, texture, beamOccDisk)
+            : base(2, beamScene, texture)
         {
-            _laser = laser;
-            _beamId = beamId;
+            this._laser = laser;
+            this._beamId = beamId;
+            this._beamOccObj = beamOccDisk;
 
             this.renderState.alphaBlendingOn = true;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
@@ -32,10 +35,12 @@ namespace SimpleScene.Demos
         {
             GL.Color4(Color4.White);
 
+            float occIntensity = 1f; // TODO
+
             var beam = _laser.beam(_beamId);
             var beamStartScreen = worldToScreen(beam.startPos);
             int numElements = instanceData.activeBlockLength;
-            var intensity = _laser.envelopeIntensity * beam.periodicIntensity * _occIntensity;
+            var intensity = _laser.envelopeIntensity * beam.periodicIntensity * occIntensity;
             var laserParams = _laser.parameters;
             instanceData.writePosition(0, beamStartScreen);
             instanceData.writePosition(1, beamStartScreen);

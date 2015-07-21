@@ -19,6 +19,16 @@ namespace SimpleScene.Demos
 
         protected static readonly float[] _defaultSpriteScales = { 40f, 2f, 4f, 2f, 2f };
 
+        protected SSObjectOcclusionQueuery _occObj = null;
+        protected float _occIntensity = 1f;
+        protected Vector2 _occPos = Vector2.Zero;
+        protected Vector2 _occSize = Vector2.Zero;
+
+        #if false
+        protected float _occIntensity = 1f;
+        protected Vector2 _occSize = Vector2.Zero;
+        protected Vector2 _occPos = Vector2.Zero;
+        #endif
         protected static SSTexture _defaultTexture()
         {
             //return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png");
@@ -32,17 +42,37 @@ namespace SimpleScene.Demos
             RectangleF[] spriteRects = null,
             float[] spriteScales = null)
             : base(spriteRects != null ? spriteRects.Length : _defaultRects.Length,
-                   sunDiskScene, tex ?? _defaultTexture(), sunDiskObj)
+                   sunDiskScene, tex ?? _defaultTexture())
         {
             this.renderState.alphaBlendingOn = true;
+            this._occObj = sunDiskObj;
 
             base.rects = spriteRects ?? _defaultRects;
             base.masterScales = spriteScales ?? _defaultSpriteScales;
         }
 
+        public override void Render (SSRenderConfig renderConfig)
+        {
+            if (_occObj != null) {
+                Matrix4 viewInverted = renderConfig.invCameraViewMatrix.Inverted();
+                Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
+                Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewInverted).Normalized();
+                Vector3 occRightMost = _occObj.Pos + viewRight * _occObj.Scale.X;
+                Vector3 occTopMost = _occObj.Pos + viewUp * _occObj.Scale.Y;
+                _occPos = worldToScreen(_occObj.Pos);
+                Vector2 occRightMostPt = worldToScreen(occRightMost);
+                Vector2 occTopMostPt = worldToScreen(occTopMost);
+                _occSize = 2f * new Vector2 (occRightMostPt.X - _occPos.X, _occPos.Y - occTopMostPt.Y);
+                float bbFullEstimate = (float)Math.PI * (float)_occSize.X * (float)_occSize.Y / 4f;
+                _occIntensity = Math.Min((float)_occObj.OcclusionQueueryResult / bbFullEstimate, 1f);
+            }
+
+            base.Render(renderConfig);
+        }
+
         protected override void _prepareSpritesData ()
         {
-            var color4 = occObj.MainColor;
+            var color4 = _occObj.MainColor;
             color4.A = _occIntensity;
             instanceData.writeColor(0, color4);
 
