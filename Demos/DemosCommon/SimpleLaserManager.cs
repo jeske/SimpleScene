@@ -13,17 +13,19 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
 		/// </summary>
-		protected SSScene _mainScene;
-		protected SSScene _flareScene;
+		protected readonly SSScene _beamScene;
+        protected readonly SSScene _occDiskScene;
+		protected readonly SSScene _flareScene;
 
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
-		public SimpleLaserManager (SSScene mainScene, SSScene flareScene)
+        public SimpleLaserManager (SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
 		{
-			this._mainScene = mainScene;
+			this._beamScene = beamScene;
+            this._occDiskScene = occDiskScene;
 			this._flareScene = flareScene;
 
-			mainScene.preUpdateHooks += _update;
+			beamScene.preUpdateHooks += _update;
 		}
 
 		public SimpleLaser addLaser(SimpleLaserParameters laserParams, 
@@ -34,7 +36,7 @@ namespace SimpleScene.Demos
 			newLaser.sourceObject = srcObject;
 			newLaser.destObject = dstObject;
 
-			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _mainScene, _flareScene);
+			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene, _occDiskScene, _flareScene);
 			_laserRuntimes.Add (newLaserRuntime);
 
 			// debug hacks
@@ -63,17 +65,20 @@ namespace SimpleScene.Demos
 			protected readonly int _beamId;
 
 			protected readonly SSScene _beamScene;
+            protected readonly SSScene _occDiskScene;
 			protected readonly SSScene _flareScene;
 
-			protected SSObjectOcclusionQueuery _emissionOccDisk = null;
-            protected SimpleLaserFlareEffect _emissionFlareObj = null;
+			protected SSObjectOcclusionQueuery _occDiskObj = null;
+            protected SimpleLaserFlareEffect _flareObj = null;
 			protected SimpleLaserBeamObject _beamObj = null;
 
-			public BeamRuntimeInfo(SimpleLaser laser, int beamId, SSScene mainScene, SSScene flareScene)
+			public BeamRuntimeInfo(SimpleLaser laser, int beamId, 
+                                   SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
 			{
 				_laser = laser;
 				_beamId = beamId;
-				_beamScene = mainScene;
+				_beamScene = beamScene;
+                _occDiskScene = occDiskScene;
 				_flareScene = flareScene;
 			}
 
@@ -82,11 +87,11 @@ namespace SimpleScene.Demos
 				if (_beamObj != null) {
 					_beamObj.renderState.toBeDeleted = true;
 				}
-				if (_emissionOccDisk != null) {
-					_emissionOccDisk.renderState.toBeDeleted = true;
+				if (_occDiskObj != null) {
+					_occDiskObj.renderState.toBeDeleted = true;
 				}
-				if (_emissionFlareObj != null) {
-					_emissionFlareObj.renderState.toBeDeleted = true;
+				if (_flareObj != null) {
+					_flareObj.renderState.toBeDeleted = true;
 				}
 			}
 
@@ -97,24 +102,25 @@ namespace SimpleScene.Demos
 
                 _createRenderObjects();
 
-                _emissionOccDisk.Pos = beam.startPos + _laser.direction() * _laser.parameters.occDiskDirOffset;
+                _occDiskObj.Pos = beam.startPos + _laser.direction() * _laser.parameters.occDiskDirOffset;
 				// TODO consider per-beam orient
-				_emissionOccDisk.Orient(_laser.sourceOrient());
+				_occDiskObj.Orient(_laser.sourceOrient());
 			}
 
             protected void _createRenderObjects()
             {
-                if (_emissionOccDisk == null) {
-                    _emissionOccDisk = new SSObjectOcclusionQueuery (new SSMeshDisk ());
-                    _emissionOccDisk.renderState.doBillboarding = false;
-                    _emissionOccDisk.renderState.alphaBlendingOn = true;
-                    _emissionOccDisk.renderState.lighted = false;
-                    _emissionOccDisk.renderState.depthWrite = false;
+                if (_occDiskObj == null) {
+                    _occDiskObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
+                    _occDiskObj.renderState.doBillboarding = false;
+                    _occDiskObj.renderState.alphaBlendingOn = true;
+                    _occDiskObj.renderState.lighted = false;
+                    _occDiskObj.renderState.depthWrite = false;
                     var color = _laser.parameters.backgroundColor; // debugging
                     color.A = 0.0001f;
-                    //color.A = 0.5f;
-                    _emissionOccDisk.MainColor = color;
-                    _beamScene.AddObject(_emissionOccDisk);
+                    color.A = 0.5f;
+                    _occDiskObj.MainColor = color;
+                    _occDiskObj.Scale = new Vector3 (10f);
+                    _occDiskScene.AddObject(_occDiskObj);
                 }
 
                 if (_beamObj == null) {
@@ -122,13 +128,13 @@ namespace SimpleScene.Demos
                     _beamScene.AddObject(_beamObj);
                 }
 
-                if (_emissionFlareObj == null) {
+                if (_flareObj == null) {
                     var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
                     var rect = new RectangleF (0f, 0f, 1f, 1f);
-                    _emissionFlareObj = new SimpleLaserFlareEffect (_laser, _beamId, _beamScene,_emissionOccDisk,
+                    _flareObj = new SimpleLaserFlareEffect (_laser, _beamId, _beamScene, _occDiskObj,
                         tex, rect, rect);
-                    _flareScene.AddObject(_emissionFlareObj);
-               }
+                    _flareScene.AddObject(_flareObj);
+                }
             }
 		}
 
@@ -139,13 +145,14 @@ namespace SimpleScene.Demos
 
 			public SimpleLaser laser { get { return _laser; } }
 
-			public LaserRuntimeInfo(SimpleLaser laser, SSScene beamScene, SSScene flareScene)
+			public LaserRuntimeInfo(SimpleLaser laser, 
+                                    SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
 			{
 				_laser = laser;
 				var numBeams = laser.parameters.numBeams;
 				_beams = new BeamRuntimeInfo[numBeams];
 				for (int i = 0; i < numBeams; ++i) {
-					_beams[i] = new BeamRuntimeInfo(laser, i, beamScene, flareScene);
+                    _beams[i] = new BeamRuntimeInfo(laser, i, beamScene, occDiskScene, flareScene);
 				}
 			}
 

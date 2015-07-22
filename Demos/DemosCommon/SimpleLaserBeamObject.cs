@@ -220,11 +220,6 @@ namespace SimpleScene.Demos
 			#endif
 		}
 
-		public override void Update (float fElapsedS)
-		{
-
-		}
-
 		protected void _initMiddleMesh()
 		{
 			float padding = _laser.parameters.laserSpritePadding;
@@ -279,7 +274,7 @@ namespace SimpleScene.Demos
 		protected void _updateInterfernenceVertices(float laserLength, float interferenceWidth)
 		{
 			var beam = _laser.beam (_beamId);
-			if (beam == null) 		return;
+			if (beam == null) return;
 
 			float vScale = (interferenceWidth != 0f) ? (laserLength / interferenceWidth) : 0f;
 

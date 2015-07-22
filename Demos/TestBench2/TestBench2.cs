@@ -12,8 +12,18 @@ namespace TestBench2
 	{
 		protected Random rand = new Random();
 
-		protected SSScene laserScene = new SSScene ();
+        /// <summary>
+        /// For rendering laser beams
+        /// </summary>
+		protected SSScene laserBeamScene;
+
+        /// <summary>
+        /// For rendering (transparent) occlusion test disks that are used in the flare intensity mechanic
+        /// </summary>
+        protected SSScene laserOccDiskScene;
+
 		protected SimpleLaserManager laserManager = null;
+
 		//protected SimpleLaserParameters laserParams = null;
 		protected WeakReference activeLaser = new WeakReference (null);
 
@@ -41,6 +51,9 @@ namespace TestBench2
 		{
 			base.setupScene ();
 
+            laserBeamScene = new SSScene ();
+            laserOccDiskScene = new SSScene ();
+
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 
 			// add drones
@@ -67,11 +80,11 @@ namespace TestBench2
 			scene.AddObject (droneObj2);
 
 			// manages laser objects
-            laserManager = new SimpleLaserManager(laserScene, sunFlareScene);
+            laserManager = new SimpleLaserManager(laserBeamScene, laserOccDiskScene, sunFlareScene);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
-		}
+    	}
 
 		protected void _createLaser()
 		{
@@ -106,16 +119,22 @@ namespace TestBench2
 				fovy, aspect, nearPlane, farPlane, 
 				ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
-			laserScene.renderConfig.invCameraViewMatrix = mainSceneView;
-			laserScene.renderConfig.projectionMatrix = mainSceneProj;
+			laserBeamScene.renderConfig.invCameraViewMatrix = mainSceneView;
+			laserBeamScene.renderConfig.projectionMatrix = mainSceneProj;
+			laserBeamScene.Render ();
 
-			laserScene.Render ();
+            laserOccDiskScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            laserOccDiskScene.renderConfig.projectionMatrix = 
+                //Matrix4.CreateOrthographic(ClientRectangle.Width, ClientRectangle.Height, nearPlane, farPlane);
+                mainSceneProj;
+                //screenProj;
+            laserOccDiskScene.Render();
 		}
 
 		protected override void OnUpdateFrame (FrameEventArgs e)
 		{
 			base.OnUpdateFrame (e);
-			laserScene.Update ((float)e.Time);
+			laserBeamScene.Update ((float)e.Time);
 		}
 
 		protected void laserKeyDownHandler(object sender, KeyboardKeyEventArgs e)
@@ -161,8 +180,8 @@ namespace TestBench2
 
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
-			laserScene.ActiveCamera = camera;
-			laserScene.AddObject (camera);
+			laserBeamScene.ActiveCamera = camera;
+			laserBeamScene.AddObject (camera);
 		}
 	}
 }
