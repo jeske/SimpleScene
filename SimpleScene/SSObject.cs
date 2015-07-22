@@ -144,7 +144,11 @@ namespace SimpleScene
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 			renderBoundingSphereMesh (renderConfig);
 
-            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
+            Matrix4 modelViewMat = renderConfig.invCameraViewMatrix;
+            if (this.renderState.matchScaleToScreenPixels) {
+                modelViewMat = OpenTKHelper.ScaleToScreenMitigation(
+                    this.Pos, this.Scale.X, ref modelViewMat, ref renderConfig.projectionMatrix);
+            }
             if (this.renderState.doBillboarding) {
                 modelViewMat = OpenTKHelper.BillboardMatrix(ref modelViewMat);
             }
@@ -229,6 +233,7 @@ namespace SimpleScene
         public bool frustumCulling = true;
 	    public bool visible = true;
         public bool doBillboarding = false;
+        public bool matchScaleToScreenPixels = false;
         public bool depthTest = true;
         public DepthFunction depthFunc = DepthFunction.Less;
         public bool depthWrite = true;

@@ -81,11 +81,13 @@ namespace SimpleScene.Demos
                 Math.Max (_sunDiskOccSize.X, _sunDiskOccSize.Y) * Math.Min (1.5f, 1f / (1f - _sunDiskOccIntensity)));
             instanceData.writeComponentScale(0, compScale);
 
-            Vector2 towardsCenter = _screenCenter - _sunDiskOccPos;
+            Vector2 center = new Vector2 (_clientRect.X, _clientRect.Y)
+                           + new Vector2 (_clientRect.Width, _clientRect.Width) / 2f;
+            Vector2 towardsCenter = center - _sunDiskOccPos;
             int numElements = instanceData.activeBlockLength;
             for (int i = 0; i < numElements; ++i) {
-                Vector2 center = _sunDiskOccPos + towardsCenter * 2.5f / (float)numElements * (float)i;
-                instanceData.writePosition(i, center);
+                Vector2 spriteCenter = _sunDiskOccPos + towardsCenter * 2.5f / (float)numElements * (float)i;
+                instanceData.writePosition(i, spriteCenter);
             }
         }
     }

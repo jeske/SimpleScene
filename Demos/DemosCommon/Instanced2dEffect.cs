@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Drawing;
+
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using System.Drawing;
-using SimpleScene;
 
 namespace SimpleScene.Demos
 {
@@ -15,8 +15,7 @@ namespace SimpleScene.Demos
 
         #region per-frame temp variables
         protected Matrix4 _viewProjMat3d;
-        protected Vector2 _screenCenter;
-        protected Vector2 _screenSize;
+        protected RectangleF _clientRect;
         #endregion
 
         public Instanced2dEffect (
@@ -50,13 +49,8 @@ namespace SimpleScene.Demos
 		public override void Render (SSRenderConfig renderConfig)
 		{
             var rc = cameraScene3d.renderConfig;
-			// Begin the quest to update VBO vertices
-
             _viewProjMat3d = rc.invCameraViewMatrix * rc.projectionMatrix;
-			int[] viewport = new int[4];
-			GL.GetInteger(GetPName.Viewport, viewport);
-            _screenSize = new Vector2(viewport [2], viewport [3]);
-            _screenCenter = new Vector2 (viewport [0], viewport [1]) + _screenSize / 2f;
+            _clientRect = OpenTKHelper.GetClientRect();
 
             _prepareSpritesData();
 
@@ -65,10 +59,14 @@ namespace SimpleScene.Demos
 
         protected Vector2 worldToScreen(Vector3 worldPos) 
         {
+            return OpenTKHelper.WorldToScreen(worldPos, ref _viewProjMat3d, ref _clientRect);
+
+            #if false
             Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), _viewProjMat3d);
             pos /= pos.W;
             pos.Y = -pos.Y;
             return  _screenCenter + pos.Xy * _screenSize / 2f;
+            #endif
         }
 
         public float[] masterScales {

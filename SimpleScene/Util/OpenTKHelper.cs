@@ -2,6 +2,7 @@
 // Released to the public domain. 
 
 using System;
+using System.Drawing; // for RectangleF
 
 using OpenTK;
 using OpenTK.Graphics;
@@ -369,7 +370,7 @@ namespace SimpleScene
         }
 
         /// <summary>
-        /// Override matrix setup to get rid of any rotation in view
+        /// Strip away the rotation in the view matrix to make an object always face the camera
         /// http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
         /// </summary>
         public static Matrix4 BillboardMatrix(ref Matrix4 modelViewMat)
@@ -381,6 +382,43 @@ namespace SimpleScene
                 0f, scale.Y, 0f, 0f,
                 0f, 0f, scale.Z, 0f,
                 trans.X, trans.Y, trans.Z, 1f);
+        }
+
+        public static Vector2 WorldToScreen(Vector3 worldPos, ref Matrix4 modelViewProjMat, 
+                                            ref RectangleF clientRect)
+        {
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), modelViewProjMat);
+            pos /= pos.W;
+            pos.Y = -pos.Y;
+            return new Vector2 (clientRect.X, clientRect.Y) * (new Vector2 (0.5f) + pos.Xy);
+        }
+
+        /// <summary>
+        /// View matrix that makes the object appear on the screen in pixel dimentions matching it's 
+        /// scale value (after modelview and projection transforms)
+        /// </summary>
+        public static Matrix4 ScaleToScreenMitigation(Vector3 objPos, float objScaleX,
+                                                    ref Matrix4 viewMat, ref Matrix4 projMat)
+        {
+            // compute rightmost point in world coordinates
+            Matrix4 viewInverted = viewMat.Inverted();
+            Vector3 rightMostInWorld 
+                = objPos + objScaleX * Vector3.Transform(Vector3.UnitX, viewInverted);
+
+            // compute things in screen coordinates and find the required scale mitigation
+            Matrix4 modelViewProjMat = viewMat * projMat;
+            RectangleF clientRect = GetClientRect();
+            Vector2 centerOnScreen = WorldToScreen(objPos, ref modelViewProjMat, ref clientRect);
+            Vector2 rightMostOnScreen = WorldToScreen(rightMostInWorld, ref modelViewProjMat, ref clientRect);
+            float scaleMitigation = (rightMostOnScreen.X - centerOnScreen.X) / objScaleX;
+            return Matrix4.CreateScale(scaleMitigation) * viewMat;
+        }
+
+        public static RectangleF GetClientRect()
+        {
+            int[] viewport = new int[4];
+            GL.GetInteger(GetPName.Viewport, viewport);
+            return new RectangleF (viewport [0], viewport [1], viewport [2], viewport [3]);
         }
 
 		public static bool areFramebuffersSupported() {
