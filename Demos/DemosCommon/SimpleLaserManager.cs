@@ -111,15 +111,16 @@ namespace SimpleScene.Demos
             {
                 if (_occDiskObj == null) {
                     _occDiskObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
-                    _occDiskObj.renderState.doBillboarding = false;
                     _occDiskObj.renderState.alphaBlendingOn = true;
                     _occDiskObj.renderState.lighted = false;
                     _occDiskObj.renderState.depthWrite = false;
+                    _occDiskObj.renderState.doBillboarding = false;
+                    _occDiskObj.renderState.matchScaleToScreenPixels = true;
+                    _occDiskObj.Scale = new Vector3 (_laser.parameters.occDiskRadiusPx);
                     var color = _laser.parameters.backgroundColor; // debugging
                     color.A = 0.0001f;
-                    color.A = 0.5f;
+                    //color.A = 0.5f;
                     _occDiskObj.MainColor = color;
-                    _occDiskObj.Scale = new Vector3 (10f);
                     _occDiskScene.AddObject(_occDiskObj);
                 }
 

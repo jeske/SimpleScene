@@ -144,10 +144,11 @@ namespace SimpleScene
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 			renderBoundingSphereMesh (renderConfig);
 
-            Matrix4 modelViewMat = renderConfig.invCameraViewMatrix;
+            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
             if (this.renderState.matchScaleToScreenPixels) {
-                modelViewMat = OpenTKHelper.ScaleToScreenMitigation(
-                    this.Pos, this.Scale.X, ref modelViewMat, ref renderConfig.projectionMatrix);
+                Matrix4 scaleCompenstaion = OpenTKHelper.ScaleToScreenPxViewMat(
+                    this.Pos, this.Scale.X, ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
+                modelViewMat = scaleCompenstaion * modelViewMat;
             }
             if (this.renderState.doBillboarding) {
                 modelViewMat = OpenTKHelper.BillboardMatrix(ref modelViewMat);

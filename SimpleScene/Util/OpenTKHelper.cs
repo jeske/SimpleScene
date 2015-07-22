@@ -390,28 +390,35 @@ namespace SimpleScene
             Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), modelViewProjMat);
             pos /= pos.W;
             pos.Y = -pos.Y;
-            return new Vector2 (clientRect.X, clientRect.Y) * (new Vector2 (0.5f) + pos.Xy);
+            Vector2 screenSize = new Vector2(clientRect.Width, clientRect.Height);
+            Vector2 screenCenter = new Vector2 (clientRect.X, clientRect.Y) + screenSize / 2f;
+            return screenCenter + pos.Xy * screenSize / 2f;
         }
 
         /// <summary>
         /// View matrix that makes the object appear on the screen in pixel dimentions matching it's 
         /// scale value (after modelview and projection transforms)
         /// </summary>
-        public static Matrix4 ScaleToScreenMitigation(Vector3 objPos, float objScaleX,
-                                                    ref Matrix4 viewMat, ref Matrix4 projMat)
+        public static Matrix4 ScaleToScreenPxViewMat(Vector3 objPos, float objScaleX,
+                                                     ref Matrix4 viewMat, ref Matrix4 projMat)
         {
+            objScaleX = Math.Abs(objScaleX);
+
             // compute rightmost point in world coordinates
-            Matrix4 viewInverted = viewMat.Inverted();
-            Vector3 rightMostInWorld 
-                = objPos + objScaleX * Vector3.Transform(Vector3.UnitX, viewInverted);
+            Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation()).Inverted();
+            Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
+            Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
 
             // compute things in screen coordinates and find the required scale mitigation
             Matrix4 modelViewProjMat = viewMat * projMat;
             RectangleF clientRect = GetClientRect();
             Vector2 centerOnScreen = WorldToScreen(objPos, ref modelViewProjMat, ref clientRect);
             Vector2 rightMostOnScreen = WorldToScreen(rightMostInWorld, ref modelViewProjMat, ref clientRect);
-            float scaleMitigation = (rightMostOnScreen.X - centerOnScreen.X) / objScaleX;
-            return Matrix4.CreateScale(scaleMitigation) * viewMat;
+            float distanceObserved = Math.Abs(rightMostOnScreen.X - centerOnScreen.X);
+            float scaleMitigation = objScaleX / distanceObserved;
+            //System.Console.WriteLine("rightmost x = " + rightMostOnScreen.X);
+            return Matrix4.CreateScale(scaleMitigation);
+            //return Matrix4.Identity;
         }
 
         public static RectangleF GetClientRect()

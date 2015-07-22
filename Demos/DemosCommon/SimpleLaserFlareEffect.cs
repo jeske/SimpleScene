@@ -35,7 +35,12 @@ namespace SimpleScene.Demos
         {
             GL.Color4(Color4.White);
 
-            float occIntensity = 1f; // TODO
+            float occIntensity = 1f;
+            if (_beamOccObj != null) {
+                float occR = _laser.parameters.occDiskRadiusPx;
+                float occAreaExpected = (float)Math.PI * occR * occR;
+                occIntensity = (float)_beamOccObj.OcclusionQueueryResult / occAreaExpected;
+            }
 
             var beam = _laser.beam(_beamId);
             var beamStartScreen = worldToScreen(beam.startPos);
