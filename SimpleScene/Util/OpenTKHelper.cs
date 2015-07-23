@@ -405,7 +405,7 @@ namespace SimpleScene
             objScaleX = Math.Abs(objScaleX);
 
             // compute rightmost point in world coordinates
-            Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation()).Inverted();
+            Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation().Inverted());
             Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
             Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
 
