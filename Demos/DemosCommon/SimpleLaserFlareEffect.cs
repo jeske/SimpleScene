@@ -33,8 +33,6 @@ namespace SimpleScene.Demos
         }
         protected override void _prepareSpritesData ()
         {
-            GL.Color4(Color4.White);
-
             float occIntensity = 1f;
             if (_beamOccObj != null) {
                 float occR = _laser.parameters.occDiskRadiusPx;
@@ -52,8 +50,14 @@ namespace SimpleScene.Demos
             float scale = _laser.parameters.flareSizePx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
             instanceData.writeMasterScale(0, scale);
             instanceData.writeMasterScale(1, scale * 0.5f); // TODO customize
-            instanceData.writeColor(0, laserParams.backgroundColor);
-            instanceData.writeColor(1, laserParams.overlayColor);
+
+            var backgroundColor = laserParams.backgroundColor;
+            backgroundColor.A = intensity;
+            instanceData.writeColor(0, backgroundColor);
+
+            var overlayColor = laserParams.overlayColor;
+            overlayColor.A = (float)Math.Pow(occIntensity, 0.5);
+            instanceData.writeColor(1, overlayColor);
         }
     }
 }
