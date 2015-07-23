@@ -38,6 +38,8 @@ namespace SimpleScene.Demos
                 float occR = _laser.parameters.occDiskRadiusPx;
                 float occAreaExpected = (float)Math.PI * occR * occR;
                 occIntensity = (float)_beamOccObj.OcclusionQueueryResult / occAreaExpected;
+                occIntensity = Math.Min(occIntensity, 1f);
+                occIntensity = (float)Math.Pow(occIntensity, 3.0);
             }
 
             var beam = _laser.beam(_beamId);
@@ -47,7 +49,7 @@ namespace SimpleScene.Demos
             var laserParams = _laser.parameters;
             instanceData.writePosition(0, beamStartScreen);
             instanceData.writePosition(1, beamStartScreen);
-            float scale = _laser.parameters.flareSizePx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
+            float scale = _laser.parameters.flareSizeMaxPx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
             instanceData.writeMasterScale(0, scale);
             instanceData.writeMasterScale(1, scale * 0.5f); // TODO customize
 
