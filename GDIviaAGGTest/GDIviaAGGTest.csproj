@@ -43,4 +43,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
+      <Name>_SimpleScene</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
