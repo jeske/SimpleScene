@@ -138,7 +138,7 @@ namespace SimpleScene.Demos
         public float flareSizeMaxPx = 500f;
         public float occDiskDirOffset = 0.5f;
         public float occDisk1RadiusPx = 15f;
-        public float occDisk2RadiusWU = 5f;
+        public float occDisk2RadiusWU = 0.5f;
         public float occDisksAlpha = 0.0001f;
         //public float occDisksAlpha = 0.3f;
         #endregion

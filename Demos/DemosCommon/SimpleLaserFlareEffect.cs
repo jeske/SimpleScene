@@ -11,7 +11,14 @@ namespace SimpleScene.Demos
         protected SimpleLaser _laser;
         protected int _beamId;
 
+        /// <summary>
+        /// "flat" disk that matches its draw scale to compenstate for perspective shrinking
+        /// </summary>
         protected readonly SSObjectOcclusionQueuery _beamOccFlatObj;
+
+        /// <summary>
+        /// "perspective" disk that that just shrinks when looking from far away due to perspective
+        /// </summary>
         protected readonly SSObjectOcclusionQueuery _beamOccPerspObj;
 
         public SimpleLaserFlareEffect(
@@ -56,12 +63,11 @@ namespace SimpleScene.Demos
                 // "perspective" disk that that just shrinks when looking from far away due to perspective
                 var contribution = (float)Math.Sqrt((float)_beamOccPerspObj.OcclusionQueueryResult /
                                (_clientRect.Width * _clientRect.Height));
-                contribution = (float)Math.Pow(contribution, 0.3);
+                contribution = (float)Math.Pow(contribution, 0.2);
                 contribution *= 0.8f;
-                System.Console.Write(" + " + contribution);
+                System.Console.Write(" + " + contribution + " = " + occIntensity + "\n");
                 occIntensity += contribution;
             }
-            System.Console.Write(" = " + occIntensity + "\n");
 
             var beam = _laser.beam(_beamId);
             var beamStartScreen = worldToScreen(beam.startPos);
