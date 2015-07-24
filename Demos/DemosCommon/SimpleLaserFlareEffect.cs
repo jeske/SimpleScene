@@ -11,18 +11,21 @@ namespace SimpleScene.Demos
         protected SimpleLaser _laser;
         protected int _beamId;
 
-        protected SSObjectOcclusionQueuery _beamOccObj;
+        protected readonly SSObjectOcclusionQueuery _beamOccFlatObj;
+        protected readonly SSObjectOcclusionQueuery _beamOccPerspObj;
 
         public SimpleLaserFlareEffect(
             SimpleLaser laser, int beamId, 
-            SSScene beamScene, SSObjectOcclusionQueuery beamOccDisk, 
+            SSScene beamScene, 
+            SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp, 
             SSTexture texture, 
             RectangleF backgroundRect, RectangleF overlayRect)
             : base(2, beamScene, texture)
         {
             this._laser = laser;
             this._beamId = beamId;
-            this._beamOccObj = beamOccDisk;
+            this._beamOccFlatObj = occFlat;
+            this._beamOccPerspObj = occPersp;
 
             this.renderState.alphaBlendingOn = true;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
@@ -33,14 +36,32 @@ namespace SimpleScene.Demos
         }
         protected override void _prepareSpritesData ()
         {
-            float occIntensity = 1f;
-            if (_beamOccObj != null) {
-                float occR = _laser.parameters.occDiskRadiusPx;
+            System.Console.Write("beamId: " + _beamId + " occIntensity = ");
+
+
+            float occIntensity = 0f;
+            if (_beamOccFlatObj != null) {
+                // "flat" disk that matches its draw scale to compenstate for perspective shrinking
+                float occR = _laser.parameters.occDisk1RadiusPx;
                 float occAreaExpected = (float)Math.PI * occR * occR;
-                occIntensity = (float)_beamOccObj.OcclusionQueueryResult / occAreaExpected;
-                occIntensity = Math.Min(occIntensity, 1f);
-                occIntensity = (float)Math.Pow(occIntensity, 3.0);
+                var contribution = (float)_beamOccFlatObj.OcclusionQueueryResult / occAreaExpected;
+                contribution = Math.Min(contribution, 1f);
+                contribution = (float)Math.Pow(contribution, 3.0);
+                contribution *= 0.2f;
+                System.Console.Write(contribution.ToString());
+                occIntensity += contribution;
             }
+
+            if (_beamOccPerspObj != null) {
+                // "perspective" disk that that just shrinks when looking from far away due to perspective
+                var contribution = (float)Math.Sqrt((float)_beamOccPerspObj.OcclusionQueueryResult /
+                               (_clientRect.Width * _clientRect.Height));
+                contribution = (float)Math.Pow(contribution, 0.3);
+                contribution *= 0.8f;
+                System.Console.Write(" + " + contribution);
+                occIntensity += contribution;
+            }
+            System.Console.Write(" = " + occIntensity + "\n");
 
             var beam = _laser.beam(_beamId);
             var beamStartScreen = worldToScreen(beam.startPos);
