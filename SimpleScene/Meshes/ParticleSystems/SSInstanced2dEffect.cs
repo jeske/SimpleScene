@@ -23,7 +23,7 @@ namespace SimpleScene.Demos
             SSScene cameraScene3d,
             SSTexture tex = null
         )
-            : base(new InstancedSpriteData(numElements),
+            : base(new SInstancedSpriteData(numElements),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   BufferUsageHint.StreamDraw)
 		{
@@ -42,8 +42,8 @@ namespace SimpleScene.Demos
             this.cameraScene3d = cameraScene3d;
 		}
 
-		protected new InstancedSpriteData instanceData {
-			get { return base.instanceData as InstancedSpriteData; }
+		protected new SInstancedSpriteData instanceData {
+			get { return base.instanceData as SInstancedSpriteData; }
 		}
 
 		public override void Render (SSRenderConfig renderConfig)
@@ -106,7 +106,7 @@ namespace SimpleScene.Demos
         /// </summary>
         protected abstract void _prepareSpritesData();
 
-		protected class InstancedSpriteData : SSInstancesData
+		protected class SInstancedSpriteData : SSInstancesData
 		{
             // TODO easy setters
 
@@ -171,7 +171,7 @@ namespace SimpleScene.Demos
                 writeDataIfNeeded(ref _spriteSizesV, idx, new SSAttributeFloat (rect.Height));
             }
 
-            public InstancedSpriteData(int numElements)
+            public SInstancedSpriteData(int numElements)
 			{
                 _numElements = numElements;
 

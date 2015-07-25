@@ -8,6 +8,11 @@ namespace SimpleScene.Demos
 {
     public class SLaserEmissionFlareObject : SSInstanced2dEffect
     {
+        public static SSTexture getDefaultTexture() 
+        { 
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
+        }
+
         protected SLaser _laser;
         protected int _beamId;
 
@@ -23,11 +28,13 @@ namespace SimpleScene.Demos
 
         public SLaserEmissionFlareObject(
             SLaser laser, int beamId, 
-            SSScene beamScene, 
+            SSScene camera3dScene, 
             SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp, 
             SSTexture texture, 
-            RectangleF backgroundRect, RectangleF overlayRect)
-            : base(2, beamScene, texture)
+            RectangleF backgroundRect,
+            RectangleF overlayRect
+        )
+            : base(2, camera3dScene, texture ?? getDefaultTexture())
         {
             this._laser = laser;
             this._beamId = beamId;
@@ -41,6 +48,16 @@ namespace SimpleScene.Demos
             instanceData.writeRect(0, backgroundRect);
             instanceData.writeRect(1, overlayRect);
         }
+
+        public SLaserEmissionFlareObject(
+            SLaser laser, int beamId, 
+            SSScene camera3dScene, 
+            SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp, 
+            SSTexture texture = null)
+            : this(laser, beamId, camera3dScene, occFlat, occPersp, texture,
+                new RectangleF(0f, 0f, 1f, 1f), new RectangleF(0f, 0f, 1f, 1f))
+        { }
+
         protected override void _prepareSpritesData ()
         {
             System.Console.Write("beamId: " + _beamId + " occIntensity = ");

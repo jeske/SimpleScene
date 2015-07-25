@@ -151,10 +151,7 @@ namespace SimpleScene.Demos
                 }
 
                 if (_flareObj == null) {
-                    var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
-                    var rect = new RectangleF (0f, 0f, 1f, 1f);
-                    _flareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj,
-                        tex, rect, rect);
+                    _flareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj);
                     _flareScene.AddObject(_flareObj);
                 }
             }
