@@ -36,7 +36,6 @@
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
     <Compile Include="SExplosionRenderer.cs" />
     <Compile Include="SSunFlareEffect.cs" />
-    <Compile Include="SSunFlareMesh.cs" />
     <Compile Include="SStarfieldObject.cs" />
     <Compile Include="Lasers\SLaserBeamObject.cs" />
     <Compile Include="Lasers\SLaserManager.cs" />

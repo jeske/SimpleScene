@@ -22,7 +22,7 @@ namespace SimpleScene.Demos
 		#region per-frame data sources
 		protected readonly SLaser _laser;
 		protected readonly int _beamId;
-		protected readonly SSScene cameraScene;
+		protected readonly SSScene _cameraScene;
 		#endregion
 
 		#region stretched middle sprites
@@ -70,7 +70,7 @@ namespace SimpleScene.Demos
 		{
 			this._laser = laser;
 			this._beamId = beamId;
-			this.cameraScene = cameraScene;
+			this._cameraScene = cameraScene;
 
             this.renderState.castsShadow = false;
             this.renderState.receivesShadows = false;
@@ -150,7 +150,7 @@ namespace SimpleScene.Demos
 			float middleWidth = laserParams.backgroundWidth * _laser.envelopeIntensity;
 
 			Vector3 cameraDir = Vector3.Transform(
-				-Vector3.UnitZ, cameraScene.renderConfig.invCameraViewMatrix).Normalized();
+				-Vector3.UnitZ, _cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, _laser.direction());
 			dot = Math.Max (dot, 0f);
 			float flareSpriteWidth = middleWidth * laserParams.startPointScale * (1f - dot);
