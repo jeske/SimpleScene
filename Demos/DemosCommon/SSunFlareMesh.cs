@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
-	public class SimpleSunFlareMesh : SSObjectMesh
+	public class SSunFlareMesh : SSObjectMesh
     {
         // TODO decouple some sprite details from this class
         // (make it more friendly for generic use)
@@ -44,7 +44,7 @@ namespace SimpleScene.Demos
             return screenCenter + pos.Xy * clientRect / 2f;
         }
 
-        public SimpleSunFlareMesh (SSScene sunScene,
+        public SSunFlareMesh (SSScene sunScene,
                                    SSObjectOcclusionQueuery sun,
                                    SSTexture texture,
                                    RectangleF[] spriteRects,
@@ -53,7 +53,7 @@ namespace SimpleScene.Demos
             init(sunScene, sun, texture, spriteRects, spriteScales);
         }
 
-        public SimpleSunFlareMesh(SSScene sunScene,
+        public SSunFlareMesh(SSScene sunScene,
                                   SSObjectOcclusionQueuery sun,
                                   SSTexture texture,
                                   RectangleF[] spriteRects,

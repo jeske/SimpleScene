@@ -6,7 +6,7 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-	public class SimpleLaserManager
+	public class SLaserManager
 	{
 		// TODO switch targets while firing
 
@@ -19,7 +19,7 @@ namespace SimpleScene.Demos
 
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
-        public SimpleLaserManager (SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
+        public SLaserManager (SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
 		{
 			this._beamScene = beamScene;
             this._occDiskScene = occDiskScene;
@@ -28,10 +28,10 @@ namespace SimpleScene.Demos
 			beamScene.preUpdateHooks += _update;
 		}
 
-		public SimpleLaser addLaser(SimpleLaserParameters laserParams, 
+		public SLaser addLaser(SLaserParameters laserParams, 
 						     		SSObject srcObject, SSObject dstObject)
 		{
-			var newLaser = new SimpleLaser (laserParams);
+			var newLaser = new SLaser (laserParams);
 			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
 			newLaser.destObject = dstObject;
@@ -61,7 +61,7 @@ namespace SimpleScene.Demos
 
 		protected class BeamRuntimeInfo
 		{
-			protected readonly SimpleLaser _laser;
+			protected readonly SLaser _laser;
 			protected readonly int _beamId;
 
 			protected readonly SSScene _beamScene;
@@ -70,10 +70,10 @@ namespace SimpleScene.Demos
 
 			protected SSObjectOcclusionQueuery _occDiskFlatObj = null;
             protected SSObjectOcclusionQueuery _occDiskPerspObj = null;
-            protected SimpleLaserFlareEffect _flareObj = null;
-			protected SimpleLaserBeamObject _beamObj = null;
+            protected SLaserEmissionFlareObject _flareObj = null;
+			protected SLaserBeamObject _beamObj = null;
 
-			public BeamRuntimeInfo(SimpleLaser laser, int beamId, 
+			public BeamRuntimeInfo(SLaser laser, int beamId, 
                                    SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
 			{
 				_laser = laser;
@@ -146,14 +146,14 @@ namespace SimpleScene.Demos
                 }
 
                 if (_beamObj == null) {
-                    _beamObj = new SimpleLaserBeamObject (_laser, _beamId, _beamScene);
+                    _beamObj = new SLaserBeamObject (_laser, _beamId, _beamScene);
                     _beamScene.AddObject(_beamObj);
                 }
 
                 if (_flareObj == null) {
                     var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
                     var rect = new RectangleF (0f, 0f, 1f, 1f);
-                    _flareObj = new SimpleLaserFlareEffect (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj,
+                    _flareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj,
                         tex, rect, rect);
                     _flareScene.AddObject(_flareObj);
                 }
@@ -162,12 +162,12 @@ namespace SimpleScene.Demos
 
 		protected class LaserRuntimeInfo
 		{
-			protected readonly SimpleLaser _laser;
+			protected readonly SLaser _laser;
 			protected readonly BeamRuntimeInfo[] _beams;
 
-			public SimpleLaser laser { get { return _laser; } }
+			public SLaser laser { get { return _laser; } }
 
-			public LaserRuntimeInfo(SimpleLaser laser, 
+			public LaserRuntimeInfo(SLaser laser, 
                                     SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
 			{
 				_laser = laser;

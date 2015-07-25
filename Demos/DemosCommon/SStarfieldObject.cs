@@ -11,14 +11,14 @@ namespace SimpleScene.Demos
 
 	// TODO: this would be more attractive with some varied star-textures
 
-	public class SimpleStarfieldObject : SSObject
+	public class SStarfieldObject : SSObject
 	{
 		SSVertex_PosNormDiff[] vertices = null;
 		int numstars;
 
         public override bool alphaBlendingEnabled { get { return true; } }
 
-		public SimpleStarfieldObject (int numstars) 
+		public SStarfieldObject (int numstars) 
         {
             this.renderState.lighted = false;
             this.renderState.depthTest = false;

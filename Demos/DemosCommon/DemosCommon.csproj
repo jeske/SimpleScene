@@ -30,19 +30,18 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="SimpleExplosionRenderer.cs" />
-    <Compile Include="SimpleSunFlareMesh.cs" />
-    <Compile Include="SimpleStarfieldMesh.cs" />
     <Compile Include="TestBenchBootstrap.cs" />
     <Compile Include="TestBenchBootstrap_renderScene.cs" />
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
-    <Compile Include="SimpleLaserManager.cs" />
-    <Compile Include="SimpleLaser.cs" />
-    <Compile Include="SimpleLaserBeamObject.cs" />
-    <Compile Include="SimpleLaserFlareEffect.cs" />
-    <Compile Include="Instanced2dEffect.cs" />
-    <Compile Include="SimpleSunFlareEffect.cs" />
+    <Compile Include="SExplosionRenderer.cs" />
+    <Compile Include="SSunFlareEffect.cs" />
+    <Compile Include="SSunFlareMesh.cs" />
+    <Compile Include="SStarfieldObject.cs" />
+    <Compile Include="Lasers\SLaserBeamObject.cs" />
+    <Compile Include="Lasers\SLaserManager.cs" />
+    <Compile Include="Lasers\SLaser.cs" />
+    <Compile Include="Lasers\SLaserEmissionFlareObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
@@ -127,5 +126,8 @@
       <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
       <Name>_SimpleScene</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Lasers\" />
   </ItemGroup>
 </Project>

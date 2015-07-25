@@ -67,7 +67,7 @@ namespace SimpleScene.Demos
 				sunBillboard.renderState.castsShadow = false;
 				sunDiskScene.AddObject(sunBillboard);
 
-                var sunFlare = new SimpleSunFlareEffect(sunDiskScene, sunBillboard);
+                var sunFlare = new SSunFlareEffect(sunDiskScene, sunBillboard);
 				sunFlareScene.AddObject (sunFlare);
 			}
             #endif
@@ -94,7 +94,7 @@ namespace SimpleScene.Demos
 
 			// scene.addObject(skyboxCube);
 
-			SSObject skyboxStars = new SimpleStarfieldObject(1600);
+			SSObject skyboxStars = new SStarfieldObject(1600);
 			environmentScene.AddObject(skyboxStars);
 
 		}

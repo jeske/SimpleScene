@@ -5,7 +5,7 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public class SimpleSunFlareEffect : Instanced2dEffect
+    public class SSunFlareEffect : SSInstanced2dEffect
     {
         #region default sprite and texture configuration
         protected const float _bigOffset = 0.8889f;
@@ -35,7 +35,7 @@ namespace SimpleScene.Demos
         protected Vector2 _sunDiskOccSize = Vector2.Zero;
         #endregion
 
-        public SimpleSunFlareEffect (
+        public SSunFlareEffect (
             SSScene sunDiskScene,
             SSObjectOcclusionQueuery sunDiskObj,
             SSTexture tex = null,

@@ -6,9 +6,9 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
-    public class SimpleLaserFlareEffect : Instanced2dEffect
+    public class SLaserEmissionFlareObject : SSInstanced2dEffect
     {
-        protected SimpleLaser _laser;
+        protected SLaser _laser;
         protected int _beamId;
 
         /// <summary>
@@ -21,8 +21,8 @@ namespace SimpleScene.Demos
         /// </summary>
         protected readonly SSObjectOcclusionQueuery _beamOccPerspObj;
 
-        public SimpleLaserFlareEffect(
-            SimpleLaser laser, int beamId, 
+        public SLaserEmissionFlareObject(
+            SLaser laser, int beamId, 
             SSScene beamScene, 
             SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp, 
             SSTexture texture, 
@@ -55,8 +55,8 @@ namespace SimpleScene.Demos
                 contribution = Math.Min(contribution, 1f);
                 contribution = (float)Math.Pow(contribution, 3.0);
                 contribution *= 0.2f;
-                System.Console.Write(contribution.ToString());
                 occIntensity += contribution;
+                System.Console.Write(contribution.ToString());
             }
 
             if (_beamOccPerspObj != null) {
@@ -65,8 +65,8 @@ namespace SimpleScene.Demos
                                (_clientRect.Width * _clientRect.Height));
                 contribution = (float)Math.Pow(contribution, 0.2);
                 contribution *= 0.8f;
-                System.Console.Write(" + " + contribution + " = " + occIntensity + "\n");
                 occIntensity += contribution;
+                System.Console.Write(" + " + contribution + " = " + occIntensity + "\n");
             }
 
             var beam = _laser.beam(_beamId);

@@ -153,7 +153,7 @@ namespace TestBench0
 				// test explositons
 				//if (false)
 				{
-					SimpleExplosionRenderer aer = new SimpleExplosionRenderer (100);
+					SExplosionRenderer aer = new SExplosionRenderer (100);
 					aer.Pos = cubesRenderer.Pos;
 					scene.AddObject (aer);
 

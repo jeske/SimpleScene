@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
-	public abstract class Instanced2dEffect : SSInstancedMeshRenderer
+	public abstract class SSInstanced2dEffect : SSInstancedMeshRenderer
 	{
 		#region Source of Per-Frame Input
         public SSScene cameraScene3d = null;
@@ -18,7 +18,7 @@ namespace SimpleScene.Demos
         protected RectangleF _clientRect;
         #endregion
 
-        public Instanced2dEffect (
+        public SSInstanced2dEffect (
             int numElements,
             SSScene cameraScene3d,
             SSTexture tex = null

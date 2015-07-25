@@ -157,6 +157,7 @@
     <Compile Include="Util\ADSREnvelope.cs" />
     <Compile Include="Meshes\ParticleSystems\SSParticleSystemData.cs" />
     <Compile Include="Objects\SSObjectOcclusionQueuery.cs" />
+    <Compile Include="Meshes\ParticleSystems\SSInstanced2dEffect.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

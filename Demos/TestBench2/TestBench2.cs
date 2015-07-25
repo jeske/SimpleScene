@@ -22,7 +22,7 @@ namespace TestBench2
         /// </summary>
         protected SSScene laserOccDiskScene;
 
-		protected SimpleLaserManager laserManager = null;
+		protected SLaserManager laserManager = null;
 
 		//protected SimpleLaserParameters laserParams = null;
 		protected WeakReference activeLaser = new WeakReference (null);
@@ -80,7 +80,7 @@ namespace TestBench2
 			scene.AddObject (droneObj2);
 
 			// manages laser objects
-            laserManager = new SimpleLaserManager(laserBeamScene, laserOccDiskScene, sunFlareScene);
+            laserManager = new SLaserManager(laserBeamScene, laserOccDiskScene, sunFlareScene);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
@@ -88,7 +88,7 @@ namespace TestBench2
 
 		protected void _createLaser()
 		{
-			var laserParams = new SimpleLaserParameters ();
+			var laserParams = new SLaserParameters ();
 			laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
@@ -152,7 +152,7 @@ namespace TestBench2
 		{
 			if (e.Key == Key.Q) {
 				if (activeLaser.Target != null) {
-					var laser = activeLaser.Target as SimpleLaser;
+					var laser = activeLaser.Target as SLaser;
 					laser.release ();
 					activeLaser.Target = null;
 				}

@@ -10,14 +10,13 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-
-	public class SimpleExplosionRenderer : SSInstancedMeshRenderer
+	public class SExplosionRenderer : SSInstancedMeshRenderer
 	{
 		new public SimpleExplosionSystem particleSystem {
 			get { return base.instanceData as SimpleExplosionSystem; }
 		}
 
-		public SimpleExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
+		public SExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
 			: base(new SimpleExplosionSystem(particleCapacity),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   _defaultUsageHint

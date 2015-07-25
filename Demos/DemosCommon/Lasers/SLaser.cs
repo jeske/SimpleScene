@@ -11,7 +11,7 @@ namespace SimpleScene.Demos
 	// TODO pulse, interference effects
 	// TODO laser "drift"
 
-	public class SimpleLaserParameters
+	public class SLaserParameters
 	{
 		#region auxiliary function types
 		/// <summary>
@@ -147,12 +147,12 @@ namespace SimpleScene.Demos
 	/// <summary>
 	/// Data model for a laser (which is to be used in conjunction with one or more laser beams)
 	/// </summary>
-	public class SimpleLaser
+	public class SLaser
 	{
 		/// <summary>
 		/// Laser parameters. This is NOT to be tempered with by laser render and update code.
 		/// </summary>
-		public readonly SimpleLaserParameters parameters = null;
+		public readonly SLaserParameters parameters = null;
 
 		/// <summary>
 		/// object emitting the laser
@@ -194,17 +194,17 @@ namespace SimpleScene.Demos
 		#region run-time updated variables
 		protected float _localT = 0f;
 		protected float _envelopeIntensity = 1f;
-		protected SimpleLaserBeam[] _beams = null;
+		protected SLaserBeam[] _beams = null;
 		#endregion
 
-		public SimpleLaser(SimpleLaserParameters laserParams)
+		public SLaser(SLaserParameters laserParams)
 		{
 			this.parameters = laserParams;
 			this._localIntensityEnvelope = laserParams.intensityEnvelope.Clone();
 
-            _beams = new SimpleLaserBeam[parameters.numBeams];
+            _beams = new SLaserBeam[parameters.numBeams];
             for (int i = 0; i < parameters.numBeams; ++i) {
-                _beams[i] = new SimpleLaserBeam(this, i);
+                _beams[i] = new SLaserBeam(this, i);
             }
 		}
 
@@ -228,7 +228,7 @@ namespace SimpleScene.Demos
 			return (destPos () - sourcePos ()).Normalized ();
 		}
 
-		public SimpleLaserBeam beam(int id)
+		public SLaserBeam beam(int id)
 		{
 			if (_beams == null || _beams.Length <= id) {
 				return null;
@@ -274,12 +274,12 @@ namespace SimpleScene.Demos
 	/// <summary>
 	/// Data model for a laser beam
 	/// </summary>
-	public class SimpleLaserBeam
+	public class SLaserBeam
 	{
 		protected static readonly Random _random = new Random();
 
 		protected readonly int _beamId;
-		protected readonly SimpleLaser _laser;
+		protected readonly SLaser _laser;
 
 		protected float _periodicTOffset = 0f;
 
@@ -299,7 +299,7 @@ namespace SimpleScene.Demos
 			return (_beamEnd - _beamStart).Normalized ();
 		}
 
-		public SimpleLaserBeam(SimpleLaser laser, int beamId)
+		public SLaserBeam(SLaser laser, int beamId)
 		{
 			_laser = laser;
 			_beamId = beamId;
