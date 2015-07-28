@@ -8,10 +8,7 @@ using SimpleScene;
 
 namespace Util3d
 {
-
-
     // NOTE: this class is not working properly yet.... something wrong with the math...
-
 
 	// http://www.crownandcutlass.com/features/technicaldetails/frustum.html
 	// http://www.lighthouse3d.com/tutorials/view-frustum-culling/
@@ -25,7 +22,15 @@ namespace Util3d
     //  3   7  11  15
 
 	public struct Plane3d {
+        public const float epsilon = 0.0001f;
+
 		public float A,B,C,D;
+
+        public Vector3 normal {
+            get {
+                return new Vector3 (A, B, C);
+            }
+        }
 
 		public void Normalize() {
 			float t = (float)Math.Sqrt(A*A + B*B + C*C);
@@ -42,6 +47,61 @@ namespace Util3d
 		public override string ToString() {
 			return String.Format("Plane3d({0}x+{1}y+{2}z+{3}=0)",A,B,C,D);
 		}
+
+        /// <summary>
+        /// Whether the plane and a ray intersect and where
+        /// http://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+        /// </summary>
+        public bool intersects (ref SSRay ray, out Vector3 intersectPt) 
+        {
+            Vector3 n = this.normal;
+            var rayDirDotPlaneN = Vector3.Dot(ray.dir, n);
+            if (Math.Abs(rayDirDotPlaneN) < epsilon) {
+                // rayDirDotPlaneN == 0; ray and the plane are parallel
+                intersectPt = new Vector3 (float.NaN);
+                return false;
+            } else {
+                // plug parametric equation of a line into the plane normal equation
+                // solve (rayPos + rayDir * t - planeP0) dot planeN == 0 
+                // rayDir dot planeN + (rayPos - planeP0) dot planeN == 0
+                Vector3 p0 = this.pickASurfacePoint();
+                float t = Vector3.Dot(p0 - ray.pos, n) / rayDirDotPlaneN;
+                if (t < -epsilon) {
+                    // this means that the line-plane intersection is behind the ray origin (in the wrong
+                    // direction). in the context of a ray this means no intersection
+                    intersectPt = new Vector3 (float.NaN);
+                    return false;
+                }
+                intersectPt = ray.pos + ray.dir * t;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Picks a point p0 (x0, y0, z0) that lies on a plane.
+        /// </summary>
+        public Vector3 pickASurfacePoint()
+        {
+            // TODO epsilonize
+            if (Math.Abs(A) > epsilon) { 
+                // if A != 0
+                // let y0 == 0 and z0 == 0; then -A * x0 == D
+                float x0 = D / -A;
+                return new Vector3 (x0, 0f, 0f);
+            } else if (Math.Abs(B) > epsilon) {
+                // else if B != 0
+                // let x0 == 0 and z0 == 0; then -B * y0 == D
+                float y0 = D / -B;
+                return new Vector3 (0f, y0, 0f);
+            } else if (Math.Abs(C) > epsilon) { 
+                // else if C != 0
+                // let x0 == 0 and y0 == 0; then -C * z0 == D
+                float z0 = D / -C;
+                return new Vector3 (0f, 0f, z0);
+            } else {
+                throw new Exception ("invalid plane normal: " + this.normal);
+            }
+        }
 	}
 
 

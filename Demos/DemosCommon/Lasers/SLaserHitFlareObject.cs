@@ -8,7 +8,7 @@ namespace SimpleScene.Demos
     {
         protected static SSTexture getDefaultTexture()
         {
-            return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "corona.png");
         }
 
         protected static readonly float[] _defaultScales = { 1f };
