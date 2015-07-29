@@ -299,6 +299,16 @@ namespace SimpleScene.Demos
 			return (_beamEnd - _beamStart).Normalized ();
 		}
 
+        public float lengthFast()
+        {
+            return (_beamEnd - _beamStart).LengthFast;
+        }
+
+        public float lengthSq()
+        {
+            return (_beamEnd - _beamStart).LengthSquared;
+        }
+
 		public SLaserBeam(SLaser laser, int beamId)
 		{
 			_laser = laser;

@@ -61,16 +61,26 @@ namespace SimpleScene.Demos
             var beam = _laser.beam(_beamId);
             SSRay laserRay = new SSRay (beam.startPos, beam.direction());
 
+            bool doDrawing = false;
             Vector3 intersectPt3d;
             if (nearPlane.intersects(ref laserRay, out intersectPt3d)) {
-            //if (true) {
-                Vector2 hitPosOnScreen = base.worldToScreen(intersectPt3d);
-                //Vector2 hitPosOnScreen = new Vector2 (600f, 500f); // test
-                System.Console.WriteLine("beam id " + _beamId + " hitting screen at xy " + hitPosOnScreen);
-                for (int i = 0; i < instanceData.activeBlockLength; ++i) {
+                float lengthToIntersectionSq = (intersectPt3d - beam.startPos).LengthSquared;
+                float beamLengthSq = beam.lengthSq();
+                if (lengthToIntersectionSq  < beamLengthSq) {
+                    doDrawing = true;
+                }
+            }
+
+            Vector2 hitPosOnScreen = base.worldToScreen(intersectPt3d);
+            System.Console.WriteLine("beam id " + _beamId + " hitting screen at xy " + hitPosOnScreen);
+            for (int i = 0; i < instanceData.activeBlockLength; ++i) {
+                if (doDrawing) {
                     instanceData.writePosition(i, hitPosOnScreen);
                     instanceData.writeColor(i, _laser.parameters.backgroundColor);
                     //instanceData.writeMasterScale(i, 1f); // TODO dynamic scale
+                } else {
+                    // hide sprites
+                    instanceData.writeMasterScale(i, 0f);
                 }
             }
         }
