@@ -89,7 +89,6 @@
     <Compile Include="Util\WhoCalls.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\FPSCalculator.cs" />
-    <Compile Include="Util\FrustumCuller.cs" />
     <Compile Include="Core\SSShader.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGG.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
@@ -158,6 +157,7 @@
     <Compile Include="Meshes\ParticleSystems\SSParticleSystemData.cs" />
     <Compile Include="Objects\SSObjectOcclusionQueuery.cs" />
     <Compile Include="Meshes\ParticleSystems\SSInstanced2dEffect.cs" />
+    <Compile Include="Util\SSFrustumCuller.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

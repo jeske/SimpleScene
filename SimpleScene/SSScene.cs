@@ -232,7 +232,7 @@ namespace SimpleScene
             
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = renderConfig.invCameraViewMatrix * renderConfig.projectionMatrix;
-            renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
+            renderPass(true, new SimpleScene.Util3d.SSFrustumCuller(ref frustumMatrix));
 
             disableLighting();
         }
@@ -257,7 +257,7 @@ namespace SimpleScene
             }
         }
 
-        private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
+        private void renderPass(bool notifyBeforeRender, SimpleScene.Util3d.SSFrustumCuller fc = null) {
             // reset stats
             renderConfig.renderStats = new SSRenderStats();
 

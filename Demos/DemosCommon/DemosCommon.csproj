@@ -129,5 +129,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lasers\" />
+    <Folder Include="Assets\lasers\" />
   </ItemGroup>
 </Project>

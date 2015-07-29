@@ -7,7 +7,7 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-using Util3d;
+using SimpleScene.Util3d;
 
 
 namespace SimpleScene

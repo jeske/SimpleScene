@@ -6,7 +6,7 @@ using System;
 using OpenTK;
 using SimpleScene;
 
-namespace Util3d
+namespace SimpleScene.Util3d
 {
     // NOTE: this class is not working properly yet.... something wrong with the math...
 
@@ -21,7 +21,7 @@ namespace Util3d
     //  2   6  10  14
     //  3   7  11  15
 
-	public struct Plane3d {
+	public struct SSPlane3d {
         public const float epsilon = 0.0001f;
 
 		public float A,B,C,D;
@@ -104,22 +104,22 @@ namespace Util3d
         }
 	}
 
-
-	public class FrustumCuller
+	public class SSFrustumCuller
 	{
+		public static int RIGHT = 0;		
+        public static int LEFT = 1;
+        public static int BOTTOM = 2;
+        public static int TOP = 3;
+        public static int FAR = 4;
+        public static int NEAR = 5;
+        public static int NUM_PLANES = 6;
+		//static string[] PlaneNames = { "RIGHT", "LEFT", "BOTTOM", "TOP", "FAR", "NEAR" };
 		
-		static int RIGHT = 0;		
-		static int LEFT = 1;
-		static int BOTTOM = 2;
-		static int TOP = 3;
-		static int FAR = 4;
-		static int NEAR = 5;
-		static int NUM_PLANES = 6;
-		static string[] PlaneNames = { "RIGHT", "LEFT", "BOTTOM", "TOP", "FAR", "NEAR" };
-		
-		Plane3d[] FrustumPlane = new Plane3d[NUM_PLANES];
+        public SSPlane3d[] frumstumPlanes { get { return this.FrustumPlane; } }
 
-		public FrustumCuller (ref Matrix4 m) {
+        protected readonly SSPlane3d[] FrustumPlane = new SSPlane3d[NUM_PLANES];
+
+		public SSFrustumCuller (ref Matrix4 m) {
 			// extract the six culling planes
 
 			FrustumPlane[RIGHT].A = m.M14 - m.M11;

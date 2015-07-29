@@ -35,7 +35,7 @@ using SimpleScene.Util;
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace Util3d {
+namespace SimpleScene.Util3d {
 
     public class WavefrontObjParseException : Exception {
         public WavefrontObjParseException(string reason) : base(reason) { }

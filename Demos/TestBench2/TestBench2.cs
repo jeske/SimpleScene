@@ -89,13 +89,13 @@ namespace TestBench2
 		protected void _createLaser()
 		{
 			var laserParams = new SLaserParameters ();
-			laserParams.numBeams = rand.Next (1, 6);
+			//laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;
 			}
 			laserParams.beamStartPlacementScale = 2f * (float)rand.NextDouble ();
-			laserParams.beamDestSpread = (float)Math.Pow ((float)rand.NextDouble (), 3f)
+			laserParams.beamDestSpread = (float)Math.Pow (rand.NextDouble (), 3.0)
 				* laserParams.beamStartPlacementScale;
 
 			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();

@@ -70,7 +70,8 @@ namespace SimpleScene.Demos
 
 			protected SSObjectOcclusionQueuery _occDiskFlatObj = null;
             protected SSObjectOcclusionQueuery _occDiskPerspObj = null;
-            protected SLaserEmissionFlareObject _flareObj = null;
+            protected SLaserEmissionFlareObject _emissionFlareObj = null;
+            protected SLaserHitFlareObject _hitFlareObj = null;
 			protected SLaserBeamObject _beamObj = null;
 
 			public BeamRuntimeInfo(SLaser laser, int beamId, 
@@ -94,8 +95,11 @@ namespace SimpleScene.Demos
                 if (_occDiskPerspObj != null) {
                     _occDiskPerspObj.renderState.toBeDeleted = true;
                 }
-                if (_flareObj != null) {
-                    _flareObj.renderState.toBeDeleted = true;
+                if (_emissionFlareObj != null) {
+                    _emissionFlareObj.renderState.toBeDeleted = true;
+                }
+                if (_hitFlareObj != null) {
+                    _hitFlareObj.renderState.toBeDeleted = true;
                 }
 			}
 
@@ -150,9 +154,15 @@ namespace SimpleScene.Demos
                     _beamScene.AddObject(_beamObj);
                 }
 
-                if (_flareObj == null) {
-                    _flareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj);
-                    _flareScene.AddObject(_flareObj);
+                if (_emissionFlareObj == null) {
+                //if (false) {
+                    _emissionFlareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj);
+                    _flareScene.AddObject(_emissionFlareObj);
+                }
+
+                if (_hitFlareObj == null) {
+                    _hitFlareObj = new SLaserHitFlareObject (_laser, _beamId, _beamScene);
+                    _flareScene.AddObject(_hitFlareObj);
                 }
             }
 		}

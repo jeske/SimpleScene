@@ -47,7 +47,7 @@ namespace SimpleScene
 			geom = icoSphereCreator.Create(divisions);
 			var positions = geom.Positions.ToArray();
 
-			var vertexSoup = new Util3d.VertexSoup<SSVertex_PosNormTexDiff>();
+			var vertexSoup = new SimpleScene.Util3d.VertexSoup<SSVertex_PosNormTexDiff>();
 			var indexList = new List<UInt16>();
 
 			// we have to process each face in the IcoSphere, so we can

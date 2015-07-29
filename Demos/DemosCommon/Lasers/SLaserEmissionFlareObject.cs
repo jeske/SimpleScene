@@ -62,7 +62,6 @@ namespace SimpleScene.Demos
         {
             System.Console.Write("beamId: " + _beamId + " occIntensity = ");
 
-
             float occIntensity = 0f;
             if (_beamOccFlatObj != null) {
                 // "flat" disk that matches its draw scale to compenstate for perspective shrinking
@@ -95,7 +94,7 @@ namespace SimpleScene.Demos
             instanceData.writePosition(1, beamStartScreen);
             float scale = _laser.parameters.flareSizeMaxPx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
             instanceData.writeMasterScale(0, scale);
-            instanceData.writeMasterScale(1, scale * 0.5f); // TODO customize
+            instanceData.writeMasterScale(1, scale * 0.5f); // TODO be able to customize
 
             var backgroundColor = laserParams.backgroundColor;
             backgroundColor.A = intensity;
