@@ -16,7 +16,7 @@ namespace SimpleScene.Demos
             //return SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "sun_flare_debug.png");
         }
 
-        protected static readonly float[] _defaultScales = { 10000f };
+        protected static readonly float[] _defaultScales = { 1f };
 
         protected static readonly RectangleF[] _defaultRects = { new RectangleF(0f, 0f, 1f, 1f) };
 
@@ -68,21 +68,27 @@ namespace SimpleScene.Demos
                 float beamLengthSq = beam.lengthSq();
                 if (lengthToIntersectionSq  < beamLengthSq) {
                     doDrawing = true;
+                    Vector2 drawScreenPos = base.worldToScreen(intersectPt3d);
+                    float intensity = _laser.envelopeIntensity * beam.periodicIntensity;
+                    Color4 drawColor = _laser.parameters.backgroundColor;
+                    drawColor.A = intensity;
+                    Vector2 drawScale = new Vector2 (_laser.parameters.hitFlareSizeMaxPx *
+                        (float)Math.Exp(intensity));
+
+                    for (int i = 0; i < instanceData.activeBlockLength; ++i) {
+                        instanceData.writePosition(i, drawScreenPos);
+                        instanceData.writeColor(i, drawColor);
+                        instanceData.writeComponentScale(i, drawScale);
+                    }
                 }
             }
 
-            Vector2 hitPosOnScreen = base.worldToScreen(intersectPt3d);
-            System.Console.WriteLine("beam id " + _beamId + " hitting screen at xy " + hitPosOnScreen);
-            for (int i = 0; i < instanceData.activeBlockLength; ++i) {
-                if (doDrawing) {
-                    instanceData.writePosition(i, hitPosOnScreen);
-                    instanceData.writeColor(i, _laser.parameters.backgroundColor);
-                    //instanceData.writeMasterScale(i, 1f); // TODO dynamic scale
-                } else {
-                    // hide sprites
-                    instanceData.writeMasterScale(i, 0f);
-                }
+            if (!doDrawing) {
+                // TODO hide things
             }
+           //System.Console.WriteLine("beam id " + _beamId + " hitting screen at xy " + hitPosOnScreen);
+
+
         }
     }
 }

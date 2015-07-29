@@ -134,13 +134,17 @@ namespace SimpleScene.Demos
 		public float beamDestSpread = 0f;
 		#endregion
 
-        #region flare mechanics settings
-        public float flareSizeMaxPx = 500f;
+        #region emission flare mechanics settings
+        public float emissionFlareSizeMaxPx = 500f;
         public float occDiskDirOffset = 0.5f;
         public float occDisk1RadiusPx = 15f;
         public float occDisk2RadiusWU = 0.5f;
         public float occDisksAlpha = 0.0001f;
         //public float occDisksAlpha = 0.3f;
+        #endregion
+
+        #region screen hit flare
+        public float hitFlareSizeMaxPx = 2000f;
         #endregion
 	}
 

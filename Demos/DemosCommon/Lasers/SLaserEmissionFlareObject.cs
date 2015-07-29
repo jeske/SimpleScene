@@ -92,7 +92,7 @@ namespace SimpleScene.Demos
             var laserParams = _laser.parameters;
             instanceData.writePosition(0, beamStartScreen);
             instanceData.writePosition(1, beamStartScreen);
-            float scale = _laser.parameters.flareSizeMaxPx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
+            float scale = _laser.parameters.emissionFlareSizeMaxPx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
             instanceData.writeMasterScale(0, scale);
             instanceData.writeMasterScale(1, scale * 0.5f); // TODO be able to customize
 
