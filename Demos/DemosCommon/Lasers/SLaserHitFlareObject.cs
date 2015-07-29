@@ -16,9 +16,12 @@ namespace SimpleScene.Demos
             //return SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "sun_flare_debug.png");
         }
 
-        protected static readonly float[] _defaultScales = { 1f };
+        protected static readonly float[] _defaultScales = { 1f, 0.5f };
 
-        protected static readonly RectangleF[] _defaultRects = { new RectangleF(0f, 0f, 1f, 1f) };
+        protected static readonly RectangleF[] _defaultRects = { 
+            new RectangleF(0f, 0f, 1f, 1f),
+            new RectangleF(0f, 0f, 1f, 1f)
+        };
 
         protected readonly SLaser _laser;
         protected readonly int _beamId;
@@ -70,21 +73,27 @@ namespace SimpleScene.Demos
                     doDrawing = true;
                     Vector2 drawScreenPos = base.worldToScreen(intersectPt3d);
                     float intensity = _laser.envelopeIntensity * beam.periodicIntensity;
-                    Color4 drawColor = _laser.parameters.backgroundColor;
-                    drawColor.A = intensity;
                     Vector2 drawScale = new Vector2 (_laser.parameters.hitFlareSizeMaxPx *
-                        (float)Math.Exp(intensity));
-
+                        (float)Math.Exp(intensity));                   
                     for (int i = 0; i < instanceData.activeBlockLength; ++i) {
                         instanceData.writePosition(i, drawScreenPos);
-                        instanceData.writeColor(i, drawColor);
                         instanceData.writeComponentScale(i, drawScale);
                     }
+
+                    Color4 backgroundColor = _laser.parameters.backgroundColor;
+                    backgroundColor.A = intensity;
+                    Color4 overlayColor = _laser.parameters.overlayColor;
+                    overlayColor.A = (float)Math.Exp(intensity);
+                    instanceData.writeColor(0, backgroundColor);
+                    instanceData.writeColor(1, overlayColor);
                 }
             }
 
             if (!doDrawing) {
-                // TODO hide things
+                // hide sprites
+                for (int i = 0; i < instanceData.activeBlockLength; ++i) {
+                    instanceData.writeComponentScale(i, Vector2.Zero);
+                }
             }
            //System.Console.WriteLine("beam id " + _beamId + " hitting screen at xy " + hitPosOnScreen);
 
