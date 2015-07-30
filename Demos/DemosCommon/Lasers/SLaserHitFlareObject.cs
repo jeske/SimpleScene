@@ -11,16 +11,18 @@ namespace SimpleScene.Demos
     {
         protected static SSTexture getDefaultTexture()
         {
-            return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "corona.png");
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "hitFlare.png");
             //return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
             //return SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "sun_flare_debug.png");
         }
 
-        protected static readonly float[] _defaultScales = { 1f, 0.5f };
+        protected static readonly float[] _defaultScales = { 1f, 0.5f, 0.25f, 0.5f };
 
         protected static readonly RectangleF[] _defaultRects = { 
-            new RectangleF(0f, 0f, 1f, 1f),
-            new RectangleF(0f, 0f, 1f, 1f)
+            new RectangleF(0.5f, 0f, 0.5f, 1f),
+            new RectangleF(0.5f, 0f, 0.5f, 1f),
+            new RectangleF(0f, 0f, 0.5f, 1f),
+            new RectangleF(0f, 0f, 0.5f, 1f),
         };
 
         protected readonly SLaser _laser;
@@ -78,14 +80,24 @@ namespace SimpleScene.Demos
                     for (int i = 0; i < instanceData.activeBlockLength; ++i) {
                         instanceData.writePosition(i, drawScreenPos);
                         instanceData.writeComponentScale(i, drawScale);
+                        instanceData.writeOrientationZ(i, beam.periodicIntensity * 2f * (float)Math.PI);
                     }
 
                     Color4 backgroundColor = _laser.parameters.backgroundColor;
                     backgroundColor.A = intensity;
-                    Color4 overlayColor = _laser.parameters.overlayColor;
-                    overlayColor.A = (float)Math.Exp(intensity);
                     instanceData.writeColor(0, backgroundColor);
+
+                    Color4 overlayColor = _laser.parameters.overlayColor;
+                    overlayColor.A = (float)Math.Pow(intensity, 0.2);
                     instanceData.writeColor(1, overlayColor);
+
+                    Color4 ring1Color = _laser.parameters.overlayColor;
+                    ring1Color.A = (float)Math.Pow(intensity, 5.0);
+                    instanceData.writeColor(2, ring1Color);
+
+                    Color4 ring2Color = _laser.parameters.backgroundColor;
+                    ring2Color.A = (float)Math.Pow(intensity, 10.0);
+                    instanceData.writeColor(3, ring2Color);
                 }
             }
 

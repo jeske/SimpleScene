@@ -164,6 +164,11 @@ namespace SimpleScene.Demos
                 writeDataIfNeeded(ref _colors, idx, new SSAttributeColor(newColor));
             }
 
+            public void writeOrientationZ(int idx, float orientationZ)
+            {
+                writeDataIfNeeded(ref _orientationsZ, idx, new SSAttributeFloat(orientationZ));
+            }
+
             public void writeRect(int idx, RectangleF rect) {
                 writeDataIfNeeded(ref _spriteOffsetsU, idx, new SSAttributeFloat (rect.X));
                 writeDataIfNeeded(ref _spriteOffsetsV, idx, new SSAttributeFloat (rect.Y));
