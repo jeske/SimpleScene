@@ -16,7 +16,9 @@ namespace SimpleScene.Demos
             //return SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "sun_flare_debug.png");
         }
 
-        protected static readonly float[] _defaultScales = { 1f, 0.5f, 0.25f, 0.5f };
+        public enum SpriteId : int { coronaBackground=0, coronaOverlay=1, ring1=2, ring2=3 };
+
+        protected static readonly float[] _defaultScales = { 1f, 0.5f, 0.275f, 0.25f };
 
         protected static readonly RectangleF[] _defaultRects = { 
             new RectangleF(0.5f, 0f, 0.5f, 1f),
@@ -48,9 +50,6 @@ namespace SimpleScene.Demos
 
             this._laser = laser;
             this._beamId = beamId;
-
-            this.MainColor = Color4.White;
-            instanceData.writeRect(0, _defaultRects [0]);
         }
 
         protected override void _prepareSpritesData ()
@@ -80,24 +79,29 @@ namespace SimpleScene.Demos
                     for (int i = 0; i < instanceData.activeBlockLength; ++i) {
                         instanceData.writePosition(i, drawScreenPos);
                         instanceData.writeComponentScale(i, drawScale);
-                        instanceData.writeOrientationZ(i, beam.periodicIntensity * 2f * (float)Math.PI);
+                        instanceData.writeOrientationZ(i, intensity * 2f * (float)Math.PI);
                     }
 
                     Color4 backgroundColor = _laser.parameters.backgroundColor;
                     backgroundColor.A = intensity;
-                    instanceData.writeColor(0, backgroundColor);
+                    instanceData.writeColor((int)SpriteId.coronaBackground, backgroundColor);
 
                     Color4 overlayColor = _laser.parameters.overlayColor;
-                    overlayColor.A = (float)Math.Pow(intensity, 0.2);
-                    instanceData.writeColor(1, overlayColor);
+                    //overlayColor.A = intensity / _laser.parameters.intensityEnvelope.sustainLevel;
+                    overlayColor.A = Math.Min(intensity * 2f, 1f);
+                    instanceData.writeColor((int)SpriteId.coronaOverlay, overlayColor);
+                    //System.Console.WriteLine("overlay.alpha == " + overlayColor.A);
 
                     Color4 ring1Color = _laser.parameters.overlayColor;
-                    ring1Color.A = (float)Math.Pow(intensity, 5.0);
-                    instanceData.writeColor(2, ring1Color);
+                    //ring1Color.A = (float)Math.Pow(intensity, 5.0);
+                    ring1Color.A = 0.05f * intensity;
+                    instanceData.writeComponentScale((int)SpriteId.ring1, drawScale * (float)Math.Exp(intensity));
+                    instanceData.writeColor((int)SpriteId.ring1, ring1Color);
 
                     Color4 ring2Color = _laser.parameters.backgroundColor;
-                    ring2Color.A = (float)Math.Pow(intensity, 10.0);
-                    instanceData.writeColor(3, ring2Color);
+                    //ring2Color.A = (float)Math.Pow(intensity, 10.0);
+                    ring2Color.A = intensity * 0.05f;
+                    instanceData.writeColor((int)SpriteId.ring2, ring2Color);
                 }
             }
 

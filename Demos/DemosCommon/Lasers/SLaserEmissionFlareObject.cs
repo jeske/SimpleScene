@@ -60,8 +60,6 @@ namespace SimpleScene.Demos
 
         protected override void _prepareSpritesData ()
         {
-            System.Console.Write("beamId: " + _beamId + " occIntensity = ");
-
             float occIntensity = 0f;
             if (_beamOccFlatObj != null) {
                 // "flat" disk that matches its draw scale to compenstate for perspective shrinking
@@ -72,7 +70,7 @@ namespace SimpleScene.Demos
                 contribution = (float)Math.Pow(contribution, 3.0);
                 contribution *= 0.2f;
                 occIntensity += contribution;
-                System.Console.Write(contribution.ToString());
+                //System.Console.Write("beamId: " + _beamId + " occIntensity = " + contribution.ToString());
             }
 
             if (_beamOccPerspObj != null) {
@@ -82,7 +80,7 @@ namespace SimpleScene.Demos
                 contribution = (float)Math.Pow(contribution, 0.2);
                 contribution *= 0.8f;
                 occIntensity += contribution;
-                System.Console.Write(" + " + contribution + " = " + occIntensity + "\n");
+                //System.Console.Write(" + " + contribution + " = " + occIntensity + "\n");
             }
 
             var beam = _laser.beam(_beamId);
