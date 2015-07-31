@@ -12,12 +12,12 @@ namespace SimpleScene.Demos
 {
 	public class SExplosionRenderer : SSInstancedMeshRenderer
 	{
-		new public SimpleExplosionSystem particleSystem {
-			get { return base.instanceData as SimpleExplosionSystem; }
+		new public SExplosionSystem particleSystem {
+			get { return base.instanceData as SExplosionSystem; }
 		}
 
 		public SExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
-			: base(new SimpleExplosionSystem(particleCapacity),
+			: base(new SExplosionSystem(particleCapacity),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   _defaultUsageHint
 			 )
@@ -39,7 +39,7 @@ namespace SimpleScene.Demos
 			base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
 			base.ShininessMatColor = 0f;
 
-			var tex = texture ?? SimpleExplosionSystem.getDefaultTexture();
+			var tex = texture ?? SExplosionSystem.getDefaultTexture();
 			textureMaterial = new SSTextureMaterial(null, null, tex, null);
 		}
 
@@ -52,7 +52,7 @@ namespace SimpleScene.Demos
 		/// An explosion system based on a a gamedev.net article
 		/// http://www.gamedev.net/page/resources/_/creative/visual-arts/make-a-particle-explosion-effect-r2701
 		/// </summary>
-		public class SimpleExplosionSystem : SSParticleSystemData
+		public class SExplosionSystem : SSParticleSystemData
 		{
 			public static SSTexture getDefaultTexture()
 			{
@@ -172,7 +172,7 @@ namespace SimpleScene.Demos
 			#endregion
 
 			/// <summary>
-			/// Used to maatch emitted particles with effectors
+			/// Used to match emitted particles with effectors
 			/// </summary>
 			protected enum ComponentMask : ushort { 
 				FlameSmoke = 0x1, 
@@ -316,7 +316,7 @@ namespace SimpleScene.Demos
 				= new RadialBillboardOrientator();
 			#endregion
 
-			public SimpleExplosionSystem (int particleCapacity)
+			public SExplosionSystem (int particleCapacity)
 				: base(particleCapacity)
 			{
 				// flame/smoke
