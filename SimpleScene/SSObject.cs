@@ -215,7 +215,7 @@ namespace SimpleScene
 			return false;
 		}
 
-		public virtual bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
+		protected virtual bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
 			return true;
 		}
 

@@ -34,7 +34,7 @@ namespace SimpleScene.Demos
 			var newLaser = new SLaser (laserParams);
 			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
-			newLaser.destObject = dstObject;
+			newLaser.targetObject = dstObject;
 
 			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene, _occDiskScene, _flareScene);
 			_laserRuntimes.Add (newLaserRuntime);

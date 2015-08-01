@@ -1,7 +1,8 @@
 ﻿using System;
-using OpenTK.Graphics;
+using System.Collections.Generic;
 using SimpleScene.Util;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
@@ -165,7 +166,7 @@ namespace SimpleScene.Demos
 		public readonly SLaserParameters parameters = null;
 
 		/// <summary>
-		/// object emitting the laser
+		/// object that appears to emit the laser
 		/// </summary>
 		public SSObject sourceObject = null;
 
@@ -177,12 +178,17 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Object that the laser hits
 		/// </summary>
-		public SSObject destObject = null;
+		public SSObject targetObject = null;
 
 		/// <summary> 
 		/// Transform for the beam end point in coordinates local to the destination object
 		/// </summary>
-		public Matrix4 destTxfm = Matrix4.Identity;
+		public Matrix4 targetTxfm = Matrix4.Identity;
+
+        /// <summary>
+        /// Obstacle objects that laser may "hit" in addition to the destObject; 
+        /// </summary>
+        public List<SSObject> beamObstacles = null;
 
 		#region local-copy intensity envelope
 		/// <summary>
@@ -238,9 +244,9 @@ namespace SimpleScene.Demos
 
 		public Vector3 destPos()
 		{
-            var mat = destTxfm;
-            if (destObject != null) {
-                mat = mat * destObject.worldMat;
+            var mat = targetTxfm;
+            if (targetObject != null) {
+                mat = mat * targetObject.worldMat;
             }
 			return Vector3.Transform (Vector3.Zero, mat);
 		}
@@ -297,7 +303,7 @@ namespace SimpleScene.Demos
 	/// </summary>
 	public class SLaserBeam
 	{
-        // TODO provide laser hit locations
+        // TODO receive laser hit locations
 
 		protected static readonly Random _random = new Random();
 
@@ -309,11 +315,13 @@ namespace SimpleScene.Demos
 		protected float _periodicT = 0f;
 		protected float _periodicIntensity = 1f;
 		protected Vector3 _beamStart = Vector3.Zero;
-		protected Vector3 _beamEnd = Vector3.Zero; // TODO update with ray-mesh-collision point
+		protected Vector3 _beamEnd = Vector3.Zero;
+        protected bool _hitsAnObstacle = false;
 		protected float _interferenceOffset = 0f;
 
 		public Vector3 startPos { get { return _beamStart; } }
 		public Vector3 endPos { get { return _beamEnd; } }
+        public bool hitsAnObstacle { get { return _hitsAnObstacle; } }
 		public float periodicIntensity { get { return _periodicIntensity; } }
 		public float interferenceOffset { get { return _interferenceOffset; } }
 
@@ -332,7 +340,12 @@ namespace SimpleScene.Demos
             return (_beamEnd - _beamStart).LengthSquared;
         }
 
-		public SLaserBeam(SLaser laser, int beamId)
+        public SSRay ray()
+        {
+            return new SSRay (_beamStart, direction());
+        }
+
+        public SLaserBeam(SLaser laser, int beamId)
 		{
 			_laser = laser;
 			_beamId = beamId;
@@ -405,6 +418,22 @@ namespace SimpleScene.Demos
 				OpenTKHelper.TwoPerpAxes (_laser.direction(), out driftXAxis, out driftYAxis);
 				_beamEnd += (driftX * driftXAxis + driftY * driftYAxis);
 			}
+
+            // intersect with the target object or additional intersect objects
+            _hitsAnObstacle = false;
+            if (_laser.beamObstacles != null) {
+                var ray = this.ray();
+                float closestDistance = this.lengthFast();
+                foreach (var obj in _laser.beamObstacles) {
+                    float distanceToInterect;
+                    if (obj.Intersect(ref ray, out distanceToInterect)
+                        && distanceToInterect < closestDistance) {
+                        closestDistance = distanceToInterect;
+                        _hitsAnObstacle = true;
+                    }
+                }
+                _beamEnd = _beamStart + this.direction() * closestDistance;
+            }
 		}
 	}
 }

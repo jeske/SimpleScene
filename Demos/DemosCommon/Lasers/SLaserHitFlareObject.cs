@@ -63,11 +63,10 @@ namespace SimpleScene.Demos
             nearPlane.Normalize();
 
             var beam = _laser.beam(_beamId);
-            SSRay laserRay = new SSRay (beam.startPos, beam.direction());
-
+            var ray = beam.ray();
             bool doDrawing = false;
             Vector3 intersectPt3d;
-            if (nearPlane.intersects(ref laserRay, out intersectPt3d)) {
+            if (nearPlane.intersects(ref ray, out intersectPt3d)) {
                 float lengthToIntersectionSq = (intersectPt3d - beam.startPos).LengthSquared;
                 float beamLengthSq = beam.lengthSq();
                 if (lengthToIntersectionSq  < beamLengthSq) {
@@ -112,8 +111,6 @@ namespace SimpleScene.Demos
                 }
             }
            //System.Console.WriteLine("beam id " + _beamId + " hitting screen at xy " + hitPosOnScreen);
-
-
         }
     }
 }
