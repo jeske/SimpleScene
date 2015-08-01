@@ -160,16 +160,16 @@ namespace SimpleScene
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
             SSObject nearestIntersection = null;
-            float nearestDistance = float.MinValue;
+            float nearestDistance = float.MaxValue;
             // distances get "smaller" as they move in camera direction for some reason (why?)
             foreach (var obj in objects) {
                 float distanceAlongRay;
 				if (obj.Selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
-                    if (distanceAlongRay < 0.0) {
+                    if (distanceAlongRay > 0.0) {
                         Console.WriteLine("intersect: [{0}] @distance: {1}", obj.Name, distanceAlongRay);
                         // then we want the nearest one (numerically biggest
-                        if (distanceAlongRay > nearestDistance) {
+                        if (distanceAlongRay < nearestDistance) {
                             nearestDistance = distanceAlongRay;
                             nearestIntersection = obj;
                         }

@@ -202,16 +202,16 @@ namespace SimpleScene
             GL.DepthMask(this.renderState.depthWrite);
 		}
 
-		public virtual bool Intersect(ref SSRay worldSpaceRay, out float scaledDistanceAlongRay) {
-			var distanceAlongRay = 0.0f;
+		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 
+        {
+			distanceAlongRay = 0.0f;
 			if (localBoundingSphereRadius > 0f) {
 				var objBoundingSphere = worldBoundingSphere;
 				if (objBoundingSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
-					scaledDistanceAlongRay = ScaleMax * distanceAlongRay;
-					return PreciseIntersect(ref worldSpaceRay, ref scaledDistanceAlongRay);
+                    return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
 				}
 			}
-			scaledDistanceAlongRay = 0f;
+            distanceAlongRay = 0f;
 			return false;
 		}
 

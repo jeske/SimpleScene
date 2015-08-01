@@ -96,9 +96,9 @@ namespace SimpleScene
 		    Vector3 n = ray.dir;
 		    Vector3 p = point;
 
-			distanceAlongRay = Vector3.Dot((a-p),n);
-
-		    return ((a-p) - distanceAlongRay * n).Length;
+            var t = Vector3.Dot((a-p),n);
+            distanceAlongRay = -t;
+		    return ((a-p) - t * n).Length;
         }
 
 #if false

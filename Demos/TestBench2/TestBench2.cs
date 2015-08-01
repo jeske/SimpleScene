@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SimpleScene;
 using SimpleScene.Demos;
 using OpenTK;
@@ -89,7 +90,7 @@ namespace TestBench2
 		protected void _createLaser()
 		{
 			var laserParams = new SLaserParameters ();
-			laserParams.numBeams = rand.Next (1, 6);
+			//laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;
@@ -107,7 +108,10 @@ namespace TestBench2
 
 			var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
 			newLaser.sourceTxfm = laserSourceTxfm;
-			activeLaser.Target = newLaser;
+            newLaser.beamObstacles = new List<SSObject> ();
+            newLaser.beamObstacles.Add(droneObj2);
+			
+            activeLaser.Target = newLaser;
 		}
 
 		protected override void renderScenes (

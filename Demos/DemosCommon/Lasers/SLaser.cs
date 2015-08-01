@@ -426,13 +426,15 @@ namespace SimpleScene.Demos
                 float closestDistance = this.lengthFast();
                 foreach (var obj in _laser.beamObstacles) {
                     float distanceToInterect;
-                    if (obj.Intersect(ref ray, out distanceToInterect)
-                        && distanceToInterect < closestDistance) {
-                        closestDistance = distanceToInterect;
-                        _hitsAnObstacle = true;
+                    if (obj.Intersect(ref ray, out distanceToInterect)) {
+
+                        if (distanceToInterect < closestDistance) {
+                            closestDistance = distanceToInterect;
+                            _hitsAnObstacle = true;
+                        }
                     }
                 }
-                _beamEnd = _beamStart + this.direction() * closestDistance;
+                _beamEnd = _beamStart + ray.dir * closestDistance;
             }
 		}
 	}

@@ -38,6 +38,7 @@ namespace SimpleScene.Demos
             base.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
             base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             base.ShininessMatColor = 0f;
+            base.Selectable = false;
 
             this.cameraScene3d = cameraScene3d;
 		}
