@@ -26,11 +26,13 @@ namespace SimpleScene.Demos
 		public delegate Vector3 BeamPlacementFunction(int beamID, int numBeams, float t);
 		#endregion
 
-		#region middle sprites
+        #region shared color parameters
 		public Color4 backgroundColor = Color4.Magenta;
 		public Color4 overlayColor = Color4.White;
+        #endregion
 
-		/// <summary>
+        #region middle sprites
+        /// <summary>
 		/// padding for the start+middle stretched sprite. Mid section vertices gets streched 
 		/// beyond this padding.
 		/// </summary>
@@ -177,7 +179,7 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public SSObject destObject = null;
 
-		/// <summary>
+		/// <summary> 
 		/// Transform for the beam end point in coordinates local to the destination object
 		/// </summary>
 		public Matrix4 destTxfm = Matrix4.Identity;
@@ -218,17 +220,29 @@ namespace SimpleScene.Demos
 
 		public Vector3 sourcePos()
 		{
-			return Vector3.Transform (Vector3.Zero, sourceTxfm * sourceObject.worldMat);
+            var mat = sourceTxfm;
+            if (sourceObject != null) {
+                mat = mat * sourceObject.worldMat;
+            }
+            return Vector3.Transform (Vector3.Zero, mat);
 		}
 
 		public Quaternion sourceOrient()
 		{
-			return sourceObject.worldMat.ExtractRotation () * sourceTxfm.ExtractRotation();
+            var ret = sourceTxfm.ExtractRotation();
+            if (sourceObject != null) {
+                ret = sourceObject.worldMat.ExtractRotation() * ret;
+            }
+			return ret;
 		}
 
 		public Vector3 destPos()
 		{
-			return Vector3.Transform (Vector3.Zero, destTxfm * destObject.worldMat);
+            var mat = destTxfm;
+            if (destObject != null) {
+                mat = mat * destObject.worldMat;
+            }
+			return Vector3.Transform (Vector3.Zero, mat);
 		}
 
 		public Vector3 direction()
@@ -267,7 +281,6 @@ namespace SimpleScene.Demos
 					_releaseDirty = false;
 				}
 				_envelopeIntensity = env.computeLevel (_localT);
-
 			} else {
 				_envelopeIntensity = 1f;
 			}
@@ -284,6 +297,8 @@ namespace SimpleScene.Demos
 	/// </summary>
 	public class SLaserBeam
 	{
+        // TODO provide laser hit locations
+
 		protected static readonly Random _random = new Random();
 
 		protected readonly int _beamId;
@@ -294,7 +309,7 @@ namespace SimpleScene.Demos
 		protected float _periodicT = 0f;
 		protected float _periodicIntensity = 1f;
 		protected Vector3 _beamStart = Vector3.Zero;
-		protected Vector3 _beamEnd = Vector3.Zero;
+		protected Vector3 _beamEnd = Vector3.Zero; // TODO update with ray-mesh-collision point
 		protected float _interferenceOffset = 0f;
 
 		public Vector3 startPos { get { return _beamStart; } }

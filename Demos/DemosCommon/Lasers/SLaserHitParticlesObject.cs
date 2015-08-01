@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
@@ -46,29 +47,85 @@ namespace SimpleScene.Demos
             return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
         }
 
+        protected Dictionary<SLaser, HitSpotData> _hitSpots;
+
         public SLaserHitParticleSystem(int particleCapacity)
             : base(particleCapacity)
         {
-
         }
 
         public void addHitSpots(SLaser laser)
         {
-            // add emitters, etc
+            var newHitSpot = new HitSpotData (laser);
+            _hitSpots.Add(laser, newHitSpot);
+            foreach (var emitter in newHitSpot.emitters()) {
+                base.addEmitter(emitter);
+            }
         }
 
         public void removeHitSpots(SLaser laser)
         {
-
+            var hitSpot = _hitSpots [laser];
+            foreach (var emitter in hitSpot.emitters()) {
+                base.removeEmitter(emitter);
+            }
         }
 
-        public void updateHitSpots(SLaser laser)
+        public void updateHitSpots()
         {
-            // TODO :
-            // update flash location
-            // update smoke emitter location
+            foreach (var hitSpot in _hitSpots.Values) {
+                hitSpot.updateLaserBeamData();
+            }
         }
 
+        protected class HitSpotData
+        {
+            // ID?
+            protected SSRadialEmitter[] _flashEmitters;
+            protected SSRadialEmitter[] _smokeEmitters;
+
+            protected SLaser _laser;
+
+            public HitSpotData(SLaser laser)
+            {
+                // TODO generate byte mask from hit spot id
+                _laser = laser;
+                int numBeams = _laser.parameters.numBeams;
+
+                // initialize emitters
+                _flashEmitters = new SSRadialEmitter[numBeams];
+                _smokeEmitters = new SSRadialEmitter[numBeams];
+                for (int i = 0; i < numBeams; ++i) {
+                    {
+                        var newFlashEmitter = new SSRadialEmitter();
+
+                        _flashEmitters[i] = newFlashEmitter;
+                    }
+                    {
+                        var newSmokeEmitter = new SSRadialEmitter();
+                        _smokeEmitters[i] = newSmokeEmitter;
+                    }
+                }
+            }
+
+            public List<SSParticleEmitter> emitters()
+            {
+                var ret = new List<SSParticleEmitter> (_flashEmitters);
+                ret.AddRange(_smokeEmitters);
+                return ret;
+            }
+
+            public void updateLaserBeamData()
+            {
+                for (int i = 0; i < _laser.parameters.numBeams; ++i) {
+                    var beam = _laser.beam(i);
+                    // TODO need intersection location
+                    // update flash positioning
+                    // update smoke positioning
+                }
+            }
+
+        }
     }
 }
 

@@ -221,6 +221,11 @@ namespace SimpleScene
             _emitters.Add(emitter);
         }
 
+        public virtual void removeEmitter(SSParticleEmitter emitter)
+        {
+            _emitters.Remove(emitter);
+        }
+
 		public virtual void addEffector(SSParticleEffector effector)
         {
             effector.reset();
