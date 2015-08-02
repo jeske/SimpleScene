@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
 using SimpleScene.Util;
 using OpenTK;
@@ -152,6 +153,28 @@ namespace SimpleScene.Demos
         public float coronaOverlayScale = 0.5f;
         public float ring1Scale = 0.5f;
         public float ring2Scale = 0.25f;
+        #endregion
+
+        #region particle system for burn effects
+        /// <summary>
+        /// Default locations of flame sprites in fig7.png
+        /// </summary>
+        public RectangleF[] flameSmokeSpriteRects = {
+            new RectangleF(0f,    0f,    0.25f, 0.25f),
+            new RectangleF(0f,    0.25f, 0.25f, 0.25f),
+            new RectangleF(0.25f, 0.25f, 0.25f, 0.25f),
+            new RectangleF(0.25f, 0f,    0.25f, 0.25f),
+        };
+
+        /// <summary>
+        /// Default locations of flash sprites in fig7.png
+        /// </summary>
+        public RectangleF[] flashSpriteRects = {
+            new RectangleF(0.5f,  0f,    0.25f, 0.25f),
+            new RectangleF(0.75f, 0f,    0.25f, 0.25f),
+            new RectangleF(0.5f,  0.25f, 0.25f, 0.25f),
+            new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
+        };
         #endregion
 	}
 
@@ -419,9 +442,13 @@ namespace SimpleScene.Demos
 				_beamEnd += (driftX * driftXAxis + driftY * driftYAxis);
 			}
 
-            // intersect with the target object or additional intersect objects
+            // intersects with any of the intersecting objects
             _hitsAnObstacle = false;
             if (_laser.beamObstacles != null) {
+            //if (false) {
+                // TODO note the code below is slow. Wen you start having many lasers
+                // this will cause problems. Consider using BVH for ray tests or analyzing
+                // intersection math.
                 var ray = this.ray();
                 float closestDistance = this.lengthFast();
                 foreach (var obj in _laser.beamObstacles) {

@@ -33,7 +33,8 @@ namespace SimpleScene
 
 		public virtual void sortByDepth(ref Matrix4 viewMatrix) { }
 		public virtual void update(float elapsedS) { }
-		public virtual void updateCamera(ref Matrix4 modelView, ref Matrix4 projection) { }
+        public virtual void updateCamera(ref Matrix4 model, ref Matrix4 view, 
+                                         ref Matrix4 projection) { }
 	}
 
     /// <summary>
@@ -107,7 +108,8 @@ namespace SimpleScene
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
 
 			// allow particle system to react to camera/worldview
-			instanceData.updateCamera (ref modelView, ref renderConfig.projectionMatrix);
+            instanceData.updateCamera (ref this.worldMat, ref renderConfig.invCameraViewMatrix,
+                                       ref renderConfig.projectionMatrix);
 
 			// do we have anything to draw?
 			if (instanceData.activeBlockLength <= 0) return;

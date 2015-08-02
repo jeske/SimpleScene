@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
+using OpenTK;
 using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-    public class SLaserHitParticlesObject : SSInstancedMeshRenderer
+    public class SLaserBurnParticlesObject : SSInstancedMeshRenderer
     {
-        new SLaserHitParticleSystem particleSystem {
-            get { return base.instanceData as SLaserHitParticleSystem; }
+        new SLaserBurnParticleSystem particleSystem {
+            get { return base.instanceData as SLaserBurnParticleSystem; }
         }
 
-        public SLaserHitParticlesObject (int particleCapacity = 100, SSTexture texture = null)
-            : base(new SLaserHitParticleSystem (particleCapacity), 
+        public SLaserBurnParticlesObject (int particleCapacity = 100, SSTexture texture = null)
+            : base(new SLaserBurnParticleSystem (particleCapacity), 
                    SSTexturedQuad.DoubleFaceInstance, _defaultUsageHint)
         {
             renderState.castsShadow = false;
@@ -30,7 +32,7 @@ namespace SimpleScene.Demos
             base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             base.ShininessMatColor = 0f;
 
-            var tex = texture ?? SLaserHitParticleSystem.getDefaultTexture();
+            var tex = texture ?? SLaserBurnParticleSystem.getDefaultTexture();
             base.textureMaterial = new SSTextureMaterial(null, null, tex, null);
         }
     }
@@ -39,17 +41,20 @@ namespace SimpleScene.Demos
     /// Particle system for laser hit effects in 3d. Can be used as a shared "singleton" instance 
     /// of a particle system for all laser effects, or could be instantiated for each beam? or each laser?
     /// </summary>
-    public class SLaserHitParticleSystem : SSParticleSystemData
+    public class SLaserBurnParticleSystem : SSParticleSystemData
     {
+        // TODO consider making this a particle system for all laser-related 3d rendering
+        // including middle section
+
         public static SSTexture getDefaultTexture()
         {
             //return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
             return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
         }
 
-        protected Dictionary<SLaser, HitSpotData> _hitSpots;
+        protected readonly Dictionary<SLaser, HitSpotData> _hitSpots;
 
-        public SLaserHitParticleSystem(int particleCapacity)
+        public SLaserBurnParticleSystem(int particleCapacity)
             : base(particleCapacity)
         {
         }
@@ -69,12 +74,15 @@ namespace SimpleScene.Demos
             foreach (var emitter in hitSpot.emitters()) {
                 base.removeEmitter(emitter);
             }
+            _hitSpots.Remove(laser);
         }
 
-        public void updateHitSpots()
+        public override void updateCamera (ref Matrix4 model, ref Matrix4 view, 
+                                           ref Matrix4 projection)
         {
+            base.updateCamera(ref model, ref view, ref projection);
             foreach (var hitSpot in _hitSpots.Values) {
-                hitSpot.updateLaserBeamData();
+                hitSpot.updateLaserBeamData(ref model);
             }
         }
 
@@ -95,15 +103,29 @@ namespace SimpleScene.Demos
                 // initialize emitters
                 _flashEmitters = new SSRadialEmitter[numBeams];
                 _smokeEmitters = new SSRadialEmitter[numBeams];
+                var laserParams = _laser.parameters;
+
                 for (int i = 0; i < numBeams; ++i) {
+                    var beam = laser.beam(i);
                     {
                         var newFlashEmitter = new SSRadialEmitter();
+                        newFlashEmitter.billboardXY = true;
+                        newFlashEmitter.spriteRectangles = laserParams.flashSpriteRects;
+                        var flashColor = laserParams.overlayColor;
+                        flashColor.A = _laser.envelopeIntensity * beam.periodicIntensity;
+                        newFlashEmitter.color = flashColor;
 
                         _flashEmitters[i] = newFlashEmitter;
                     }
                     {
-                        var newSmokeEmitter = new SSRadialEmitter();
-                        _smokeEmitters[i] = newSmokeEmitter;
+                        var newFlameSmokeEmitter = new SSRadialEmitter();
+                        newFlameSmokeEmitter.billboardXY = true;
+                        newFlameSmokeEmitter.spriteRectangles = laserParams.flameSmokeSpriteRects;
+                        var flameSmokeColor = laserParams.backgroundColor;
+                        flameSmokeColor.A = _laser.envelopeIntensity * beam.periodicIntensity;
+                        newFlameSmokeEmitter.color = flameSmokeColor;
+
+                        _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                 }
             }
@@ -115,13 +137,29 @@ namespace SimpleScene.Demos
                 return ret;
             }
 
-            public void updateLaserBeamData()
+            public void updateLaserBeamData(ref Matrix4 rendererWorldMat)
             {
                 for (int i = 0; i < _laser.parameters.numBeams; ++i) {
                     var beam = _laser.beam(i);
                     // TODO need intersection location
-                    // update flash positioning
-                    // update smoke positioning
+                    if (beam.hitsAnObstacle) {
+                        var hitPos = Vector3.Transform(beam.endPos, rendererWorldMat);
+                        foreach (var flashEmitter in _flashEmitters) {
+                            flashEmitter.center = hitPos;
+                            flashEmitter.particlesPerEmission = 5;
+                        }
+                        foreach (var smokeEmitter in _smokeEmitters) {
+                            smokeEmitter.center = hitPos;
+                            smokeEmitter.particlesPerEmission = 5;
+                        }
+                    } else {
+                        foreach (var flashEmitter in _flashEmitters) {
+                            flashEmitter.particlesPerEmission = 0;
+                        }
+                        foreach (var smokeEmitter in _smokeEmitters) {
+                            smokeEmitter.particlesPerEmission = 0;
+                        }
+                    }
                 }
             }
 

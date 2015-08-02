@@ -417,8 +417,10 @@ namespace SimpleScene.Demos
 				base.update(timeDelta);
 			}
 
-			public override void updateCamera (ref Matrix4 modelView, ref Matrix4 projection)
+			public override void updateCamera (ref Matrix4 model, ref Matrix4 view, 
+                                               ref Matrix4 projection)
 			{
+                var modelView = model * view;
 				_radialOrientator.updateModelView (ref modelView);
 				_shockwaveEmitter.updateModelView (ref modelView);
 			}
