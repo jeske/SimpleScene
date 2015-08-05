@@ -154,20 +154,42 @@ namespace TestBench2
 
 		protected void laserKeyUpHandler(object sender, KeyboardKeyEventArgs e)
 		{
-			if (e.Key == Key.Q) {
-				if (activeLaser.Target != null) {
-					var laser = activeLaser.Target as SLaser;
-					laser.release ();
-					activeLaser.Target = null;
-				}
-			}
+            if (e.Key == Key.Q) {
+                if (activeLaser.Target != null) {
+                    var laser = activeLaser.Target as SLaser;
+                    laser.release();
+                    activeLaser.Target = null;
+                }
+            } else if (e.Key == Key.M) {
+                var camera = (scene.ActiveCamera as SSCameraThirdPerson);
+                if (camera != null) {
+                    var target = camera.FollowTarget;
+                    if (target == null) {
+                        camera.FollowTarget = droneObj1;
+                    } else if (target == droneObj1) {
+                        camera.FollowTarget = droneObj2;
+                    } else {
+                        camera.FollowTarget = null;
+                    }
+                    updateTextDisplay();
+                }
+            }
 		}
 
 		protected override void updateTextDisplay ()
 		{
 			base.updateTextDisplay ();
-			textDisplay.Label += "\n\nPress Q to engage a laser";
-		}
+            textDisplay.Label += "\n\nPress Q to engage a laser";
+
+            var camera = scene.ActiveCamera as SSCameraThirdPerson;
+            if (camera != null) {
+                var target = camera.FollowTarget;
+                textDisplay.Label += 
+                    "\n\nPress M to toggle camera target: ["
+                    + (target == null ? "none" : target.Name) + ']';
+            }
+
+	}
 
 		protected override void setupInput ()
 		{
