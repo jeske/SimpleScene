@@ -66,8 +66,6 @@ namespace TestBench2
 			droneObj1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.Name = "attacker drone";
-			//droneObj1.MainColor = Color4.Green;
-			//droneObj1.renderState.visible = false;
 			scene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
@@ -85,6 +83,10 @@ namespace TestBench2
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
+
+            // debugging snippets:
+            //droneObj1.MainColor = Color4.Green;
+            //droneObj1.renderState.visible = false;
     	}
 
 		protected void _createLaser()
@@ -200,7 +202,8 @@ namespace TestBench2
 
 		protected override void setupCamera()
 		{
-			var camera = new SSCameraThirdPerson (droneObj1);
+            var camera = new SSCameraThirdPerson (droneObj2);
+			//var camera = new SSCameraThirdPerson (droneObj1);
 			camera.Pos = Vector3.Zero;
 			camera.followDistance = 80.0f;
 
