@@ -52,7 +52,7 @@ namespace TestBench2
 		{
 			base.setupScene ();
 
-            laserBeamScene = new SSScene ();
+            laserBeamScene = new SSScene (null, null, base.instancingShader, null);
             laserOccDiskScene = new SSScene ();
 
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");

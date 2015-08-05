@@ -8,7 +8,7 @@ namespace SimpleScene.Demos
 {
     public class SLaserBurnParticlesObject : SSInstancedMeshRenderer
     {
-        new SLaserBurnParticleSystem particleSystem {
+        public new SLaserBurnParticleSystem particleSystem {
             get { return base.instanceData as SLaserBurnParticleSystem; }
         }
 
@@ -52,7 +52,8 @@ namespace SimpleScene.Demos
             return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
         }
 
-        protected readonly Dictionary<SLaser, HitSpotData> _hitSpots;
+        protected readonly Dictionary<SLaser, HitSpotData> _hitSpots 
+            = new Dictionary<SLaser, HitSpotData>();
 
         public SLaserBurnParticleSystem(int particleCapacity)
             : base(particleCapacity)
@@ -80,7 +81,7 @@ namespace SimpleScene.Demos
         public override void updateCamera (ref Matrix4 model, ref Matrix4 view, 
                                            ref Matrix4 projection)
         {
-            base.updateCamera(ref model, ref view, ref projection);
+            //base.updateCamera(ref model, ref view, ref projection);
             foreach (var hitSpot in _hitSpots.Values) {
                 hitSpot.updateLaserBeamData(ref model);
             }

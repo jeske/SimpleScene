@@ -13,38 +13,56 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
 		/// </summary>
-		protected readonly SSScene _beamScene;
+		protected readonly SSScene _beamScene3d;
         protected readonly SSScene _occDiskScene;
-		protected readonly SSScene _flareScene;
+		protected readonly SSScene _flareScene2d;
+
+        protected readonly SLaserBurnParticlesObject _laserBurn;
 
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
-        public SLaserManager (SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
+        public SLaserManager (SSScene beamScene3d, SSScene occDiskScene, SSScene flareScene2d)
 		{
-			this._beamScene = beamScene;
-            this._occDiskScene = occDiskScene;
-			this._flareScene = flareScene;
+			_beamScene3d = beamScene3d;
+            _occDiskScene = occDiskScene;
+            _flareScene2d = flareScene2d;
 
-			beamScene.preUpdateHooks += _update;
+            _laserBurn = new SLaserBurnParticlesObject ();
+            _beamScene3d.AddObject(_laserBurn);
+
+			beamScene3d.preUpdateHooks += this._update;
+
 		}
 
 		public SLaser addLaser(SLaserParameters laserParams, 
-						     		SSObject srcObject, SSObject dstObject)
+		   		     		   SSObject srcObject, SSObject dstObject)
 		{
 			var newLaser = new SLaser (laserParams);
 			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
 			newLaser.targetObject = dstObject;
 
-			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene, _occDiskScene, _flareScene);
+			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene3d, _occDiskScene, _flareScene2d);
 			_laserRuntimes.Add (newLaserRuntime);
 
+            _laserBurn.particleSystem.addHitSpots(newLaser);
 			// debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
 			//newLaser.sourceTxfm = Matrix4.Identity;
 
 			return newLaser;
 		}
+
+        public void removeLaser(SLaser laser)
+        {
+            for (int i = 0; i < _laserRuntimes.Count; ++i) {
+                var lrt = _laserRuntimes [i];
+                if (lrt.laser == laser) {
+                    lrt.requestDeleteFromScene();
+                    _laserRuntimes.RemoveAt(i);
+                }
+            }
+        }
 
 		protected void _update(float timeElapsedS)
 		{
@@ -57,6 +75,7 @@ namespace SimpleScene.Demos
 					--i;
 				}
 			}
+            _laserBurn.particleSystem.update(timeElapsedS);
 		}
 
 		protected class BeamRuntimeInfo
