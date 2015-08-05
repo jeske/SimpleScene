@@ -166,6 +166,10 @@ namespace SimpleScene.Demos
             new RectangleF(0.25f, 0f,    0.25f, 0.25f),
         };
 
+        public float flameSmokeEmitFrequency = 10f;
+        public float flameSmokeScaleMin = 1f;
+        public float flameSmokeScaleMax = 3f;
+
         /// <summary>
         /// Default locations of flash sprites in fig7.png
         /// </summary>
@@ -175,6 +179,10 @@ namespace SimpleScene.Demos
             new RectangleF(0.5f,  0.25f, 0.25f, 0.25f),
             new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
         };
+
+        public float flashEmitFrequency = 10f;
+        public float flashScaleMin = 1f;
+        public float flashScaleMax = 3f;
         #endregion
 	}
 

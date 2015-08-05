@@ -116,7 +116,9 @@ namespace SimpleScene.Demos
                         var flashColor = laserParams.overlayColor;
                         flashColor.A = _laser.envelopeIntensity * beam.periodicIntensity;
                         newFlashEmitter.color = flashColor;
-
+                        newFlashEmitter.emissionInterval = 1f / laserParams.flashEmitFrequency;
+                        newFlashEmitter.masterScaleMin = laserParams.flashScaleMin;
+                        newFlashEmitter.masterScaleMax = laserParams.flashScaleMax;
                         _flashEmitters[i] = newFlashEmitter;
                     }
                     {
@@ -126,7 +128,9 @@ namespace SimpleScene.Demos
                         var flameSmokeColor = laserParams.backgroundColor;
                         flameSmokeColor.A = _laser.envelopeIntensity * beam.periodicIntensity;
                         newFlameSmokeEmitter.color = flameSmokeColor;
-
+                        newFlameSmokeEmitter.emissionInterval = 1f / laserParams.flameSmokeEmitFrequency;
+                        newFlameSmokeEmitter.masterScaleMin = laserParams.flameSmokeScaleMin;
+                        newFlameSmokeEmitter.masterScaleMax = laserParams.flameSmokeScaleMax;
                         _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                 }
