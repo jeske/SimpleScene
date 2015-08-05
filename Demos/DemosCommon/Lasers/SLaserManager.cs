@@ -55,13 +55,18 @@ namespace SimpleScene.Demos
 
         public void removeLaser(SLaser laser)
         {
-            for (int i = 0; i < _laserRuntimes.Count; ++i) {
-                var lrt = _laserRuntimes [i];
-                if (lrt.laser == laser) {
-                    lrt.requestDeleteFromScene();
-                    _laserRuntimes.RemoveAt(i);
-                }
-            }
+            int idx = _laserRuntimes.FindIndex(lrt => lrt.laser == laser);
+            _removeLaser(idx);
+            _laserBurn.particleSystem.removeHitSpots(laser);
+        }
+
+        protected void _removeLaser(int i) 
+        {
+            var lrt = _laserRuntimes [i];
+            _laserBurn.particleSystem.removeHitSpots(lrt.laser);
+
+            lrt.requestDeleteFromScene();
+            _laserRuntimes.RemoveAt(i);
         }
 
 		protected void _update(float timeElapsedS)
@@ -70,9 +75,7 @@ namespace SimpleScene.Demos
 				var lrt = _laserRuntimes [i];
 				lrt.update (timeElapsedS);
 				if (lrt.laser.hasExpired) {
-					lrt.requestDeleteFromScene ();
-					_laserRuntimes.RemoveAt (i);
-					--i;
+                    _removeLaser(i);
 				}
 			}
             _laserBurn.particleSystem.update(timeElapsedS);

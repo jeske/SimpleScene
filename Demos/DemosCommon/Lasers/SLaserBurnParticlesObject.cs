@@ -48,8 +48,8 @@ namespace SimpleScene.Demos
 
         public static SSTexture getDefaultTexture()
         {
-            //return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-            return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+            return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
+            //return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
         }
 
         protected readonly Dictionary<SLaser, HitSpotData> _hitSpots 
@@ -110,6 +110,7 @@ namespace SimpleScene.Demos
                     var beam = laser.beam(i);
                     {
                         var newFlashEmitter = new SSRadialEmitter();
+                        newFlashEmitter.velocity = Vector3.Zero;
                         newFlashEmitter.billboardXY = true;
                         newFlashEmitter.spriteRectangles = laserParams.flashSpriteRects;
                         var flashColor = laserParams.overlayColor;
