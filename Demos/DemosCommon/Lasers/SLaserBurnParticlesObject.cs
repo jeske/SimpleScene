@@ -119,6 +119,7 @@ namespace SimpleScene.Demos
                         newFlashEmitter.emissionInterval = 1f / laserParams.flashEmitFrequency;
                         newFlashEmitter.masterScaleMin = laserParams.flashScaleMin;
                         newFlashEmitter.masterScaleMax = laserParams.flashScaleMax;
+                        newFlashEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         _flashEmitters[i] = newFlashEmitter;
                     }
                     {
@@ -131,6 +132,7 @@ namespace SimpleScene.Demos
                         newFlameSmokeEmitter.emissionInterval = 1f / laserParams.flameSmokeEmitFrequency;
                         newFlameSmokeEmitter.masterScaleMin = laserParams.flameSmokeScaleMin;
                         newFlameSmokeEmitter.masterScaleMax = laserParams.flameSmokeScaleMax;
+                        newFlameSmokeEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                 }
