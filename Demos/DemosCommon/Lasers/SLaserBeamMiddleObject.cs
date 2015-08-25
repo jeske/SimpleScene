@@ -6,7 +6,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
-	public class SLaserBeamObject : SSObject
+	public class SLaserBeamMiddleObject : SSObject
 	{
         // TODO restructure to use one texture?
 
@@ -59,14 +59,14 @@ namespace SimpleScene.Demos
 			}
 		}
 
-		public SLaserBeamObject (SLaser laser,
-									  int beamId,
-									  SSScene cameraScene = null,
-								      SSTexture middleBackgroundSprite = null,
-									  SSTexture middleOverlaySprite = null,
-									  SSTexture[] flareBackgroundSprites = null,
-									  SSTexture[] flareOverlaySprites = null,
-									  SSTexture inteferenceSprite = null)
+		public SLaserBeamMiddleObject (SLaser laser,
+									   int beamId,
+									   SSScene cameraScene = null,
+								       SSTexture middleBackgroundSprite = null,
+									   SSTexture middleOverlaySprite = null,
+									   SSTexture[] flareBackgroundSprites = null,
+									   SSTexture[] flareOverlaySprites = null,
+									   SSTexture inteferenceSprite = null)
 		{
 			this._laser = laser;
 			this._beamId = beamId;

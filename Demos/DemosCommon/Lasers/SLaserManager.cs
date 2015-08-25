@@ -94,7 +94,7 @@ namespace SimpleScene.Demos
             protected SSObjectOcclusionQueuery _occDiskPerspObj = null;
             protected SLaserEmissionFlareObject _emissionFlareObj = null;
             protected SLaserHitFlareObject _hitFlareObj = null;
-			protected SLaserBeamObject _beamObj = null;
+			protected SLaserBeamMiddleObject _beamObj = null;
 
 			public BeamRuntimeInfo(SLaser laser, int beamId, 
                                    SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
@@ -142,7 +142,9 @@ namespace SimpleScene.Demos
 
             protected void _createRenderObjects()
             {
-                if (_occDiskFlatObj == null) {
+                var laserParams = this._laser.parameters;
+
+                if (laserParams.doEmissionFlare && _occDiskFlatObj == null) {
                     _occDiskFlatObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
                     _occDiskFlatObj.renderState.alphaBlendingOn = true;
                     _occDiskFlatObj.renderState.lighted = false;
@@ -156,8 +158,7 @@ namespace SimpleScene.Demos
                     _occDiskScene.AddObject(_occDiskFlatObj);
                 }
 
-
-                if (_occDiskPerspObj == null) {
+                if (laserParams.doEmissionFlare && _occDiskPerspObj == null) {
                     _occDiskPerspObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
                     _occDiskPerspObj.renderState.alphaBlendingOn = true;
                     _occDiskPerspObj.renderState.lighted = false;
@@ -172,17 +173,17 @@ namespace SimpleScene.Demos
                 }
 
                 if (_beamObj == null) {
-                    _beamObj = new SLaserBeamObject (_laser, _beamId, _beamScene);
+                    _beamObj = new SLaserBeamMiddleObject (_laser, _beamId, _beamScene);
                     _beamScene.AddObject(_beamObj);
                 }
 
-                if (_emissionFlareObj == null) {
+                if (laserParams.doEmissionFlare && _emissionFlareObj == null) {
                 //if (false) {
                     _emissionFlareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj);
                     _flareScene.AddObject(_emissionFlareObj);
                 }
 
-                if (_hitFlareObj == null) {
+                if (laserParams.doScreenHitFlare && _hitFlareObj == null) {
                     _hitFlareObj = new SLaserHitFlareObject (_laser, _beamId, _beamScene);
                     _flareScene.AddObject(_hitFlareObj);
                 }

@@ -61,7 +61,7 @@ namespace SimpleScene.Demos
 		#endregion
 
 		#region start-only radial sprites
-		/// <summary>
+        /// <summary>
 		/// start-only radial emission sprites will be drawn x times larger than the middle section width
 		/// when at full intensity (looking straight into the laser)
 		/// </summary>
@@ -139,6 +139,7 @@ namespace SimpleScene.Demos
 		#endregion
 
         #region emission flare 
+        public bool doEmissionFlare = true;
         public float emissionFlareSizeMaxPx = 500f;
         public float occDiskDirOffset = 0.5f;
         public float occDisk1RadiusPx = 15f;
@@ -148,6 +149,7 @@ namespace SimpleScene.Demos
         #endregion
 
         #region screen hit flare
+        public bool doScreenHitFlare = true;
         public float hitFlareSizeMaxPx = 2000f;
         public float coronaBackgroundScale = 1f;
         public float coronaOverlayScale = 0.5f;
