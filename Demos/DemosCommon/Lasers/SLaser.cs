@@ -171,6 +171,7 @@ namespace SimpleScene.Demos
         public float flameSmokeEmitFrequency = 10f;
         public float flameSmokeScaleMin = 1f;
         public float flameSmokeScaleMax = 3f;
+        public float flameSmokeLifetime = 1f;
 
         /// <summary>
         /// Default locations of flash sprites in fig7.png
@@ -185,6 +186,7 @@ namespace SimpleScene.Demos
         public float flashEmitFrequency = 10f;
         public float flashScaleMin = 1f;
         public float flashScaleMax = 3f;
+        public float flashLifetime = 1f;
         #endregion
 	}
 
