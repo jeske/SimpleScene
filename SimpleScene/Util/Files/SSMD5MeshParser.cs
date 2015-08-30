@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using OpenTK;
 
@@ -73,13 +74,13 @@ namespace SimpleScene
 			ret.name = matches[0].Captures[0].Value;
 			ret.parentIndex = Convert.ToInt32(matches[1].Value);
 
-			ret.bindPoseLocation.position.X = (float)Convert.ToDouble(matches[3].Value);
-			ret.bindPoseLocation.position.Y = (float)Convert.ToDouble(matches[4].Value); 
-			ret.bindPoseLocation.position.Z = (float)Convert.ToDouble(matches[5].Value);
+			ret.bindPoseLocation.position.X = (float)Convert.ToDouble(matches[3].Value, CultureInfo.InvariantCulture);
+			ret.bindPoseLocation.position.Y = (float)Convert.ToDouble(matches[4].Value, CultureInfo.InvariantCulture); 
+			ret.bindPoseLocation.position.Z = (float)Convert.ToDouble(matches[5].Value, CultureInfo.InvariantCulture);
 
-			ret.bindPoseLocation.orientation.X = (float)Convert.ToDouble(matches[8].Value);
-			ret.bindPoseLocation.orientation.Y = (float)Convert.ToDouble(matches[9].Value); 
-			ret.bindPoseLocation.orientation.Z = (float)Convert.ToDouble(matches[10].Value);
+			ret.bindPoseLocation.orientation.X = (float)Convert.ToDouble(matches[8].Value, CultureInfo.InvariantCulture);
+			ret.bindPoseLocation.orientation.Y = (float)Convert.ToDouble(matches[9].Value, CultureInfo.InvariantCulture); 
+			ret.bindPoseLocation.orientation.Z = (float)Convert.ToDouble(matches[10].Value, CultureInfo.InvariantCulture);
 			ret.bindPoseLocation.computeQuatW();
 			return ret;
 		}
@@ -144,8 +145,8 @@ namespace SimpleScene
 			);
 			vertexIndex = Convert.ToInt32(matches[1].Value);
 			SSSkeletalVertex ret;
-			ret.textureCoords.X = (float)Convert.ToDouble(matches[3].Value);
-			ret.textureCoords.Y = (float)Convert.ToDouble(matches[4].Value);
+			ret.textureCoords.X = (float)Convert.ToDouble(matches[3].Value, CultureInfo.InvariantCulture);
+			ret.textureCoords.Y = (float)Convert.ToDouble(matches[4].Value, CultureInfo.InvariantCulture);
 			ret.weightStartIndex = Convert.ToInt32(matches[6].Value);
 			ret.weightCount = Convert.ToInt32(matches[7].Value);
 			return ret;
@@ -179,10 +180,10 @@ namespace SimpleScene
 			weightIndex = Convert.ToInt32(matches[1].Value);
 			SSSkeletalWeight ret;
 			ret.jointIndex = Convert.ToInt32(matches[2].Value);
-			ret.bias = (float)Convert.ToDouble(matches[3].Value);
-			ret.position.X = (float)Convert.ToDouble(matches[5].Value);
-			ret.position.Y = (float)Convert.ToDouble(matches[6].Value);
-			ret.position.Z = (float)Convert.ToDouble(matches[7].Value);
+			ret.bias = (float)Convert.ToDouble(matches[3].Value, CultureInfo.InvariantCulture);
+			ret.position.X = (float)Convert.ToDouble(matches[5].Value, CultureInfo.InvariantCulture);
+			ret.position.Y = (float)Convert.ToDouble(matches[6].Value, CultureInfo.InvariantCulture);
+			ret.position.Z = (float)Convert.ToDouble(matches[7].Value, CultureInfo.InvariantCulture);
 			return ret;
 		}
 	}
