@@ -55,6 +55,8 @@ namespace SimpleScene.Demos
             Flash = 0x2,
         };
 
+        protected Matrix4 _modelTxfm = Matrix4.Identity;
+
         public static SSTexture getDefaultTexture()
         {
             return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
@@ -93,9 +95,16 @@ namespace SimpleScene.Demos
         public override void updateCamera (ref Matrix4 model, ref Matrix4 view, 
                                            ref Matrix4 projection)
         {
+            _modelTxfm = model;
+        }
+
+        public override void update (float elapsedS)
+        {
+            base.update(elapsedS);
+
             //base.updateCamera(ref model, ref view, ref projection);
             foreach (var hitSpot in _hitSpots.Values) {
-                hitSpot.updateLaserBeamData(ref model);
+                hitSpot.updateLaserBeamData(ref _modelTxfm);
             }
         }
 
@@ -192,18 +201,19 @@ namespace SimpleScene.Demos
 
             public void updateLaserBeamData(ref Matrix4 rendererWorldMat)
             {
-                for (int i = 0; i < _laser.parameters.numBeams; ++i) {
+                var laserParams = _laser.parameters;
+                for (int i = 0; i < laserParams.numBeams; ++i) {
                     var beam = _laser.beam(i);
                     // TODO need intersection location
                     if (beam.hitsAnObstacle) {
                         var hitPos = Vector3.Transform(beam.endPos, rendererWorldMat);
                         foreach (var flashEmitter in _flashEmitters) {
                             flashEmitter.center = hitPos;
-                            flashEmitter.particlesPerEmission = 5;
+                            flashEmitter.particlesPerEmission = laserParams.flashParticlesPerEmission;
                         }
                         foreach (var smokeEmitter in _smokeEmitters) {
                             smokeEmitter.center = hitPos;
-                            smokeEmitter.particlesPerEmission = 5;
+                            smokeEmitter.particlesPerEmission = laserParams.flameSmokeParticlesPerEmission;
                         }
                     } else {
                         foreach (var flashEmitter in _flashEmitters) {

@@ -168,6 +168,7 @@ namespace SimpleScene.Demos
             new RectangleF(0.25f, 0f,    0.25f, 0.25f),
         };
 
+        public int flameSmokeParticlesPerEmission = 5;
         public float flameSmokeEmitFrequency = 10f;
         public float flameSmokeScaleMin = 1f;
         public float flameSmokeScaleMax = 3f;
@@ -183,6 +184,7 @@ namespace SimpleScene.Demos
             new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
         };
 
+        public int flashParticlesPerEmission = 5;
         public float flashEmitFrequency = 10f;
         public float flashScaleMin = 1f;
         public float flashScaleMax = 3f;
