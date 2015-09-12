@@ -115,6 +115,10 @@ namespace SimpleScene
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniObjectWorldTransform = this.worldMat;
+                pgm.UniSpriteOffsetU = 0f;
+                pgm.UniSpriteOffsetV = 0f;
+                pgm.UniSpriteSizeU = 1f;
+                pgm.UniSpriteSizeV = 1f;
                 pgm.SetupTextures();
             }
         }

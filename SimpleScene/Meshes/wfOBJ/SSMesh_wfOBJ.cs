@@ -63,6 +63,11 @@ namespace SimpleScene
 			}
 		}
 
+        public void Render(SSRenderConfig renderConfig)
+        {
+            renderMesh(renderConfig);
+        }
+
 		private void _renderSetupGLSL(SSRenderConfig renderConfig, SSMainShaderProgram shaderPgm, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
 

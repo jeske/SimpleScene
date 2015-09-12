@@ -11,6 +11,7 @@ namespace SimpleScene
         /// Render a number of instances of the mesh. Attribute arrays must be prepared prior to use.
         /// </summary>
 		void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
+        void Render (SSRenderConfig renderConfig);
     }
 
 	public abstract class SSInstancesData
@@ -35,9 +36,18 @@ namespace SimpleScene
 		public virtual void update(float elapsedS) { }
         public virtual void updateCamera(ref Matrix4 model, ref Matrix4 view, 
                                          ref Matrix4 projection) { }
+
+        public bool isValid(int slotIdx)
+        {
+            if (slotIdx >= positions.Length) {
+                slotIdx = 0;
+            }
+            var pos = positions [slotIdx].Value; 
+            return !float.IsNaN(pos.X) && !float.IsNaN(pos.Y) && !float.IsNaN(pos.Y);
+        }
 	}
 
-    /// <summary>
+    /// <summary>5
     /// Renders particle system with attribute buffers and an ISSInstancable object
     /// </summary>
     public class SSInstancedMeshRenderer : SSObject
@@ -49,6 +59,7 @@ namespace SimpleScene
 		public SSInstancesData instanceData;
 
         public bool simulateOnUpdate = true;
+        public bool fallbackToCpu = false; // when true, draw using iteration with CPU (no GPU instancing)
         public ISSInstancable mesh;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
@@ -116,67 +127,128 @@ namespace SimpleScene
 
             base.Render(renderConfig);
 
-			// select either instance shader or instance pssm shader
-			ISSInstancableShaderProgram instanceShader = renderConfig.instanceShader;
+            ISSInstancableShaderProgram instanceShader = renderConfig.instanceShader;
 
-			if (renderConfig.drawingShadowMap) {
-				if (renderConfig.drawingPssm) {
-					renderConfig.instancePssmShader.Activate ();
-					renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
-					instanceShader = renderConfig.instancePssmShader;
-				}
-			} else {
-                if (!renderState.doBillboarding && base.alphaBlendingEnabled) {
-					// Must be called before updating buffers
-					instanceData.sortByDepth (ref modelView);
-				}
+            if (!renderConfig.drawingShadowMap && 
+                !renderState.doBillboarding && base.alphaBlendingEnabled) {
+                // Must be called before updating buffers
+                instanceData.sortByDepth (ref modelView);
+            }
 
-				// texture binding setup
+            if (this.fallbackToCpu) {
+                _renderWithCPUIterations(renderConfig); 
+            } else {
+                _renderWithGPUInstancing(renderConfig);
+            }
+        }
+
+        protected void _renderWithCPUIterations(SSRenderConfig renderConfig)
+        {
+            var mainShader = renderConfig.mainShader;
+            mainShader.Activate();
+
+            for (int i = 0; i < instanceData.activeBlockLength; i++) {
+                if (!instanceData.isValid(i))
+                    continue;
+
+                mainShader.UniSpriteOffsetU = _readElement(instanceData.spriteOffsetsU, i).Value;
+                mainShader.UniSpriteOffsetV = _readElement(instanceData.spriteOffsetsV, i).Value;
+                mainShader.UniSpriteSizeU = _readElement(instanceData.spriteSizesU, i).Value;
+                mainShader.UniSpriteSizeV = _readElement(instanceData.spriteSizesV, i).Value;
+
+                var pos = _readElement(instanceData.positions, i).Value;
+                var componentScaleXY = _readElement(instanceData.componentScalesXY, i).Value;
+                var componentScaleZ = _readElement(instanceData.componentScalesZ, i).Value;
+                var scale = new Vector3 (componentScaleXY.X, componentScaleXY.Y, componentScaleZ)
+                            * _readElement(instanceData.masterScales, i).Value;
+                var oriXY = _readElement(instanceData.orientationsXY, i).Value;
+                var oriZ = _readElement(instanceData.orientationsZ, i).Value;
+                var color = _readElement(instanceData.colors, i).Color;
+                
+
+                // TODO check consistency of orientations with the shader implementation
+                var instanceMat = Matrix4.CreateScale(scale);
+                if (!float.IsNaN(oriXY.X) && !float.IsNaN(oriXY.Y)) { // Not NaN -> no billboarding
+                    instanceMat *= Matrix4.CreateRotationX(oriXY.X) * Matrix4.CreateRotationY(oriXY.Y);
+                }
+                instanceMat = instanceMat
+                    * Matrix4.CreateRotationZ(oriZ)
+                    * Matrix4.CreateTranslation(pos)
+                    * this.worldMat
+                    * renderConfig.invCameraViewMatrix;
+                if (float.IsNaN(oriXY.X) || float.IsNaN(oriXY.Y)) { // per-instance billboarding
+                    instanceMat = OpenTKHelper.BillboardMatrix(ref instanceMat);
+                }
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.LoadMatrix(ref instanceMat);
+
+                GL.Color4(Color4Helper.FromUInt32(color));
+
+                mesh.Render(renderConfig);
+            }
+        }
+
+        protected static Element _readElement<Element>(Element[] array, int i)
+        {
+            return i >= array.Length ? array [0] : array [i];
+        }
+
+        protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
+        {
+            // select either instance shader or instance pssm shader
+            ISSInstancableShaderProgram instanceShader = renderConfig.instanceShader;
+
+            // texture binding setup
+            if (renderConfig.drawingShadowMap) {
+                renderConfig.instancePssmShader.Activate ();
+                renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
+                instanceShader = renderConfig.instancePssmShader;
+
+            } else {
                 renderConfig.instanceShader.Activate();
-				renderConfig.instanceShader.UniObjectWorldTransform = this.worldMat;
-				if (base.textureMaterial != null) {
-					renderConfig.instanceShader.SetupTextures (base.textureMaterial);
-				}
-			}
+                renderConfig.instanceShader.UniObjectWorldTransform = this.worldMat;
+                if (base.textureMaterial != null) {
+                    renderConfig.instanceShader.SetupTextures(base.textureMaterial);
+                }
+            }
 
-			instanceShader.Activate ();
+            instanceShader.Activate ();
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
-            prepareAttribute(_posBuffer, instanceShader.AttrInstancePos, 
-				instanceData.positions);
-			prepareAttribute(_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
-				instanceData.orientationsXY);
-			prepareAttribute(_orientationZBuffer, instanceShader.AttrInstanceOrientationZ, 
-				instanceData.orientationsZ);
-            prepareAttribute(_masterScaleBuffer, instanceShader.AttrInstanceMasterScale, 
-				instanceData.masterScales);
-			prepareAttribute(_componentScaleXYBuffer, instanceShader.AttrInstanceComponentScaleXY, 
-				instanceData.componentScalesXY);
-			prepareAttribute(_componentScaleZBuffer, instanceShader.AttrInstanceComponentScaleZ,
-				instanceData.componentScalesZ);
-            prepareAttribute(_colorBuffer, instanceShader.AttrInstanceColor, 
-				instanceData.colors);
+            _prepareAttribute(_posBuffer, instanceShader.AttrInstancePos, 
+                instanceData.positions);
+            _prepareAttribute(_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
+                instanceData.orientationsXY);
+            _prepareAttribute(_orientationZBuffer, instanceShader.AttrInstanceOrientationZ, 
+                instanceData.orientationsZ);
+            _prepareAttribute(_masterScaleBuffer, instanceShader.AttrInstanceMasterScale, 
+                instanceData.masterScales);
+            _prepareAttribute(_componentScaleXYBuffer, instanceShader.AttrInstanceComponentScaleXY, 
+                instanceData.componentScalesXY);
+            _prepareAttribute(_componentScaleZBuffer, instanceShader.AttrInstanceComponentScaleZ,
+                instanceData.componentScalesZ);
+            _prepareAttribute(_colorBuffer, instanceShader.AttrInstanceColor, 
+                instanceData.colors);
 
-			//prepareAttribute(m_spriteIndexBuffer, instanceShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
-            prepareAttribute(_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
-				instanceData.spriteOffsetsU);
-            prepareAttribute(_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
-				instanceData.spriteOffsetsV);
-            prepareAttribute(_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
-				instanceData.spriteSizesU);
-            prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
-				instanceData.spriteSizesV);
+            //prepareAttribute(m_spriteIndexBuffer, instanceShader.AttrInstanceSpriteIndex, m_ps.SpriteIndices);
+            _prepareAttribute(_spriteOffsetUBuffer, instanceShader.AttrInstanceSpriteOffsetU, 
+                instanceData.spriteOffsetsU);
+            _prepareAttribute(_spriteOffsetVBuffer, instanceShader.AttrInstanceSpriteOffsetV, 
+                instanceData.spriteOffsetsV);
+            _prepareAttribute(_spriteSizeUBuffer, instanceShader.AttrInstanceSpriteSizeU, 
+                instanceData.spriteSizesU);
+            _prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
+                instanceData.spriteSizesV);
 
             // do the draw
             mesh.renderInstanced(renderConfig, instanceData.activeBlockLength, PrimitiveType.Triangles);
-             
+
             GL.PopClientAttrib();
             //this.boundingSphere.Render(ref renderConfig);
         }
-
         
-		void prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
+		protected void _prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
             where A : struct, ISSAttributeLayout 
             where AB : SSAttributeBuffer<A>
         {

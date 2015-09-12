@@ -21,7 +21,7 @@ namespace SimpleScene.Demos
 			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
 			sunDiskScene = new SSScene ();
-			sunFlareScene = new SSScene (null, null, instancingShader, null);
+            sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
 			hudScene = new SSScene ();
 			environmentScene = new SSScene ();
 

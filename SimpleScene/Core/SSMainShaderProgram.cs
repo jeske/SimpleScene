@@ -52,6 +52,11 @@ namespace SimpleScene
         private readonly int u_poissonSamplingEnabled;
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
+
+        private readonly int u_spriteSizeU;
+        private readonly int u_spriteSizeV;
+        private readonly int u_spriteOffsetU;
+        private readonly int u_spriteOffsetV;
         #endregion
 
         #region Uniform Modifiers
@@ -127,6 +132,34 @@ namespace SimpleScene
 				assertActive ();
                 GL.Uniform1 (u_shadowMapViewSplits, value.Length, ref value [0]);
 			}
+        }
+
+        public float UniSpriteSizeU {
+            set {
+                assertActive();
+                GL.Uniform1(u_spriteSizeU, value);
+            }
+        }
+
+        public float UniSpriteSizeV {
+            set {
+                assertActive();
+                GL.Uniform1(u_spriteSizeV, value);
+            }
+        }
+
+        public float UniSpriteOffsetU {
+            set {
+                assertActive();
+                GL.Uniform1(u_spriteOffsetU, value);
+            }
+        }
+
+        public float UniSpriteOffsetV {
+            set {
+                assertActive();
+                GL.Uniform1(u_spriteOffsetV, value);
+            }
         }
 
 		protected bool uniDiffTexEnabled {
@@ -252,12 +285,18 @@ namespace SimpleScene
 			u_poissonScaling = getUniLoc("poissonScale");
 			u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
 
+            u_spriteOffsetU = getUniLoc("spriteOffsetU");
+            u_spriteOffsetV = getUniLoc("spriteOffsetV");
+            u_spriteSizeU = getUniLoc("spriteSizeU");
+            u_spriteSizeV = getUniLoc("spriteSizeV");
+
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
             UniNumShadowMaps = 0;
             UniLightingMode = LightingMode.ShadowMapDebug;
             UniPoissonSamplingEnabled = true;
             UniNumPoissonSamples = 8;
+
             #if MAIN_SHADER_INSTANCING
             UniInstanceDrawEnabled = false;
             UniInstanceBillboardingEnabled = false;

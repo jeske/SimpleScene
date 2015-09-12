@@ -51,6 +51,11 @@ namespace SimpleScene
 			vbo.renderInstanced (renderConfig, instanceCount, primType);
 		}
 
+        public void Render(SSRenderConfig renderConfig)
+        {
+            renderMesh(renderConfig);
+        }
+
 		public void computeVertices (V[] vertices)
 		{
 			vbo.UpdateBufferData(vertices);

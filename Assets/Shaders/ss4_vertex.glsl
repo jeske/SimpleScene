@@ -28,6 +28,11 @@ attribute float instanceSpriteSizeV;
 attribute vec2 attrTexCoord;
 attribute vec3 attrNormal;
 varying vec4 varInstanceColor;
+#else
+uniform float spriteSizeU;
+uniform float spriteSizeV;
+uniform float spriteOffsetU;
+uniform float spriteOffsetV;
 #endif
 
 // todo: uniform sprite rect presets
@@ -124,9 +129,7 @@ bool isNaN(float value)
 
 void main()
 {   
-
 	// transform into eye-space
-
     vec3 combinedPos = gl_Vertex.xyz;
 
     #ifdef INSTANCE_DRAW
@@ -161,7 +164,8 @@ void main()
     //gl_ModelViewMatrix *= -1;
     #else
     vec3 combinedNormal = gl_Normal;
-    gl_TexCoord[0] = gl_MultiTexCoord0;  // output base UV coordinates
+    gl_TexCoord[0].xy = vec2(spriteOffsetU, spriteOffsetV)
+        + gl_MultiTexCoord0.xy * vec2(spriteSizeU, spriteSizeV);
     #endif
 
     vertexNormal = n = normalize (gl_NormalMatrix * combinedNormal);

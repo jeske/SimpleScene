@@ -22,8 +22,9 @@ namespace SimpleScene.Demos
 
         protected static SSTexture _defaultTexture()
         {
-            //return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png");
-            return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png");
+            //return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
+            //return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "uv_checker large.png");
         }
         #endregion
 

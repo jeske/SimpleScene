@@ -43,6 +43,11 @@ namespace SimpleScene
             DrawUnbind();
         }
 
+        public void Render(SSRenderConfig renderConfig)
+        {
+            DrawArrays(renderConfig, PrimitiveType.Triangles);
+        }
+
 		public void UpdateAndDrawArrays(SSRenderConfig renderConfig, 
 										Vertex[] vertices,
                                         PrimitiveType primType,

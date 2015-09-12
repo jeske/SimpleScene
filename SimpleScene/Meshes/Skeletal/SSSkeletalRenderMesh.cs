@@ -189,6 +189,11 @@ namespace SimpleScene
 			}
 		}
 
+        public void Render(SSRenderConfig renderConfig)
+        {
+            renderMesh(renderConfig);
+        }
+
 		public override bool traverseTriangles<T> (T state, traverseFn<T> fn)
 		{
 			foreach (var s in _renderSubMeshes) {
