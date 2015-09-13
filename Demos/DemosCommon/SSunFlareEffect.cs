@@ -74,20 +74,28 @@ namespace SimpleScene.Demos
 
         protected override void _prepareSpritesData ()
         {
+            int numElements = instanceData.activeBlockLength;
+            if (_sunDiskOccIntensity <= 0f) {
+                for (int i = 0; i < numElements; ++i) {
+                    instanceData.writePosition(i, new Vector2(float.NaN)); // hide all sprites
+                }
+                return;
+            }
+
             var color4 = _sunDiskOccObj.MainColor;
             color4.A = _sunDiskOccIntensity;
             instanceData.writeColor(0, color4);
 
-            Vector2 compScale = new Vector2(
-                Math.Max (_sunDiskOccSize.X, _sunDiskOccSize.Y) * Math.Min (1.5f, 1f / (1f - _sunDiskOccIntensity)));
+            Vector2 compScale = new Vector2(Math.Max (_sunDiskOccSize.X, _sunDiskOccSize.Y) 
+                * Math.Min (1.5f, 1f / (1f - _sunDiskOccIntensity)));
             instanceData.writeComponentScale(0, compScale);
 
             Vector2 center = new Vector2 (_clientRect.X, _clientRect.Y)
                            + new Vector2 (_clientRect.Width, _clientRect.Width) / 2f;
             Vector2 towardsCenter = center - _sunDiskOccPos;
-            int numElements = instanceData.activeBlockLength;
             for (int i = 0; i < numElements; ++i) {
-                Vector2 spriteCenter = _sunDiskOccPos + towardsCenter * 2.5f / (float)numElements * (float)i;
+                Vector2 spriteCenter = _sunDiskOccPos + towardsCenter * 2.5f 
+                    / (float)numElements * (float)i;
                 instanceData.writePosition(i, spriteCenter);
             }
         }
