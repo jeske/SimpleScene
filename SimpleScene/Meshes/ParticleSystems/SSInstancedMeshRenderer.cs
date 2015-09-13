@@ -151,10 +151,11 @@ namespace SimpleScene
                 if (!instanceData.isValid(i))
                     continue;
 
-                mainShader.UniSpriteOffsetU = _readElement(instanceData.spriteOffsetsU, i).Value;
-                mainShader.UniSpriteOffsetV = _readElement(instanceData.spriteOffsetsV, i).Value;
-                mainShader.UniSpriteSizeU = _readElement(instanceData.spriteSizesU, i).Value;
-                mainShader.UniSpriteSizeV = _readElement(instanceData.spriteSizesV, i).Value;
+                var spriteOffsetU = _readElement(instanceData.spriteOffsetsU, i).Value;
+                var spriteOffsetV = _readElement(instanceData.spriteOffsetsV, i).Value;
+                var spriteSizeU = _readElement(instanceData.spriteSizesU, i).Value;
+                var spriteSizeV = _readElement(instanceData.spriteSizesV, i).Value;
+                mainShader.UniSpriteOffsetAndSize(spriteOffsetU, spriteOffsetV, spriteSizeU, spriteSizeV);
 
                 var pos = _readElement(instanceData.positions, i).Value;
                 var componentScaleXY = _readElement(instanceData.componentScalesXY, i).Value;

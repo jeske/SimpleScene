@@ -29,10 +29,7 @@ attribute vec2 attrTexCoord;
 attribute vec3 attrNormal;
 varying vec4 varInstanceColor;
 #else
-uniform float spriteSizeU;
-uniform float spriteSizeV;
-uniform float spriteOffsetU;
-uniform float spriteOffsetV;
+uniform vec4 spriteOffsetAndSize;
 #endif
 
 // todo: uniform sprite rect presets
@@ -164,8 +161,8 @@ void main()
     //gl_ModelViewMatrix *= -1;
     #else
     vec3 combinedNormal = gl_Normal;
-    gl_TexCoord[0].xy = vec2(spriteOffsetU, spriteOffsetV)
-        + gl_MultiTexCoord0.xy * vec2(spriteSizeU, spriteSizeV);
+    gl_TexCoord[0].xy = spriteOffsetAndSize.xy 
+        + gl_MultiTexCoord0.xy * spriteOffsetAndSize.zw;
     #endif
 
     vertexNormal = n = normalize (gl_NormalMatrix * combinedNormal);

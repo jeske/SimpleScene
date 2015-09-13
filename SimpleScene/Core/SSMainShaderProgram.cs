@@ -53,10 +53,7 @@ namespace SimpleScene
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
 
-        private readonly int u_spriteSizeU;
-        private readonly int u_spriteSizeV;
-        private readonly int u_spriteOffsetU;
-        private readonly int u_spriteOffsetV;
+        private readonly int u_spriteOffsetAndSize;
         #endregion
 
         #region Uniform Modifiers
@@ -134,32 +131,10 @@ namespace SimpleScene
 			}
         }
 
-        public float UniSpriteSizeU {
-            set {
-                assertActive();
-                GL.Uniform1(u_spriteSizeU, value);
-            }
-        }
-
-        public float UniSpriteSizeV {
-            set {
-                assertActive();
-                GL.Uniform1(u_spriteSizeV, value);
-            }
-        }
-
-        public float UniSpriteOffsetU {
-            set {
-                assertActive();
-                GL.Uniform1(u_spriteOffsetU, value);
-            }
-        }
-
-        public float UniSpriteOffsetV {
-            set {
-                assertActive();
-                GL.Uniform1(u_spriteOffsetV, value);
-            }
+        public void UniSpriteOffsetAndSize(float offsetU, float offsetV, float sizeU, float sizeV)
+        {
+            assertActive();
+            GL.Uniform4(u_spriteOffsetAndSize, offsetU, offsetV, sizeU, sizeV);
         }
 
 		protected bool uniDiffTexEnabled {
@@ -285,10 +260,7 @@ namespace SimpleScene
 			u_poissonScaling = getUniLoc("poissonScale");
 			u_shadowMapViewSplits = getUniLoc("shadowMapViewSplits");
 
-            u_spriteOffsetU = getUniLoc("spriteOffsetU");
-            u_spriteOffsetV = getUniLoc("spriteOffsetV");
-            u_spriteSizeU = getUniLoc("spriteSizeU");
-            u_spriteSizeV = getUniLoc("spriteSizeV");
+            u_spriteOffsetAndSize = getUniLoc("spriteOffsetAndSize");
 
             UniShowWireframes = false;
             UniAnimateSecondsOffset = 0.0f;
