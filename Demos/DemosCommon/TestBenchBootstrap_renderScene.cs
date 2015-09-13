@@ -159,6 +159,8 @@ namespace SimpleScene.Demos
 			// setup the viewport projection
 
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+			System.Console.WriteLine ("Resizing to width = " + ClientRectangle.Width +
+									 " and height = " + ClientRectangle.Height);
 
 			// setup WIN_SCALE for our shader...
             mainShader.Activate();
