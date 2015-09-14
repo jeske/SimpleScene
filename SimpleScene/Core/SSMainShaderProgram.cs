@@ -52,6 +52,7 @@ namespace SimpleScene
         private readonly int u_poissonSamplingEnabled;
         private readonly int u_numPoissonSamples;
         private readonly int u_lightingMode;
+        private readonly int u_directionalLightIndex;
 
         private readonly int u_spriteOffsetAndSize;
         #endregion
@@ -135,6 +136,13 @@ namespace SimpleScene
         {
             assertActive();
             GL.Uniform4(u_spriteOffsetAndSize, offsetU, offsetV, sizeU, sizeV);
+        }
+
+        public int UniDirectionalLightIndex {
+            set {
+                assertActive();
+                GL.Uniform1(u_directionalLightIndex, value);
+            }
         }
 
 		protected bool uniDiffTexEnabled {
@@ -255,6 +263,7 @@ namespace SimpleScene
             u_numPoissonSamples = getUniLoc("numPoissonSamples");
             u_objectWorldTransform = getUniLoc("objWorldTransform");
             u_lightingMode = getUniLoc("lightingMode");
+            u_directionalLightIndex = getUniLoc("directionalLightIndex");
 
 			u_shadowMapVPs = getUniLoc("shadowMapVPs");
 			u_poissonScaling = getUniLoc("poissonScale");
@@ -268,6 +277,7 @@ namespace SimpleScene
             UniLightingMode = LightingMode.ShadowMapDebug;
             UniPoissonSamplingEnabled = true;
             UniNumPoissonSamples = 8;
+            UniDirectionalLightIndex = -1; // no directional light by default
 
             #if MAIN_SHADER_INSTANCING
             UniInstanceDrawEnabled = false;

@@ -253,7 +253,7 @@ namespace SimpleScene
 
         private void disableLighting() {
             foreach (var light in lights) {
-                light.DisableLight();
+                light.DisableLight(renderConfig);
             }
         }
 

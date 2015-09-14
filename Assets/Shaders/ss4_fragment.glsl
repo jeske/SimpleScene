@@ -16,6 +16,7 @@ uniform int specTexEnabled;
 uniform int ambiTexEnabled;
 uniform int bumpTexEnabled;
 
+uniform int directionalLightIndex; // -1 = no directional light
 uniform int lightingMode;
 
 uniform int showWireframes;
@@ -244,10 +245,6 @@ vec4 shadowMapTestLighting(vec4 outputColor) {
 // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
 vec4 BlinnPhongLighting(vec4 outputColor) {
 		// eye space lighting
-		vec3 lightDir = gl_LightSource[0].position.xyz;
-        float lightDotProd = dot(f_vertexNormal, lightDir);
-        bool lightIsInFront =  lightDotProd < 0.005;
-
 		vec4 shadowMapDebugColor;
 
 		float litFactor = shadowMapLighting(shadowMapDebugColor);
@@ -278,21 +275,26 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
        // 2. glow/emissive lighting term
 	   outputColor += glowColor * glowStrength;
 
-	   // 4. specular reflection lighting term
-	   if (lightIsInFront) {   // if light is front of the surface
+       if (directionalLightIndex != -1) {
+            vec3 lightDir = gl_LightSource[directionalLightIndex].position.xyz;
+            float lightDotProd = dot(f_vertexNormal, lightDir);
+            bool lightIsInFront =  lightDotProd < 0.0;
 
-	       // 3. diffuse reflection lighting term
-		   float diffuseIllumination = clamp(-lightDotProd, 0, 1);
-		   // boost the diffuse color by the glowmap .. poor mans bloom
-	       // float glowFactor = length(glowStrength.xyz) * 0.2; 
-		   // outputColor += litFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
-	       outputColor += litFactor * diffuseColor * diffuseStrength * diffuseIllumination * vec4(1.5);
+            if (lightIsInFront) {
+                // 3. diffuse reflection lighting term
+                float diffuseIllumination = clamp(-lightDotProd, 0, 1);
+                // boost the diffuse color by the glowmap .. poor mans bloom
+                // float glowFactor = length(glowStrength.xyz) * 0.2; 
+                // outputColor += litFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
+                outputColor += litFactor * diffuseColor * diffuseStrength * diffuseIllumination * vec4(1.5);
 
-          // add the specular highlight
-	      vec3 R = reflect(normalize(gl_LightSource[0].position.xyz), normalize(f_vertexNormal));
-	      float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), matShininess);
-	      outputColor += litFactor * specTex * specularStrength * shininess; 
-       } 
+                // add the specular highlight
+                // 4. specular reflection lighting term
+                vec3 R = reflect(normalize(gl_LightSource[0].position.xyz), normalize(f_vertexNormal));
+                float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), matShininess);
+                outputColor += litFactor * specTex * specularStrength * shininess; 
+            }
+       }
 	   return outputColor;
 }
 
