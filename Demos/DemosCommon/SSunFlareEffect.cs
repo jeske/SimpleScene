@@ -8,14 +8,14 @@ namespace SimpleScene.Demos
     public class SSunFlareEffect : SSInstanced2dEffect
     {
         #region default sprite and texture configuration
-        protected const float _bigOffset = 0.8889f;
-        protected const float _smallOffset = 0.125f;
+        protected const float _smallUOffset = 0.125f;
+        protected const float _bigVOffset = 0.88889f;
         protected static readonly RectangleF[] _defaultRects = {
-            new RectangleF(0f, 0f, 1f, _bigOffset),
-            new RectangleF(0f, _bigOffset, _smallOffset, _smallOffset),
-            new RectangleF(_smallOffset, _bigOffset, _smallOffset, _smallOffset),
-            new RectangleF(_smallOffset*2f, _bigOffset, _smallOffset, _smallOffset),
-            new RectangleF(_smallOffset*3f, _bigOffset, _smallOffset, _smallOffset)
+            new RectangleF(0f, 0f, 1f, _bigVOffset),
+            new RectangleF(0f, _bigVOffset, _smallUOffset, 1f-_bigVOffset),
+            new RectangleF(_smallUOffset, _bigVOffset, _smallUOffset, 1f-_bigVOffset),
+            new RectangleF(_smallUOffset*2f, _bigVOffset, _smallUOffset, 1f-_bigVOffset),
+            new RectangleF(_smallUOffset*3f, _bigVOffset, _smallUOffset, 1f-_bigVOffset)
         };
 
         protected static readonly float[] _defaultSpriteScales = { 40f, 2f, 4f, 2f, 2f };
