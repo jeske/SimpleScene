@@ -61,12 +61,12 @@ namespace SimpleScene
             }
         }
 
-        public void Render(SSRenderConfig renderConfig)
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
         {
-            DrawElements(renderConfig, PrimitiveType.Triangles);
+            DrawElements(renderConfig, primType);
         }
 
-		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
+        public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
         {
 			m_vbo.DrawBind(renderConfig);
             Bind();

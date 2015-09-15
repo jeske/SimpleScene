@@ -54,16 +54,16 @@ namespace SimpleScene
         }
 #endregion
 
-		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
+		public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
 			base.renderMesh (renderConfig);
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 				_renderSetupGLSL(renderConfig, renderConfig.instanceShader, subset);
-				subset.ibo.renderInstanced(renderConfig, instanceCount, primType);
+                subset.ibo.drawInstanced(renderConfig, instanceCount, primType);
 			}
 		}
 
-        public void Render(SSRenderConfig renderConfig)
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
         {
             renderMesh(renderConfig);
         }

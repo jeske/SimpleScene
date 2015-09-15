@@ -10,8 +10,8 @@ namespace SimpleScene
         /// <summary>
         /// Render a number of instances of the mesh. Attribute arrays must be prepared prior to use.
         /// </summary>
-		void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
-        void Render (SSRenderConfig renderConfig);
+		void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
+        void drawSingle (SSRenderConfig renderConfig, PrimitiveType primType);
     }
 
 	public abstract class SSInstancesData
@@ -52,15 +52,16 @@ namespace SimpleScene
     /// </summary>
     public class SSInstancedMeshRenderer : SSObject
     {
-        // TODO Draw any ibo/vbo mesh
+        // TODO consider drawing primitive types other than triangles
 
         public const BufferUsageHint _defaultUsageHint = BufferUsageHint.StreamDraw;
 
 		public SSInstancesData instanceData;
+        public ISSInstancable mesh;
+        public PrimitiveType primType = PrimitiveType.Triangles;
 
         public bool simulateOnUpdate = true;
         public bool fallbackToCpu = false; // when true, draw using iteration with CPU (no GPU instancing)
-        public ISSInstancable mesh;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
@@ -185,7 +186,7 @@ namespace SimpleScene
 
                 GL.Color4(Color4Helper.FromUInt32(color));
 
-                mesh.Render(renderConfig);
+                mesh.drawSingle(renderConfig, this.primType);
             }
         }
 
@@ -243,7 +244,7 @@ namespace SimpleScene
                 instanceData.spriteSizesV);
 
             // do the draw
-            mesh.renderInstanced(renderConfig, instanceData.activeBlockLength, PrimitiveType.Triangles);
+            mesh.drawInstanced(renderConfig, instanceData.activeBlockLength, this.primType);
 
             GL.PopClientAttrib();
             //this.boundingSphere.Render(ref renderConfig);

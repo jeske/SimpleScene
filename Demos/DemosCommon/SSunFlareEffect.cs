@@ -48,6 +48,7 @@ namespace SimpleScene.Demos
             this.renderState.alphaBlendingOn = true;
             this._sunDiskOccScene = sunDiskScene;
             this._sunDiskOccObj = sunDiskObj;
+            this.fallbackToCpu = true;
 
             base.rects = spriteRects ?? _defaultRects;
             base.masterScales = spriteScales ?? _defaultSpriteScales;

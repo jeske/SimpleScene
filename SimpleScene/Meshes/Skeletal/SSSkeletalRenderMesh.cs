@@ -182,14 +182,14 @@ namespace SimpleScene
 			NotifyMeshPositionOrSizeChanged ();
 		}
 
-		public void renderInstanced(SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
+		public void drawInstanced(SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
 		{
 			foreach (var sub in _renderSubMeshes) {
-				sub.renderInstanced (cfg, instanceCount, primType);
+                sub.drawInstanced (cfg, instanceCount, primType);
 			}
 		}
 
-        public void Render(SSRenderConfig renderConfig)
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
         {
             renderMesh(renderConfig);
         }
@@ -293,7 +293,7 @@ namespace SimpleScene
 					// normal
 					m_vertices [v].Normal = m_runtimeMesh.computeVertexNormal (v);
 				}
-				vbo.UpdateBufferData (m_vertices);
+				_vbo.UpdateBufferData (m_vertices);
 				return aabb;
 			}
 
