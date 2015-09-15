@@ -170,10 +170,10 @@ namespace SimpleScene
                 // TODO check consistency of orientations with the shader implementation
                 var instanceMat = Matrix4.CreateScale(scale);
                 if (!float.IsNaN(oriXY.X) && !float.IsNaN(oriXY.Y)) { // Not NaN -> no billboarding
-                    instanceMat *= Matrix4.CreateRotationX(oriXY.X) * Matrix4.CreateRotationY(oriXY.Y);
+                    instanceMat *= Matrix4.CreateRotationX(-oriXY.X) * Matrix4.CreateRotationY(-oriXY.Y);
                 }
                 instanceMat = instanceMat
-                    * Matrix4.CreateRotationZ(oriZ)
+                    * Matrix4.CreateRotationZ(-oriZ)
                     * Matrix4.CreateTranslation(pos)
                     * this.worldMat
                     * renderConfig.invCameraViewMatrix;
