@@ -194,8 +194,12 @@ namespace TestBench1
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 
-			tracker0.targetObject = scene.ActiveCamera;
-			tracker4.targetObject = scene.ActiveCamera;
+			if (tracker0 != null) {
+				tracker0.targetObject = scene.ActiveCamera;
+			}
+			if (tracker4 != null) {
+				tracker4.targetObject = scene.ActiveCamera;
+			}
 		}
 	}
 }
