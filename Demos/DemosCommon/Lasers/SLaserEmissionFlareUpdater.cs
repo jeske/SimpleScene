@@ -6,13 +6,8 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
-    public class SLaserEmissionFlareObject : SSInstanced2dEffect
+    public class SLaserEmissionFlareUpdater : ISSpriteUpdater
     {
-        public static SSTexture getDefaultTexture() 
-        { 
-            return SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png");
-        }
-
         protected SLaser _laser;
         protected int _beamId;
 
@@ -26,39 +21,54 @@ namespace SimpleScene.Demos
         /// </summary>
         protected readonly SSObjectOcclusionQueuery _beamOccPerspObj;
 
-        public SLaserEmissionFlareObject(
+        protected readonly RectangleF _backgroundRect;
+        protected readonly RectangleF _overlayRect;
+        protected int _backgroundSpriteIdx;
+        protected int _overlaySpriteIdx;
+
+
+        public SLaserEmissionFlareUpdater(
             SLaser laser, int beamId, 
-            SSScene camera3dScene, 
             SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp, 
-            SSTexture texture, 
             RectangleF backgroundRect,
             RectangleF overlayRect
         )
-            : base(2, camera3dScene, texture ?? getDefaultTexture())
         {
             this._laser = laser;
             this._beamId = beamId;
             this._beamOccFlatObj = occFlat;
             this._beamOccPerspObj = occPersp;
 
-            this.renderState.alphaBlendingOn = true;
-            this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            this.renderState.blendFactorDest = BlendingFactorDest.One;
-
-            instanceData.writeRect(0, backgroundRect);
-            instanceData.writeRect(1, overlayRect);
+            this._backgroundRect = backgroundRect;
+            this._overlayRect = overlayRect;
         }
 
-        public SLaserEmissionFlareObject(
+        public SLaserEmissionFlareUpdater(
             SLaser laser, int beamId, 
-            SSScene camera3dScene, 
-            SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp, 
-            SSTexture texture = null)
-            : this(laser, beamId, camera3dScene, occFlat, occPersp, texture,
-                new RectangleF(0f, 0f, 1f, 1f), new RectangleF(0f, 0f, 1f, 1f))
+            SSObjectOcclusionQueuery occFlat, SSObjectOcclusionQueuery occPersp
+        ) 
+            : this(laser, beamId, occFlat, occPersp,
+                new RectangleF(0f, 0.5f, 0.5f, 0.5f), new RectangleF(0f, 0.5f, 0.5f, 0.5f))
         { }
 
-        protected override void _prepareSpritesData ()
+        public void setupSprites(SInstancedSpriteData instanceData)
+        {
+            _backgroundSpriteIdx = instanceData.requestSlot();
+            _overlaySpriteIdx = instanceData.requestSlot();
+
+            instanceData.writeRect(_backgroundSpriteIdx, _backgroundRect);
+            instanceData.writeRect(_overlaySpriteIdx, _overlayRect);
+
+        }
+
+        public void releaseSprites(SInstancedSpriteData instanceData)
+        {
+            instanceData.releaseSlot(_backgroundSpriteIdx);
+            instanceData.releaseSlot(_overlaySpriteIdx);
+        }
+
+        public void updateSprites(SInstancedSpriteData instanceData,
+                                  ref Matrix4 camera3dViewProjMat, ref RectangleF clientRect)
         {
             float occIntensity = 0f;
             if (_beamOccFlatObj != null) {
@@ -76,7 +86,7 @@ namespace SimpleScene.Demos
             if (_beamOccPerspObj != null) {
                 // "perspective" disk that that just shrinks when looking from far away due to perspective
                 var contribution = (float)Math.Sqrt((float)_beamOccPerspObj.OcclusionQueueryResult /
-                               (_clientRect.Width * _clientRect.Height));
+                               (clientRect.Width * clientRect.Height));
                 contribution = (float)Math.Pow(contribution, 0.2);
                 contribution *= 0.8f;
                 occIntensity += contribution;
@@ -84,23 +94,24 @@ namespace SimpleScene.Demos
             }
 
             var beam = _laser.beam(_beamId);
-            var beamStartScreen = worldToScreen(beam.startPos);
+            var beamStartScreen = OpenTKHelper.WorldToScreen(beam.startPos, ref camera3dViewProjMat, ref clientRect);
+            //var beamStartScreen = new Vector2(500f);
             int numElements = instanceData.activeBlockLength;
             var intensity = _laser.envelopeIntensity * beam.periodicIntensity * occIntensity;
             var laserParams = _laser.parameters;
-            instanceData.writePosition(0, beamStartScreen);
-            instanceData.writePosition(1, beamStartScreen);
+            instanceData.writePosition(_backgroundSpriteIdx, beamStartScreen);
+            instanceData.writePosition(_overlaySpriteIdx, beamStartScreen);
             float scale = _laser.parameters.emissionFlareSizeMaxPx * intensity; // * Math.Min (1.5f, 1f / (1f - _occIntensity))
-            instanceData.writeMasterScale(0, scale);
-            instanceData.writeMasterScale(1, scale * 0.5f); // TODO be able to customize
+            instanceData.writeMasterScale(_backgroundSpriteIdx, scale);
+            instanceData.writeMasterScale(_overlaySpriteIdx, scale * 0.5f); // TODO be able to customize
 
             var backgroundColor = laserParams.backgroundColor;
             backgroundColor.A = intensity;
-            instanceData.writeColor(0, backgroundColor);
+            instanceData.writeColor(_backgroundSpriteIdx, backgroundColor);
 
             var overlayColor = laserParams.overlayColor;
             overlayColor.A = (float)Math.Pow(occIntensity, 0.5);
-            instanceData.writeColor(1, overlayColor);
+            instanceData.writeColor(_overlaySpriteIdx, overlayColor);
         }
     }
 }

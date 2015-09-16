@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene.Demos
 {
@@ -17,35 +18,50 @@ namespace SimpleScene.Demos
         protected readonly SSScene _occDiskScene;
 		protected readonly SSScene _flareScene2d;
 
-        protected readonly SLaserBurnParticlesObject _laserBurn;
+        protected readonly SInstancedSpriteData _2dEffectInstanceData;
+        protected readonly SSInstancedSpriteRenderer _2dEffectRenderer; 
+
+        protected readonly SLaserBurnParticlesObject _laserBurnParticles;
 
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
-        public SLaserManager (SSScene beamScene3d, SSScene occDiskScene, SSScene flareScene2d)
+        public SLaserManager (SSScene beamScene3d, SSScene occDiskScene, SSScene flareScene2d,
+            int sprite2dCapacity = 100, int laserBurnParticlesCapacity = 100)
 		{
 			_beamScene3d = beamScene3d;
             _occDiskScene = occDiskScene;
             _flareScene2d = flareScene2d;
 
-            _laserBurn = new SLaserBurnParticlesObject ();
-            _beamScene3d.AddObject(_laserBurn);
+            _2dEffectInstanceData = new SInstancedSpriteData (sprite2dCapacity);
+            _2dEffectRenderer = new SSInstancedSpriteRenderer (_beamScene3d, _2dEffectInstanceData);
+
+            _2dEffectRenderer.renderState.alphaBlendingOn = true;
+            _2dEffectRenderer.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
+            _2dEffectRenderer.renderState.blendFactorDest = BlendingFactorDest.One;
+            _flareScene2d.AddObject(_2dEffectRenderer);
+
+            _laserBurnParticles = new SLaserBurnParticlesObject (laserBurnParticlesCapacity);
+            _beamScene3d.AddObject(_laserBurnParticles);
 
 			beamScene3d.preUpdateHooks += this._update;
-
 		}
 
 		public SLaser addLaser(SLaserParameters laserParams, 
 		   		     		   SSObject srcObject, SSObject dstObject)
 		{
-			var newLaser = new SLaser (laserParams);
+            if (_2dEffectRenderer.textureMaterial == null) {
+                _2dEffectRenderer.textureMaterial = new SSTextureMaterial (laserParams.sprite2dEffectsTexture);
+            }
+
+            var newLaser = new SLaser (laserParams);
 			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
 			newLaser.targetObject = dstObject;
 
-			var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene3d, _occDiskScene, _flareScene2d);
+            var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene3d, _occDiskScene, _2dEffectRenderer);
 			_laserRuntimes.Add (newLaserRuntime);
 
-            _laserBurn.particleSystem.addHitSpots(newLaser);
+            _laserBurnParticles.particleSystem.addHitSpots(newLaser);
 			// debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
 			//newLaser.sourceTxfm = Matrix4.Identity;
@@ -57,13 +73,13 @@ namespace SimpleScene.Demos
         {
             int idx = _laserRuntimes.FindIndex(lrt => lrt.laser == laser);
             _removeLaser(idx);
-            _laserBurn.particleSystem.removeHitSpots(laser);
+            _laserBurnParticles.particleSystem.removeHitSpots(laser);
         }
 
         protected void _removeLaser(int i) 
         {
             var lrt = _laserRuntimes [i];
-            _laserBurn.particleSystem.removeHitSpots(lrt.laser);
+            _laserBurnParticles.particleSystem.removeHitSpots(lrt.laser);
 
             lrt.requestDeleteFromScene();
             _laserRuntimes.RemoveAt(i);
@@ -78,7 +94,7 @@ namespace SimpleScene.Demos
                     _removeLaser(i);
 				}
 			}
-            _laserBurn.particleSystem.update(timeElapsedS);
+            _laserBurnParticles.particleSystem.update(timeElapsedS);
 		}
 
 		protected class BeamRuntimeInfo
@@ -88,22 +104,25 @@ namespace SimpleScene.Demos
 
 			protected readonly SSScene _beamScene;
             protected readonly SSScene _occDiskScene;
-			protected readonly SSScene _flareScene;
+            protected readonly SSInstancedSpriteRenderer _sprite2dRenderer;
+            protected readonly SInstancedSpriteData _sprite2dInstanceData;
 
 			protected SSObjectOcclusionQueuery _occDiskFlatObj = null;
             protected SSObjectOcclusionQueuery _occDiskPerspObj = null;
-            protected SLaserEmissionFlareObject _emissionFlareObj = null;
-            protected SLaserHitFlareObject _hitFlareObj = null;
-			protected SLaserBeamMiddleObject _beamObj = null;
+
+            protected SLaserBeamMiddleObject _beamObj = null;
+            protected SLaserEmissionFlareUpdater _emissionFlareUpdater = null;
+            protected SLaserHitFlareUpdater _hitFlareUpdater = null;
 
 			public BeamRuntimeInfo(SLaser laser, int beamId, 
-                                   SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
+                                   SSScene beamScene, SSScene occDiskScene,
+                                   SSInstancedSpriteRenderer sprite2dRenderer)
 			{
 				_laser = laser;
 				_beamId = beamId;
 				_beamScene = beamScene;
                 _occDiskScene = occDiskScene;
-				_flareScene = flareScene;
+                _sprite2dRenderer = sprite2dRenderer;
 			}
 
 			public void requestDeleteFromScene()
@@ -117,11 +136,13 @@ namespace SimpleScene.Demos
                 if (_occDiskPerspObj != null) {
                     _occDiskPerspObj.renderState.toBeDeleted = true;
                 }
-                if (_emissionFlareObj != null) {
-                    _emissionFlareObj.renderState.toBeDeleted = true;
+                if (_emissionFlareUpdater != null) {
+                    _sprite2dRenderer.removeUpdater(_emissionFlareUpdater);
+                    _emissionFlareUpdater = null;
                 }
-                if (_hitFlareObj != null) {
-                    _hitFlareObj.renderState.toBeDeleted = true;
+                if (_hitFlareUpdater != null) {
+                    _sprite2dRenderer.removeUpdater(_hitFlareUpdater);
+                    _hitFlareUpdater = null;
                 }
 			}
 
@@ -132,12 +153,16 @@ namespace SimpleScene.Demos
 
                 _createRenderObjects();
 
-                _occDiskFlatObj.Pos = _occDiskPerspObj.Pos 
-                    = beam.startPos + _laser.direction() * _laser.parameters.occDiskDirOffset;
-				// TODO consider per-beam orient
+                if (_occDiskFlatObj != null) {
+                    _occDiskFlatObj.Pos = _occDiskPerspObj.Pos 
+                        = beam.startPos + _laser.direction() * _laser.parameters.occDiskDirOffset;
+                    // TODO consider per-beam orient
 
-                _occDiskFlatObj.Orient(_laser.sourceOrient());
-                _occDiskPerspObj.Orient(_laser.sourceOrient());
+                    _occDiskFlatObj.Orient(_laser.sourceOrient());
+                }
+                if (_occDiskPerspObj != null) {
+                    _occDiskPerspObj.Orient(_laser.sourceOrient());
+                }
 			}
 
             protected void _createRenderObjects()
@@ -177,15 +202,16 @@ namespace SimpleScene.Demos
                     _beamScene.AddObject(_beamObj);
                 }
 
-                if (laserParams.doEmissionFlare && _emissionFlareObj == null) {
-                //if (false) {
-                    _emissionFlareObj = new SLaserEmissionFlareObject (_laser, _beamId, _beamScene, _occDiskFlatObj, _occDiskPerspObj);
-                    _flareScene.AddObject(_emissionFlareObj);
+                if (laserParams.doEmissionFlare && _emissionFlareUpdater == null) {
+                    _emissionFlareUpdater = new SLaserEmissionFlareUpdater (_laser, _beamId, _occDiskFlatObj, _occDiskPerspObj);
+                    _sprite2dRenderer.addUpdater(_emissionFlareUpdater);
                 }
 
-                if (laserParams.doScreenHitFlare && _hitFlareObj == null) {
-                    _hitFlareObj = new SLaserHitFlareObject (_laser, _beamId, _beamScene);
-                    _flareScene.AddObject(_hitFlareObj);
+                if (laserParams.doScreenHitFlare && _hitFlareUpdater == null) {
+                    float[] masterScales = { laserParams.coronaOverlayScale, laserParams.coronaOverlayScale,
+                                             laserParams.ring1Scale, laserParams.ring2Scale };
+                    _hitFlareUpdater = new SLaserHitFlareUpdater (_laser, _beamId, _beamScene, null, masterScales);
+                    _sprite2dRenderer.addUpdater(_hitFlareUpdater);
                 }
             }
 		}
@@ -197,14 +223,14 @@ namespace SimpleScene.Demos
 
 			public SLaser laser { get { return _laser; } }
 
-			public LaserRuntimeInfo(SLaser laser, 
-                                    SSScene beamScene, SSScene occDiskScene, SSScene flareScene)
+			public LaserRuntimeInfo(SLaser laser, SSScene beamScene, SSScene occDiskScene, 
+                                    SSInstancedSpriteRenderer sprite2dRenderer)
 			{
 				_laser = laser;
 				var numBeams = laser.parameters.numBeams;
 				_beams = new BeamRuntimeInfo[numBeams];
 				for (int i = 0; i < numBeams; ++i) {
-                    _beams[i] = new BeamRuntimeInfo(laser, i, beamScene, occDiskScene, flareScene);
+                    _beams[i] = new BeamRuntimeInfo(laser, i, beamScene, occDiskScene, sprite2dRenderer);
 				}
 			}
 

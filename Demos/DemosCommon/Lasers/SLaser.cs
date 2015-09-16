@@ -139,7 +139,7 @@ namespace SimpleScene.Demos
 		#endregion
 
         #region emission flare 
-        public bool doEmissionFlare = true;
+        public bool doEmissionFlare = false;
         public float emissionFlareSizeMaxPx = 500f;
         public float occDiskDirOffset = 0.5f;
         public float occDisk1RadiusPx = 15f;
@@ -153,7 +153,7 @@ namespace SimpleScene.Demos
         public float hitFlareSizeMaxPx = 2000f;
         public float coronaBackgroundScale = 1f;
         public float coronaOverlayScale = 0.5f;
-        public float ring1Scale = 0.5f;
+        public float ring1Scale = 0.275f;
         public float ring2Scale = 0.25f;
         #endregion
 
@@ -190,6 +190,11 @@ namespace SimpleScene.Demos
         public float flashScaleMax = 3f;
         public float flashLifetime = 1f;
         #endregion
+
+        // TODO add sprites from hitflare.png
+        public SSTexture sprite2dEffectsTexture =
+            //SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png"); 
+            SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laser2dSprites.png"); 
 	}
 
 	/// <summary>

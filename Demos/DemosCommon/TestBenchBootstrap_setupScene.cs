@@ -67,7 +67,7 @@ namespace SimpleScene.Demos
 				sunBillboard.renderState.castsShadow = false;
 				sunDiskScene.AddObject(sunBillboard);
 
-                var sunFlare = new SSunFlareEffect(sunDiskScene, sunBillboard);
+                var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunBillboard);
 				sunFlareScene.AddObject (sunFlare);
 			}
             #endif

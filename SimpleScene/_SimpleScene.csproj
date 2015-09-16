@@ -156,8 +156,8 @@
     <Compile Include="Util\ADSREnvelope.cs" />
     <Compile Include="Meshes\ParticleSystems\SSParticleSystemData.cs" />
     <Compile Include="Objects\SSObjectOcclusionQueuery.cs" />
-    <Compile Include="Meshes\ParticleSystems\SSInstanced2dEffect.cs" />
     <Compile Include="Util\SSFrustumCuller.cs" />
+    <Compile Include="Meshes\ParticleSystems\SSInstancedSpriteRenderer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

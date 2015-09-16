@@ -39,10 +39,10 @@
     <Compile Include="SStarfieldObject.cs" />
     <Compile Include="Lasers\SLaserManager.cs" />
     <Compile Include="Lasers\SLaser.cs" />
-    <Compile Include="Lasers\SLaserEmissionFlareObject.cs" />
-    <Compile Include="Lasers\SLaserHitFlareObject.cs" />
     <Compile Include="Lasers\SLaserBurnParticlesObject.cs" />
     <Compile Include="Lasers\SLaserBeamMiddleObject.cs" />
+    <Compile Include="Lasers\SLaserHitFlareUpdater.cs" />
+    <Compile Include="Lasers\SLaserEmissionFlareUpdater.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
