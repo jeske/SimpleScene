@@ -101,15 +101,17 @@ namespace SimpleScene.Demos
 
                     Color4 ring1Color = laserParams.overlayColor;
                     //ring1Color.A = (float)Math.Pow(intensity, 5.0);
-                    ring1Color.A = 0.05f * intensity;
+                    ring1Color.A = 0.1f * intensity;
                     instanceData.writeComponentScale(_spriteSlotIdxs[(int)SpriteId.ring1], 
                         drawScale * (float)Math.Exp(intensity));
-                    instanceData.writeColor((int)SpriteId.ring1, ring1Color);
+                    instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring1], ring1Color);
+                    //instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring1], Color4.LimeGreen);
 
                     Color4 ring2Color = laserParams.backgroundColor;
                     //ring2Color.A = (float)Math.Pow(intensity, 10.0);
-                    ring2Color.A = intensity * 0.05f;
+                    ring2Color.A = intensity * 0.1f;
                     instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring2], ring2Color);
+                    //instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring2], Color4.Magenta);
                 }
             }
 

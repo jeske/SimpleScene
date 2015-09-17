@@ -139,7 +139,7 @@ namespace SimpleScene.Demos
 		#endregion
 
         #region emission flare 
-        public bool doEmissionFlare = false;
+        public bool doEmissionFlare = true;
         public float emissionFlareSizeMaxPx = 500f;
         public float occDiskDirOffset = 0.5f;
         public float occDisk1RadiusPx = 15f;
@@ -193,8 +193,8 @@ namespace SimpleScene.Demos
 
         // TODO add sprites from hitflare.png
         public SSTexture sprite2dEffectsTexture =
-            //SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "flareOverlay.png"); 
             SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laser2dSprites.png"); 
+            //SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "uv_checker large.png");
 	}
 
 	/// <summary>
