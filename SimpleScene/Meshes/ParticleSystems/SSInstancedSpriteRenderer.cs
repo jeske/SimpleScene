@@ -181,16 +181,25 @@ namespace SimpleScene.Demos
                 throw new Exception ("SInstancedSpriteData: capacity overflow");
             }
 
+            int retIdx;
             if (_fragmentedVacantSlots.Count > 0) {
                 // pick the first "vacant" slot
-                int retIdx = _fragmentedVacantSlots [0];
+                retIdx = _fragmentedVacantSlots [0];
                 _fragmentedVacantSlots.RemoveAt(0);
-                return retIdx;
             } else {
-                int retIdx = _activeBlockLength;
+                retIdx = _activeBlockLength;
                 ++_activeBlockLength;
-                return retIdx;
             }
+
+            // cleanup/default setup
+            writePosition(retIdx, Vector2.Zero);
+            writeRect(retIdx, new RectangleF (0f, 0f, 1f, 1f));
+            writeColor(retIdx, Color4.White);
+            writeComponentScale(retIdx, Vector2.One);
+            writeMasterScale(retIdx, 1f);
+            writeOrientationZ(retIdx, 0f);
+
+            return retIdx;
         }
 
         public int[] requestSlots(int numSlots)
