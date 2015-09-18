@@ -43,6 +43,7 @@
     <Compile Include="Lasers\SLaserBeamMiddleObject.cs" />
     <Compile Include="Lasers\SLaserHitFlareUpdater.cs" />
     <Compile Include="Lasers\SLaserEmissionFlareUpdater.cs" />
+    <Compile Include="Lasers\SLaserParameters.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

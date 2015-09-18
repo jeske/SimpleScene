@@ -40,7 +40,7 @@ namespace TestBench2
 
 		static void Main()
 		{
-			// The 'using' idiom guarantees proper resource c0leanup.
+			// The 'using' idiom guarantees proper resource cleanup.
 			// We request 30 UpdateFrame events per second, and unlimited
 			// RenderFrame events (as fast as the computer can handle).
 			using (var game = new TestBench2()) {
