@@ -38,6 +38,7 @@ namespace SimpleScene.Demos
             _2dEffectRenderer.renderState.alphaBlendingOn = true;
             _2dEffectRenderer.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
             _2dEffectRenderer.renderState.blendFactorDest = BlendingFactorDest.One;
+            //_2dEffectRenderer.fallbackToCpu = true;
             _flareScene2d.AddObject(_2dEffectRenderer);
 
             _laserBurnParticles = new SLaserBurnParticlesObject (laserBurnParticlesCapacity);

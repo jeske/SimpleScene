@@ -83,10 +83,11 @@ namespace SimpleScene.Demos
                                                                        ref cameraViewProjMat3d, ref clientRect);
                     float intensity = _laser.envelopeIntensity * beam.periodicIntensity;
                     Vector2 drawScale = new Vector2 (laserParams.hitFlareSizeMaxPx * (float)Math.Exp(intensity));
-                    for (int i = 0; i < instanceData.activeBlockLength; ++i) {
-                        instanceData.writePosition(i, drawScreenPos);
-                        instanceData.writeComponentScale(i, drawScale);
-                        instanceData.writeOrientationZ(i, intensity * 2f * (float)Math.PI);
+                    for (int i = 0; i < _spriteSlotIdxs.Length; ++i) {
+                        int writeIdx = _spriteSlotIdxs [i];
+                        instanceData.writePosition(writeIdx, drawScreenPos);
+                        instanceData.writeComponentScale(writeIdx, drawScale);
+                        instanceData.writeOrientationZ(writeIdx, intensity * 2f * (float)Math.PI);
                     }
 
                     Color4 backgroundColor = laserParams.backgroundColor;

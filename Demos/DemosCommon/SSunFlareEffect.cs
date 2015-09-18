@@ -10,7 +10,8 @@ namespace SimpleScene.Demos
         public static SSTexture defaultTexture()
         {
             return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
-
+            //SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png"));
+            //SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "uv_checker large.png"))
         }
 
         protected readonly SSunFlareUpdater _updater;
@@ -20,21 +21,13 @@ namespace SimpleScene.Demos
                 new SInstancedSpriteData(Math.Max(SSunFlareUpdater.defaultRects.Length, 
                                                   SSunFlareUpdater.defaultSpriteScales.Length)),
                 defaultTexture())
-        //SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare_debug.png"));
-        //SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "uv_checker large.png"))
         {
             this.renderState.alphaBlendingOn = true;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            this.renderState.blendFactorDest = BlendingFactorDest.One;
+            this.renderState.blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
             this.fallbackToCpu = true;
 
-            _updater = new SSunFlareUpdater (camera3dScene, sunDiskObj);
-            addUpdater(_updater);
-        }
-
-        ~SSSunFlareRenderer()
-        {
-            removeUpdater(_updater);
+            addUpdater(new SSunFlareUpdater (camera3dScene, sunDiskObj));
         }
     }
 
@@ -120,27 +113,28 @@ namespace SimpleScene.Demos
 
             int numElements = _spriteSlotIdxs.Length;
             if (_sunDiskOccIntensity <= 0f) {
+                // hide all sprites
                 for (int i = 0; i < numElements; ++i) {
-                    instanceData.writePosition(_spriteSlotIdxs[i], new Vector2(float.NaN)); // hide all sprites
+                    instanceData.writePosition(_spriteSlotIdxs [i], new Vector2 (float.NaN)); // hide all sprites
                 }
-                return;
-            }
+            } else {
+                Vector2 compScale = new Vector2(Math.Max (_sunDiskOccSize.X, _sunDiskOccSize.Y) 
+                    * Math.Min (1.5f, 1f / (1f - _sunDiskOccIntensity)));
+                Vector2 center = new Vector2 (clientRect.X, clientRect.Y)
+                    + new Vector2 (clientRect.Width, clientRect.Width) / 2f;
+                Vector2 towardsCenter = center - _sunDiskOccPos;
+                var color4 = _sunDiskOccObj.MainColor;
+                color4.A = _sunDiskOccIntensity;
+                for (int i = 0; i < numElements; ++i) {
+                    int writeIdx = _spriteSlotIdxs [i];
+                    instanceData.writeComponentScale(writeIdx, compScale);
+                    instanceData.writeColor(writeIdx, color4);
 
-            var color4 = _sunDiskOccObj.MainColor;
-            color4.A = _sunDiskOccIntensity;
-            instanceData.writeColor(_spriteSlotIdxs[0], color4);
-
-            Vector2 compScale = new Vector2(Math.Max (_sunDiskOccSize.X, _sunDiskOccSize.Y) 
-                * Math.Min (1.5f, 1f / (1f - _sunDiskOccIntensity)));
-            instanceData.writeComponentScale(_spriteSlotIdxs[0], compScale);
-
-            Vector2 center = new Vector2 (clientRect.X, clientRect.Y)
-                + new Vector2 (clientRect.Width, clientRect.Width) / 2f;
-            Vector2 towardsCenter = center - _sunDiskOccPos;
-            for (int i = 0; i < numElements; ++i) {
-                Vector2 spriteCenter = _sunDiskOccPos + towardsCenter * 2.5f 
-                    / (float)numElements * (float)i;
-                instanceData.writePosition(_spriteSlotIdxs[i], spriteCenter);
+                    Vector2 spriteCenter = _sunDiskOccPos + towardsCenter * 2.5f 
+                        / (float)numElements * (float)i;
+                    instanceData.writePosition(_spriteSlotIdxs[i], spriteCenter);
+                    
+                }
             }
         }
     }

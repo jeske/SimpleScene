@@ -283,7 +283,7 @@ namespace SimpleScene.Demos
         public void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
         {
             bool write = true;
-            if (idx > 0 && array.Length == 1) {
+            if (array.Length == 1) {
                 T masterVal = array [0];
                 if (masterVal.Equals(value)) {
                     write = false;
