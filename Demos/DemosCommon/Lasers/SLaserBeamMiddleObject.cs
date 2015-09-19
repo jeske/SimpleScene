@@ -153,7 +153,6 @@ namespace SimpleScene.Demos
 				-Vector3.UnitZ, _cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, _laser.direction());
 			dot = Math.Max (dot, 0f);
-			float flareSpriteWidth = middleWidth * laserParams.startPointScale * (1f - dot);
 			float interferenceWidth = middleWidth * laserParams.interferenceScale;
 
 			GL.Color4 (1f, 1f, 1f, beam.periodicIntensity * beam.periodicIntensity);
