@@ -19,6 +19,16 @@ namespace SimpleScene.Demos
 			0,1,2, 1,3,2
 		};
 
+        /// <summary>
+        /// Orientation presets for drawing the crossbeam with outward triangles on all surfaces
+        /// </summary>
+        public static readonly Matrix4[] xOrientationPresets = {
+            Matrix4.Identity,
+            Matrix4.CreateRotationX((float)Math.PI),
+            Matrix4.CreateRotationX(+(float)Math.PI / 2f),
+            Matrix4.CreateRotationX(-(float)Math.PI / 2f)
+        };
+
 		#region per-frame data sources
 		protected readonly SLaser _laser;
 		protected readonly int _beamId;
@@ -77,6 +87,7 @@ namespace SimpleScene.Demos
             this.renderState.depthTest = true;
             this.renderState.depthWrite = false;
             this.renderState.alphaBlendingOn = true;
+            //this.renderState.alphaBlendingOn = false;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
             this.renderState.blendFactorDest = BlendingFactorDest.One;
 
@@ -144,7 +155,7 @@ namespace SimpleScene.Demos
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
 			Matrix4 backgroundOrientMat = Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta);
 			Matrix4 middlePlacementMat = backgroundOrientMat * Matrix4.CreateTranslation (middleView);
-			Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
+			//Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
 			float laserLength = diff.LengthFast;
 			float middleWidth = laserParams.backgroundWidth * _laser.envelopeIntensity;
@@ -157,15 +168,22 @@ namespace SimpleScene.Demos
 
 			GL.Color4 (1f, 1f, 1f, beam.periodicIntensity * beam.periodicIntensity);
 
+            _updateMiddleMesh (laserLength, middleWidth);
+
 			#if true
 			// stretched middle background sprite
 			if (middleBackgroundSprite != null) {
+                _updateMiddleMesh (laserLength, middleWidth);
+
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.backgroundColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
-				GL.LoadMatrix (ref middlePlacementMat);
 
-				_updateMiddleMesh (laserLength, middleWidth);
-				_middleMesh.renderMesh (renderConfig);
+                foreach (var oriX in xOrientationPresets) 
+                {
+                    Matrix4 rotated = oriX * middlePlacementMat;
+                    GL.LoadMatrix (ref rotated);
+                    _middleMesh.renderMesh (renderConfig);
+                }
 			}
 			#endif
 			#if true
@@ -173,48 +191,33 @@ namespace SimpleScene.Demos
 			if (middleOverlaySprite != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.overlayColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
-				GL.LoadMatrix (ref middlePlacementMat);
 
-				_updateMiddleMesh (laserLength, middleWidth);
-				_middleMesh.renderMesh (renderConfig);			
-			}
-			#endif
-			#if false
-			// start radial flare background sprites
-			if (flareBackgroundSprites != null) {
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.backgroundColor);
-				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
-				GL.LoadMatrix (ref mat);
-				foreach (var tex in flareBackgroundSprites) {
-					GL.BindTexture (TextureTarget.Texture2D, tex.TextureID);
-					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-				}
-			}
-			#endif
-			#if false
-			// start radial flare overlay sprites
-			if (flareOverlaySprites != null) {
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, _laser.parameters.overlayColor);
-				var mat = Matrix4.CreateScale (flareSpriteWidth, flareSpriteWidth, 1f) * startPlacementMat;
-				GL.LoadMatrix (ref mat);
-				foreach (var tex in flareOverlaySprites) {
-					GL.BindTexture (TextureTarget.Texture2D, tex.TextureID);
-					SSTexturedQuad.SingleFaceInstance.DrawArrays (renderConfig, PrimitiveType.Triangles);
-				}
+				_middleMesh.renderMesh (renderConfig);
+
+                foreach (var oriX in xOrientationPresets) 
+                {
+                    Matrix4 rotated = oriX * middlePlacementMat;
+                    GL.LoadMatrix (ref rotated);
+                    _middleMesh.renderMesh (renderConfig);
+                }
 			}
 			#endif
 			#if true
 			// interference sprite with a moving U-coordinate offset
 			if (laserParams.interferenceScale > 0f && interferenceSprite != null)
 			{
+                _updateInterfernenceVertices(laserLength, interferenceWidth);
+
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.interferenceColor);
 				//GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
 				GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
-				var mat = Matrix4.CreateScale(laserLength + middleWidth/2f, interferenceWidth, 1f) * middlePlacementMat;
-				GL.LoadMatrix(ref mat);
+                var scaleMat = Matrix4.CreateScale(laserLength + middleWidth/2f, interferenceWidth, 1f);
 
-				_updateInterfernenceVertices(laserLength, interferenceWidth);
-				_interferenceMesh.renderMesh(renderConfig);
+                foreach (var oriX in xOrientationPresets) {
+                    Matrix4 rotated = scaleMat * oriX * middlePlacementMat;
+                    GL.LoadMatrix(ref rotated);
+                    _interferenceMesh.renderMesh(renderConfig);
+                }
 			}
 			#endif
 		}
