@@ -44,7 +44,7 @@ namespace SimpleScene.Demos
             _laserBurnParticles = new SLaserBurnParticlesObject (laserBurnParticlesCapacity);
             _beamScene3d.AddObject(_laserBurnParticles);
 
-			beamScene3d.preUpdateHooks += this._update;
+            beamScene3d.preRenderHooks += this._update;
 		}
 
 		public SLaser addLaser(SLaserParameters laserParams, 

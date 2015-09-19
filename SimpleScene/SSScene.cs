@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -51,6 +51,7 @@ namespace SimpleScene
 		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMatrix = Matrix4.Identity;
 		public Matrix4 projectionMatrix = Matrix4.Identity;
+        public float timeElapsedS = 0f; // time elapsed since last render update
 
 		public ISSInstancableShaderProgram ActiveInstanceShader {
 			get {
@@ -104,6 +105,8 @@ namespace SimpleScene
         public List<SSObject> objects = new List<SSObject>();
         public List<SSLightBase> lights = new List<SSLightBase>();
 		public SceneUpdateDelegate preUpdateHooks = null;
+        public SceneUpdateDelegate preRenderHooks = null;
+        public Stopwatch renderStopwatch = new Stopwatch ();
 
         public SSCamera ActiveCamera { 
             get { return activeCamera; }
@@ -216,6 +219,12 @@ namespace SimpleScene
 		}
 
         public void Render() {
+            renderConfig.timeElapsedS = (float)renderStopwatch.ElapsedMilliseconds/1000f;
+            renderStopwatch.Restart();
+            if (preRenderHooks != null) {
+                preRenderHooks(renderConfig.timeElapsedS);
+            }
+
             if (renderConfig.enableFaceCulling) {
                 GL.Enable(EnableCap.CullFace);
                 GL.CullFace(renderConfig.cullFaceMode);
