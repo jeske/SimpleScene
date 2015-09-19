@@ -42,11 +42,6 @@ namespace SimpleScene.Demos
 		protected SSIndexedMesh<SSVertex_PosTex> _middleMesh;
 		#endregion
 
-		#region start-only radial sprites
-		public SSTexture[] flareBackgroundSprites = null;
-		public SSTexture[] flareOverlaySprites = null;
-		#endregion
-
 		#region interference sprite
 		public SSTexture interferenceSprite = null;
 		protected SSVertex_PosTex[] _interferenceVertices;
@@ -97,7 +92,6 @@ namespace SimpleScene.Demos
             this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
             this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
 
-
 			var ctx = new SSAssetManager.Context ("./lasers");
 			this.middleBackgroundSprite = middleBackgroundSprite 
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleBackground.png");
@@ -105,22 +99,6 @@ namespace SimpleScene.Demos
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleOverlay.png");
 			this.interferenceSprite = interferenceSprite
 				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "interference.png");
-
-			if (flareBackgroundSprites != null && flareBackgroundSprites.Length > 0) { 
-				this.flareBackgroundSprites = flareBackgroundSprites;
-			} else {
-				this.flareBackgroundSprites = new SSTexture[1];
-				this.flareBackgroundSprites[0]
-					= SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareBackground.png");
-			}
-
-			if (flareOverlaySprites != null && flareOverlaySprites.Length > 0) { 
-				this.flareOverlaySprites = flareOverlaySprites;
-			} else {
-				this.flareOverlaySprites = new SSTexture[1];
-				this.flareOverlaySprites[0]
-					= SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "flareOverlay.png");
-			}
 
 			// initialize non-changing vertex data
 			_initMiddleMesh ();
