@@ -65,6 +65,12 @@ namespace SimpleScene
             #endif
 		}
 
+        public virtual bool preciseIntersect (ref SSRay localRay, out float localRayContact)
+        {
+            localRayContact = 0f;
+            return true;
+        }
+
         public virtual bool traverseTriangles<T>(T state, traverseFn<T> fn) 
         {
             return true;

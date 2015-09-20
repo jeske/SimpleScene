@@ -8,14 +8,14 @@ namespace SimpleScene.Util.ssBVH
 {
 	public class SSSphereBVHNodeAdaptor : SSBVHNodeAdaptor<SSSphere>
 	{
-		protected ssBVH<SSSphere> _BVH;
-		protected Dictionary <SSSphere, ssBVHNode<SSSphere>> sphereToLeafMap 
+        protected ssBVH<SSSphere> _bvh;
+		protected Dictionary <SSSphere, ssBVHNode<SSSphere>> _sphereToLeafMap 
 			= new Dictionary <SSSphere, ssBVHNode<SSSphere>>();
-		public ssBVH<SSSphere> BVH { get { return _BVH; } }
+        public ssBVH<SSSphere> BVH { get { return _bvh; } }
 
-		public void setBVH(ssBVH<SSSphere> BVH)
+		public void setBVH(ssBVH<SSSphere> bvh)
 		{
-			_BVH = BVH;
+			_bvh = bvh;
 		}
 
 		public Vector3 objectpos(SSSphere sphere)
@@ -30,24 +30,24 @@ namespace SimpleScene.Util.ssBVH
 
 		public void checkMap(SSSphere sphere) 
 		{
-			if (!sphereToLeafMap.ContainsKey (sphere)) {
-				throw new Exception("missing map for shuffled child");
+			if (!_sphereToLeafMap.ContainsKey (sphere)) {
+				throw new Exception("missing map for a shuffled child");
 			}
 		}
 
 		public void unmapObject(SSSphere sphere) 
 		{
-			sphereToLeafMap.Remove(sphere);
+			_sphereToLeafMap.Remove(sphere);
 		}
 
 		public void mapObjectToBVHLeaf(SSSphere sphere, ssBVHNode<SSSphere> leaf) 
 		{  
-			sphereToLeafMap[sphere] = leaf;
+			_sphereToLeafMap[sphere] = leaf;
 		}
 
 		public ssBVHNode<SSSphere> getLeaf(SSSphere sphere)
 		{
-			return sphereToLeafMap [sphere];
+			return _sphereToLeafMap [sphere];
 		}
 	}
 

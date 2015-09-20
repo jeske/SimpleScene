@@ -271,9 +271,10 @@ namespace SimpleScene
         }
 
 		#if true
-		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
+		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
 			// for now, particle systems don't intersect with anything
 			// TODO: figure out how to do this.
+            distanceAlongRay = 0f;
 			return false;
 		}
         #endif

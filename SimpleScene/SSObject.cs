@@ -209,14 +209,15 @@ namespace SimpleScene
 			if (localBoundingSphereRadius > 0f) {
 				var objBoundingSphere = worldBoundingSphere;
 				if (objBoundingSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
-                    return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
+                    return PreciseIntersect(ref worldSpaceRay, out distanceAlongRay);
 				}
 			}
             distanceAlongRay = 0f;
 			return false;
 		}
 
-		protected virtual bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
+		protected virtual bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
+            distanceAlongRay = 0f;
 			return true;
 		}
 

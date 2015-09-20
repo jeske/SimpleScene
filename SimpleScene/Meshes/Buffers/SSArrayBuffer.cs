@@ -15,9 +15,13 @@ namespace SimpleScene
 
         private readonly BufferUsageHint m_usageHint;
         private int m_bufferIdx = -1;
-        private int m_numElements = 0;
+        private int _numElements = 0;
+        private Element[] _lastAssignedElements = null;
 
-        public int NumElements { get { return m_numElements; } }
+        public int numElements { get { return _numElements; } }
+        public Element[] lastAssignedElements {
+            get { return _lastAssignedElements; }
+        }
 
         public SSArrayBuffer(BufferUsageHint hint = BufferUsageHint.DynamicDraw) 
         {
@@ -35,7 +39,7 @@ namespace SimpleScene
         public void Delete() {
             GL.DeleteBuffer(m_bufferIdx);
             m_bufferIdx = -1;
-            m_numElements = 0;
+            _numElements = 0;
         }
 
         public void UpdateBufferData(Element[] elements)
@@ -62,14 +66,15 @@ namespace SimpleScene
             }
         }
 
-		protected void updatePrivate(Element[] vertices, int numElements = -1) {
+		protected void updatePrivate(Element[] elements, int numElements = -1) {
 			if (numElements <= 0) {
-				numElements = vertices.Length;
+				numElements = elements.Length;
 			}
-			m_numElements = numElements;
+            _lastAssignedElements = elements;
+			_numElements = numElements;
             GL.BufferData(BufferTarget.ArrayBuffer,
-                (IntPtr)(m_numElements * c_elementSz),
-                vertices,
+                (IntPtr)(_numElements * c_elementSz),
+                elements,
                 m_usageHint);
         }
     }

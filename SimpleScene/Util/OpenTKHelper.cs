@@ -147,7 +147,8 @@ namespace SimpleScene
         }
 
 		// http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-		public static bool TriangleRayIntersectionTest(Vector3 V1, Vector3 V2, Vector3 V3, Vector3 rayStart, Vector3 rayDir, out float contact) {
+		public static bool TriangleRayIntersectionTest(
+            ref Vector3 V1, ref Vector3 V2, ref Vector3 V3, ref Vector3 rayStart, ref Vector3 rayDir, out float contact) {
 			Vector3 e1, e2;  //Edge1, Edge2
             Vector3 P, Q, T;
             float det, inv_det, u, v;

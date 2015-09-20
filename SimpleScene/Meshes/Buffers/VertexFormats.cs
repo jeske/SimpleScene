@@ -101,6 +101,10 @@ namespace SimpleScene
 			SSVertexFormatHelper.PrepareNormal (renderConfig, Size, NormalOffset);
 			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
         }
+
+        public Vector3 _position {
+            get { return Position; }
+        }
     }
 
 	///////////////////////////////////////////////////////
@@ -147,6 +151,10 @@ namespace SimpleScene
 			SSVertexFormatHelper.PrepareNormal (renderConfig, Size, NormalOffset);
 			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
 		}
+
+        public Vector3 _position {
+            get { return Position; }
+        }
 	}
 
     ///////////////////////////////////////////////////////
@@ -173,18 +181,22 @@ namespace SimpleScene
 			PositionOffset = Marshal.OffsetOf (type, "Position");
 		}
 
-        public Vector3 Position;
+        public Vector3 position;
 
         public SSVertex_Pos(float x, float y, float z) {
-            Position = new Vector3 (x, y, z);
+            position = new Vector3 (x, y, z);
         }
 
 		public SSVertex_Pos(Vector3 pos) {
-			Position = pos;
+			position = pos;
 		}
 
 		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+        }
+
+        public Vector3 _position {
+            get { return position; }
         }
     }
 
@@ -216,6 +228,10 @@ namespace SimpleScene
         public void BindGlAttributes(SSRenderConfig renderConfig) {
             SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
             SSVertexFormatHelper.PrepareColor(Size, ColorOffset);
+        }
+
+        public Vector3 _position {
+            get { return Position; }
         }
     }
 
@@ -253,6 +269,10 @@ namespace SimpleScene
 		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
 			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
+        }
+
+        public Vector3 _position {
+            get { return Position; }
         }
     }
 }

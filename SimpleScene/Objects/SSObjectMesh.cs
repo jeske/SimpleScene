@@ -68,8 +68,27 @@ namespace SimpleScene
 			} 
         }
 
-		protected override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
+		protected override bool PreciseIntersect (ref SSRay worldSpaceRay, out float distanceAlongWorldRay)
 		{
+            SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
+            if (this.Mesh != null) {
+                float localNearestContact;
+                bool ret = this.Mesh.preciseIntersect(ref localRay, out localNearestContact);
+                if (ret) {
+                    Vector3 localContactPt = localRay.pos + localNearestContact * localRay.dir;
+                    Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                    distanceAlongWorldRay = (worldContactPt - worldSpaceRay.pos).Length;
+                    //Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
+                } else {
+                    distanceAlongWorldRay = float.PositiveInfinity;
+                }
+                return ret;
+            } else {
+                distanceAlongWorldRay = float.PositiveInfinity;
+                return false;
+            }
+
+            #if false
             // TODO consider a BVH tree
 			SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
             SSAbstractMesh mesh = this._mesh;
@@ -96,7 +115,8 @@ namespace SimpleScene
 					distanceAlongRay = worldSpaceContactDistance;
 				}
 				return global_hit || hit;
-			}			     
+            }
+            #endif
 		}
 
 		public override void Update(float elapsedS) 
