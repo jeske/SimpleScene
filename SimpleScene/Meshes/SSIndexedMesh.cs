@@ -9,6 +9,8 @@ namespace SimpleScene
     public class SSIndexedMesh<V> : SSAbstractMesh, ISSInstancable
         where V : struct, ISSVertexLayout
     {
+        public bool useBVHForIntersections = true;
+
         protected SSVertexBuffer<V> _vbo;
         protected SSIndexBuffer _ibo;
         protected SSIndexedMeshTrianglesBVH _bvh = null;
@@ -98,45 +100,68 @@ namespace SimpleScene
 
         public override bool preciseIntersect (ref SSRay localRay, out float nearestLocalRayContact)
         {
-            if (_bvh == null && _vbo != null && _ibo != null) {
-                // rebuilding BVH
-                // TODO try updating instead of rebuilding?
-                _bvh = new SSIndexedMeshTrianglesBVH (_vbo, _ibo);
-                for (UInt16 triIdx = 0; triIdx < _ibo.numIndices / 3; ++triIdx) {
-                    _bvh.addObject(triIdx);
-                }
-            }
-
             nearestLocalRayContact = float.PositiveInfinity;
 
-            if (_bvh != null) {
-                List<ssBVHNode<UInt16>> nodesHit = _bvh.traverseRay(localRay);
-                foreach (var node in nodesHit) {
-                    if (!node.IsLeaf) continue;
-                    foreach (UInt16 triIdx in node.gobjects) {
-                        UInt16 baseOffset = (UInt16)(3 * triIdx);
-                        UInt16 i0 = _ibo.lastAssignedIndices [baseOffset];
-                        UInt16 i1 = _ibo.lastAssignedIndices [baseOffset + 1];
-                        UInt16 i2 = _ibo.lastAssignedIndices [baseOffset + 2];
+            if (useBVHForIntersections) {
+                if (_bvh == null && _vbo != null && _ibo != null) {
+                    // rebuilding BVH
+                    // TODO try updating instead of rebuilding?
+                    _bvh = new SSIndexedMeshTrianglesBVH (_vbo, _ibo);
+                    for (UInt16 triIdx = 0; triIdx < _ibo.numIndices / 3; ++triIdx) {
+                        _bvh.addObject(triIdx);
+                    }
+                }
 
-                        Vector3 v0, v1, v2;
-                        v0 = _vbo.lastAssignedElements [i0]._position;
-                        v1 = _vbo.lastAssignedElements [i1]._position;
-                        v2 = _vbo.lastAssignedElements [i2]._position;
+                if (_bvh != null) {
+                    List<ssBVHNode<UInt16>> nodesHit = _bvh.traverseRay(localRay);
+                    foreach (var node in nodesHit) {
+                        if (!node.IsLeaf)
+                            continue;
+                        foreach (UInt16 triIdx in node.gobjects) {
+                            Vector3 v0, v1, v2;
+                            _readTriangleVertices(triIdx, out v0, out v1, out v2);
 
-                        float contact;
-                        if (OpenTKHelper.TriangleRayIntersectionTest(
-                            ref v0, ref v1, ref v2, ref localRay.pos, ref localRay.dir, out contact))
-                        {
-                            if (contact < nearestLocalRayContact) {
-                                nearestLocalRayContact = contact;
+                            float contact;
+                            if (OpenTKHelper.TriangleRayIntersectionTest(
+                                    ref v0, ref v1, ref v2, ref localRay.pos, ref localRay.dir, out contact)) {
+                                if (contact < nearestLocalRayContact) {
+                                    nearestLocalRayContact = contact;
+                                }
                             }
                         }
                     }
                 }
+            } else {
+                // slow, tedious intersection test
+                _bvh = null;
+                int numTri = lastAssignedIndices.Length / 3;
+                for (UInt16 triIdx = 0; triIdx < numTri; ++triIdx) {
+                    Vector3 v0, v1, v2;
+                    _readTriangleVertices(triIdx, out v0, out v1, out v2);
+                    float contact;
+                    if (OpenTKHelper.TriangleRayIntersectionTest(
+                        ref v0, ref v1, ref v2, ref localRay.pos, ref localRay.dir, out contact))
+                    {
+                        if (contact < nearestLocalRayContact) {
+                            nearestLocalRayContact = contact;
+                        }
+                    }
+                }
             }
-
             return nearestLocalRayContact < float.PositiveInfinity;
+        }
+
+        protected void _readTriangleVertices(
+            UInt16 triIdx, out Vector3 v0, out Vector3 v1, out Vector3 v2)
+        {
+            UInt16 baseOffset = (UInt16)(3 * triIdx);
+            UInt16 i0 = _ibo.lastAssignedIndices [baseOffset];
+            UInt16 i1 = _ibo.lastAssignedIndices [baseOffset + 1];
+            UInt16 i2 = _ibo.lastAssignedIndices [baseOffset + 2];
+
+            v0 = _vbo.lastAssignedElements [i0]._position;
+            v1 = _vbo.lastAssignedElements [i1]._position;
+            v2 = _vbo.lastAssignedElements [i2]._position;
         }
 
         public class SSIndexedMeshTriangleBVHNodeAdaptor : SSBVHNodeAdaptor<UInt16>
