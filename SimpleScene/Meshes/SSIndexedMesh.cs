@@ -13,6 +13,14 @@ namespace SimpleScene
         protected SSIndexBuffer _ibo;
         protected SSIndexedMeshTrianglesBVH _bvh = null;
 
+        public V[] lastAssignedVertices {
+            get { return _vbo.lastAssignedElements; }
+        }
+
+        public UInt16[] lastAssignedIndices {
+            get { return _ibo.lastAssignedIndices; }
+        }
+
         /// <summary>
         /// Initialize based on buffer usage. Default to dynamic draw.
         /// </summary>
@@ -59,8 +67,7 @@ namespace SimpleScene
 
         public override void renderMesh(SSRenderConfig renderConfig)
         {
-			base.renderMesh (renderConfig);
-			_ibo.DrawElements (renderConfig, PrimitiveType.Triangles);
+            drawSingle(renderConfig, PrimitiveType.Triangles);
         }
 
 		public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
@@ -75,16 +82,16 @@ namespace SimpleScene
             _ibo.DrawElements (renderConfig, primType);
         }
 
-        public void UpdateVertices (V[] vertices)
+        public void updateVertices (V[] vertices)
         {
             _vbo.UpdateBufferData(vertices);
-            _bvh = null; // force BVH rebuilding
+            _bvh = null; // invalidate bvh
         }
 
-        public void UpdateIndices (UInt16[] indices)
+        public void updateIndices (UInt16[] indices)
         {
             _ibo.UpdateBufferData(indices);
-            _bvh = null; // force BVH rebuilding
+            _bvh = null; // invalidate bvh
         }
 
         //---------------------
@@ -95,7 +102,10 @@ namespace SimpleScene
                 // rebuilding BVH
                 // TODO try updating instead of rebuilding?
                 _bvh = new SSIndexedMeshTrianglesBVH (_vbo, _ibo);
-            } 
+                for (UInt16 triIdx = 0; triIdx < _ibo.numIndices / 3; ++triIdx) {
+                    _bvh.addObject(triIdx);
+                }
+            }
 
             nearestLocalRayContact = float.PositiveInfinity;
 

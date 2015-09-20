@@ -110,8 +110,8 @@ namespace SimpleScene
 				indexList.Add(idx3);
 			}
 
-            UpdateVertices(vertexSoup.verticies.ToArray());
-            UpdateIndices(indexList.ToArray());
+            updateVertices(vertexSoup.verticies.ToArray());
+            updateIndices(indexList.ToArray());
 
 		}
 

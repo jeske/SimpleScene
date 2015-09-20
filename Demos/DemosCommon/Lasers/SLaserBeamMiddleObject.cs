@@ -234,7 +234,7 @@ namespace SimpleScene.Demos
 			_middleVertices [4].Position.X = _middleVertices[5].Position.X = +halfLength - halfWidth;
 			_middleVertices [6].Position.X = _middleVertices[7].Position.X = +halfLength + halfWidth;
 
-			_middleMesh.UpdateVertices (_middleVertices);
+			_middleMesh.updateVertices (_middleVertices);
 		}
 
 		protected void _initInterferenceVertices()
@@ -262,7 +262,7 @@ namespace SimpleScene.Demos
 				=  beam.interferenceOffset * vScale;
 			_interferenceVertices [2].TexCoord.X = _interferenceVertices [3].TexCoord.X
 				= (beam.interferenceOffset + 1f) * vScale;
-			_interferenceMesh.UpdateVertices (_interferenceVertices);
+			_interferenceMesh.updateVertices (_interferenceVertices);
 		}
 	}
 }
