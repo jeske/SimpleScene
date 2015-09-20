@@ -16,12 +16,17 @@ namespace TestBench2
         /// <summary>
         /// For rendering laser beams
         /// </summary>
-		protected SSScene laserBeamScene;
+		protected SSScene laserBeamScene3d;
 
         /// <summary>
         /// For rendering (transparent) occlusion test disks that are used in the flare intensity mechanic
         /// </summary>
-        protected SSScene laserOccDiskScene;
+        protected SSScene laserOccDiskScene3d;
+
+        /// <summary>
+        /// For rendering laser 2d effects
+        /// </summary>
+        protected SSScene laserFlareScene2d;
 
 		protected SLaserManager laserManager = null;
 
@@ -52,8 +57,9 @@ namespace TestBench2
 		{
 			base.setupScene ();
 
-            laserBeamScene = new SSScene (null, null, base.instancingShader, null);
-            laserOccDiskScene = new SSScene ();
+            laserBeamScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            laserOccDiskScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            laserFlareScene2d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
 
@@ -79,7 +85,7 @@ namespace TestBench2
 			scene.AddObject (droneObj2);
 
 			// manages laser objects
-            laserManager = new SLaserManager(laserBeamScene, laserOccDiskScene, sunFlareScene);
+            laserManager = new SLaserManager(laserBeamScene3d, laserOccDiskScene3d, laserFlareScene2d);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
@@ -125,22 +131,25 @@ namespace TestBench2
 				fovy, aspect, nearPlane, farPlane, 
 				ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
-			laserBeamScene.renderConfig.invCameraViewMatrix = mainSceneView;
-			laserBeamScene.renderConfig.projectionMatrix = mainSceneProj;
-			laserBeamScene.Render ();
+            // laser middle sections and burn particles
+			laserBeamScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
+			laserBeamScene3d.renderConfig.projectionMatrix = mainSceneProj;
+			laserBeamScene3d.Render ();
 
-            laserOccDiskScene.renderConfig.invCameraViewMatrix = mainSceneView;
-            laserOccDiskScene.renderConfig.projectionMatrix = 
-                mainSceneProj;
-                //Matrix4.CreateOrthographic(ClientRectangle.Width, ClientRectangle.Height, nearPlane, farPlane);
-                //screenProj;
-            laserOccDiskScene.Render();
+            // laser occlusion test disks (not visible)
+            laserOccDiskScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
+            laserOccDiskScene3d.renderConfig.projectionMatrix = mainSceneProj;
+            laserOccDiskScene3d.Render();
+
+            // 2d sprites; flare effects
+            laserFlareScene2d.renderConfig.projectionMatrix = screenProj;
+            laserFlareScene2d.Render();
 		}
 
 		protected override void OnUpdateFrame (FrameEventArgs e)
 		{
 			base.OnUpdateFrame (e);
-			laserBeamScene.Update ((float)e.Time);
+			laserBeamScene3d.Update ((float)e.Time);
 		}
 
 		protected void laserKeyDownHandler(object sender, KeyboardKeyEventArgs e)
@@ -209,8 +218,8 @@ namespace TestBench2
 
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
-			laserBeamScene.ActiveCamera = camera;
-			laserBeamScene.AddObject (camera);
+			laserBeamScene3d.ActiveCamera = camera;
+			laserBeamScene3d.AddObject (camera);
 		}
 	}
 }
