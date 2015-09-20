@@ -268,21 +268,6 @@ namespace SimpleScene
 				#endif
 			}
 
-            #if false
-			public override bool traverseTriangles<T>(T state, traverseFn<T> fn) {
-				for(int idx=0; idx < m_runtimeMesh.indices.Length; idx+=3) {
-					var v1 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx]);
-					var v2 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx+1]);
-					var v3 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx+2]);
-					bool finished = fn(state, v1, v2, v3);
-					if (finished) { 
-						return true;
-					}
-				}
-				return false;
-			}
-            #endif
-
 			/// <summary>
 			/// Computes vertex positions and normals (based on the state of runtime joint hierarchy).
 			/// Updates VBO with the result.

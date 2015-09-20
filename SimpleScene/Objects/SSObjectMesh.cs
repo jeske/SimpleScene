@@ -87,36 +87,6 @@ namespace SimpleScene
                 distanceAlongWorldRay = float.PositiveInfinity;
                 return false;
             }
-
-            #if false
-            // TODO consider a BVH tree
-			SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
-            SSAbstractMesh mesh = this._mesh;
-			bool hit = false;			  
-			float localNearestContact = float.MaxValue;
-			if (mesh == null) {
-				return true; // no mesh to test
-			} else {
-				// precise meshIntersect
-				bool global_hit = mesh.traverseTriangles ((state, V1, V2, V3) => {
-					float contact;
-					if (OpenTKHelper.TriangleRayIntersectionTest (V1, V2, V3, localRay.pos, localRay.dir, out contact)) {
-						hit = true;
-						localNearestContact = Math.Min (localNearestContact, contact);
-						//Console.WriteLine ("Triangle Hit @ {0} : Object {1}", contact, Name);
-					}
-					return false; // don't short circuit
-				});
-				if (hit) {
-                    Vector3 localContactPt = localRay.pos + localNearestContact * localRay.dir;
-                    Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
-                    float worldSpaceContactDistance = (worldContactPt - worldSpaceRay.pos).Length;
-					//Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
-					distanceAlongRay = worldSpaceContactDistance;
-				}
-				return global_hit || hit;
-            }
-            #endif
 		}
 
 		public override void Update(float elapsedS) 

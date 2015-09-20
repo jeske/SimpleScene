@@ -141,25 +141,6 @@ namespace SimpleScene
             return localRayContact < float.PositiveInfinity;
         }
 
-        #if false
-		public override bool traverseTriangles<T>(T state, traverseFn<T> fn) {
-			foreach(var subset in geometrySubsets) {
-				for(int idx=0;idx < subset.indicies.Length;idx+=3) {
-					var V1 = subset.vertices[subset.indicies[idx]].Position;
-					var V2 = subset.vertices[subset.indicies[idx+1]].Position;
-					var V3 = subset.vertices[subset.indicies[idx+2]].Position;
-					bool finished = fn(state, V1, V2, V3);
-					if (finished) { 
-						return true; 
-					}
-				}
-			}
-			return false;
-		}
-        #endif
-
-
-
 		private void _renderSendVBOTriangles(SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
             subset.triangleMesh.drawSingle(renderConfig, PrimitiveType.Triangles);
 		}
