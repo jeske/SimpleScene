@@ -129,6 +129,8 @@ namespace SimpleScene.Demos
                 _smokeEmitters = new SSRadialEmitter[numBeams];
                 var laserParams = _laser.parameters;
 
+                // TODO position burns
+
                 for (int i = 0; i < numBeams; ++i) {
                     var beam = laser.beam(i);
                     // hit spot flame/smoke
@@ -204,24 +206,18 @@ namespace SimpleScene.Demos
                 var laserParams = _laser.parameters;
                 for (int i = 0; i < laserParams.numBeams; ++i) {
                     var beam = _laser.beam(i);
+                    var flashEmitter = _flashEmitters [i];
+                    var smokeEmitter = _smokeEmitters [i];
                     // TODO need intersection location
                     if (beam.hitsAnObstacle) {
                         var hitPos = Vector3.Transform(beam.endPos, rendererWorldMat);
-                        foreach (var flashEmitter in _flashEmitters) {
-                            flashEmitter.center = hitPos;
-                            flashEmitter.particlesPerEmission = laserParams.flashParticlesPerEmission;
-                        }
-                        foreach (var smokeEmitter in _smokeEmitters) {
-                            smokeEmitter.center = hitPos;
-                            smokeEmitter.particlesPerEmission = laserParams.flameSmokeParticlesPerEmission;
-                        }
+                        flashEmitter.center = hitPos;
+                        flashEmitter.particlesPerEmission = laserParams.flashParticlesPerEmission;
+                        smokeEmitter.center = hitPos;
+                        smokeEmitter.particlesPerEmission = laserParams.flameSmokeParticlesPerEmission;
                     } else {
-                        foreach (var flashEmitter in _flashEmitters) {
-                            flashEmitter.particlesPerEmission = 0;
-                        }
-                        foreach (var smokeEmitter in _smokeEmitters) {
-                            smokeEmitter.particlesPerEmission = 0;
-                        }
+                        flashEmitter.particlesPerEmission = laserParams.flashParticlesPerEmission;
+                        smokeEmitter.particlesPerEmission = laserParams.flameSmokeParticlesPerEmission;
                     }
                 }
                 _flamesSmokeColorEffector.colorMask = _laser.parameters.backgroundColor;
