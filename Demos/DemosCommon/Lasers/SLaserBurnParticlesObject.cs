@@ -170,7 +170,8 @@ namespace SimpleScene.Demos
                     _flamesSmokeColorEffector.effectorMask = (ushort)ComponentMask.FlameSmoke;
                     _flamesSmokeColorEffector.keyframes.Clear();
                     _flamesSmokeColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
-                    _flamesSmokeColorEffector.keyframes.Add(0.2f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 1f));
+                    _flamesSmokeColorEffector.keyframes.Add(0.4f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 1f));
+                    _flamesSmokeColorEffector.keyframes.Add(0.9f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
                     _flamesSmokeColorEffector.keyframes.Add(flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
                     _flamesSmokeColorEffector.particleLifetime = laserParams.flameSmokeLifetime;
                 }

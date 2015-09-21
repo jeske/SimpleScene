@@ -167,7 +167,7 @@ namespace SimpleScene.Demos
         public float flameSmokeEmitFrequency = 7f;
         public float flameSmokeScaleMin = 1f;
         public float flameSmokeScaleMax = 2f;
-        public float flameSmokeLifetime = 5f;
+        public float flameSmokeLifetime = 2.5f;
         public float flameSmokeRadialVelocityMin = 0.25f;
         public float flameSmokeRadialVelocityMax = 0.5f;
 

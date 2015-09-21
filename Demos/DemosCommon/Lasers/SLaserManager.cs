@@ -97,7 +97,7 @@ namespace SimpleScene.Demos
 			}
             _laserBurnParticles.particleSystem.update(timeElapsedS);
 
-            #if true
+            #if false
             // debugging
             System.Console.WriteLine("lasers: #sprites = " + _2dEffectInstanceData.numElements);
             System.Console.WriteLine("lasers: #3d particles = " + _laserBurnParticles.particleSystem.numElements);
