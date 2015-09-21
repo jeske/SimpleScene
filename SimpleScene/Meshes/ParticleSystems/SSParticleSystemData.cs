@@ -233,6 +233,11 @@ namespace SimpleScene
             _effectors.Add(effector);
         }
 
+        public virtual void removeEffector(SSParticleEffector effector)
+        {
+            _effectors.Remove(effector);
+        }
+
         public void sortByDepth(ref Matrix4 viewMatrix)
         {
             if (_numParticles == 0) return;

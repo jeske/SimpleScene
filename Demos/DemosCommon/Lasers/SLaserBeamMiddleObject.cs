@@ -13,7 +13,7 @@ namespace SimpleScene.Demos
 		protected static readonly UInt16[] _middleIndices = {
 			0,1,2, 1,3,2, // left cap
 			2,3,4, 3,5,4, // middle
-			//4,5,6, 5,7,6  // right cap?
+			4,5,6, 5,7,6  // right cap?
 		};
 		protected static readonly UInt16[] _interferenceIndices = {
 			0,1,2, 1,3,2

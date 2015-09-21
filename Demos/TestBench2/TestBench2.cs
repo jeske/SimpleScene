@@ -82,6 +82,7 @@ namespace TestBench2
 			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.Name = "target drone";
 			droneObj2.MainColor = Color4.Red;
+            //droneObj2.renderState.visible = false;
 			scene.AddObject (droneObj2);
 
 			// manages laser objects

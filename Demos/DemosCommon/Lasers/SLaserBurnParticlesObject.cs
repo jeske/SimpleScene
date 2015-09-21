@@ -89,6 +89,9 @@ namespace SimpleScene.Demos
             foreach (var emitter in hitSpot.emitters()) {
                 base.removeEmitter(emitter);
             }
+            foreach (var effector in hitSpot.effectors()) {
+                base.removeEffector(effector);
+            }
             _hitSpots.Remove(laser);
         }
 
@@ -120,7 +123,6 @@ namespace SimpleScene.Demos
 
             public HitSpotData(SLaser laser)
             {
-                // TODO generate byte mask from hit spot id
                 _laser = laser;
                 int numBeams = _laser.parameters.numBeams;
 
@@ -129,10 +131,7 @@ namespace SimpleScene.Demos
                 _smokeEmitters = new SSRadialEmitter[numBeams];
                 var laserParams = _laser.parameters;
 
-                // TODO position burns
-
                 for (int i = 0; i < numBeams; ++i) {
-                    var beam = laser.beam(i);
                     // hit spot flame/smoke
                     {
                         var newFlameSmokeEmitter = new SSRadialEmitter();
@@ -144,13 +143,15 @@ namespace SimpleScene.Demos
                         newFlameSmokeEmitter.masterScaleMax = laserParams.flameSmokeScaleMax;
                         newFlameSmokeEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         newFlameSmokeEmitter.life = laserParams.flameSmokeLifetime;
+                        newFlameSmokeEmitter.velocityMagnitudeMin = laserParams.flameSmokeRadialVelocityMin;
+                        newFlameSmokeEmitter.velocityMagnitudeMax = laserParams.flameSmokeRadialVelocityMax;
                         _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                     // hit spot flash
                     {
                         var newFlashEmitter = new SSRadialEmitter();
                         newFlashEmitter.effectorMask = (ushort)ComponentMask.Flash;
-                        newFlashEmitter.velocity = Vector3.Zero;
+                        newFlashEmitter.velocityMagnitude = 0f;
                         newFlashEmitter.billboardXY = true;
                         newFlashEmitter.spriteRectangles = laserParams.flashSpriteRects;
                         newFlashEmitter.emissionInterval = 1f / laserParams.flashEmitFrequency;
@@ -169,7 +170,7 @@ namespace SimpleScene.Demos
                     _flamesSmokeColorEffector.effectorMask = (ushort)ComponentMask.FlameSmoke;
                     _flamesSmokeColorEffector.keyframes.Clear();
                     _flamesSmokeColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
-                    _flamesSmokeColorEffector.keyframes.Add(0.4f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
+                    _flamesSmokeColorEffector.keyframes.Add(0.2f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 1f));
                     _flamesSmokeColorEffector.keyframes.Add(flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
                     _flamesSmokeColorEffector.particleLifetime = laserParams.flameSmokeLifetime;
                 }
@@ -180,9 +181,9 @@ namespace SimpleScene.Demos
                     _flashColorEffector = new SSColorKeyframesEffector ();
                     _flashColorEffector.effectorMask = (ushort)ComponentMask.Flash;
                     _flashColorEffector.keyframes.Clear();
-                    _flashColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
+                    _flashColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 0.5f));
                     _flashColorEffector.keyframes.Add(flashDuration, new Color4 (1f, 1f, 1f, 0f));
-                    _flashColorEffector.particleLifetime = laserParams.flameSmokeLifetime;
+                    _flashColorEffector.particleLifetime = laserParams.flashLifetime;
                 }
             }
 
@@ -212,12 +213,14 @@ namespace SimpleScene.Demos
                     if (beam.hitsAnObstacle) {
                         var hitPos = Vector3.Transform(beam.endPos, rendererWorldMat);
                         flashEmitter.center = hitPos;
-                        flashEmitter.particlesPerEmission = laserParams.flashParticlesPerEmission;
+                        flashEmitter.particlesPerEmissionMin = laserParams.flashParticlesPerEmissionMin;
+                        flashEmitter.particlesPerEmissionMax = laserParams.flashParticlesPerEmissionMax;
                         smokeEmitter.center = hitPos;
-                        smokeEmitter.particlesPerEmission = laserParams.flameSmokeParticlesPerEmission;
+                        smokeEmitter.particlesPerEmissionMin = laserParams.flameSmokeParticlesPerEmissionMin;
+                        smokeEmitter.particlesPerEmissionMax = laserParams.flameSmokeParticlesPerEmissionMax;
                     } else {
-                        flashEmitter.particlesPerEmission = laserParams.flashParticlesPerEmission;
-                        smokeEmitter.particlesPerEmission = laserParams.flameSmokeParticlesPerEmission;
+                        flashEmitter.particlesPerEmission = 0;
+                        smokeEmitter.particlesPerEmission = 0;
                     }
                 }
                 _flamesSmokeColorEffector.colorMask = _laser.parameters.backgroundColor;

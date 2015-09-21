@@ -161,11 +161,15 @@ namespace SimpleScene.Demos
             new RectangleF(0.25f, 0f,    0.25f, 0.25f),
         };
 
-        public int flameSmokeParticlesPerEmission = 5;
-        public float flameSmokeEmitFrequency = 10f;
+        //public int flameSmokeParticlesPerEmission = 5;
+        public int flameSmokeParticlesPerEmissionMin = 2;
+        public int flameSmokeParticlesPerEmissionMax = 3;
+        public float flameSmokeEmitFrequency = 7f;
         public float flameSmokeScaleMin = 1f;
-        public float flameSmokeScaleMax = 3f;
-        public float flameSmokeLifetime = 1f;
+        public float flameSmokeScaleMax = 2f;
+        public float flameSmokeLifetime = 5f;
+        public float flameSmokeRadialVelocityMin = 0.25f;
+        public float flameSmokeRadialVelocityMax = 0.5f;
 
         /// <summary>
         /// Default locations of flash sprites in fig7.png
@@ -177,10 +181,11 @@ namespace SimpleScene.Demos
             new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
         };
 
-        public int flashParticlesPerEmission = 5;
-        public float flashEmitFrequency = 10f;
+        public int flashParticlesPerEmissionMin = 2;
+        public int flashParticlesPerEmissionMax = 3;
+        public float flashEmitFrequency = 7f;
         public float flashScaleMin = 1f;
-        public float flashScaleMax = 3f;
+        public float flashScaleMax = 2f;
         public float flashLifetime = 1f;
         #endregion
 
