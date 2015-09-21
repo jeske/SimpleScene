@@ -81,7 +81,7 @@ namespace TestBench2
 			droneObj2.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj2.Name = "target drone";
-			droneObj2.MainColor = Color4.Red;
+            droneObj2.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
 			scene.AddObject (droneObj2);
 

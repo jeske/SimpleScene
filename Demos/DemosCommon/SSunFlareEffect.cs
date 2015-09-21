@@ -94,9 +94,10 @@ namespace SimpleScene.Demos
             instancesData.releaseSlots(_spriteSlotIdxs);
         }
 
-        public void updateSprites(SInstancedSpriteData instanceData, 
-                                  ref Matrix4 camera3dViewProjMat, ref RectangleF clientRect)
+        public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF clientRect,
+                                  ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
+            Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
             if (_sunDiskOccObj != null) {
                 Matrix4 viewInverted = _sunDiskOccScene.renderConfig.invCameraViewMatrix.Inverted();
                 Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();

@@ -67,8 +67,8 @@ namespace SimpleScene.Demos
             instanceData.releaseSlot(_overlaySpriteIdx);
         }
 
-        public void updateSprites(SInstancedSpriteData instanceData,
-                                  ref Matrix4 camera3dViewProjMat, ref RectangleF clientRect)
+        public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF clientRect,
+                                  ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
             float occIntensity = 0f;
             if (_beamOccFlatObj != null) {
@@ -94,6 +94,7 @@ namespace SimpleScene.Demos
             }
 
             var beam = _laser.beam(_beamId);
+            Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
             var beamStartScreen = OpenTKHelper.WorldToScreen(beam.startPos, ref camera3dViewProjMat, ref clientRect);
             //var beamStartScreen = new Vector2(500f);
             int numElements = instanceData.activeBlockLength;

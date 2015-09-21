@@ -50,11 +50,6 @@ namespace SimpleScene.Demos
         // TODO consider making this a particle system for all laser-related 3d rendering
         // including middle section
 
-        protected enum ComponentMask : ushort { 
-            FlameSmoke = 0x1, 
-            Flash = 0x2,
-        };
-
         protected Matrix4 _modelTxfm = Matrix4.Identity;
 
         public static SSTexture getDefaultTexture()
@@ -65,6 +60,7 @@ namespace SimpleScene.Demos
 
         protected readonly Dictionary<SLaser, HitSpotData> _hitSpots 
             = new Dictionary<SLaser, HitSpotData>();
+        protected ushort nextEffectorMask = 0;
 
         public SLaserBurnParticleSystem(int particleCapacity)
             : base(particleCapacity)
@@ -73,7 +69,8 @@ namespace SimpleScene.Demos
 
         public void addHitSpots(SLaser laser)
         {
-            var newHitSpot = new HitSpotData (laser);
+            var newHitSpot = new HitSpotData (laser, nextEffectorMask, (ushort)(nextEffectorMask + 1));
+            nextEffectorMask += 2;
             _hitSpots.Add(laser, newHitSpot);
             foreach (var emitter in newHitSpot.emitters()) {
                 base.addEmitter(emitter);
@@ -121,7 +118,7 @@ namespace SimpleScene.Demos
 
             protected SLaser _laser;
 
-            public HitSpotData(SLaser laser)
+            public HitSpotData(SLaser laser, ushort flameEffectorMask, ushort flashEffectorMask)
             {
                 _laser = laser;
                 int numBeams = _laser.parameters.numBeams;
@@ -135,7 +132,7 @@ namespace SimpleScene.Demos
                     // hit spot flame/smoke
                     {
                         var newFlameSmokeEmitter = new SSRadialEmitter();
-                        newFlameSmokeEmitter.effectorMask = (ushort)ComponentMask.FlameSmoke;
+                        newFlameSmokeEmitter.effectorMask = flameEffectorMask;
                         newFlameSmokeEmitter.billboardXY = true;
                         newFlameSmokeEmitter.spriteRectangles = laserParams.flameSmokeSpriteRects;
                         newFlameSmokeEmitter.emissionInterval = 1f / laserParams.flameSmokeEmitFrequency;
@@ -150,7 +147,7 @@ namespace SimpleScene.Demos
                     // hit spot flash
                     {
                         var newFlashEmitter = new SSRadialEmitter();
-                        newFlashEmitter.effectorMask = (ushort)ComponentMask.Flash;
+                        newFlashEmitter.effectorMask = flashEffectorMask;
                         newFlashEmitter.velocityMagnitude = 0f;
                         newFlashEmitter.billboardXY = true;
                         newFlashEmitter.spriteRectangles = laserParams.flashSpriteRects;
@@ -167,11 +164,11 @@ namespace SimpleScene.Demos
                    // laser-specific flame/smoke effector
                     var flameSmokeDuration = laserParams.flameSmokeLifetime;
                     _flamesSmokeColorEffector = new SSColorKeyframesEffector ();
-                    _flamesSmokeColorEffector.effectorMask = (ushort)ComponentMask.FlameSmoke;
+                    _flamesSmokeColorEffector.effectorMask = flameEffectorMask;
+                    _flamesSmokeColorEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
                     _flamesSmokeColorEffector.keyframes.Clear();
                     _flamesSmokeColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
                     _flamesSmokeColorEffector.keyframes.Add(0.4f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 1f));
-                    _flamesSmokeColorEffector.keyframes.Add(0.9f * flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
                     _flamesSmokeColorEffector.keyframes.Add(flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
                     _flamesSmokeColorEffector.particleLifetime = laserParams.flameSmokeLifetime;
                 }
@@ -180,7 +177,8 @@ namespace SimpleScene.Demos
                     // laser-specific flash effector
                     var flashDuration = laserParams.flashLifetime;
                     _flashColorEffector = new SSColorKeyframesEffector ();
-                    _flashColorEffector.effectorMask = (ushort)ComponentMask.Flash;
+                    _flashColorEffector.effectorMask = flashEffectorMask;
+                    _flashColorEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
                     _flashColorEffector.keyframes.Clear();
                     _flashColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 0.5f));
                     _flashColorEffector.keyframes.Add(flashDuration, new Color4 (1f, 1f, 1f, 0f));

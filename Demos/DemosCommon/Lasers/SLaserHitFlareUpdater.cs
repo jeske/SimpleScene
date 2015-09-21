@@ -57,62 +57,67 @@ namespace SimpleScene.Demos
             instanceData.releaseSlots(_spriteSlotIdxs);
         }
 
-        public void updateSprites(SInstancedSpriteData instanceData, 
-                                  ref Matrix4 cameraViewProjMat3d, ref RectangleF clientRect)
+        public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF clientRect,
+                                  ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
-            // extract a near plane from the camera view projection matrix
-            SSPlane3d nearPlane = new SSPlane3d ();
-            nearPlane.A = cameraViewProjMat3d.M14 + cameraViewProjMat3d.M13;
-            nearPlane.B = cameraViewProjMat3d.M24 + cameraViewProjMat3d.M23;
-            nearPlane.C = cameraViewProjMat3d.M34 + cameraViewProjMat3d.M33;
-            nearPlane.D = cameraViewProjMat3d.M44 + cameraViewProjMat3d.M43;
-            nearPlane.Normalize();
-
             var beam = _laser.beam(_beamId);
             var ray = beam.ray();
             var laserParams = _laser.parameters;
+            var beamSrcInViewSpace = Vector3.Transform(beam.startPos, camera3dView);
 
             bool hideSprites = true;
             Vector3 intersectPt3d;
-            if (nearPlane.intersects(ref ray, out intersectPt3d)) {
-                float lengthToIntersectionSq = (intersectPt3d - beam.startPos).LengthSquared;
-                float beamLengthSq = beam.lengthSq();
-                if (lengthToIntersectionSq  < beamLengthSq) {
-                    hideSprites = false;
-                    Vector2 drawScreenPos = OpenTKHelper.WorldToScreen(intersectPt3d, 
-                                                                       ref cameraViewProjMat3d, ref clientRect);
-                    float intensity = _laser.envelopeIntensity * beam.periodicIntensity;
-                    Vector2 drawScale = new Vector2 (laserParams.hitFlareSizeMaxPx * (float)Math.Exp(intensity));
-                    for (int i = 0; i < _spriteSlotIdxs.Length; ++i) {
-                        int writeIdx = _spriteSlotIdxs [i];
-                        instanceData.writePosition(writeIdx, drawScreenPos);
-                        instanceData.writeComponentScale(writeIdx, drawScale);
-                        instanceData.writeOrientationZ(writeIdx, intensity * 2f * (float)Math.PI);
+            if (beamSrcInViewSpace.Z < 0f) {
+                Matrix4 cameraViewProjMat3d = camera3dView * camera3dProj;
+                // extract a near plane from the camera view projection matrix
+                SSPlane3d nearPlane = new SSPlane3d ();
+                nearPlane.A = cameraViewProjMat3d.M14 + cameraViewProjMat3d.M13;
+                nearPlane.B = cameraViewProjMat3d.M24 + cameraViewProjMat3d.M23;
+                nearPlane.C = cameraViewProjMat3d.M34 + cameraViewProjMat3d.M33;
+                nearPlane.D = cameraViewProjMat3d.M44 + cameraViewProjMat3d.M43;
+                nearPlane.Normalize();
+
+                if (nearPlane.intersects(ref ray, out intersectPt3d)) {
+                    float lengthToIntersectionSq = (intersectPt3d - beam.startPos).LengthSquared;
+                    float beamLengthSq = beam.lengthSq();
+                    if (lengthToIntersectionSq  < beamLengthSq) {
+                        hideSprites = false;
+                        Vector2 drawScreenPos = OpenTKHelper.WorldToScreen(
+                            intersectPt3d, ref cameraViewProjMat3d, ref clientRect);
+                        float intensity = _laser.envelopeIntensity * beam.periodicIntensity;
+                        Vector2 drawScale 
+                            = new Vector2 (laserParams.hitFlareSizeMaxPx * (float)Math.Exp(intensity));
+                        for (int i = 0; i < _spriteSlotIdxs.Length; ++i) {
+                            int writeIdx = _spriteSlotIdxs [i];
+                            instanceData.writePosition(writeIdx, drawScreenPos);
+                            instanceData.writeComponentScale(writeIdx, drawScale);
+                            instanceData.writeOrientationZ(writeIdx, intensity * 2f * (float)Math.PI);
+                        }
+
+                        Color4 backgroundColor = laserParams.backgroundColor;
+                        backgroundColor.A = intensity;
+                        instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.coronaBackground], backgroundColor);
+
+                        Color4 overlayColor = laserParams.overlayColor;
+                        //overlayColor.A = intensity / _laser.parameters.intensityEnvelope.sustainLevel;
+                        overlayColor.A = Math.Min(intensity * 2f, 1f);
+                        instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.coronaOverlay], overlayColor);
+                        //System.Console.WriteLine("overlay.alpha == " + overlayColor.A);
+
+                        Color4 ring1Color = laserParams.overlayColor;
+                        //ring1Color.A = (float)Math.Pow(intensity, 5.0);
+                        ring1Color.A = 0.1f * intensity;
+                        instanceData.writeComponentScale(_spriteSlotIdxs[(int)SpriteId.ring1], 
+                            drawScale * (float)Math.Exp(intensity));
+                        instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring1], ring1Color);
+                        //instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring1], Color4.LimeGreen);
+
+                        Color4 ring2Color = laserParams.backgroundColor;
+                        //ring2Color.A = (float)Math.Pow(intensity, 10.0);
+                        ring2Color.A = intensity * 0.1f;
+                        instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring2], ring2Color);
+                        //instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring2], Color4.Magenta);
                     }
-
-                    Color4 backgroundColor = laserParams.backgroundColor;
-                    backgroundColor.A = intensity;
-                    instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.coronaBackground], backgroundColor);
-
-                    Color4 overlayColor = laserParams.overlayColor;
-                    //overlayColor.A = intensity / _laser.parameters.intensityEnvelope.sustainLevel;
-                    overlayColor.A = Math.Min(intensity * 2f, 1f);
-                    instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.coronaOverlay], overlayColor);
-                    //System.Console.WriteLine("overlay.alpha == " + overlayColor.A);
-
-                    Color4 ring1Color = laserParams.overlayColor;
-                    //ring1Color.A = (float)Math.Pow(intensity, 5.0);
-                    ring1Color.A = 0.1f * intensity;
-                    instanceData.writeComponentScale(_spriteSlotIdxs[(int)SpriteId.ring1], 
-                        drawScale * (float)Math.Exp(intensity));
-                    instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring1], ring1Color);
-                    //instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring1], Color4.LimeGreen);
-
-                    Color4 ring2Color = laserParams.backgroundColor;
-                    //ring2Color.A = (float)Math.Pow(intensity, 10.0);
-                    ring2Color.A = intensity * 0.1f;
-                    instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring2], ring2Color);
-                    //instanceData.writeColor(_spriteSlotIdxs[(int)SpriteId.ring2], Color4.Magenta);
                 }
             }
 

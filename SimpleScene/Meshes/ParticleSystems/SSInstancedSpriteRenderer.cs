@@ -11,8 +11,8 @@ namespace SimpleScene.Demos
     public interface ISSpriteUpdater
     {
         void setupSprites (SInstancedSpriteData instanceData);
-        void updateSprites(SInstancedSpriteData instanceData,
-                           ref Matrix4 camera3dViewProjMat, ref RectangleF clientRect);
+        void updateSprites(SInstancedSpriteData instanceData, ref RectangleF clientRect,
+                           ref Matrix4 camera3dView, ref Matrix4 camera3dProj);
         void releaseSprites (SInstancedSpriteData instanceData);
     }
 
@@ -70,11 +70,11 @@ namespace SimpleScene.Demos
 		public override void Render (SSRenderConfig renderConfig)
 		{
             var rc = cameraScene3d.renderConfig;
-            Matrix4 viewProjMat3d = rc.invCameraViewMatrix * rc.projectionMatrix;
             RectangleF clientRect = OpenTKHelper.GetClientRect();
 
             foreach (var updater in _spriteUpdaters) {
-                updater.updateSprites(this.instanceData, ref viewProjMat3d, ref clientRect);
+                updater.updateSprites(this.instanceData, ref clientRect, 
+                                      ref rc.invCameraViewMatrix, ref rc.projectionMatrix);
             }
 
 			base.Render (renderConfig);

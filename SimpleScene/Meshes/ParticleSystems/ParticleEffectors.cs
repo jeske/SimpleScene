@@ -21,7 +21,7 @@ namespace SimpleScene
 		}
 
 		public ushort effectorMask = ushort.MaxValue; // initialize to a default
-		public MatchFunction maskMathFunction = MatchFunction.And;
+		public MatchFunction maskMatchFunction = MatchFunction.And;
 
 		protected float _timeSinceReset = 0f;
 
@@ -47,7 +47,7 @@ namespace SimpleScene
 		public void simulateParticleEffect (SSParticle particle, float deltaT)
 		{
 			bool match;
-			if (maskMathFunction == MatchFunction.And) {
+			if (maskMatchFunction == MatchFunction.And) {
 				match = ((particle.effectorMask & this.effectorMask) != 0);
 			} else { // Equals
 				match = (particle.effectorMask == this.effectorMask);
