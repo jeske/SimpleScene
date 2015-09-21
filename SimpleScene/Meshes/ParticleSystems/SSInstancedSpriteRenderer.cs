@@ -105,6 +105,7 @@ namespace SimpleScene.Demos
         protected List<int> _fragmentedVacantSlots = new List<int>();
 
         #region implement SSInstancesData
+        public override int numElements { get { return _numElements; } }
         public override int capacity { get { return _capacity; } }
         public override int activeBlockLength { get { return _activeBlockLength; } }
         public override float radius { get { return 100f; } } // TODO

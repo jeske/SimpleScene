@@ -121,6 +121,7 @@ namespace SimpleScene
         protected float _timeDeltaAccumulator;
 
         public override int capacity { get { return _capacity; } }
+        public override int numElements { get { return _numParticles; } }
 		public override int activeBlockLength { get { return _activeBlockLength; } }
 		public override float radius { get { return _radius; } }
 		public override SSAttributeVec3[] positions { get { return _positions; } }

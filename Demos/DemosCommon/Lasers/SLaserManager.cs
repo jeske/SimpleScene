@@ -26,7 +26,7 @@ namespace SimpleScene.Demos
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
         public SLaserManager (SSScene beamScene3d, SSScene occDiskScene, SSScene flareScene2d,
-            int sprite2dCapacity = 100, int laserBurnParticlesCapacity = 100)
+            int sprite2dCapacity = 1000, int laserBurnParticlesCapacity = 2000)
 		{
 			_beamScene3d = beamScene3d;
             _occDiskScene = occDiskScene;
@@ -96,6 +96,12 @@ namespace SimpleScene.Demos
 				}
 			}
             _laserBurnParticles.particleSystem.update(timeElapsedS);
+
+            #if false
+            // debugging
+            System.Console.WriteLine("lasers: #sprites = " + _2dEffectInstanceData.numElements);
+            System.Console.WriteLine("lasers: #3d particles = " + _laserBurnParticles.particleSystem.numElements);
+            #endif
 		}
 
 		protected class BeamRuntimeInfo
@@ -106,7 +112,6 @@ namespace SimpleScene.Demos
 			protected readonly SSScene _beamScene;
             protected readonly SSScene _occDiskScene;
             protected readonly SSInstancedSpriteRenderer _sprite2dRenderer;
-            protected readonly SInstancedSpriteData _sprite2dInstanceData;
 
 			protected SSObjectOcclusionQueuery _occDiskFlatObj = null;
             protected SSObjectOcclusionQueuery _occDiskPerspObj = null;

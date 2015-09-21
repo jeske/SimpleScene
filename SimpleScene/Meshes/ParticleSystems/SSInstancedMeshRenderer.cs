@@ -17,6 +17,7 @@ namespace SimpleScene
 	public abstract class SSInstancesData
 	{
 		public abstract int capacity { get; }
+        public abstract int numElements { get; }
 		public abstract int activeBlockLength { get; }
 		public abstract float radius { get; }
 
