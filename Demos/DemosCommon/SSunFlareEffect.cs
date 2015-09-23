@@ -16,11 +16,12 @@ namespace SimpleScene.Demos
 
         protected readonly SSunFlareUpdater _updater;
 
-        public SSSunFlareRenderer(SSScene camera3dScene, SSObjectOcclusionQueuery sunDiskObj)
+        public SSSunFlareRenderer(SSScene camera3dScene, SSObjectOcclusionQueuery sunDiskObj,
+            SSTexture texture = null)
             : base(camera3dScene, 
                 new SInstancedSpriteData(Math.Max(SSunFlareUpdater.defaultRects.Length, 
                                                   SSunFlareUpdater.defaultSpriteScales.Length)),
-                defaultTexture())
+                texture ?? defaultTexture())
         {
             this.renderState.alphaBlendingOn = true;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
