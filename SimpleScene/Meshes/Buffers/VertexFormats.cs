@@ -178,17 +178,18 @@ namespace SimpleScene
 		{
 			Type type = typeof(SSVertex_Pos);
 			Size = Marshal.SizeOf (type);
+            Size = 12;
 			PositionOffset = Marshal.OffsetOf (type, "Position");
 		}
 
-        public Vector3 position;
+        public Vector3 Position;
 
         public SSVertex_Pos(float x, float y, float z) {
-            position = new Vector3 (x, y, z);
+            Position = new Vector3 (x, y, z);
         }
 
 		public SSVertex_Pos(Vector3 pos) {
-			position = pos;
+			Position = pos;
 		}
 
 		public void BindGlAttributes(SSRenderConfig renderConfig) {
@@ -196,7 +197,7 @@ namespace SimpleScene
         }
 
         public Vector3 _position {
-            get { return position; }
+            get { return Position; }
         }
     }
 
