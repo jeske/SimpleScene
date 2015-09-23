@@ -43,7 +43,7 @@ namespace SimpleScene.Demos
             base.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
             base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             base.ShininessMatColor = 0f;
-            base.Selectable = false;
+            base.selectable = false;
             if (tex != null) {
                 base.textureMaterial = new SSTextureMaterial (tex);
             }

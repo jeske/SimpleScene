@@ -115,8 +115,8 @@ namespace SimpleScene
                 if (_bvh != null) {
                     List<ssBVHNode<UInt16>> nodesHit = _bvh.traverseRay(localRay);
                     foreach (var node in nodesHit) {
-                        if (!node.IsLeaf)
-                            continue;
+                        if (!node.IsLeaf) continue;
+
                         foreach (UInt16 triIdx in node.gobjects) {
                             Vector3 v0, v1, v2;
                             _readTriangleVertices(triIdx, out v0, out v1, out v2);
@@ -132,8 +132,8 @@ namespace SimpleScene
                     }
                 }
             } else {
-                // slow, tedious intersection test
                 _bvh = null;
+                // slow, tedious intersection test
                 int numTri = lastAssignedIndices.Length / 3;
                 for (UInt16 triIdx = 0; triIdx < numTri; ++triIdx) {
                     Vector3 v0, v1, v2;
@@ -188,14 +188,14 @@ namespace SimpleScene
             public Vector3 objectpos(UInt16 triIdx)
             {
                 Vector3 v0, v1, v2;
-                readTriangleVertices(triIdx, out v0, out v1, out v2);
+                _readTriangleVertices(triIdx, out v0, out v1, out v2);
                 return (v0 + v1 + v2) / 3f;
             }
 
             public float radius(UInt16 triIdx)
             {
                 Vector3 v0, v1, v2;
-                readTriangleVertices(triIdx, out v0, out v1, out v2);
+                _readTriangleVertices(triIdx, out v0, out v1, out v2);
                 Vector3 centroid = (v0 + v1 + v2) / 3f;
                 v0 -= centroid;
                 v1 -= centroid;
@@ -227,7 +227,7 @@ namespace SimpleScene
                 return _indexToLeafMap [triIdx];
             }
 
-            public void readTriangleVertices(UInt16 triIdx, 
+            protected void _readTriangleVertices(UInt16 triIdx, 
                 out Vector3 v0, out Vector3 v1, out Vector3 v2)
             {
                 int baseOffset = triIdx * 3;

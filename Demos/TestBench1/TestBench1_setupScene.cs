@@ -34,7 +34,7 @@ namespace TestBench1
 				quadMesh.textureMaterial = new SSTextureMaterial(tex);
 				var tileObj = new SSObjectMesh(quadMesh);
 				tileObj.Name = "Tiles";
-				tileObj.Selectable = false;
+				tileObj.selectable = false;
 				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
 				tileObj.Scale = new Vector3(tileSz * gridSz);
 				//tileObj.boundingSphere = new SSObjectSphere(0f);

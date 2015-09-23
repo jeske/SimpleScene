@@ -1,7 +1,9 @@
-﻿    using System;
+﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene.Util.ssBVH;
 
 namespace SimpleScene
 {
@@ -16,6 +18,11 @@ namespace SimpleScene
 
 	public abstract class SSInstancesData
 	{
+        public static Element readElement<Element>(Element[] array, int i)
+        {
+            return i >= array.Length ? array [0] : array [i];
+        }
+
 		public abstract int capacity { get; }
         public abstract int numElements { get; }
 		public abstract int activeBlockLength { get; }
@@ -53,8 +60,6 @@ namespace SimpleScene
     /// </summary>
     public class SSInstancedMeshRenderer : SSObject
     {
-        // TODO consider drawing primitive types other than triangles
-
         public const BufferUsageHint _defaultUsageHint = BufferUsageHint.StreamDraw;
 
 		public SSInstancesData instanceData;
@@ -63,6 +68,7 @@ namespace SimpleScene
 
         public bool simulateOnUpdate = true;
         public bool fallbackToCpu = false; // when true, draw using iteration with CPU (no GPU instancing)
+        public bool useBVHForIntersections = false;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
@@ -77,6 +83,8 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> _spriteOffsetVBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _spriteSizeUBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _spriteSizeVBuffer;
+
+        protected SSInstanceBVH _bvh = null;
 
 		public override Vector3 localBoundingSphereCenter {
 			get { return Vector3.Zero; }
@@ -106,6 +114,10 @@ namespace SimpleScene
 
             // Fixes flicker issues for particles with "fighting" view depth values
             this.renderState.depthFunc = DepthFunction.Lequal;
+
+            // In many situations selecting instances is computationally intensive. 
+            // Turn it off and let users customize
+            this.selectable = false;
         }
 
 		public SSInstancedMeshRenderer (SSInstancesData ps, 
@@ -129,8 +141,6 @@ namespace SimpleScene
 
             base.Render(renderConfig);
 
-            ISSInstancableShaderProgram instanceShader = renderConfig.instanceShader;
-
             if (!renderConfig.drawingShadowMap && 
                 !renderState.doBillboarding && base.alphaBlendingEnabled) {
                 // Must be called before updating buffers
@@ -153,37 +163,21 @@ namespace SimpleScene
                 if (!instanceData.isValid(i))
                     continue;
 
-                var spriteOffsetU = _readElement(instanceData.spriteOffsetsU, i).Value;
-                var spriteOffsetV = _readElement(instanceData.spriteOffsetsV, i).Value;
-                var spriteSizeU = _readElement(instanceData.spriteSizesU, i).Value;
-                var spriteSizeV = _readElement(instanceData.spriteSizesV, i).Value;
+                var spriteOffsetU = SSInstancesData.readElement(instanceData.spriteOffsetsU, i).Value;
+                var spriteOffsetV = SSInstancesData.readElement(instanceData.spriteOffsetsV, i).Value;
+                var spriteSizeU = SSInstancesData.readElement(instanceData.spriteSizesU, i).Value;
+                var spriteSizeV = SSInstancesData.readElement(instanceData.spriteSizesV, i).Value;
                 mainShader.UniSpriteOffsetAndSize(spriteOffsetU, spriteOffsetV, spriteSizeU, spriteSizeV);
 
-                var pos = _readElement(instanceData.positions, i).Value;
-                var componentScaleXY = _readElement(instanceData.componentScalesXY, i).Value;
-                var componentScaleZ = _readElement(instanceData.componentScalesZ, i).Value;
-                var scale = new Vector3 (componentScaleXY.X, componentScaleXY.Y, componentScaleZ)
-                            * _readElement(instanceData.masterScales, i).Value;
-                var oriXY = _readElement(instanceData.orientationsXY, i).Value;
-                var oriZ = _readElement(instanceData.orientationsZ, i).Value;
-                var color = _readElement(instanceData.colors, i).Color;
-                
+                var color = SSInstancesData.readElement(instanceData.colors, i).Color;
+                var oriXY = SSInstancesData.readElement(instanceData.orientationsXY, i).Value;
 
-                // TODO check consistency of orientations with the shader implementation
-                var instanceMat = Matrix4.CreateScale(scale);
-                if (!float.IsNaN(oriXY.X) && !float.IsNaN(oriXY.Y)) { // Not NaN -> no billboarding
-                    instanceMat *= Matrix4.CreateRotationX(-oriXY.X) * Matrix4.CreateRotationY(-oriXY.Y);
-                }
-                instanceMat = instanceMat
-                    * Matrix4.CreateRotationZ(-oriZ)
-                    * Matrix4.CreateTranslation(pos)
-                    * this.worldMat
-                    * renderConfig.invCameraViewMatrix;
+                Matrix4 mat = _instanceMat(i) * this.worldMat * renderConfig.invCameraViewMatrix;
                 if (float.IsNaN(oriXY.X) || float.IsNaN(oriXY.Y)) { // per-instance billboarding
-                    instanceMat = OpenTKHelper.BillboardMatrix(ref instanceMat);
+                    mat = OpenTKHelper.BillboardMatrix(ref mat);
                 }
                 GL.MatrixMode(MatrixMode.Modelview);
-                GL.LoadMatrix(ref instanceMat);
+                GL.LoadMatrix(ref mat);
 
                 GL.Color4(Color4Helper.FromUInt32(color));
 
@@ -191,9 +185,24 @@ namespace SimpleScene
             }
         }
 
-        protected static Element _readElement<Element>(Element[] array, int i)
+        protected Matrix4 _instanceMat(int i)
         {
-            return i >= array.Length ? array [0] : array [i];
+            var pos = SSInstancesData.readElement(instanceData.positions, i).Value;
+            var componentScaleXY = SSInstancesData.readElement(instanceData.componentScalesXY, i).Value;
+            var componentScaleZ = SSInstancesData.readElement(instanceData.componentScalesZ, i).Value;
+            var scale = new Vector3 (componentScaleXY.X, componentScaleXY.Y, componentScaleZ)
+                * SSInstancesData.readElement(instanceData.masterScales, i).Value;
+            var oriXY = SSInstancesData.readElement(instanceData.orientationsXY, i).Value;
+            var oriZ = SSInstancesData.readElement(instanceData.orientationsZ, i).Value;
+            var instanceMat = Matrix4.CreateScale(scale);
+            if (!float.IsNaN(oriXY.X) && !float.IsNaN(oriXY.Y)) { // Not NaN -> no billboarding
+                instanceMat *= Matrix4.CreateRotationX(-oriXY.X) * Matrix4.CreateRotationY(-oriXY.Y);
+            }
+            instanceMat = instanceMat
+                * Matrix4.CreateRotationZ(-oriZ)
+                * Matrix4.CreateTranslation(pos);
+            return instanceMat;
+
         }
 
         protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
@@ -271,13 +280,160 @@ namespace SimpleScene
             }
         }
 
-		#if true
-		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
-			// for now, particle systems don't intersect with anything
-			// TODO: figure out how to do this.
-            distanceAlongRay = 0f;
-			return false;
+		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 
+        {
+            SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
+            SSAbstractMesh abstrMesh = this.mesh as SSAbstractMesh;
+
+            float nearestLocalRayContact = float.PositiveInfinity;
+
+            if (useBVHForIntersections) {
+                if (_bvh == null) {
+                    _bvh = new SSInstanceBVH (this.instanceData);
+                    for (int i = 0; i < instanceData.activeBlockLength; ++i) {
+                        if (instanceData.isValid(i)) {
+                            _bvh.addObject(i);
+                        }
+                    }
+                }
+
+                List<ssBVHNode<int>> nodesHit = _bvh.traverseRay(localRay);
+                foreach (var node in nodesHit) {
+                    if (!node.IsLeaf)
+                        continue;
+                    foreach (int i in node.gobjects) {
+                        if (!instanceData.isValid(i)) continue;
+
+                        float localContact;
+                        if (_perInstanceIntersectionTest(abstrMesh, i, ref localRay, out localContact)) {
+                            if (localContact < nearestLocalRayContact) {
+                                nearestLocalRayContact = localContact;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // no BVH is used
+                for (int i = 0; i < instanceData.activeBlockLength; ++i) {
+                    if (!instanceData.isValid(i)) continue;
+
+                    float localContact;
+                    if (_perInstanceIntersectionTest(abstrMesh, i, ref localRay, out localContact)) {
+                        if (localContact < nearestLocalRayContact) {
+                            nearestLocalRayContact = localContact;
+                        }
+                    }
+                }
+            }
+
+            if (nearestLocalRayContact < float.PositiveInfinity) {
+                Vector3 localContactPt = localRay.pos + nearestLocalRayContact * localRay.dir;
+                Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                distanceAlongRay = (worldContactPt - worldSpaceRay.pos).Length;
+                return true;
+            } else {
+                distanceAlongRay = float.PositiveInfinity;
+                return false;
+            }
 		}
+
+        protected bool _perInstanceIntersectionTest(SSAbstractMesh abstrMesh, int i,
+                                                    ref SSRay localRay, out float localContact)
+        {
+            var pos = SSInstancesData.readElement(instanceData.positions, i).Value;
+            var masterScale = SSInstancesData.readElement(instanceData.masterScales, i).Value;
+            var componentScaleXY = SSInstancesData.readElement(instanceData.componentScalesXY, i).Value;
+            var componentScaleZ = SSInstancesData.readElement(instanceData.componentScalesZ, i).Value;
+            if (abstrMesh == null) {
+                // no way to be any more precise except hitting a generic sphere
+                float radius = Math.Max(componentScaleZ, Math.Max(componentScaleXY.X, componentScaleXY.Y));
+                var sphere = new SSSphere (pos, radius);
+                return sphere.IntersectsRay(ref localRay, out localContact);
+            } else {
+                // When using SSAbstractMesh we can invoke its preciseIntersect()
+                Matrix4 instanceMat = Matrix4.CreateScale(
+                    masterScale * componentScaleXY.X,
+                    masterScale * componentScaleXY.Y,
+                    masterScale * componentScaleZ)
+                    * Matrix4.CreateTranslation(pos);
+
+                SSRay instanceRay = localRay.Transformed(instanceMat.Inverted());
+                float instanceContact;
+                if (abstrMesh.preciseIntersect(ref instanceRay, out instanceContact)) {
+                    Vector3 instanceContactPt = instanceRay.pos + instanceContact * instanceRay.dir;
+                    Vector3 localContactPt = Vector3.Transform(instanceContactPt, instanceMat);
+                    localContact = (localContactPt - localRay.pos).Length;
+                    return true;
+                } else {
+                    localContact = float.PositiveInfinity;
+                    return false;
+                }
+            }
+        }
+
+        #if true
+        public class SSInstanceBNHNodeAdaptor : SSBVHNodeAdaptor<int>
+        {
+            protected readonly SSInstancesData _instanceData;
+            protected ssBVH<int> _bvh;
+            protected Dictionary<int, ssBVHNode<int>> _indexToLeafMap
+                = new Dictionary<int, ssBVHNode<int>> ();
+
+            public SSInstanceBNHNodeAdaptor(SSInstancesData instanceData)
+            {
+                _instanceData = instanceData;
+            }
+
+            public void setBVH(ssBVH<int> bvh)
+            {
+                _bvh = bvh;
+            }
+
+            public ssBVH<int> BVH { get { return _bvh; } }
+
+            public Vector3 objectpos(int i)
+            {
+                return SSInstancesData.readElement(_instanceData.positions, i).Value;
+            }
+
+            public float radius(int i)
+            {
+                var masterScale = SSInstancesData.readElement(_instanceData.masterScales, i).Value;
+                var componentScaleXY = SSInstancesData.readElement(_instanceData.componentScalesXY, i).Value;
+                var componentScaleZ = SSInstancesData.readElement(_instanceData.componentScalesZ, i).Value;
+                return masterScale * Math.Max(componentScaleZ, Math.Max(componentScaleXY.X, componentScaleXY.Y));
+            }
+
+            public void checkMap(int i)
+            {
+                if (!_indexToLeafMap.ContainsKey(i)) {
+                    throw new Exception ("missing map for a shuffled child");
+                }
+            }
+
+            public void unmapObject(int i)
+            {
+                _indexToLeafMap.Remove(i);
+            }
+
+            public void mapObjectToBVHLeaf(int i, ssBVHNode<int> leaf)
+            {
+                _indexToLeafMap [i] = leaf;
+            }
+
+            public ssBVHNode<int> getLeaf(int i)
+            {
+                return _indexToLeafMap [i];
+            }
+        }
+
+        public class SSInstanceBVH : ssBVH<int>
+        {
+            public SSInstanceBVH(SSInstancesData instanceData, int maxTrianglesPerLeaf=1)
+                : base (new SSInstanceBNHNodeAdaptor(instanceData), new List<int>(), maxTrianglesPerLeaf)
+            {
+            }
+        }
         #endif
     }
 }

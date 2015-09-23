@@ -89,6 +89,8 @@ namespace TestBench0
 				asteroidRingRenderer.Name = "instanced asteroid renderer";
 				asteroidRingRenderer.renderState.castsShadow = true;
 				asteroidRingRenderer.renderState.receivesShadows = true;
+                asteroidRingRenderer.selectable = true;
+                asteroidRingRenderer.useBVHForIntersections = true;
 				scene.AddObject (asteroidRingRenderer);
 			}
 
@@ -147,6 +149,7 @@ namespace TestBench0
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
 				cubesRenderer.textureMaterial = new SSTextureMaterial (null, null, tex, null);
+                cubesRenderer.selectable = true;
 				scene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 

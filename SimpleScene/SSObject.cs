@@ -18,7 +18,7 @@ namespace SimpleScene
 		protected static SSMeshBoundingSphere _boundingSphereMesh = new SSMeshBoundingSphere (1f);
 
 		public Color4 MainColor = Color4.White;
-		public bool Selectable = true;
+		public bool selectable = true;
 
 	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
 		public Color4 DiffuseMatColor = new Color4(0.3f, 0.3f, 0.3f, 1f);
