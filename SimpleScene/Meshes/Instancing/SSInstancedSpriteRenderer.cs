@@ -126,53 +126,6 @@ namespace SimpleScene.Demos
         public SInstancedSpriteData(int capacity)
         {
             _capacity = capacity;
-
-            #if false
-            if (spriteRects != null) {
-            int numSpriteRects = spriteRects.Length;
-            _numElements = Math.Max(_numElements, numSpriteRects);
-            _spriteSizesU = new SSAttributeFloat[numSpriteRects];
-            _spriteSizesV = new SSAttributeFloat[numSpriteRects];
-            _spriteOffsetsU = new SSAttributeFloat[numSpriteRects];
-            _spriteOffsetsV = new SSAttributeFloat[numSpriteRects];
-            for (int i = 0; i < numSpriteRects; ++i) {
-            var spriteRect = spriteRects[i]; 
-            _spriteSizesU[i] = new SSAttributeFloat(spriteRect.Width);
-            _spriteSizesV[i] = new SSAttributeFloat(spriteRect.Height);
-            _spriteOffsetsU[i] = new SSAttributeFloat(spriteRect.Left);
-            _spriteOffsetsV[i] = new SSAttributeFloat(spriteRect.Top);
-            }
-            }
-
-            if (masterScales != null) {
-            int numMaserScales = masterScales.Length;
-            _numElements = Math.Max(_numElements, numMaserScales);
-            _masterScales = new SSAttributeFloat[numMaserScales];
-            for (int i = 0; i < numMaserScales; ++i) {
-            _masterScales[i] = new SSAttributeFloat(masterScales[i]);
-            }
-            }
-
-            if (colors != null) {
-            int numColors = colors.Length;
-            _numElements = Math.Max(_numElements, numColors);
-            _colors = new SSAttributeColor[numColors];
-            for (int i = 0; i < colors.Length; ++i) {
-            _colors [i] = new SSAttributeColor(Color4Helper.ToUInt32(colors [i]));
-            }
-            }
-
-            if (componentScales != null) {
-            int numComponentScales = componentScales.Length;
-            _numElements = Math.Max(_numElements, numComponentScales);
-            _componentScalesXY = new SSAttributeVec2[numComponentScales];
-            for (int i = 0; i < numComponentScales; ++i) {
-            _componentScalesXY[i] = new SSAttributeVec2(componentScales[i]);
-            }
-            }
-
-            _positions = new SSAttributeVec3[_activeBlockLength];
-            #endif
         }
 
         public int requestSlot()

@@ -34,6 +34,7 @@ namespace SimpleScene.Demos
 
             _2dEffectInstanceData = new SInstancedSpriteData (sprite2dCapacity);
             _2dEffectRenderer = new SSInstancedSpriteRenderer (_beamScene3d, _2dEffectInstanceData);
+            _2dEffectRenderer.Name = "laser manager's 2d screen effect renderer";
 
             _2dEffectRenderer.renderState.alphaBlendingOn = true;
             _2dEffectRenderer.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
@@ -42,6 +43,7 @@ namespace SimpleScene.Demos
             _flareScene2d.AddObject(_2dEffectRenderer);
 
             _laserBurnParticles = new SLaserBurnParticlesObject (laserBurnParticlesCapacity);
+            _laserBurnParticles.Name = "laser manager's laser burn particle system renderer";
             _beamScene3d.AddObject(_laserBurnParticles);
 
             beamScene3d.preRenderHooks += this._update;
@@ -179,11 +181,13 @@ namespace SimpleScene.Demos
                     var color = _laser.parameters.backgroundColor; // debugging
                     color.A = _laser.parameters.occDisksAlpha;
                     _occDiskFlatObj.MainColor = color;
+                    _occDiskFlatObj.Name = "occlusion disk object for laser beam's emission flare";
                     _occDiskScene.AddObject(_occDiskFlatObj);
                 }
 
                 if (_beamObj == null) {
                     _beamObj = new SLaserBeamMiddleObject (_laser, _beamId, _beamScene);
+                    _beamObj.Name = "laser beam middle section object";
                     _beamScene.AddObject(_beamObj);
                 }
 

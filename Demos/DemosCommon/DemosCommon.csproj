@@ -35,7 +35,6 @@
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
     <Compile Include="SExplosionRenderer.cs" />
-    <Compile Include="SSunFlareEffect.cs" />
     <Compile Include="SStarfieldObject.cs" />
     <Compile Include="Lasers\SLaserManager.cs" />
     <Compile Include="Lasers\SLaser.cs" />
@@ -44,6 +43,7 @@
     <Compile Include="Lasers\SLaserHitFlareUpdater.cs" />
     <Compile Include="Lasers\SLaserEmissionFlareUpdater.cs" />
     <Compile Include="Lasers\SLaserParameters.cs" />
+    <Compile Include="SSunFlareRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

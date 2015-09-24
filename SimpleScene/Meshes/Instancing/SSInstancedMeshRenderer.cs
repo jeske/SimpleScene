@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing; // for RectangleF
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -15,45 +16,6 @@ namespace SimpleScene
 		void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType);
         void drawSingle (SSRenderConfig renderConfig, PrimitiveType primType);
     }
-
-	public abstract class SSInstancesData
-	{
-        public static Element readElement<Element>(Element[] array, int i)
-        {
-            return i >= array.Length ? array [0] : array [i];
-        }
-
-		public abstract int capacity { get; }
-        public abstract int numElements { get; }
-		public abstract int activeBlockLength { get; }
-		public abstract float radius { get; }
-
-		public abstract SSAttributeVec3[] positions { get; }
-		public abstract SSAttributeVec2[] orientationsXY { get; }
-		public abstract SSAttributeFloat[] orientationsZ { get; }
-		public abstract SSAttributeColor[] colors { get; }
-		public abstract SSAttributeFloat[] masterScales { get; }
-		public abstract SSAttributeVec2[] componentScalesXY { get; }
-		public abstract SSAttributeFloat[] componentScalesZ { get; }
-		public abstract SSAttributeFloat[] spriteOffsetsU { get; }
-		public abstract SSAttributeFloat[] spriteOffsetsV { get; }
-		public abstract SSAttributeFloat[] spriteSizesU { get; }
-		public abstract SSAttributeFloat[] spriteSizesV { get; }
-
-		public virtual void sortByDepth(ref Matrix4 viewMatrix) { }
-		public virtual void update(float elapsedS) { }
-        public virtual void updateCamera(ref Matrix4 model, ref Matrix4 view, 
-                                         ref Matrix4 projection) { }
-
-        public bool isValid(int slotIdx)
-        {
-            if (slotIdx >= positions.Length) {
-                slotIdx = 0;
-            }
-            var pos = positions [slotIdx].Value; 
-            return !float.IsNaN(pos.X) && !float.IsNaN(pos.Y) && !float.IsNaN(pos.Y);
-        }
-	}
 
     /// <summary>5
     /// Renders particle system with attribute buffers and an ISSInstancable object
@@ -162,55 +124,15 @@ namespace SimpleScene
             }
         }
 
-        protected void _renderWithCPUIterations(SSRenderConfig renderConfig)
+        public override void Update (float fElapsedMS)
         {
-            var mainShader = renderConfig.mainShader;
-            mainShader.Activate();
-
-            for (int i = 0; i < instanceData.activeBlockLength; i++) {
-                if (!instanceData.isValid(i))
-                    continue;
-
-                var spriteOffsetU = SSInstancesData.readElement(instanceData.spriteOffsetsU, i).Value;
-                var spriteOffsetV = SSInstancesData.readElement(instanceData.spriteOffsetsV, i).Value;
-                var spriteSizeU = SSInstancesData.readElement(instanceData.spriteSizesU, i).Value;
-                var spriteSizeV = SSInstancesData.readElement(instanceData.spriteSizesV, i).Value;
-                mainShader.UniSpriteOffsetAndSize(spriteOffsetU, spriteOffsetV, spriteSizeU, spriteSizeV);
-
-                var color = SSInstancesData.readElement(instanceData.colors, i).Color;
-                var oriXY = SSInstancesData.readElement(instanceData.orientationsXY, i).Value;
-
-                Matrix4 mat = _instanceMat(i) * this.worldMat * renderConfig.invCameraViewMatrix;
-                if (float.IsNaN(oriXY.X) || float.IsNaN(oriXY.Y)) { // per-instance billboarding
-                    mat = OpenTKHelper.BillboardMatrix(ref mat);
+            if (simulateOnUpdate) {
+                float prevRadius = instanceData.radius;
+                instanceData.update(fElapsedMS);
+                if (instanceData.radius != prevRadius) {
+                    NotifyPositionOrSizeChanged ();
                 }
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.LoadMatrix(ref mat);
-
-                GL.Color4(Color4Helper.FromUInt32(color));
-
-                mesh.drawSingle(renderConfig, this.primType);
             }
-        }
-
-        protected Matrix4 _instanceMat(int i)
-        {
-            var pos = SSInstancesData.readElement(instanceData.positions, i).Value;
-            var componentScaleXY = SSInstancesData.readElement(instanceData.componentScalesXY, i).Value;
-            var componentScaleZ = SSInstancesData.readElement(instanceData.componentScalesZ, i).Value;
-            var scale = new Vector3 (componentScaleXY.X, componentScaleXY.Y, componentScaleZ)
-                * SSInstancesData.readElement(instanceData.masterScales, i).Value;
-            var oriXY = SSInstancesData.readElement(instanceData.orientationsXY, i).Value;
-            var oriZ = SSInstancesData.readElement(instanceData.orientationsZ, i).Value;
-            var instanceMat = Matrix4.CreateScale(scale);
-            if (!float.IsNaN(oriXY.X) && !float.IsNaN(oriXY.Y)) { // Not NaN -> no billboarding
-                instanceMat *= Matrix4.CreateRotationX(-oriXY.X) * Matrix4.CreateRotationY(-oriXY.Y);
-            }
-            instanceMat = instanceMat
-                * Matrix4.CreateRotationZ(-oriZ)
-                * Matrix4.CreateTranslation(pos);
-            return instanceMat;
-
         }
 
         protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
@@ -267,6 +189,52 @@ namespace SimpleScene
             GL.PopClientAttrib();
             //this.boundingSphere.Render(ref renderConfig);
         }
+
+        protected void _renderWithCPUIterations(SSRenderConfig renderConfig)
+        {
+            var mainShader = renderConfig.mainShader;
+            mainShader.Activate();
+
+            for (int i = 0; i < instanceData.activeBlockLength; i++) {
+                if (!instanceData.isValid(i))
+                    continue;
+
+                RectangleF spriteRect = instanceData.readRect(i);
+                mainShader.UniSpriteOffsetAndSize(spriteRect.X, spriteRect.Y, 
+                    spriteRect.Width, spriteRect.Height);
+
+                var oriXY = instanceData.readOrientationXY(i);
+
+                Matrix4 mat = _instanceMat(i) * this.worldMat * renderConfig.invCameraViewMatrix;
+                if (float.IsNaN(oriXY.X) || float.IsNaN(oriXY.Y)) { // per-instance billboarding
+                    mat = OpenTKHelper.BillboardMatrix(ref mat);
+                }
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.LoadMatrix(ref mat);
+
+                var color = instanceData.readColor(i);
+                GL.Color4(color);
+
+                mesh.drawSingle(renderConfig, this.primType);
+            }
+        }
+
+        protected Matrix4 _instanceMat(int i)
+        {
+            var pos = instanceData.readPosition(i);
+            var componentScale = instanceData.readComponentScale(i);
+            var scale = componentScale * instanceData.readMasterScale(i);
+            var ori = instanceData.readOrientation(i);
+
+            var instanceMat = Matrix4.CreateScale(scale);
+            if (!float.IsNaN(ori.X) && !float.IsNaN(ori.Y)) { // Not NaN -> no billboarding
+                instanceMat *= Matrix4.CreateRotationX(-ori.X) * Matrix4.CreateRotationY(-ori.Y);
+            }
+            instanceMat = instanceMat
+                * Matrix4.CreateRotationZ(-ori.Z)
+                * Matrix4.CreateTranslation(pos);
+            return instanceMat;
+        }
         
 		protected void _prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
             where A : struct, ISSAttributeLayout 
@@ -275,17 +243,6 @@ namespace SimpleScene
             int numActive = instanceData.activeBlockLength;
             int numInstancesPerValue = array.Length < numActive ? numActive : 1;
 			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
-        }
-
-        public override void Update (float fElapsedMS)
-        {
-            if (simulateOnUpdate) {
-				float prevRadius = instanceData.radius;
-                instanceData.update(fElapsedMS);
-				if (instanceData.radius != prevRadius) {
-					NotifyPositionOrSizeChanged ();
-				}
-            }
         }
 
 		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 
@@ -348,22 +305,17 @@ namespace SimpleScene
         protected bool _perInstanceIntersectionTest(SSAbstractMesh abstrMesh, int i,
                                                     ref SSRay localRay, out float localContact)
         {
-            var pos = SSInstancesData.readElement(instanceData.positions, i).Value;
-            var masterScale = SSInstancesData.readElement(instanceData.masterScales, i).Value;
-            var componentScaleXY = SSInstancesData.readElement(instanceData.componentScalesXY, i).Value;
-            var componentScaleZ = SSInstancesData.readElement(instanceData.componentScalesZ, i).Value;
+            var pos = instanceData.readPosition(i);
+            var masterScale = instanceData.readMasterScale(i);
+            var scale = instanceData.readComponentScale(i) * masterScale;
             if (abstrMesh == null) {
                 // no way to be any more precise except hitting a generic sphere
-                float radius = Math.Max(componentScaleZ, Math.Max(componentScaleXY.X, componentScaleXY.Y));
+                float radius = Math.Max(scale.Z, Math.Max(scale.X, scale.Y));
                 var sphere = new SSSphere (pos, radius);
                 return sphere.IntersectsRay(ref localRay, out localContact);
             } else {
                 // When using SSAbstractMesh we can invoke its preciseIntersect()
-                Matrix4 instanceMat = Matrix4.CreateScale(
-                    masterScale * componentScaleXY.X,
-                    masterScale * componentScaleXY.Y,
-                    masterScale * componentScaleZ)
-                    * Matrix4.CreateTranslation(pos);
+                Matrix4 instanceMat = Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(pos);
 
                 SSRay instanceRay = localRay.Transformed(instanceMat.Inverted());
                 float instanceContact;
@@ -401,15 +353,15 @@ namespace SimpleScene
 
             public Vector3 objectpos(int i)
             {
-                return SSInstancesData.readElement(_instanceData.positions, i).Value;
+                return _instanceData.readPosition(i);
             }
 
             public float radius(int i)
             {
-                var masterScale = SSInstancesData.readElement(_instanceData.masterScales, i).Value;
-                var componentScaleXY = SSInstancesData.readElement(_instanceData.componentScalesXY, i).Value;
-                var componentScaleZ = SSInstancesData.readElement(_instanceData.componentScalesZ, i).Value;
-                return masterScale * Math.Max(componentScaleZ, Math.Max(componentScaleXY.X, componentScaleXY.Y));
+                var masterScale = _instanceData.readMasterScale(i);
+                var componentScale = _instanceData.readComponentScale(i);
+                return masterScale * Math.Max(componentScale.Z, 
+                    Math.Max(componentScale.X, componentScale.Y));
             }
 
             public void checkMap(int i)
