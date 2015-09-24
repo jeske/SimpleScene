@@ -61,14 +61,18 @@ namespace SimpleScene.Demos
         public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF screenClientRect,
                                   ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
-            var laserParams = _laser.parameters;
-            var beam = _laser.beam(_beamId);
-
             float occDiskScreenAreaUsed = (float)_occDiskObj.OcclusionQueueryResult;
             if (occDiskScreenAreaUsed <= 0f) {
                 // hide all sprites
-
+                var nanVec = new Vector2(float.NaN);
+                instanceData.writePosition(_backgroundSpriteIdx, nanVec);
+                instanceData.writePosition(_overlaySpriteIdx, nanVec);
+                return;
             }
+
+            var laserParams = _laser.parameters;
+            var beam = _laser.beam(_beamId);
+            float beamIntensity = _laser.envelopeIntensity * beam.periodicIntensity;
 
             // position sprites at the beam start in screen space
             Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
@@ -89,12 +93,12 @@ namespace SimpleScene.Demos
             float crossBeamRadiusScreenPx = Math.Abs(occRightMostPt.X - occCenterPt.X);
 
             // write sprite size big enough to cover up the starting section of the cross beam (middle)
-            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, crossBeamRadiusScreenPx * 1.5f);
+            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, crossBeamRadiusScreenPx * 2f)
+              * beamIntensity;
             instanceData.writeMasterScale(_backgroundSpriteIdx, scale * 1.2f);
             instanceData.writeMasterScale(_overlaySpriteIdx, scale * 1f);
 
             // add some variety to orientation to make the sprites look less static
-            float beamIntensity = _laser.envelopeIntensity * beam.periodicIntensity;
             instanceData.writeOrientationZ(_backgroundSpriteIdx, beamIntensity * 1f * (float)Math.PI);
             instanceData.writeOrientationZ(_overlaySpriteIdx, beamIntensity * 1f * (float)Math.PI);
 
@@ -110,20 +114,25 @@ namespace SimpleScene.Demos
             float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.direction()));
             //System.Console.WriteLine("dot = " + dot);
 
-            float occColorRatioBackground = occDiskAreaRatio * (float)Math.Pow(dot, 0.5);
+            //float occColorRatioBackground = occDiskAreaRatio * (float)Math.Pow(dot, 0.5);
             //System.Console.WriteLine("occColorRatioBackground = " + occColorRatioBackground);
 
+            var a = occDiskAreaRatio * (float)Math.Pow(beamIntensity, 0.1) * (float)Math.Pow(dot, 0.1);
+            a = Math.Min(a, 1f);
+
             // finish background color
-            var colorIntensityBackground = beamIntensity * occColorRatioBackground;
             var backgroundColor = laserParams.backgroundColor;
-            backgroundColor.A = Math.Min(colorIntensityBackground, 1f);
+            //var backgroundAlpha = beamIntensity * occColorRatioBackground;
+            //backgroundColor.A = Math.Min(backgroundAlpha, 1f);
+            backgroundColor.A = a;
             instanceData.writeColor(_backgroundSpriteIdx, backgroundColor);
 
             // finish overlay color
-            float occColorRatioOverlay = occDiskAreaRatio * (float)Math.Pow(dot, 0.1);
-            var colorIntensityOverlay = (float)Math.Pow(beamIntensity, 0.2) * occColorRatioOverlay;
+            //var overlayAlpha = 
+              //  occDiskAreaRatio * (float)Math.Pow(beamIntensity, 0.5) * (float)Math.Pow(dot, 0.1);
             var overlayColor = laserParams.overlayColor;
-            overlayColor.A = Math.Min(colorIntensityOverlay, 1f);
+            //overlayColor.A = Math.Min(overlayAlpha, 1f);
+            overlayColor.A = a;
             instanceData.writeColor(_overlaySpriteIdx, overlayColor);
         }
     }
