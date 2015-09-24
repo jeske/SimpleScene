@@ -71,7 +71,7 @@ namespace TestBench2
 			droneObj1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            //droneObj1.renderState.visible = false;
+            droneObj1.renderState.visible = false;
 			droneObj1.Name = "attacker drone";
 			scene.AddObject (droneObj1);
 
@@ -100,7 +100,7 @@ namespace TestBench2
 		protected void _createLaser()
 		{
 			var laserParams = new SLaserParameters ();
-			laserParams.numBeams = rand.Next (1, 6);
+			//laserParams.numBeams = rand.Next (1, 6);
 			if (laserParams.numBeams == 2) {
 				// 2's don't look too great
 				laserParams.numBeams = 1;

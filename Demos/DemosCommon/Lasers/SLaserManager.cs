@@ -160,21 +160,26 @@ namespace SimpleScene.Demos
                 _createRenderObjects();
 
                 if (_occDiskFlatObj != null) {
-                    _occDiskFlatObj.Pos = _occDiskPerspObj.Pos 
-                        = beam.startPos + _laser.direction() * _laser.parameters.occDiskDirOffset;
-                    // TODO consider per-beam orient
+                    _occDiskFlatObj.Pos = beam.startPos 
+                        + _laser.direction() * _laser.parameters.occDiskDirOffset;
 
                     _occDiskFlatObj.Orient(_laser.sourceOrient());
                 }
                 if (_occDiskPerspObj != null) {
+                    _occDiskPerspObj.Pos = beam.startPos 
+                        + _laser.direction() * _laser.parameters.occDiskDirOffset;
+
                     _occDiskPerspObj.Orient(_laser.sourceOrient());
                 }
+
+                // TODO consider per-beam orient
 			}
 
             protected void _createRenderObjects()
             {
                 var laserParams = this._laser.parameters;
 
+                # if true
                 if (laserParams.doEmissionFlare && _occDiskFlatObj == null) {
                     _occDiskFlatObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
                     _occDiskFlatObj.renderState.alphaBlendingOn = true;
@@ -188,7 +193,9 @@ namespace SimpleScene.Demos
                     _occDiskFlatObj.MainColor = color;
                     _occDiskScene.AddObject(_occDiskFlatObj);
                 }
+                #endif
 
+                #if true
                 if (laserParams.doEmissionFlare && _occDiskPerspObj == null) {
                     _occDiskPerspObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
                     _occDiskPerspObj.renderState.alphaBlendingOn = true;
@@ -202,6 +209,24 @@ namespace SimpleScene.Demos
                     _occDiskPerspObj.MainColor = color;
                     _occDiskScene.AddObject(_occDiskPerspObj);
                 }
+                #endif
+
+                #if false
+                if (laserParams.doEmissionFlare && _occDiskPerspObj == null) {
+                    _occDiskPerspObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
+                    _occDiskPerspObj.renderState.alphaBlendingOn = true;
+                    _occDiskPerspObj.renderState.lighted = false;
+                    _occDiskPerspObj.renderState.depthWrite = false;
+
+                    //float width = _laser.parameters.beamBackgroundWidth;
+                    //_occDiskPerspObj.Scale = new Vector3 (width, width, 1f);
+
+                    var color = _laser.parameters.backgroundColor; // debugging
+                    color.A = _laser.parameters.occDisksAlpha;
+                    _occDiskPerspObj.MainColor = color;
+                    _occDiskScene.AddObject(_occDiskPerspObj);
+                }
+                #endif
 
                 if (_beamObj == null) {
                     _beamObj = new SLaserBeamMiddleObject (_laser, _beamId, _beamScene);
@@ -209,7 +234,7 @@ namespace SimpleScene.Demos
                 }
 
                 if (laserParams.doEmissionFlare && _emissionFlareUpdater == null) {
-                    _emissionFlareUpdater = new SLaserEmissionFlareUpdater (_laser, _beamId, _occDiskFlatObj, _occDiskPerspObj);
+                    _emissionFlareUpdater = new SLaserEmissionFlareUpdater (_laser, _beamId, _occDiskFlatObj);
                     _sprite2dRenderer.addUpdater(_emissionFlareUpdater);
                 }
 

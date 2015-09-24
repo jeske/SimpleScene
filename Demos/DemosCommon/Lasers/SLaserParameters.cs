@@ -36,7 +36,7 @@ namespace SimpleScene.Demos
         /// <summary>
         /// width of the middle section sprite (in world units)
         /// </summary>
-        public float backgroundWidth = 2f;
+        public float beamBackgroundWidth = 2f;
         #endregion
 
         #region interference sprite
@@ -133,11 +133,12 @@ namespace SimpleScene.Demos
 
         #region emission flare 
         public bool doEmissionFlare = true;
-        public float emissionFlareSizeMaxPx = 500f;
+        public float emissionFlareSizeMaxPx = 20f;
+        public float emissionFlareScreenSizeMin = 75f;
         public float occDiskDirOffset = 0.5f;
         public float occDisk1RadiusPx = 15f;
         public float occDisk2RadiusWU = 0.5f;
-        public float occDisksAlpha = 0.0001f;
+        public float occDisksAlpha = 0.001f;
         //public float occDisksAlpha = 0.3f;
         #endregion
 

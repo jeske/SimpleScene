@@ -11,7 +11,7 @@ namespace SimpleScene.Demos
     public interface ISSpriteUpdater
     {
         void setupSprites (SInstancedSpriteData instanceData);
-        void updateSprites(SInstancedSpriteData instanceData, ref RectangleF clientRect,
+        void updateSprites(SInstancedSpriteData instanceData, ref RectangleF screenClientRect,
                            ref Matrix4 camera3dView, ref Matrix4 camera3dProj);
         void releaseSprites (SInstancedSpriteData instanceData);
     }
