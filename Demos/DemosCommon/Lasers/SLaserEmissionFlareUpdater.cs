@@ -8,18 +8,9 @@ namespace SimpleScene.Demos
 {
     public class SLaserEmissionFlareUpdater : ISSpriteUpdater
     {
-        protected SLaser _laser;
-        protected int _beamId;
-
-        /// <summary>
-        /// "flat" disk that matches its draw scale to compenstate for perspective shrinking
-        /// </summary>
-        //protected readonly SSObjectOcclusionQueuery _beamOccFlatObj;
-
-        /// <summary>
-        /// "perspective" disk that that just shrinks when looking from far away due to perspective
-        /// </summary>
-        protected readonly SSObjectOcclusionQueuery _beamOccPerspObj;
+        protected readonly SLaser _laser;
+        protected readonly int _beamId;
+        protected readonly SSObjectOcclusionQueuery _occDiskObj;
 
         protected readonly RectangleF _backgroundRect;
         protected readonly RectangleF _overlayRect;
@@ -29,7 +20,7 @@ namespace SimpleScene.Demos
 
         public SLaserEmissionFlareUpdater(
             SLaser laser, int beamId, 
-            /*SSObjectOcclusionQueuery occFlat,*/ SSObjectOcclusionQueuery occPersp, 
+            /*SSObjectOcclusionQueuery occFlat,*/ SSObjectOcclusionQueuery occDisk, 
             RectangleF backgroundRect,
             RectangleF overlayRect
         )
@@ -37,7 +28,7 @@ namespace SimpleScene.Demos
             this._laser = laser;
             this._beamId = beamId;
             //this._beamOccFlatObj = occFlat;
-            this._beamOccPerspObj = occPersp;
+            this._occDiskObj = occDisk;
 
             this._backgroundRect = backgroundRect;
             this._overlayRect = overlayRect;
@@ -70,91 +61,61 @@ namespace SimpleScene.Demos
         public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF screenClientRect,
                                   ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
-            #if false
-            if (_beamOccFlatObj != null) {
-                // "flat" disk that matches its draw scale to compenstate for perspective shrinking
-                float occR = _laser.parameters.occDisk1RadiusPx;
-                float occAreaExpected = (float)Math.PI * occR * occR;
-                var contribution = (float)_beamOccFlatObj.OcclusionQueueryResult / occAreaExpected;
-                contribution = Math.Min(contribution, 1f);
-                contribution = (float)Math.Pow(contribution, 3.0);
-                contribution *= 0.2f;
-                occIntensity += contribution;
-                //System.Console.Write("beamId: " + _beamId + " occIntensity = " + contribution.ToString());
-            }
-
-            if (_beamOccPerspObj != null) {
-                // "perspective" disk that that just shrinks when looking from far away due to perspective
-                var contribution = (float)Math.Sqrt((float)_beamOccPerspObj.OcclusionQueueryResult /
-                               (clientRect.Width * clientRect.Height));
-                contribution = (float)Math.Pow(contribution, 0.2);
-                contribution *= 0.8f;
-                occIntensity += contribution;
-                //System.Console.Write(" + " + contribution + " = " + occIntensity + "\n");
-            }
-            #endif
-
-            if (_beamOccPerspObj == null) return;
-
             var laserParams = _laser.parameters;
             var beam = _laser.beam(_beamId);
-            float beamIntensity = _laser.envelopeIntensity * beam.periodicIntensity;
 
+            float screenAreaUsed = (float)_occDiskObj.OcclusionQueueryResult;
+            if (screenAreaUsed <= 0f)
+                return;
+
+            // position sprites at the beam start in screen space
             Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
             var beamStartScreen = OpenTKHelper.WorldToScreen(beam.startPos, 
-                ref camera3dViewProjMat, ref screenClientRect);
-            //var beamStartScreen = new Vector2(500f);
-
-            Matrix4 viewInverted = camera3dView.Inverted();
-            Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
-            Vector3 occRightMost = _beamOccPerspObj.Pos + viewRight * laserParams.beamBackgroundWidth;
-            Vector2 occRightMostPt = OpenTKHelper.WorldToScreen(occRightMost, 
-                ref camera3dViewProjMat, ref screenClientRect);
-            Vector2 occCenterPt = OpenTKHelper.WorldToScreen(_beamOccPerspObj.Pos, 
-                ref camera3dViewProjMat, ref screenClientRect);
-            float screenFullRadius = Math.Abs(occRightMostPt.X - occCenterPt.X);
-
-
-            int numElements = instanceData.activeBlockLength;
-
+                                      ref camera3dViewProjMat, ref screenClientRect);
             instanceData.writePosition(_backgroundSpriteIdx, beamStartScreen);
             instanceData.writePosition(_overlaySpriteIdx, beamStartScreen);
 
-            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, screenFullRadius * 4f);
+            // compute screen space needed to occupy the area where the start of the middle's crossbeam
+            // would be displayed
+            Matrix4 viewInverted = camera3dView.Inverted();
+            Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
+            Vector3 occRightMost = _occDiskObj.Pos + viewRight * laserParams.beamBackgroundWidth;
+            Vector2 occRightMostPt = OpenTKHelper.WorldToScreen(occRightMost, 
+                                         ref camera3dViewProjMat, ref screenClientRect);
+            Vector2 occCenterPt = OpenTKHelper.WorldToScreen(_occDiskObj.Pos, 
+                                      ref camera3dViewProjMat, ref screenClientRect);
+            float screenFullRadius = Math.Abs(occRightMostPt.X - occCenterPt.X);
+
+            // write sprite size big enough to cover up the starting section of the cross beam (middle)
+            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, screenFullRadius * 1.5f);
             instanceData.writeMasterScale(_backgroundSpriteIdx, scale * 1.2f);
-            instanceData.writeMasterScale(_overlaySpriteIdx, scale * 1f); // TODO be able to customize
-            //instanceData.writeMasterScale(_backgroundSpriteIdx, 10f);
-            //instanceData.writeMasterScale(_overlaySpriteIdx, 10f);
-            System.Console.WriteLine("sprite size = " + scale);
+            instanceData.writeMasterScale(_overlaySpriteIdx, scale * 1f);
 
-            instanceData.writeOrientationZ(_backgroundSpriteIdx, beamIntensity * 2f * (float)Math.PI * 4f);
-            instanceData.writeOrientationZ(_overlaySpriteIdx, beamIntensity * 2f * (float)Math.PI * 4f);
+            // add some variety to orientation to make the sprites look less static
+            float beamIntensity = _laser.envelopeIntensity * beam.periodicIntensity;
+            instanceData.writeOrientationZ(_backgroundSpriteIdx, beamIntensity * 8f * (float)Math.PI);
+            instanceData.writeOrientationZ(_overlaySpriteIdx, beamIntensity * 8f * (float)Math.PI);
 
-
-            // color intensity - depends on the dot product between to-camera vector and beam direction
-
-            float maxScreenArea = (float)Math.PI * laserParams.occDisk1RadiusPx * laserParams.occDisk1RadiusPx;
-            float screenAreaUsed = (float)_beamOccPerspObj.OcclusionQueueryResult;
+            // color intensity: depends on the dot product between to-camera vector and beam direction;
+            // also depends on how of the occlusion disk area is visible
+            float maxScreenArea = (float)Math.PI 
+                * laserParams.occDiskRadiusPx * laserParams.occDiskRadiusPx;
             float occDiskAreaRatio = screenAreaUsed / maxScreenArea;
 
             Vector3 toCamera = (Vector3.Transform(Vector3.Zero, camera3dView.Inverted()) - beam.startPos)
                 .Normalized();
-            //Vector3 cameraDir = Vector3.Transform(-Vector3.UnitZ, camera3dView.Inverted()).Normalized();
-            float dot = Vector3.Dot(toCamera, beam.direction());
+            float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.direction()));
 
-            //float occColorRatio = (float)Math.Pow(roughScreenRadiusUsed / screenFullRadius, 0.5f);
-            float occColorRatioBackground = (float)Math.Pow(Math.Max(0f, dot), 1.0) * 2f * occDiskAreaRatio;
-            float occColorRatioOverlay = (float)Math.Pow(Math.Max(0f, dot), 0.5) * 2f * occDiskAreaRatio;
-
+            // finish background color
+            float occColorRatioBackground = occDiskAreaRatio * (float)Math.Pow(dot, 1.0);
             var colorIntensityBackground = beamIntensity * occColorRatioBackground;
-            var colorIntensityOverlay = (float)Math.Pow(beamIntensity, 0.4) * occColorRatioOverlay;
-            System.Console.WriteLine("color intensity = " + colorIntensityBackground + " / " + colorIntensityBackground);
-
-
             var backgroundColor = laserParams.backgroundColor;
             backgroundColor.A = Math.Min(colorIntensityBackground, 1f);
             instanceData.writeColor(_backgroundSpriteIdx, backgroundColor);
 
+            // finish overlay color
+            float occColorRatioOverlay = occDiskAreaRatio * (float)Math.Pow(dot, 0.5);
+            var colorIntensityOverlay = (float)Math.Pow(beamIntensity, 0.4) * occColorRatioOverlay;
             var overlayColor = laserParams.overlayColor;
             overlayColor.A = Math.Min(colorIntensityOverlay, 1f);
             instanceData.writeColor(_overlaySpriteIdx, overlayColor);
