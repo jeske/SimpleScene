@@ -62,13 +62,20 @@ namespace SimpleScene
     {
         public const BufferUsageHint _defaultUsageHint = BufferUsageHint.StreamDraw;
 
+        public enum RenderMode { GpuInstancing, CpuFallback, Auto };
+
 		public SSInstancesData instanceData;
         public ISSInstancable mesh;
         public PrimitiveType primType = PrimitiveType.Triangles;
 
         public bool simulateOnUpdate = true;
-        public bool fallbackToCpu = false; // when true, draw using iteration with CPU (no GPU instancing)
         public bool useBVHForIntersections = false;
+        public RenderMode renderMode = RenderMode.Auto;
+        /// <summary>
+        /// When in the "auto" render mode, how many particles before switching to
+        /// the on-GPU instancing?
+        /// </summary>
+        public int autoRenderModeThreshold = 100;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
@@ -147,10 +154,11 @@ namespace SimpleScene
                 instanceData.sortByDepth (ref modelView);
             }
 
-            if (this.fallbackToCpu) {
-                _renderWithCPUIterations(renderConfig); 
-            } else {
+            if (renderMode == RenderMode.GpuInstancing
+            || (renderMode == RenderMode.Auto && instanceData.numElements >= autoRenderModeThreshold)) {
                 _renderWithGPUInstancing(renderConfig);
+            } else {
+                _renderWithCPUIterations(renderConfig); 
             }
         }
 

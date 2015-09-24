@@ -26,13 +26,10 @@ namespace SimpleScene.Demos
             this.renderState.alphaBlendingOn = true;
             this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
             this.renderState.blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
-            this.fallbackToCpu = true;
 
             addUpdater(new SSunFlareUpdater (camera3dScene, sunDiskObj));
         }
     }
-
-
 
     public class SSunFlareUpdater : ISSpriteUpdater
     {
