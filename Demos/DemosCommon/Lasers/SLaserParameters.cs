@@ -134,7 +134,7 @@ namespace SimpleScene.Demos
         #region emission flare 
         public bool doEmissionFlare = true;
         public float emissionFlareScreenSizeMin = 25f;
-        public float occDiskDirOffset = 0.5f;
+        public float occDiskDirOffset = 0.25f;
         public float occDiskRadiusPx = 15f;
         public float occDisksAlpha = 0.001f; 
         //public float occDisksAlpha = 0.3f; // for debugging set to a higher fraction

@@ -64,9 +64,11 @@ namespace SimpleScene.Demos
             var laserParams = _laser.parameters;
             var beam = _laser.beam(_beamId);
 
-            float screenAreaUsed = (float)_occDiskObj.OcclusionQueueryResult;
-            if (screenAreaUsed <= 0f)
-                return;
+            float occDiskScreenAreaUsed = (float)_occDiskObj.OcclusionQueueryResult;
+            if (occDiskScreenAreaUsed <= 0f) {
+                // hide all sprites
+
+            }
 
             // position sprites at the beam start in screen space
             Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
@@ -84,38 +86,42 @@ namespace SimpleScene.Demos
                                          ref camera3dViewProjMat, ref screenClientRect);
             Vector2 occCenterPt = OpenTKHelper.WorldToScreen(_occDiskObj.Pos, 
                                       ref camera3dViewProjMat, ref screenClientRect);
-            float screenFullRadius = Math.Abs(occRightMostPt.X - occCenterPt.X);
+            float crossBeamRadiusScreenPx = Math.Abs(occRightMostPt.X - occCenterPt.X);
 
             // write sprite size big enough to cover up the starting section of the cross beam (middle)
-            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, screenFullRadius * 1.5f);
+            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, crossBeamRadiusScreenPx * 1.5f);
             instanceData.writeMasterScale(_backgroundSpriteIdx, scale * 1.2f);
             instanceData.writeMasterScale(_overlaySpriteIdx, scale * 1f);
 
             // add some variety to orientation to make the sprites look less static
             float beamIntensity = _laser.envelopeIntensity * beam.periodicIntensity;
-            instanceData.writeOrientationZ(_backgroundSpriteIdx, beamIntensity * 8f * (float)Math.PI);
-            instanceData.writeOrientationZ(_overlaySpriteIdx, beamIntensity * 8f * (float)Math.PI);
+            instanceData.writeOrientationZ(_backgroundSpriteIdx, beamIntensity * 1f * (float)Math.PI);
+            instanceData.writeOrientationZ(_overlaySpriteIdx, beamIntensity * 1f * (float)Math.PI);
 
             // color intensity: depends on the dot product between to-camera vector and beam direction;
             // also depends on how of the occlusion disk area is visible
             float maxScreenArea = (float)Math.PI 
                 * laserParams.occDiskRadiusPx * laserParams.occDiskRadiusPx;
-            float occDiskAreaRatio = screenAreaUsed / maxScreenArea;
+            float occDiskAreaRatio = occDiskScreenAreaUsed / maxScreenArea;
+            //System.Console.WriteLine("occDiskAreaRatio = " + occDiskAreaRatio);
 
             Vector3 toCamera = (Vector3.Transform(Vector3.Zero, camera3dView.Inverted()) - beam.startPos)
                 .Normalized();
             float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.direction()));
+            //System.Console.WriteLine("dot = " + dot);
+
+            float occColorRatioBackground = occDiskAreaRatio * (float)Math.Pow(dot, 0.5);
+            //System.Console.WriteLine("occColorRatioBackground = " + occColorRatioBackground);
 
             // finish background color
-            float occColorRatioBackground = occDiskAreaRatio * (float)Math.Pow(dot, 1.0);
             var colorIntensityBackground = beamIntensity * occColorRatioBackground;
             var backgroundColor = laserParams.backgroundColor;
             backgroundColor.A = Math.Min(colorIntensityBackground, 1f);
             instanceData.writeColor(_backgroundSpriteIdx, backgroundColor);
 
             // finish overlay color
-            float occColorRatioOverlay = occDiskAreaRatio * (float)Math.Pow(dot, 0.5);
-            var colorIntensityOverlay = (float)Math.Pow(beamIntensity, 0.4) * occColorRatioOverlay;
+            float occColorRatioOverlay = occDiskAreaRatio * (float)Math.Pow(dot, 0.1);
+            var colorIntensityOverlay = (float)Math.Pow(beamIntensity, 0.2) * occColorRatioOverlay;
             var overlayColor = laserParams.overlayColor;
             overlayColor.A = Math.Min(colorIntensityOverlay, 1f);
             instanceData.writeColor(_overlaySpriteIdx, overlayColor);
