@@ -59,7 +59,7 @@ namespace SimpleScene.Demos
         }
 
         public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF screenClientRect,
-                                  ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
+                                  ref Vector3 cameraPos, ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
             float occDiskScreenAreaUsed = (float)_occDiskObj.OcclusionQueueryResult;
             if (occDiskScreenAreaUsed <= 0f) {
@@ -109,30 +109,21 @@ namespace SimpleScene.Demos
             float occDiskAreaRatio = occDiskScreenAreaUsed / maxScreenArea;
             //System.Console.WriteLine("occDiskAreaRatio = " + occDiskAreaRatio);
 
-            Vector3 toCamera = (Vector3.Transform(Vector3.Zero, camera3dView.Inverted()) - beam.startPos)
-                .Normalized();
+            Vector3 toCamera = (cameraPos - beam.startPos).Normalized();
             float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.direction()));
             //System.Console.WriteLine("dot = " + dot);
 
-            //float occColorRatioBackground = occDiskAreaRatio * (float)Math.Pow(dot, 0.5);
-            //System.Console.WriteLine("occColorRatioBackground = " + occColorRatioBackground);
-
-            var a = occDiskAreaRatio * (float)Math.Pow(beamIntensity, 0.1) * (float)Math.Pow(dot, 0.1);
-            a = Math.Min(a, 1f);
+            var alpha = occDiskAreaRatio * (float)Math.Pow(beamIntensity, 0.3) * (float)Math.Pow(dot, 0.3);
+            alpha = Math.Min(alpha, 1f);
 
             // finish background color
             var backgroundColor = laserParams.backgroundColor;
-            //var backgroundAlpha = beamIntensity * occColorRatioBackground;
-            //backgroundColor.A = Math.Min(backgroundAlpha, 1f);
-            backgroundColor.A = a;
+            backgroundColor.A = alpha;
             instanceData.writeColor(_backgroundSpriteIdx, backgroundColor);
 
             // finish overlay color
-            //var overlayAlpha = 
-              //  occDiskAreaRatio * (float)Math.Pow(beamIntensity, 0.5) * (float)Math.Pow(dot, 0.1);
             var overlayColor = laserParams.overlayColor;
-            //overlayColor.A = Math.Min(overlayAlpha, 1f);
-            overlayColor.A = a;
+            overlayColor.A = alpha;
             instanceData.writeColor(_overlaySpriteIdx, overlayColor);
         }
     }

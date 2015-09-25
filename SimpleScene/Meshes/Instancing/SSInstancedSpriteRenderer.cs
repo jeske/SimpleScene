@@ -10,9 +10,20 @@ namespace SimpleScene.Demos
 {
     public interface ISSpriteUpdater
     {
+        /// <summary>
+        /// Acquire sprites from the pool and do one-time setup on sprite parameters
+        /// </summary>
         void setupSprites (SInstancedSpriteData instanceData);
+
+        /// <summary>
+        /// Updates the sprites. Will be called before Render() on all updaters. Keep them fast.
+        /// </summary>
         void updateSprites(SInstancedSpriteData instanceData, ref RectangleF screenClientRect,
-                           ref Matrix4 camera3dView, ref Matrix4 camera3dProj);
+                           ref Vector3 cameraPos, ref Matrix4 camera3dView, ref Matrix4 camera3dProj);
+
+        /// <summary>
+        /// Release acruired sprites back into the sprite pool
+        /// </summary>
         void releaseSprites (SInstancedSpriteData instanceData);
     }
 
@@ -71,10 +82,13 @@ namespace SimpleScene.Demos
 		{
             var rc = cameraScene3d.renderConfig;
             RectangleF clientRect = OpenTKHelper.GetClientRect();
+            var cameraPos 
+                = (cameraScene3d.ActiveCamera != null) ? cameraScene3d.ActiveCamera.Pos
+                : Vector3.Transform(Vector3.Zero, rc.invCameraViewMatrix.Inverted());
 
             foreach (var updater in _spriteUpdaters) {
                 updater.updateSprites(this.instanceData, ref clientRect, 
-                                      ref rc.invCameraViewMatrix, ref rc.projectionMatrix);
+                    ref cameraPos, ref rc.invCameraViewMatrix, ref rc.projectionMatrix);
             }
 
 			base.Render (renderConfig);

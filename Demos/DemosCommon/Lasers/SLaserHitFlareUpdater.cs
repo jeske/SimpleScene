@@ -58,7 +58,7 @@ namespace SimpleScene.Demos
         }
 
         public void updateSprites(SInstancedSpriteData instanceData, ref RectangleF clientRect,
-                                  ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
+                                  ref Vector3 cameraPos, ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
             var beam = _laser.beam(_beamId);
             var ray = beam.ray();
