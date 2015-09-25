@@ -37,7 +37,7 @@ namespace SimpleScene
         /// When in the "auto" render mode, how many particles before switching to
         /// the on-GPU instancing?
         /// </summary>
-        public int autoRenderModeThreshold = 10;
+        public int autoRenderModeThreshold = 36;
 
         protected SSAttributeBuffer<SSAttributeVec3> _posBuffer;
 		protected SSAttributeBuffer<SSAttributeVec2> _orientationXYBuffer;
@@ -117,7 +117,7 @@ namespace SimpleScene
             }
 
             if (renderMode == RenderMode.GpuInstancing
-            || (renderMode == RenderMode.Auto && instanceData.numElements >= autoRenderModeThreshold)) {
+            || (renderMode == RenderMode.Auto && instanceData.numElements > autoRenderModeThreshold)) {
                 _renderWithGPUInstancing(renderConfig);
             } else {
                 _renderWithCPUIterations(renderConfig); 
