@@ -113,7 +113,7 @@ namespace SimpleScene.Demos
             float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.direction()));
             //System.Console.WriteLine("dot = " + dot);
 
-            var alpha = occDiskAreaRatio * (float)Math.Pow(beamIntensity, 0.3) * (float)Math.Pow(dot, 0.3);
+            var alpha = occDiskAreaRatio*1.2f * (float)Math.Pow(beamIntensity, 0.1) * (float)Math.Pow(dot, 0.1);
             alpha = Math.Min(alpha, 1f);
 
             // finish background color
