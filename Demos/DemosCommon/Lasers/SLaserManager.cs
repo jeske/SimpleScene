@@ -49,6 +49,12 @@ namespace SimpleScene.Demos
             beamScene3d.preRenderHooks += this._update;
 		}
 
+        ~SLaserManager()
+        {
+            _laserBurnParticles.renderState.toBeDeleted = true;
+            _2dEffectRenderer.renderState.toBeDeleted = true;
+        }
+
 		public SLaser addLaser(SLaserParameters laserParams, 
 		   		     		   SSObject srcObject, SSObject dstObject)
 		{
