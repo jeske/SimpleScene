@@ -364,6 +364,11 @@ namespace SimpleScene
 	{
 		public Vector3 center = Vector3.Zero;
 
+        /// <summary>
+        /// Axis around which theta angles are measured. MUST be normalized
+        /// </summary>
+        public Vector3 up = Vector3.UnitZ;
+
 		#region spawn radius
 		public float radiusOffsetMin = 0f;
 		public float radiusOffsetMax = 0f;
@@ -410,7 +415,11 @@ namespace SimpleScene
 			float x = xy * (float)Math.Cos (theta);
 			float y = xy * (float)Math.Sin (theta);
 			float z = (float)Math.Sin (phi);
-			Vector3 xyz = new Vector3 (x, y, z);
+
+            Vector3 xAxis, yAxis;
+            OpenTKHelper.TwoPerpAxes(up, out xAxis, out yAxis);
+            Vector3 xyz = x * xAxis + y * yAxis + z * up;
+
 			p.pos = center + r * xyz;
 			float velocityMag = Interpolate.Lerp (velocityMagnitudeMin, velocityMagnitudeMax, nextFloat ());
 			p.vel = velocityMag * xyz;

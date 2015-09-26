@@ -27,8 +27,12 @@ namespace SimpleScene.Demos
             renderState.alphaBlendingOn = true;
             renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
             renderState.blendFactorDest = BlendingFactorDest.One;
+            base.selectable = false;
 
-            simulateOnUpdate = true;
+            // bypass frustum culling so camera updates are sent to activate particle emission
+            renderState.frustumCulling = false;
+
+            base.simulateOnUpdate = true;
 
             base.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
             base.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
@@ -49,8 +53,6 @@ namespace SimpleScene.Demos
     {
         // TODO consider making this a particle system for all laser-related 3d rendering
         // including middle section
-
-        protected Matrix4 _modelTxfm = Matrix4.Identity;
 
         public static SSTexture getDefaultTexture()
         {
@@ -92,19 +94,13 @@ namespace SimpleScene.Demos
             _hitSpots.Remove(laser);
         }
 
-        public override void updateCamera (ref Matrix4 model, ref Matrix4 view, 
-                                           ref Matrix4 projection)
+        public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
         {
-            _modelTxfm = model;
-        }
+            Matrix4 modelViewInv = (model * view).Inverted();
+            Vector3 cameraPosLocal = Vector3.Transform(Vector3.Zero, modelViewInv);
 
-        public override void update (float elapsedS)
-        {
-            base.update(elapsedS);
-
-            //base.updateCamera(ref model, ref view, ref projection);
-            foreach (var hitSpot in _hitSpots.Values) {
-                hitSpot.updateLaserBeamData(ref _modelTxfm);
+            foreach (var hitspot in _hitSpots.Values) {
+                hitspot.updateCamera(ref model, ref cameraPosLocal);
             }
         }
 
@@ -134,6 +130,14 @@ namespace SimpleScene.Demos
                         var newFlameSmokeEmitter = new SSRadialEmitter();
                         newFlameSmokeEmitter.effectorMask = flameEffectorMask;
                         newFlameSmokeEmitter.billboardXY = true;
+                        newFlameSmokeEmitter.phiMin = (float)Math.PI/3f;
+                        newFlameSmokeEmitter.phiMax = (float)Math.PI/2f;
+                        //newFlameSmokeEmitter.phi = (float)Math.PI/2f;
+                        //newFlameSmokeEmitter.theta = 0f;
+                        //newFlameSmokeEmitter.theta = 0f;
+                        //newFlameSmokeEmitter.thetaMin = 0f;
+                        //newFlameSmokeEmitter.thetaMax = 2f * (float)Math.PI;
+
                         newFlameSmokeEmitter.spriteRectangles = laserParams.flameSmokeSpriteRects;
                         newFlameSmokeEmitter.emissionInterval = 1f / laserParams.flameSmokeEmitFrequency;
                         newFlameSmokeEmitter.masterScaleMin = laserParams.flameSmokeScaleMin;
@@ -142,6 +146,8 @@ namespace SimpleScene.Demos
                         newFlameSmokeEmitter.life = laserParams.flameSmokeLifetime;
                         newFlameSmokeEmitter.velocityMagnitudeMin = laserParams.flameSmokeRadialVelocityMin;
                         newFlameSmokeEmitter.velocityMagnitudeMax = laserParams.flameSmokeRadialVelocityMax;
+                        //newFlameSmokeEmitter.life = 10f;
+                        //newFlameSmokeEmitter.velocityMagnitude = 50f;
                         _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                     // hit spot flash
@@ -201,7 +207,7 @@ namespace SimpleScene.Demos
                 return ret;
             }
 
-            public void updateLaserBeamData(ref Matrix4 rendererWorldMat)
+            public void updateCamera(ref Matrix4 rendererWorldMat, ref Vector3 cameraPosLocal)
             {
                 var laserParams = _laser.parameters;
                 for (int i = 0; i < laserParams.numBeams; ++i) {
@@ -215,6 +221,7 @@ namespace SimpleScene.Demos
                         flashEmitter.particlesPerEmissionMin = laserParams.flashParticlesPerEmissionMin;
                         flashEmitter.particlesPerEmissionMax = laserParams.flashParticlesPerEmissionMax;
                         smokeEmitter.center = hitPos;
+                        smokeEmitter.up = (cameraPosLocal - smokeEmitter.center).Normalized();
                         smokeEmitter.particlesPerEmissionMin = laserParams.flameSmokeParticlesPerEmissionMin;
                         smokeEmitter.particlesPerEmissionMax = laserParams.flameSmokeParticlesPerEmissionMax;
                     } else {

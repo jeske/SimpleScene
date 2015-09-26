@@ -68,6 +68,7 @@ namespace SimpleScene.Demos
 				sunDiskScene.AddObject(sunBillboard);
 
                 var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunBillboard);
+                sunFlare.Name = "sun flare renderer";
 				sunFlareScene.AddObject (sunFlare);
 			}
             #endif

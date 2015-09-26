@@ -93,7 +93,7 @@ namespace SimpleScene.Demos
             float crossBeamRadiusScreenPx = Math.Abs(occRightMostPt.X - occCenterPt.X);
 
             // write sprite size big enough to cover up the starting section of the cross beam (middle)
-            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, crossBeamRadiusScreenPx * 2f)
+            float scale = Math.Max(laserParams.emissionFlareScreenSizeMin, crossBeamRadiusScreenPx * 2.5f)
               * beamIntensity;
             instanceData.writeMasterScale(_backgroundSpriteIdx, scale * 1.2f);
             instanceData.writeMasterScale(_overlaySpriteIdx, scale * 1f);

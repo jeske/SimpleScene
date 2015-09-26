@@ -102,8 +102,8 @@ namespace SimpleScene
 			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
 
 			// allow particle system to react to camera/worldview
-            instanceData.updateCamera (ref this.worldMat, ref renderConfig.invCameraViewMatrix,
-                                       ref renderConfig.projectionMatrix);
+            instanceData.updateCamera (ref this.worldMat, 
+                ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
 
 			// do we have anything to draw?
 			if (instanceData.activeBlockLength <= 0) return;

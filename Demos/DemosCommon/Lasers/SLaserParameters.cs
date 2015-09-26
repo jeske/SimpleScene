@@ -161,11 +161,11 @@ namespace SimpleScene.Demos
         };
 
         //public int flameSmokeParticlesPerEmission = 5;
-        public int flameSmokeParticlesPerEmissionMin = 2;
-        public int flameSmokeParticlesPerEmissionMax = 3;
-        public float flameSmokeEmitFrequency = 7f;
-        public float flameSmokeScaleMin = 1f;
-        public float flameSmokeScaleMax = 2f;
+        public int flameSmokeParticlesPerEmissionMin = 1;
+        public int flameSmokeParticlesPerEmissionMax = 1;
+        public float flameSmokeEmitFrequency = 10f;
+        public float flameSmokeScaleMin = 1.2f;
+        public float flameSmokeScaleMax = 2.2f;
         public float flameSmokeLifetime = 2.5f;
         public float flameSmokeRadialVelocityMin = 0.25f;
         public float flameSmokeRadialVelocityMax = 0.5f;
@@ -180,11 +180,11 @@ namespace SimpleScene.Demos
             new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
         };
 
-        public int flashParticlesPerEmissionMin = 2;
-        public int flashParticlesPerEmissionMax = 3;
-        public float flashEmitFrequency = 7f;
-        public float flashScaleMin = 1f;
-        public float flashScaleMax = 2f;
+        public int flashParticlesPerEmissionMin = 1;
+        public int flashParticlesPerEmissionMax = 1;
+        public float flashEmitFrequency = 10f;
+        public float flashScaleMin = 1.5f;
+        public float flashScaleMax = 2.5f;
         public float flashLifetime = 1f;
         #endregion
 
