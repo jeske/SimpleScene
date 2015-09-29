@@ -99,7 +99,7 @@ namespace SimpleScene
 		{
 			_timeSinceReset += deltaT;
 			float timeElapsed = float.IsNaN (particleLifetime) ? _timeSinceReset
-															   : particleLifetime - particle.life;
+                : 1f - particle.life / particleLifetime;
 			float lastKey = keyframes.Keys [keyframes.Count - 1];
 			if (timeElapsed > lastKey) {
 				applyValue(particle, keyframes [lastKey]);

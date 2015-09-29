@@ -443,14 +443,14 @@ namespace SimpleScene.Demos
 				_flamesSmokeColorEffector.particleLifetime = _flameSmokeDuration;
 				_flamesSmokeColorEffector.keyframes.Clear ();
 				_flamesSmokeColorEffector.keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-				_flamesSmokeColorEffector.keyframes.Add (0.4f*_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0.5f));
-				_flamesSmokeColorEffector.keyframes.Add (_flameSmokeDuration, new Color4 (0f, 0f, 0f, 0f));
+				_flamesSmokeColorEffector.keyframes.Add (0.4f, new Color4 (0f, 0f, 0f, 0.5f));
+				_flamesSmokeColorEffector.keyframes.Add (1f, new Color4 (0f, 0f, 0f, 0f));
 
 				_flameSmokeScaleEffector.particleLifetime = _flameSmokeDuration;
 				_flameSmokeScaleEffector.keyframes.Clear ();
 				_flameSmokeScaleEffector.keyframes.Add (0f, 0.1f);
-				_flameSmokeScaleEffector.keyframes.Add (0.25f * _flameSmokeDuration, 1f);
-				_flameSmokeScaleEffector.keyframes.Add (_flameSmokeDuration, 1.2f);
+				_flameSmokeScaleEffector.keyframes.Add (0.25f, 1f);
+				_flameSmokeScaleEffector.keyframes.Add (1f, 1.2f);
 			}
 
 			protected void emitFlameSmoke(Vector3 position, float intensity)
@@ -480,12 +480,12 @@ namespace SimpleScene.Demos
 				_flashColorEffector.colorMask = _flashColor;
 				_flashColorEffector.keyframes.Clear ();
 				_flashColorEffector.keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-				_flashColorEffector.keyframes.Add (_flashDuration, new Color4 (1f, 1f, 1f, 0f));
+				_flashColorEffector.keyframes.Add (1f, new Color4 (1f, 1f, 1f, 0f));
 
 				_flashScaleEffector.particleLifetime = _flashDuration;
 				_flashScaleEffector.keyframes.Clear ();
 				_flashScaleEffector.keyframes.Add (0f, 1f);
-				_flashScaleEffector.keyframes.Add (_flashDuration, 1.5f);
+				_flashScaleEffector.keyframes.Add (1f, 1.5f);
 			}
 
 			protected void emitFlash(Vector3 position, float intensity)
@@ -510,7 +510,7 @@ namespace SimpleScene.Demos
 				_flyingSparksColorEffector.colorMask = _flashColor;
 				_flyingSparksColorEffector.keyframes.Clear ();
 				_flyingSparksColorEffector.keyframes.Add (0f, new Color4 (1f, 1f, 1f, 1f));
-				_flyingSparksColorEffector.keyframes.Add (_flyingSparksDuration, new Color4 (1f, 1f, 1f, 0f));
+				_flyingSparksColorEffector.keyframes.Add (1f, new Color4 (1f, 1f, 1f, 0f));
 				_flyingSparksColorEffector.particleLifetime = _flyingSparksDuration;
 			}
 
@@ -538,14 +538,14 @@ namespace SimpleScene.Demos
 				_smokeTrailsColorEffector.colorMask = _smokeTrailsColor;
 				_smokeTrailsColorEffector.keyframes.Clear ();
 				_smokeTrailsColorEffector.keyframes.Add(0f, new Color4(1f, 1f, 1f, 1f));
-				_smokeTrailsColorEffector.keyframes.Add(_smokeTrailsDuration, new Color4(0.3f, 0.3f, 0.3f, 0f));
+				_smokeTrailsColorEffector.keyframes.Add(1f, new Color4(0.3f, 0.3f, 0.3f, 0f));
 
 				_smokeTrailsScaleEffector.particleLifetime = _smokeTrailsDuration;
 				_smokeTrailsScaleEffector.baseOffset = new Vector3(1f, 1f, 1f);
 				_smokeTrailsScaleEffector.keyframes.Clear ();
 				_smokeTrailsScaleEffector.keyframes.Add(0f, new Vector3(0f));
-				_smokeTrailsScaleEffector.keyframes.Add(0.5f*_smokeTrailsDuration, new Vector3(12f, 1.5f, 0f));
-				_smokeTrailsScaleEffector.keyframes.Add(_smokeTrailsDuration, new Vector3(7f, 2f, 0f));
+				_smokeTrailsScaleEffector.keyframes.Add(0.5f, new Vector3(12f, 1.5f, 0f));
+				_smokeTrailsScaleEffector.keyframes.Add(1f, new Vector3(7f, 2f, 0f));
 			}
 
 			protected void emitSmokeTrails(Vector3 position, float intensity)
@@ -579,14 +579,14 @@ namespace SimpleScene.Demos
 				_roundSparksColorEffector.particleLifetime = _roundSparksDuration;
 				_roundSparksColorEffector.colorMask = _roundSparksColor;
 				_roundSparksColorEffector.keyframes.Clear ();
-				_roundSparksColorEffector.keyframes.Add (0.1f*_roundSparksDuration, new Color4 (1f, 1f, 1f, 1f));
-				_roundSparksColorEffector.keyframes.Add (_roundSparksDuration, new Color4 (1f, 1f, 1f, 0f));
+				_roundSparksColorEffector.keyframes.Add (0.1f, new Color4 (1f, 1f, 1f, 1f));
+				_roundSparksColorEffector.keyframes.Add (1f, new Color4 (1f, 1f, 1f, 0f));
 
 				_roundSparksScaleEffector.particleLifetime = _roundSparksDuration;
 				_roundSparksScaleEffector.keyframes.Clear ();
 				_roundSparksScaleEffector.keyframes.Add (0f, 1f);
-				_roundSparksScaleEffector.keyframes.Add (0.25f * _roundSparksDuration, 3f);
-				_roundSparksScaleEffector.keyframes.Add (_roundSparksDuration, 6f);
+				_roundSparksScaleEffector.keyframes.Add (0.25f, 3f);
+				_roundSparksScaleEffector.keyframes.Add (1f, 6f);
 			}
 
 			protected void emitRoundSparks(Vector3 position, float intensity)
@@ -617,8 +617,8 @@ namespace SimpleScene.Demos
 				_debrisColorEffector.particleLifetime = _debrisDuration;
 				_debrisColorEffector.keyframes.Clear();
 				_debrisColorEffector.keyframes.Add (0f, _debrisColorStart);
-				_debrisColorEffector.keyframes.Add (0.3f*_debrisDuration, _debrisColorEnd);
-				_debrisColorEffector.keyframes.Add (_debrisDuration, debrisColorFinal);
+				_debrisColorEffector.keyframes.Add (0.3f, _debrisColorEnd);
+				_debrisColorEffector.keyframes.Add (1f, debrisColorFinal);
 			}
 
 			protected void emitDebris(Vector3 position, float intensity)
@@ -646,11 +646,11 @@ namespace SimpleScene.Demos
 				_shockwaveScaleEffector.keyframes.Add(0f, 0f);
 				_shockwaveScaleEffector.keyframes.Add(_shockwaveDuration, 7f);
 
-				_shockwaveColorEffector.particleLifetime = _shockwaveDuration;
 				_shockwaveColorEffector.colorMask = _shockwaveColor;
+                _shockwaveColorEffector.particleLifetime = _shockwaveDuration;
 				_shockwaveColorEffector.keyframes.Clear ();
 				_shockwaveColorEffector.keyframes.Add(0f, new Color4(1f, 1f, 1f, 1f));
-				_shockwaveColorEffector.keyframes.Add(_shockwaveDuration, new Color4(1f, 1f, 1f, 0f));
+				_shockwaveColorEffector.keyframes.Add(1f, new Color4(1f, 1f, 1f, 0f));
 			}
 
 			protected void emitShockwave(Vector3 position, float intensity)
