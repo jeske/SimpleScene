@@ -100,22 +100,30 @@ vec3 quatTransform(vec4 q, vec3 v)
 
 mat3 orientX(float angle)
 {
+    float cosine = cos(angle);
+    float sine = sin(angle);
+
     return mat3(1.0, 0.0, 0.0,
-                0, cos(angle), -sin(angle),
-                0.0, sin(angle), cos(angle));
+                0, cosine, -sine,
+                0.0, sine, cosine);
 }
 
 mat3 orientY(float angle)
 {
-    return mat3(cos(angle), 0.0, sin(angle),
+    float cosine = cos(angle);
+    float sine = sin(angle);
+
+    return mat3(cosine, 0.0, sine,
                 0.0, 1.0, 0.0,
-                -sin(angle), 0.0, cos(angle));
+                -sine, 0.0, cosine);
 }
 
 mat3 orientZ(float angle)
 {
-    return mat3(cos(angle), -sin(angle), 0.0,
-                sin(angle), cos(angle), 0.0,
+    float cosine = cos(angle);
+    float sine = sin(angle);
+    return mat3(cosine, -sine, 0.0,
+                sine, cosine, 0.0,
                 0.0, 0.0, 1.0);
 }
 
