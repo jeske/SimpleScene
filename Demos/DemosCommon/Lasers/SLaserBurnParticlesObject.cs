@@ -67,6 +67,7 @@ namespace SimpleScene.Demos
         public SLaserBurnParticleSystem(int particleCapacity)
             : base(particleCapacity)
         {
+            this.simulationStep = 0.1f;
         }
 
         public void addHitSpots(SLaser laser)
