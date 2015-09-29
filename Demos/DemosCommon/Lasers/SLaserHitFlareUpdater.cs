@@ -11,7 +11,12 @@ namespace SimpleScene.Demos
     {
         public enum SpriteId : int { coronaBackground=0, coronaOverlay=1, ring1=2, ring2=3 };
 
-        protected static readonly float[] _defaultMasterScales = { 1f, 0.5f, 0.275f, 0.25f };
+        protected static readonly float[] _defaultMasterScales = { 
+            4f,     // corona background
+            0.5f,   // corona overlay
+            0.275f, // ring 1
+            0.25f   // ring 2
+        };
 
         protected static readonly RectangleF[] _defaultRects = { 
             new RectangleF(0.5f, 0f, 0.5f, 0.5f),
@@ -75,7 +80,6 @@ namespace SimpleScene.Demos
                 nearPlane.B = cameraViewProjMat3d.M24 + cameraViewProjMat3d.M23;
                 nearPlane.C = cameraViewProjMat3d.M34 + cameraViewProjMat3d.M33;
                 nearPlane.D = cameraViewProjMat3d.M44 + cameraViewProjMat3d.M43;
-                nearPlane.Normalize();
 
                 if (nearPlane.intersects(ref ray, out intersectPt3d)) {
                     float lengthToIntersectionSq = (intersectPt3d - beam.startPos).LengthSquared;

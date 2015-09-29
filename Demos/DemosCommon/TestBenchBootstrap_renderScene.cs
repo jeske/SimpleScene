@@ -54,7 +54,7 @@ namespace SimpleScene.Demos
 
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
-			float nearPlane = 1.0f;
+			float nearPlane = 1f;
 			float farPlane = 5000.0f;
 
 			// setup the inverse matrix of the active camera...

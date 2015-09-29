@@ -142,7 +142,7 @@ namespace SimpleScene.Demos
 
         #region screen hit flare
         public bool doScreenHitFlare = true;
-        public float hitFlareSizeMaxPx = 2000f;
+        public float hitFlareSizeMaxPx = 1000f;
         public float coronaBackgroundScale = 1f;
         public float coronaOverlayScale = 0.5f;
         public float ring1Scale = 0.275f;
