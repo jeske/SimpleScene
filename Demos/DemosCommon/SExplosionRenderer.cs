@@ -679,7 +679,7 @@ namespace SimpleScene.Demos
 				if (test2.Z < 0f) {
 					angle = -angle;
 				} 
-				_orientationX = angle;
+				_orientationX = -angle;
 			}
 
 			protected override void effectParticle (SSParticle particle, float deltaT)
@@ -694,9 +694,9 @@ namespace SimpleScene.Demos
 				float phi = (float)Math.Atan (z / xy);
 				float theta = (float)Math.Atan2 (y, x);
 
-				particle.orientation.Y = phi;
-				particle.orientation.Z = -theta;
-				particle.orientation.X = _orientationX;
+				particle.orientation.Y = -phi;
+				particle.orientation.Z = theta;
+				particle.orientation.X = -_orientationX;
 			}
 		}
 

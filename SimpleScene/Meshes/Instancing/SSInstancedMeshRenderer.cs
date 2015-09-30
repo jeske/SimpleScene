@@ -194,6 +194,7 @@ namespace SimpleScene
         {
             var mainShader = renderConfig.mainShader;
             mainShader.Activate();
+            var modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
 
             for (int i = 0; i < instanceData.activeBlockLength; i++) {
                 if (!instanceData.isValid(i))
@@ -203,12 +204,7 @@ namespace SimpleScene
                 mainShader.UniSpriteOffsetAndSize(spriteRect.X, spriteRect.Y, 
                     spriteRect.Width, spriteRect.Height);
 
-                var oriXY = instanceData.readOrientationXY(i);
-
-                Matrix4 mat = _instanceMat(i) * this.worldMat * renderConfig.invCameraViewMatrix;
-                if (float.IsNaN(oriXY.X) || float.IsNaN(oriXY.Y)) { // per-instance billboarding
-                    mat = OpenTKHelper.BillboardMatrix(ref mat);
-                }
+                Matrix4 mat = _instanceMat(i) * modelViewMat;
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref mat);
 
@@ -228,14 +224,14 @@ namespace SimpleScene
 
             var instanceMat = Matrix4.CreateScale(scale);
             if (!float.IsNaN(ori.X) && !float.IsNaN(ori.Y)) { // Not NaN -> no billboarding
-                instanceMat *= Matrix4.CreateRotationX(-ori.X) * Matrix4.CreateRotationY(-ori.Y);
+                instanceMat *= Matrix4.CreateRotationX(ori.X) * Matrix4.CreateRotationY(ori.Y);
             }
             instanceMat = instanceMat
-                * Matrix4.CreateRotationZ(-ori.Z)
+                * Matrix4.CreateRotationZ(ori.Z)
                 * Matrix4.CreateTranslation(pos);
             return instanceMat;
         }
-        
+
 		protected void _prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
             where A : struct, ISSAttributeLayout 
             where AB : SSAttributeBuffer<A>

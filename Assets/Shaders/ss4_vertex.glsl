@@ -104,8 +104,8 @@ mat3 orientX(float angle)
     float sine = sin(angle);
 
     return mat3(1.0, 0.0, 0.0,
-                0, cosine, -sine,
-                0.0, sine, cosine);
+                0.0, cosine, sine,
+                0.0, -sine, cosine);
 }
 
 mat3 orientY(float angle)
@@ -113,17 +113,17 @@ mat3 orientY(float angle)
     float cosine = cos(angle);
     float sine = sin(angle);
 
-    return mat3(cosine, 0.0, sine,
+    return mat3(cosine, 0.0, -sine,
                 0.0, 1.0, 0.0,
-                -sine, 0.0, cosine);
+                sine, 0.0, cosine);
 }
 
 mat3 orientZ(float angle)
 {
     float cosine = cos(angle);
     float sine = sin(angle);
-    return mat3(cosine, -sine, 0.0,
-                sine, cosine, 0.0,
+    return mat3(cosine, sine, 0.0,
+                -sine, cosine, 0.0,
                 0.0, 0.0, 1.0);
 }
 
