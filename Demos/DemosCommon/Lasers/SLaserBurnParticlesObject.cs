@@ -40,7 +40,7 @@ namespace SimpleScene.Demos
             base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             base.ShininessMatColor = 0f;
 
-            var tex = texture ?? SLaserBurnParticleSystem.getDefaultTexture();
+            var tex = texture ?? SLaserParameters.laserBurnParticlesDefaultTexture();
             base.textureMaterial = new SSTextureMaterial(null, null, tex, null);
         }
     }
@@ -53,12 +53,6 @@ namespace SimpleScene.Demos
     {
         // TODO consider making this a particle system for all laser-related 3d rendering
         // including middle section
-
-        public static SSTexture getDefaultTexture()
-        {
-            return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-            //return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
-        }
 
         protected readonly Dictionary<SLaser, HitSpotData> _hitSpots 
             = new Dictionary<SLaser, HitSpotData>();

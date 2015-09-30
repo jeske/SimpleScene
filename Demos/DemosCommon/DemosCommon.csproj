@@ -122,6 +122,11 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox.png" />
     <None Include="Assets\skybox\skybox_readme.txt" />
+    <None Include="Assets\lasers\laserEmissionSprites.png" />
+    <None Include="Assets\lasers\laserMiddle.txt" />
+    <None Include="Assets\lasers\middleBackground.png" />
+    <None Include="Assets\lasers\middleInterference.png" />
+    <None Include="Assets\lasers\middleOverlay.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">

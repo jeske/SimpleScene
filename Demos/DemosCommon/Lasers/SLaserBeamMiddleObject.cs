@@ -37,13 +37,13 @@ namespace SimpleScene.Demos
 
 		#region stretched middle sprites
 		public SSTexture middleBackgroundSprite = null;
-		public SSTexture middleOverlaySprite = null;
+		public SSTexture middleOverlayTexture = null;
 		protected SSVertex_PosTex[] _middleVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _middleMesh;
 		#endregion
 
 		#region interference sprite
-		public SSTexture interferenceSprite = null;
+		public SSTexture interferenceTexture = null;
 		protected SSVertex_PosTex[] _interferenceVertices;
 		protected SSIndexedMesh<SSVertex_PosTex> _interferenceMesh;
 		#endregion
@@ -66,12 +66,10 @@ namespace SimpleScene.Demos
 
 		public SLaserBeamMiddleObject (SLaser laser,
 									   int beamId,
-									   SSScene cameraScene = null,
-								       SSTexture middleBackgroundSprite = null,
-									   SSTexture middleOverlaySprite = null,
-									   SSTexture[] flareBackgroundSprites = null,
-									   SSTexture[] flareOverlaySprites = null,
-									   SSTexture inteferenceSprite = null)
+									   SSScene cameraScene,
+								       SSTexture middleBackgroundTexture,
+									   SSTexture middleOverlayTexture,
+                                       SSTexture inteferenceTexture)
 		{
 			this._laser = laser;
 			this._beamId = beamId;
@@ -93,12 +91,9 @@ namespace SimpleScene.Demos
             this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
 
 			var ctx = new SSAssetManager.Context ("./lasers");
-			this.middleBackgroundSprite = middleBackgroundSprite 
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleBackground.png");
-			this.middleOverlaySprite = middleOverlaySprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha>(ctx, "middleOverlay.png");
-			this.interferenceSprite = interferenceSprite
-				?? SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, "interference.png");
+            this.middleBackgroundSprite = middleBackgroundTexture;
+            this.middleOverlayTexture = middleOverlayTexture;
+            this.interferenceTexture = inteferenceTexture;
 
 			// initialize non-changing vertex data
 			_initMiddleMesh ();
@@ -136,13 +131,13 @@ namespace SimpleScene.Demos
 			//Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
 			float laserLength = diff.LengthFast;
-			float middleWidth = laserParams.beamBackgroundWidth * _laser.envelopeIntensity;
+			float middleWidth = laserParams.middleBackgroundWidth * _laser.envelopeIntensity;
 
 			Vector3 cameraDir = Vector3.Transform(
 				-Vector3.UnitZ, _cameraScene.renderConfig.invCameraViewMatrix).Normalized();
 			float dot = Vector3.Dot (cameraDir, _laser.direction());
 			dot = Math.Max (dot, 0f);
-			float interferenceWidth = middleWidth * laserParams.interferenceScale;
+			float interferenceWidth = middleWidth * laserParams.middleInterferenceScale;
 
 			GL.Color4 (1f, 1f, 1f, beam.periodicIntensity * beam.periodicIntensity);
 
@@ -166,9 +161,9 @@ namespace SimpleScene.Demos
 			#endif
 			#if true
 			// stretched middle overlay sprite
-			if (middleOverlaySprite != null) {
+			if (middleOverlayTexture != null) {
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.overlayColor);
-				GL.BindTexture (TextureTarget.Texture2D, middleOverlaySprite.TextureID);
+				GL.BindTexture (TextureTarget.Texture2D, middleOverlayTexture.TextureID);
 
 				_middleMesh.renderMesh (renderConfig);
 
@@ -182,13 +177,13 @@ namespace SimpleScene.Demos
 			#endif
 			#if true
 			// interference sprite with a moving U-coordinate offset
-			if (laserParams.interferenceScale > 0f && interferenceSprite != null)
+			if (laserParams.middleInterferenceScale > 0f && interferenceTexture != null)
 			{
                 _updateInterfernenceVertices(laserLength, interferenceWidth);
 
-				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.interferenceColor);
+				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.middleInterferenceColor);
 				//GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
-				GL.BindTexture(TextureTarget.Texture2D, interferenceSprite.TextureID);
+				GL.BindTexture(TextureTarget.Texture2D, interferenceTexture.TextureID);
                 var scaleMat = Matrix4.CreateScale(laserLength + middleWidth/2f, interferenceWidth, 1f);
 
                 foreach (var oriX in xOrientationPresets) {
@@ -202,7 +197,7 @@ namespace SimpleScene.Demos
 
 		protected void _initMiddleMesh()
 		{
-			float padding = _laser.parameters.laserSpritePadding;
+			float padding = _laser.parameters.middleSpritePadding;
 			_middleVertices = new SSVertex_PosTex[8];
 			_middleVertices [0].TexCoord = new Vector2 (padding, padding);
 			_middleVertices [1].TexCoord = new Vector2 (padding, 1f-padding);

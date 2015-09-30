@@ -34,14 +34,6 @@ namespace SimpleScene.Demos
             this._overlayRect = overlayRect;
         }
 
-        public SLaserEmissionFlareUpdater(
-            SLaser laser, int beamId, 
-            /*SSObjectOcclusionQueuery occFlat,*/ SSObjectOcclusionQueuery occPersp
-        ) 
-            : this(laser, beamId, /*occFlat,*/ occPersp,
-                new RectangleF(0f, 0.5f, 0.5f, 0.5f), new RectangleF(0f, 0.5f, 0.5f, 0.5f))
-        { }
-
         public void setupSprites(SInstancedSpriteData instanceData)
         {
             _backgroundSpriteIdx = instanceData.requestSlot();
@@ -85,7 +77,7 @@ namespace SimpleScene.Demos
             // would be displayed
             Matrix4 viewInverted = camera3dView.Inverted();
             Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
-            Vector3 occRightMost = _occDiskObj.Pos + viewRight * laserParams.beamBackgroundWidth;
+            Vector3 occRightMost = _occDiskObj.Pos + viewRight * laserParams.middleBackgroundWidth;
             Vector2 occRightMostPt = OpenTKHelper.WorldToScreen(occRightMost, 
                                          ref camera3dViewProjMat, ref screenClientRect);
             Vector2 occCenterPt = OpenTKHelper.WorldToScreen(_occDiskObj.Pos, 
@@ -105,7 +97,7 @@ namespace SimpleScene.Demos
             // color intensity: depends on the dot product between to-camera vector and beam direction;
             // also depends on how of the occlusion disk area is visible
             float maxScreenArea = (float)Math.PI 
-                * laserParams.occDiskRadiusPx * laserParams.occDiskRadiusPx;
+                * laserParams.emissionOccDiskRadiusPx * laserParams.emissionOccDiskRadiusPx;
             float occDiskAreaRatio = occDiskScreenAreaUsed / maxScreenArea;
             //System.Console.WriteLine("occDiskAreaRatio = " + occDiskAreaRatio);
 

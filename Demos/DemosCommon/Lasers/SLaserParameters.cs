@@ -26,41 +26,6 @@ namespace SimpleScene.Demos
         public Color4 overlayColor = Color4.White;
         #endregion
 
-        #region middle sprites
-        /// <summary>
-        /// padding for the start+middle stretched sprite. Mid section vertices gets streched 
-        /// beyond this padding.
-        /// </summary>
-        public float laserSpritePadding = 0.05f;
-
-        /// <summary>
-        /// width of the middle section sprite (in world units)
-        /// </summary>
-        public float beamBackgroundWidth = 2f;
-        #endregion
-
-        #region interference sprite
-        public Color4 interferenceColor = Color4.White;
-
-        /// <summary>
-        /// Interference sprite will be drawn X times thicker than the start+middle section width
-        /// </summary>
-        public float interferenceScale = 2.0f;
-
-        /// <summary>
-        /// Describes the value of the U-coordinate offset for the interference as a function of time
-        /// </summary>
-        public PeriodicFunction interferenceUFunc = (t) => -0.75f * t;
-        #endregion
-
-        #region start-only radial sprites
-        /// <summary>
-        /// start-only radial emission sprites will be drawn x times larger than the middle section width
-        /// when at full intensity (looking straight into the laser)
-        /// </summary>
-        public float startPointScale = 1f;
-        #endregion
-
         #region periodic intensity      
         /// <summary>
         /// Intensity as a function of period fraction t (from 0 to 1)
@@ -131,28 +96,72 @@ namespace SimpleScene.Demos
         public float beamDestSpread = 0f;
         #endregion
 
+        #region middle cross-beam section
+        public SSTexture middleBackgroundTexture
+            = SSAssetManager.GetInstance<SSTextureWithAlpha>("lasers", "middleBackground.png");
+        public SSTexture middleOverlayTexture 
+            = SSAssetManager.GetInstance<SSTextureWithAlpha>("lasers", "middleOverlay.png");
+        public SSTexture middleInterferenceTexture
+            = SSAssetManager.GetInstance<SSTextureWithAlpha> ("lasers", "middleInterference.png");
+
+        /// <summary>
+        /// padding for the start+middle stretched sprite. Mid section vertices gets streched 
+        /// beyond this padding.
+        /// </summary>
+        public float middleSpritePadding = 0.05f;
+
+        /// <summary>
+        /// width of the middle section sprite (in world units)
+        /// </summary>
+        public float middleBackgroundWidth = 2f;
+        #endregion
+
+        #region interference sprite
+        public Color4 middleInterferenceColor = Color4.White;
+
+        /// <summary>
+        /// Interference sprite will be drawn X times thicker than the start+middle section width
+        /// </summary>
+        public float middleInterferenceScale = 2.0f;
+
+        /// <summary>
+        /// Describes the value of the U-coordinate offset for the interference as a function of time
+        /// </summary>
+        public PeriodicFunction middleInterferenceUFunc = (t) => -0.75f * t;
+        #endregion
+
         #region emission flare 
         public bool doEmissionFlare = true;
+
+        public SSTexture emissionSpritesTexture =
+            SSAssetManager.GetInstance<SSTextureWithAlpha>("lasers", "laserEmissionSprites.png"); 
+        public RectangleF emissionBackgroundRect = new RectangleF(0f, 0.5f, 0.5f, 0.5f);
+        public RectangleF emissionOverlayRect = new RectangleF(0f, 0.5f, 0.5f, 0.5f);
+
         public float emissionFlareScreenSizeMin = 25f;
-        public float occDiskDirOffset = 0.25f;
-        public float occDiskRadiusPx = 15f;
-        public float occDisksAlpha = 0.001f; 
+        public float emissionOccDiskDirOffset = 0.25f;
+        public float emissionOccDiskRadiusPx = 15f;
+        public float emissionOccDisksAlpha = 0.001f; 
         //public float occDisksAlpha = 0.3f; // for debugging set to a higher fraction
         #endregion
 
         #region screen hit flare
         public bool doScreenHitFlare = true;
         public float hitFlareSizeMaxPx = 1000f;
-        public float coronaBackgroundScale = 1f;
-        public float coronaOverlayScale = 0.5f;
-        public float ring1Scale = 0.275f;
-        public float ring2Scale = 0.25f;
+        public float hitFlareCoronaBackgroundScale = 1f;
+        public float hitFlareCoronaOverlayScale = 0.5f;
+        public float hitFlareRing1Scale = 0.275f;
+        public float hitFlareRing2Scale = 0.25f;
         #endregion
 
         #region particle system for burn effects
-        /// <summary>
-        /// Default locations of flame sprites in fig7.png
-        /// </summary>
+        public bool doLaserBurn = true;
+
+        public static SSTexture laserBurnParticlesDefaultTexture() 
+        {
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
+        }
+
         public RectangleF[] flameSmokeSpriteRects = {
             new RectangleF(0f,    0f,    0.25f, 0.25f),
             new RectangleF(0f,    0.25f, 0.25f, 0.25f),
@@ -188,9 +197,6 @@ namespace SimpleScene.Demos
         public float flashLifetime = 1f;
         #endregion
 
-        // TODO add sprites from hitflare.png
-        public SSTexture sprite2dEffectsTexture =
-            SSAssetManager.GetInstance<SSTextureWithAlpha>("./lasers", "laser2dSprites.png"); 
         //SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "uv_checker large.png");
     }
 }

@@ -112,7 +112,7 @@ namespace TestBench2
 
 			laserParams.backgroundColor = Color4Helper.RandomDebugColor ();
 			laserParams.overlayColor = Color4.White;
-			laserParams.interferenceColor = Color4.White;
+			laserParams.middleInterferenceColor = Color4.White;
 
 			var driftScale = (float)rand.NextDouble() * 0.1f;
 			laserParams.driftModulationFunc = (t) => driftScale;

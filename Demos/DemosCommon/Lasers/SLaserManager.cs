@@ -60,7 +60,7 @@ namespace SimpleScene.Demos
 		   		     		   SSObject srcObject, SSObject dstObject)
 		{
             if (_2dEffectRenderer.textureMaterial == null) {
-                _2dEffectRenderer.textureMaterial = new SSTextureMaterial (laserParams.sprite2dEffectsTexture);
+                _2dEffectRenderer.textureMaterial = new SSTextureMaterial (laserParams.emissionSpritesTexture);
             }
 
             var newLaser = new SLaser (laserParams);
@@ -71,8 +71,11 @@ namespace SimpleScene.Demos
             var newLaserRuntime = new LaserRuntimeInfo (newLaser, _beamScene3d, _occDiskScene, _2dEffectRenderer);
 			_laserRuntimes.Add (newLaserRuntime);
 
-            _laserBurnParticles.particleSystem.addHitSpots(newLaser);
-			// debug hacks
+            if (laserParams.doLaserBurn) {
+                _laserBurnParticles.particleSystem.addHitSpots(newLaser);
+            }
+			
+            // debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
 			//newLaser.sourceTxfm = Matrix4.Identity;
 
@@ -166,7 +169,7 @@ namespace SimpleScene.Demos
 
                 if (_occDiskFlatObj != null) {
                     _occDiskFlatObj.Pos = beam.startPos 
-                        + _laser.direction() * _laser.parameters.occDiskDirOffset;
+                        + _laser.direction() * _laser.parameters.emissionOccDiskDirOffset;
 
                     _occDiskFlatObj.Orient(_laser.sourceOrient());
                 }
@@ -184,28 +187,33 @@ namespace SimpleScene.Demos
                     _occDiskFlatObj.renderState.depthWrite = false;
                     _occDiskFlatObj.renderState.doBillboarding = false;
                     _occDiskFlatObj.renderState.matchScaleToScreenPixels = true;
-                    _occDiskFlatObj.Scale = new Vector3 (_laser.parameters.occDiskRadiusPx);
+                    _occDiskFlatObj.Scale = new Vector3 (_laser.parameters.emissionOccDiskRadiusPx);
                     var color = _laser.parameters.backgroundColor; // debugging
-                    color.A = _laser.parameters.occDisksAlpha;
+                    color.A = _laser.parameters.emissionOccDisksAlpha;
                     _occDiskFlatObj.MainColor = color;
                     _occDiskFlatObj.Name = "occlusion disk object for laser beam's emission flare";
                     _occDiskScene.AddObject(_occDiskFlatObj);
                 }
 
                 if (_beamObj == null) {
-                    _beamObj = new SLaserBeamMiddleObject (_laser, _beamId, _beamScene);
+                    _beamObj = new SLaserBeamMiddleObject (
+                        _laser, _beamId, _beamScene,
+                        laserParams.middleBackgroundTexture, laserParams.middleOverlayTexture,
+                        laserParams.middleInterferenceTexture);
                     _beamObj.Name = "laser beam middle section object";
                     _beamScene.AddObject(_beamObj);
                 }
 
                 if (laserParams.doEmissionFlare && _emissionFlareUpdater == null) {
-                    _emissionFlareUpdater = new SLaserEmissionFlareUpdater (_laser, _beamId, _occDiskFlatObj);
+                    _emissionFlareUpdater = new SLaserEmissionFlareUpdater (
+                        _laser, _beamId, _occDiskFlatObj, 
+                        laserParams.emissionBackgroundRect, laserParams.emissionOverlayRect);
                     _sprite2dRenderer.addUpdater(_emissionFlareUpdater);
                 }
 
                 if (laserParams.doScreenHitFlare && _hitFlareUpdater == null) {
-                    float[] masterScales = { laserParams.coronaOverlayScale, laserParams.coronaOverlayScale,
-                                             laserParams.ring1Scale, laserParams.ring2Scale };
+                    float[] masterScales = { laserParams.hitFlareCoronaOverlayScale, laserParams.hitFlareCoronaOverlayScale,
+                                             laserParams.hitFlareRing1Scale, laserParams.hitFlareRing2Scale };
                     _hitFlareUpdater = new SLaserHitFlareUpdater (_laser, _beamId, _beamScene, null, masterScales);
                     _sprite2dRenderer.addUpdater(_hitFlareUpdater);
                 }

@@ -217,8 +217,8 @@ namespace SimpleScene.Demos
 			var laserParams = _laser.parameters;
 
 			// interference sprite U coordinates' offset
-			if (laserParams.interferenceUFunc != null) {
-				_interferenceOffset = laserParams.interferenceUFunc (periodicT);
+			if (laserParams.middleInterferenceUFunc != null) {
+				_interferenceOffset = laserParams.middleInterferenceUFunc (periodicT);
 			} else {
 				_interferenceOffset = 0f;
 			}
