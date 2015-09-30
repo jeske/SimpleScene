@@ -42,7 +42,8 @@ namespace SimpleScene.Demos
             //_2dEffectRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             _flareScene2d.AddObject(_2dEffectRenderer);
 
-            _laserBurnParticles = new SLaserBurnParticlesObject (laserBurnParticlesCapacity);
+            _laserBurnParticles = new SLaserBurnParticlesObject (
+                laserBurnParticlesCapacity, SLaserParameters.laserBurnParticlesDefaultTexture());
             _laserBurnParticles.Name = "laser manager's laser burn particle system renderer";
             //_laserBurnParticles.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             _beamScene3d.AddObject(_laserBurnParticles);
