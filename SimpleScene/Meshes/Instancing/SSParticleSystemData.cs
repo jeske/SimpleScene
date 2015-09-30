@@ -230,15 +230,43 @@ namespace SimpleScene
 		public virtual void addEffector(SSParticleEffector effector)
         {
             effector.reset();
+            if (effector.preAddHook != null) {
+                for (int i = 0; i < _activeBlockLength; ++i) {
+                    if (isAlive(i)) {
+                        ushort effectorMask = (ushort)((int)readData (_effectorMasksHigh, i) << 8
+                                                     | (int)readData (_effectorMasksLow, i));
+                        if (effector.effectorMaskCheck(effectorMask)) {
+                            SSParticle particle = new SSParticle ();
+                            readParticle(i, particle);
+                            effector.preAddHook(particle);
+                            writeParticle(i, particle);
+                        }
+                    }
+                }
+            }
             _effectors.Add(effector);
         }
 
         public virtual void removeEffector(SSParticleEffector effector)
         {
+            if (effector.preRemoveHook != null) {
+                for (int i = 0; i < _activeBlockLength; ++i) {
+                    if (isAlive(i)) {
+                        ushort effectorMask = (ushort)((int)readData (_effectorMasksHigh, i) << 8
+                                                     | (int)readData (_effectorMasksLow, i));
+                        if (effector.effectorMaskCheck(effectorMask)) {
+                            SSParticle particle = new SSParticle ();
+                            readParticle(i, particle);
+                            effector.preRemoveHook(particle);
+                            writeParticle(i, particle);
+                        }
+                    }
+                }
+            }
             _effectors.Remove(effector);
         }
 
-        public void sortByDepth(ref Matrix4 viewMatrix)
+        public override void sortByDepth(ref Matrix4 viewMatrix)
         {
             if (_numParticles == 0) return;
 
