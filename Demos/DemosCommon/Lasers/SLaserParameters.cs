@@ -164,8 +164,8 @@ namespace SimpleScene.Demos
         public int flameSmokeParticlesPerEmissionMin = 1;
         public int flameSmokeParticlesPerEmissionMax = 1;
         public float flameSmokeEmitFrequency = 10f;
-        public float flameSmokeScaleMin = 1.2f;
-        public float flameSmokeScaleMax = 2.2f;
+        public float flameSmokeScaleMin = 1.5f;
+        public float flameSmokeScaleMax = 2.5f;
         public float flameSmokeLifetime = 2.5f;
         public float flameSmokeRadialVelocityMin = 0.25f;
         public float flameSmokeRadialVelocityMax = 0.5f;
@@ -183,8 +183,8 @@ namespace SimpleScene.Demos
         public int flashParticlesPerEmissionMin = 1;
         public int flashParticlesPerEmissionMax = 1;
         public float flashEmitFrequency = 10f;
-        public float flashScaleMin = 1.5f;
-        public float flashScaleMax = 2.5f;
+        public float flashScaleMin = 1f;
+        public float flashScaleMax = 2f;
         public float flashLifetime = 1f;
         #endregion
 

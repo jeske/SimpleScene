@@ -62,8 +62,10 @@ namespace SimpleScene.Demos
 
         protected readonly Dictionary<SLaser, HitSpotData> _hitSpots 
             = new Dictionary<SLaser, HitSpotData>();
+        protected readonly SSColorKeyframesEffector _globalSmokeDimmerEffector;
+        protected readonly SSMasterScaleKeyframesEffector _globalSmokeScaleEffector;
+
         protected ushort _nextEffectorMask = 2;
-        protected SSColorKeyframesEffector _globalSmokeDimmerEffector;
 
         public SLaserBurnParticleSystem(int particleCapacity)
             : base(particleCapacity)
@@ -72,7 +74,7 @@ namespace SimpleScene.Demos
 
             // global flame/smoke effector to dim smoke particles of already-released laser hit spots
             _globalSmokeDimmerEffector = new SSColorKeyframesEffector ();
-            _globalSmokeDimmerEffector.effectorMask = 0;
+            _globalSmokeDimmerEffector.effectorMask = 1;
             _globalSmokeDimmerEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
             _globalSmokeDimmerEffector.particleLifetime = 0f;
             _globalSmokeDimmerEffector.colorMask = Color4.LightGray;
@@ -81,11 +83,20 @@ namespace SimpleScene.Demos
             _globalSmokeDimmerEffector.keyframes.Add(0.4f, new Color4 (0f, 0f, 0f, 1f));
             _globalSmokeDimmerEffector.keyframes.Add(1f, new Color4 (0f, 0f, 0f, 0f));
             addEffector(_globalSmokeDimmerEffector);
+
+            _globalSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
+            _globalSmokeScaleEffector.effectorMask = 0x1; // all smoke
+            _globalSmokeScaleEffector.maskMatchFunction = SSParticleEffector.MatchFunction.And; // all smoke
+            _globalSmokeScaleEffector.keyframes.Clear ();
+            _globalSmokeScaleEffector.keyframes.Add (0f, 0.1f);
+            _globalSmokeScaleEffector.keyframes.Add (0.25f, 1f);
+            _globalSmokeScaleEffector.keyframes.Add (1f, 1.2f);
+            addEffector(_globalSmokeScaleEffector);
         }
 
         public void addHitSpots(SLaser laser)
         {
-            var newHitSpot = new HitSpotData (laser, _nextEffectorMask, (ushort)(_nextEffectorMask + 1));
+            var newHitSpot = new HitSpotData (laser, (ushort)(_nextEffectorMask + 1), _nextEffectorMask);
             _nextEffectorMask += 2;
             if (_nextEffectorMask == 0) { // 0 is reserved for the global smoke dimmer
                 _nextEffectorMask = 2;
@@ -98,11 +109,10 @@ namespace SimpleScene.Demos
                 base.addEffector(effector);
             }
 
-            // update global smoke dim effector with particle lifetime
+            // update global smoke smoke effectors with particle lifetime
             float newFlameSmokeDuration = laser.parameters.flameSmokeLifetime;
-            if (newFlameSmokeDuration != _globalSmokeDimmerEffector.particleLifetime) {
-                _globalSmokeDimmerEffector.particleLifetime = newFlameSmokeDuration;
-            }
+            _globalSmokeDimmerEffector.particleLifetime = newFlameSmokeDuration;
+            _globalSmokeScaleEffector.particleLifetime = newFlameSmokeDuration;
         }
 
         public void removeHitSpots(SLaser laser)
@@ -157,8 +167,8 @@ namespace SimpleScene.Demos
                         newFlameSmokeEmitter.phiMax = (float)Math.PI/2f;
                         newFlameSmokeEmitter.spriteRectangles = laserParams.flameSmokeSpriteRects;
                         newFlameSmokeEmitter.emissionInterval = 1f / laserParams.flameSmokeEmitFrequency;
-                        newFlameSmokeEmitter.masterScaleMin = laserParams.flameSmokeScaleMin;
-                        newFlameSmokeEmitter.masterScaleMax = laserParams.flameSmokeScaleMax;
+                        newFlameSmokeEmitter.componentScaleMin = new Vector3(laserParams.flameSmokeScaleMin);
+                        newFlameSmokeEmitter.componentScaleMax = new Vector3(laserParams.flameSmokeScaleMax);
                         newFlameSmokeEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         newFlameSmokeEmitter.life = laserParams.flameSmokeLifetime;
                         newFlameSmokeEmitter.velocityMagnitudeMin = laserParams.flameSmokeRadialVelocityMin;
@@ -198,6 +208,7 @@ namespace SimpleScene.Demos
                     // laser-specific flash effector
                     _flashColorEffector = new SSColorKeyframesEffector ();
                     _flashColorEffector.effectorMask = flashEffectorMask;
+                    _flashColorEffector.preRemoveHook = _releaseFlashParticle;
                     _flashColorEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
                     _flashColorEffector.keyframes.Clear();
                     _flashColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 0.5f));
@@ -252,8 +263,13 @@ namespace SimpleScene.Demos
 
             protected void _releaseSmokeParticle(SSParticle particle)
             {
-                particle.effectorMask = 0; // mark to be controlled by the global smoke dimming effector
+                particle.effectorMask = 1; // mark to be controlled by the global smoke dimming effector
                 particle.life = Math.Min(particle.life, 1.5f);
+            }
+
+            protected void _releaseFlashParticle(SSParticle particle)
+            {
+                particle.life = 0.1f;
             }
         }
     }
