@@ -85,7 +85,6 @@ namespace SimpleScene.Demos
 			#if true
 			scene.renderConfig.projectionMatrix = mainSceneProj;
 			scene.renderConfig.invCameraViewMatrix = mainSceneView;
-
 			scene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
 			#endif
 		}
@@ -108,7 +107,6 @@ namespace SimpleScene.Demos
 				environmentScene.renderConfig.projectionMatrix 
 				    = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
 				environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
-
 				environmentScene.Render ();
 			}
 			/////////////////////////////////////////
@@ -116,7 +114,6 @@ namespace SimpleScene.Demos
 			{
 				scene.renderConfig.invCameraViewMatrix = mainSceneView;
 				scene.renderConfig.projectionMatrix = mainSceneProj;
-                //scene.renderConfig.renderBoundingSpheresLines = true;
 				scene.Render ();
 			}
 
