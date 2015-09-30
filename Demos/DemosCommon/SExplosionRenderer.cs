@@ -12,7 +12,7 @@ namespace SimpleScene.Demos
 {
 	public class SExplosionRenderer : SSInstancedMeshRenderer
 	{
-		new public SExplosionSystem particleSystem {
+		public SExplosionSystem particleSystem {
 			get { return base.instanceData as SExplosionSystem; }
 		}
 

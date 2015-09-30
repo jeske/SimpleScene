@@ -9,7 +9,7 @@ namespace SimpleScene.Demos
 {
     public class SLaserBurnParticlesObject : SSInstancedMeshRenderer
     {
-        public new SLaserBurnParticleSystem particleSystem {
+        public  SLaserBurnParticleSystem particleSystem {
             get { return base.instanceData as SLaserBurnParticleSystem; }
         }
 
@@ -40,8 +40,7 @@ namespace SimpleScene.Demos
             base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             base.ShininessMatColor = 0f;
 
-            var tex = texture ?? SLaserParameters.laserBurnParticlesDefaultTexture();
-            base.textureMaterial = new SSTextureMaterial(null, null, tex, null);
+            base.textureMaterial = new SSTextureMaterial(null, null, texture, null);
         }
     }
 
