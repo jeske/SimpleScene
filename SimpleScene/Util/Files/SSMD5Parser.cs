@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using OpenTK;
@@ -56,7 +57,7 @@ namespace SimpleScene
 				string[] words = line.Split (_wordDelimeters);
 				for (int n = 0; n < words.Length; ++n) {
 					if (words [n].Length > 0) {
-						floats [numSoFar++] = (float)Convert.ToDouble (words [n]);
+						floats [numSoFar++] = (float)Convert.ToDouble (words [n], CultureInfo.InvariantCulture);
 					}
 				}
 			}

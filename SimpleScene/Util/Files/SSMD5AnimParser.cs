@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using OpenTK;
 
@@ -123,12 +124,12 @@ namespace SimpleScene
 				SSMD5Parser._parClose
 			);
 			SSAABB ret;
-			ret.Min.X = (float)Convert.ToDouble (matches [1].Value);
-			ret.Min.Y = (float)Convert.ToDouble (matches [2].Value);
-			ret.Min.Z = (float)Convert.ToDouble (matches [3].Value);
-			ret.Max.X = (float)Convert.ToDouble (matches [6].Value);
-			ret.Max.Y = (float)Convert.ToDouble (matches [7].Value);
-			ret.Max.Z = (float)Convert.ToDouble (matches [8].Value);
+			ret.Min.X = (float)Convert.ToDouble (matches [1].Value, CultureInfo.InvariantCulture);
+			ret.Min.Y = (float)Convert.ToDouble (matches [2].Value, CultureInfo.InvariantCulture);
+			ret.Min.Z = (float)Convert.ToDouble (matches [3].Value, CultureInfo.InvariantCulture);
+			ret.Max.X = (float)Convert.ToDouble (matches [6].Value, CultureInfo.InvariantCulture);
+			ret.Max.Y = (float)Convert.ToDouble (matches [7].Value, CultureInfo.InvariantCulture);
+			ret.Max.Z = (float)Convert.ToDouble (matches [8].Value, CultureInfo.InvariantCulture);
 			return ret;
 		}
 
@@ -147,13 +148,13 @@ namespace SimpleScene
 					SSMD5Parser._parClose
 			);
 			SSSkeletalJointLocation loc;
-			loc.position.X = (float)Convert.ToDouble (matches [1].Value);
-			loc.position.Y = (float)Convert.ToDouble (matches [2].Value);
-			loc.position.Z = (float)Convert.ToDouble (matches [3].Value);
+			loc.position.X = (float)Convert.ToDouble (matches [1].Value, CultureInfo.InvariantCulture);
+			loc.position.Y = (float)Convert.ToDouble (matches [2].Value, CultureInfo.InvariantCulture);
+			loc.position.Z = (float)Convert.ToDouble (matches [3].Value, CultureInfo.InvariantCulture);
 			loc.orientation = new Quaternion ();
-			loc.orientation.X = (float)Convert.ToDouble (matches [6].Value);
-			loc.orientation.Y = (float)Convert.ToDouble (matches [7].Value);
-			loc.orientation.Z = (float)Convert.ToDouble (matches [8].Value);
+			loc.orientation.X = (float)Convert.ToDouble (matches [6].Value, CultureInfo.InvariantCulture);
+			loc.orientation.Y = (float)Convert.ToDouble (matches [7].Value, CultureInfo.InvariantCulture);
+			loc.orientation.Z = (float)Convert.ToDouble (matches [8].Value, CultureInfo.InvariantCulture);
 			loc.computeQuatW ();
 			return loc;
 		}
