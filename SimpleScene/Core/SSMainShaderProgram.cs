@@ -43,6 +43,7 @@ namespace SimpleScene
         private readonly int u_ambiTexEnabled;
         private readonly int u_bumpTexEnabled;
 
+        private readonly int u_receivesShadow;
         private readonly int u_numShadowMaps;
         private readonly int u_shadowMapTexture;
 		private readonly int u_shadowMapVPs;
@@ -78,6 +79,10 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
+        public bool ReceivesShadow {
+            set { assertActive(); GL.Uniform1(u_receivesShadow, value ? 1 : 0); }
+        }
+
         public int UniNumShadowMaps {
             set { assertActive(); GL.Uniform1(u_numShadowMaps, value); }
         }
@@ -99,7 +104,7 @@ namespace SimpleScene
 			int count=0;
 			Activate ();
             foreach (var light in lights) {
-                if (light.ShadowMap != null) {
+                if (light.ShadowMap != null) {  
                     // TODO: multiple lights with shadowmaps?
                     if (count >= SSShadowMapBase.c_maxNumberOfShadowMaps) {
                         throw new Exception ("Unsupported number of shadow maps: " + count);
@@ -211,7 +216,11 @@ namespace SimpleScene
 
 		public void SetupTextures(SSTextureMaterial texInfo)
 		{
-			SetupTextures (texInfo.diffuseTex, texInfo.specularTex, texInfo.ambientTex, texInfo.bumpMapTex);
+            if (texInfo == null) {
+                SetupTextures();
+            } else {
+                SetupTextures(texInfo.diffuseTex, texInfo.specularTex, texInfo.ambientTex, texInfo.bumpMapTex);
+            }
 		}
 
 		public SSMainShaderProgram (string preprocessorDefs = null)
@@ -257,6 +266,7 @@ namespace SimpleScene
             u_animateSecondsOffset = getUniLoc("animateSecondsOffset");
             u_winScale = getUniLoc("WIN_SCALE");
             u_showWireframes = getUniLoc("showWireframes");
+            u_receivesShadow = getUniLoc("receivesShadow");
             u_numShadowMaps = getUniLoc("numShadowMaps");
             u_shadowMapTexture = getUniLoc("shadowMapTexture");
             u_poissonSamplingEnabled = getUniLoc("poissonSamplingEnabled");

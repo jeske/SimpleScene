@@ -82,6 +82,7 @@ namespace SimpleScene
             // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
+
 		protected void setMaterialState(SSMainShaderProgram mainShader)
         {
             GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
@@ -95,18 +96,14 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
 
 			if (textureMaterial != null) {
-				if (mainShader != null) {
-					mainShader.SetupTextures (textureMaterial);
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.Enable(EnableCap.Texture2D);
+				if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
+					// fall back onto the diffuse texture in the absence of ambient
+					SSTexture tex = textureMaterial.ambientTex ?? textureMaterial.diffuseTex;
+					GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
 				} else {
-					GL.ActiveTexture(TextureUnit.Texture0);
-					GL.Enable(EnableCap.Texture2D);
-					if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
-						// fall back onto the diffuse texture in the absence of ambient
-						SSTexture tex = textureMaterial.ambientTex ?? textureMaterial.diffuseTex;
-						GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
-					} else {
-						GL.BindTexture(TextureTarget.Texture2D, 0);
-					}
+					GL.BindTexture(TextureTarget.Texture2D, 0);
 				}
 			}
         }
@@ -115,8 +112,9 @@ namespace SimpleScene
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniObjectWorldTransform = this.worldMat;
+                pgm.ReceivesShadow = renderState.receivesShadows;
                 pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
-                pgm.SetupTextures();
+                pgm.SetupTextures(textureMaterial);
             }
         }
 
@@ -167,9 +165,7 @@ namespace SimpleScene
                     SSShaderProgram.DeactivateAll();
                 }
             } else {
-                if (renderConfig.mainShader != null) {
-                    setDefaultShaderState(renderConfig.mainShader);
-                }
+                setDefaultShaderState(renderConfig.mainShader);
 				setMaterialState(renderConfig.mainShader);
 
 				if (this.alphaBlendingEnabled) {

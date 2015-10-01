@@ -38,8 +38,9 @@ varying vec3 surfaceViewVector;
 varying vec3 surfaceNormalVector;
 
 // shadowmap related
+uniform int receivesShadow;
 uniform bool poissonSamplingEnabled;
-uniform int numPoissonSamples = 16;
+uniform int numPoissonSamples;
 uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
 const int MAX_NUM_SMAP_SPLITS = 4;
@@ -273,7 +274,7 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 	   outputColor += glowColor * glowStrength;
 
        vec4 shadowMapDebugColor;           
-       if (directionalLightIndex != -1) {
+       if (directionalLightIndex != -1 && receivesShadow != 0) {
             float litFactor = shadowMapLighting(shadowMapDebugColor);
 
             vec3 lightDir = gl_LightSource[directionalLightIndex].position.xyz;
@@ -349,7 +350,6 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
        }
 	   return outputColor;
 }
-
 
 void main()
 {

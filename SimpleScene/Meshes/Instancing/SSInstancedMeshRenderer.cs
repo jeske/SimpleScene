@@ -135,24 +135,16 @@ namespace SimpleScene
 
         protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
         {
-            // select either instance shader or instance pssm shader
-            ISSInstancableShaderProgram instanceShader = renderConfig.instanceShader;
-
-            // texture binding setup
             if (renderConfig.drawingShadowMap) {
                 renderConfig.instancePssmShader.Activate ();
                 renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
-                instanceShader = renderConfig.instancePssmShader;
-
             } else {
-                renderConfig.instanceShader.Activate();
-                renderConfig.instanceShader.UniObjectWorldTransform = this.worldMat;
-                if (base.textureMaterial != null) {
-                    renderConfig.instanceShader.SetupTextures(base.textureMaterial);
-                }
+                // texture binding and world mat setup
+                renderConfig.instanceShader.Activate ();
+                base.setDefaultShaderState(renderConfig.instanceShader);
             }
 
-            instanceShader.Activate ();
+            ISSInstancableShaderProgram instanceShader = renderConfig.ActiveInstanceShader;
 
             // prepare attribute arrays for draw
             GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
