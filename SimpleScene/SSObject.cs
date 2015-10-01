@@ -100,7 +100,7 @@ namespace SimpleScene
 				GL.Enable(EnableCap.Texture2D);
 				if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
 					// fall back onto the diffuse texture in the absence of ambient
-					SSTexture tex = textureMaterial.ambientTex ?? textureMaterial.diffuseTex;
+					SSTexture tex = textureMaterial.diffuseTex ?? textureMaterial.ambientTex;
 					GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
 				} else {
 					GL.BindTexture(TextureTarget.Texture2D, 0);
