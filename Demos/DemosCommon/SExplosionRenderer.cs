@@ -539,7 +539,7 @@ namespace SimpleScene.Demos
 			protected void configureSmokeTrails()
 			{
                 if (_doSmokeTrails) {
-                    if (_flameSmokeEmitter == null) {
+                    if (_smokeTrailsEmitter == null) {
                         _smokeTrailsEmitter = new SSRadialEmitter ();
                         _smokeTrailsColorEffector = new SSColorKeyframesEffector ();
                         _smokeTrailsScaleEffector = new SSComponentScaleKeyframeEffector ();
