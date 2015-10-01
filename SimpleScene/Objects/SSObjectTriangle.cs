@@ -16,8 +16,6 @@ namespace SimpleScene
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.Blend);
-			GL.Disable(EnableCap.Lighting);
 
 			// triangle draw...
 			GL.Begin(PrimitiveType.Triangles);
@@ -31,6 +29,8 @@ namespace SimpleScene
         public SSObjectTriangle () : base() {
 			this.localBoundingSphereCenter = Vector3.Zero;
 			this.localBoundingSphereRadius = 1f;
+            this.renderState.lighted = false;
+            this.renderState.alphaBlendingOn = false;
         }
     }
 }

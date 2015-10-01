@@ -6,6 +6,7 @@ namespace SimpleScene
     public interface ISSVertexLayout 
     {
 		void BindGlAttributes(SSRenderConfig renderConfig);
+        Vector3 _position { get; }
     }
 
     public interface ISSVertexBuffer
@@ -36,11 +37,16 @@ namespace SimpleScene
         /// <summary>
         /// Draws the arrays instanced. Attribute arrays must be prepared prior to use.
         /// </summary>
-		public void renderInstanced(SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
+		public void drawInstanced(SSRenderConfig renderConfig, int numInstances, PrimitiveType primType)
         {
 			DrawBind(renderConfig);
-            GL.DrawArraysInstanced(primType, 0, NumElements, numInstances);
+            GL.DrawArraysInstanced(primType, 0, numElements, numInstances);
             DrawUnbind();
+        }
+
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
+        {
+            DrawArrays(renderConfig, primType);
         }
 
 		public void UpdateAndDrawArrays(SSRenderConfig renderConfig, 
@@ -69,7 +75,7 @@ namespace SimpleScene
         }
 
         protected void drawPrivate(PrimitiveType primType) {
-            GL.DrawArrays(primType, 0, NumElements);
+            GL.DrawArrays(primType, 0, numElements);
         }
 	}
 }

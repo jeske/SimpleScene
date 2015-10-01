@@ -101,6 +101,10 @@ namespace SimpleScene
 			SSVertexFormatHelper.PrepareNormal (renderConfig, Size, NormalOffset);
 			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
         }
+
+        public Vector3 _position {
+            get { return Position; }
+        }
     }
 
 	///////////////////////////////////////////////////////
@@ -147,6 +151,10 @@ namespace SimpleScene
 			SSVertexFormatHelper.PrepareNormal (renderConfig, Size, NormalOffset);
 			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
 		}
+
+        public Vector3 _position {
+            get { return Position; }
+        }
 	}
 
     ///////////////////////////////////////////////////////
@@ -170,6 +178,7 @@ namespace SimpleScene
 		{
 			Type type = typeof(SSVertex_Pos);
 			Size = Marshal.SizeOf (type);
+            Size = 12;
 			PositionOffset = Marshal.OffsetOf (type, "Position");
 		}
 
@@ -185,6 +194,10 @@ namespace SimpleScene
 
 		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
+        }
+
+        public Vector3 _position {
+            get { return Position; }
         }
     }
 
@@ -216,6 +229,10 @@ namespace SimpleScene
         public void BindGlAttributes(SSRenderConfig renderConfig) {
             SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
             SSVertexFormatHelper.PrepareColor(Size, ColorOffset);
+        }
+
+        public Vector3 _position {
+            get { return Position; }
         }
     }
 
@@ -253,6 +270,10 @@ namespace SimpleScene
 		public void BindGlAttributes(SSRenderConfig renderConfig) {
 			SSVertexFormatHelper.PreparePosition (Size, PositionOffset);
 			SSVertexFormatHelper.PrepareTexCoord (renderConfig, Size, TexCoordOffset);
+        }
+
+        public Vector3 _position {
+            get { return Position; }
         }
     }
 }

@@ -7,12 +7,12 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-using Util3d;
+using SimpleScene.Util3d;
 
 
 namespace SimpleScene
 {
-	public class SSMesh_wfOBJ : SSAbstractMesh, ISSInstancable {
+    public class SSMesh_wfOBJ : SSAbstractMesh, ISSInstancable {
  
 		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
 		SSAssetManager.Context ctx;
@@ -20,17 +20,20 @@ namespace SimpleScene
 		
 	    public class SSMeshOBJSubsetData {
 			public SSTextureMaterial TextureMaterial = null;
-	
-			// raw geometry
-			public SSVertex_PosNormTexDiff[] vertices;
-			public UInt16[] indicies;
-			public UInt16[] wireframe_indicies;
 
-			// handles to OpenTK/OpenGL Vertex-buffer and index-buffer objects
-			// these are buffers stored on the videocard for higher performance rendering
-			public SSVertexBuffer<SSVertex_PosNormTexDiff> vbo;	        
-			public SSIndexBuffer ibo;
-			public SSIndexBuffer ibo_wireframe;
+            public readonly SSIndexedMesh<SSVertex_PosNormTexDiff> triangleMesh;
+            public readonly SSIndexedMesh<SSVertex_PosNormTexDiff> wireframeMesh;
+
+            public SSMeshOBJSubsetData(SSVertex_PosNormTexDiff[] vertices, 
+                                       UInt16[] indices, UInt16[] wireframeIndices)
+            {
+                SSVertexBuffer<SSVertex_PosNormTexDiff> vbo
+                    = new SSVertexBuffer<SSVertex_PosNormTexDiff>(vertices, BufferUsageHint.StaticDraw);
+                SSIndexBuffer triIbo = new SSIndexBuffer(indices, vbo, BufferUsageHint.StaticDraw);
+                SSIndexBuffer wireframeIbo = new SSIndexBuffer(wireframeIndices, vbo, BufferUsageHint.StaticDraw);
+                this.triangleMesh = new SSIndexedMesh<SSVertex_PosNormTexDiff>(vbo, triIbo);
+                this.wireframeMesh = new SSIndexedMesh<SSVertex_PosNormTexDiff>(vbo, wireframeIbo);
+            }
 		}
 
 		public override string ToString ()
@@ -54,14 +57,19 @@ namespace SimpleScene
         }
 #endregion
 
-		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
+		public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
 		{
 			base.renderMesh (renderConfig);
 			foreach (SSMeshOBJSubsetData subset in this.geometrySubsets) {
 				_renderSetupGLSL(renderConfig, renderConfig.instanceShader, subset);
-				subset.ibo.renderInstanced(renderConfig, instanceCount, primType);
+                subset.triangleMesh.drawInstanced (renderConfig, instanceCount, primType);
 			}
 		}
+
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
+        {
+            renderMesh(renderConfig);
+        }
 
 		private void _renderSetupGLSL(SSRenderConfig renderConfig, SSMainShaderProgram shaderPgm, SSMeshOBJSubsetData subset) {
 			// Step 1: setup GL rendering modes...
@@ -107,7 +115,7 @@ namespace SimpleScene
 				float maxRadSq = 0f;
 				Vector3 maxCoponent = new Vector3 (0f);
 				foreach (var subset in geometrySubsets) {
-					foreach (var vtx in subset.vertices) {
+                    foreach (var vtx in subset.triangleMesh.lastAssignedVertices) {
 						maxRadSq = Math.Max (maxRadSq, vtx.Position.LengthSquared);
 					}
 				}
@@ -119,25 +127,22 @@ namespace SimpleScene
 			get { return Vector3.Zero; }
 		}
 
-		public override bool traverseTriangles<T>(T state, traverseFn<T> fn) {
-			foreach(var subset in geometrySubsets) {
-				for(int idx=0;idx < subset.indicies.Length;idx+=3) {
-					var V1 = subset.vertices[subset.indicies[idx]].Position;
-					var V2 = subset.vertices[subset.indicies[idx+1]].Position;
-					var V3 = subset.vertices[subset.indicies[idx+2]].Position;
-					bool finished = fn(state, V1, V2, V3);
-					if (finished) { 
-						return true; 
-					}
-				}
-			}
-			return false;
-		}
+        public override bool preciseIntersect (ref SSRay localRay, out float localRayContact)
+        {
+            localRayContact = float.PositiveInfinity;
 
-
+            foreach (var subset in geometrySubsets) {
+                float contact;
+                if (subset.triangleMesh.preciseIntersect(ref localRay, out contact)
+                    && contact < localRayContact) {
+                    localRayContact = contact;
+                }
+            }
+            return localRayContact < float.PositiveInfinity;
+        }
 
 		private void _renderSendVBOTriangles(SSRenderConfig renderConfig, SSMeshOBJSubsetData subset) {
-            subset.ibo.DrawElements(renderConfig, PrimitiveType.Triangles);
+            subset.triangleMesh.drawSingle(renderConfig, PrimitiveType.Triangles);
 		}
 
 		private void _renderSendTriangles(SSMeshOBJSubsetData subset) {
@@ -148,8 +153,8 @@ namespace SimpleScene
 			//               GPU and let it do this..		
 
 			GL.Begin(PrimitiveType.Triangles);
-			foreach(var idx in subset.indicies) {
-				var vertex = subset.vertices[idx];  // retrieve the vertex
+            foreach(var idx in subset.triangleMesh.lastAssignedIndices) {
+                var vertex = subset.triangleMesh.lastAssignedVertices[idx];  // retrieve the vertex
 
 				// draw the vertex..
 				GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
@@ -165,7 +170,7 @@ namespace SimpleScene
 			//     it is customary to "bump" the wireframe slightly towards the camera to prevent this. 
             GL.LineWidth(1.5f);
             GL.Color4(0.8f, 0.5f, 0.5f, 0.5f);		
-            subset.ibo_wireframe.DrawElements(renderConfig, PrimitiveType.Lines);
+            subset.wireframeMesh.drawSingle(renderConfig, PrimitiveType.Lines);
 		}
 
 		private void _renderSendLines(SSMeshOBJSubsetData subset) {
@@ -176,10 +181,11 @@ namespace SimpleScene
 			//               GPU and let it do this..
 
 
-			for(int i=2;i<subset.indicies.Length;i+=3) {
-				var v1 = subset.vertices [subset.indicies[i - 2]];
-				var v2 = subset.vertices [subset.indicies[i - 1]];
-				var v3 = subset.vertices [subset.indicies[i]];
+            var indices = subset.wireframeMesh.lastAssignedIndices;
+            for(int i=0; i<indices.Length; i+=3) {
+                var v1 = subset.wireframeMesh.lastAssignedVertices [indices[i]];
+                var v2 = subset.wireframeMesh.lastAssignedVertices [indices[i+1]];
+                var v3 = subset.wireframeMesh.lastAssignedVertices [indices[i+2]];
 
 				// draw the vertex..
 				GL.Color3(System.Drawing.Color.FromArgb(v1.DiffuseColor));
@@ -230,12 +236,18 @@ namespace SimpleScene
         }
         
 		private SSMeshOBJSubsetData _loadMaterialSubset(SSAssetManager.Context ctx, WavefrontObjLoader wff, 
-														WavefrontObjLoader.MaterialInfoWithFaces objMatSubset) {
-            // create new mesh subset-data
-            SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData();            
+														WavefrontObjLoader.MaterialInfoWithFaces objMatSubset) 
+        {
+            // generate renderable geometry data...
+            SSVertex_PosNormTexDiff[] vertices;
+            UInt16[] triIndices, wireframeIndices;
+            VertexSoup_VertexFormatBinder.generateDrawIndexBuffer(
+                wff, out triIndices, out vertices);
+            wireframeIndices = OpenTKHelper.generateLineIndicies (triIndices);
+            SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData(
+                vertices, triIndices, wireframeIndices);
 
             // setup the material...            
-
             // load and link every texture present 
 			subsetData.TextureMaterial = new SSTextureMaterial();
             if (objMatSubset.mtl.diffuseTextureResourceName != null) {
@@ -250,21 +262,8 @@ namespace SimpleScene
 			if (objMatSubset.mtl.specularTextureResourceName != null) {
 				subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.specularTextureResourceName);
             }
-
-            // generate renderable geometry data...
-            VertexSoup_VertexFormatBinder.generateDrawIndexBuffer(wff, out subsetData.indicies, out subsetData.vertices);           
-
-			// TODO: setup VBO/IBO buffers
-			// http://www.opentk.com/doc/graphics/geometry/vertex-buffer-objects
-
-			subsetData.wireframe_indicies = OpenTKHelper.generateLineIndicies (subsetData.indicies);
-
-			subsetData.vbo = new SSVertexBuffer<SSVertex_PosNormTexDiff>(subsetData.vertices);
-			subsetData.ibo = new SSIndexBuffer(subsetData.indicies, subsetData.vbo);		
-			subsetData.ibo_wireframe = new SSIndexBuffer (subsetData.wireframe_indicies, subsetData.vbo);
-
             return subsetData;
-        }
+       }
 #endregion
     }
 }

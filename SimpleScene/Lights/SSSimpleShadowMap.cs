@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using System.Collections.Generic;
-using Util3d;
+using SimpleScene.Util3d;
 
 namespace SimpleScene
 {
@@ -80,7 +80,7 @@ namespace SimpleScene
             #if true
             // (optional) scene dependent optimization
             // Trim the light-bounding box by the shadow receivers (only in light-space x,y,maxz)
-            FrustumCuller cameraFrustum = new FrustumCuller (ref cameraViewProj);
+            SSFrustumCuller cameraFrustum = new SSFrustumCuller (ref cameraViewProj);
 
             foreach (var obj in objects) {
                 // pass through all shadow casters and receivers
@@ -141,7 +141,7 @@ namespace SimpleScene
             viewProjFromLightAlignedBB(ref resultLightBB, ref lightTransform, ref lightY,
                                        out frustumView, out frustumProj);
             Matrix4 frustumMatrix = frustumView * frustumProj;
-            FrustumCuller = new FrustumCuller (ref frustumMatrix);
+            FrustumCuller = new SSFrustumCuller (ref frustumMatrix);
         }
     }
 }

@@ -5,7 +5,7 @@ using Util.IcoSphere;
 
 namespace SimpleScene
 {
-	public class SSMeshBoundingSphere : SSAbstractMesh
+    public class SSMeshBoundingSphere : SSAbstractMesh
 	{
 		// TODO make derived from SSIndexedMesh
 

@@ -45,7 +45,7 @@ namespace TestBench0
 			droneObj.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			droneObj.ShininessMatColor = 10.0f;
 			//droneObj.EulerDegAngleOrient(-40.0f,0.0f);
-			droneObj.Pos = new OpenTK.Vector3(0,0,-15f);
+			droneObj.Pos = new OpenTK.Vector3(0f, 0f, -15f);
 			droneObj.Name = "drone 1";
 
 			// add second drone
@@ -64,36 +64,6 @@ namespace TestBench0
 			drone2Obj.Pos = new OpenTK.Vector3(0f, 0f, 0f);
 			drone2Obj.Name = "drone 2";
 
-			// setup a sun billboard object and a sun flare spriter renderer
-			{
-				var sunDisk = new SSMeshDisk ();
-				var sunBillboard = new SSObjectBillboard (sunDisk, true);
-				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
-				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
-				sunBillboard.Scale = new Vector3 (600f);
-				sunBillboard.renderState.frustumCulling = false;
-				sunBillboard.renderState.lighted = false;
-				sunBillboard.renderState.castsShadow = false;
-				sunDiskScene.AddObject(sunBillboard);
-
-				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
-				const float bigOffset = 0.8889f;
-				const float smallOffset = 0.125f;
-				RectangleF[] flareSpriteRects = {
-					new RectangleF(0f, 0f, 1f, bigOffset),
-					new RectangleF(0f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
-				};
-				float[] spriteScales = { 20f, 1f, 2f, 1f, 1f };
-				var sunFlare = new SimpleSunFlareMesh (sunDiskScene, sunBillboard, flareTex, 
-													   flareSpriteRects, spriteScales);
-				sunFlare.Scale = new Vector3 (2f);
-				sunFlare.renderState.lighted = false;
-				sunFlareScene.AddObject(sunFlare);
-			}
-
 			// instanced asteroid ring
 			//if (false)
 			{
@@ -110,17 +80,17 @@ namespace TestBench0
 				ringEmitter.particlesPerEmission = 10000;
 				//ringEmitter.ParticlesPerEmission = 10;
 
-				var ps = new SSParticleSystem(10000);
+				var ps = new SSParticleSystemData(10000);
 				ps.addEmitter(ringEmitter);
 				Console.WriteLine ("Packing 10k asteroids into a ring. This may take a second...");
 				ps.emitAll();
 				asteroidRingRenderer = new SSInstancedMeshRenderer (ps, roidmesh, BufferUsageHint.StaticDraw);
 				asteroidRingRenderer.simulateOnUpdate = false;
-				asteroidRingRenderer.depthRead = true;
-				asteroidRingRenderer.depthWrite = true;
 				asteroidRingRenderer.Name = "instanced asteroid renderer";
 				asteroidRingRenderer.renderState.castsShadow = true;
 				asteroidRingRenderer.renderState.receivesShadows = true;
+                asteroidRingRenderer.selectable = true;
+                asteroidRingRenderer.useBVHForIntersections = true;
 				scene.AddObject (asteroidRingRenderer);
 			}
 
@@ -162,11 +132,11 @@ namespace TestBench0
 				periodicExplosiveForce.explosiveForceMax = 5000f;
 				periodicExplosiveForce.effectDelay = 5f;
 				periodicExplosiveForce.centerMin = new Vector3 (-30f, -30f, -30f);
-				periodicExplosiveForce.centerMax = new Vector3 (30f, 30f, 30f);
+				periodicExplosiveForce.centerMax = new Vector3 (+30f, +30f, +30f);
 				//periodicExplosiveForce.Center = new Vector3 (10f);
 
 				// make a particle system
-				SSParticleSystem cubesPs = new SSParticleSystem (1000);
+				SSParticleSystemData cubesPs = new SSParticleSystemData (1000);
 				cubesPs.addEmitter(emitter);
 				cubesPs.addEffector (periodicExplosiveForce);
 
@@ -175,19 +145,18 @@ namespace TestBench0
 				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
 				cubesRenderer.alphaBlendingEnabled = false;
-				cubesRenderer.depthRead = true;
-				cubesRenderer.depthWrite = true;
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
 				cubesRenderer.textureMaterial = new SSTextureMaterial (null, null, tex, null);
+                cubesRenderer.selectable = true;
 				scene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 
 				// test explositons
 				//if (false)
 				{
-					SimpleExplosionRenderer aer = new SimpleExplosionRenderer (100);
+					SExplosionRenderer aer = new SExplosionRenderer (100);
 					aer.Pos = cubesRenderer.Pos;
 					scene.AddObject (aer);
 

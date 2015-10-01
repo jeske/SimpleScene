@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-using Util3d;
+using SimpleScene.Util3d;
 using OpenTK;
 
 namespace SimpleScene

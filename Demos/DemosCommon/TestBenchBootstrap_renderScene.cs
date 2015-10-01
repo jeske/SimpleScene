@@ -48,12 +48,13 @@ namespace SimpleScene.Demos
 			/////////////////////////////////////////
 			// clear the render buffer....
 			GL.DepthMask (true);
+			GL.ColorMask (true, true, true, true);
 			GL.ClearColor (0.0f, 0.0f, 0.0f, 0.0f); // black
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			float fovy = (float)Math.PI / 4;
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
-			float nearPlane = 1.0f;
+			float nearPlane = 1f;
 			float farPlane = 5000.0f;
 
 			// setup the inverse matrix of the active camera...
@@ -84,21 +85,6 @@ namespace SimpleScene.Demos
 			#if true
 			scene.renderConfig.projectionMatrix = mainSceneProj;
 			scene.renderConfig.invCameraViewMatrix = mainSceneView;
-
-			// clear some basics 
-			GL.Disable(EnableCap.Lighting);
-			GL.Disable(EnableCap.Blend);
-			GL.Disable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.Lighting);
-			GL.ShadeModel(ShadingModel.Flat);
-			GL.Disable(EnableCap.ColorMaterial);
-
-			GL.Enable(EnableCap.CullFace);
-			GL.CullFace(CullFaceMode.Front);
-			GL.Enable(EnableCap.DepthTest);
-			GL.Enable(EnableCap.DepthClamp);
-			GL.DepthMask(true);
-
 			scene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
 			#endif
 		}
@@ -119,15 +105,8 @@ namespace SimpleScene.Demos
 			{
 				// setup infinite projection for cubemap
 				environmentScene.renderConfig.projectionMatrix 
-				= Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
+				    = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
 				environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Disable (EnableCap.DepthTest);
-				GL.Disable (EnableCap.DepthClamp);
-				GL.DepthMask (false);
-
 				environmentScene.Render ();
 			}
 			/////////////////////////////////////////
@@ -135,16 +114,6 @@ namespace SimpleScene.Demos
 			{
 				scene.renderConfig.invCameraViewMatrix = mainSceneView;
 				scene.renderConfig.projectionMatrix = mainSceneProj;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Enable (EnableCap.DepthTest);
-				GL.Enable (EnableCap.DepthClamp);
-				GL.DepthFunc(DepthFunction.Less);
-				GL.DepthMask (true);
-
-				// render 3d content...
-				// scene.renderConfig.renderBoundingSpheres = true;
 				scene.Render ();
 			}
 
@@ -153,17 +122,6 @@ namespace SimpleScene.Demos
 			{
 				sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
 				sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
-
-				GL.Enable(EnableCap.CullFace);
-				GL.CullFace(CullFaceMode.Back);
-				GL.Enable(EnableCap.DepthTest);
-
-				// make sure the sun shows up even if it's beyond the far plane...
-				GL.Enable(EnableCap.DepthClamp);      // this clamps Z values to far plane.
-				GL.DepthFunc(DepthFunction.Lequal);   // this makes to objects clamped to far plane are visible
-
-				GL.DepthMask(true);
-
 				sunDiskScene.Render();
 			}
 
@@ -172,13 +130,6 @@ namespace SimpleScene.Demos
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed	
 				sunFlareScene.renderConfig.projectionMatrix = screenProj;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Disable(EnableCap.DepthTest);
-				GL.Disable(EnableCap.DepthClamp);
-				GL.DepthMask(false);
-
 				sunFlareScene.Render ();
 			}
 
@@ -187,13 +138,6 @@ namespace SimpleScene.Demos
 			{
 				// Note that a default identity view matrix is used and doesn't need to be changed
 				hudScene.renderConfig.projectionMatrix = screenProj;
-
-				GL.Enable (EnableCap.CullFace);
-				GL.CullFace (CullFaceMode.Back);
-				GL.Disable(EnableCap.DepthTest);
-				GL.Disable(EnableCap.DepthClamp);
-				GL.DepthMask(false);
-
 				hudScene.Render ();
 			}
 		}
@@ -212,6 +156,8 @@ namespace SimpleScene.Demos
 			// setup the viewport projection
 
 			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+			System.Console.WriteLine ("Resizing to width = " + ClientRectangle.Width +
+									 " and height = " + ClientRectangle.Height);
 
 			// setup WIN_SCALE for our shader...
             mainShader.Activate();
@@ -222,7 +168,7 @@ namespace SimpleScene.Demos
 			saveClientWindowLocation ();
 		}
 
-		protected virtual void updateWireframeDisplayText() 
+		protected virtual void updateTextDisplay() 
 		{
 			string selectionInfo;
 			WireframeMode techinqueInfo;
@@ -233,7 +179,7 @@ namespace SimpleScene.Demos
 				selectionInfo = "all";
 				techinqueInfo = scene.renderConfig.drawWireframeMode;
 			}
-			wireframeDisplay.Label = String.Format (
+			textDisplay.Label = String.Format (
 				"press '1' to toggle wireframe mode: [{0}:{1}]",
 				selectionInfo, techinqueInfo.ToString()
 			);

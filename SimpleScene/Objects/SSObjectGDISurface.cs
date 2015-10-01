@@ -15,6 +15,9 @@ namespace SimpleScene {
 
         public SSObjectGDISurface() { 
 			textureSurface = new SSTexture();
+            this.renderState.lighted = false;
+            this.renderState.depthTest = false;
+            this.renderState.depthWrite = false;
 		}
 
         private int nextPowerOf2(int biggerThan) {
@@ -62,8 +65,6 @@ namespace SimpleScene {
             // GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
             // Step 2: setup our material mode and paramaters...
-
-            GL.Disable(EnableCap.Lighting);
 
 			// setup our texture source
 			if (textureSurface != null) {

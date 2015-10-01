@@ -581,8 +581,6 @@ namespace SimpleScene.Util.ssBVH
         
         private ssBVHNode(ssBVH<GO> bvh, ssBVHNode<GO> lparent, List<GO> gobjectlist, Axis lastSplitAxis, int curdepth) {   
             SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                 
-            int center;
-            int loop;
             this.nodeNumber = bvh.nodeCount++;
  
             this.parent = lparent; // save off the parent BVHGObj Node

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,8 +7,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SimpleScene.Demos</RootNamespace>
     <AssemblyName>TestBenchCommon</AssemblyName>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,19 +30,20 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
-      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
-      <Name>_SimpleScene</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="SimpleExplosionRenderer.cs" />
-    <Compile Include="SimpleSunFlareMesh.cs" />
-    <Compile Include="SimpleStarfieldMesh.cs" />
     <Compile Include="TestBenchBootstrap.cs" />
     <Compile Include="TestBenchBootstrap_renderScene.cs" />
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
+    <Compile Include="SExplosionRenderer.cs" />
+    <Compile Include="SStarfieldObject.cs" />
+    <Compile Include="Lasers\SLaserManager.cs" />
+    <Compile Include="Lasers\SLaser.cs" />
+    <Compile Include="Lasers\SLaserBurnParticlesObject.cs" />
+    <Compile Include="Lasers\SLaserBeamMiddleObject.cs" />
+    <Compile Include="Lasers\SLaserHitFlareUpdater.cs" />
+    <Compile Include="Lasers\SLaserEmissionFlareUpdater.cs" />
+    <Compile Include="Lasers\SLaserParameters.cs" />
+    <Compile Include="SSunFlareRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
@@ -52,9 +51,6 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\checkerboard.png" />
@@ -126,5 +122,20 @@
     <None Include="Assets\skybox\skybox.obj" />
     <None Include="Assets\skybox\skybox.png" />
     <None Include="Assets\skybox\skybox_readme.txt" />
+    <None Include="Assets\lasers\laserEmissionSprites.png" />
+    <None Include="Assets\lasers\laserMiddle.txt" />
+    <None Include="Assets\lasers\middleBackground.png" />
+    <None Include="Assets\lasers\middleInterference.png" />
+    <None Include="Assets\lasers\middleOverlay.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
+      <Project>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</Project>
+      <Name>_SimpleScene</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Lasers\" />
+    <Folder Include="Assets\lasers\" />
   </ItemGroup>
 </Project>

@@ -15,16 +15,17 @@ namespace SimpleScene.Demos
 	{
 		protected bool autoWireframeMode = true;
 		protected SSObjectGDISurface_Text fpsDisplay;
-		protected SSObjectGDISurface_Text wireframeDisplay;
+		protected SSObjectGDISurface_Text textDisplay;
 
 		protected virtual void setupScene() {
-			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 			sunDiskScene = new SSScene ();
-			sunFlareScene = new SSScene ();
+            sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
 			hudScene = new SSScene ();
 			environmentScene = new SSScene ();
 
+            scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+            scene.renderConfig.usePoissonSampling = true;
 			scene.BeforeRenderObject += beforeRenderObjectHandler;
 
 			// 0. Add Lights
@@ -51,36 +52,26 @@ namespace SimpleScene.Demos
 			hudScene.AddObject(smapDebug);
 			#endif
 
+            #if true
 			// setup a sun billboard object and a sun flare spriter renderer
 			{
 				var sunDisk = new SSMeshDisk ();
-				var sunBillboard = new SSObjectBillboard (sunDisk, true);
+				var sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
+				sunBillboard.renderState.doBillboarding = true;
 				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
 				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
 				sunBillboard.Scale = new Vector3 (600f);
+                sunBillboard.renderState.depthFunc = DepthFunction.Lequal;
 				sunBillboard.renderState.frustumCulling = false;
 				sunBillboard.renderState.lighted = false;
 				sunBillboard.renderState.castsShadow = false;
 				sunDiskScene.AddObject(sunBillboard);
 
-				SSTexture flareTex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "sun_flare.png");
-				const float bigOffset = 0.8889f;
-				const float smallOffset = 0.125f;
-				RectangleF[] flareSpriteRects = {
-					new RectangleF(0f, 0f, 1f, bigOffset),
-					new RectangleF(0f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*2f, bigOffset, smallOffset, smallOffset),
-					new RectangleF(smallOffset*3f, bigOffset, smallOffset, smallOffset),
-				};
-				float[] spriteScales = { 20f, 1f, 2f, 1f, 1f };
-				var sunFlare = new SimpleSunFlareMesh (sunDiskScene, sunBillboard, flareTex, 
-													 flareSpriteRects, spriteScales);
-				sunFlare.Scale = new Vector3 (2f);
-				sunFlare.renderState.lighted = false;
-				sunFlareScene.AddObject(sunFlare);
+                var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunBillboard);
+                sunFlare.Name = "sun flare renderer";
+				sunFlareScene.AddObject (sunFlare);
 			}
-
+            #endif
 		}
 
 		protected virtual void setupCamera()
@@ -96,15 +87,16 @@ namespace SimpleScene.Demos
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
 			SSObject skyboxCube = new SSObjectMesh(mesh);
+            skyboxCube.renderState.depthTest = false;
+            skyboxCube.renderState.depthWrite = false;
+            skyboxCube.renderState.lighted = false;
 			environmentScene.AddObject(skyboxCube);
 			skyboxCube.Scale = new Vector3(0.7f);
-			skyboxCube.renderState.lighted = false;
 
 			// scene.addObject(skyboxCube);
 
-			SSObject skyboxStars = new SSObjectMesh(new SimpleStarfieldMesh(1600));
+			SSObject skyboxStars = new SStarfieldObject(1600);
 			environmentScene.AddObject(skyboxStars);
-			skyboxStars.renderState.lighted = false;
 
 		}
 
@@ -127,12 +119,12 @@ namespace SimpleScene.Demos
 			fpsDisplay.Scale = new Vector3 (1.0f);
 
 			// wireframe mode text....
-			wireframeDisplay = new SSObjectGDISurface_Text ();
-			wireframeDisplay.alphaBlendingEnabled = true;
-			hudScene.AddObject (wireframeDisplay);
-			wireframeDisplay.Pos = new Vector3 (10f, 40f, 0f);
-			wireframeDisplay.Scale = new Vector3 (1.0f);
-			updateWireframeDisplayText ();
+			textDisplay = new SSObjectGDISurface_Text ();
+			textDisplay.alphaBlendingEnabled = true;
+			hudScene.AddObject (textDisplay);
+			textDisplay.Pos = new Vector3 (10f, 40f, 0f);
+			textDisplay.Scale = new Vector3 (1.0f);
+			updateTextDisplay ();
 		}
 
 		protected virtual void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)

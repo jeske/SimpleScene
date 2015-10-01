@@ -34,7 +34,7 @@ namespace TestBench1
 				quadMesh.textureMaterial = new SSTextureMaterial(tex);
 				var tileObj = new SSObjectMesh(quadMesh);
 				tileObj.Name = "Tiles";
-				tileObj.Selectable = false;
+				tileObj.selectable = false;
 				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
 				tileObj.Scale = new Vector3(tileSz * gridSz);
 				//tileObj.boundingSphere = new SSObjectSphere(0f);
@@ -194,8 +194,12 @@ namespace TestBench1
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 
-			tracker0.targetObject = scene.ActiveCamera;
-			tracker4.targetObject = scene.ActiveCamera;
+			if (tracker0 != null) {
+				tracker0.targetObject = scene.ActiveCamera;
+			}
+			if (tracker4 != null) {
+				tracker4.targetObject = scene.ActiveCamera;
+			}
 		}
 	}
 }

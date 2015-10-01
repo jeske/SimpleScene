@@ -2,6 +2,7 @@
 // Released to the public domain. 
 
 using System;
+using System.Drawing; // for RectangleF
 
 using OpenTK;
 using OpenTK.Graphics;
@@ -95,9 +96,9 @@ namespace SimpleScene
 		    Vector3 n = ray.dir;
 		    Vector3 p = point;
 
-			distanceAlongRay = Vector3.Dot((a-p),n);
-
-		    return ((a-p) - distanceAlongRay * n).Length;
+            var t = Vector3.Dot((a-p),n);
+            distanceAlongRay = -t;
+		    return ((a-p) - t * n).Length;
         }
 
 #if false
@@ -146,7 +147,8 @@ namespace SimpleScene
         }
 
 		// http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-		public static bool TriangleRayIntersectionTest(Vector3 V1, Vector3 V2, Vector3 V3, Vector3 rayStart, Vector3 rayDir, out float contact) {
+		public static bool TriangleRayIntersectionTest(
+            ref Vector3 V1, ref Vector3 V2, ref Vector3 V3, ref Vector3 rayStart, ref Vector3 rayDir, out float contact) {
 			Vector3 e1, e2;  //Edge1, Edge2
             Vector3 P, Q, T;
             float det, inv_det, u, v;
@@ -369,7 +371,7 @@ namespace SimpleScene
         }
 
         /// <summary>
-        /// Override matrix setup to get rid of any rotation in view
+        /// Strip away the rotation in the view matrix to make an object always face the camera
         /// http://stackoverflow.com/questions/5467007/inverting-rotation-in-3d-to-make-an-object-always-face-the-camera/5487981#5487981
         /// </summary>
         public static Matrix4 BillboardMatrix(ref Matrix4 modelViewMat)
@@ -381,6 +383,50 @@ namespace SimpleScene
                 0f, scale.Y, 0f, 0f,
                 0f, 0f, scale.Z, 0f,
                 trans.X, trans.Y, trans.Z, 1f);
+        }
+
+        public static Vector2 WorldToScreen(Vector3 worldPos, ref Matrix4 modelViewProjMat, 
+                                            ref RectangleF clientRect)
+        {
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), modelViewProjMat);
+            pos /= pos.W;
+            pos.Y = -pos.Y;
+            Vector2 screenSize = new Vector2(clientRect.Width, clientRect.Height);
+            Vector2 screenCenter = new Vector2 (clientRect.X, clientRect.Y) + screenSize / 2f;
+            return screenCenter + pos.Xy * screenSize / 2f;
+        }
+
+        /// <summary>
+        /// View matrix that makes the object appear on the screen in pixel dimentions matching it's 
+        /// scale value (after modelview and projection transforms)
+        /// </summary>
+        public static Matrix4 ScaleToScreenPxViewMat(Vector3 objPos, float objScaleX,
+                                                     ref Matrix4 viewMat, ref Matrix4 projMat)
+        {
+            objScaleX = Math.Abs(objScaleX);
+
+            // compute rightmost point in world coordinates
+            Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation().Inverted());
+            Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
+            Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
+
+            // compute things in screen coordinates and find the required scale mitigation
+            Matrix4 modelViewProjMat = viewMat * projMat;
+            RectangleF clientRect = GetClientRect();
+            Vector2 centerOnScreen = WorldToScreen(objPos, ref modelViewProjMat, ref clientRect);
+            Vector2 rightMostOnScreen = WorldToScreen(rightMostInWorld, ref modelViewProjMat, ref clientRect);
+            float distanceObserved = Math.Abs(rightMostOnScreen.X - centerOnScreen.X);
+            float scaleMitigation = objScaleX / distanceObserved;
+            //System.Console.WriteLine("rightmost x = " + rightMostOnScreen.X);
+            return Matrix4.CreateScale(scaleMitigation);
+            //return Matrix4.Identity;
+        }
+
+        public static RectangleF GetClientRect()
+        {
+            int[] viewport = new int[4];
+            GL.GetInteger(GetPName.Viewport, viewport);
+            return new RectangleF (viewport [0], viewport [1], viewport [2], viewport [3]);
         }
 
 		public static bool areFramebuffersSupported() {

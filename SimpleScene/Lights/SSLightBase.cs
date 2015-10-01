@@ -8,29 +8,29 @@ namespace SimpleScene
 {
     public abstract class SSLightBase
     {
-        private const LightName c_firstName = LightName.Light0;
+        protected const LightName _firstName = LightName.Light0;
 
         public Vector4 Ambient = new Vector4(0.4f);
         public Vector4 Specular = new Vector4 (1.0f);
         public Vector4 Diffuse = new Vector4 (0.8f);
 
-        protected SSShadowMapBase m_shadowMap = null;
-        protected LightName m_lightName;
+        protected SSShadowMapBase _shadowMap = null;
+        protected LightName _lightName;
 
 
         public SSShadowMapBase ShadowMap {
-            get { return m_shadowMap; }
+            get { return _shadowMap; }
             set {
-                m_shadowMap = value;
-                if (m_shadowMap != null) {
-                    m_shadowMap.Light = this;
+                _shadowMap = value;
+                if (_shadowMap != null) {
+                    _shadowMap.Light = this;
                 }
             }
         }
 
         public SSLightBase(LightName lightName)
         {
-            this.m_lightName = lightName;
+            this._lightName = lightName;
         }
 
         ~SSLightBase() { 
@@ -47,16 +47,13 @@ namespace SimpleScene
             GL.MatrixMode (MatrixMode.Modelview);
             GL.LoadMatrix (ref modelViewMatrix);
 
-            GL.Enable (EnableCap.Lighting);
-            GL.ShadeModel (ShadingModel.Smooth);
+            GL.Light (_lightName, LightParameter.Ambient, this.Ambient); // ambient light color (R,G,B,A)
 
-            GL.Light (m_lightName, LightParameter.Ambient, this.Ambient); // ambient light color (R,G,B,A)
+            GL.Light (_lightName, LightParameter.Diffuse, this.Diffuse); // diffuse color (R,G,B,A)
 
-            GL.Light (m_lightName, LightParameter.Diffuse, this.Diffuse); // diffuse color (R,G,B,A)
+            GL.Light (_lightName, LightParameter.Specular, this.Specular); // specular light color (R,G,B,A)
 
-            GL.Light (m_lightName, LightParameter.Specular, this.Specular); // specular light color (R,G,B,A)
-
-            int idx = m_lightName - c_firstName;
+            int idx = _lightName - _firstName;
             GL.Enable (EnableCap.Light0 + idx);
 
             if (ShadowMap != null) {
@@ -64,15 +61,14 @@ namespace SimpleScene
             }
         }
 
-        public void DisableLight() {
-            int idx = m_lightName - c_firstName;
+        public virtual void DisableLight(SSRenderConfig renderConfig) {
+            int idx = _lightName - _firstName;
             GL.Disable (EnableCap.Light0 + idx);
 
             if (ShadowMap != null) {
                 ShadowMap.FinishRead();
             }
         }
-
     }
 }
 

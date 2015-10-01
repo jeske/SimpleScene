@@ -24,15 +24,13 @@ namespace SimpleScene
 		public virtual float boundingSphereRadius { get; set; }
 		public virtual Vector3 boundingSphereCenter	{ get; set; }
 
-		public delegate bool traverseFn<T>(T state, Vector3 V1, Vector3 V2, Vector3 V3);
-
 		/// <summary>
 		/// Keeps track of where the Updates() are to be coming from to prevents redundant Update() calls 
 		/// when the mesh is shared by multiple SSObjectMesh's
 		/// </summary>
 		public WeakReference updateSource = new WeakReference (null);
 
-		public SSAbstractMesh()
+        public SSAbstractMesh()
 		{
 			alphaBlendingEnabled = false;
 			boundingSphereRadius = 1f;
@@ -57,21 +55,19 @@ namespace SimpleScene
 				}
 			}
 
+            #if false
 			if (alphaBlendingEnabled) {
 				GL.Enable (EnableCap.Blend);
 				GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 			}
+            #endif
 		}
 
-        public virtual bool traverseTriangles<T>(T state, traverseFn<T> fn) 
+        public virtual bool preciseIntersect (ref SSRay localRay, out float localRayContact)
         {
+            localRayContact = 0f;
             return true;
         }
-
-		public bool traverseTriangles(traverseFn<Object> fn) 
-        {
-			return this.traverseTriangles<Object>(new Object(), fn);
-		}
 
 		public virtual void update(float timeElapsed) { }
 	}

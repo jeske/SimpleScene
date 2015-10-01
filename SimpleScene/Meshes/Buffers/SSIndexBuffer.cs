@@ -5,17 +5,19 @@ namespace SimpleScene
 {
 	public class SSIndexBuffer : ISSInstancable
 	{
-        private readonly ISSVertexBuffer m_vbo;
-        private readonly BufferUsageHint m_usageHint;
-        private int m_IBOid = 0;
-        private int m_numIndices = 0;
+        private readonly ISSVertexBuffer _vbo;
+        private readonly BufferUsageHint _usageHint;
+        private int _IBOid = 0;
+        private int _numIndices = 0;
+        private UInt16[] _lastAssignedIndices = null;
 
-        public int NumIndices { get { return m_numIndices; } }
+        public int numIndices { get { return _numIndices; } }
+        public UInt16[] lastAssignedIndices { get { return _lastAssignedIndices; } }
 
         public SSIndexBuffer (ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.DynamicDraw)
 		{
-            m_vbo = vbo;
-            m_usageHint = hint;
+            _vbo = vbo;
+            _usageHint = hint;
 		}
 
         public SSIndexBuffer(UInt16[] indices, ISSVertexBuffer vbo, BufferUsageHint hint = BufferUsageHint.StaticDraw) 
@@ -26,58 +28,64 @@ namespace SimpleScene
 
 		public void Delete() 
         {
-			GL.DeleteBuffer (m_IBOid);
-            m_IBOid = 0;
-            m_numIndices = 0;
+			GL.DeleteBuffer (_IBOid);
+            _IBOid = 0;
+            _numIndices = 0;
 		}
 
         public void UpdateBufferData(UInt16[] indices) 
         {
-            if (m_IBOid == 0) {
-                m_IBOid = GL.GenBuffer();
+            _lastAssignedIndices = indices;
+            if (_IBOid == 0) {
+                _IBOid = GL.GenBuffer();
             }
-            m_numIndices = indices.Length;
+            _numIndices = indices.Length;
             Bind();
             GL.BufferData(BufferTarget.ElementArrayBuffer,
-                         (IntPtr)(m_numIndices * sizeof(UInt16)),
+                         (IntPtr)(_numIndices * sizeof(UInt16)),
                          indices, 
-                         m_usageHint);
+                         _usageHint);
             Unbind();
         }
 
 		public void DrawElements(SSRenderConfig renderConfig, PrimitiveType primType, bool doBind = true) 
         {
             if (doBind) {
-				m_vbo.DrawBind(renderConfig);
+				_vbo.DrawBind(renderConfig);
                 Bind();
             }
             GL.DrawElements(primType,
-                            m_numIndices,
+                            _numIndices,
                             DrawElementsType.UnsignedShort,
                             IntPtr.Zero);
             if (doBind) {
                 Unbind();
-                m_vbo.DrawUnbind();
+                _vbo.DrawUnbind();
             }
         }
 
-		public void renderInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType = PrimitiveType.Triangles)
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
         {
-			m_vbo.DrawBind(renderConfig);
+            DrawElements(renderConfig, primType);
+        }
+
+        public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)
+        {
+			_vbo.DrawBind(renderConfig);
             Bind();
             GL.DrawElementsInstanced(
                 primType,
-                m_numIndices,
+                _numIndices,
                 DrawElementsType.UnsignedShort,
                 IntPtr.Zero,
                 instanceCount
             );
             Unbind();
-            m_vbo.DrawUnbind();
+            _vbo.DrawUnbind();
         }
 
         public void Bind() {
-			GL.BindBuffer (BufferTarget.ElementArrayBuffer, m_IBOid);
+			GL.BindBuffer (BufferTarget.ElementArrayBuffer, _IBOid);
 		}
 
         public void Unbind() {

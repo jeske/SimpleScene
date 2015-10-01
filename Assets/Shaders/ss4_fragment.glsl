@@ -16,6 +16,7 @@ uniform int specTexEnabled;
 uniform int ambiTexEnabled;
 uniform int bumpTexEnabled;
 
+uniform int directionalLightIndex; // -1 = no directional light
 uniform int lightingMode;
 
 uniform int showWireframes;
@@ -37,8 +38,9 @@ varying vec3 surfaceViewVector;
 varying vec3 surfaceNormalVector;
 
 // shadowmap related
+uniform int receivesShadow;
 uniform bool poissonSamplingEnabled;
-uniform int numPoissonSamples = 16;
+uniform int numPoissonSamples;
 uniform int numShadowMaps;
 uniform sampler2D shadowMapTexture;
 const int MAX_NUM_SMAP_SPLITS = 4;
@@ -244,13 +246,6 @@ vec4 shadowMapTestLighting(vec4 outputColor) {
 // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
 vec4 BlinnPhongLighting(vec4 outputColor) {
 		// eye space lighting
-		vec3 lightDir = gl_LightSource[0].position.xyz;
-        float lightDotProd = dot(f_vertexNormal, lightDir);
-        bool lightIsInFront =  lightDotProd < 0.005;
-
-		vec4 shadowMapDebugColor;
-
-		float litFactor = shadowMapLighting(shadowMapDebugColor);
 
 		// lighting strength
 		vec4 ambientStrength = gl_FrontMaterial.ambient;
@@ -278,24 +273,33 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
        // 2. glow/emissive lighting term
 	   outputColor += glowColor * glowStrength;
 
-	   // 4. specular reflection lighting term
-	   if (lightIsInFront) {   // if light is front of the surface
+       vec4 shadowMapDebugColor;           
+       if (directionalLightIndex != -1 && receivesShadow != 0) {
+            float litFactor = shadowMapLighting(shadowMapDebugColor);
 
-	       // 3. diffuse reflection lighting term
-		   float diffuseIllumination = clamp(-lightDotProd, 0, 1);
-		   // boost the diffuse color by the glowmap .. poor mans bloom
-	       // float glowFactor = length(glowStrength.xyz) * 0.2; 
-		   // outputColor += litFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
-	       outputColor += litFactor * diffuseColor * diffuseStrength * diffuseIllumination * vec4(1.5);
+            vec3 lightDir = gl_LightSource[directionalLightIndex].position.xyz;
+            float lightDotProd = dot(f_vertexNormal, lightDir);
+            bool lightIsInFront =  lightDotProd < 0.0;
 
-          // add the specular highlight
-	      vec3 R = reflect(normalize(gl_LightSource[0].position.xyz), normalize(f_vertexNormal));
-	      float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), matShininess);
-	      outputColor += litFactor * specTex * specularStrength * shininess; 
-       } 
+            if (lightIsInFront) {
+                // 3. diffuse reflection lighting term
+                float diffuseIllumination = clamp(-lightDotProd, 0, 1);
+                // boost the diffuse color by the glowmap .. poor mans bloom
+                // float glowFactor = length(glowStrength.xyz) * 0.2; 
+                // outputColor += litFactor * diffuseColor * diffuseStrength * max(diffuseIllumination, glowFactor);
+                outputColor += litFactor * diffuseColor * diffuseStrength * diffuseIllumination * vec4(1.5);
+
+                // add the specular highlight
+                // 4. specular reflection lighting term
+                vec3 R = reflect(normalize(gl_LightSource[0].position.xyz), normalize(f_vertexNormal));
+                float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), matShininess);
+                outputColor += litFactor * specTex * specularStrength * shininess; 
+            }
+       }
 	   return outputColor;
 }
 
+// TODO: NEEDS MAINTENANCE AND CODE CONSOLIDATION (if possible)
 vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
 	   // tangent space shading with bump map...	
 	      
@@ -346,7 +350,6 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
        }
 	   return outputColor;
 }
-
 
 void main()
 {

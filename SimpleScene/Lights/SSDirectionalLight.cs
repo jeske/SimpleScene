@@ -28,9 +28,32 @@ namespace SimpleScene
 
         public override void setupLight(SSRenderConfig renderConfig) {
             base.setupLight(renderConfig);
-            GL.Light (m_lightName, LightParameter.Position, new Vector4(Direction, 0f)); 
+            GL.Light (_lightName, LightParameter.Position, new Vector4(Direction, 0f));
+
+            int dirLightIndex = _lightName - _firstName;
+            if (renderConfig.mainShader != null) {
+                renderConfig.mainShader.Activate();
+                renderConfig.mainShader.UniDirectionalLightIndex = dirLightIndex;
+            }
+            if (renderConfig.instanceShader != null) {
+                renderConfig.instanceShader.Activate();
+                renderConfig.instanceShader.UniDirectionalLightIndex = dirLightIndex;
+            }
         }
 
+        public override void DisableLight (SSRenderConfig renderConfig)
+        {
+            base.DisableLight(renderConfig);
+
+            if (renderConfig.mainShader != null) {
+                renderConfig.mainShader.Activate();
+                renderConfig.mainShader.UniDirectionalLightIndex = -1;
+            }
+            if (renderConfig.instanceShader != null) {
+                renderConfig.instanceShader.Activate();
+                renderConfig.instanceShader.UniDirectionalLightIndex = -1;
+            }
+        }
 
         #if false
         public void SetupLight_alt(ref SSRenderConfig renderConfig) {

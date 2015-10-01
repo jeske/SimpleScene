@@ -18,8 +18,6 @@ namespace SimpleScene
 			// mode setup
 			SSShaderProgram.DeactivateAll(); // disable GLSL
 			GL.Disable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.Blend);
-			GL.Disable(EnableCap.Lighting);
 
 			GL.LineWidth(5.0f);
 
@@ -31,6 +29,8 @@ namespace SimpleScene
         public SSObjectRay (SSRay ray) : base() {
             this.ray = ray;
             this.Pos = ray.pos;
+            this.renderState.alphaBlendingOn = false;
+            this.renderState.lighted = false;
 
             // the ray is in world-space, so we adjust our object pos, and then save the ray (so we have the world-space ray.dir)
             // NOTE: technically the ray.pos is still the world-space pos...

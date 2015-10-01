@@ -18,7 +18,7 @@ namespace SimpleScene
 		protected static SSMeshBoundingSphere _boundingSphereMesh = new SSMeshBoundingSphere (1f);
 
 		public Color4 MainColor = Color4.White;
-		public bool Selectable = true;
+		public bool selectable = true;
 
 	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
 		public Color4 DiffuseMatColor = new Color4(0.3f, 0.3f, 0.3f, 1f);
@@ -27,12 +27,15 @@ namespace SimpleScene
 		public float ShininessMatColor = 10.0f;
         
 		public virtual SSTextureMaterial textureMaterial { get; set; }
-		public virtual bool alphaBlendingEnabled { get; set; }
+		public virtual bool alphaBlendingEnabled { 
+            get { return renderState.alphaBlendingOn; }
+            set { renderState.alphaBlendingOn = value; }
+        }
 
 		public virtual Vector3 localBoundingSphereCenter { get; set; }
 		public virtual float localBoundingSphereRadius { get; set; }
 
-		public Vector3 worldBoundingSphereCenter {
+		public virtual Vector3 worldBoundingSphereCenter {
 			get {
 				return Vector3.Transform(localBoundingSphereCenter, this.worldMat);
 			}
@@ -56,7 +59,6 @@ namespace SimpleScene
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 			localBoundingSphereCenter = Vector3.Zero;
 			localBoundingSphereRadius = 1f;
-			alphaBlendingEnabled = false;
 		}
 
         protected static void resetTexturingState()
@@ -80,6 +82,7 @@ namespace SimpleScene
             // GL.ActiveTexture(TextureUnit.Texture8);GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
+
 		protected void setMaterialState(SSMainShaderProgram mainShader)
         {
             GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
@@ -93,18 +96,14 @@ namespace SimpleScene
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
 
 			if (textureMaterial != null) {
-				if (mainShader != null) {
-					mainShader.SetupTextures (textureMaterial);
+				GL.ActiveTexture(TextureUnit.Texture0);
+				GL.Enable(EnableCap.Texture2D);
+				if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
+					// fall back onto the diffuse texture in the absence of ambient
+					SSTexture tex = textureMaterial.diffuseTex ?? textureMaterial.ambientTex;
+					GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
 				} else {
-					GL.ActiveTexture(TextureUnit.Texture0);
-					GL.Enable(EnableCap.Texture2D);
-					if (textureMaterial.ambientTex != null || textureMaterial.diffuseTex != null) {
-						// fall back onto the diffuse texture in the absence of ambient
-						SSTexture tex = textureMaterial.ambientTex ?? textureMaterial.diffuseTex;
-						GL.BindTexture(TextureTarget.Texture2D, tex.TextureID);
-					} else {
-						GL.BindTexture(TextureTarget.Texture2D, 0);
-					}
+					GL.BindTexture(TextureTarget.Texture2D, 0);
 				}
 			}
         }
@@ -113,7 +112,9 @@ namespace SimpleScene
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniObjectWorldTransform = this.worldMat;
-                pgm.SetupTextures();
+                pgm.ReceivesShadow = renderState.receivesShadows;
+                pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
+                pgm.SetupTextures(textureMaterial);
             }
         }
 
@@ -142,7 +143,15 @@ namespace SimpleScene
 			//    ... http://stackoverflow.com/questions/5798226/3d-graphics-processing-how-to-calculate-modelview-matrix
 			renderBoundingSphereMesh (renderConfig);
 
-			Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
+            Matrix4 modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
+            if (this.renderState.matchScaleToScreenPixels) {
+                Matrix4 scaleCompenstaion = OpenTKHelper.ScaleToScreenPxViewMat(
+                    this.Pos, this.Scale.X, ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
+                modelViewMat = scaleCompenstaion * modelViewMat;
+            }
+            if (this.renderState.doBillboarding) {
+                modelViewMat = OpenTKHelper.BillboardMatrix(ref modelViewMat);
+            }
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref modelViewMat);
 
@@ -156,14 +165,13 @@ namespace SimpleScene
                     SSShaderProgram.DeactivateAll();
                 }
             } else {
-                if (renderConfig.mainShader != null) {
-                    setDefaultShaderState(renderConfig.mainShader);
-                }
+                setDefaultShaderState(renderConfig.mainShader);
 				setMaterialState(renderConfig.mainShader);
 
-				if (alphaBlendingEnabled) {
+				if (this.alphaBlendingEnabled) {
 					GL.Enable (EnableCap.Blend);
-					GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+                    GL.BlendEquation (renderState.blendEquationMode);
+                    GL.BlendFunc (renderState.blendFactorSrc, renderState.blendFactorDest);
 				} else {
 					GL.Disable (EnableCap.Blend);
 				}
@@ -175,22 +183,37 @@ namespace SimpleScene
                     GL.Disable(EnableCap.Lighting);
                 }
             }
+
+            if (this.renderState.alphaTest) {
+                GL.Enable(EnableCap.AlphaTest);
+            } else {
+                GL.Disable(EnableCap.AlphaTest);
+            }
+
+            if (this.renderState.depthTest) {
+                GL.Enable (EnableCap.DepthTest);
+                GL.DepthFunc(renderState.depthFunc);
+            } else {
+                GL.Disable (EnableCap.DepthTest);
+            }
+            GL.DepthMask(this.renderState.depthWrite);
 		}
 
-		public virtual bool Intersect(ref SSRay worldSpaceRay, out float scaledDistanceAlongRay) {
-			var distanceAlongRay = 0.0f;
+		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 
+        {
+			distanceAlongRay = 0.0f;
 			if (localBoundingSphereRadius > 0f) {
 				var objBoundingSphere = worldBoundingSphere;
 				if (objBoundingSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
-					scaledDistanceAlongRay = ScaleMax * distanceAlongRay;
-					return PreciseIntersect(ref worldSpaceRay, ref scaledDistanceAlongRay);
+                    return PreciseIntersect(ref worldSpaceRay, out distanceAlongRay);
 				}
 			}
-			scaledDistanceAlongRay = 0f;
+            distanceAlongRay = 0f;
 			return false;
 		}
 
-		public virtual bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
+		protected virtual bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
+            distanceAlongRay = 0f;
 			return true;
 		}
 
@@ -205,12 +228,22 @@ namespace SimpleScene
 	}
 
 	public class SSOBRenderState {
-	    public bool lighted = true;
+        public bool toBeDeleted = false;
+        public bool frustumCulling = true;
 	    public bool visible = true;
+        public bool doBillboarding = false;
+        public bool matchScaleToScreenPixels = false;
+        public bool depthTest = true;
+        public DepthFunction depthFunc = DepthFunction.Less;
+        public bool depthWrite = true;
         public bool castsShadow = false;
         public bool receivesShadows = false;
-		public bool frustumCulling = true;
-		public bool toBeDeleted = false;
+        public bool lighted = true;
+        public bool alphaTest = false;
+        public bool alphaBlendingOn = false;
+        public BlendEquationMode blendEquationMode = BlendEquationMode.FuncAdd;
+        public BlendingFactorSrc blendFactorSrc = BlendingFactorSrc.SrcAlpha;
+        public BlendingFactorDest blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)

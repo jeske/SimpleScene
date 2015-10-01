@@ -10,7 +10,7 @@ namespace SimpleScene
 	/// Manages skeletal runtime hierarchy and animation channels.
 	/// Invokes draw on render submeshes.
 	/// </summary>
-	public class SSSkeletalRenderMesh : SSAbstractMesh, ISSInstancable
+    public class SSSkeletalRenderMesh : SSAbstractMesh, ISSInstancable
 	{
 		// TODO Fix multiple objects updating a single mesh twice
 
@@ -182,22 +182,29 @@ namespace SimpleScene
 			NotifyMeshPositionOrSizeChanged ();
 		}
 
-		public void renderInstanced(SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
+		public void drawInstanced(SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
 		{
 			foreach (var sub in _renderSubMeshes) {
-				sub.renderInstanced (cfg, instanceCount, primType);
+                sub.drawInstanced (cfg, instanceCount, primType);
 			}
 		}
 
-		public override bool traverseTriangles<T> (T state, traverseFn<T> fn)
-		{
+        public void drawSingle(SSRenderConfig renderConfig, PrimitiveType primType)
+        {
+            renderMesh(renderConfig);
+        }
+
+		public override bool preciseIntersect (ref SSRay localRay, out float nearestLocalRayContact)
+        {
+            nearestLocalRayContact = float.PositiveInfinity;
 			foreach (var s in _renderSubMeshes) {
-				bool finished = s.traverseTriangles (state, fn);
-				if (finished) {
-					return true;
-				}
+                float contact;
+                if (s.preciseIntersect(ref localRay, out contact)
+                    && contact < nearestLocalRayContact) {
+                    nearestLocalRayContact = contact;
+                }
 			}
-			return false;
+            return nearestLocalRayContact < float.PositiveInfinity;
 		}
 
 		// *****************************
@@ -207,19 +214,18 @@ namespace SimpleScene
 		/// </summary>
 		protected class RenderSubMesh : SSIndexedMesh<SSVertex_PosNormTex>
 		{
-			// TODO Detach mesh
-			protected readonly SSSkeletalMeshRuntime m_runtimeMesh;
-			protected readonly SSVertex_PosNormTex[] m_vertices;
+			protected readonly SSSkeletalMeshRuntime _runtimeMesh;
+			protected readonly SSVertex_PosNormTex[] _vertices;
 
 			public RenderSubMesh (SSSkeletalMesh skeletalMesh, SSSkeletalHierarchyRuntime hierarchy=null)
 				: base(null, skeletalMesh.triangleIndices)
 			{
-				m_runtimeMesh = new SSSkeletalMeshRuntime(skeletalMesh, hierarchy);
+				_runtimeMesh = new SSSkeletalMeshRuntime(skeletalMesh, hierarchy);
 
-				m_vertices = new SSVertex_PosNormTex[m_runtimeMesh.numVertices];
-				for (int v = 0; v < m_runtimeMesh.numVertices; ++v) {
-					m_vertices [v].TexCoord = m_runtimeMesh.textureCoords (v);
-					m_vertices [v].Normal = m_runtimeMesh.bindPoseNormal(v);
+				_vertices = new SSVertex_PosNormTex[_runtimeMesh.numVertices];
+				for (int v = 0; v < _runtimeMesh.numVertices; ++v) {
+					_vertices [v].TexCoord = _runtimeMesh.textureCoords (v);
+					_vertices [v].Normal = _runtimeMesh.bindPoseNormal(v);
 				}
 				ComputeVertices ();
 
@@ -228,6 +234,10 @@ namespace SimpleScene
 					base.textureMaterial 
 					= SSTextureMaterial.FromMaterialString (skeletalMesh.assetContext, matString);
 				}
+
+                // don't use BVH because vertices keep changing on every render frame
+                // TODO can we "update" BVH efficiently, instead?
+                base.useBVHForIntersections = false;
 			}
 
 			public override void renderMesh(SSRenderConfig renderConfig)
@@ -258,19 +268,6 @@ namespace SimpleScene
 				#endif
 			}
 
-			public override bool traverseTriangles<T>(T state, traverseFn<T> fn) {
-				for(int idx=0; idx < m_runtimeMesh.indices.Length; idx+=3) {
-					var v1 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx]);
-					var v2 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx+1]);
-					var v3 = m_runtimeMesh.computeVertexPos (m_runtimeMesh.indices[idx+2]);
-					bool finished = fn(state, v1, v2, v3);
-					if (finished) { 
-						return true;
-					}
-				}
-				return false;
-			}
-
 			/// <summary>
 			/// Computes vertex positions and normals (based on the state of runtime joint hierarchy).
 			/// Updates VBO with the result.
@@ -279,16 +276,17 @@ namespace SimpleScene
 			public SSAABB ComputeVertices()
 			{
 				SSAABB aabb= new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
-				for (int v = 0; v < m_runtimeMesh.numVertices; ++v) {
+				for (int v = 0; v < _runtimeMesh.numVertices; ++v) {
 					// position
-					Vector3 pos = m_runtimeMesh.computeVertexPos (v);
-					m_vertices [v].Position = pos;
+					Vector3 pos = _runtimeMesh.computeVertexPos (v);
+					_vertices [v].Position = pos;
 					aabb.UpdateMin (pos);
 					aabb.UpdateMax (pos);
 					// normal
-					m_vertices [v].Normal = m_runtimeMesh.computeVertexNormal (v);
+					_vertices [v].Normal = _runtimeMesh.computeVertexNormal (v);
 				}
-				vbo.UpdateBufferData (m_vertices);
+				_vbo.UpdateBufferData (_vertices);
+                _bvh = null; // invalidate bvh
 				return aabb;
 			}
 
@@ -297,11 +295,11 @@ namespace SimpleScene
 			{
 				SSShaderProgram.DeactivateAll();
 				GL.Color4(Color4.Green);
-				for (int i=0;i<m_runtimeMesh.numTriangles;i++) {
+				for (int i=0;i<_runtimeMesh.numTriangles;i++) {
 					int baseIdx = i * 3;                
-					Vector3 p0 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx);
-					Vector3 p1 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 1);
-					Vector3 p2 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 2);
+					Vector3 p0 = _runtimeMesh.computeVertexPosFromTriIndex(baseIdx);
+					Vector3 p1 = _runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 1);
+					Vector3 p2 = _runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 2);
 
 					Vector3 face_center = (p0 + p1 + p2) / 3.0f;
 					Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
@@ -316,11 +314,11 @@ namespace SimpleScene
 			private void renderAnimatedVertexNormals() {
 				SSShaderProgram.DeactivateAll();
 				GL.Color4(Color4.Magenta);
-				for (int v = 0; v < m_vertices.Length; ++v) {                
+				for (int v = 0; v < _vertices.Length; ++v) {                
 
 					GL.Begin(PrimitiveType.Lines);
-					GL.Vertex3(m_vertices[v].Position);
-					GL.Vertex3(m_vertices[v].Position + m_vertices[v].Normal * 0.2f);
+					GL.Vertex3(_vertices[v].Position);
+					GL.Vertex3(_vertices[v].Position + _vertices[v].Normal * 0.2f);
 					GL.End();
 				}
 			}
@@ -329,28 +327,28 @@ namespace SimpleScene
 			{
 				SSShaderProgram.DeactivateAll ();
 				GL.Color4 (Color4.White);
-				for (int v = 0; v < m_vertices.Length; ++v) {                
+				for (int v = 0; v < _vertices.Length; ++v) {                
 					GL.Begin (PrimitiveType.Lines);
-					GL.Vertex3 (m_vertices [v].Position);
-					GL.Vertex3 (m_vertices [v].Position + m_runtimeMesh.bindPoseNormal(v) * 0.3f); 
+					GL.Vertex3 (_vertices [v].Position);
+					GL.Vertex3 (_vertices [v].Position + _runtimeMesh.bindPoseNormal(v) * 0.3f); 
 					GL.End ();
 				}
 			}
 
 			public void renderFaceAveragedVertexNormals() {
-				Vector3[] perVertexNormals = new Vector3[m_runtimeMesh.numVertices];
+				Vector3[] perVertexNormals = new Vector3[_runtimeMesh.numVertices];
 
-				for (int i = 0; i < m_runtimeMesh.numTriangles; i++) {
+				for (int i = 0; i < _runtimeMesh.numTriangles; i++) {
 					int baseIdx = i * 3;
-					Vector3 p0 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx);
-					Vector3 p1 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 1);
-					Vector3 p2 = m_runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 2);
+					Vector3 p0 = _runtimeMesh.computeVertexPosFromTriIndex(baseIdx);
+					Vector3 p1 = _runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 1);
+					Vector3 p2 = _runtimeMesh.computeVertexPosFromTriIndex(baseIdx + 2);
 
 					Vector3 face_normal = Vector3.Cross(p1 - p0, p2 - p0).Normalized();
 
-					int v0 = m_runtimeMesh.indices[baseIdx];
-					int v1 = m_runtimeMesh.indices[baseIdx + 1];
-					int v2 = m_runtimeMesh.indices[baseIdx + 2];
+					int v0 = _runtimeMesh.indices[baseIdx];
+					int v1 = _runtimeMesh.indices[baseIdx + 1];
+					int v2 = _runtimeMesh.indices[baseIdx + 2];
 
 					perVertexNormals[v0] += face_normal;
 					perVertexNormals[v1] += face_normal;
@@ -364,8 +362,8 @@ namespace SimpleScene
 				GL.Color4(Color4.Yellow);
 				for (int v=0;v<perVertexNormals.Length;v++) {
 					GL.Begin(PrimitiveType.Lines);
-					GL.Vertex3(m_runtimeMesh.computeVertexPos(v));
-					GL.Vertex3(m_runtimeMesh.computeVertexPos(v) + perVertexNormals[v].Normalized() * 0.5f);
+					GL.Vertex3(_runtimeMesh.computeVertexPos(v));
+					GL.Vertex3(_runtimeMesh.computeVertexPos(v) + perVertexNormals[v].Normalized() * 0.5f);
 					GL.End();
 				}
 			}

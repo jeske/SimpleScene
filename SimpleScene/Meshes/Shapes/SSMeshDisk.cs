@@ -28,7 +28,7 @@ namespace SimpleScene
                     0.5f + Tr * x, 0.5f + Tr * y
                 );       
             }
-            UpdateVertices(vertices);
+            updateVertices(vertices);
 
             // generate indices
             UInt16[] indices = new UInt16[divisions * 3];
@@ -40,18 +40,12 @@ namespace SimpleScene
             }
             // last one is a special case (wraparound)
             indices [indices.Length - 1] = 1;
-            UpdateIndices(indices);
+            updateIndices(indices);
         }
 
         public override void renderMesh(SSRenderConfig renderConfig)
         {
             SSShaderProgram.DeactivateAll();
-
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.ColorMaterial);
-            GL.Enable (EnableCap.AlphaTest);
-            GL.Enable (EnableCap.Blend);
-            GL.BlendFunc (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             base.renderMesh(renderConfig);
         }

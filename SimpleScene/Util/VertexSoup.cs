@@ -7,7 +7,7 @@ using System.Text;
 
 using System.Drawing;
 
-namespace Util3d {
+namespace SimpleScene.Util3d {
 
 	// VertexSoup
 	//

@@ -68,11 +68,11 @@ namespace SimpleScene.Demos
 	/// </summary>
 	public abstract partial class TestBenchBootstrap : OpenTK.GameWindow
 	{
-		protected SSScene scene = new SSScene();
-		protected SSScene sunDiskScene = new SSScene ();
-		protected SSScene sunFlareScene = new SSScene ();
-		protected SSScene hudScene = new SSScene();
-		protected SSScene environmentScene = new SSScene();
+        protected SSScene scene;
+        protected SSScene sunDiskScene;
+        protected SSScene sunFlareScene;
+        protected SSScene hudScene;
+        protected SSScene environmentScene;
 
 		protected bool mouseButtonDown = false;
 
@@ -177,9 +177,12 @@ namespace SimpleScene.Demos
 		{
 			base.OnUpdateFrame(e);
 
-			environmentScene.Update((float)e.Time);
-			scene.Update ((float)e.Time);
-			hudScene.Update ((float)e.Time);
+            float time = (float)e.Time;
+			environmentScene.Update(time);
+			scene.Update (time);
+			hudScene.Update (time);
+            sunDiskScene.Update(time);
+            sunFlareScene.Update(time);
 
 			driveCamera ((float)e.Time);
 		}

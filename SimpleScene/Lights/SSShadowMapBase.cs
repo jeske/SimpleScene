@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using System.Collections.Generic;
-using Util3d;
+using SimpleScene.Util3d;
 using SimpleScene.Util;
 
 namespace SimpleScene
@@ -13,7 +13,7 @@ namespace SimpleScene
 
         private static int s_numberOfShadowMaps = 0;
 
-        public FrustumCuller FrustumCuller = null;
+        public SSFrustumCuller FrustumCuller = null;
 
         private readonly int m_frameBufferID;
         private readonly int m_textureID;

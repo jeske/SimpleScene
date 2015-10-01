@@ -15,7 +15,7 @@ namespace SimpleScene
             this.renderState.castsShadow = true;    // SSObjectMesh casts shadow by default
             this.renderState.receivesShadows = true; // SSObjectMesh receives shadow by default
         }        
-		public SSObjectMesh (SSAbstractMesh mesh) : this() {
+        public SSObjectMesh (SSAbstractMesh mesh) : this() {
             this.Mesh = mesh;        
             this.renderState.castsShadow = true;    // SSObjectMesh casts shadow by default
             this.renderState.receivesShadows = true; // SSObjectMesh receives shadow by default
@@ -23,7 +23,7 @@ namespace SimpleScene
         }
 		
         private SSAbstractMesh _mesh;
-		public SSAbstractMesh Mesh {
+        public SSAbstractMesh Mesh {
           get { return _mesh; }
           set { _mesh = value; _setupMesh(); }
         }
@@ -68,32 +68,25 @@ namespace SimpleScene
 			} 
         }
 
-		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongRay)
+		protected override bool PreciseIntersect (ref SSRay worldSpaceRay, out float distanceAlongWorldRay)
 		{
-			SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
-			SSAbstractMesh mesh = this._mesh;
-			bool hit = false;			  
-			float localNearestContact = float.MaxValue;
-			if (mesh == null) {
-				return true; // no mesh to test
-			} else {
-				// precise meshIntersect
-				bool global_hit = mesh.traverseTriangles ((state, V1, V2, V3) => {
-					float contact;
-					if (OpenTKHelper.TriangleRayIntersectionTest (V1, V2, V3, localRay.pos, localRay.dir, out contact)) {
-						hit = true;
-						localNearestContact = Math.Min (localNearestContact, contact);
-						Console.WriteLine ("Triangle Hit @ {0} : Object {1}", contact, Name);
-					}
-					return false; // don't short circuit
-				});
-				if (hit) {
-					float worldSpaceContactDistance = -localNearestContact * this.Scale.LengthFast;
-					Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
-					distanceAlongRay = worldSpaceContactDistance;
-				}
-				return global_hit || hit;
-			}			     
+            SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
+            if (this.Mesh != null) {
+                float localNearestContact;
+                bool ret = this.Mesh.preciseIntersect(ref localRay, out localNearestContact);
+                if (ret) {
+                    Vector3 localContactPt = localRay.pos + localNearestContact * localRay.dir;
+                    Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                    distanceAlongWorldRay = (worldContactPt - worldSpaceRay.pos).Length;
+                    //Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
+                } else {
+                    distanceAlongWorldRay = float.PositiveInfinity;
+                }
+                return ret;
+            } else {
+                distanceAlongWorldRay = float.PositiveInfinity;
+                return false;
+            }
 		}
 
 		public override void Update(float elapsedS) 

@@ -6,12 +6,12 @@ namespace TestBench1
 {
 	partial class TestBench1 : TestBenchBootstrap
 	{
-		protected override void updateWireframeDisplayText() 
+		protected override void updateTextDisplay() 
 		{
-			base.updateWireframeDisplayText ();
+			base.updateTextDisplay ();
 
 			string extraInfo = "\n\npress 'Q' to \"attack\"";
-			wireframeDisplay.Label += extraInfo;
+			textDisplay.Label += extraInfo;
 		}
 	}
 }

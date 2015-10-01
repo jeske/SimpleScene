@@ -10,6 +10,8 @@ namespace SimpleScene
     {
 		public enum MatchFunction { And, Equals };
 
+        public delegate void EffectorCallback(SSParticle particle);
+
 		protected static Random _rand = new Random ();
 
 		/// <summary>
@@ -21,13 +23,29 @@ namespace SimpleScene
 		}
 
 		public ushort effectorMask = ushort.MaxValue; // initialize to a default
-		public MatchFunction maskMathFunction = MatchFunction.And;
+		public MatchFunction maskMatchFunction = MatchFunction.And;
+        public EffectorCallback preRemoveHook = null;
+        public EffectorCallback preAddHook = null;
 
 		protected float _timeSinceReset = 0f;
 
 		public float timeSinceReset {
 			get { return _timeSinceReset; }
 		}
+
+        /// <summary>
+        /// Defines the condition for effecting a particle
+        /// </summary>
+        public bool effectorMaskCheck(ushort mask)
+        {
+            bool match;
+            if (maskMatchFunction == MatchFunction.And) {
+                match = ((mask & this.effectorMask) != 0);
+            } else { // Equals
+                match = (mask == this.effectorMask);
+            }
+            return match;
+        }
 
 		/// <summary>
 		/// Allows effector to do some housekeeping, once per frame
@@ -46,13 +64,7 @@ namespace SimpleScene
 		/// </summary>
 		public void simulateParticleEffect (SSParticle particle, float deltaT)
 		{
-			bool match;
-			if (maskMathFunction == MatchFunction.And) {
-				match = ((particle.effectorMask & this.effectorMask) != 0);
-			} else { // Equals
-				match = (particle.effectorMask == this.effectorMask);
-			}
-			if (match) {
+            if (effectorMaskCheck(particle.effectorMask)) {
 				effectParticle (particle, deltaT);
 			}
 		}
@@ -99,7 +111,7 @@ namespace SimpleScene
 		{
 			_timeSinceReset += deltaT;
 			float timeElapsed = float.IsNaN (particleLifetime) ? _timeSinceReset
-															   : particleLifetime - particle.life;
+                : (1f - particle.life / particleLifetime);
 			float lastKey = keyframes.Keys [keyframes.Count - 1];
 			if (timeElapsed > lastKey) {
 				applyValue(particle, keyframes [lastKey]);
@@ -284,7 +296,7 @@ namespace SimpleScene
 		public SSPeriodicExplosiveForceEffector()
 		{
 			_adsr = new ADSREnvelope ();
-			_adsr.amplitude = 1f;
+			_adsr.peakLevel = 1f;
 			_adsr.sustainLevel = 0.5f;
 
 			_adsr.attackDuration = 0.01f;

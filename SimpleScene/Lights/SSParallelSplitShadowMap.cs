@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using System.Collections.Generic;
-using Util3d;
+using SimpleScene.Util3d;
 
 namespace SimpleScene
 {
@@ -49,7 +49,7 @@ namespace SimpleScene
         private SSAABB[] m_frustumLightBB = new SSAABB[c_numberOfSplits]; // light-aligned BB
         private SSAABB[] m_objsLightBB = new SSAABB[c_numberOfSplits];    // light-aligned BB
         private SSAABB[] m_resultLightBB = new SSAABB[c_numberOfSplits];  // light-aligned BB
-        FrustumCuller[] m_splitFrustums = new FrustumCuller[c_numberOfSplits];
+        SSFrustumCuller[] m_splitFrustums = new SSFrustumCuller[c_numberOfSplits];
         private bool[] m_shrink = new bool[c_numberOfSplits];
         #endregion
 
@@ -94,7 +94,7 @@ namespace SimpleScene
 			pgm.Activate();
 			pgm.UniNumShadowMaps = c_numberOfSplits;
 			if (renderConfig.usePoissonSampling) {
-				pgm.UniPoissonScaling  = m_poissonScaling;
+				pgm.UniPoissonScaling = m_poissonScaling;
 			}
 			pgm.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
 			pgm.UniPssmSplits = m_viewSplits;
@@ -157,7 +157,7 @@ namespace SimpleScene
             // Optional scene-dependent optimization
             for (int i = 0; i < c_numberOfSplits; ++i) {
                 m_objsLightBB[i] = new SSAABB(float.PositiveInfinity, float.NegativeInfinity);
-                m_splitFrustums[i] = new FrustumCuller(ref m_frustumViewProjMatrices[i]);
+                m_splitFrustums[i] = new SSFrustumCuller(ref m_frustumViewProjMatrices[i]);
                 m_shrink[i] = false;
             }
             foreach (var obj in objects) {
@@ -243,7 +243,7 @@ namespace SimpleScene
             viewProjFromLightAlignedBB(ref castersLightBB, ref lightTransform, ref lightY,
                                        out frustumView, out frustumProj);
             Matrix4 frustumMatrix = frustumView * frustumProj;
-            FrustumCuller = new FrustumCuller (ref frustumMatrix);
+            FrustumCuller = new SSFrustumCuller (ref frustumMatrix);
         }
     }
 }

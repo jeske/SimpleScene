@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -34,10 +34,14 @@ namespace SimpleScene
         public bool drawingShadowMap = false;
 		public bool drawingPssm = false;
 
-        public bool usePoissonSampling = true;
+        public bool usePoissonSampling = false;
         public int numPoissonSamples = 8;
         public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;
+
+        public bool enableFaceCulling = true;
+        public CullFaceMode cullFaceMode = CullFaceMode.Back;
+        public bool enableDepthClamp = true;
 
 		public bool renderBoundingSpheresLines = false;
 		public bool renderBoundingSpheresSolid = false;
@@ -47,6 +51,7 @@ namespace SimpleScene
 		public WireframeMode drawWireframeMode;
 		public Matrix4 invCameraViewMatrix = Matrix4.Identity;
 		public Matrix4 projectionMatrix = Matrix4.Identity;
+        public float timeElapsedS = 0f; // time elapsed since last render update
 
 		public ISSInstancableShaderProgram ActiveInstanceShader {
 			get {
@@ -93,10 +98,15 @@ namespace SimpleScene
 
     public sealed class SSScene
     {
+		public delegate void SceneUpdateDelegate(float timeElapsedS);
+
         private SSCamera activeCamera = null;
         public readonly SSRenderConfig renderConfig;
         public List<SSObject> objects = new List<SSObject>();
         public List<SSLightBase> lights = new List<SSLightBase>();
+		public SceneUpdateDelegate preUpdateHooks = null;
+        public SceneUpdateDelegate preRenderHooks = null;
+        public Stopwatch renderStopwatch = new Stopwatch ();
 
         public SSCamera ActiveCamera { 
             get { return activeCamera; }
@@ -153,16 +163,16 @@ namespace SimpleScene
 
         public SSObject Intersect(ref SSRay worldSpaceRay) {
             SSObject nearestIntersection = null;
-            float nearestDistance = float.MinValue;
+            float nearestDistance = float.MaxValue;
             // distances get "smaller" as they move in camera direction for some reason (why?)
             foreach (var obj in objects) {
                 float distanceAlongRay;
-				if (obj.Selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
+				if (obj.selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
-                    if (distanceAlongRay < 0.0) {
+                    if (distanceAlongRay > 0.0) {
                         Console.WriteLine("intersect: [{0}] @distance: {1}", obj.Name, distanceAlongRay);
                         // then we want the nearest one (numerically biggest
-                        if (distanceAlongRay > nearestDistance) {
+                        if (distanceAlongRay < nearestDistance) {
                             nearestDistance = distanceAlongRay;
                             nearestIntersection = obj;
                         }
@@ -173,15 +183,31 @@ namespace SimpleScene
             return nearestIntersection;
         }
 
-        public void Update(float fElapsedMS) {
+        public void Update(float fElapsedS) {
+			if (preUpdateHooks != null) {
+				preUpdateHooks (fElapsedS);
+			}
             // update all objects.. TODO: add elapsed time since last update..
             foreach (var obj in objects) {
-                obj.Update(fElapsedMS);
+                obj.Update(fElapsedS);
             }
         }
 
         #region Render Pass Logic
         public void RenderShadowMap(float fov, float aspect, float nearZ, float farZ) {
+            // clear some basics 
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Texture2D);
+            GL.ShadeModel(ShadingModel.Flat);
+            GL.Disable(EnableCap.ColorMaterial);
+
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Front);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.DepthClamp);
+            GL.DepthMask(true);
+
 			// Shadow Map Pass(es)
             foreach (var light in lights) {
                 if (light.ShadowMap != null) {
@@ -193,17 +219,34 @@ namespace SimpleScene
 		}
 
         public void Render() {
+            renderConfig.timeElapsedS = (float)renderStopwatch.ElapsedMilliseconds/1000f;
+            renderStopwatch.Restart();
+            if (preRenderHooks != null) {
+                preRenderHooks(renderConfig.timeElapsedS);
+            }
+
+            if (renderConfig.enableFaceCulling) {
+                GL.Enable(EnableCap.CullFace);
+                GL.CullFace(renderConfig.cullFaceMode);
+            } else {
+                GL.Disable(EnableCap.CullFace);
+            }
+            if (renderConfig.enableDepthClamp) {
+                GL.Enable(EnableCap.DepthClamp);
+            } else {
+                GL.Disable(EnableCap.DepthClamp);
+            }
+
 			setupLighting ();
             
             // compute a world-space frustum matrix, so we can test against world-space object positions
             Matrix4 frustumMatrix = renderConfig.invCameraViewMatrix * renderConfig.projectionMatrix;
-            renderPass(true, new Util3d.FrustumCuller(ref frustumMatrix));
+            renderPass(true, new SimpleScene.Util3d.SSFrustumCuller(ref frustumMatrix));
 
             disableLighting();
         }
 
         private void setupLighting() {
-            GL.Enable(EnableCap.Lighting);
             foreach (var light in lights) {
                 light.setupLight(renderConfig);
             }
@@ -218,13 +261,12 @@ namespace SimpleScene
         }
 
         private void disableLighting() {
-            GL.Disable(EnableCap.Lighting);
             foreach (var light in lights) {
-                light.DisableLight();
+                light.DisableLight(renderConfig);
             }
         }
 
-        private void renderPass(bool notifyBeforeRender, Util3d.FrustumCuller fc = null) {
+        private void renderPass(bool notifyBeforeRender, SimpleScene.Util3d.SSFrustumCuller fc = null) {
             // reset stats
             renderConfig.renderStats = new SSRenderStats();
 

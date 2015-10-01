@@ -6,8 +6,6 @@
     <ProjectGuid>{4A7A056C-CB90-4F29-95DE-EAC471A6CBD7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>SimpleScene</RootNamespace>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -91,7 +89,6 @@
     <Compile Include="Util\WhoCalls.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\FPSCalculator.cs" />
-    <Compile Include="Util\FrustumCuller.cs" />
     <Compile Include="Core\SSShader.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGG.cs" />
     <Compile Include="Objects\SSObject2DSurface_AGGText.cs" />
@@ -102,7 +99,6 @@
     <Compile Include="Core\SSShaderProgram.cs" />
     <Compile Include="Objects\SSObjectHUDQuad.cs" />
     <Compile Include="Meshes\Shapes\SSMeshDisk.cs" />
-    <Compile Include="Objects\SSObjectBillboard.cs" />
     <Compile Include="Core\SSTextureWithAlpha.cs" />
     <Compile Include="Lights\SSSimpleShadowMap.cs" />
     <Compile Include="Lights\SSParallelSplitShadowMap.cs" />
@@ -115,17 +111,10 @@
     <Compile Include="Meshes\Buffers\SSVertexBuffer.cs" />
     <Compile Include="Meshes\Buffers\SSAttributeBuffer.cs" />
     <Compile Include="Util\Interpolate.cs" />
-    <Compile Include="Meshes\ParticleSystems\SSParticleSystem.cs" />
-    <Compile Include="Meshes\ParticleSystems\ParticlesFieldGenerators.cs" />
-    <Compile Include="Meshes\ParticleSystems\ParticlesPlaneGenerators.cs" />
-    <Compile Include="Meshes\ParticleSystems\BodiesFieldGenerators.cs" />
-    <Compile Include="Meshes\ParticleSystems\ParticleEmitters.cs" />
-    <Compile Include="Meshes\ParticleSystems\ParticleEffectors.cs" />
     <Compile Include="Meshes\Buffers\AttributeFormats.cs" />
     <Compile Include="Meshes\Buffers\VertexFormats.cs" />
     <Compile Include="Core\SSInstanceShaderProgram.cs" />
     <Compile Include="Meshes\SSIndexedMesh.cs" />
-    <Compile Include="Meshes\ParticleSystems\SSInstancedMeshRenderer.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedQuad.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedCube.cs" />
     <Compile Include="Util\Prefs.cs" />
@@ -158,6 +147,18 @@
     <Compile Include="Meshes\Skeletal\SSPolarJoint.cs" />
     <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingJoint.cs" />
     <Compile Include="Util\Files\SSAssetManagerRegisterDefaultTypes.cs" />
+    <Compile Include="Util\ADSREnvelope.cs" />
+    <Compile Include="Objects\SSObjectOcclusionQueuery.cs" />
+    <Compile Include="Util\SSFrustumCuller.cs" />
+    <Compile Include="Meshes\Instancing\ParticlesFieldGenerators.cs" />
+    <Compile Include="Meshes\Instancing\ParticlesPlaneGenerators.cs" />
+    <Compile Include="Meshes\Instancing\BodiesFieldGenerators.cs" />
+    <Compile Include="Meshes\Instancing\ParticleEmitters.cs" />
+    <Compile Include="Meshes\Instancing\ParticleEffectors.cs" />
+    <Compile Include="Meshes\Instancing\SSInstancedMeshRenderer.cs" />
+    <Compile Include="Meshes\Instancing\SSParticleSystemData.cs" />
+    <Compile Include="Meshes\Instancing\SSInstancedSpriteRenderer.cs" />
+    <Compile Include="Meshes\Instancing\SSInstancesData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -203,9 +204,9 @@
     <None Include="TODO_BUG_hid_removal.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Meshes\ParticleSystems\" />
     <Folder Include="Assets\Shaders\Instancing\" />
     <Folder Include="Meshes\Skeletal\" />
     <Folder Include="Util\Files\" />
+    <Folder Include="Meshes\Instancing\" />
   </ItemGroup>
 </Project>

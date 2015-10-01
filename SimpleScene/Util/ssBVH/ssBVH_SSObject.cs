@@ -82,6 +82,7 @@ namespace SimpleScene.Util.ssBVH
         public SSBVHRender(ssBVH<SSObject> bvh) {
             this.bvh = bvh;
             this.MainColor = Color4.Red;
+            this.renderState.lighted = false;
         }
 
         private static readonly SSVertex_Pos[] vertices = {
@@ -137,7 +138,6 @@ namespace SimpleScene.Util.ssBVH
 			base.Render(renderConfig);
 			SSShaderProgram.DeactivateAll();
 			GL.Disable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.Lighting);	
             GL.LineWidth(1.0f);
    			
             GL.MatrixMode(MatrixMode.Modelview);

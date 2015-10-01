@@ -1,0 +1,6 @@
+Textures taken from:
+
+OpenGL (LibGDX) Laser FX Tutorial
+by CODEPOKE (codepoke.com)
+http://codepoke.net/2011/12/27/opengl-libgdx-laser-fx/
+
