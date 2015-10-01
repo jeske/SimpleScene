@@ -194,6 +194,7 @@ namespace SimpleScene
             var mainShader = renderConfig.mainShader;
             mainShader.Activate();
             var modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
+            var instanceBBrotation = Matrix4.CreateFromQuaternion(modelViewMat.ExtractRotation() * -1f);
 
             for (int i = 0; i < instanceData.activeBlockLength; i++) {
                 if (!instanceData.isValid(i))
@@ -203,7 +204,14 @@ namespace SimpleScene
                 mainShader.UniSpriteOffsetAndSize(spriteRect.X, spriteRect.Y, 
                     spriteRect.Width, spriteRect.Height);
 
-                Matrix4 mat = _instanceMat(i) * modelViewMat;
+                Matrix4 mat = _instanceMat(i);;
+                var pos = instanceData.readPosition(i);
+                if (float.IsNaN(pos.X) || float.IsNaN(pos.Y)) { // instanced billboarding markers
+                    mat = mat * instanceBBrotation;
+                } else {
+                    mat = mat * modelViewMat;
+                }
+
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref mat);
 
