@@ -99,8 +99,6 @@ namespace SimpleScene
 
         public override void Render (SSRenderConfig renderConfig)
         {
-			Matrix4 modelView = this.worldMat * renderConfig.invCameraViewMatrix;
-
 			// allow particle system to react to camera/worldview
             instanceData.updateCamera (ref this.worldMat, 
                 ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
@@ -113,7 +111,7 @@ namespace SimpleScene
             if (!renderConfig.drawingShadowMap && 
                 !renderState.doBillboarding && base.alphaBlendingEnabled) {
                 // Must be called before updating buffers
-                instanceData.sortByDepth (ref modelView);
+                //instanceData.sortByDepth (ref modelView);
             }
 
             if (renderMode == RenderMode.GpuInstancing
@@ -190,6 +188,15 @@ namespace SimpleScene
             //this.boundingSphere.Render(ref renderConfig);
         }
 
+        protected void _prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
+            where A : struct, ISSAttributeLayout 
+            where AB : SSAttributeBuffer<A>
+        {
+            int numActive = instanceData.activeBlockLength;
+            int numInstancesPerValue = array.Length < numActive ? numActive : 1;
+            attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
+        }
+
         protected void _renderWithCPUIterations(SSRenderConfig renderConfig)
         {
             var mainShader = renderConfig.mainShader;
@@ -230,15 +237,6 @@ namespace SimpleScene
                 * Matrix4.CreateRotationZ(ori.Z)
                 * Matrix4.CreateTranslation(pos);
             return instanceMat;
-        }
-
-		protected void _prepareAttribute<AB, A>(AB attrBuff, int attrLoc, A[] array) 
-            where A : struct, ISSAttributeLayout 
-            where AB : SSAttributeBuffer<A>
-        {
-            int numActive = instanceData.activeBlockLength;
-            int numInstancesPerValue = array.Length < numActive ? numActive : 1;
-			attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
 
 		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 

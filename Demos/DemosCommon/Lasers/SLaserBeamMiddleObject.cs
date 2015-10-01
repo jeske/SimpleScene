@@ -90,7 +90,6 @@ namespace SimpleScene.Demos
             this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
             this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
 
-			var ctx = new SSAssetManager.Context ("./lasers");
             this.middleBackgroundSprite = middleBackgroundTexture;
             this.middleOverlayTexture = middleOverlayTexture;
             this.interferenceTexture = inteferenceTexture;
