@@ -34,7 +34,7 @@ namespace SimpleScene
         public bool drawingShadowMap = false;
 		public bool drawingPssm = false;
 
-        public bool usePoissonSampling = true;
+        public bool usePoissonSampling = false;
         public int numPoissonSamples = 8;
         public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.BlinnPhong;
 		//public SSMainShaderProgram.LightingMode lightingMode = SSMainShaderProgram.LightingMode.ShadowMapDebug;

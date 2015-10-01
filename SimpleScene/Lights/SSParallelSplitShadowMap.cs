@@ -94,7 +94,7 @@ namespace SimpleScene
 			pgm.Activate();
 			pgm.UniNumShadowMaps = c_numberOfSplits;
 			if (renderConfig.usePoissonSampling) {
-				pgm.UniPoissonScaling  = m_poissonScaling;
+				pgm.UniPoissonScaling = m_poissonScaling;
 			}
 			pgm.UniShadowMapVPs = m_shadowViewProjBiasMatrices;
 			pgm.UniPssmSplits = m_viewSplits;

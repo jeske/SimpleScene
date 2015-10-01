@@ -18,14 +18,14 @@ namespace SimpleScene.Demos
 		protected SSObjectGDISurface_Text textDisplay;
 
 		protected virtual void setupScene() {
-			scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-
 			sunDiskScene = new SSScene ();
             sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
 			hudScene = new SSScene ();
 			environmentScene = new SSScene ();
 
+            scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+            scene.renderConfig.usePoissonSampling = true;
 			scene.BeforeRenderObject += beforeRenderObjectHandler;
 
 			// 0. Add Lights

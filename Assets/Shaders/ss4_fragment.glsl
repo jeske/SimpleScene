@@ -298,6 +298,7 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 	   return outputColor;
 }
 
+// TODO: NEEDS MAINTENANCE AND CODE CONSOLIDATION (if possible)
 vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
 	   // tangent space shading with bump map...	
 	      
