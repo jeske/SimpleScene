@@ -245,9 +245,6 @@ vec4 shadowMapTestLighting(vec4 outputColor) {
 // http://www.ozone3d.net/tutorials/bump_mapping_p4.php
 vec4 BlinnPhongLighting(vec4 outputColor) {
 		// eye space lighting
-		vec4 shadowMapDebugColor;
-
-		float litFactor = shadowMapLighting(shadowMapDebugColor);
 
 		// lighting strength
 		vec4 ambientStrength = gl_FrontMaterial.ambient;
@@ -275,7 +272,10 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
        // 2. glow/emissive lighting term
 	   outputColor += glowColor * glowStrength;
 
+       vec4 shadowMapDebugColor;           
        if (directionalLightIndex != -1) {
+            float litFactor = shadowMapLighting(shadowMapDebugColor);
+
             vec3 lightDir = gl_LightSource[directionalLightIndex].position.xyz;
             float lightDotProd = dot(f_vertexNormal, lightDir);
             bool lightIsInFront =  lightDotProd < 0.0;
