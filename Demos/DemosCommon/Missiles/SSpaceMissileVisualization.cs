@@ -5,6 +5,8 @@ namespace SimpleScene.Demos
 {
     public interface ISSpaceMissileEjectionDriver
     {
+        // TODO who decides when the ejection phase is over??
+
         void init(SSpaceMissileVisualizion missile, Vector3 clusterPos, Vector3 clusterVel,
                   ref Vector3 pos, ref Vector3 dir, ref Vector3 velocity, ref Vector3 angularVelocity);
         void update(SSpaceMissileVisualizion missile, float timeElapsed, 
@@ -13,8 +15,9 @@ namespace SimpleScene.Demos
 
     public interface ISSpaceMissilePursuitDriver
     {
-        void update(SSpaceMissileVisualizion missile, float timeElapsed, 
+        void update(SSpaceMissileVisualizion missile, float timeElapsed,
             ref float thrust, ref Vector3 lateralAcc);
+        float estimateTimeNeededToHit(SSpaceMissileVisualizion missile); 
     }
 
     public class SSpaceMissileVisualizion
@@ -33,8 +36,6 @@ namespace SimpleScene.Demos
         public Vector3 direction { get { return _direction; } }
         public Vector3 lateralAcceleration { get { return _lateralAcceleration; } }
         public float thrust { get { return _thrust; } }
-
-        public Vector3 prevTargetDir { get { return _prevTargetDir; } }
 
         /// <summary>
         /// The cluster this missile belongs to. Variable gives access to params, target, other missiles.
@@ -65,6 +66,7 @@ namespace SimpleScene.Demos
         protected float _thrust = 0f;
 
         protected float _timeElapsed = 0f;
+        protected float _localTime = 0f;
         protected Vector3 _prevTargetDir;
 
         public SSpaceMissileVisualizion(SSpaceMissileVisualizerCluster cluster, int clusterId,
@@ -85,13 +87,16 @@ namespace SimpleScene.Demos
         public void updateExecution(float timeElapsed)
         {
             _timeElapsed = timeElapsed;
-            Vector3 toTarget = cluster.target.position - _position;
-            Vector3 targetDir = toTarget.Normalized();
+            _localTime += timeElapsed;
 
             var mParams = _cluster.parameters;
             switch (_state) {
             case State.Ejection:
                 mParams.ejectionDriver.update(this, timeElapsed, ref _thrust, ref _lateralAcceleration);
+                if (mParams.pursuitDriver.estimateTimeNeededToHit(this) >= _timeToHit
+                && _localTime >= mParams.minActivationTime) {
+                    _state = State.Pursuit;
+                }
                 break;
             case State.Pursuit:
                 mParams.pursuitDriver.update(this, timeElapsed, ref _thrust, ref _lateralAcceleration);
@@ -101,7 +106,7 @@ namespace SimpleScene.Demos
                 break;
             }
 
-            _prevTargetDir = targetDir;
+            // TODO state transitions
         }
 
         public void updateTimeToHit(float timeToHit)

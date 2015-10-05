@@ -54,6 +54,9 @@ namespace SimpleScene.Demos
 
         public SSpaceMissileVisualizerParameters parameters { get { return _parameters; } }
         public ISSpaceMissileTarget target { get { return _target; } }
+        public Vector3 prevTargetPos { get { return _prevTargetPos; } }
+
+        protected Vector3 _prevTargetPos;
 
         SSpaceMissileVisualizerCluster(
             Vector3 initPos, Vector3 initVel, int numMissiles,
@@ -61,6 +64,7 @@ namespace SimpleScene.Demos
             SSpaceMissileVisualizerParameters mParams)
         {
             _target = target;
+            _prevTargetPos = target.position;
             _parameters = mParams;
             _missiles = new SSpaceMissileVisualizion[numMissiles];
             for (int i = 0; i < numMissiles; ++i) {
@@ -73,6 +77,7 @@ namespace SimpleScene.Demos
             foreach (var missile in _missiles) {
                 missile.updateExecution(timeElapsed);
             }
+            _prevTargetPos = _target.position;
         }
 
         public void updateTimeToHit(float timeToHit)
@@ -88,7 +93,7 @@ namespace SimpleScene.Demos
         public float minActivationTime = 1f;
 
         public ISSpaceMissileEjectionDriver ejectionDriver; // TODO = ?
-        public ISSpaceMissileEjectionDriver pursuitDriver; // TODO =
+        public ISSpaceMissilePursuitDriver pursuitDriver; // TODO =
 
         // TODO: max lateral acceleration?
         // TODO throw/programmed maneuver pattern
