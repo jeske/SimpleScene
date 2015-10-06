@@ -59,7 +59,7 @@ namespace SimpleScene.Demos
         protected Vector3 _prevTargetPos;
 
         SSpaceMissileVisualizerCluster(
-            Vector3 initPos, Vector3 initVel, int numMissiles,
+            Vector3 initClusterPos, Vector3 initClusterVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
             SSpaceMissileVisualizerParameters mParams)
         {
@@ -67,9 +67,15 @@ namespace SimpleScene.Demos
             _prevTargetPos = target.position;
             _parameters = mParams;
             _missiles = new SSpaceMissileVisualizion[numMissiles];
-            for (int i = 0; i < numMissiles; ++i) {
-                _missiles [i] = new SSpaceMissileVisualizion (this, i, initPos, initVel, timeToHit);
-            }
+
+            _parameters.spawnGen.Generate(numMissiles,
+                (i, scale, pos, orient) => {
+                    Vector3 missilePos = initClusterPos + pos * _parameters.spawnMaxDistance;
+                    _missiles [i] = new SSpaceMissileVisualizion (
+                        this, i, missilePos, initClusterVel, timeToHit);
+                    return true; // accept new missile from the generator
+                }
+            );
         }
 
         public void updateVisualization(float timeElapsed)
@@ -91,6 +97,10 @@ namespace SimpleScene.Demos
     public class SSpaceMissileVisualizerParameters
     {
         public float minActivationTime = 1f;
+
+        public BodiesFieldGenerator spawnGen = new BodiesFieldGenerator(
+            new ParticlesSphereGenerator(Vector3.Zero, 1f));
+        public float spawnMaxDistance = 10f;
 
         public ISSpaceMissileEjectionDriver ejectionDriver; // TODO = ?
         public ISSpaceMissilePursuitDriver pursuitDriver; // TODO =

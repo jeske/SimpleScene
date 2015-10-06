@@ -3,23 +3,6 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public interface ISSpaceMissileEjectionDriver
-    {
-        // TODO who decides when the ejection phase is over??
-
-        void init(SSpaceMissileVisualizion missile, Vector3 clusterPos, Vector3 clusterVel,
-                  ref Vector3 pos, ref Vector3 dir, ref Vector3 velocity, ref Vector3 angularVelocity);
-        void update(SSpaceMissileVisualizion missile, float timeElapsed, 
-                    ref float thrust, ref Vector3 lateralAcc);
-    }
-
-    public interface ISSpaceMissilePursuitDriver
-    {
-        void update(SSpaceMissileVisualizion missile, float timeElapsed,
-            ref float thrust, ref Vector3 lateralAcc);
-        float estimateTimeNeededToHit(SSpaceMissileVisualizion missile); 
-    }
-
     public class SSpaceMissileVisualizion
     {
         // TODO actual rendering constructs. Where do they go?
@@ -77,8 +60,7 @@ namespace SimpleScene.Demos
             _timeToHit = timeToHit;
 
             var ejection = _cluster.parameters.ejectionDriver;
-            ejection.init(this, initClusterPos, initClusterVel,
-                ref _position, ref _direction, ref _velocity, ref _angularVelocity);
+            ejection.init(_cluster, ref _direction, ref _velocity, ref _angularVelocity);
 
             _prevTargetDir = (cluster.target.position - _position).Normalized();
             ejection.update(this, 0f, ref _thrust, ref _lateralAcceleration);
@@ -105,8 +87,6 @@ namespace SimpleScene.Demos
                 // todo
                 break;
             }
-
-            // TODO state transitions
         }
 
         public void updateTimeToHit(float timeToHit)
@@ -117,7 +97,7 @@ namespace SimpleScene.Demos
 
         public void updateRenderingObjects(float timeElapsed)
         {
-
+            // TODO
         }
     }
 

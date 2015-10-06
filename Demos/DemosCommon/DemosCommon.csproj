@@ -46,6 +46,7 @@
     <Compile Include="SSunFlareRenderer.cs" />
     <Compile Include="Missiles\SSpaceMissileVisualization.cs" />
     <Compile Include="Missiles\SSpaceMissilesVisuals.cs" />
+    <Compile Include="Missiles\MissileDrivers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
