@@ -13,12 +13,23 @@ namespace SimpleScene.Demos
         public int clusterId { get { return _clusterId; } }
 
         public Vector3 position { get { return _position; } }
+        public Vector3 direction { get { return _direction; } }
+        public float thrustAcc { get { return _thrustAcc; } }
+
+        #if false
+        public Vector3 up { get { return _up; } }
+
         public Vector3 velocity { get { return _velocity; } }
         public Vector3 angularVelocity { get { return _angularVelocity; } }
         public Vector3 acceleration { get { return _acceleration; } }
-        public Vector3 direction { get { return _direction; } }
         public Vector3 lateralAcceleration { get { return _lateralAcceleration; } }
-        public float thrust { get { return _thrust; } }
+        #endif
+
+        public Vector3 pitchAxis {
+            get {
+                return Vector3.Cross(_direction, _up).Normalized();
+            }
+        }
 
         /// <summary>
         /// The cluster this missile belongs to. Variable gives access to params, target, other missiles.
@@ -42,15 +53,17 @@ namespace SimpleScene.Demos
 
         protected Vector3 _position = Vector3.Zero;
         protected Vector3 _velocity = Vector3.Zero;
-        protected Vector3 _angularVelocity = Vector3.Zero;
-        protected Vector3 _acceleration = Vector3.Zero;
-        protected Vector3 _lateralAcceleration = Vector3.Zero;
-        protected Vector3 _direction = Vector3.Zero;
-        protected float _thrust = 0f;
+        protected float _thrustAcc = 0f;
 
-        protected float _timeElapsed = 0f;
-        protected float _localTime = 0f;
-        protected Vector3 _prevTargetDir;
+        protected Vector3 _direction = -Vector3.UnitZ;
+        protected Vector3 _up = Vector3.UnitY;
+
+        protected float _pitchVel = 0f;
+        protected float _pitchAcc = 0f;
+        protected float _yawVel = 0f;
+        protected float _yawAcc = 0f;
+
+        protected float _timeSinceLaunch = 0f;
 
         public SSpaceMissileVisualizion(SSpaceMissileVisualizerCluster cluster, int clusterId,
                                         Vector3 initClusterPos, Vector3 initClusterVel, float timeToHit)
@@ -60,33 +73,48 @@ namespace SimpleScene.Demos
             _timeToHit = timeToHit;
 
             var ejection = _cluster.parameters.ejectionDriver;
-            ejection.init(_cluster, ref _direction, ref _velocity, ref _angularVelocity);
+            ejection.init(this, out _direction, out _up, out _velocity, out _pitchVel, out _yawVel);
 
-            _prevTargetDir = (cluster.target.position - _position).Normalized();
-            ejection.update(this, 0f, ref _thrust, ref _lateralAcceleration);
+            ejection.update(this, 0f, ref _thrustAcc, ref _pitchAcc, ref _yawAcc);
         }
 
-        public void updateExecution(float timeElapsed)
+        public void updateExecution(float timeElapsed, Vector3 prevTargetPos)
         {
-            _timeElapsed = timeElapsed;
-            _localTime += timeElapsed;
+            //_timeElapsed = timeElapsed;
+            _timeSinceLaunch += timeElapsed;
+
+            _position += _velocity * timeElapsed;
+            Matrix4 changeInOrientation 
+                = Matrix4.CreateFromAxisAngle(_up, _yawVel * timeElapsed)
+                * Matrix4.CreateFromAxisAngle(pitchAxis, _pitchVel * timeElapsed);
+            _direction = Vector3.Transform(_direction, changeInOrientation).Normalized();
+            _up = Vector3.Transform(_up, changeInOrientation).Normalized();
 
             var mParams = _cluster.parameters;
             switch (_state) {
             case State.Ejection:
-                mParams.ejectionDriver.update(this, timeElapsed, ref _thrust, ref _lateralAcceleration);
+                mParams.ejectionDriver.update(this, timeElapsed, 
+                    ref _thrustAcc, ref _pitchAcc, ref _yawAcc);
                 if (mParams.pursuitDriver.estimateTimeNeededToHit(this) >= _timeToHit
-                && _localTime >= mParams.minActivationTime) {
+                && _timeSinceLaunch >= mParams.minActivationTime) {
                     _state = State.Pursuit;
                 }
                 break;
             case State.Pursuit:
-                mParams.pursuitDriver.update(this, timeElapsed, ref _thrust, ref _lateralAcceleration);
+                mParams.pursuitDriver.update(this, timeElapsed, 
+                    ref _thrustAcc, ref _pitchAcc, ref _yawAcc);
                 break;
             case State.Intercepted:
                 // todo
                 break;
             }
+
+            _pitchAcc = Math.Min(_pitchAcc, mParams.maxRotationalAcc);
+            _yawAcc = Math.Min(_yawAcc, mParams.maxRotationalAcc);
+
+            _pitchVel += _pitchAcc * timeElapsed;
+            _yawVel += _yawAcc * timeElapsed;
+            _velocity += _thrustAcc * _direction * timeElapsed;
         }
 
         public void updateTimeToHit(float timeToHit)

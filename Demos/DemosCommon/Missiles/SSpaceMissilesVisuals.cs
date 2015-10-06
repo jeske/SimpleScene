@@ -21,11 +21,15 @@ namespace SimpleScene.Demos
             = new List<SSpaceMissileVisualizerCluster>();
 
         public void launchCluster(
-            Vector3 launchPos, Vector3 launchVel, 
+            Vector3 launchPos, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
             SSpaceMissileVisualizerParameters clusterParams)
         {
+            var cluster = new SSpaceMissileVisualizerCluster (
+              launchPos, launchVel, numMissiles, target, timeToHit, clusterParams);
+            _clusters.Add(cluster);
 
+            // TODO remove cluster: auto -OR- manual
         }
 
         public void updateVisualization(float timeElapsed)
@@ -57,8 +61,9 @@ namespace SimpleScene.Demos
         public Vector3 prevTargetPos { get { return _prevTargetPos; } }
 
         protected Vector3 _prevTargetPos;
+        protected float _timeDeltaAccumulator = 0f;
 
-        SSpaceMissileVisualizerCluster(
+        public SSpaceMissileVisualizerCluster(
             Vector3 initClusterPos, Vector3 initClusterVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
             SSpaceMissileVisualizerParameters mParams)
@@ -80,9 +85,14 @@ namespace SimpleScene.Demos
 
         public void updateVisualization(float timeElapsed)
         {
-            foreach (var missile in _missiles) {
-                missile.updateExecution(timeElapsed);
+            timeElapsed += _timeDeltaAccumulator;
+            while (timeElapsed >= _parameters.simulationStep) {
+                foreach (var missile in _missiles) {
+                    missile.updateExecution(timeElapsed, _prevTargetPos);
+                }
+                timeElapsed -= _parameters.simulationStep;
             }
+            _timeDeltaAccumulator = timeElapsed;
             _prevTargetPos = _target.position;
         }
 
@@ -96,7 +106,10 @@ namespace SimpleScene.Demos
 
     public class SSpaceMissileVisualizerParameters
     {
+        public float simulationStep = 0.05f;
+
         public float minActivationTime = 1f;
+        public float maxRotationalAcc = 0.2f;
 
         public BodiesFieldGenerator spawnGen = new BodiesFieldGenerator(
             new ParticlesSphereGenerator(Vector3.Zero, 1f));
