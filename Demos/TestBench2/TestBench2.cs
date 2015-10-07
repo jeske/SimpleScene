@@ -41,6 +41,7 @@ namespace TestBench2
 		public TestBench2 ()
 			: base("TestBench2: Lasers")
 		{
+            shadowmapDebugQuad.renderState.visible = false;
 		}
 
 		static void Main()
@@ -203,7 +204,7 @@ namespace TestBench2
                     + (target == null ? "none" : target.Name) + ']';
             }
 
-	}
+	    }
 
 		protected override void setupInput ()
 		{

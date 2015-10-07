@@ -16,6 +16,7 @@ namespace SimpleScene.Demos
 		protected bool autoWireframeMode = true;
 		protected SSObjectGDISurface_Text fpsDisplay;
 		protected SSObjectGDISurface_Text textDisplay;
+        protected SSObjectHUDQuad shadowmapDebugQuad;
 
 		protected virtual void setupScene() {
 			sunDiskScene = new SSScene ();
@@ -46,10 +47,10 @@ namespace SimpleScene.Demos
 			scene.AddLight(light);
 
 			#if true
-			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
-			smapDebug.Scale = new Vector3(0.3f);
-			smapDebug.Pos = new Vector3(50f, 200, 0f);
-			hudScene.AddObject(smapDebug);
+            shadowmapDebugQuad = new SSObjectHUDQuad (light.ShadowMap.TextureID);
+            shadowmapDebugQuad.Scale = new Vector3(0.3f);
+            shadowmapDebugQuad.Pos = new Vector3(50f, 200, 0f);
+            hudScene.AddObject(shadowmapDebugQuad);
 			#endif
 
             #if true
