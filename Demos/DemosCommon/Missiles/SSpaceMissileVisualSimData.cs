@@ -67,11 +67,13 @@ namespace SimpleScene.Demos
         protected float _timeSinceLaunch = 0f;
 
         public SSpaceMissileVisualizationData(SSpaceMissileVisualSimCluster cluster, int clusterId,
-                                        Vector3 initClusterPos, Vector3 initClusterVel, float timeToHit)
+                                        Vector3 initClusterPos, Vector3 initClusterVel, 
+                                        Vector3 missilePos, float timeToHitTarget)
         {
             _cluster = cluster;
             _clusterId = clusterId;
-            _timeToHit = timeToHit;
+            _position = missilePos;
+            _timeToHit = timeToHitTarget;
 
             var ejection = _cluster.parameters.ejectionDriver;
             ejection.init(this, initClusterPos, initClusterVel, out _direction, out _up, out _velocity, out _pitchVel, out _yawVel);

@@ -131,7 +131,27 @@ namespace TestBench3
 
             scene.ActiveCamera = camera;
             scene.AddObject (camera);
-        } 
+        }
+
+        protected override void renderScenes (
+            float fovy, float aspect, 
+            float nearPlane, float farPlane, 
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
+            base.renderScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+
+            // laser middle sections and burn particles
+            missileParticlesScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            missileParticlesScene.renderConfig.projectionMatrix = mainSceneProj;
+            missileParticlesScene.Render ();
+        }
+
+        protected override void OnUpdateFrame (FrameEventArgs e)
+        {
+            base.OnUpdateFrame(e);
+            missileParticlesScene.Update((float)e.Time);
+        }
     }
 }
 

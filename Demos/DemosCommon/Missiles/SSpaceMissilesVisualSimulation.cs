@@ -74,7 +74,7 @@ namespace SimpleScene.Demos
                     Vector3 missilePos = pos * _parameters.spawnDistanceScale;
                     missilePos = Vector3.Transform(missilePos, spawnTxfm);
                     _missiles [i] = new SSpaceMissileVisualizationData (
-                        this, i, missilePos, launcherVel, timeToHit);
+                        this, i, launcherPos, launcherVel, missilePos, timeToHit);
                     return true; // accept new missile from the generator
                 }
             );
@@ -134,6 +134,8 @@ namespace SimpleScene.Demos
         /// </summary>
         public Quaternion missileMeshOrient = Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
         public float missileScale = 1f;
+        /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
+        public float jetPosition = 1f;
         // TODO flame tex, smoke tex
         #endregion
     }

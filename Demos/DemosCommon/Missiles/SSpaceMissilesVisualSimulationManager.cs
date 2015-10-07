@@ -74,6 +74,7 @@ namespace SimpleScene.Demos
 
         protected void _preRenderUpdate(float timeElapsed)
         {
+            _simulation.updateVisualization(timeElapsed);
             foreach (var missile in _missilesRuntimes.Values) {
                 missile.preRenderUpdate(timeElapsed);
             }
@@ -82,7 +83,7 @@ namespace SimpleScene.Demos
         protected class SSpaceMissileRenderInfo
         {
             public readonly SSObjectMesh bodyObj;
-            public readonly SSParticleEmitter smokeEmitter;
+            public readonly SSRadialEmitter smokeEmitter;
             protected SSpaceMissileVisualizationData _missile;
 
             public SSpaceMissileRenderInfo(SSpaceMissileVisualizationData missile)
@@ -90,6 +91,7 @@ namespace SimpleScene.Demos
                 _missile = missile;
                 var mParams = missile.cluster.parameters;
                 bodyObj = new SSObjectMesh(mParams.missileMesh);
+                bodyObj.Scale = new Vector3(mParams.missileScale);
 
                 smokeEmitter = new SSRadialEmitter(); 
             }
@@ -105,7 +107,11 @@ namespace SimpleScene.Demos
                 float dirPhi = (float)Math.Atan2(dir.Z, dir.Xy.LengthFast);
                 Quaternion dirQuat = Quaternion.FromAxisAngle(Vector3.UnitY, dirPhi)
                                    * Quaternion.FromAxisAngle(Vector3.UnitZ, dirTheta);
-                bodyObj.Orient(mParams.missileMeshOrient * dirQuat);
+                //bodyObj.Orient(mParams.missileMeshOrient * dirQuat);
+                bodyObj.Orient(mParams.missileMeshOrient);
+
+                smokeEmitter.center = _missile.position
+                    - _missile.direction * mParams.missileScale * mParams.jetPosition;
             }
 
         }
