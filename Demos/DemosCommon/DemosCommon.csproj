@@ -44,9 +44,10 @@
     <Compile Include="Lasers\SLaserEmissionFlareUpdater.cs" />
     <Compile Include="Lasers\SLaserParameters.cs" />
     <Compile Include="SSunFlareRenderer.cs" />
-    <Compile Include="Missiles\SSpaceMissileVisualization.cs" />
-    <Compile Include="Missiles\SSpaceMissilesVisuals.cs" />
     <Compile Include="Missiles\MissileDrivers.cs" />
+    <Compile Include="Missiles\SSpaceMissilesVisualSimulation.cs" />
+    <Compile Include="Missiles\SSpaceMissileVisualSimData.cs" />
+    <Compile Include="Missiles\SSpaceMissilesVisualSimulationManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
@@ -141,5 +142,6 @@
     <Folder Include="Lasers\" />
     <Folder Include="Assets\lasers\" />
     <Folder Include="Missiles\" />
+    <Folder Include="Assets\missiles\" />
   </ItemGroup>
 </Project>

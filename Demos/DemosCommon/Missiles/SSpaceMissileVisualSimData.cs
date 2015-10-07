@@ -3,15 +3,16 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public class SSpaceMissileVisualizion
+    public class SSpaceMissileVisualizationData
     {
         // TODO actual rendering constructs. Where do they go?
 
         public enum State { Ejection, Pursuit, Intercepted };
 
-        public SSpaceMissileVisualizerCluster cluster { get { return _cluster; } }
+        public SSpaceMissileVisualSimCluster cluster { get { return _cluster; } }
         public int clusterId { get { return _clusterId; } }
 
+        public State state { get { return _state; } }
         public Vector3 position { get { return _position; } }
         public Vector3 direction { get { return _direction; } }
         public float thrustAcc { get { return _thrustAcc; } }
@@ -34,7 +35,7 @@ namespace SimpleScene.Demos
         /// <summary>
         /// The cluster this missile belongs to. Variable gives access to params, target, other missiles.
         /// </summary>
-        protected readonly SSpaceMissileVisualizerCluster _cluster; 
+        protected readonly SSpaceMissileVisualSimCluster _cluster; 
 
         /// <summary>
         /// ID within a cluster. Can be referenced by ejection/pursuit behaviors.
@@ -65,7 +66,7 @@ namespace SimpleScene.Demos
 
         protected float _timeSinceLaunch = 0f;
 
-        public SSpaceMissileVisualizion(SSpaceMissileVisualizerCluster cluster, int clusterId,
+        public SSpaceMissileVisualizationData(SSpaceMissileVisualSimCluster cluster, int clusterId,
                                         Vector3 initClusterPos, Vector3 initClusterVel, float timeToHit)
         {
             _cluster = cluster;
@@ -73,12 +74,12 @@ namespace SimpleScene.Demos
             _timeToHit = timeToHit;
 
             var ejection = _cluster.parameters.ejectionDriver;
-            ejection.init(this, out _direction, out _up, out _velocity, out _pitchVel, out _yawVel);
+            ejection.init(this, initClusterPos, initClusterVel, out _direction, out _up, out _velocity, out _pitchVel, out _yawVel);
 
             ejection.update(this, 0f, ref _thrustAcc, ref _pitchAcc, ref _yawAcc);
         }
 
-        public void updateExecution(float timeElapsed, Vector3 prevTargetPos)
+        public void updateExecution(float timeElapsed, Vector3 prevTargetPos, float targetTimeDelta)
         {
             //_timeElapsed = timeElapsed;
             _timeSinceLaunch += timeElapsed;
@@ -120,7 +121,6 @@ namespace SimpleScene.Demos
         public void updateTimeToHit(float timeToHit)
         {
             _timeToHit = timeToHit;
-            // TODO adjust things (thrust?) so that distanceToTarget = closing velocity * timeToHit
         }
 
         public void updateRenderingObjects(float timeElapsed)
