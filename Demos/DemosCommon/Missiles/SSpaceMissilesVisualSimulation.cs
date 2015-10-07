@@ -4,17 +4,6 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    /// <summary>
-    /// Missile target provides target position, velocity, and acceleration
-    /// </summary>
-    public interface ISSpaceMissileTarget
-    {
-        Vector3 position { get; }
-        Vector3 velocity { get; }
-        Vector3 acceleration { get; } // make optional?
-        bool isAlive{ get; } // target is structurally intact
-    };
-
     public class SSpaceMissilesVisualSimulation
     {
         public float timeScale = 1f;

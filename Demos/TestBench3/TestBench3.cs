@@ -91,7 +91,14 @@ namespace TestBench3
 
         protected void _launchMissiles()
         {
-            // TODO
+            missileManager.launchCluster(
+                attackerDrone.Pos, 
+                Vector3.Zero,
+                1,
+                new SSpaceMissileObjectTarget(targetDrone),
+                10f,
+                new SSpaceMissileVisualizerParameters ()
+            );
         }
 
         protected override void updateTextDisplay ()
