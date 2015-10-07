@@ -96,9 +96,18 @@ namespace SimpleScene.Demos
 
             public void preRenderUpdate(float timeElapsed)
             {
+                var mParams = _missile.cluster.parameters;
+
                 bodyObj.Pos = _missile.position;
 
+                Vector3 dir = _missile.direction;
+                float dirTheta = (float)Math.Atan2(dir.Y, dir.X);
+                float dirPhi = (float)Math.Atan2(dir.Z, dir.Xy.LengthFast);
+                Quaternion dirQuat = Quaternion.FromAxisAngle(Vector3.UnitY, dirPhi)
+                                   * Quaternion.FromAxisAngle(Vector3.UnitZ, dirTheta);
+                bodyObj.Orient(mParams.missileMeshOrient * dirQuat);
             }
+
         }
     }
 }

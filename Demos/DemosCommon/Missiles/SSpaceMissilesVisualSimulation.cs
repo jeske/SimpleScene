@@ -140,6 +140,10 @@ namespace SimpleScene.Demos
         #region render parameters
         public SSAbstractMesh missileMesh
             = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
+        /// <summary>
+        /// orientation needed to make the missile mesh face into positive X axis
+        /// </summary>
+        public Quaternion missileMeshOrient = Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
         public float missileScale = 1f;
         // TODO flame tex, smoke tex
         #endregion

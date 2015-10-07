@@ -12,8 +12,8 @@ namespace TestBench3
         protected SSScene missileParticlesScene;
         protected SSpaceMissilesVisualSimulationManager missileManager;
 
-        protected SSObjectMesh droneObj1;
-        protected SSObjectMesh droneObj2;
+        protected SSObjectMesh attackerDrone;
+        protected SSObjectMesh targetDrone;
 
 
         public TestBench3 ()
@@ -38,31 +38,32 @@ namespace TestBench3
 
             missileParticlesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
-            //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
-            var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
+            var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
+            //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
 
             // add drones
-            droneObj1 = new SSObjectMesh (droneMesh);
-            droneObj1.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
-            droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
-            droneObj1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-            droneObj1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            droneObj1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            attackerDrone = new SSObjectMesh (droneMesh);
+            attackerDrone.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
+            attackerDrone.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
+            //attackerDrone.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI));
+            attackerDrone.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            attackerDrone.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            attackerDrone.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            attackerDrone.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             //droneObj1.renderState.visible = false;
-            droneObj1.Name = "attacker drone";
-            scene.AddObject (droneObj1);
+            attackerDrone.Name = "attacker drone";
+            scene.AddObject (attackerDrone);
 
-            droneObj2 = new SSObjectMesh (droneMesh);
-            droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
-            droneObj2.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-            droneObj2.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            droneObj2.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            droneObj2.Name = "target drone";
-            droneObj2.MainColor = new Color4(1f, 0f, 0.7f, 1f);
+            targetDrone = new SSObjectMesh (droneMesh);
+            targetDrone.Pos = new OpenTK.Vector3(20f, 0f, -15f);
+            targetDrone.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            targetDrone.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone.Name = "target drone";
+            targetDrone.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
-            scene.AddObject (droneObj2);
+            scene.AddObject (targetDrone);
 
             // manages missiles
             missileManager = new SSpaceMissilesVisualSimulationManager(scene, missileParticlesScene);
@@ -77,9 +78,9 @@ namespace TestBench3
                 if (camera != null) {
                     var target = camera.FollowTarget;
                     if (target == null) {
-                        camera.FollowTarget = droneObj1;
-                    } else if (target == droneObj1) {
-                        camera.FollowTarget = droneObj2;
+                        camera.FollowTarget = attackerDrone;
+                    } else if (target == attackerDrone) {
+                        camera.FollowTarget = targetDrone;
                     } else {
                         camera.FollowTarget = null;
                     }
@@ -116,7 +117,7 @@ namespace TestBench3
 
         protected override void setupCamera()
         {
-            var camera = new SSCameraThirdPerson (droneObj2);
+            var camera = new SSCameraThirdPerson (targetDrone);
             //var camera = new SSCameraThirdPerson (droneObj1);
             camera.Pos = Vector3.Zero;
             camera.followDistance = 80.0f;
