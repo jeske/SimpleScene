@@ -47,8 +47,8 @@
     <Compile Include="Missiles\MissileDrivers.cs" />
     <Compile Include="Missiles\SSpaceMissilesVisualSimulation.cs" />
     <Compile Include="Missiles\SSpaceMissileVisualSimData.cs" />
-    <Compile Include="Missiles\SSpaceMissilesVisualSimulationManager.cs" />
     <Compile Include="Missiles\MissileTargets.cs" />
+    <Compile Include="Missiles\SSpaceMissilesManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

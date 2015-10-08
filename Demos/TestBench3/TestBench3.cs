@@ -10,7 +10,7 @@ namespace TestBench3
     public class TestBench3 : TestBenchBootstrap
     {
         protected SSScene missileParticlesScene;
-        protected SSpaceMissilesVisualSimulationManager missileManager;
+        protected SSpaceMissilesManager missileManager;
 
         protected SSObjectMesh attackerDrone;
         protected SSObjectMesh targetDrone;
@@ -66,7 +66,7 @@ namespace TestBench3
             scene.AddObject (targetDrone);
 
             // manages missiles
-            missileManager = new SSpaceMissilesVisualSimulationManager(scene, missileParticlesScene);
+            missileManager = new SSpaceMissilesManager(scene, missileParticlesScene);
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)

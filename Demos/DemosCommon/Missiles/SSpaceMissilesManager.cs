@@ -4,7 +4,7 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public class SSpaceMissilesVisualSimulationManager
+    public class SSpaceMissilesManager
     {
         protected readonly SSpaceMissilesVisualSimulation _simulation;
         protected readonly SSScene _objScene;
@@ -17,8 +17,8 @@ namespace SimpleScene.Demos
 
         public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
-        public SSpaceMissilesVisualSimulationManager (SSScene objScene, SSScene particleScene, 
-                                                      int particleCapacity = 2000)
+        public SSpaceMissilesManager (SSScene objScene, SSScene particleScene, 
+                                      int particleCapacity = 2000)
         {
             _simulation = new SSpaceMissilesVisualSimulation ();
 
@@ -32,7 +32,7 @@ namespace SimpleScene.Demos
             particleScene.AddObject(_particleRenderer);
         }
 
-        ~SSpaceMissilesVisualSimulationManager()
+        ~SSpaceMissilesManager()
         {
             foreach (var missile in _missilesRuntimes.Keys) {
                 _removeMissile(missile);
@@ -93,6 +93,8 @@ namespace SimpleScene.Demos
                 bodyObj = new SSObjectMesh(mParams.missileMesh);
                 bodyObj.Pos = missile.position;
                 bodyObj.Scale = new Vector3(mParams.missileScale);
+                bodyObj.renderState.castsShadow = false;
+                bodyObj.renderState.receivesShadows = false;
 
                 smokeEmitter = new SSRadialEmitter();
                 smokeEmitter.center = missile.position;
