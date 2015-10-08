@@ -274,8 +274,9 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 	   outputColor += glowColor * glowStrength;
 
        vec4 shadowMapDebugColor;           
-       if (directionalLightIndex != -1 && receivesShadow != 0) {
-            float litFactor = shadowMapLighting(shadowMapDebugColor);
+       if (directionalLightIndex != -1) {
+           float litFactor = receivesShadow != 0 ? shadowMapLighting(shadowMapDebugColor)
+                                                 : 1.0;
 
             vec3 lightDir = gl_LightSource[directionalLightIndex].position.xyz;
             float lightDotProd = dot(f_vertexNormal, lightDir);
