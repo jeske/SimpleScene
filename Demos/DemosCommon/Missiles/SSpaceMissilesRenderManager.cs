@@ -7,11 +7,16 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissilesRenderManager
     {
+        enum ParticleEffectorMasks : ushort { Smoke=0 };
+
         protected readonly SSpaceMissilesVisualSimulation _simulation;
         protected readonly SSScene _objScene;
 
         protected readonly SSParticleSystemData _particlesData;
         protected readonly SSInstancedMeshRenderer _particleRenderer;
+
+        protected SSColorKeyframesEffector _smokeColorEffector = null;
+        protected SSMasterScaleKeyframesEffector _smokeScaleEffector = null;
 
         protected readonly Dictionary<SSpaceMissileData, SSpaceMissileRenderInfo>
             _missilesRuntimes = new Dictionary<SSpaceMissileData, SSpaceMissileRenderInfo>();
@@ -52,15 +57,36 @@ namespace SimpleScene.Demos
             ISSpaceMissileTarget target, float timeToHit,
             SSpaceMissileVisualParameters clusterParams)
         {
-            if (_particleRenderer.textureMaterial == null) {
-                _particleRenderer.textureMaterial = new SSTextureMaterial (clusterParams.particlesTexture);
-            }
+            _initParamsSpecific(clusterParams);
             var cluster = _simulation.launchCluster(launchPos, launchVel, numMissiles,
-              target, timeToHit, clusterParams);
+                                                    target, timeToHit, clusterParams);
             foreach (var missile in cluster.missiles) {
                 _addMissile(missile);
             }
             return cluster;
+        }
+
+        protected void _initParamsSpecific(SSpaceMissileVisualParameters mParams)
+        {
+            // smoke effectors
+            if (_particleRenderer.textureMaterial == null) {
+                _particleRenderer.textureMaterial = new SSTextureMaterial (mParams.particlesTexture);
+            }
+            if (_smokeColorEffector == null) {
+                _smokeColorEffector = new SSColorKeyframesEffector ();
+                _smokeColorEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
+                _smokeColorEffector.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
+                _smokeColorEffector.particleLifetime = mParams.smokeDuration;
+                //_smokeColorEffector.colorMask = ;
+                _smokeColorEffector.keyframes.Clear();
+                _smokeColorEffector.keyframes.Add(0f, mParams.smokeInitColor);
+                var smokeColor = Color4.LightGray;
+                smokeColor.A = 0.1f;
+                _smokeColorEffector.keyframes.Add(0.2f, smokeColor);
+                smokeColor.A = 0f;
+                _smokeColorEffector.keyframes.Add(1f, smokeColor);
+                _particlesData.addEffector(_smokeColorEffector);
+            }
         }
 
         // TODO: remove cluster??? or missile?
@@ -106,9 +132,11 @@ namespace SimpleScene.Demos
                 bodyObj.renderState.receivesShadows = false;
 
                 smokeEmitter = new SSRadialEmitter();
-                smokeEmitter.color = Color4.Red;
+                smokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
+                smokeEmitter.life = mParams.smokeDuration;
+                //smokeEmitter.color = Color4.Red;
                 smokeEmitter.billboardXY = true;
-                smokeEmitter.emissionInterval = 0.1f;
+                smokeEmitter.emissionInterval = 1f / mParams.smokeEmissionFrequency;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
 
                 // positions emitters and mesh

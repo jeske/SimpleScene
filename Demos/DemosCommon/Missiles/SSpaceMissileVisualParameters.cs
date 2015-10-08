@@ -47,9 +47,10 @@ namespace SimpleScene.Demos
             new RectangleF(0.25f, 0.25f, 0.25f, 0.25f),
             new RectangleF(0.25f, 0f,    0.25f, 0.25f),
         };
-        public Color4 smokeInitColor = Color4.Orange;
+        public Color4 smokeInitColor = Color4.DarkOrange;
         public Color4 smokeColor = Color4.LightGray;
-        public float smokeDuration;
+        public float smokeDuration = 1f;
+        public float smokeEmissionFrequency = 20f;
         #endregion
     }
 }
