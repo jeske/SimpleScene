@@ -26,10 +26,11 @@ namespace SimpleScene.Demos
         {
             var cluster = missile.cluster;
             dir = (missile.position - clusterInitPos).Normalized();
+            //dir = Vector3.UnitZ;
             Vector3 dummy;
             OpenTKHelper.TwoPerpAxes(dir, out dummy, out up);
 
-            velocity = dir * 1.0f;
+            velocity = dir * 5.0f;
             pitchVel = 0f;
             yawVel = 0f;
         }

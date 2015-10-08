@@ -127,12 +127,10 @@ namespace SimpleScene.Demos
         #endregion
 
         #region render parameters
+        /// <summary> Missile mesh must be facing into positive Z axis </summary>
         public SSAbstractMesh missileMesh
             = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
-        /// <summary>
-        /// orientation needed to make the missile mesh face into positive X axis
-        /// </summary>
-        public Quaternion missileMeshOrient = Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
+            //= SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
         public float missileScale = 1f;
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 1f;

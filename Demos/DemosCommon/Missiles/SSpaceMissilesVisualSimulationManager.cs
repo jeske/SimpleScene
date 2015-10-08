@@ -91,9 +91,11 @@ namespace SimpleScene.Demos
                 _missile = missile;
                 var mParams = missile.cluster.parameters;
                 bodyObj = new SSObjectMesh(mParams.missileMesh);
+                bodyObj.Pos = missile.position;
                 bodyObj.Scale = new Vector3(mParams.missileScale);
 
-                smokeEmitter = new SSRadialEmitter(); 
+                smokeEmitter = new SSRadialEmitter();
+                smokeEmitter.center = missile.position;
             }
 
             public void preRenderUpdate(float timeElapsed)
@@ -102,13 +104,20 @@ namespace SimpleScene.Demos
 
                 bodyObj.Pos = _missile.position;
 
+                bodyObj.Orient(_missile.direction, _missile.up);
+
+                #if false
                 Vector3 dir = _missile.direction;
                 float dirTheta = (float)Math.Atan2(dir.Y, dir.X);
-                float dirPhi = (float)Math.Atan2(dir.Z, dir.Xy.LengthFast);
+                float dirPhi = (float)Math.Atan(dir.Z / dir.Xy.LengthFast);
                 Quaternion dirQuat = Quaternion.FromAxisAngle(Vector3.UnitY, dirPhi)
                                    * Quaternion.FromAxisAngle(Vector3.UnitZ, dirTheta);
+                //Quaternion dirQuat = Quaternion.FromAxisAngle(Vector3.UnitZ, dirTheta);
+                //                     * Quaternion.FromAxisAngle(Vector3.UnitY, dirPhi);
                 //bodyObj.Orient(mParams.missileMeshOrient * dirQuat);
-                bodyObj.Orient(mParams.missileMeshOrient);
+                bodyObj.Orient(dirQuat * mParams.missileMeshOrient);
+                //bodyObj.Orient(mParams.missileMeshOrient);
+                #endif
 
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;

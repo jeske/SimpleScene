@@ -291,6 +291,14 @@ namespace SimpleScene
 			this._right = Vector3.Cross(this._up, this._dir).Normalized();
 			this.calcMatFromState(); 
 		}
+
+        public void Orient(Vector3 dir, Vector3 up)
+        {
+            this._dir = dir;
+            this._up = up;
+            this._right = Vector3.Cross(this._up, this._dir).Normalized();
+            this.calcMatFromState(); 
+        }
 		
 		private float DegreeToRadian(float angleInDegrees) {
 			return (float)Math.PI * angleInDegrees / 180.0f;

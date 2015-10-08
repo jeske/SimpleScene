@@ -15,6 +15,7 @@ namespace SimpleScene.Demos
         public State state { get { return _state; } }
         public Vector3 position { get { return _position; } }
         public Vector3 direction { get { return _direction; } }
+        public Vector3 up { get { return _up; } }
         public float thrustAcc { get { return _thrustAcc; } }
 
         #if false
@@ -56,7 +57,7 @@ namespace SimpleScene.Demos
         protected Vector3 _velocity = Vector3.Zero;
         protected float _thrustAcc = 0f;
 
-        protected Vector3 _direction = -Vector3.UnitZ;
+        protected Vector3 _direction = Vector3.UnitZ;
         protected Vector3 _up = Vector3.UnitY;
 
         protected float _pitchVel = 0f;
