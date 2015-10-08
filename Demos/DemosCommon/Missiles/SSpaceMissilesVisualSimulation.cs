@@ -9,15 +9,15 @@ namespace SimpleScene.Demos
     {
         public float timeScale = 1f;
 
-        protected List<SSpaceMissileVisualSimCluster> _clusters
-            = new List<SSpaceMissileVisualSimCluster>();
+        protected List<SSpaceMissileClusterData> _clusters
+            = new List<SSpaceMissileClusterData>();
 
-        public SSpaceMissileVisualSimCluster launchCluster(
+        public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileVisualizerParameters clusterParams)
+            SSpaceMissileVisualParameters clusterParams)
         {
-            var cluster = new SSpaceMissileVisualSimCluster (
+            var cluster = new SSpaceMissileClusterData (
               launchPos, launchVel, numMissiles, target, timeToHit, clusterParams);
             _clusters.Add(cluster);
             return cluster;
@@ -37,7 +37,7 @@ namespace SimpleScene.Demos
         /// <summary>
         /// Terminate a missile in a cluster before it reaches its target
         /// </summary>
-        public void interceptMissile(SSpaceMissileVisualizationData missile, float delay)
+        public void interceptMissile(SSpaceMissileData missile, float delay)
         {
             // TODO
         }
@@ -45,36 +45,36 @@ namespace SimpleScene.Demos
 
     }
 
-    public class SSpaceMissileVisualSimCluster
+    public class SSpaceMissileClusterData
     {
-        public SSpaceMissileVisualizationData[] missiles { get { return _missiles; } }
-        public SSpaceMissileVisualizerParameters parameters { get { return _parameters; } }
+        public SSpaceMissileData[] missiles { get { return _missiles; } }
+        public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
         //public ISSpaceMissileTarget target { get { return _target; } }
         //public Vector3 prevTargetPos { get { return _prevTargetPos; } }
 
-        protected readonly SSpaceMissileVisualizationData[] _missiles;
+        protected readonly SSpaceMissileData[] _missiles;
         protected readonly ISSpaceMissileTarget _target;
-        protected readonly SSpaceMissileVisualizerParameters _parameters;
+        protected readonly SSpaceMissileVisualParameters _parameters;
 
         protected Vector3 _prevTargetPos;
         protected float _timeDeltaAccumulator = 0f;
 
-        public SSpaceMissileVisualSimCluster(
+        public SSpaceMissileClusterData(
             Vector3 launcherPos, Vector3 launcherVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileVisualizerParameters mParams)
+            SSpaceMissileVisualParameters mParams)
         {
             _target = target;
             _prevTargetPos = target.position;
             _parameters = mParams;
-            _missiles = new SSpaceMissileVisualizationData[numMissiles];
+            _missiles = new SSpaceMissileData[numMissiles];
 
             Matrix4 spawnTxfm = _parameters.spawnTxfm(_target, launcherPos, launcherVel);
             _parameters.spawnGenerator.Generate(numMissiles,
                 (i, scale, pos, orient) => {
                     Vector3 missilePos = pos * _parameters.spawnDistanceScale;
                     missilePos = Vector3.Transform(missilePos, spawnTxfm);
-                    _missiles [i] = new SSpaceMissileVisualizationData (
+                    _missiles [i] = new SSpaceMissileData (
                         this, i, launcherPos, launcherVel, missilePos, timeToHit);
                     return true; // accept new missile from the generator
                 }
@@ -100,51 +100,6 @@ namespace SimpleScene.Demos
                 missile.updateTimeToHit(timeToHit);
             }
         }
-    }
-
-    public class SSpaceMissileVisualizerParameters
-    {
-        public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, 
-                                                  Vector3 launcherPos, Vector3 launcherVel);
-
-        #region visual simulation parameters
-        public float simulationStep = 0.05f;
-
-        public float minActivationTime = 1f;
-        public float maxRotationalAcc = 0.2f;
-
-        public BodiesFieldGenerator spawnGenerator 
-            = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
-        public SpawnTxfmDelegate spawnTxfm 
-            = (target, launcherPos, launcherVel) => { return Matrix4.CreateTranslation(launcherPos); };
-        public float spawnDistanceScale = 10f;
-
-        public ISSpaceMissileEjectionDriver ejectionDriver
-            = new SSimpleMissileEjectionDriver();
-        public ISSpaceMissilePursuitDriver pursuitDriver
-            = new SProportionalNavigationPursuitDriver();
-
-        // TODO: fuel strategy???
-        #endregion
-
-        #region render parameters
-        /// <summary> Missile mesh must be facing into positive Z axis </summary>
-        public SSAbstractMesh missileMesh
-            = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
-            //= SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
-        public float missileScale = 0.3f;
-        /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
-        public float jetPosition = 4f;
-        public SSTexture particlesTexture
-            = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
-        
-        public RectangleF[] flameSmokeSpriteRects = {
-            new RectangleF(0f,    0f,    0.25f, 0.25f),
-            new RectangleF(0f,    0.25f, 0.25f, 0.25f),
-            new RectangleF(0.25f, 0.25f, 0.25f, 0.25f),
-            new RectangleF(0.25f, 0f,    0.25f, 0.25f),
-        };
-        #endregion
     }
 }
 

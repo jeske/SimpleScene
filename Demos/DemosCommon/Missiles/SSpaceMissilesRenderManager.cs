@@ -5,7 +5,7 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-    public class SSpaceMissilesManager
+    public class SSpaceMissilesRenderManager
     {
         protected readonly SSpaceMissilesVisualSimulation _simulation;
         protected readonly SSScene _objScene;
@@ -13,12 +13,12 @@ namespace SimpleScene.Demos
         protected readonly SSParticleSystemData _particlesData;
         protected readonly SSInstancedMeshRenderer _particleRenderer;
 
-        protected readonly Dictionary<SSpaceMissileVisualizationData, SSpaceMissileRenderInfo>
-            _missilesRuntimes = new Dictionary<SSpaceMissileVisualizationData, SSpaceMissileRenderInfo>();
+        protected readonly Dictionary<SSpaceMissileData, SSpaceMissileRenderInfo>
+            _missilesRuntimes = new Dictionary<SSpaceMissileData, SSpaceMissileRenderInfo>();
 
         public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
-        public SSpaceMissilesManager (SSScene objScene, SSScene particleScene, 
+        public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, 
                                       int particleCapacity = 2000)
         {
             _simulation = new SSpaceMissilesVisualSimulation ();
@@ -33,13 +33,13 @@ namespace SimpleScene.Demos
             _particleRenderer.renderState.alphaBlendingOn = true;
             _particleRenderer.renderState.castsShadow = false;
             _particleRenderer.renderState.receivesShadows = false;
-            _particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
+            //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
             //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
 
             particleScene.AddObject(_particleRenderer);
         }
 
-        ~SSpaceMissilesManager()
+        ~SSpaceMissilesRenderManager()
         {
             foreach (var missile in _missilesRuntimes.Keys) {
                 _removeMissile(missile);
@@ -47,10 +47,10 @@ namespace SimpleScene.Demos
             _particleRenderer.renderState.toBeDeleted = true;
         }
 
-        public SSpaceMissileVisualSimCluster launchCluster(
+        public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileVisualizerParameters clusterParams)
+            SSpaceMissileVisualParameters clusterParams)
         {
             if (_particleRenderer.textureMaterial == null) {
                 _particleRenderer.textureMaterial = new SSTextureMaterial (clusterParams.particlesTexture);
@@ -65,7 +65,7 @@ namespace SimpleScene.Demos
 
         // TODO: remove cluster??? or missile?
 
-        protected void _addMissile(SSpaceMissileVisualizationData missile)
+        protected void _addMissile(SSpaceMissileData missile)
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             _objScene.AddObject(missileRuntime.bodyObj);
@@ -73,7 +73,7 @@ namespace SimpleScene.Demos
             _missilesRuntimes [missile] = missileRuntime;
         }
 
-        protected void _removeMissile(SSpaceMissileVisualizationData missile)
+        protected void _removeMissile(SSpaceMissileData missile)
         {
             var missileRuntime = _missilesRuntimes [missile];
             _missilesRuntimes.Remove(missile);
@@ -94,9 +94,9 @@ namespace SimpleScene.Demos
         {
             public readonly SSObjectMesh bodyObj;
             public readonly SSRadialEmitter smokeEmitter;
-            protected SSpaceMissileVisualizationData _missile;
+            protected SSpaceMissileData _missile;
 
-            public SSpaceMissileRenderInfo(SSpaceMissileVisualizationData missile)
+            public SSpaceMissileRenderInfo(SSpaceMissileData missile)
             {
                 _missile = missile;
                 var mParams = missile.cluster.parameters;

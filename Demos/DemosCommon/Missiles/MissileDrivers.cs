@@ -6,22 +6,22 @@ namespace SimpleScene.Demos
     public interface ISSpaceMissileEjectionDriver
     {
         // Note the position is already assigned by field generator
-        void init(SSpaceMissileVisualizationData missile, Vector3 clusterInitPos, Vector3 clusterInitVel,
+        void init(SSpaceMissileData missile, Vector3 clusterInitPos, Vector3 clusterInitVel,
             out Vector3 dir, out Vector3 up, out Vector3 velocity, out float pitchVel, out float yawVel);
-        void update(SSpaceMissileVisualizationData missile, float timeElapsed, 
+        void update(SSpaceMissileData missile, float timeElapsed, 
             ref float thrustAcc, ref float pitchVel, ref float yawVel);
     }
 
     public interface ISSpaceMissilePursuitDriver
     {
-        void update(SSpaceMissileVisualizationData missile, float timeElapsed, 
+        void update(SSpaceMissileData missile, float timeElapsed, 
             ref float thrustAcc, ref float pitchVel, ref float yawVel);
-        float estimateTimeNeededToHit(SSpaceMissileVisualizationData missile); 
+        float estimateTimeNeededToHit(SSpaceMissileData missile); 
     }
 
     public class SSimpleMissileEjectionDriver : ISSpaceMissileEjectionDriver
     {
-        public void init(SSpaceMissileVisualizationData missile, Vector3 clusterInitPos, Vector3 clusterInitVel,
+        public void init(SSpaceMissileData missile, Vector3 clusterInitPos, Vector3 clusterInitVel,
             out Vector3 dir, out Vector3 up, out Vector3 velocity, out float pitchVel, out float yawVel)
         {
             var cluster = missile.cluster;
@@ -35,7 +35,7 @@ namespace SimpleScene.Demos
             yawVel = 0f;
         }
 
-        public void update(SSpaceMissileVisualizationData missile, float timeElapsed, 
+        public void update(SSpaceMissileData missile, float timeElapsed, 
             ref float thrustAcc, ref float pitchVel, ref float yawVel)
         {
             // do nothing?
@@ -44,14 +44,14 @@ namespace SimpleScene.Demos
 
     public class SProportionalNavigationPursuitDriver : ISSpaceMissilePursuitDriver
     {
-        public void update(SSpaceMissileVisualizationData missile, float timeElapsed, 
+        public void update(SSpaceMissileData missile, float timeElapsed, 
             ref float thrustAcc, ref float pitchVel, ref float yawVel)
         {
             // TODO proportional navigation
             // TODO adjust things (thrust?) so that distanceToTarget = closing velocity * timeToHit
         }
 
-        public float estimateTimeNeededToHit(SSpaceMissileVisualizationData missile)
+        public float estimateTimeNeededToHit(SSpaceMissileData missile)
         {
             // TODO
             return 100f;

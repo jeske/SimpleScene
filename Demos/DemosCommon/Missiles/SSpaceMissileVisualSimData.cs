@@ -3,13 +3,13 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public class SSpaceMissileVisualizationData
+    public class SSpaceMissileData
     {
         // TODO actual rendering constructs. Where do they go?
 
         public enum State { Ejection, Pursuit, Intercepted };
 
-        public SSpaceMissileVisualSimCluster cluster { get { return _cluster; } }
+        public SSpaceMissileClusterData cluster { get { return _cluster; } }
         public int clusterId { get { return _clusterId; } }
 
         public State state { get { return _state; } }
@@ -36,7 +36,7 @@ namespace SimpleScene.Demos
         /// <summary>
         /// The cluster this missile belongs to. Variable gives access to params, target, other missiles.
         /// </summary>
-        protected readonly SSpaceMissileVisualSimCluster _cluster; 
+        protected readonly SSpaceMissileClusterData _cluster; 
 
         /// <summary>
         /// ID within a cluster. Can be referenced by ejection/pursuit behaviors.
@@ -67,7 +67,7 @@ namespace SimpleScene.Demos
 
         protected float _timeSinceLaunch = 0f;
 
-        public SSpaceMissileVisualizationData(SSpaceMissileVisualSimCluster cluster, int clusterId,
+        public SSpaceMissileData(SSpaceMissileClusterData cluster, int clusterId,
                                         Vector3 initClusterPos, Vector3 initClusterVel, 
                                         Vector3 missilePos, float timeToHitTarget)
         {
