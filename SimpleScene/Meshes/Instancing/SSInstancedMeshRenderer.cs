@@ -194,7 +194,10 @@ namespace SimpleScene
             var mainShader = renderConfig.mainShader;
             mainShader.Activate();
             var modelViewMat = this.worldMat * renderConfig.invCameraViewMatrix;
-            var instanceBBrotation = Matrix4.CreateFromQuaternion(modelViewMat.ExtractRotation() * -1f);
+            var mvOrient = modelViewMat.ExtractRotation(false);
+            mvOrient.Xyz *= -1f;
+            //mvOrient.W *= -1f;
+            var mvOrientInverseMat = Matrix4.CreateFromQuaternion(mvOrient);
 
             for (int i = 0; i < instanceData.activeBlockLength; i++) {
                 if (!instanceData.isValid(i))
@@ -204,14 +207,8 @@ namespace SimpleScene
                 mainShader.UniSpriteOffsetAndSize(spriteRect.X, spriteRect.Y, 
                     spriteRect.Width, spriteRect.Height);
 
-                Matrix4 mat = _instanceMat(i);;
-                var pos = instanceData.readPosition(i);
-                if (float.IsNaN(pos.X) || float.IsNaN(pos.Y)) { // instanced billboarding markers
-                    mat = mat * instanceBBrotation;
-                } else {
-                    mat = mat * modelViewMat;
-                }
-
+                Matrix4 mat = _instanceMat(i, ref mvOrientInverseMat);
+                mat *= modelViewMat;
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadMatrix(ref mat);
 
@@ -222,7 +219,7 @@ namespace SimpleScene
             }
         }
 
-        protected Matrix4 _instanceMat(int i)
+        protected Matrix4 _instanceMat(int i, ref Matrix4 mvInverseOrient)
         {
             var pos = instanceData.readPosition(i);
             var componentScale = instanceData.readComponentScale(i);
@@ -230,12 +227,16 @@ namespace SimpleScene
             var ori = instanceData.readOrientation(i);
 
             var instanceMat = Matrix4.CreateScale(scale);
-            if (!float.IsNaN(ori.X) && !float.IsNaN(ori.Y)) { // Not NaN -> no billboarding
-                instanceMat *= Matrix4.CreateRotationX(ori.X) * Matrix4.CreateRotationY(ori.Y);
-            }
-            instanceMat = instanceMat
-                * Matrix4.CreateRotationZ(ori.Z)
-                * Matrix4.CreateTranslation(pos);
+            if (float.IsNaN(ori.X) || float.IsNaN(ori.Y)) { 
+                // per-instance billboarding
+                instanceMat = instanceMat * Matrix4.CreateRotationZ(ori.Z) * mvInverseOrient;
+            } else { 
+                // no billboarding
+                instanceMat *= Matrix4.CreateRotationX(ori.X)
+                             * Matrix4.CreateRotationY(ori.Y)
+                             * Matrix4.CreateRotationZ(ori.Z);
+            }               
+            instanceMat = instanceMat * Matrix4.CreateTranslation(pos);
             return instanceMat;
         }
 
