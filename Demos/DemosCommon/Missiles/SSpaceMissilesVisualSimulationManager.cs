@@ -24,6 +24,7 @@ namespace SimpleScene.Demos
 
             _objScene = objScene;
             objScene.preRenderHooks += _preRenderUpdate;
+            objScene.preUpdateHooks += _simulation.updateVisualization;
 
             _particlesData = new SSParticleSystemData (particleCapacity);
             _particleRenderer = new SSInstancedMeshRenderer (
@@ -74,7 +75,6 @@ namespace SimpleScene.Demos
 
         protected void _preRenderUpdate(float timeElapsed)
         {
-            _simulation.updateVisualization(timeElapsed);
             foreach (var missile in _missilesRuntimes.Values) {
                 missile.preRenderUpdate(timeElapsed);
             }
@@ -105,19 +105,6 @@ namespace SimpleScene.Demos
                 bodyObj.Pos = _missile.position;
 
                 bodyObj.Orient(_missile.direction, _missile.up);
-
-                #if false
-                Vector3 dir = _missile.direction;
-                float dirTheta = (float)Math.Atan2(dir.Y, dir.X);
-                float dirPhi = (float)Math.Atan(dir.Z / dir.Xy.LengthFast);
-                Quaternion dirQuat = Quaternion.FromAxisAngle(Vector3.UnitY, dirPhi)
-                                   * Quaternion.FromAxisAngle(Vector3.UnitZ, dirTheta);
-                //Quaternion dirQuat = Quaternion.FromAxisAngle(Vector3.UnitZ, dirTheta);
-                //                     * Quaternion.FromAxisAngle(Vector3.UnitY, dirPhi);
-                //bodyObj.Orient(mParams.missileMeshOrient * dirQuat);
-                bodyObj.Orient(dirQuat * mParams.missileMeshOrient);
-                //bodyObj.Orient(mParams.missileMeshOrient);
-                #endif
 
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;
