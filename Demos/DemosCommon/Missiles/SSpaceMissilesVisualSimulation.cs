@@ -105,7 +105,7 @@ namespace SimpleScene.Demos
     public class SSpaceMissileVisualizerParameters
     {
         public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, 
-                                                  Vector3 clusterPos, Vector3 clusterVel);
+                                                  Vector3 launcherPos, Vector3 launcherVel);
 
         #region visual simulation parameters
         public float simulationStep = 0.05f;
@@ -116,7 +116,7 @@ namespace SimpleScene.Demos
         public BodiesFieldGenerator spawnGenerator 
             = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
         public SpawnTxfmDelegate spawnTxfm 
-            = (target, clusterPos, clusterVel) => { return Matrix4.CreateTranslation(clusterPos); };
+            = (target, launcherPos, launcherVel) => { return Matrix4.CreateTranslation(launcherPos); };
         public float spawnDistanceScale = 10f;
 
         public ISSpaceMissileEjectionDriver ejectionDriver
@@ -132,7 +132,7 @@ namespace SimpleScene.Demos
         public SSAbstractMesh missileMesh
             = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
             //= SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
-        public float missileScale = 0.5f;
+        public float missileScale = 0.3f;
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4f;
         public SSTexture particlesTexture

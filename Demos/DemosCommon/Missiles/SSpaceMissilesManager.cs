@@ -29,11 +29,12 @@ namespace SimpleScene.Demos
 
             _particlesData = new SSParticleSystemData (particleCapacity);
             _particleRenderer = new SSInstancedMeshRenderer (
-                _particlesData, SSTexturedQuad.DoubleFaceInstance);
+                _particlesData, SSTexturedQuad.SingleFaceInstance);
             _particleRenderer.renderState.alphaBlendingOn = true;
             _particleRenderer.renderState.castsShadow = false;
             _particleRenderer.renderState.receivesShadows = false;
-            //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
+            _particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
+            //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
 
             particleScene.AddObject(_particleRenderer);
         }
@@ -100,17 +101,18 @@ namespace SimpleScene.Demos
                 _missile = missile;
                 var mParams = missile.cluster.parameters;
                 bodyObj = new SSObjectMesh(mParams.missileMesh);
-                bodyObj.Pos = missile.position;
                 bodyObj.Scale = new Vector3(mParams.missileScale);
                 bodyObj.renderState.castsShadow = false;
                 bodyObj.renderState.receivesShadows = false;
 
                 smokeEmitter = new SSRadialEmitter();
                 smokeEmitter.color = Color4.Red;
-                smokeEmitter.center = missile.position;
                 smokeEmitter.billboardXY = true;
                 smokeEmitter.emissionInterval = 0.1f;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
+
+                // positions emitters and mesh
+                preRenderUpdate(0f);
             }
 
             public void preRenderUpdate(float timeElapsed)
@@ -124,7 +126,6 @@ namespace SimpleScene.Demos
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;
             }
-
         }
     }
 }

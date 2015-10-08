@@ -124,7 +124,7 @@ namespace TestBench3
 
         protected override void setupCamera()
         {
-            var camera = new SSCameraThirdPerson (targetDrone);
+            var camera = new SSCameraThirdPerson (null);
             //var camera = new SSCameraThirdPerson (droneObj1);
             camera.Pos = Vector3.Zero;
             camera.followDistance = 80.0f;
