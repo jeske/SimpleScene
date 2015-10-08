@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
@@ -29,6 +30,11 @@ namespace SimpleScene.Demos
             _particlesData = new SSParticleSystemData (particleCapacity);
             _particleRenderer = new SSInstancedMeshRenderer (
                 _particlesData, SSTexturedQuad.DoubleFaceInstance);
+            _particleRenderer.renderState.alphaBlendingOn = true;
+            _particleRenderer.renderState.castsShadow = false;
+            _particleRenderer.renderState.receivesShadows = false;
+            //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
+
             particleScene.AddObject(_particleRenderer);
         }
 
@@ -45,6 +51,9 @@ namespace SimpleScene.Demos
             ISSpaceMissileTarget target, float timeToHit,
             SSpaceMissileVisualizerParameters clusterParams)
         {
+            if (_particleRenderer.textureMaterial == null) {
+                _particleRenderer.textureMaterial = new SSTextureMaterial (clusterParams.particlesTexture);
+            }
             var cluster = _simulation.launchCluster(launchPos, launchVel, numMissiles,
               target, timeToHit, clusterParams);
             foreach (var missile in cluster.missiles) {
@@ -97,7 +106,11 @@ namespace SimpleScene.Demos
                 bodyObj.renderState.receivesShadows = false;
 
                 smokeEmitter = new SSRadialEmitter();
+                smokeEmitter.color = Color4.Red;
                 smokeEmitter.center = missile.position;
+                smokeEmitter.billboardXY = true;
+                smokeEmitter.emissionInterval = 0.1f;
+                smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
             }
 
             public void preRenderUpdate(float timeElapsed)

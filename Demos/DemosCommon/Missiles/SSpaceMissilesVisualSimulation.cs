@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing; // for RectangleF
 using OpenTK;
 
 namespace SimpleScene.Demos
@@ -131,10 +132,18 @@ namespace SimpleScene.Demos
         public SSAbstractMesh missileMesh
             = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
             //= SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
-        public float missileScale = 1f;
+        public float missileScale = 0.5f;
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
-        public float jetPosition = 1f;
-        // TODO flame tex, smoke tex
+        public float jetPosition = 4f;
+        public SSTexture particlesTexture
+            = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
+        
+        public RectangleF[] flameSmokeSpriteRects = {
+            new RectangleF(0f,    0f,    0.25f, 0.25f),
+            new RectangleF(0f,    0.25f, 0.25f, 0.25f),
+            new RectangleF(0.25f, 0.25f, 0.25f, 0.25f),
+            new RectangleF(0.25f, 0f,    0.25f, 0.25f),
+        };
         #endregion
     }
 }
