@@ -14,7 +14,8 @@ namespace SimpleScene.Demos
         public float simulationStep = 0.05f;
 
         public float minActivationTime = 1f;
-        public float maxRotationalAcc = 0.2f;
+        public float ejectionVelocity = 10f;
+        public float ejectionMaxRotationVel = 1f;
 
         public BodiesFieldGenerator spawnGenerator 
             = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
@@ -27,6 +28,10 @@ namespace SimpleScene.Demos
         public ISSpaceMissilePursuitDriver pursuitDriver
             = new SProportionalNavigationPursuitDriver();
 
+        public float maxRotationalAcc = 0.2f;
+        public float navigationGain = 3f;
+        public float lateralLeverFactor = 1f;
+
         // TODO: fuel strategy???
         #endregion
 
@@ -37,7 +42,7 @@ namespace SimpleScene.Demos
         //= SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
         public float missileScale = 0.3f;
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
-        public float jetPosition = 4f;
+        public float jetPosition = 4.2f;
         public SSTexture particlesTexture
             = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
 
@@ -51,8 +56,8 @@ namespace SimpleScene.Demos
         public Color4 outerFlameColor = Color4.DarkOrange;
         public Color4 smokeColor = Color4.LightGray;
         public float smokeDuration = 0.5f;
-        public float smokeEmissionFrequencyMin = 40f;
-        public float smokeEmissionFrequencyMax = 40f;
+        public float smokeEmissionFrequencyMin = 10f;
+        public float smokeEmissionFrequencyMax = 200f;
         public int smokeParticlesPerEmissionMin = 4;
         public int smokeParticlesPerEmissionMax = 5;
         public float fullSmokeEmissionAcc = 3f;

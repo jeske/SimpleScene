@@ -7,6 +7,8 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissilesVisualSimulation
     {
+        public static Random rand = new Random();
+
         public float timeScale = 1f;
 
         protected List<SSpaceMissileClusterData> _clusters
@@ -41,23 +43,24 @@ namespace SimpleScene.Demos
         {
             // TODO
         }
-
-
     }
 
     public class SSpaceMissileClusterData
     {
         public SSpaceMissileData[] missiles { get { return _missiles; } }
         public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
-        //public ISSpaceMissileTarget target { get { return _target; } }
+        public ISSpaceMissileTarget target { get { return _target; } }
         //public Vector3 prevTargetPos { get { return _prevTargetPos; } }
+        //public float timeSinceLaunch { get { return _timeSinceLaunch; } }
+        public Vector3 oldTargetPos { get { return _oldTargetPos; } }
 
         protected readonly SSpaceMissileData[] _missiles;
         protected readonly ISSpaceMissileTarget _target;
         protected readonly SSpaceMissileVisualParameters _parameters;
 
-        protected Vector3 _prevTargetPos;
         protected float _timeDeltaAccumulator = 0f;
+        //protected float _timeSinceLaunch = 0f;
+        protected Vector3 _oldTargetPos;
 
         public SSpaceMissileClusterData(
             Vector3 launcherPos, Vector3 launcherVel, int numMissiles,
@@ -65,7 +68,7 @@ namespace SimpleScene.Demos
             SSpaceMissileVisualParameters mParams)
         {
             _target = target;
-            _prevTargetPos = target.position;
+            _oldTargetPos = target.position;
             _parameters = mParams;
             _missiles = new SSpaceMissileData[numMissiles];
 
@@ -84,14 +87,19 @@ namespace SimpleScene.Demos
         public void updateVisualization(float timeElapsed)
         {
             float accTime = timeElapsed + _timeDeltaAccumulator;
-            while (accTime >= _parameters.simulationStep) {
+            if (accTime >= _parameters.simulationStep) {
                 foreach (var missile in _missiles) {
-                    missile.updateExecution(_parameters.simulationStep, _prevTargetPos, timeElapsed);
+                    //missile.updateNavigationData(accTime);
                 }
-                accTime -= _parameters.simulationStep;
+
+                while (accTime >= _parameters.simulationStep) {
+                    foreach (var missile in _missiles) {
+                        missile.updateExecution(_parameters.simulationStep);
+                    }
+                    accTime -= _parameters.simulationStep;
+                }
             }
             _timeDeltaAccumulator = accTime;
-            _prevTargetPos = _target.position;
         }
 
         public void updateTimeToHit(float timeToHit)
@@ -99,6 +107,7 @@ namespace SimpleScene.Demos
             foreach (var missile in _missiles) {
                 missile.updateTimeToHit(timeToHit);
             }
+            _oldTargetPos = _target.position;
         }
     }
 }

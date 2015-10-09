@@ -167,9 +167,15 @@ namespace SimpleScene.Demos
                 smokeEmitter.particlesPerEmissionMin = mParams.smokeParticlesPerEmissionMin;
                 smokeEmitter.particlesPerEmissionMax = mParams.smokeParticlesPerEmissionMax;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
-                smokeEmitter.velocityMagnitude = 0.7f;
-                smokeEmitter.phiMin = 0f;
-                smokeEmitter.phiMax = 0f;
+                smokeEmitter.velocityMagnitudeMin = 11f;
+                smokeEmitter.velocityMagnitudeMax = 20f;
+                //smokeEmitter.phiMin = 0f;
+                //smokeEmitter.phiMax = (float)Math.PI/6f;
+                smokeEmitter.phiMin = (float)Math.PI/3f;
+                smokeEmitter.phiMax = (float)Math.PI/2f;
+
+                smokeEmitter.radiusOffsetMin = 0f;
+                smokeEmitter.radiusOffsetMax = 0.1f;
 
                 // positions emitters and mesh
                 preRenderUpdate(0f);
@@ -186,11 +192,14 @@ namespace SimpleScene.Demos
                 var emissionRatio = _missile.thrustAcc / mParams.fullSmokeEmissionAcc;
                 var emissionFreq = Interpolate.Lerp(
                    mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
+                
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;
-                smokeEmitter.up = _missile.direction;
-                smokeEmitter.componentScale = new Vector3(emissionRatio);
+                smokeEmitter.up = -_missile.direction;
+
                 smokeEmitter.emissionInterval = 1f / emissionFreq;
+                //smokeEmitter.componentScale = new Vector3(emissionRatio);
+                //smokeEmitter.emissionInterval = 1f / 80f;
             }
         }
     }
