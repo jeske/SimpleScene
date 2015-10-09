@@ -32,6 +32,7 @@ namespace SimpleScene.Demos
             objScene.preRenderHooks += _preRenderUpdate;
             objScene.preUpdateHooks += _simulation.updateVisualization;
 
+            // particle system
             _particlesData = new SSParticleSystemData (particleCapacity);
             _particleRenderer = new SSInstancedMeshRenderer (
                 _particlesData, SSTexturedQuad.SingleFaceInstance);
@@ -87,13 +88,30 @@ namespace SimpleScene.Demos
                 _smokeColorEffector.particleLifetime = mParams.smokeDuration;
                 //_smokeColorEffector.colorMask = ;
                 _smokeColorEffector.keyframes.Clear();
-                _smokeColorEffector.keyframes.Add(0f, mParams.smokeInitColor);
-                var smokeColor = Color4.LightGray;
-                smokeColor.A = 1f;
-                _smokeColorEffector.keyframes.Add(0.2f, smokeColor);
+                _smokeColorEffector.keyframes.Add(0f, mParams.innerFlameColor);
+                var flameColor = mParams.outerFlameColor;
+                flameColor.A = 0.7f;
+                _smokeColorEffector.keyframes.Add(0.15f, flameColor);
+                var smokeColor = mParams.smokeColor;
+                smokeColor.A = 0.2f;
+                _smokeColorEffector.keyframes.Add(0.3f, smokeColor);
                 smokeColor.A = 0f;
                 _smokeColorEffector.keyframes.Add(1f, smokeColor);
+
                 _particlesData.addEffector(_smokeColorEffector);
+            }
+            if (_smokeScaleEffector == null) {
+                _smokeScaleEffector = new SSMasterScaleKeyframesEffector ();
+                _smokeScaleEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
+                _smokeScaleEffector.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
+                _smokeScaleEffector.particleLifetime = mParams.smokeDuration;
+
+                _smokeScaleEffector.particleLifetime = mParams.smokeDuration;
+                _smokeScaleEffector.keyframes.Clear();
+                _smokeScaleEffector.keyframes.Add(0f, 1f);
+                _smokeScaleEffector.keyframes.Add(1f, 3f);
+
+                _particlesData.addEffector(_smokeScaleEffector);
             }
         }
 
@@ -146,6 +164,8 @@ namespace SimpleScene.Demos
                 smokeEmitter.billboardXY = true;
                 smokeEmitter.emissionInterval = 1f / mParams.smokeEmissionFrequency;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
+                smokeEmitter.velocityMagnitude = 1f;
+                smokeEmitter.particlesPerEmission = 3;
 
                 // positions emitters and mesh
                 preRenderUpdate(0f);
