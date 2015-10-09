@@ -52,6 +52,8 @@ namespace SimpleScene.Demos
         public Color4 smokeColor = Color4.LightGray;
         public float smokeDuration = 1f;
         public float smokeEmissionFrequency = 40f;
+        public int smokeParticlesPerEmissionMin = 4;
+        public int smokeParticlesPerEmissionMax = 5;
         #endregion
     }
 }

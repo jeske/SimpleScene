@@ -91,10 +91,10 @@ namespace SimpleScene.Demos
                 _smokeColorEffector.keyframes.Add(0f, mParams.innerFlameColor);
                 var flameColor = mParams.outerFlameColor;
                 flameColor.A = 0.7f;
-                _smokeColorEffector.keyframes.Add(0.15f, flameColor);
+                _smokeColorEffector.keyframes.Add(0.1f, flameColor);
                 var smokeColor = mParams.smokeColor;
                 smokeColor.A = 0.2f;
-                _smokeColorEffector.keyframes.Add(0.3f, smokeColor);
+                _smokeColorEffector.keyframes.Add(0.2f, smokeColor);
                 smokeColor.A = 0f;
                 _smokeColorEffector.keyframes.Add(1f, smokeColor);
 
@@ -108,8 +108,9 @@ namespace SimpleScene.Demos
 
                 _smokeScaleEffector.particleLifetime = mParams.smokeDuration;
                 _smokeScaleEffector.keyframes.Clear();
-                _smokeScaleEffector.keyframes.Add(0f, 1f);
-                _smokeScaleEffector.keyframes.Add(1f, 3f);
+                _smokeScaleEffector.keyframes.Add(0f, 0.3f);
+                _smokeScaleEffector.keyframes.Add(0.1f, 1f);
+                _smokeScaleEffector.keyframes.Add(1f, 2f);
 
                 _particlesData.addEffector(_smokeScaleEffector);
             }
@@ -163,9 +164,12 @@ namespace SimpleScene.Demos
                 smokeEmitter.color = new Color4(1f, 1f, 1f, 0f);
                 smokeEmitter.billboardXY = true;
                 smokeEmitter.emissionInterval = 1f / mParams.smokeEmissionFrequency;
+                smokeEmitter.particlesPerEmissionMin = mParams.smokeParticlesPerEmissionMin;
+                smokeEmitter.particlesPerEmissionMax = mParams.smokeParticlesPerEmissionMax;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
-                smokeEmitter.velocityMagnitude = 1f;
-                smokeEmitter.particlesPerEmission = 3;
+                smokeEmitter.velocityMagnitude = 0.7f;
+                smokeEmitter.phiMin = 0f;
+                smokeEmitter.phiMax = 0f;
 
                 // positions emitters and mesh
                 preRenderUpdate(0f);
@@ -181,6 +185,7 @@ namespace SimpleScene.Demos
 
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;
+                smokeEmitter.up = _missile.direction;
             }
         }
     }
