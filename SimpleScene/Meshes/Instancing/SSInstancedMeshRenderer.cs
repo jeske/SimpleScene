@@ -99,12 +99,12 @@ namespace SimpleScene
 
         public override void Render (SSRenderConfig renderConfig)
         {
-			// allow particle system to react to camera/worldview
+            // allow particle system to react to camera/world mat changes (even if there are no particles)
             instanceData.updateCamera (ref this.worldMat, 
                 ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
 
 			// do we have anything to draw?
-			if (instanceData.activeBlockLength <= 0) return;
+            if (instanceData.numElements <= 0) return;
 
             base.Render(renderConfig);
 

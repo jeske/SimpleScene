@@ -24,7 +24,7 @@ namespace SimpleScene.Demos
         public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
         public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, 
-                                      int particleCapacity = 2000)
+                                            int particleCapacity = 2000)
         {
             _simulation = new SSpaceMissilesVisualSimulation ();
 
@@ -38,8 +38,16 @@ namespace SimpleScene.Demos
             _particleRenderer.renderState.alphaBlendingOn = true;
             _particleRenderer.renderState.castsShadow = false;
             _particleRenderer.renderState.receivesShadows = false;
+            _particleRenderer.renderState.depthTest = true;
+            _particleRenderer.renderState.depthWrite = false;
             //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
             //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
+
+            _particleRenderer.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
+            _particleRenderer.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
+            _particleRenderer.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
+            _particleRenderer.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
+            _particleRenderer.ShininessMatColor = 0f;
 
             particleScene.AddObject(_particleRenderer);
         }
@@ -81,7 +89,7 @@ namespace SimpleScene.Demos
                 _smokeColorEffector.keyframes.Clear();
                 _smokeColorEffector.keyframes.Add(0f, mParams.smokeInitColor);
                 var smokeColor = Color4.LightGray;
-                smokeColor.A = 0.1f;
+                smokeColor.A = 1f;
                 _smokeColorEffector.keyframes.Add(0.2f, smokeColor);
                 smokeColor.A = 0f;
                 _smokeColorEffector.keyframes.Add(1f, smokeColor);
@@ -134,7 +142,7 @@ namespace SimpleScene.Demos
                 smokeEmitter = new SSRadialEmitter();
                 smokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
                 smokeEmitter.life = mParams.smokeDuration;
-                //smokeEmitter.color = Color4.Red;
+                smokeEmitter.color = new Color4(1f, 1f, 1f, 0f);
                 smokeEmitter.billboardXY = true;
                 smokeEmitter.emissionInterval = 1f / mParams.smokeEmissionFrequency;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
