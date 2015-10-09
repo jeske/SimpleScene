@@ -30,15 +30,16 @@ namespace SimpleScene.Demos
             Vector3 dummy;
             OpenTKHelper.TwoPerpAxes(dir, out dummy, out up);
 
-            velocity = dir * 5.0f;
-            pitchVel = 0f;
+            velocity = Vector3.Zero; //dir * 2.0f;
+            pitchVel = 0.1f;
             yawVel = 0f;
         }
 
         public void update(SSpaceMissileData missile, float timeElapsed, 
-            ref float thrustAcc, ref float pitchVel, ref float yawVel)
+            ref float thrustAcc, ref float pitchAcc, ref float yawAcc)
         {
-            // do nothing?
+            //pitchAcc = 0.2f;
+            thrustAcc += 2f * timeElapsed;
         }
     }
 

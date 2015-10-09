@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
+using SimpleScene.Util;
 
 namespace SimpleScene.Demos
 {
@@ -163,7 +164,6 @@ namespace SimpleScene.Demos
                 smokeEmitter.life = mParams.smokeDuration;
                 smokeEmitter.color = new Color4(1f, 1f, 1f, 0f);
                 smokeEmitter.billboardXY = true;
-                smokeEmitter.emissionInterval = 1f / mParams.smokeEmissionFrequency;
                 smokeEmitter.particlesPerEmissionMin = mParams.smokeParticlesPerEmissionMin;
                 smokeEmitter.particlesPerEmissionMax = mParams.smokeParticlesPerEmissionMax;
                 smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
@@ -183,9 +183,14 @@ namespace SimpleScene.Demos
 
                 bodyObj.Orient(_missile.direction, _missile.up);
 
+                var emissionRatio = _missile.thrustAcc / mParams.fullSmokeEmissionAcc;
+                var emissionFreq = Interpolate.Lerp(
+                   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;
                 smokeEmitter.up = _missile.direction;
+                smokeEmitter.componentScale = new Vector3(emissionRatio);
+                smokeEmitter.emissionInterval = 1f / emissionFreq;
             }
         }
     }

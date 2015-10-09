@@ -17,15 +17,15 @@ namespace SimpleScene.Demos
         public float maxRotationalAcc = 0.2f;
 
         public BodiesFieldGenerator spawnGenerator 
-        = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
+            = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
         public SpawnTxfmDelegate spawnTxfm 
-        = (target, launcherPos, launcherVel) => { return Matrix4.CreateTranslation(launcherPos); };
+            = (target, launcherPos, launcherVel) => { return Matrix4.CreateTranslation(launcherPos); };
         public float spawnDistanceScale = 10f;
 
         public ISSpaceMissileEjectionDriver ejectionDriver
-        = new SSimpleMissileEjectionDriver();
+            = new SSimpleMissileEjectionDriver();
         public ISSpaceMissilePursuitDriver pursuitDriver
-        = new SProportionalNavigationPursuitDriver();
+            = new SProportionalNavigationPursuitDriver();
 
         // TODO: fuel strategy???
         #endregion
@@ -39,7 +39,7 @@ namespace SimpleScene.Demos
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4f;
         public SSTexture particlesTexture
-        = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
+            = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
 
         public RectangleF[] flameSmokeSpriteRects = {
             new RectangleF(0f,    0f,    0.25f, 0.25f),
@@ -50,10 +50,12 @@ namespace SimpleScene.Demos
         public Color4 innerFlameColor = Color4.LightGoldenrodYellow;
         public Color4 outerFlameColor = Color4.DarkOrange;
         public Color4 smokeColor = Color4.LightGray;
-        public float smokeDuration = 1f;
-        public float smokeEmissionFrequency = 40f;
+        public float smokeDuration = 0.5f;
+        public float smokeEmissionFrequencyMin = 40f;
+        public float smokeEmissionFrequencyMax = 40f;
         public int smokeParticlesPerEmissionMin = 4;
         public int smokeParticlesPerEmissionMax = 5;
+        public float fullSmokeEmissionAcc = 3f;
         #endregion
     }
 }
