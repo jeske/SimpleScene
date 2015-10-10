@@ -15,9 +15,18 @@ namespace SimpleScene.Demos
         public State state { get { return _state; } }
         public Vector3 position { get { return _position; } }
         public Vector3 velocity { get { return _velocity; } }
-        public Vector3 direction { get { return _direction; } }
-        public Vector3 up { get { return _up; } }
-        public float thrustAcc { get { return _thrustAcc; } }
+        //public Vector3 direction { get { return _direction; } }
+        public Vector3 up { 
+            get { 
+                Vector3 ret, dummy;
+                OpenTKHelper.TwoPerpAxes(_direction, out ret, out dummy);
+                return ret;
+            } 
+        }
+
+        // hacky/messy
+        public Vector3 direction { get { return _velocity.Normalized(); } }
+        public float thrustAcc { get { return _velocity.LengthFast; } }
 
         #region proportional navigation
         public Vector3 posOlder { get { return _posOlder; } }
@@ -32,12 +41,6 @@ namespace SimpleScene.Demos
         public Vector3 acceleration { get { return _acceleration; } }
         public Vector3 lateralAcceleration { get { return _lateralAcceleration; } }
         #endif
-
-        public Vector3 pitchAxis {
-            get {
-                return Vector3.Cross(_direction, _up).Normalized();
-            }
-        }
 
         /// <summary>
         /// The cluster this missile belongs to. Variable gives access to params, target, other missiles.
@@ -57,10 +60,10 @@ namespace SimpleScene.Demos
         #region simulation basics
         protected Vector3 _position = Vector3.Zero;
         protected Vector3 _velocity = Vector3.Zero;
-        protected float _pitchVel = 0f;
-        protected float _yawVel = 0f;
+        //protected float _pitchVel = 0f;
+        //protected float _yawVel = 0f;
         protected Vector3 _direction = Vector3.UnitZ;
-        protected Vector3 _up = Vector3.UnitY;
+        //protected Vector3 _up = Vector3.UnitY;
         protected float _timeSinceLaunch = 0f;
         #endregion
 
@@ -90,9 +93,10 @@ namespace SimpleScene.Demos
             _position = missilePos;
 
             var ejection = _cluster.parameters.ejectionDriver;
-            ejection.init(this, initClusterPos, initClusterVel, out _direction, out _up, out _velocity, out _pitchVel, out _yawVel);
+            float dummy;
+            ejection.init(this, initClusterPos, initClusterVel, out _direction, out _velocity, out dummy, out dummy);
 
-            ejection.updateExecution(this, 0f, ref _thrustAcc, ref _pitchAcc, ref _yawAcc);
+            ejection.updateExecution(this, 0f, ref _thrustAcc, ref dummy, ref dummy);
         }
 
         public void updateExecution(float timeElapsed)
@@ -102,17 +106,15 @@ namespace SimpleScene.Demos
             _timeSinceLaunch += timeElapsed;
 
             _position += _velocity * timeElapsed;
-            Matrix4 changeInOrientation 
-                = Matrix4.CreateFromAxisAngle(_up, _yawVel * timeElapsed)
-                * Matrix4.CreateFromAxisAngle(pitchAxis, _pitchVel * timeElapsed);
-            _direction = Vector3.Transform(_direction, changeInOrientation).Normalized();
-            _up = Vector3.Transform(_up, changeInOrientation).Normalized();
+            //_direction = Vector3.Transform(_direction, changeInOrientation).Normalized();
+            //_up = Vector3.Transform(_up, changeInOrientation).Normalized();
 
             var mParams = _cluster.parameters;
             switch (_state) {
             case State.Ejection:
+                float dummy = 1f;
                 mParams.ejectionDriver.updateExecution(this, timeElapsed, 
-                    ref _thrustAcc, ref _pitchVel, ref _yawVel);
+                    ref _thrustAcc, ref dummy, ref dummy);
                 if (mParams.pursuitDriver.estimateTimeNeededToHit(this) >= _timeToHit
                 && _timeSinceLaunch >= mParams.minActivationTime) {
                     System.Console.WriteLine("pursuit activated at t = " + _timeSinceLaunch);
@@ -121,8 +123,19 @@ namespace SimpleScene.Demos
                 }
                 break;
             case State.Pursuit:
-                mParams.pursuitDriver.updateExecution(this, timeElapsed, 
-                    ref _thrustAcc, ref _pitchVel, ref _yawVel);
+                Vector3 latax;
+                mParams.pursuitDriver.updateExecution(this, timeElapsed, out latax);
+                var oldMagnitude = _velocity.LengthFast;
+                latax.Normalize();
+                latax *= (oldMagnitude * timeElapsed);
+                _velocity += latax;
+                float r = _velocity.Length / oldMagnitude;
+                if (r > 1f) {
+                    _velocity /= r;
+                }
+
+                //_velocity += _velocity.Normalized() * 0.2f;
+
                 break;
             case State.Intercepted:
                 // todo
@@ -134,7 +147,7 @@ namespace SimpleScene.Demos
 
             //_pitchVel += _pitchAcc * timeElapsed;
             //_yawVel += _yawAcc * timeElapsed;
-            _velocity += _thrustAcc * _direction * timeElapsed;
+            //_velocity += _thrustAcc * _direction * timeElapsed;
         }
 
         public void updateNavigationData(float timeElapsed)

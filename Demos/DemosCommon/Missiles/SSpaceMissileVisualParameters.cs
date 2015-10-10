@@ -60,7 +60,7 @@ namespace SimpleScene.Demos
         public float smokeEmissionFrequencyMax = 200f;
         public int smokeParticlesPerEmissionMin = 4;
         public int smokeParticlesPerEmissionMax = 5;
-        public float fullSmokeEmissionAcc = 3f;
+        public float fullSmokeEmissionAcc = 10f;
         #endregion
     }
 }

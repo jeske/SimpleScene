@@ -190,15 +190,16 @@ namespace SimpleScene.Demos
                 bodyObj.Orient(_missile.direction, _missile.up);
 
                 var emissionRatio = _missile.thrustAcc / mParams.fullSmokeEmissionAcc;
-                var emissionFreq = Interpolate.Lerp(
-                   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
+                var emissionFreq = 20f;
+                //var emissionFreq = Interpolate.Lerp(
+                //   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
                 
                 smokeEmitter.center = _missile.position
                     - _missile.direction * mParams.missileScale * mParams.jetPosition;
                 smokeEmitter.up = -_missile.direction;
 
                 smokeEmitter.emissionInterval = 1f / emissionFreq;
-                //smokeEmitter.componentScale = new Vector3(emissionRatio);
+                smokeEmitter.componentScale = new Vector3(emissionRatio);
                 //smokeEmitter.emissionInterval = 1f / 80f;
             }
         }
