@@ -19,8 +19,7 @@ namespace SimpleScene.Demos
         protected SSColorKeyframesEffector _smokeColorEffector = null;
         protected SSMasterScaleKeyframesEffector _smokeScaleEffector = null;
 
-        protected readonly Dictionary<SSpaceMissileData, SSpaceMissileRenderInfo>
-            _missilesRuntimes = new Dictionary<SSpaceMissileData, SSpaceMissileRenderInfo>();
+        protected readonly List<SSpaceMissileRenderInfo> _missileRuntimes = new List<SSpaceMissileRenderInfo> ();
 
         public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
@@ -56,8 +55,8 @@ namespace SimpleScene.Demos
 
         ~SSpaceMissilesRenderManager()
         {
-            foreach (var missile in _missilesRuntimes.Keys) {
-                _removeMissile(missile);
+            foreach (var missile in _missileRuntimes) {
+                _removeMissileRender(missile);
             }
             _particleRenderer.renderState.toBeDeleted = true;
         }
@@ -71,7 +70,7 @@ namespace SimpleScene.Demos
             var cluster = _simulation.launchCluster(launchPos, launchVel, numMissiles,
                                                     target, timeToHit, clusterParams);
             foreach (var missile in cluster.missiles) {
-                _addMissile(missile);
+                _addMissileRender(missile);
             }
             return cluster;
         }
@@ -119,40 +118,43 @@ namespace SimpleScene.Demos
 
         // TODO: remove cluster??? or missile?
 
-        protected void _addMissile(SSpaceMissileData missile)
+        protected void _addMissileRender(SSpaceMissileData missile)
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             _objScene.AddObject(missileRuntime.bodyObj);
             _particlesData.addEmitter(missileRuntime.smokeEmitter);
-            _missilesRuntimes [missile] = missileRuntime;
+            _missileRuntimes.Add(missileRuntime);
         }
 
-        protected void _removeMissile(SSpaceMissileData missile)
+        protected void _removeMissileRender(SSpaceMissileRenderInfo missileRuntime)
         {
-            var missileRuntime = _missilesRuntimes [missile];
-            _missilesRuntimes.Remove(missile);
-
             missileRuntime.bodyObj.renderState.toBeDeleted = true;
             _particlesData.removeEmitter(missileRuntime.smokeEmitter);
-            
         }
 
         protected void _preRenderUpdate(float timeElapsed)
         {
-            foreach (var missile in _missilesRuntimes.Values) {
-                missile.preRenderUpdate(timeElapsed);
+            for (int i = 0; i < _missileRuntimes.Count; ++i) {
+                var missileRuntime = _missileRuntimes [i];
+                if (missileRuntime.missile.state == SSpaceMissileData.State.Terminated) {
+                    _removeMissileRender(missileRuntime);
+                } else {
+                    missileRuntime.preRenderUpdate(timeElapsed);
+                }
             }
+            _missileRuntimes.RemoveAll(
+                (missileRuntime) => missileRuntime.missile.state == SSpaceMissileData.State.Terminated);
         }
 
         protected class SSpaceMissileRenderInfo
         {
             public readonly SSObjectMesh bodyObj;
             public readonly SSRadialEmitter smokeEmitter;
-            protected SSpaceMissileData _missile;
+            public readonly SSpaceMissileData missile;
 
             public SSpaceMissileRenderInfo(SSpaceMissileData missile)
             {
-                _missile = missile;
+                this.missile = missile;
                 var mParams = missile.cluster.parameters;
                 bodyObj = new SSObjectMesh(mParams.missileMesh);
                 bodyObj.Scale = new Vector3(mParams.missileScale);
@@ -183,20 +185,20 @@ namespace SimpleScene.Demos
 
             public void preRenderUpdate(float timeElapsed)
             {
-                var mParams = _missile.cluster.parameters;
+                var mParams = missile.cluster.parameters;
 
-                bodyObj.Pos = _missile.position;
+                bodyObj.Pos = missile.position;
 
-                bodyObj.Orient(_missile.direction, _missile.up);
+                bodyObj.Orient(missile.direction, missile.up);
 
-                var emissionRatio = _missile.thrustAcc / mParams.fullSmokeEmissionAcc;
+                var emissionRatio = missile.thrustAcc / mParams.fullSmokeEmissionAcc;
                 var emissionFreq = 20f;
                 //var emissionFreq = Interpolate.Lerp(
                 //   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
                 
-                smokeEmitter.center = _missile.position
-                    - _missile.direction * mParams.missileScale * mParams.jetPosition;
-                smokeEmitter.up = -_missile.direction;
+                smokeEmitter.center = missile.position
+                    - missile.direction * mParams.missileScale * mParams.jetPosition;
+                smokeEmitter.up = -missile.direction;
 
                 smokeEmitter.emissionInterval = 1f / emissionFreq;
                 smokeEmitter.componentScale = new Vector3(emissionRatio);

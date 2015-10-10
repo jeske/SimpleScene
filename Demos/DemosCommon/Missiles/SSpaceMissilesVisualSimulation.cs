@@ -9,6 +9,7 @@ namespace SimpleScene.Demos
     {
         public static Random rand = new Random();
 
+        //public float timeScale = 0.3f;
         public float timeScale = 1f;
 
         protected List<SSpaceMissileClusterData> _clusters
@@ -25,7 +26,38 @@ namespace SimpleScene.Demos
             return cluster;
 
             // TODO remove cluster: auto -OR- manual
- 
+         }
+
+        public void removeMissile(SSpaceMissileData missile)
+        {
+            for (int i = 0; i < _clusters.Count; ++i) {
+                var cluster = _clusters [i];
+                if (cluster.removeMissile(missile)) {
+                    if (cluster.allTerminated()) {
+                        _clusters.RemoveAt(i);
+                    }
+                    return;
+                }
+            }
+        }
+
+        public void removeCluster(SSpaceMissileClusterData cluster)
+        {
+            for (int i = 0; i < _clusters.Count; ++i) {
+                var cl = _clusters [i];
+                if (cl == cluster) {
+                    cl.terminateAll();
+                    _clusters.RemoveAt(i);
+                }
+            }
+        }
+
+        public void removeAll()
+        {
+            foreach (var cluster in _clusters) {
+                cluster.terminateAll();
+            }
+            _clusters.Clear();
         }
 
         public void updateVisualization(float timeElapsed)
@@ -84,20 +116,45 @@ namespace SimpleScene.Demos
             );
         }
 
+        /// <summary> Remove true if missile was removed </summary>
+        public bool removeMissile(SSpaceMissileData missile)
+        {
+            foreach (var m  in _missiles) {
+                if (m == missile) {
+                    m.terminate();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void terminateAll()
+        {
+            foreach (var missile in _missiles) {
+                missile.terminate();
+            }
+        }
+
+        public bool allTerminated()
+        {
+            foreach (var m  in _missiles) {
+                if (m.state != SSpaceMissileData.State.Terminated) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void updateVisualization(float timeElapsed)
         {
             float accTime = timeElapsed + _timeDeltaAccumulator;
-            if (accTime >= _parameters.simulationStep) {
+            while (accTime >= _parameters.simulationStep) {
                 foreach (var missile in _missiles) {
-                    //missile.updateNavigationData(accTime);
-                }
-
-                while (accTime >= _parameters.simulationStep) {
-                    foreach (var missile in _missiles) {
+                    if (missile.state != SSpaceMissileData.State.Terminated) {
                         missile.updateExecution(_parameters.simulationStep);
                     }
-                    accTime -= _parameters.simulationStep;
                 }
+                accTime -= _parameters.simulationStep;
             }
             _timeDeltaAccumulator = accTime;
         }

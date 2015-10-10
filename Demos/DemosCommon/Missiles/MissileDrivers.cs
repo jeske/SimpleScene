@@ -7,7 +7,7 @@ namespace SimpleScene.Demos
     {
         // Note the position is already assigned by field generator
         void init(SSpaceMissileData missile, Vector3 clusterInitPos, Vector3 clusterInitVel,
-            out Vector3 dir, out Vector3 velocity, out float pitchVel, out float yawVel);
+                  out Vector3 dir, out Vector3 velocity, out float pitchVel, out float yawVel);
         void updateExecution(SSpaceMissileData missile, float timeElapsed, 
             ref float thrustAcc, ref float pitchVel, ref float yawVel);
     }

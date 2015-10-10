@@ -7,7 +7,7 @@ namespace SimpleScene.Demos
     {
         // TODO actual rendering constructs. Where do they go?
 
-        public enum State { Ejection, Pursuit, Intercepted };
+        public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
 
         public SSpaceMissileClusterData cluster { get { return _cluster; } }
         public int clusterId { get { return _clusterId; } }
@@ -99,6 +99,12 @@ namespace SimpleScene.Demos
             ejection.updateExecution(this, 0f, ref _thrustAcc, ref dummy, ref dummy);
         }
 
+        public void terminate()
+        {
+            _state = State.Terminated;
+            System.Console.WriteLine("missile terminated on demand");
+        }
+
         public void updateExecution(float timeElapsed)
         {
             updateNavigationData(timeElapsed);
@@ -134,12 +140,26 @@ namespace SimpleScene.Demos
                     _velocity /= r;
                 }
 
+                if ((position - cluster.target.position).LengthFast <= mParams.terminateWhenAtTargetDist) {
+                    System.Console.WriteLine("missile at target at t = " + _timeSinceLaunch);
+                    _state = State.AtTarget;
+                }
                 //_velocity += _velocity.Normalized() * 0.2f;
 
+                break;
+            case State.AtTarget:
+                if (mParams.terminateWhenAtTarget) {
+                    System.Console.WriteLine("missile terminated at target at t = " + _timeSinceLaunch);
+                    _state = State.Terminated;
+                }
                 break;
             case State.Intercepted:
                 // todo
                 break;
+            case State.Terminated:
+                throw new Exception ("missile state machine still running in a terminated state");
+                break;
+
             }
 
             //_pitchAcc = Math.Min(_pitchAcc, mParams.maxRotationalAcc);
