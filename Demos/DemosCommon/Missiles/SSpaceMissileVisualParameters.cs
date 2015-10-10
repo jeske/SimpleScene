@@ -12,8 +12,9 @@ namespace SimpleScene.Demos
 
         #region visual simulation parameters
         public float simulationStep = 0.05f;
+        public float atTargetDistance = 1f;
         public bool terminateWhenAtTarget = true;
-        public float terminateWhenAtTargetDist = 3f;
+        public float explosionIntensity = 1f;
 
         public float minActivationTime = 1f;
         public float ejectionVelocity = 10f;

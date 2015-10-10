@@ -34,7 +34,6 @@
     <Compile Include="TestBenchBootstrap_renderScene.cs" />
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
-    <Compile Include="SExplosionRenderer.cs" />
     <Compile Include="SStarfieldObject.cs" />
     <Compile Include="Lasers\SLaserManager.cs" />
     <Compile Include="Lasers\SLaser.cs" />
@@ -50,6 +49,7 @@
     <Compile Include="Missiles\MissileTargets.cs" />
     <Compile Include="Missiles\SSpaceMissileVisualParameters.cs" />
     <Compile Include="Missiles\SSpaceMissilesRenderManager.cs" />
+    <Compile Include="SExplosionRenderManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

@@ -9,7 +9,7 @@ namespace TestBench3
 {
     public class TestBench3 : TestBenchBootstrap
     {
-        protected SSScene missileParticlesScene;
+        protected SSScene particlesScene;
         protected SSpaceMissilesRenderManager missileManager;
 
         protected SSObjectMesh attackerDrone;
@@ -36,7 +36,7 @@ namespace TestBench3
         {
             base.setupScene();
 
-            missileParticlesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            particlesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
             var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
             //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
@@ -65,8 +65,12 @@ namespace TestBench3
             //droneObj2.renderState.visible = false;
             scene.AddObject (targetDrone);
 
+            SExplosionRenderManager explosionRenderer = new SExplosionRenderManager ();
+            explosionRenderer.particleSystem.doShockwave = false;
+            particlesScene.AddObject(explosionRenderer);
+
             // manages missiles
-            missileManager = new SSpaceMissilesRenderManager(scene, missileParticlesScene);
+            missileManager = new SSpaceMissilesRenderManager(scene, explosionRenderer, particlesScene);
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)
@@ -142,15 +146,15 @@ namespace TestBench3
             base.renderScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
             // laser middle sections and burn particles
-            missileParticlesScene.renderConfig.invCameraViewMatrix = mainSceneView;
-            missileParticlesScene.renderConfig.projectionMatrix = mainSceneProj;
-            missileParticlesScene.Render ();
+            particlesScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            particlesScene.renderConfig.projectionMatrix = mainSceneProj;
+            particlesScene.Render ();
         }
 
         protected override void OnUpdateFrame (FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-            missileParticlesScene.Update((float)e.Time);
+            particlesScene.Update((float)e.Time);
         }
     }
 }

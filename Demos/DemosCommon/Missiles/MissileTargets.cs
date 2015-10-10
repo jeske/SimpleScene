@@ -11,6 +11,8 @@ namespace SimpleScene.Demos
         Vector3 position { get; }
         Vector3 velocity { get; }
         bool isAlive{ get; } // target is structurally intact
+
+        bool hitTest(SSpaceMissileData missile);
     }
 
     public class SSpaceMissileObjectTarget : ISSpaceMissileTarget
@@ -25,6 +27,14 @@ namespace SimpleScene.Demos
         public Vector3 position { get { return _target.Pos; } }
         public Vector3 velocity { get { return Vector3.Zero; } } // TODO
         public bool isAlive { get { return true; } }
+
+        public bool hitTest(SSpaceMissileData missile)
+        {
+            SSRay ray = new SSRay(missile.position, missile.direction);
+            float distance;
+            return _target.Intersect(ref ray, out distance) 
+                && distance < missile.cluster.parameters.atTargetDistance;
+        }
     }
 }
 

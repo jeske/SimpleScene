@@ -140,7 +140,7 @@ namespace SimpleScene.Demos
                     _velocity /= r;
                 }
 
-                if ((position - cluster.target.position).LengthFast <= mParams.terminateWhenAtTargetDist) {
+                if (cluster.target.hitTest(this)) {
                     System.Console.WriteLine("missile at target at t = " + _timeSinceLaunch);
                     _state = State.AtTarget;
                 }
