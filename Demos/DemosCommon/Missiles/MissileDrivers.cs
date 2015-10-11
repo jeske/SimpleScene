@@ -26,7 +26,7 @@ namespace SimpleScene.Demos
 
         public void updateExecution(float timeElapsed) 
         { 
-            // TODO spin etc
+            
         }
     }
 
@@ -66,6 +66,8 @@ namespace SimpleScene.Demos
             if (r > 1f) {
                 _missile.velocity /= r;
             }
+
+            _missile.direction = _missile.velocity.Normalized();
 
             // housekeeping
             _rtmOld = rtmNew;

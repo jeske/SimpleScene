@@ -30,7 +30,7 @@ namespace SimpleScene.Demos
 
         public bool hitTest(SSpaceMissileData missile)
         {
-            SSRay ray = new SSRay(missile.position, missile.direction);
+            SSRay ray = new SSRay(missile.position, missile.velocity.Normalized());
             float distance;
             return _target.Intersect(ref ray, out distance) 
                 && distance < missile.cluster.parameters.atTargetDistance;
