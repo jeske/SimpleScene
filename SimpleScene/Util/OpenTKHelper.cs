@@ -81,6 +81,28 @@ namespace SimpleScene
 			//return new Vector3 (phi, theta, gamma);
 			return new Vector3 (gamma - (float)Math.PI, theta, phi);
         }
+
+        /// <summary>
+        /// Quaterionon needed to transform direction dir1 into direction dir2
+        /// </summary>
+        public static Quaternion neededRotation(Vector3 dir1, Vector3 dir2)
+        {
+            dir1.Normalize();
+            dir2.Normalize();
+            Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
+            float dot = Vector3.Dot(dir1, dir2);
+            float angle = (float)Math.Acos(dot);
+            return Quaternion.FromAxisAngle(crossNormalized, angle);
+        }
+
+        public static void neededRotation(Vector3 dir1, Vector3 dir2, out Vector3 axis, out float angle)
+        {
+            dir1.Normalize();
+            dir2.Normalize();
+            axis = Vector3.Cross(dir1, dir2).Normalized();
+            float dot = Vector3.Dot(dir1, dir2);
+            angle = (float)Math.Acos(dot);
+        }
 			       
         /// <summary>
         /// Distance from a ray to a point at the closest spot. The ray is assumed to be infinite length.
