@@ -5,17 +5,23 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
+    // TODO: fuel strategy???
+
     public class SSpaceMissileVisualParameters
     {
-        public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, 
-            Vector3 launcherPos, Vector3 launcherVel);
+        public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, Vector3 launcherPos, Vector3 launcherVel);
+        public delegate ISSpaceMissileDriver 
+            EjectionCreationDelegate(SSpaceMissileData missile, Vector3 clusterPos, Vector3 clusterVel);
+        public delegate ISSpaceMissileDriver PursuitCreationDelegate(SSpaceMissileData missile);
 
-        #region visual simulation parameters
+        #region simulation parameters
         public float simulationStep = 0.05f;
         public float atTargetDistance = 1f;
         public bool terminateWhenAtTarget = true;
         public float explosionIntensity = 1f;
+        #endregion
 
+        #region ejection
         public float minActivationTime = 1f;
         public float ejectionVelocity = 10f;
         public float ejectionMaxRotationVel = 1f;
@@ -26,17 +32,17 @@ namespace SimpleScene.Demos
             = (target, launcherPos, launcherVel) => { return Matrix4.CreateTranslation(launcherPos); };
         public float spawnDistanceScale = 10f;
 
-        public ISSpaceMissileEjectionDriver ejectionDriver
-            = new SSimpleMissileEjectionDriver();
-        public ISSpaceMissilePursuitDriver pursuitDriver
-            = new SProportionalNavigationPursuitDriver();
-
-        public float maxRotationalAcc = 0.2f;
-        public float navigationGain = 3f;
-        public float lateralLeverFactor = 1f;
-
-        // TODO: fuel strategy???
+        public EjectionCreationDelegate createEjection = (missile, clusterPos, clusterVel) =>
+            { return new SSimpleMissileEjectionDriver (missile, clusterPos, clusterVel); };
+            
         #endregion
+
+        #region pursuit
+        public PursuitCreationDelegate createPursuit = (missile) => 
+            { return new SProportionalNavigationPursuitDriver (missile); };
+        public float navigationGain = 3f;
+        #endregion
+
 
         #region render parameters
         /// <summary> Missile mesh must be facing into positive Z axis </summary>

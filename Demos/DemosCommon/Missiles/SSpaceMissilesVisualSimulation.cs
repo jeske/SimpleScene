@@ -26,7 +26,12 @@ namespace SimpleScene.Demos
             return cluster;
 
             // TODO remove cluster: auto -OR- manual
-         }
+        }
+
+        public void updateClusterTimeToHit(SSpaceMissileClusterData cluster, float timeToHit)
+        {
+            // TODO
+        }
 
         public void removeMissile(SSpaceMissileData missile)
         {
@@ -60,11 +65,11 @@ namespace SimpleScene.Demos
             _clusters.Clear();
         }
 
-        public void updateVisualization(float timeElapsed)
+        public void updateSimulation(float timeElapsed)
         {
             timeElapsed *= timeScale;
             foreach (var cluster in _clusters) {
-                cluster.updateVisualization(timeElapsed);
+                cluster.updateSimulation(timeElapsed);
             }
         }
 
@@ -82,17 +87,16 @@ namespace SimpleScene.Demos
         public SSpaceMissileData[] missiles { get { return _missiles; } }
         public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
         public ISSpaceMissileTarget target { get { return _target; } }
-        //public Vector3 prevTargetPos { get { return _prevTargetPos; } }
-        //public float timeSinceLaunch { get { return _timeSinceLaunch; } }
-        public Vector3 oldTargetPos { get { return _oldTargetPos; } }
+        public float timeToHit { get { return _timeToHit; } }
+        public float timeSinceLaunch { get { return _timeSinceLaunch; } }
 
         protected readonly SSpaceMissileData[] _missiles;
         protected readonly ISSpaceMissileTarget _target;
         protected readonly SSpaceMissileVisualParameters _parameters;
 
         protected float _timeDeltaAccumulator = 0f;
-        //protected float _timeSinceLaunch = 0f;
-        protected Vector3 _oldTargetPos;
+        protected float _timeSinceLaunch = 0f;
+        protected float _timeToHit = 0f;
 
         public SSpaceMissileClusterData(
             Vector3 launcherPos, Vector3 launcherVel, int numMissiles,
@@ -100,7 +104,7 @@ namespace SimpleScene.Demos
             SSpaceMissileVisualParameters mParams)
         {
             _target = target;
-            _oldTargetPos = target.position;
+            _timeToHit = timeToHit;
             _parameters = mParams;
             _missiles = new SSpaceMissileData[numMissiles];
 
@@ -114,6 +118,12 @@ namespace SimpleScene.Demos
                     return true; // accept new missile from the generator
                 }
             );
+        }
+
+        public void updateTimeToHit(float timeToHit)
+        {
+            _timeToHit = timeToHit;
+            // TODO what happens to missiles?
         }
 
         /// <summary> Remove true if missile was removed </summary>
@@ -145,26 +155,25 @@ namespace SimpleScene.Demos
             return true;
         }
 
-        public void updateVisualization(float timeElapsed)
+        public void updateSimulation(float timeElapsed)
         {
             float accTime = timeElapsed + _timeDeltaAccumulator;
             while (accTime >= _parameters.simulationStep) {
-                foreach (var missile in _missiles) {
-                    if (missile.state != SSpaceMissileData.State.Terminated) {
-                        missile.updateExecution(_parameters.simulationStep);
-                    }
-                }
+                _simulateStep(timeElapsed);
                 accTime -= _parameters.simulationStep;
             }
             _timeDeltaAccumulator = accTime;
         }
 
-        public void updateTimeToHit(float timeToHit)
+        protected void _simulateStep(float timeElapsed)
         {
             foreach (var missile in _missiles) {
-                missile.updateTimeToHit(timeToHit);
+                if (missile.state != SSpaceMissileData.State.Terminated) {
+                    missile.updateExecution(timeElapsed);
+                }
             }
-            _oldTargetPos = _target.position;
+            _timeToHit -= timeElapsed;
+            _timeSinceLaunch += timeElapsed;
         }
     }
 }

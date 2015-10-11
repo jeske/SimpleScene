@@ -32,7 +32,7 @@ namespace SimpleScene.Demos
 
             _objScene = objScene;
             objScene.preRenderHooks += _preRenderUpdate;
-            objScene.preUpdateHooks += _simulation.updateVisualization;
+            objScene.preUpdateHooks += _simulation.updateSimulation;
 
             // particle system
             _particlesData = new SSParticleSystemData (particleCapacity);
