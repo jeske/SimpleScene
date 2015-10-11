@@ -21,15 +21,20 @@ namespace SimpleScene.Demos
         public Vector3 direction = Vector3.UnitZ;
         #endregion
 
-        #region fix these
+        #region helpers
         public Vector3 up { 
             get { 
-                Vector3 ret, dummy;
-                OpenTKHelper.TwoPerpAxes(direction, out ret, out dummy);
-                return ret;
+                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, direction);
+                return Vector3.Transform(Vector3.UnitY, quat);
             } 
         }
-        public float thrustAcc { get { return velocity.LengthFast; } }
+        public Vector3 pitchAxis { 
+            get { 
+                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, direction);
+                return Vector3.Transform(Vector3.UnitX, quat);
+            } 
+        }
+        public float jetStrength { get { return velocity.LengthFast; } }
         #endregion
 
         #region internally managed

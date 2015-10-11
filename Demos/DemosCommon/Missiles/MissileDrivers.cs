@@ -12,6 +12,10 @@ namespace SimpleScene.Demos
     {
         protected readonly SSpaceMissileData _missile;
 
+        protected readonly float _yawVelocity; // purely visual
+        protected readonly float _pitchVelocity; // purely visual
+        protected readonly Vector3 _initDir;
+
         public SSimpleMissileEjectionDriver(SSpaceMissileData missile, 
             Vector3 clusterInitPos, Vector3 clusterInitVel)
         {
@@ -22,11 +26,24 @@ namespace SimpleScene.Demos
 
             missile.direction = (missile.position - clusterInitPos).Normalized();
             missile.velocity = missile.direction * mParams.ejectionVelocity;
+
+            var rand = SSpaceMissilesVisualSimulation.rand;
+            _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+            _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
         }
 
         public void updateExecution(float timeElapsed) 
         { 
-            
+            float t = _missile.cluster.timeSinceLaunch;
+            float dy = _yawVelocity * t;
+            float dp = _pitchVelocity * t;
+
+            Quaternion q = Quaternion.FromAxisAngle(_missile.up, dy)
+                           * Quaternion.FromAxisAngle(_missile.pitchAxis, dp);
+            _missile.direction = Vector3.Transform(_missile.direction, q);
+
+            var mParams = _missile.cluster.parameters;
+            _missile.velocity += _missile.direction * mParams.ejectionAcc;
         }
     }
 
@@ -67,7 +84,20 @@ namespace SimpleScene.Demos
                 _missile.velocity /= r;
             }
 
-            _missile.direction = _missile.velocity.Normalized();
+            // make visual direction "lean into" velocity
+            Vector3 axis;
+            float angle;
+            OpenTKHelper.neededRotation(_missile.direction, _missile.velocity.Normalized(),
+                out axis, out angle);
+            float abs = Math.Abs(angle);
+            if (abs > mParams.maxVisualRotation) {
+                angle = angle / abs * mParams.maxVisualRotation;
+            }
+            Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
+
+            _missile.direction = Vector3.Transform(_missile.direction, quat);
+
+            //_missile.direction = _missile.velocity.Normalized();
 
             // housekeeping
             _rtmOld = rtmNew;

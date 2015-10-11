@@ -199,7 +199,7 @@ namespace SimpleScene.Demos
 
                 bodyObj.Orient(missile.direction, missile.up);
 
-                var emissionRatio = missile.thrustAcc / mParams.fullSmokeEmissionAcc;
+                var emissionRatio = missile.jetStrength / mParams.fullSmokeEmissionAcc;
                 var emissionFreq = 20f;
                 //var emissionFreq = Interpolate.Lerp(
                 //   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
