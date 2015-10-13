@@ -21,6 +21,10 @@ namespace SimpleScene.Demos
         public Vector3 direction = Vector3.UnitZ;
         #endregion
 
+        #region for debugging only
+        public Vector3 _lataxDebug = Vector3.Zero;
+        #endregion
+
         #region helpers
         public Vector3 up { 
             get { 

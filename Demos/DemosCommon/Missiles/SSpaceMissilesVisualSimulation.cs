@@ -10,7 +10,7 @@ namespace SimpleScene.Demos
         public static Random rand = new Random();
 
         //public float timeScale = 0.3f;
-        public float timeScale = 1f;
+        public float timeScale = 0.3f;
 
         protected List<SSpaceMissileClusterData> _clusters
             = new List<SSpaceMissileClusterData>();
@@ -159,7 +159,7 @@ namespace SimpleScene.Demos
         {
             float accTime = timeElapsed + _timeDeltaAccumulator;
             while (accTime >= _parameters.simulationStep) {
-                _simulateStep(timeElapsed);
+                _simulateStep(parameters.simulationStep);
                 accTime -= _parameters.simulationStep;
             }
             _timeDeltaAccumulator = accTime;

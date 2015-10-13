@@ -78,6 +78,7 @@ namespace SimpleScene.Demos
             var oldMagnitude = _missile.velocity.LengthFast;
             latax.Normalize();
             latax *= (oldMagnitude * timeElapsed);
+            _missile._lataxDebug = latax;
             _missile.velocity += latax;
             float r = _missile.velocity.Length / oldMagnitude;
             if (r > 1f) {

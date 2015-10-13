@@ -25,6 +25,7 @@ namespace SimpleScene.Demos
         public float minActivationTime = 1f;
         public float ejectionVelocity = 5f;
         public float ejectionAcc = 1f;
+        //public float ejectionAcc = 0.2f;
         public float ejectionMaxRotationVel = 0.3f;
 
         public BodiesFieldGenerator spawnGenerator 

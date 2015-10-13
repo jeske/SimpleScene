@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 using SimpleScene.Util;
 
 namespace SimpleScene.Demos
@@ -126,6 +127,7 @@ namespace SimpleScene.Demos
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             _objScene.AddObject(missileRuntime.bodyObj);
+            _objScene.AddObject(missileRuntime.debugRenderer);
             _particlesData.addEmitter(missileRuntime.smokeEmitter);
             _missileRuntimes.Add(missileRuntime);
         }
@@ -133,6 +135,7 @@ namespace SimpleScene.Demos
         protected void _removeMissileRender(SSpaceMissileRenderInfo missileRuntime)
         {
             missileRuntime.bodyObj.renderState.toBeDeleted = true;
+            missileRuntime.debugRenderer.renderState.toBeDeleted = true;
             _particlesData.removeEmitter(missileRuntime.smokeEmitter);
         }
 
@@ -157,6 +160,8 @@ namespace SimpleScene.Demos
         protected class SSpaceMissileRenderInfo
         {
             public readonly SSObjectMesh bodyObj;
+            public readonly MissileDebugRenderer debugRenderer;
+
             public readonly SSRadialEmitter smokeEmitter;
             public readonly SSpaceMissileData missile;
 
@@ -168,6 +173,8 @@ namespace SimpleScene.Demos
                 bodyObj.Scale = new Vector3(mParams.missileScale);
                 bodyObj.renderState.castsShadow = false;
                 bodyObj.renderState.receivesShadows = false;
+
+                debugRenderer = new MissileDebugRenderer(missile);
 
                 smokeEmitter = new SSRadialEmitter();
                 smokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
@@ -196,7 +203,6 @@ namespace SimpleScene.Demos
                 var mParams = missile.cluster.parameters;
 
                 bodyObj.Pos = missile.position;
-
                 bodyObj.Orient(missile.direction, missile.up);
 
                 var emissionRatio = missile.jetStrength / mParams.fullSmokeEmissionAcc;
@@ -211,6 +217,32 @@ namespace SimpleScene.Demos
                 smokeEmitter.emissionInterval = 1f / emissionFreq;
                 smokeEmitter.componentScale = new Vector3(emissionRatio);
                 //smokeEmitter.emissionInterval = 1f / 80f;
+            }
+
+            public class MissileDebugRenderer : SSObject
+            {
+                protected readonly SSpaceMissileData _missile;
+
+                public MissileDebugRenderer(SSpaceMissileData missile)
+                {
+                    _missile = missile;
+                    renderState.castsShadow = false;
+                    renderState.receivesShadows = false;
+                    renderState.frustumCulling = false;
+                }
+
+                public override void Render (SSRenderConfig renderConfig)
+                {
+                    this.Pos = _missile.position;
+                    base.Render(renderConfig);
+                    SSShaderProgram.DeactivateAll();
+                    GL.Color4(Color4.LightCyan);
+                    GL.Begin(PrimitiveType.Lines);
+                    GL.LineWidth(3f);
+                    GL.Vertex3(Vector3.Zero);
+                    GL.Vertex3(_missile._lataxDebug * 10f);
+                    GL.End();
+                }
             }
         }
     }
