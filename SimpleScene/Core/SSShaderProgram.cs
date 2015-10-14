@@ -9,7 +9,7 @@ public class SSShaderProgram {
 
     private static SSShaderProgram s_activeProgram = null;
 
-    public readonly int m_programID;
+    public int m_programID = -1;
 	protected bool m_isValid = false;
 
 	static SSShaderProgram() {

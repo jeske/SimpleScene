@@ -10,6 +10,11 @@ using Util;
 
 namespace SimpleScene
 {
+
+    public class SSShaderLoadException : Exception { 
+        public SSShaderLoadException(String info) : base(info) {}
+    }
+
 	public class SSShader
 	{
 		public int ShaderID;
@@ -36,6 +41,7 @@ namespace SimpleScene
 			if (compiled == (int)OpenTK.Graphics.OpenGL.All.False) {
 			    Console.WriteLine("** Shader Compile Failed **");
 			    ShaderID = 0;
+                throw new SSShaderLoadException(this.shaderName);
 			}
 		}
 		
