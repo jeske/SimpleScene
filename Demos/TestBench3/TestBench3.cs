@@ -11,6 +11,7 @@ namespace TestBench3
     {
         protected SSScene particlesScene;
         protected SSpaceMissilesRenderManager missileManager;
+        protected SSpaceMissileVisualParameters missileParams;
 
         protected SSObjectMesh attackerDrone;
         protected SSObjectMesh targetDrone;
@@ -65,12 +66,22 @@ namespace TestBench3
             //droneObj2.renderState.visible = false;
             scene.AddObject (targetDrone);
 
+            // shows explosions
             SExplosionRenderManager explosionRenderer = new SExplosionRenderManager ();
             explosionRenderer.particleSystem.doShockwave = false;
+            explosionRenderer.particleSystem.doDebris = false;
+            explosionRenderer.particleSystem.timeScale = 3f;
             particlesScene.AddObject(explosionRenderer);
 
-            // manages missiles
-            missileManager = new SSpaceMissilesRenderManager(scene, explosionRenderer, particlesScene);
+            // missile parameters
+            missileParams = new SSpaceMissileVisualParameters();
+            missileParams.targetHitHandlers += (pos, mParams) => {
+                explosionRenderer.showExplosion(pos, 2.5f);
+            };
+
+            // missile manager
+            missileManager = new SSpaceMissilesRenderManager(scene, particlesScene);
+
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)
@@ -101,7 +112,7 @@ namespace TestBench3
                 1,
                 new SSpaceMissileObjectTarget(targetDrone),
                 10f,
-                new SSpaceMissileVisualParameters ()
+                missileParams
             );
         }
 

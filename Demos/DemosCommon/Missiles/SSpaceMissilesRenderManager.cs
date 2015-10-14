@@ -17,8 +17,6 @@ namespace SimpleScene.Demos
         protected readonly SSParticleSystemData _particlesData;
         protected readonly SSInstancedMeshRenderer _particleRenderer;
 
-        protected readonly SExplosionRenderManager _explosionRenderer;
-
         protected SSColorKeyframesEffector _smokeColorEffector = null;
         protected SSMasterScaleKeyframesEffector _smokeScaleEffector = null;
 
@@ -26,8 +24,8 @@ namespace SimpleScene.Demos
 
         public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
-        public SSpaceMissilesRenderManager (SSScene objScene, SExplosionRenderManager explosionRender, 
-                                            SSScene particleScene, int particleCapacity = 2000)
+        public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, 
+                                            int particleCapacity = 2000)
         {
             _simulation = new SSpaceMissilesVisualSimulation ();
 
@@ -52,8 +50,6 @@ namespace SimpleScene.Demos
             _particleRenderer.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
             _particleRenderer.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             _particleRenderer.ShininessMatColor = 0f;
-
-            _explosionRenderer = explosionRender;
 
             particleScene.AddObject(_particleRenderer);
         }
@@ -146,9 +142,9 @@ namespace SimpleScene.Demos
                 var missile = missileRuntime.missile;
                 if (missile.state == SSpaceMissileData.State.Terminated) {
                     _removeMissileRender(missileRuntime);
-                    if (_explosionRenderer != null) {
-                        _explosionRenderer.showExplosion(missile.position, missile.cluster.parameters.explosionIntensity);
-                    }
+                    //if (_explosionRenderer != null) {
+                    //    _explosionRenderer.showExplosion(missile.position, missile.cluster.parameters.explosionIntensity);
+                    //}
                 } else {
                     missileRuntime.preRenderUpdate(timeElapsed);
                 }

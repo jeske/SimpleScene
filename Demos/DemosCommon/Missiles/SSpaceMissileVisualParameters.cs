@@ -13,12 +13,10 @@ namespace SimpleScene.Demos
         public delegate ISSpaceMissileDriver 
             EjectionCreationDelegate(SSpaceMissileData missile, Vector3 clusterPos, Vector3 clusterVel);
         public delegate ISSpaceMissileDriver PursuitCreationDelegate(SSpaceMissileData missile);
+        public delegate void MissileEventDelegate (Vector3 position, SSpaceMissileVisualParameters mParams);
 
         #region simulation parameters
         public float simulationStep = 0.05f;
-        public float atTargetDistance = 1f;
-        public bool terminateWhenAtTarget = true;
-        public float explosionIntensity = 1f;
         #endregion
 
         #region ejection
@@ -45,6 +43,11 @@ namespace SimpleScene.Demos
         public float maxVisualRotation = 0.1f;
         #endregion
 
+        #region at target
+        public float atTargetDistance = 1f;
+        public bool terminateWhenAtTarget = true;
+        public MissileEventDelegate targetHitHandlers = null;
+        #endregion
 
         #region render parameters
         /// <summary> Missile mesh must be facing into positive Z axis </summary>

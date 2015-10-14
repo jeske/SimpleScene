@@ -104,6 +104,9 @@ namespace SimpleScene.Demos
                 if (mParams.terminateWhenAtTarget) {
                     System.Console.WriteLine("missile terminated at target at t = " + cluster.timeSinceLaunch);
                     _state = State.Terminated;
+                    if (mParams.targetHitHandlers != null) {
+                        mParams.targetHitHandlers(_position, mParams);
+                    }
                 }
                 break;
             case State.Intercepted:

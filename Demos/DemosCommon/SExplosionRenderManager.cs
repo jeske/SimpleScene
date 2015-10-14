@@ -294,7 +294,7 @@ namespace SimpleScene.Demos
 			#endregion
 
 			#region timing settings
-			protected float _timeScale = 1f;
+			public float timeScale = 1f;
 			protected float _flameSmokeDuration = 2.5f;
 			protected float _flashDuration = 0.5f;
 			protected float _flyingSparksDuration = 2.5f;
@@ -366,7 +366,7 @@ namespace SimpleScene.Demos
 
 			public override void update(float timeDelta)
 			{
-				timeDelta *= _timeScale;
+				timeDelta *= timeScale;
 				base.update(timeDelta);
 			}
 
