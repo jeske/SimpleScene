@@ -48,17 +48,20 @@ namespace SimpleScene.Demos
     }
 
     /// <summary>
+    /// http://en.wikipedia.org/wiki/Proportional_navigation
+    /// 
+    /// take this one with a grain of salt:
     /// http://www.moddb.com/members/blahdy/blogs/gamedev-introduction-to-proportional-navigation-part-i
     /// </summary>
     public class SProportionalNavigationPursuitDriver : ISSpaceMissileDriver
     {
         protected SSpaceMissileData _missile;
-        public Vector3 _rtmOld;
+        //public Vector3 _rtmOld;
 
         public SProportionalNavigationPursuitDriver(SSpaceMissileData missile)
         {
             _missile = missile;
-            _rtmOld = _computeRtm(missile.cluster.target.position, missile.position);
+            //_rtmOld = _computeRtm(missile.cluster.target.position, missile.position);
         }
 
         public void updateExecution(float timeElapsed)
@@ -67,20 +70,27 @@ namespace SimpleScene.Demos
 
             var mParams = _missile.cluster.parameters;
 
+            #if false
             // compute latax
-            Vector3 rtmNew = _computeRtm(_missile.cluster.target.position, _missile.position);
-            Vector3 losDelta = rtmNew - _rtmOld;
+            //Vector3 rtmNew = _computeRtm(_missile.cluster.target.position, _missile.position);
+            //Vector3 losDelta = rtmNew - _rtmOld;
             //float losRate = losDelta.LengthFast / timeElapsed;
-            float losRate = losDelta.LengthFast;
-            Vector3 latax = mParams.navigationGain * losRate * losRate * rtmNew; // A = rtmNew * N * Vc * losRate
+            //float losRate = losDelta.LengthFast;
+            //Vector3 latax = mParams.navigationGain * losRate * losRate * rtmNew; // A = rtmNew * N * Vc * losRate
+            //Vector3 latax = mParams.navigationGain * rtmNew;
+            #endif
+
+            var target = _missile.cluster.target;
+            Vector3 Vr = target.velocity - _missile.velocity;
+            Vector3 R = target.position - _missile.position;
+            Vector3 omega = Vector3.Cross(R, Vr) / R.LengthSquared;
+            Vector3 latax = mParams.navigationGain * Vector3.Cross(Vr, omega);
 
             // apply latax
-            var oldMagnitude = _missile.velocity.LengthFast;
-            latax.Normalize();
-            latax *= (oldMagnitude * timeElapsed);
+            var maintainMagnitude = _missile.velocity.LengthFast;
             _missile._lataxDebug = latax;
-            _missile.velocity += latax;
-            float r = _missile.velocity.Length / oldMagnitude;
+            _missile.velocity += latax * timeElapsed;
+            float r = _missile.velocity.Length / maintainMagnitude;
             if (r > 1f) {
                 _missile.velocity /= r;
             }
@@ -99,9 +109,6 @@ namespace SimpleScene.Demos
             _missile.direction = Vector3.Transform(_missile.direction, quat);
 
             //_missile.direction = _missile.velocity.Normalized();
-
-            // housekeeping
-            _rtmOld = rtmNew;
         }
 
         public float estimateTimeNeededToHit(SSpaceMissileData missile)
@@ -110,10 +117,12 @@ namespace SimpleScene.Demos
             return 100f;
         }
 
+        #if false
         protected static Vector3 _computeRtm(Vector3 targetPos, Vector3 missilePos)
         {
             return (targetPos - missilePos).Normalized();
         }
+        #endif
     }
 }
 

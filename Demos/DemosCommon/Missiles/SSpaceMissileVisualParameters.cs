@@ -22,8 +22,8 @@ namespace SimpleScene.Demos
         #region ejection
         public float minActivationTime = 1f;
         public float ejectionVelocity = 5f;
-        //public float ejectionAcc = 1f;
-        public float ejectionAcc = 0.2f;
+        public float ejectionAcc = 1f;
+        //public float ejectionAcc = 0.2f;
         public float ejectionMaxRotationVel = 0.3f;
 
         public BodiesFieldGenerator spawnGenerator 
@@ -39,7 +39,7 @@ namespace SimpleScene.Demos
         #region pursuit
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
-        public float navigationGain = 5f;
+        public float navigationGain = 3f;
         public float maxVisualRotation = 0.1f;
         #endregion
 

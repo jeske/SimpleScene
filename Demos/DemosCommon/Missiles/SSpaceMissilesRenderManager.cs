@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define MISSILE_DEBUG
+
+using System;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
@@ -123,7 +125,9 @@ namespace SimpleScene.Demos
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             _objScene.AddObject(missileRuntime.bodyObj);
+            #if MISSILE_DEBUG
             _objScene.AddObject(missileRuntime.debugRenderer);
+            #endif
             _particlesData.addEmitter(missileRuntime.smokeEmitter);
             _missileRuntimes.Add(missileRuntime);
         }
@@ -131,7 +135,9 @@ namespace SimpleScene.Demos
         protected void _removeMissileRender(SSpaceMissileRenderInfo missileRuntime)
         {
             missileRuntime.bodyObj.renderState.toBeDeleted = true;
+            #if MISSILE_DEBUG
             missileRuntime.debugRenderer.renderState.toBeDeleted = true;
+            #endif
             _particlesData.removeEmitter(missileRuntime.smokeEmitter);
         }
 
@@ -170,7 +176,9 @@ namespace SimpleScene.Demos
                 bodyObj.renderState.castsShadow = false;
                 bodyObj.renderState.receivesShadows = false;
 
+                #if MISSILE_DEBUG
                 debugRenderer = new MissileDebugRenderer(missile);
+                #endif
 
                 smokeEmitter = new SSRadialEmitter();
                 smokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
@@ -236,7 +244,7 @@ namespace SimpleScene.Demos
                     GL.Begin(PrimitiveType.Lines);
                     GL.LineWidth(3f);
                     GL.Vertex3(Vector3.Zero);
-                    GL.Vertex3(_missile._lataxDebug * 10f);
+                    GL.Vertex3(_missile._lataxDebug);
                     GL.End();
                 }
             }
