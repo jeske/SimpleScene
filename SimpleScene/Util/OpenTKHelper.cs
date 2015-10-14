@@ -407,10 +407,10 @@ namespace SimpleScene
                 trans.X, trans.Y, trans.Z, 1f);
         }
 
-        public static Vector2 WorldToScreen(Vector3 worldPos, ref Matrix4 modelViewProjMat, 
+        public static Vector2 WorldToScreen(Vector3 worldPos, ref Matrix4 viewProjMat, 
                                             ref RectangleF clientRect)
         {
-            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), modelViewProjMat);
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), viewProjMat);
             pos /= pos.W;
             pos.Y = -pos.Y;
             Vector2 screenSize = new Vector2(clientRect.Width, clientRect.Height);

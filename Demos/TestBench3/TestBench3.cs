@@ -80,7 +80,7 @@ namespace TestBench3
             };
 
             // missile manager
-            missileManager = new SSpaceMissilesRenderManager(scene, particlesScene);
+            missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);
 
         }
 

@@ -1,4 +1,4 @@
-﻿//#define MISSILE_DEBUG
+﻿#define MISSILE_DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,10 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene.Util;
+
+#if MISSILE_DEBUG
+using System.Drawing; // RectangleF
+#endif
 
 namespace SimpleScene.Demos
 {
@@ -15,6 +19,7 @@ namespace SimpleScene.Demos
 
         protected readonly SSpaceMissilesVisualSimulation _simulation;
         protected readonly SSScene _objScene;
+        protected readonly SSScene _screenScene;
 
         protected readonly SSParticleSystemData _particlesData;
         protected readonly SSInstancedMeshRenderer _particleRenderer;
@@ -26,7 +31,7 @@ namespace SimpleScene.Demos
 
         public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
-        public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, 
+        public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, SSScene screenScene,
                                             int particleCapacity = 2000)
         {
             _simulation = new SSpaceMissilesVisualSimulation ();
@@ -34,6 +39,8 @@ namespace SimpleScene.Demos
             _objScene = objScene;
             objScene.preRenderHooks += _preRenderUpdate;
             objScene.preUpdateHooks += _simulation.updateSimulation;
+
+            _screenScene = screenScene;
 
             // particle system
             _particlesData = new SSParticleSystemData (particleCapacity);
@@ -125,20 +132,24 @@ namespace SimpleScene.Demos
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             _objScene.AddObject(missileRuntime.bodyObj);
-            #if MISSILE_DEBUG
-            _objScene.AddObject(missileRuntime.debugRenderer);
-            #endif
             _particlesData.addEmitter(missileRuntime.smokeEmitter);
             _missileRuntimes.Add(missileRuntime);
+
+            #if MISSILE_DEBUG
+            _objScene.AddObject(missileRuntime.debugRays);
+            _screenScene.AddObject(missileRuntime.debugCountdown);
+            #endif
         }
 
         protected void _removeMissileRender(SSpaceMissileRenderInfo missileRuntime)
         {
             missileRuntime.bodyObj.renderState.toBeDeleted = true;
-            #if MISSILE_DEBUG
-            missileRuntime.debugRenderer.renderState.toBeDeleted = true;
-            #endif
             _particlesData.removeEmitter(missileRuntime.smokeEmitter);
+
+            #if MISSILE_DEBUG
+            missileRuntime.debugRays.renderState.toBeDeleted = true;
+            missileRuntime.debugCountdown.renderState.toBeDeleted = true;
+            #endif
         }
 
         protected void _preRenderUpdate(float timeElapsed)
@@ -162,7 +173,8 @@ namespace SimpleScene.Demos
         protected class SSpaceMissileRenderInfo
         {
             public readonly SSObjectMesh bodyObj;
-            public readonly MissileDebugRenderer debugRenderer;
+            public readonly MissileDebugRays debugRays;
+            public readonly SSObject2DSurface_AGGText debugCountdown;
 
             public readonly SSRadialEmitter smokeEmitter;
             public readonly SSpaceMissileData missile;
@@ -177,7 +189,9 @@ namespace SimpleScene.Demos
                 bodyObj.renderState.receivesShadows = false;
 
                 #if MISSILE_DEBUG
-                debugRenderer = new MissileDebugRenderer(missile);
+                debugRays = new MissileDebugRays(missile);
+                debugCountdown = new SSObject2DSurface_AGGText();
+                debugCountdown.MainColor = Color4Helper.RandomDebugColor();
                 #endif
 
                 smokeEmitter = new SSRadialEmitter();
@@ -221,13 +235,23 @@ namespace SimpleScene.Demos
                 smokeEmitter.emissionInterval = 1f / emissionFreq;
                 smokeEmitter.componentScale = new Vector3(emissionRatio);
                 //smokeEmitter.emissionInterval = 1f / 80f;
+
+                #if MISSILE_DEBUG
+                RectangleF clientRect = OpenTKHelper.GetClientRect();
+                var xy = OpenTKHelper.WorldToScreen(
+                    missile.position, ref debugRays.viewProjMat, ref clientRect);
+                debugCountdown.Pos = new Vector3(xy.X, xy.Y, 0f);
+                debugCountdown.Label = Math.Floor(missile.cluster.timeToHit).ToString();
+                #endif
+
             }
 
-            public class MissileDebugRenderer : SSObject
+            public class MissileDebugRays : SSObject
             {
                 protected readonly SSpaceMissileData _missile;
+                public Matrix4 viewProjMat; // maintain this matrix to held 2d countdown renderer 
 
-                public MissileDebugRenderer(SSpaceMissileData missile)
+                public MissileDebugRays(SSpaceMissileData missile)
                 {
                     _missile = missile;
                     renderState.castsShadow = false;
@@ -246,6 +270,8 @@ namespace SimpleScene.Demos
                     GL.Vertex3(Vector3.Zero);
                     GL.Vertex3(_missile._lataxDebug);
                     GL.End();
+
+                    viewProjMat = renderConfig.invCameraViewMatrix * renderConfig.projectionMatrix;
                 }
             }
         }
