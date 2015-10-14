@@ -91,9 +91,11 @@ namespace SimpleScene.Demos
                 }
                 break;
             case State.Pursuit:
-                Vector3 latax;
-                if (cluster.target.hitTest(this)) {
+                Vector3 hitPos;
+                if (cluster.target.hitTest(this, out hitPos)) {
                     System.Console.WriteLine("missile at target at t = " + cluster.timeSinceLaunch);
+                    _position = hitPos;
+                    velocity = Vector3.Zero;
                     _state = State.AtTarget;
                     _driver = null;
                 }
