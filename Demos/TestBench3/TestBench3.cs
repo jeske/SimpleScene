@@ -10,7 +10,7 @@ namespace TestBench3
 {
     public class TestBench3 : TestBenchBootstrap
     {
-        protected enum AttackSources { AttackerDrone, Vandal }
+        protected enum AttackSources { AttackerDrone, Vandal, Camera }
         protected enum AttackTargets { TargetDrone1, Vandal, Camera, Selected, AttackerDrone, End, TargetDrone2 }
 
         protected SSScene particlesScene;
@@ -24,7 +24,10 @@ namespace TestBench3
         protected SSObjectMesh targetDrone1;
         protected SSObjectMesh targetDrone2;
 
+        protected AttackSources attackSource = AttackSources.Camera;
         protected AttackTargets attackTargetMode = AttackTargets.TargetDrone1;
+
+        protected float localTime = 0f;
 
         public TestBench3 ()
             : base("TestBench3: Missiles")
@@ -159,14 +162,12 @@ namespace TestBench3
 
         protected override void setupCamera()
         {
-            var camera = new SSCameraThirdPerson (vandalShip);
-            //var camera = new SSCameraThirdPerson (droneObj1);
-            //camera.Pos = new Vector3(0f, 0f, 0f);
-            //camera.Orient((targetDrone.Pos - vandalShip.Pos).Normalized(), Vector3.UnitY);
+            var camera = new SSCameraThirdPerson (null);
             camera.Name = "camera";
-            camera.followDistance = 80.0f;
+            camera.basePos = new Vector3 (100f, 0f, 30f);
+            camera.Pos = new Vector3 (170f, 20f, 245f);
+            camera.followDistance = 225f;
             camera.localBoundingSphereRadius = 0.1f;
-            //camera.FollowTarget = null;
 
             scene.ActiveCamera = camera;
             scene.AddObject (camera);
@@ -237,7 +238,7 @@ namespace TestBench3
             }
 
             // target
-            text += "\n[T] toggle target: ";
+            text += "\n[T] toggle missile target: ";
             if (attackTargetMode == AttackTargets.Selected) {
                 text += "selected: ";
             }
