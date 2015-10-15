@@ -98,8 +98,10 @@ namespace SimpleScene.Demos
                 _smokeColorEffector.particleLifetime = mParams.smokeDuration;
                 //_smokeColorEffector.colorMask = ;
                 _smokeColorEffector.keyframes.Clear();
-                _smokeColorEffector.keyframes.Add(0f, mParams.innerFlameColor);
-                var flameColor = mParams.outerFlameColor;
+                var flameColor = mParams.innerFlameColor;
+                flameColor.A = 0.9f;
+                _smokeColorEffector.keyframes.Add(0f, flameColor);
+                flameColor = mParams.outerFlameColor;
                 flameColor.A = 0.7f;
                 _smokeColorEffector.keyframes.Add(0.1f, flameColor);
                 var smokeColor = mParams.smokeColor;
@@ -114,8 +116,6 @@ namespace SimpleScene.Demos
                 _smokeScaleEffector = new SSMasterScaleKeyframesEffector ();
                 _smokeScaleEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
                 _smokeScaleEffector.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
-                _smokeScaleEffector.particleLifetime = mParams.smokeDuration;
-
                 _smokeScaleEffector.particleLifetime = mParams.smokeDuration;
                 _smokeScaleEffector.keyframes.Clear();
                 _smokeScaleEffector.keyframes.Add(0f, 0.3f);
@@ -225,7 +225,7 @@ namespace SimpleScene.Demos
                 bodyObj.Orient(missile.direction, missile.up);
 
                 var emissionRatio = missile.jetStrength / mParams.fullSmokeEmissionAcc;
-                var emissionFreq = 20f;
+                var emissionFreq = 40f;
                 //var emissionFreq = Interpolate.Lerp(
                 //   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
                 
