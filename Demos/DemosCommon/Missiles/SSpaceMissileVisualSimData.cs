@@ -14,8 +14,8 @@ namespace SimpleScene.Demos
         public int clusterId { get { return _clusterId; } }
         public State state { get { return _state; } }
         public Vector3 position { get { return _position; } }
-        public float losRate { get { return _losRate; } }
-        public float losRateRate { get { return _losRateRate; } }
+        //public float losRate { get { return _losRate; } }
+        //public float losRateRate { get { return _losRateRate; } }
         #endregion
 
         #region mutable by drivers
@@ -57,12 +57,14 @@ namespace SimpleScene.Demos
         protected ISSpaceMissileDriver _driver = null;
 
         protected Vector3 _position = Vector3.Zero;
+        #endregion
 
+        #if false
         public Vector3 _rtmOld = Vector3.Zero;
         public float _losRate = 0f;
         public float _losRateOld = 0f;
         public float _losRateRate = 0f;
-        #endregion
+        #endif
 
         public SSpaceMissileData(SSpaceMissileClusterData cluster, int clusterId,
                                         Vector3 initClusterPos, Vector3 initClusterVel, 
@@ -72,7 +74,7 @@ namespace SimpleScene.Demos
             _clusterId = clusterId;
             _state = State.Ejection;
             _position = missilePos;
-            _rtmOld = _computeRtm(cluster.target.position, position);
+            //_rtmOld = _computeRtm(cluster.target.position, position);
 
             _driver = _cluster.parameters.createEjection(this, initClusterPos, initClusterVel);
             _driver.updateExecution(0f);
@@ -90,12 +92,14 @@ namespace SimpleScene.Demos
             _position += velocity * timeElapsed;
 
             // compute los rate
+            #if false
             Vector3 rtmNew = _computeRtm(cluster.target.position, _position);
             Vector3 losDelta = rtmNew - _rtmOld;
             _losRate = losDelta.LengthFast / timeElapsed;
             _losRateRate = (_losRate - _losRateOld) / timeElapsed;
             _rtmOld = rtmNew;
             _losRateOld = _losRate;
+            #endif
 
             var mParams = _cluster.parameters;
             switch (_state) {
@@ -138,10 +142,12 @@ namespace SimpleScene.Demos
             }
         }
 
+        #if false
         protected static Vector3 _computeRtm(Vector3 targetPos, Vector3 missilePos)
         {
             return (targetPos - missilePos).Normalized();
         }
+        #endif
     }  
 }
 

@@ -40,12 +40,8 @@ namespace SimpleScene.Demos
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
         public float pursuitNavigationGain = 3f;
-        public float maxPursuitRotationRate = 0.1f;
-
         public bool pursuitHitTimeCorrection = true;
-        public float maxPursuitHitTimeCorrectionThrust = 50f;
-        public float maxPursuitHitTimeCorrectionBrake = 10f;
-        public float hitTimeTolerance = 0f;
+        public float maxPursuitVisualRotationRate = 0.1f;
         #endregion
 
         #region at target
