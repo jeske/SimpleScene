@@ -106,34 +106,42 @@ namespace SimpleScene.Demos
             switch (_state) {
             case State.Ejection:
                 if (cluster.timeSinceLaunch >= mParams.minActivationTime) {
-                    System.Console.WriteLine("missile pursuit activated at t = " + cluster.timeSinceLaunch);
                     _state = State.Pursuit;
                     _driver = mParams.createPursuit(this);
+                    if (mParams.debuggingAid) {
+                        System.Console.WriteLine("missile pursuit activated at t = " + cluster.timeSinceLaunch);
+                    }
                 }
                 break;
             case State.Pursuit:
                 Vector3 hitPos;
                 if (mParams.pursuitHitTimeCorrection && _cluster.timeToHit <= 0f)
                 {
-                    System.Console.WriteLine("forcing missile at target (hit time correction)");
                     _position = cluster.target.position;
                     velocity = Vector3.Zero;
                     _state = State.AtTarget;
                     _driver = null;
+                    if (mParams.debuggingAid) {
+                        System.Console.WriteLine("forcing missile at target (hit time correction)");
+                    }
                 } else if (cluster.target.hitTest(this, out hitPos)) {
-                    System.Console.WriteLine("missile at target at t = " + cluster.timeSinceLaunch);
                     _position = hitPos;
                     velocity = Vector3.Zero;
                     _state = State.AtTarget;
                     _driver = null;
+                    if (mParams.debuggingAid) {
+                        System.Console.WriteLine("missile at target at t = " + cluster.timeSinceLaunch);
+                    }
                 }
                 break;
             case State.AtTarget:
                 if (mParams.terminateWhenAtTarget) {
-                    System.Console.WriteLine("missile terminated at target at t = " + cluster.timeSinceLaunch);
                     _state = State.Terminated;
                     if (mParams.targetHitHandlers != null) {
                         mParams.targetHitHandlers(_position, mParams);
+                    }
+                    if (mParams.debuggingAid) {
+                        System.Console.WriteLine("missile terminated at target at t = " + cluster.timeSinceLaunch);
                     }
                 }
                 break;

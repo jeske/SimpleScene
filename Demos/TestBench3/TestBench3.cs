@@ -15,7 +15,9 @@ namespace TestBench3
 
         protected SSScene particlesScene;
         protected SSpaceMissilesRenderManager missileManager;
-        protected SSpaceMissileVisualParameters missileParams;
+        protected SSpaceMissileVisualParameters attackerDroneMissileParams;
+        protected SSpaceMissileVisualParameters vandalShipMissileParams;
+        protected SSpaceMissileVisualParameters cameraMissileParams;
 
         protected SSObjectMesh vandalShip;
         protected SSObjectMesh attackerDrone;
@@ -97,8 +99,16 @@ namespace TestBench3
             particlesScene.AddObject(explosionRenderer);
 
             // missile parameters
-            missileParams = new SSpaceMissileVisualParameters();
-            missileParams.targetHitHandlers += (pos, mParams) => {
+            attackerDroneMissileParams = new SSpaceMissileVisualParameters();
+            attackerDroneMissileParams.targetHitHandlers += (pos, mParams) => {
+                explosionRenderer.showExplosion(pos, 2.5f);
+            };
+            vandalShipMissileParams = new SSpaceMissileVisualParameters();
+            vandalShipMissileParams.targetHitHandlers += (pos, mParams) => {
+                explosionRenderer.showExplosion(pos, 2.5f);
+            };
+            cameraMissileParams = new SSpaceMissileVisualParameters();
+            cameraMissileParams.targetHitHandlers += (pos, mParams) => {
                 explosionRenderer.showExplosion(pos, 2.5f);
             };
 
@@ -132,6 +142,11 @@ namespace TestBench3
                     i = 0;
                 }
                 attackTargetMode = (AttackTargets)i;
+                updateTextDisplay();
+            } else if (e.Key == Key.V) {
+                attackerDroneMissileParams.debuggingAid = !attackerDroneMissileParams.debuggingAid;
+                vandalShipMissileParams.debuggingAid = !vandalShipMissileParams.debuggingAid;
+                cameraMissileParams.debuggingAid = !cameraMissileParams.debuggingAid;
                 updateTextDisplay();
             }
         }
@@ -190,7 +205,7 @@ namespace TestBench3
                     1,
                     new SSpaceMissileObjectTarget (target),
                     10f,
-                    missileParams
+                    attackerDroneMissileParams
                 );
             }
         }
@@ -213,18 +228,25 @@ namespace TestBench3
             base.updateTextDisplay ();
             var text =  "\n[Q] to fire missiles";
 
+            // camera mode
             var camera = scene.ActiveCamera as SSCameraThirdPerson;
             if (camera != null) {
                 var target = camera.FollowTarget;
                 text += "\n[M] toggle camera target: [";
                 text += (target == null ? "none" : target.Name) + ']';
             }
+
+            // target
             text += "\n[T] toggle target: ";
             if (attackTargetMode == AttackTargets.Selected) {
                 text += "selected: ";
             }
             var targetObj = getTargetObject();
             text += '[' + (targetObj == null ? "none" : targetObj.Name) + ']';
+
+            // debugging
+            text += "\n[V] visual debugigng aid: [";
+            text += (attackerDroneMissileParams.debuggingAid ? "ON" : "OFF")  + ']';
 
             textDisplay.Label += text;
         }

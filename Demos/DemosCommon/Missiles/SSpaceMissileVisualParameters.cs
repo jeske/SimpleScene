@@ -77,6 +77,8 @@ namespace SimpleScene.Demos
         public int smokeParticlesPerEmissionMax = 5;
         public float fullSmokeEmissionAcc = 10f;
         #endregion
+
+        public bool debuggingAid = false;
     }
 }
 
