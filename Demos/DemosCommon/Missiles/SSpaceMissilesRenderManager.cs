@@ -191,6 +191,7 @@ namespace SimpleScene.Demos
                 #if MISSILE_DEBUG
                 debugRays = new MissileDebugRays(missile);
                 debugCountdown = new SSObject2DSurface_AGGText();
+                debugCountdown.Size = 2f;
                 debugCountdown.MainColor = Color4Helper.RandomDebugColor();
                 #endif
 
@@ -242,6 +243,7 @@ namespace SimpleScene.Demos
                     missile.position, ref debugRays.viewProjMat, ref clientRect);
                 debugCountdown.Pos = new Vector3(xy.X, xy.Y, 0f);
                 debugCountdown.Label = Math.Floor(missile.cluster.timeToHit).ToString();
+                //debugCountdown.Label = missile.losRate.ToString("G3") + " : " + missile.losRateRate.ToString("G3");
                 #endif
 
             }

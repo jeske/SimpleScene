@@ -56,7 +56,7 @@ namespace TestBench3
             scene.AddObject (attackerDrone);
 
             targetDrone = new SSObjectMesh (droneMesh);
-            targetDrone.Pos = new OpenTK.Vector3(20f, 0f, -15f);
+            targetDrone.Pos = new OpenTK.Vector3(200f, 0f, -15f);
             targetDrone.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
             targetDrone.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             targetDrone.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);

@@ -56,12 +56,10 @@ namespace SimpleScene.Demos
     public class SProportionalNavigationPursuitDriver : ISSpaceMissileDriver
     {
         protected SSpaceMissileData _missile;
-        //public Vector3 _rtmOld;
 
         public SProportionalNavigationPursuitDriver(SSpaceMissileData missile)
         {
             _missile = missile;
-            //_rtmOld = _computeRtm(missile.cluster.target.position, missile.position);
         }
 
         public void updateExecution(float timeElapsed)
@@ -70,29 +68,54 @@ namespace SimpleScene.Demos
 
             var mParams = _missile.cluster.parameters;
 
-            #if false
-            // compute latax
-            //Vector3 rtmNew = _computeRtm(_missile.cluster.target.position, _missile.position);
-            //Vector3 losDelta = rtmNew - _rtmOld;
-            //float losRate = losDelta.LengthFast / timeElapsed;
-            //float losRate = losDelta.LengthFast;
-            //Vector3 latax = mParams.navigationGain * losRate * losRate * rtmNew; // A = rtmNew * N * Vc * losRate
-            //Vector3 latax = mParams.navigationGain * rtmNew;
-            #endif
-
             var target = _missile.cluster.target;
             Vector3 Vr = target.velocity - _missile.velocity;
             Vector3 R = target.position - _missile.position;
             Vector3 omega = Vector3.Cross(R, Vr) / R.LengthSquared;
-            Vector3 latax = mParams.navigationGain * Vector3.Cross(Vr, omega);
+            Vector3 latax = mParams.pursuitNavigationGain * Vector3.Cross(Vr, omega);
+            _missile._lataxDebug = latax;
 
             // apply latax
-            var maintainMagnitude = _missile.velocity.LengthFast;
-            _missile._lataxDebug = latax;
+            var oldVelMag = _missile.velocity.LengthFast;
             _missile.velocity += latax * timeElapsed;
-            float r = _missile.velocity.Length / maintainMagnitude;
+            float tempVelMag = _missile.velocity.LengthFast;
+            float r = tempVelMag / oldVelMag;
             if (r > 1f) {
                 _missile.velocity /= r;
+            }
+
+            // apply pursuit hit time correction
+            if (mParams.pursuitHitTimeCorrection)
+            {
+                float timeToHit = _missile.cluster.timeToHit;
+                float estimatedTimeToHit;
+                float dot = Vector3.Dot(R.Normalized(), _missile.velocity.Normalized());
+                //float acos = ));
+                float correctionAcc;
+                //if (Math.Abs(acos) < 0.5f) {
+                //if (true) {
+                if (dot > 0f) {
+                    // flying towards target in almost a straight line...
+                    float dist = R.LengthFast;
+                    float v0 = Vr.LengthFast;
+                    estimatedTimeToHit = dist/v0 ;
+                    correctionAcc = 2 * (dist - v0 * timeToHit) / timeToHit / timeToHit;
+                    correctionAcc = Math.Abs(correctionAcc);
+                    float tDiscrepancy = estimatedTimeToHit - timeToHit;
+                    //float esimatedRtmDiscrepancy = (target.position - _missile.position).LengthFast - 
+                    if (tDiscrepancy > mParams.hitTimeTolerance) {
+                        _missile.velocity *= (1f + Math.Min(correctionAcc, mParams.maxPursuitHitTimeCorrectionThrust) * timeElapsed / oldVelMag);
+                    } else if (tDiscrepancy < -mParams.hitTimeTolerance) {
+                        _missile.velocity *= (1f - Math.Min(correctionAcc, mParams.maxPursuitHitTimeCorrectionBrake) * timeElapsed / oldVelMag);
+                    }
+                } else if (_missile.losRateRate < 0f) {
+                    estimatedTimeToHit = _missile.losRate / -_missile.losRateRate;
+                    correctionAcc = mParams.maxPursuitHitTimeCorrectionThrust;
+                } else {
+                    estimatedTimeToHit = timeToHit;
+                    correctionAcc = 0f;
+                }
+
             }
 
             // make visual direction "lean into" velocity
@@ -101,8 +124,8 @@ namespace SimpleScene.Demos
             OpenTKHelper.neededRotation(_missile.direction, _missile.velocity.Normalized(),
                 out axis, out angle);
             float abs = Math.Abs(angle);
-            if (abs > mParams.maxVisualRotation) {
-                angle = angle / abs * mParams.maxVisualRotation;
+            if (abs > mParams.maxPursuitRotationRate) {
+                angle = angle / abs * mParams.maxPursuitRotationRate;
             }
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 
@@ -116,13 +139,6 @@ namespace SimpleScene.Demos
             // TODO
             return 100f;
         }
-
-        #if false
-        protected static Vector3 _computeRtm(Vector3 targetPos, Vector3 missilePos)
-        {
-            return (targetPos - missilePos).Normalized();
-        }
-        #endif
     }
 }
 

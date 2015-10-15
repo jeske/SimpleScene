@@ -9,8 +9,8 @@ namespace SimpleScene.Demos
     {
         public static Random rand = new Random();
 
-        //public float timeScale = 0.3f;
         public float timeScale = 1f;
+        //public float timeScale = 0.3f;
 
         protected List<SSpaceMissileClusterData> _clusters
             = new List<SSpaceMissileClusterData>();
