@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SimpleScene;
 using SimpleScene.Demos;
 using OpenTK;
@@ -9,13 +10,19 @@ namespace TestBench3
 {
     public class TestBench3 : TestBenchBootstrap
     {
+        protected enum AttackSources { AttackerDrone, Vandal }
+        protected enum AttackTargets { TargetDrone1, Vandal, Camera, Selected, AttackerDrone, End, TargetDrone2 }
+
         protected SSScene particlesScene;
         protected SSpaceMissilesRenderManager missileManager;
         protected SSpaceMissileVisualParameters missileParams;
 
+        protected SSObjectMesh vandalShip;
         protected SSObjectMesh attackerDrone;
-        protected SSObjectMesh targetDrone;
+        protected SSObjectMesh targetDrone1;
+        protected SSObjectMesh targetDrone2;
 
+        protected AttackTargets attackTargetMode = AttackTargets.TargetDrone1;
 
         public TestBench3 ()
             : base("TestBench3: Missiles")
@@ -41,6 +48,7 @@ namespace TestBench3
 
             var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
             //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
+            var vandalMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "vandal_assembled.obj");
 
             // add drones
             attackerDrone = new SSObjectMesh (droneMesh);
@@ -55,16 +63,31 @@ namespace TestBench3
             attackerDrone.Name = "attacker drone";
             scene.AddObject (attackerDrone);
 
-            targetDrone = new SSObjectMesh (droneMesh);
-            targetDrone.Pos = new OpenTK.Vector3(200f, 0f, -15f);
-            targetDrone.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-            targetDrone.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            targetDrone.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            targetDrone.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            targetDrone.Name = "target drone";
-            targetDrone.MainColor = new Color4(1f, 0f, 0.7f, 1f);
+            targetDrone1 = new SSObjectMesh (droneMesh);
+            targetDrone1.Pos = new OpenTK.Vector3(200f, 0f, -15f);
+            targetDrone1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            targetDrone1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone1.Name = "target drone";
+            targetDrone1.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
-            scene.AddObject (targetDrone);
+            scene.AddObject (targetDrone1);
+
+            vandalShip = new SSObjectMesh (vandalMesh);
+            vandalShip.Pos = new OpenTK.Vector3(100f, 0f, 0f);
+            vandalShip.Scale = new Vector3 (0.05f);
+            vandalShip.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            vandalShip.DiffuseMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            vandalShip.SpecularMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            vandalShip.EmissionMatColor = new Color4(0.0f,0.0f,0.0f,0.0f);
+            vandalShip.Name = "Vandal ship";
+            vandalShip.MainColor = new Color4 (0.6f, 0.6f, 0.6f, 1f);
+            //vandalShip.MainColor = new Color4(1f, 0f, 0.7f, 1f);
+            //droneObj2.renderState.visible = false;
+            vandalShip.Orient((targetDrone1.Pos-vandalShip.Pos).Normalized(), Vector3.UnitY);
+            scene.AddObject (vandalShip);
+
 
             // shows explosions
             SExplosionRenderManager explosionRenderer = new SExplosionRenderManager ();
@@ -82,6 +105,8 @@ namespace TestBench3
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);
 
+            // initialize demo logic
+            //targetObject = getTargetObject();
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)
@@ -95,40 +120,20 @@ namespace TestBench3
                     if (target == null) {
                         camera.FollowTarget = attackerDrone;
                     } else if (target == attackerDrone) {
-                        camera.FollowTarget = targetDrone;
+                        camera.FollowTarget = targetDrone1;
                     } else {
                         camera.FollowTarget = null;
                     }
                     updateTextDisplay();
                 }
+            } else if (e.Key == Key.T) {
+                int i = (int)attackTargetMode;
+                if (++i > (int)AttackTargets.End) {
+                    i = 0;
+                }
+                attackTargetMode = (AttackTargets)i;
+                updateTextDisplay();
             }
-        }
-
-        protected void _launchMissiles()
-        {
-            missileManager.launchCluster(
-                attackerDrone.Pos, 
-                Vector3.Zero,
-                1,
-                new SSpaceMissileObjectTarget(targetDrone),
-                10f,
-                missileParams
-            );
-        }
-
-        protected override void updateTextDisplay ()
-        {
-            base.updateTextDisplay ();
-            textDisplay.Label += "\n\nPress Q to fire missiles";
-
-            var camera = scene.ActiveCamera as SSCameraThirdPerson;
-            if (camera != null) {
-                var target = camera.FollowTarget;
-                textDisplay.Label += 
-                    "\n\nPress M to toggle camera target: ["
-                    + (target == null ? "none" : target.Name) + ']';
-            }
-
         }
 
         protected override void setupInput()
@@ -139,10 +144,14 @@ namespace TestBench3
 
         protected override void setupCamera()
         {
-            var camera = new SSCameraThirdPerson (null);
+            var camera = new SSCameraThirdPerson (vandalShip);
             //var camera = new SSCameraThirdPerson (droneObj1);
-            camera.Pos = Vector3.Zero;
+            //camera.Pos = new Vector3(0f, 0f, 0f);
+            //camera.Orient((targetDrone.Pos - vandalShip.Pos).Normalized(), Vector3.UnitY);
+            camera.Name = "camera";
             camera.followDistance = 80.0f;
+            camera.localBoundingSphereRadius = 0.1f;
+            //camera.FollowTarget = null;
 
             scene.ActiveCamera = camera;
             scene.AddObject (camera);
@@ -154,7 +163,8 @@ namespace TestBench3
             ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
             ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
         {
-            base.renderScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+            base.renderScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
             // laser middle sections and burn particles
             particlesScene.renderConfig.invCameraViewMatrix = mainSceneView;
@@ -166,6 +176,57 @@ namespace TestBench3
         {
             base.OnUpdateFrame(e);
             particlesScene.Update((float)e.Time);
+        }
+
+        // Going deeper into customization...
+
+        protected void _launchMissiles()
+        {
+            var target = getTargetObject();
+            if (target != null) {
+                missileManager.launchCluster(
+                    attackerDrone.Pos, 
+                    Vector3.Zero,
+                    1,
+                    new SSpaceMissileObjectTarget (target),
+                    10f,
+                    missileParams
+                );
+            }
+        }
+
+        protected SSObject getTargetObject()
+        {
+            switch (attackTargetMode) {
+            case AttackTargets.TargetDrone1: return targetDrone1;
+            case AttackTargets.TargetDrone2: return targetDrone1; // TODO
+            case AttackTargets.AttackerDrone: return attackerDrone;
+            case AttackTargets.Vandal: return vandalShip;
+            case AttackTargets.Camera: return scene.ActiveCamera;
+            case AttackTargets.Selected: return selectedObject;
+            }
+            return null;
+        }
+
+        protected override void updateTextDisplay ()
+        {
+            base.updateTextDisplay ();
+            var text =  "\n[Q] to fire missiles";
+
+            var camera = scene.ActiveCamera as SSCameraThirdPerson;
+            if (camera != null) {
+                var target = camera.FollowTarget;
+                text += "\n[M] toggle camera target: [";
+                text += (target == null ? "none" : target.Name) + ']';
+            }
+            text += "\n[T] toggle target: ";
+            if (attackTargetMode == AttackTargets.Selected) {
+                text += "selected: ";
+            }
+            var targetObj = getTargetObject();
+            text += '[' + (targetObj == null ? "none" : targetObj.Name) + ']';
+
+            textDisplay.Label += text;
         }
     }
 }

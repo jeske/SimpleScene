@@ -79,6 +79,7 @@ namespace SimpleScene.Demos
 		{
 			var camera = new SSCameraThirdPerson (null);
 			camera.followDistance = 50.0f;
+            camera.Name = "camera";
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 		}

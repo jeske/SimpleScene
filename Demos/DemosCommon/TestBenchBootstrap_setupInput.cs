@@ -16,7 +16,7 @@ namespace SimpleScene.Demos
 {
 	partial class TestBenchBootstrap : OpenTK.GameWindow 
 	{
-		SSObject selectedObject = null;
+		protected SSObject selectedObject = null;
 
 		protected virtual void setupInput()
 		{

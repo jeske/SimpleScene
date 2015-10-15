@@ -1,0 +1,12 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 05.01.2012 15:04:26
+
+newmtl 01___Default
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.0251734 0.0232244 0.0232244
+Ks 0.0214042 0.0214042 0.0214042
+Ni 0.000000
+d 0.000000
+illum 2
+map_Kd texture-vandal.jpg
