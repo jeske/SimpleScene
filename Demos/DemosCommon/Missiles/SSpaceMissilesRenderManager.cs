@@ -266,11 +266,14 @@ namespace SimpleScene.Demos
                     this.Pos = _missile.position;
                     base.Render(renderConfig);
                     SSShaderProgram.DeactivateAll();
-                    GL.Color4(Color4.LightCyan);
-                    GL.Begin(PrimitiveType.Lines);
                     GL.LineWidth(3f);
+                    GL.Begin(PrimitiveType.Lines);
+                    GL.Color4(Color4.LightCyan);
                     GL.Vertex3(Vector3.Zero);
                     GL.Vertex3(_missile._lataxDebug);
+                    GL.Color4(Color4.Magenta);
+                    GL.Vertex3(Vector3.Zero);
+                    GL.Vertex3(_missile._hitTimeCorrAccDebug);
                     GL.End();
 
                     viewProjMat = renderConfig.invCameraViewMatrix * renderConfig.projectionMatrix;

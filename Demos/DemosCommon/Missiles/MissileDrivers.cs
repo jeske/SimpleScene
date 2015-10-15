@@ -92,8 +92,10 @@ namespace SimpleScene.Demos
                     Vector3 targetDir = R / dist;
                     float v0 = -Vector3.Dot(Vr, targetDir);
                     float t = _missile.cluster.timeToHit;
-                    float correctionAcc = 2f * (dist - v0 * t) / t / t;
-                    _missile.velocity += correctionAcc * targetDir * timeElapsed;
+                    float correctionAccMag = 2f * (dist - v0 * t) / t / t;
+                    Vector3 corrAcc = correctionAccMag * targetDir;
+                    _missile.velocity += corrAcc * timeElapsed;
+                    _missile._hitTimeCorrAccDebug = corrAcc;
                 }
             }
 

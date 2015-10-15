@@ -25,6 +25,7 @@ namespace SimpleScene.Demos
 
         #region for debugging only
         public Vector3 _lataxDebug = Vector3.Zero;
+        public Vector3 _hitTimeCorrAccDebug = Vector3.Zero;
         #endregion
 
         #region render helpers
