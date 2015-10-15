@@ -106,14 +106,21 @@ namespace SimpleScene.Demos
             switch (_state) {
             case State.Ejection:
                 if (cluster.timeSinceLaunch >= mParams.minActivationTime) {
-                    System.Console.WriteLine("pursuit activated at t = " + cluster.timeSinceLaunch);
+                    System.Console.WriteLine("missile pursuit activated at t = " + cluster.timeSinceLaunch);
                     _state = State.Pursuit;
                     _driver = mParams.createPursuit(this);
                 }
                 break;
             case State.Pursuit:
                 Vector3 hitPos;
-                if (cluster.target.hitTest(this, out hitPos)) {
+                if (mParams.pursuitHitTimeCorrection && _cluster.timeToHit <= 0f)
+                {
+                    System.Console.WriteLine("forcing missile at target (hit time correction)");
+                    _position = cluster.target.position;
+                    velocity = Vector3.Zero;
+                    _state = State.AtTarget;
+                    _driver = null;
+                } else if (cluster.target.hitTest(this, out hitPos)) {
                     System.Console.WriteLine("missile at target at t = " + cluster.timeSinceLaunch);
                     _position = hitPos;
                     velocity = Vector3.Zero;

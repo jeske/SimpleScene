@@ -158,9 +158,13 @@ namespace SimpleScene.Demos
         public void updateSimulation(float timeElapsed)
         {
             float accTime = timeElapsed + _timeDeltaAccumulator;
-            while (accTime >= _parameters.simulationStep) {
-                _simulateStep(parameters.simulationStep);
-                accTime -= _parameters.simulationStep;
+            float step = parameters.simulationStep;
+            if (accTime >= step) {
+                _target.update((float)Math.Floor(accTime / step) * step); 
+            }
+            while (accTime >= step) {
+                _simulateStep(step);
+                accTime -= step;
             }
             _timeDeltaAccumulator = accTime;
         }
