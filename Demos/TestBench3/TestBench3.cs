@@ -10,8 +10,12 @@ namespace TestBench3
 {
     public class TestBench3 : TestBenchBootstrap
     {
-        protected enum AttackLaunchers : int { AttackerDrone, Vandal, Camera, End }
-        protected enum AttackTargets : int { TargetDrone1, Vandal, Camera, Selected, AttackerDrone, End, TargetDrone2 }
+        protected enum MissileLaunchers : int 
+            {AttackerDrone, VandalShip, Camera, End }
+        protected enum MissileTargets : int 
+            { TargetDrone1, VandalShip, Camera, Selected, AttackerDrone, End}
+        protected enum HitTimeMode : int 
+            { Disabled, Auto, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
 
         protected SSScene particlesScene;
         protected SExplosionRenderManager explosionManager;
@@ -23,10 +27,10 @@ namespace TestBench3
         protected SSObjectMesh vandalShip;
         protected SSObjectMesh attackerDrone;
         protected SSObjectMesh targetDrone1;
-        protected SSObjectMesh targetDrone2;
 
-        protected AttackLaunchers attackLauncher = AttackLaunchers.AttackerDrone;
-        protected AttackTargets attackTargetMode = AttackTargets.TargetDrone1;
+        protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
+        protected MissileTargets missileTarget = MissileTargets.TargetDrone1;
+        protected HitTimeMode hitTimeMode = HitTimeMode.Auto;
 
         protected float localTime = 0f;
 
@@ -153,9 +157,14 @@ namespace TestBench3
                 break;
             case Key.L: 
                 switchLauncher();
-                while (getTargetObject() == getLauncherObject()) { 
+                while (missileTarget != MissileTargets.Selected
+                  && getTargetObject() == getLauncherObject()) { 
                     switchTarget();
                 }
+                updateTextDisplay();
+                break;
+            case Key.H:
+                switchHitTime();
                 updateTextDisplay();
                 break;
             case Key.V:
@@ -230,11 +239,14 @@ namespace TestBench3
 
             // target
             text += "\n[T] toggle missile target: ";
-            if (attackTargetMode == AttackTargets.Selected) {
+            if (missileTarget == MissileTargets.Selected) {
                 text += "selected: ";
             }
             var targetObj = getTargetObject();
             text += '[' + (targetObj == null ? "none" : targetObj.Name) + ']';
+
+            // hit time
+            text += "\n[H] toggle hit time: [" + hitTimeMode.ToString() + ']';
 
             // debugging
             text += "\n[V] visual debugigng aid: [";
@@ -248,14 +260,18 @@ namespace TestBench3
         protected void _launchMissiles()
         {
             var target = getTargetObject();
+            var launcher = getLauncherObject();
+            var hitTime = getHitTime();
+            var mParams = getLauncherParams();
+            mParams.pursuitHitTimeCorrection = (hitTimeMode != HitTimeMode.Disabled);
             if (target != null) {
                 missileManager.launchCluster(
-                    getLauncherObject().Pos, 
+                    launcher.Pos, 
                     Vector3.Zero,
                     1,
                     new SSpaceMissileObjectTarget (target),
-                    10f,
-                    getLauncherParams()
+                    hitTime,
+                    mParams
                 );
             }
         }
@@ -278,7 +294,7 @@ namespace TestBench3
             Vector3 desiredOffset = new Vector3 (desiredXOffset, desiredYOffset, desiredZOffset);
 
             var target = getTargetObject();
-            if (attackLauncher != AttackLaunchers.Vandal || target == null || target == vandalShip) {
+            if (missileLauncher != MissileLaunchers.VandalShip || target == null || target == vandalShip) {
                 desiredPos = new Vector3 (100f, 0f, 0f);
                 desiredDir = -Vector3.UnitX;
             }
@@ -328,47 +344,71 @@ namespace TestBench3
 
         protected void switchTarget()
         {
-            int a = (int)attackTargetMode;
-            a = (a + 1) % (int)AttackTargets.End;
-            attackTargetMode = (AttackTargets)a;
+            int a = (int)missileTarget;
+            a = (a + 1) % (int)MissileTargets.End;
+            missileTarget = (MissileTargets)a;
         }
 
         protected void switchLauncher()
         {
-            int l = (int)attackLauncher;
-            l = (l + 1) % (int)AttackLaunchers.End;
-            attackLauncher = (AttackLaunchers)l;
+            int l = (int)missileLauncher;
+            l = (l + 1) % (int)MissileLaunchers.End;
+            missileLauncher = (MissileLaunchers)l;
+        }
+
+        protected void switchHitTime()
+        {
+            int h = (int)hitTimeMode;
+            h = (h + 1) % (int)HitTimeMode.End;
+            hitTimeMode = (HitTimeMode)h;
         }
 
         protected SSObject getLauncherObject()
         {
-            switch (attackLauncher) {
-            case AttackLaunchers.AttackerDrone: return attackerDrone;
-            case AttackLaunchers.Vandal: return vandalShip;
-            case AttackLaunchers.Camera: return scene.ActiveCamera;
+            switch (missileLauncher) {
+            case MissileLaunchers.AttackerDrone: return attackerDrone;
+            case MissileLaunchers.VandalShip: return vandalShip;
+            case MissileLaunchers.Camera: return scene.ActiveCamera;
             }
             throw new Exception ("unhandled enum");
         }
 
         protected SSpaceMissileVisualParameters getLauncherParams()
         {
-            switch(attackLauncher) {
-            case AttackLaunchers.AttackerDrone: return attackerDroneMissileParams;
-            case AttackLaunchers.Vandal: return vandalShipMissileParams;
-            case AttackLaunchers.Camera: return cameraMissileParams;
+            switch (missileLauncher) {
+            case MissileLaunchers.AttackerDrone: return attackerDroneMissileParams;
+            case MissileLaunchers.VandalShip: return vandalShipMissileParams;
+            case MissileLaunchers.Camera: return cameraMissileParams;
             }
             throw new Exception ("unhandled enum");
         }
 
         protected SSObject getTargetObject()
         {
-            switch (attackTargetMode) {
-            case AttackTargets.TargetDrone1: return targetDrone1;
-            case AttackTargets.TargetDrone2: return targetDrone1; // TODO
-            case AttackTargets.AttackerDrone: return attackerDrone;
-            case AttackTargets.Vandal: return vandalShip;
-            case AttackTargets.Camera: return scene.ActiveCamera;
-            case AttackTargets.Selected: return selectedObject ?? scene.ActiveCamera;
+            switch (missileTarget) {
+            case MissileTargets.TargetDrone1: return targetDrone1;
+            case MissileTargets.AttackerDrone: return attackerDrone;
+            case MissileTargets.VandalShip: return vandalShip;
+            case MissileTargets.Camera: return scene.ActiveCamera;
+            case MissileTargets.Selected: return selectedObject ?? scene.ActiveCamera;
+            }
+            throw new Exception ("unhandled enum");
+        }
+
+        protected float getHitTime()
+        {
+            switch (hitTimeMode) {
+            case HitTimeMode.Disabled: return 0f;
+            case HitTimeMode.Fixed5s: return 5f;
+            case HitTimeMode.Fixed10s: return 10f;
+            case HitTimeMode.Fixed15s: return 15f;
+            case HitTimeMode.Fixed20s: return 20f;
+            case HitTimeMode.Auto:
+                // guess based on distance
+                var launcher = getLauncherObject();
+                var target = getTargetObject();
+                float dist = (target.Pos - launcher.Pos).LengthFast;
+                return dist / 30f;
             }
             throw new Exception ("unhandled enum");
         }
