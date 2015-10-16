@@ -39,11 +39,18 @@ namespace SimpleScene.Demos
         #region pursuit
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
+        /// <summary> basic proportional navigation's coefficient (N) </summary>
         public float pursuitNavigationGain = 3f;
         /// <summary> augment proportional navigation with target's lateral acceleration </summary>
         public bool pursuitAugmentedPN = false;
-        public bool pursuitHitTimeCorrection = false;
+        /// <summary> radians rate by which the missile orientation leans into its velocity </summary>
         public float maxPursuitVisualRotationRate = 0.1f;
+        /// <summary> throttles/accelerates the missile hit at the time specified by the hit time </summary>
+        public bool pursuitHitTimeCorrection = true;
+        /// <summary> ignored when hit time correction is active </summary>
+        public float pursuitMaxVelocity = float.PositiveInfinity;
+        /// <summary> ignored when hit time correction is active </summary>
+        public float pursuitMaxAcc = 1f;
         #endregion
 
         #region at target

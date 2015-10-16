@@ -51,13 +51,14 @@ namespace SimpleScene.Demos
         public virtual bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation)
         {
             //Vector3 velNorm = (missile.velocity - this.velocity).Normalized();
-            Vector3 velNorm = missile.velocity.Normalized();
-            SSRay ray = new SSRay(missile.position, velNorm);
+            Vector3 missileVelNorm = missile.velocity.Normalized();
+            SSRay ray = new SSRay(missile.position, missileVelNorm);
             float rayDistance;
+            float simStep = missile.cluster.parameters.simulationStep;
             if(_targetObj.Intersect(ref ray, out rayDistance)) {
-                float nextTickDistance = missile.velocity.LengthFast * missile.cluster.parameters.simulationStep;
+                float nextTickDistance = missile.velocity.LengthFast * simStep;
                 if (rayDistance - nextTickDistance < missile.cluster.parameters.atTargetDistance) {
-                    hitLocation = missile.position + velNorm * rayDistance;
+                    hitLocation = missile.position + missileVelNorm * rayDistance + this.velocity * simStep;
                     return true;
                 }
             }
