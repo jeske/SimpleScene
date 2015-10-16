@@ -85,16 +85,17 @@ namespace SimpleScene.Demos
 
             // apply latax
             var oldVelMag = _missile.velocity.LengthFast;
-            _missile.velocity += latax * timeElapsed; 
+            _missile.velocity += latax * timeElapsed;
             float tempVelMag = _missile.velocity.LengthFast;
-            float r = tempVelMag / oldVelMag;
-            if (r > 1f) {
-                _missile.velocity /= r;
+            if (oldVelMag != 0f) {
+                float r = tempVelMag / oldVelMag;
+                if (r > 1f) {
+                    _missile.velocity /= r;
+                }
             }
 
-            // apply pursuit hit time correction
-            if (mParams.pursuitHitTimeCorrection)
-            {
+            if (mParams.pursuitHitTimeCorrection) {
+                // apply pursuit hit time correction
                 float dist = R.LengthFast;
                 if (dist != 0f) {
                     Vector3 targetDir = R / dist;
@@ -105,6 +106,14 @@ namespace SimpleScene.Demos
                     _missile.velocity += corrAcc * timeElapsed;
                     _missile._hitTimeCorrAccDebug = corrAcc;
                 }
+            } else {
+                // hit time correction inactive. allow accelerating to achieve optimal velocity or forever
+                oldVelMag = _missile.velocity.LengthFast;
+                float velDelta = mParams.pursuitMaxAcc * timeElapsed;
+                float newVelMag = Math.Min(oldVelMag + velDelta, mParams.pursuitMaxVelocity);
+                if (oldVelMag != 0f) {
+                    _missile.velocity *= (newVelMag / oldVelMag);
+                }
             }
 
             // make visual direction "lean into" velocity
@@ -113,8 +122,8 @@ namespace SimpleScene.Demos
             OpenTKHelper.neededRotation(_missile.direction, _missile.velocity.Normalized(),
                 out axis, out angle);
             float abs = Math.Abs(angle);
-            if (abs > mParams.maxPursuitVisualRotationRate) {
-                angle = angle / abs * mParams.maxPursuitVisualRotationRate;
+            if (abs > mParams.pursuitVisualRotationRate) {
+                angle = angle / abs * mParams.pursuitVisualRotationRate;
             }
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 

@@ -43,14 +43,12 @@ namespace SimpleScene.Demos
         public float pursuitNavigationGain = 3f;
         /// <summary> augment proportional navigation with target's lateral acceleration </summary>
         public bool pursuitAugmentedPN = false;
-        /// <summary> radians rate by which the missile orientation leans into its velocity </summary>
-        public float maxPursuitVisualRotationRate = 0.1f;
         /// <summary> throttles/accelerates the missile hit at the time specified by the hit time </summary>
-        public bool pursuitHitTimeCorrection = true;
-        /// <summary> ignored when hit time correction is active </summary>
+        public bool pursuitHitTimeCorrection = false;
+        /// <summary> ignored when hit time correction is active. can be set to pos. infinity </summary>
         public float pursuitMaxVelocity = float.PositiveInfinity;
         /// <summary> ignored when hit time correction is active </summary>
-        public float pursuitMaxAcc = 1f;
+        public float pursuitMaxAcc = 10f;
         #endregion
 
         #region at target
@@ -60,6 +58,8 @@ namespace SimpleScene.Demos
         #endregion
 
         #region render parameters
+        /// <summary> radians rate by which the missile's visual orientation leans into its velocity </summary>
+        public float pursuitVisualRotationRate = 0.1f;
         /// <summary> Missile mesh must be facing into positive Z axis </summary>
         public SSAbstractMesh missileMesh
         = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
