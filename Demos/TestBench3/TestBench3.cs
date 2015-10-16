@@ -91,7 +91,6 @@ namespace TestBench3
             vandalShip.Orient((targetDrone1.Pos-vandalShip.Pos).Normalized(), Vector3.UnitY);
             scene.AddObject (vandalShip);
 
-
             // shows explosions
             SExplosionRenderManager explosionRenderer = new SExplosionRenderManager ();
             explosionRenderer.particleSystem.doShockwave = false;
@@ -105,6 +104,7 @@ namespace TestBench3
                 explosionRenderer.showExplosion(pos, 2.5f);
             };
             vandalShipMissileParams = new SSpaceMissileVisualParameters();
+            vandalShipMissileParams.spawnGenerator = null;
             vandalShipMissileParams.targetHitHandlers += (pos, mParams) => {
                 explosionRenderer.showExplosion(pos, 2.5f);
             };

@@ -16,16 +16,18 @@ namespace SimpleScene.Demos
         protected readonly float _pitchVelocity; // purely visual
         protected readonly Vector3 _initDir;
 
-        public SSimpleMissileEjectionDriver(SSpaceMissileData missile, 
-            Vector3 clusterInitPos, Vector3 clusterInitVel)
+        public SSimpleMissileEjectionDriver(SSpaceMissileData missile, Vector3 clusterInitPos, Vector3 clusterInitVel)
         {
             _missile = missile;
+            var mParams = _missile.cluster.parameters;
 
-            var cluster = _missile.cluster;
-            var mParams = cluster.parameters;
-
-            missile.direction = (missile.position - clusterInitPos).Normalized();
-            missile.velocity = missile.direction * mParams.ejectionVelocity;
+            _missile.direction = (_missile.position - clusterInitPos);
+            if (_missile.direction.LengthSquared < 0.0001f) {
+                _missile.direction = (_missile.cluster.target.position - _missile.position).Normalized();
+            } else {
+                _missile.direction.Normalize();
+            }
+            _missile.velocity = clusterInitVel + _missile.direction * mParams.ejectionVelocity;
 
             var rand = SSpaceMissilesVisualSimulation.rand;
             _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;

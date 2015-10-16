@@ -62,7 +62,7 @@ namespace SimpleScene.Demos
                     hitLocation = missile.position + missileVelNorm * rayDistance + this.velocity * simStep;
                     return true;
                 }
-            } else if ((_targetObj.Pos - missile.position).LengthFast < mParams.atTargetDistance) {
+            } else if ((_targetObj.Pos - missile.position).LengthFast <= mParams.atTargetDistance) {
                 // failsafe for smaller bounding spheres etc.
                 hitLocation = _targetObj.Pos;
                 return true;
