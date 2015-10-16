@@ -62,14 +62,12 @@ namespace SimpleScene.Demos
         public float pursuitVisualRotationRate = 0.1f;
         /// <summary> Missile mesh must be facing into positive Z axis </summary>
         public SSAbstractMesh missileMesh
-        = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
-        //= SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
+            = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
         public float missileScale = 0.3f;
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4.2f;
         public SSTexture particlesTexture
             = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
-
         public RectangleF[] flameSmokeSpriteRects = {
             new RectangleF(0f,    0f,    0.25f, 0.25f),
             new RectangleF(0f,    0.25f, 0.25f, 0.25f),
@@ -80,8 +78,8 @@ namespace SimpleScene.Demos
         public Color4 outerFlameColor = Color4.DarkOrange;
         public Color4 smokeColor = Color4.LightGray;
         public float smokeDuration = 0.5f;
-        public float smokeEmissionFrequencyMin = 10f;
-        public float smokeEmissionFrequencyMax = 200f;
+        //public float smokeEmissionFrequencyMin = 10f;
+        //public float smokeEmissionFrequencyMax = 200f;
         public int smokeParticlesPerEmissionMin = 4;
         public int smokeParticlesPerEmissionMax = 5;
         public float fullSmokeEmissionAcc = 10f;

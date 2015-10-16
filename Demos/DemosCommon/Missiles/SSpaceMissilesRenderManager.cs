@@ -53,6 +53,7 @@ namespace SimpleScene.Demos
             _particleRenderer.renderState.depthWrite = false;
             //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.CpuFallback;
             //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
+            //_particleRenderer.renderState.visible = false;
 
             _particleRenderer.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
             _particleRenderer.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
@@ -159,15 +160,15 @@ namespace SimpleScene.Demos
                 var missile = missileRuntime.missile;
                 if (missile.state == SSpaceMissileData.State.Terminated) {
                     _removeMissileRender(missileRuntime);
-                    //if (_explosionRenderer != null) {
-                    //    _explosionRenderer.showExplosion(missile.position, missile.cluster.parameters.explosionIntensity);
-                    //}
                 } else {
                     missileRuntime.preRenderUpdate(timeElapsed);
                 }
             }
             _missileRuntimes.RemoveAll(
                 (missileRuntime) => missileRuntime.missile.state == SSpaceMissileData.State.Terminated);
+
+            // debugging
+            System.Console.WriteLine("num particles = " + _particlesData.numElements);
         }
 
         protected class SSpaceMissileRenderInfo
@@ -187,6 +188,7 @@ namespace SimpleScene.Demos
                 bodyObj.Scale = new Vector3(mParams.missileScale);
                 bodyObj.renderState.castsShadow = false;
                 bodyObj.renderState.receivesShadows = false;
+                //bodyObj.renderState.visible = false;
 
                 #if MISSILE_DEBUG
                 debugRays = new MissileDebugRays(missile);

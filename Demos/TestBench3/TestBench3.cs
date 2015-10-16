@@ -97,6 +97,7 @@ namespace TestBench3
             explosionManager.particleSystem.doShockwave = false;
             explosionManager.particleSystem.doDebris = false;
             explosionManager.particleSystem.timeScale = 3f;
+            //explosionManager.renderState.visible = false;
             particlesScene.AddObject(explosionManager);
 
             // attacker drone missile parameters
