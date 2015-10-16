@@ -125,7 +125,7 @@ namespace TestBench3
             switch(e.Key) {
             case Key.Q:
                 _launchMissiles();
-                    break;
+                break;
             case Key.M:
                 var camera = (scene.ActiveCamera as SSCameraThirdPerson);
                 if (camera != null) {
@@ -141,19 +141,24 @@ namespace TestBench3
                 }
                 break;
             case Key.T:
-                int i = (int)attackTargetMode;
-                if (++i > (int)AttackTargets.End) {
-                    i = 0;
+                int a = (int)attackTargetMode;
+                a = (a + 1) % (int)AttackTargets.End;
+                attackTargetMode = (AttackTargets)a;
+                if (getTargetObject() == getLauncherObject()) {
+                    a = (a + 1) % (int)AttackTargets.End;
+                    attackTargetMode = (AttackTargets)a;
                 }
-                attackTargetMode = (AttackTargets)i;
                 updateTextDisplay();
                 break;
             case Key.L: 
                 int l = (int)attackLauncher;
-                if (++l > (int)AttackLaunchers.End) {
-                    l = 0;
-                }
+                l = (l + 1) % (int)AttackLaunchers.End;
                 attackLauncher = (AttackLaunchers)l;
+                if (getTargetObject() == getLauncherObject()) {
+                    a = (int)attackTargetMode;
+                    a = (a + 1) % (int)AttackTargets.End;
+                    attackTargetMode = (AttackTargets)a;
+                }
                 updateTextDisplay();
                 break;
             case Key.V:

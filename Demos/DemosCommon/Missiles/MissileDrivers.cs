@@ -77,7 +77,7 @@ namespace SimpleScene.Demos
 
             // apply latax
             var oldVelMag = _missile.velocity.LengthFast;
-            _missile.velocity += latax * timeElapsed;
+            _missile.velocity += latax * timeElapsed; 
             float tempVelMag = _missile.velocity.LengthFast;
             float r = tempVelMag / oldVelMag;
             if (r > 1f) {
