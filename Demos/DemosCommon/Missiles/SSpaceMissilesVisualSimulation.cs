@@ -109,15 +109,23 @@ namespace SimpleScene.Demos
             _missiles = new SSpaceMissileData[numMissiles];
 
             Matrix4 spawnTxfm = _parameters.spawnTxfm(_target, launcherPos, launcherVel);
-            _parameters.spawnGenerator.Generate(numMissiles,
-                (i, scale, pos, orient) => {
-                    Vector3 missilePos = pos * _parameters.spawnDistanceScale;
-                    missilePos = Vector3.Transform(missilePos, spawnTxfm);
+            if (_parameters.spawnGenerator != null) {
+                _parameters.spawnGenerator.Generate(numMissiles,
+                    (i, scale, pos, orient) => {
+                        Vector3 missilePos = pos * _parameters.spawnDistanceScale;
+                        missilePos = Vector3.Transform(missilePos, spawnTxfm);
+                        _missiles [i] = new SSpaceMissileData (
+                            this, i, launcherPos, launcherVel, missilePos, timeToHit);
+                        return true; // accept new missile from the generator
+                    }
+                );
+            } else {
+                for (int i = 0; i < numMissiles; ++i) {
+                    var missilePos = Vector3.Transform(Vector3.Zero, spawnTxfm);
                     _missiles [i] = new SSpaceMissileData (
                         this, i, launcherPos, launcherVel, missilePos, timeToHit);
-                    return true; // accept new missile from the generator
                 }
-            );
+            }
         }
 
         public void updateTimeToHit(float timeToHit)

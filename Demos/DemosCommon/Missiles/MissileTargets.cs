@@ -10,6 +10,8 @@ namespace SimpleScene.Demos
     {
         Vector3 position { get; }
         Vector3 velocity { get; }
+        Vector3 acceleration { get; }
+        Vector3 direction { get; }
         bool isAlive{ get; } // target is structurally intact
         bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation);
         void update(float timeElapsed);
@@ -20,15 +22,23 @@ namespace SimpleScene.Demos
         protected readonly SSObject _targetObj;
         protected Vector3 _prevPos;
         protected Vector3 _velocity;
+        protected Vector3 _acc;
 
         public SSpaceMissileObjectTarget(SSObject targetObj)
         {
             _targetObj = targetObj;
+            _prevPos = targetObj.Pos;
+            _velocity = Vector3.Zero;
+            _acc = Vector3.Zero;
         }
 
         public virtual Vector3 position { get { return _targetObj.Pos; } }
 
-        public virtual Vector3 velocity { get { return _velocity; } } // TODO
+        public virtual Vector3 direction { get { return _targetObj.Dir; } }
+
+        public virtual Vector3 velocity { get { return _velocity; } }
+
+        public virtual Vector3 acceleration { get { return _acc; } }
 
         public virtual bool isAlive { 
             get {
@@ -58,7 +68,12 @@ namespace SimpleScene.Demos
         /// <summary> carefull not to call this more than once per simulation step </summary>
         public virtual void update(float timeElapsed)
         {
-            _velocity = (_targetObj.Pos - _prevPos) / timeElapsed;
+            if (timeElapsed == 0f) return;
+
+            var newVel = (_targetObj.Pos - _prevPos) / timeElapsed;
+            _acc = (newVel - _velocity) / timeElapsed;
+
+            _velocity = newVel;
             _prevPos = _targetObj.Pos;
         }
     }
