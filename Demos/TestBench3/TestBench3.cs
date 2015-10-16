@@ -14,6 +14,7 @@ namespace TestBench3
         protected enum AttackTargets : int { TargetDrone1, Vandal, Camera, Selected, AttackerDrone, End, TargetDrone2 }
 
         protected SSScene particlesScene;
+        protected SExplosionRenderManager explosionManager;
         protected SSpaceMissilesRenderManager missileManager;
         protected SSpaceMissileVisualParameters attackerDroneMissileParams;
         protected SSpaceMissileVisualParameters vandalShipMissileParams;
@@ -92,26 +93,31 @@ namespace TestBench3
             scene.AddObject (vandalShip);
 
             // shows explosions
-            SExplosionRenderManager explosionRenderer = new SExplosionRenderManager ();
-            explosionRenderer.particleSystem.doShockwave = false;
-            explosionRenderer.particleSystem.doDebris = false;
-            explosionRenderer.particleSystem.timeScale = 3f;
-            particlesScene.AddObject(explosionRenderer);
+            explosionManager = new SExplosionRenderManager ();
+            explosionManager.particleSystem.doShockwave = false;
+            explosionManager.particleSystem.doDebris = false;
+            explosionManager.particleSystem.timeScale = 3f;
+            particlesScene.AddObject(explosionManager);
 
-            // missile parameters
+            // attacker drone missile parameters
             attackerDroneMissileParams = new SSpaceMissileVisualParameters();
-            attackerDroneMissileParams.targetHitHandlers += (pos, mParams) => {
-                explosionRenderer.showExplosion(pos, 2.5f);
-            };
+            attackerDroneMissileParams.targetHitHandlers += targetHitHandler;
+
+            // vandal missile params
             vandalShipMissileParams = new SSpaceMissileVisualParameters();
             vandalShipMissileParams.spawnGenerator = null;
-            vandalShipMissileParams.targetHitHandlers += (pos, mParams) => {
-                explosionRenderer.showExplosion(pos, 2.5f);
-            };
+            vandalShipMissileParams.spawnTxfm = vandalMissileSpawnTxfm;
+            vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
+            vandalShipMissileParams.ejectionVelocity = 10f;
+
+            vandalShipMissileParams.targetHitHandlers += targetHitHandler;
+
             cameraMissileParams = new SSpaceMissileVisualParameters();
-            cameraMissileParams.targetHitHandlers += (pos, mParams) => {
-                explosionRenderer.showExplosion(pos, 2.5f);
-            };
+            cameraMissileParams.targetHitHandlers += targetHitHandler;
+            cameraMissileParams.spawnGenerator = null;
+            cameraMissileParams.spawnTxfm = cameraMissileSpawnTxfm;
+            cameraMissileParams.ejectionMaxRotationVel = 0.05f;
+            cameraMissileParams.ejectionVelocity = 10f;
 
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);
@@ -141,23 +147,13 @@ namespace TestBench3
                 }
                 break;
             case Key.T:
-                int a = (int)attackTargetMode;
-                a = (a + 1) % (int)AttackTargets.End;
-                attackTargetMode = (AttackTargets)a;
-                if (getTargetObject() == getLauncherObject()) {
-                    a = (a + 1) % (int)AttackTargets.End;
-                    attackTargetMode = (AttackTargets)a;
-                }
+                do { switchTarget(); } while (getTargetObject() == getLauncherObject());
                 updateTextDisplay();
                 break;
             case Key.L: 
-                int l = (int)attackLauncher;
-                l = (l + 1) % (int)AttackLaunchers.End;
-                attackLauncher = (AttackLaunchers)l;
-                if (getTargetObject() == getLauncherObject()) {
-                    a = (int)attackTargetMode;
-                    a = (a + 1) % (int)AttackTargets.End;
-                    attackTargetMode = (AttackTargets)a;
+                switchLauncher();
+                while (getTargetObject() == getLauncherObject()) { 
+                    switchTarget();
                 }
                 updateTextDisplay();
                 break;
@@ -210,7 +206,61 @@ namespace TestBench3
 
             float timeElapsed = (float)e.Time;
             particlesScene.Update(timeElapsed);
+            moveShips(timeElapsed);
+        }
 
+        protected override void updateTextDisplay ()
+        {
+            base.updateTextDisplay ();
+            var text =  "\n[Q] to fire missiles";
+
+            // camera mode
+            var camera = scene.ActiveCamera as SSCameraThirdPerson;
+            if (camera != null) {
+                var target = camera.FollowTarget;
+                text += "\n[M] toggle camera target: [";
+                text += (target == null ? "none" : target.Name) + ']';
+            }
+
+            // attacker
+            text += "\n[L] toggle missile launcher: ";
+            var launcherObj = getLauncherObject();
+            text += '[' + (launcherObj == null ? "none" : launcherObj.Name) + ']';
+
+            // target
+            text += "\n[T] toggle missile target: ";
+            if (attackTargetMode == AttackTargets.Selected) {
+                text += "selected: ";
+            }
+            var targetObj = getTargetObject();
+            text += '[' + (targetObj == null ? "none" : targetObj.Name) + ']';
+
+            // debugging
+            text += "\n[V] visual debugigng aid: [";
+            text += (attackerDroneMissileParams.debuggingAid ? "ON" : "OFF")  + ']';
+
+            textDisplay.Label += text;
+        }
+
+        // going deeper into demo logic...
+
+        protected void _launchMissiles()
+        {
+            var target = getTargetObject();
+            if (target != null) {
+                missileManager.launchCluster(
+                    getLauncherObject().Pos, 
+                    Vector3.Zero,
+                    1,
+                    new SSpaceMissileObjectTarget (target),
+                    10f,
+                    getLauncherParams()
+                );
+            }
+        }
+
+        protected void moveShips(float timeElapsed)
+        {
             // make the target drone move from side to side
             localTime += timeElapsed;
             Vector3 pos = targetDrone1.Pos;
@@ -256,21 +306,37 @@ namespace TestBench3
             vandalShip.Orient(desiredDir, Vector3.Transform(Vector3.UnitY, vandalOrient));
         }
 
-        // Going deeper into customization...
-
-        protected void _launchMissiles()
+        protected void targetHitHandler(Vector3 position, SSpaceMissileVisualParameters mParams)
         {
-            var target = getTargetObject();
-            if (target != null) {
-                missileManager.launchCluster(
-                    getLauncherObject().Pos, 
-                    Vector3.Zero,
-                    1,
-                    new SSpaceMissileObjectTarget (target),
-                    10f,
-                    getLauncherParams()
-                );
-            }
+            explosionManager.showExplosion(position, 2.5f);
+        }
+
+        protected Matrix4 vandalMissileSpawnTxfm(ISSpaceMissileTarget target, 
+                                                 Vector3 launcherPos, Vector3 launcherVel)
+        {
+            Vector3 targetDir = (target.position - launcherPos).Normalized();
+            return vandalShip.worldMat * Matrix4.CreateTranslation(targetDir * 7f);
+        }
+
+        protected Matrix4 cameraMissileSpawnTxfm(ISSpaceMissileTarget target, Vector3 
+                                                 launcherPos, Vector3 launcherVel)
+        {
+            Vector3 targetDir = (target.position - launcherPos).Normalized();
+            return scene.ActiveCamera.worldMat * Matrix4.CreateTranslation(targetDir * 7f);
+        }
+
+        protected void switchTarget()
+        {
+            int a = (int)attackTargetMode;
+            a = (a + 1) % (int)AttackTargets.End;
+            attackTargetMode = (AttackTargets)a;
+        }
+
+        protected void switchLauncher()
+        {
+            int l = (int)attackLauncher;
+            l = (l + 1) % (int)AttackLaunchers.End;
+            attackLauncher = (AttackLaunchers)l;
         }
 
         protected SSObject getLauncherObject()
@@ -304,39 +370,6 @@ namespace TestBench3
             case AttackTargets.Selected: return selectedObject ?? scene.ActiveCamera;
             }
             throw new Exception ("unhandled enum");
-        }
-
-        protected override void updateTextDisplay ()
-        {
-            base.updateTextDisplay ();
-            var text =  "\n[Q] to fire missiles";
-
-            // camera mode
-            var camera = scene.ActiveCamera as SSCameraThirdPerson;
-            if (camera != null) {
-                var target = camera.FollowTarget;
-                text += "\n[M] toggle camera target: [";
-                text += (target == null ? "none" : target.Name) + ']';
-            }
-
-            // attacker
-            text += "\n[L] toggle missile launcher: ";
-            var launcherObj = getLauncherObject();
-            text += '[' + (launcherObj == null ? "none" : launcherObj.Name) + ']';
-
-            // target
-            text += "\n[T] toggle missile target: ";
-            if (attackTargetMode == AttackTargets.Selected) {
-                text += "selected: ";
-            }
-            var targetObj = getTargetObject();
-            text += '[' + (targetObj == null ? "none" : targetObj.Name) + ']';
-
-            // debugging
-            text += "\n[V] visual debugigng aid: [";
-            text += (attackerDroneMissileParams.debuggingAid ? "ON" : "OFF")  + ']';
-
-            textDisplay.Label += text;
         }
     }
 }

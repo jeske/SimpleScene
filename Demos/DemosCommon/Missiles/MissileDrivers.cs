@@ -23,8 +23,10 @@ namespace SimpleScene.Demos
 
             _missile.direction = (_missile.position - clusterInitPos);
             if (_missile.direction.LengthSquared < 0.0001f) {
+                // means missile was spawned right at the launcher. pick a direction towards target
                 _missile.direction = (_missile.cluster.target.position - _missile.position).Normalized();
             } else {
+                // spawned away from launcher. ok to orient away from launcher
                 _missile.direction.Normalize();
             }
             _missile.velocity = clusterInitVel + _missile.direction * mParams.ejectionVelocity;
