@@ -42,7 +42,7 @@ namespace SimpleScene.Demos
 
         public virtual bool isAlive { 
             get {
-                // this is pretty arbitrary at this point
+                // this isn't currently used and is pretty arbitrary at this point
                 return _targetObj.renderState.visible
                     && _targetObj.renderState.toBeDeleted == false;
             }

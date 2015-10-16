@@ -40,7 +40,9 @@ namespace SimpleScene.Demos
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
         public float pursuitNavigationGain = 3f;
-        public bool pursuitHitTimeCorrection = true;
+        /// <summary> augment proportional navigation with target's lateral acceleration </summary>
+        public bool pursuitAugmentedPN = false;
+        public bool pursuitHitTimeCorrection = false;
         public float maxPursuitVisualRotationRate = 0.1f;
         #endregion
 

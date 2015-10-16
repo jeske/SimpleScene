@@ -73,6 +73,14 @@ namespace SimpleScene.Demos
             Vector3 R = target.position - _missile.position;
             Vector3 omega = Vector3.Cross(R, Vr) / R.LengthSquared;
             Vector3 latax = mParams.pursuitNavigationGain * Vector3.Cross(Vr, omega);
+
+            if (mParams.pursuitAugmentedPN == true) {
+                Vector3 losDir = R.Normalized();
+                float targetAccLos = Vector3.Dot(target.acceleration, losDir);
+                Vector3 targetLatAx = target.acceleration - targetAccLos * losDir;
+                latax += mParams.pursuitNavigationGain * targetLatAx / 2f;
+            }
+
             _missile._lataxDebug = latax;
 
             // apply latax
