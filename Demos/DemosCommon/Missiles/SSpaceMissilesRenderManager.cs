@@ -1,4 +1,5 @@
-﻿#define MISSILE_DEBUG
+﻿#define MISSILE_SHOW
+#define MISSILE_DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -132,8 +133,10 @@ namespace SimpleScene.Demos
         protected void _addMissileRender(SSpaceMissileData missile)
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
+            #if MISSILE_SHOW
             _objScene.AddObject(missileRuntime.bodyObj);
             _particlesData.addEmitter(missileRuntime.smokeEmitter);
+            #endif
             _missileRuntimes.Add(missileRuntime);
 
             #if MISSILE_DEBUG
@@ -144,8 +147,10 @@ namespace SimpleScene.Demos
 
         protected void _removeMissileRender(SSpaceMissileRenderInfo missileRuntime)
         {
+            #if MISSILE_SHOW
             missileRuntime.bodyObj.renderState.toBeDeleted = true;
             _particlesData.removeEmitter(missileRuntime.smokeEmitter);
+            #endif
 
             #if MISSILE_DEBUG
             missileRuntime.debugRays.renderState.toBeDeleted = true;

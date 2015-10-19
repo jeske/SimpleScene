@@ -325,7 +325,7 @@ namespace TestBench3
 
         protected void targetHitHandler(Vector3 position, SSpaceMissileVisualParameters mParams)
         {
-            explosionManager.showExplosion(position, 2.5f);
+            //explosionManager.showExplosion(position, 2.5f);
         }
 
         protected Matrix4 vandalMissileSpawnTxfm(ISSpaceMissileTarget target, 

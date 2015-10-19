@@ -50,22 +50,25 @@ namespace SimpleScene.Demos
 
         public virtual bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation)
         {
-            //Vector3 velNorm = (missile.velocity - this.velocity).Normalized();
             var mParams = missile.cluster.parameters;
-            Vector3 missileVelNorm = missile.velocity.Normalized();
-            SSRay ray = new SSRay(missile.position, missileVelNorm);
-            float rayDistance;
             float simStep = missile.cluster.parameters.simulationStep;
-            if(_targetObj.Intersect(ref ray, out rayDistance)) {
-                float nextTickDistance = missile.velocity.LengthFast * simStep;
-                if (rayDistance - nextTickDistance < mParams.atTargetDistance) {
-                    hitLocation = missile.position + missileVelNorm * rayDistance + this.velocity * simStep;
-                    return true;
+            float nextTickDist = missile.velocity.LengthFast * simStep;
+            float testDistSq = (nextTickDist + _targetObj.worldBoundingSphereRadius);
+            testDistSq *= testDistSq;
+            float distSq = (_targetObj.Pos - missile.position).LengthSquared;
+
+            if (testDistSq > distSq) {
+                Vector3 velNorm = (missile.velocity - this.velocity);
+                velNorm.NormalizeFast();
+                SSRay ray = new SSRay(missile.position, velNorm);
+                float rayDistance = 0f;
+                if(_targetObj.PreciseIntersect(ref ray, ref rayDistance)) {
+                    if (rayDistance - nextTickDist < mParams.atTargetDistance) {
+                        hitLocation = missile.position + this.velocity * simStep
+                            + velNorm * rayDistance;
+                        return true;
+                    }
                 }
-            } else if ((_targetObj.Pos - missile.position).LengthFast <= mParams.atTargetDistance) {
-                // failsafe for smaller bounding spheres etc.
-                hitLocation = _targetObj.Pos;
-                return true;
             }
             hitLocation = new Vector3(float.PositiveInfinity);
             return false;
@@ -77,10 +80,12 @@ namespace SimpleScene.Demos
             if (timeElapsed == 0f) return;
 
             var newVel = (_targetObj.Pos - _prevPos) / timeElapsed;
-            _acc = (newVel - _velocity) / timeElapsed;
+            //_acc = (newVel - _velocity) / timeElapsed;
+            _acc = Vector3.Zero;
 
             _velocity = newVel;
             _prevPos = _targetObj.Pos;
+            //_velocity = Vector3.Zero;
         }
     }
 }

@@ -240,7 +240,7 @@ namespace SimpleScene
             return instanceMat;
         }
 
-		protected override bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 
+		public override bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) 
         {
             SSRay localRay = worldSpaceRay.Transformed(this.worldMat.Inverted());
             SSAbstractMesh abstrMesh = this.mesh as SSAbstractMesh;
