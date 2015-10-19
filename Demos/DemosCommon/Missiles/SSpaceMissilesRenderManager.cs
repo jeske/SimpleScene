@@ -168,7 +168,7 @@ namespace SimpleScene.Demos
                 (missileRuntime) => missileRuntime.missile.state == SSpaceMissileData.State.Terminated);
 
             // debugging
-            #if false
+            #if true
             System.Console.WriteLine("num missiles = " + _missileRuntimes.Count);
             System.Console.WriteLine("num particles = " + _particlesData.numElements);
             #endif
@@ -253,7 +253,6 @@ namespace SimpleScene.Demos
                 debugRays.renderState.visible = mParams.debuggingAid;
                 debugCountdown.renderState.visible = mParams.debuggingAid;
                 #endif
-
             }
 
             public class MissileDebugRays : SSObject

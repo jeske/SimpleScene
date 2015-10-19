@@ -24,13 +24,6 @@ namespace SimpleScene.Demos
               launchPos, launchVel, numMissiles, target, timeToHit, clusterParams);
             _clusters.Add(cluster);
             return cluster;
-
-            // TODO remove cluster: auto -OR- manual
-        }
-
-        public void updateClusterTimeToHit(SSpaceMissileClusterData cluster, float timeToHit)
-        {
-            // TODO
         }
 
         public void removeMissile(SSpaceMissileData missile)
@@ -71,14 +64,6 @@ namespace SimpleScene.Demos
             foreach (var cluster in _clusters) {
                 cluster.updateSimulation(timeElapsed);
             }
-        }
-
-        /// <summary>
-        /// Terminate a missile in a cluster before it reaches its target
-        /// </summary>
-        public void interceptMissile(SSpaceMissileData missile, float delay)
-        {
-            // TODO
         }
     }
 
@@ -131,7 +116,6 @@ namespace SimpleScene.Demos
         public void updateTimeToHit(float timeToHit)
         {
             _timeToHit = timeToHit;
-            // TODO what happens to missiles?
         }
 
         /// <summary> Remove true if missile was removed </summary>
