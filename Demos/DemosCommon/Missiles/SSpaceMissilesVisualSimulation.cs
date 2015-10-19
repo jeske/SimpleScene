@@ -10,10 +10,15 @@ namespace SimpleScene.Demos
         public static Random rand = new Random();
 
         public float timeScale = 1f;
-        //public float timeScale = 0.3f;
 
-        protected List<SSpaceMissileClusterData> _clusters
+        protected readonly List<SSpaceMissileClusterData> _clusters
             = new List<SSpaceMissileClusterData>();
+
+        #region targets
+        protected readonly HashSet<ISSpaceMissileTarget> _targets = new HashSet<ISSpaceMissileTarget>();
+        protected float _timeDeltaAccumulator = 0f;
+        public float targetUpdateInterval = 0.2f;
+        #endregion
 
         public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
@@ -23,6 +28,7 @@ namespace SimpleScene.Demos
             var cluster = new SSpaceMissileClusterData (
               launchPos, launchVel, numMissiles, target, timeToHit, clusterParams);
             _clusters.Add(cluster);
+            _targets.Add(target);
             return cluster;
         }
 
@@ -61,6 +67,18 @@ namespace SimpleScene.Demos
         public void updateSimulation(float timeElapsed)
         {
             timeElapsed *= timeScale;
+
+            // update targets
+            float accTime = timeElapsed + _timeDeltaAccumulator;
+            while (accTime >= targetUpdateInterval) {
+                foreach (var target in _targets) {
+                    target.update(targetUpdateInterval);
+                }
+                accTime -= targetUpdateInterval;
+            }
+            _timeDeltaAccumulator = accTime;
+
+            // update clusters/missiles
             foreach (var cluster in _clusters) {
                 cluster.updateSimulation(timeElapsed);
             }
@@ -151,9 +169,6 @@ namespace SimpleScene.Demos
         {
             float accTime = timeElapsed + _timeDeltaAccumulator;
             float step = parameters.simulationStep;
-            if (accTime >= step) {
-                _target.update((float)Math.Floor(accTime / step) * step); 
-            }
             while (accTime >= step) {
                 _simulateStep(step);
                 accTime -= step;

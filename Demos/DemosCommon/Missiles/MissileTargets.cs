@@ -19,22 +19,23 @@ namespace SimpleScene.Demos
 
     public class SSpaceMissileObjectTarget : ISSpaceMissileTarget
     {
-        protected readonly SSObject _targetObj;
+        public readonly SSObject targetObj;
+
         protected Vector3 _prevPos;
         protected Vector3 _velocity;
         protected Vector3 _acc;
 
         public SSpaceMissileObjectTarget(SSObject targetObj)
         {
-            _targetObj = targetObj;
+            this.targetObj = targetObj;
             _prevPos = targetObj.Pos;
             _velocity = Vector3.Zero;
             _acc = Vector3.Zero;
         }
 
-        public virtual Vector3 position { get { return _targetObj.Pos; } }
+        public virtual Vector3 position { get { return targetObj.Pos; } }
 
-        public virtual Vector3 direction { get { return _targetObj.Dir; } }
+        public virtual Vector3 direction { get { return targetObj.Dir; } }
 
         public virtual Vector3 velocity { get { return _velocity; } }
 
@@ -43,8 +44,8 @@ namespace SimpleScene.Demos
         public virtual bool isAlive { 
             get {
                 // this isn't currently used and is pretty arbitrary at this point
-                return _targetObj.renderState.visible
-                    && _targetObj.renderState.toBeDeleted == false;
+                return targetObj.renderState.visible
+                    && targetObj.renderState.toBeDeleted == false;
             }
         }
 
@@ -53,16 +54,16 @@ namespace SimpleScene.Demos
             var mParams = missile.cluster.parameters;
             float simStep = missile.cluster.parameters.simulationStep;
             float nextTickDist = missile.velocity.LengthFast * simStep;
-            float testDistSq = (nextTickDist + _targetObj.worldBoundingSphereRadius);
+            float testDistSq = (nextTickDist + targetObj.worldBoundingSphereRadius);
             testDistSq *= testDistSq;
-            float distSq = (_targetObj.Pos - missile.position).LengthSquared;
+            float distSq = (targetObj.Pos - missile.position).LengthSquared;
 
             if (testDistSq > distSq) {
                 Vector3 velNorm = (missile.velocity - this.velocity);
                 velNorm.NormalizeFast();
                 SSRay ray = new SSRay(missile.position, velNorm);
                 float rayDistance = 0f;
-                if(_targetObj.PreciseIntersect(ref ray, ref rayDistance)) {
+                if(targetObj.PreciseIntersect(ref ray, ref rayDistance)) {
                     if (rayDistance - nextTickDist < mParams.atTargetDistance) {
                         hitLocation = missile.position + this.velocity * simStep
                             + velNorm * rayDistance;
@@ -79,12 +80,12 @@ namespace SimpleScene.Demos
         {
             if (timeElapsed == 0f) return;
 
-            var newVel = (_targetObj.Pos - _prevPos) / timeElapsed;
+            var newVel = (targetObj.Pos - _prevPos) / timeElapsed;
             //_acc = (newVel - _velocity) / timeElapsed;
             _acc = Vector3.Zero;
 
             _velocity = newVel;
-            _prevPos = _targetObj.Pos;
+            _prevPos = targetObj.Pos;
             //_velocity = Vector3.Zero;
         }
     }

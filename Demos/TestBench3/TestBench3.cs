@@ -20,17 +20,21 @@ namespace TestBench3
         protected SSScene particlesScene;
         protected SExplosionRenderManager explosionManager;
         protected SSpaceMissilesRenderManager missileManager;
+
+        protected SSObjectMesh vandalShip;
+        protected SSObjectMesh attackerDrone;
+        protected SSObjectMesh targetDrone;
+
         protected SSpaceMissileVisualParameters attackerDroneMissileParams;
         protected SSpaceMissileVisualParameters vandalShipMissileParams;
         protected SSpaceMissileVisualParameters cameraMissileParams;
 
-        protected SSObjectMesh vandalShip;
-        protected SSObjectMesh attackerDrone;
-        protected SSObjectMesh targetDrone1;
-
         protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
         protected MissileTargets missileTarget = MissileTargets.TargetDrone1;
         protected HitTimeMode hitTimeMode = HitTimeMode.Auto;
+
+        protected Dictionary<SSObject, ISSpaceMissileTarget> targets 
+        = new Dictionary<SSObject, ISSpaceMissileTarget> ();
 
         protected float localTime = 0f;
 
@@ -71,16 +75,16 @@ namespace TestBench3
             attackerDrone.Name = "attacker drone";
             scene.AddObject (attackerDrone);
 
-            targetDrone1 = new SSObjectMesh (droneMesh);
-            targetDrone1.Pos = new OpenTK.Vector3(200f, 0f, 0f);
-            targetDrone1.Orient(-Vector3.UnitX, Vector3.UnitY);
-            targetDrone1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-            targetDrone1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            targetDrone1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            targetDrone1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-            targetDrone1.Name = "target drone";
-            targetDrone1.MainColor = new Color4(1f, 0f, 0.7f, 1f);
-            scene.AddObject (targetDrone1);
+            targetDrone = new SSObjectMesh (droneMesh);
+            targetDrone.Pos = new OpenTK.Vector3(200f, 0f, 0f);
+            targetDrone.Orient(-Vector3.UnitX, Vector3.UnitY);
+            targetDrone.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
+            targetDrone.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            targetDrone.Name = "target drone";
+            targetDrone.MainColor = new Color4(1f, 0f, 0.7f, 1f);
+            scene.AddObject (targetDrone);
 
             vandalShip = new SSObjectMesh (vandalMesh);
             vandalShip.Pos = new OpenTK.Vector3(100f, 0f, 0f);
@@ -93,7 +97,7 @@ namespace TestBench3
             vandalShip.MainColor = new Color4 (0.6f, 0.6f, 0.6f, 1f);
             //vandalShip.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
-            vandalShip.Orient((targetDrone1.Pos-vandalShip.Pos).Normalized(), Vector3.UnitY);
+            vandalShip.Orient((targetDrone.Pos-vandalShip.Pos).Normalized(), Vector3.UnitY);
             scene.AddObject (vandalShip);
 
             // shows explosions
@@ -126,9 +130,6 @@ namespace TestBench3
 
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);
-
-            // initialize demo logic
-            //targetObject = getTargetObject();
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)
@@ -144,7 +145,7 @@ namespace TestBench3
                     if (target == null) {
                         camera.FollowTarget = attackerDrone;
                     } else if (target == attackerDrone) {
-                        camera.FollowTarget = targetDrone1;
+                        camera.FollowTarget = targetDrone;
                     } else {
                         camera.FollowTarget = null;
                     }
@@ -259,7 +260,15 @@ namespace TestBench3
 
         protected void _launchMissiles()
         {
-            var target = getTargetObject();
+            if (targets.Count == 0) {
+                // initialize targets
+                targets.Add(attackerDrone, new SSpaceMissileObjectTarget(attackerDrone));
+                targets.Add(targetDrone, new SSpaceMissileObjectTarget(targetDrone));
+                targets.Add(vandalShip, new SSpaceMissileObjectTarget(vandalShip));
+                targets.Add(scene.ActiveCamera, new SSpaceMissileObjectTarget(scene.ActiveCamera));
+            }
+
+            var target = targets[getTargetObject()];
             var launcher = getLauncherObject();
             var hitTime = getHitTime();
             var mParams = getLauncherParams();
@@ -269,7 +278,7 @@ namespace TestBench3
                     launcher.Pos, 
                     Vector3.Zero,
                     1,
-                    new SSpaceMissileObjectTarget (target),
+                    target,
                     hitTime,
                     mParams
                 );
@@ -280,9 +289,9 @@ namespace TestBench3
         {
             // make the target drone move from side to side
             localTime += timeElapsed;
-            Vector3 pos = targetDrone1.Pos;
+            Vector3 pos = targetDrone.Pos;
             pos.Z = 30f * (float)Math.Sin(localTime);
-            targetDrone1.Pos = pos;
+            targetDrone.Pos = pos;
 
             // make the vandal ship orbit missile target
             Vector3 desiredPos;
@@ -325,7 +334,7 @@ namespace TestBench3
 
         protected void targetHitHandler(Vector3 position, SSpaceMissileVisualParameters mParams)
         {
-            //explosionManager.showExplosion(position, 2.5f);
+            explosionManager.showExplosion(position, 2.5f);
         }
 
         protected Matrix4 vandalMissileSpawnTxfm(ISSpaceMissileTarget target, 
@@ -386,7 +395,7 @@ namespace TestBench3
         protected SSObject getTargetObject()
         {
             switch (missileTarget) {
-            case MissileTargets.TargetDrone1: return targetDrone1;
+            case MissileTargets.TargetDrone1: return targetDrone;
             case MissileTargets.AttackerDrone: return attackerDrone;
             case MissileTargets.VandalShip: return vandalShip;
             case MissileTargets.Camera: return scene.ActiveCamera;
