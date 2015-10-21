@@ -208,7 +208,7 @@ namespace SimpleScene.Demos
                 smokeEmitter = new SSRadialEmitter();
                 smokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
                 smokeEmitter.life = mParams.smokeDuration;
-                smokeEmitter.color = new Color4(1f, 1f, 1f, 0f);
+                smokeEmitter.color = new Color4(1f, 1f, 1f, 1f);
                 smokeEmitter.billboardXY = true;
                 smokeEmitter.particlesPerEmissionMin = mParams.smokeParticlesPerEmissionMin;
                 smokeEmitter.particlesPerEmissionMax = mParams.smokeParticlesPerEmissionMax;
@@ -235,12 +235,11 @@ namespace SimpleScene.Demos
                 bodyObj.Orient(missile.direction, missile.up);
 
                 var emissionRatio = missile.jetStrength / mParams.fullSmokeEmissionAcc;
-                var emissionFreq = 40f;
+                var emissionFreq = 160f;
                 //var emissionFreq = Interpolate.Lerp(
                 //   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
                 
-                smokeEmitter.center = missile.position
-                    - missile.direction * mParams.missileScale * mParams.jetPosition;
+                smokeEmitter.center = missile.jetPosition();
                 smokeEmitter.up = -missile.direction;
 
                 smokeEmitter.emissionInterval = 1f / emissionFreq;

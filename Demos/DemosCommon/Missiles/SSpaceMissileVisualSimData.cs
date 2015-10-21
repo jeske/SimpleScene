@@ -81,6 +81,12 @@ namespace SimpleScene.Demos
             _driver.updateExecution(0f);
         }
 
+        public Vector3 jetPosition()
+        {
+            var mParams = cluster.parameters;
+            return this.position - this.direction * mParams.missileScale * mParams.jetPosition;
+        }
+
         public void terminate()
         {
             _state = State.Terminated;
