@@ -270,12 +270,14 @@ namespace SimpleScene
         {
             if (_numParticles == 0) return;
 
+            int numAlive = 0;
             for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
                     Vector3 pos = readData(_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
                     writeDataIfNeeded(ref _viewDepths, i, pos.Z);
+                    ++numAlive;
                 } else {
                     // since we are doing a sort pass later, might as well make it so
                     // so the dead particles get pushed the back of the arrays
@@ -284,6 +286,9 @@ namespace SimpleScene
             }
 
             quickSort(0, _activeBlockLength - 1);
+
+            // somewhat hacky workaround for zombie particles that seem to be related to sortByDepth()
+            _numParticles = numAlive;
 
             if (_numParticles < _capacity) {
                 // update pointers to reflect dead particles that just got sorted to the back
