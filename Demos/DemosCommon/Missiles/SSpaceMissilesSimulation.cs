@@ -5,7 +5,7 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public class SSpaceMissilesVisualSimulation
+    public class SSpaceMissilesSimulation
     {
         public static Random rand = new Random();
 

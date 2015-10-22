@@ -44,12 +44,12 @@
     <Compile Include="Lasers\SLaserParameters.cs" />
     <Compile Include="SSunFlareRenderer.cs" />
     <Compile Include="Missiles\MissileDrivers.cs" />
-    <Compile Include="Missiles\SSpaceMissilesVisualSimulation.cs" />
-    <Compile Include="Missiles\SSpaceMissileVisualSimData.cs" />
     <Compile Include="Missiles\MissileTargets.cs" />
-    <Compile Include="Missiles\SSpaceMissileVisualParameters.cs" />
     <Compile Include="Missiles\SSpaceMissilesRenderManager.cs" />
     <Compile Include="SExplosionRenderManager.cs" />
+    <Compile Include="Missiles\SSpaceMissilesSimulation.cs" />
+    <Compile Include="Missiles\SSpaceMissileParameters.cs" />
+    <Compile Include="Missiles\SSpaceMissileData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

@@ -31,7 +31,7 @@ namespace SimpleScene.Demos
             }
             _missile.velocity = clusterInitVel + _missile.direction * mParams.ejectionVelocity;
 
-            var rand = SSpaceMissilesVisualSimulation.rand;
+            var rand = SSpaceMissilesSimulation.rand;
             _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
             _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
         }

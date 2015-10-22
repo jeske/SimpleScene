@@ -7,13 +7,13 @@ namespace SimpleScene.Demos
 {
     // TODO: fuel strategy???
 
-    public class SSpaceMissileVisualParameters
+    public class SSpaceMissileParameters
     {
         public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, Vector3 launcherPos, Vector3 launcherVel);
         public delegate ISSpaceMissileDriver 
             EjectionCreationDelegate(SSpaceMissileData missile, Vector3 clusterPos, Vector3 clusterVel);
         public delegate ISSpaceMissileDriver PursuitCreationDelegate(SSpaceMissileData missile);
-        public delegate void MissileEventDelegate (Vector3 position, SSpaceMissileVisualParameters mParams);
+        public delegate void MissileEventDelegate (Vector3 position, SSpaceMissileParameters mParams);
 
         #region simulation parameters
         public float simulationStep = 0.05f;
