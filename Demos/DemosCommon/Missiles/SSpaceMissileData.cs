@@ -100,18 +100,19 @@ namespace SimpleScene.Demos
                 }
                 break;
             case State.Pursuit:
-                Vector3 hitPos;
-                if (mParams.pursuitHitTimeCorrection && _cluster.timeToHit <= 0f)
-                {
-                    _position = cluster.target.position;
-                    velocity = Vector3.Zero;
-                    _state = State.AtTarget;
-                    _driver = null;
+                bool forceHit = (mParams.pursuitHitTimeCorrection && _cluster.timeToHit <= 0f);
+                if (forceHit) {
+                    // fake a velocity large enough to make hit test succeeed
+                    velocity = cluster.target.velocity
+                        + (_cluster.target.position - _position) / timeElapsed;
                     if (mParams.debuggingAid) {
                         System.Console.WriteLine("forcing missile at target (hit time correction)");
                     }
-                } else if (cluster.target.hitTest(this, out hitPos)) {
-                    _position = hitPos;
+                } 
+                Vector3 hitPos;
+                bool hitTestSucceeded = cluster.target.hitTest(this, out hitPos);
+                if (hitTestSucceeded || forceHit) {
+                    _position = hitTestSucceeded ? hitPos : _cluster.target.position;
                     velocity = Vector3.Zero;
                     _state = State.AtTarget;
                     _driver = null;
