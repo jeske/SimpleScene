@@ -88,8 +88,6 @@ namespace SimpleScene.Demos
         {
             _position += velocity * timeElapsed;
 
-
-
             var mParams = _cluster.parameters;
             switch (_state) {
             case State.Ejection:
@@ -125,6 +123,7 @@ namespace SimpleScene.Demos
             case State.AtTarget:
                 if (mParams.terminateWhenAtTarget) {
                     _state = State.Terminated;
+                    _driver = null;
                     if (mParams.targetHitHandlers != null) {
                         mParams.targetHitHandlers(_position, mParams);
                     }

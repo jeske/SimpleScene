@@ -10,6 +10,7 @@ namespace SimpleScene.Demos
         public static Random rand = new Random();
 
         public float timeScale = 1f;
+        //public float timeScale = 0.3f;
 
         protected readonly List<SSpaceMissileClusterData> _clusters
             = new List<SSpaceMissileClusterData>();
@@ -34,26 +35,12 @@ namespace SimpleScene.Demos
 
         public void removeMissile(SSpaceMissileData missile)
         {
-            for (int i = 0; i < _clusters.Count; ++i) {
-                var cluster = _clusters [i];
-                if (cluster.removeMissile(missile)) {
-                    if (cluster.allTerminated()) {
-                        _clusters.RemoveAt(i);
-                    }
-                    return;
-                }
-            }
+            missile.terminate();
         }
 
         public void removeCluster(SSpaceMissileClusterData cluster)
         {
-            for (int i = 0; i < _clusters.Count; ++i) {
-                var cl = _clusters [i];
-                if (cl == cluster) {
-                    cl.terminateAll();
-                    _clusters.RemoveAt(i);
-                }
-            }
+            cluster.terminateAll();
         }
 
         public void removeAll()
@@ -82,6 +69,7 @@ namespace SimpleScene.Demos
             foreach (var cluster in _clusters) {
                 cluster.updateSimulation(timeElapsed);
             }
+            _clusters.RemoveAll( (cluster) => cluster.isTerminated );
         }
     }
 
@@ -92,6 +80,7 @@ namespace SimpleScene.Demos
         public ISSpaceMissileTarget target { get { return _target; } }
         public float timeToHit { get { return _timeToHit; } }
         public float timeSinceLaunch { get { return _timeSinceLaunch; } }
+        public bool isTerminated { get { return _isTerminated; } }
 
         protected readonly SSpaceMissileData[] _missiles;
         protected readonly ISSpaceMissileTarget _target;
@@ -100,6 +89,7 @@ namespace SimpleScene.Demos
         protected float _timeDeltaAccumulator = 0f;
         protected float _timeSinceLaunch = 0f;
         protected float _timeToHit = 0f;
+        protected bool _isTerminated = false;
 
         public SSpaceMissileClusterData(
             Vector3 launcherPos, Vector3 launcherVel, int numMissiles,
@@ -136,33 +126,12 @@ namespace SimpleScene.Demos
             _timeToHit = timeToHit;
         }
 
-        /// <summary> Remove true if missile was removed </summary>
-        public bool removeMissile(SSpaceMissileData missile)
-        {
-            foreach (var m  in _missiles) {
-                if (m == missile) {
-                    m.terminate();
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public void terminateAll()
         {
             foreach (var missile in _missiles) {
                 missile.terminate();
             }
-        }
-
-        public bool allTerminated()
-        {
-            foreach (var m  in _missiles) {
-                if (m.state != SSpaceMissileData.State.Terminated) {
-                    return false;
-                }
-            }
-            return true;
+            _isTerminated = true;
         }
 
         public void updateSimulation(float timeElapsed)
@@ -178,11 +147,14 @@ namespace SimpleScene.Demos
 
         protected void _simulateStep(float timeElapsed)
         {
+            bool isTerminated = true;
             foreach (var missile in _missiles) {
                 if (missile.state != SSpaceMissileData.State.Terminated) {
+                    isTerminated = false;
                     missile.updateExecution(timeElapsed);
                 }
             }
+            _isTerminated = isTerminated;
             _timeToHit -= timeElapsed;
             _timeSinceLaunch += timeElapsed;
         }

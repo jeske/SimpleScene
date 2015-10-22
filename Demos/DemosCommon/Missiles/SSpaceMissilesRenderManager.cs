@@ -173,7 +173,7 @@ namespace SimpleScene.Demos
                 (missileRuntime) => missileRuntime.missile.state == SSpaceMissileData.State.Terminated);
 
             // debugging
-            #if true
+            #if false
             System.Console.WriteLine("num missiles = " + _missileRuntimes.Count);
             System.Console.WriteLine("num particles = " + _particlesData.numElements);
             #endif
