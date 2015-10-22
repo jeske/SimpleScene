@@ -221,7 +221,7 @@ namespace SimpleScene.Demos
                 smokeEmitter.phiMax = (float)Math.PI/2f;
 
                 smokeEmitter.radiusOffsetMin = 0f;
-                smokeEmitter.radiusOffsetMax = 0.1f;
+                smokeEmitter.radiusOffsetMax = 0.1f;  
 
                 // positions emitters and mesh
                 preRenderUpdate(0f);

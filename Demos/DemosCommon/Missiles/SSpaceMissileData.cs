@@ -30,17 +30,13 @@ namespace SimpleScene.Demos
         public Vector3 up { 
             get { 
                 Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, direction);
-                var ret = Vector3.Transform(Vector3.UnitY, quat);
-                ret.NormalizeFast();
-                return ret;
+                return Vector3.Transform(Vector3.UnitY, quat);
             } 
         }
         public Vector3 pitchAxis { 
             get { 
                 Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, direction);
-                var ret = Vector3.Transform(Vector3.UnitX, quat);
-                ret.NormalizeFast();
-                return ret;
+                return Vector3.Transform(Vector3.UnitX, quat);
             } 
         }
         public float jetStrength { get { return velocity.LengthFast; } }

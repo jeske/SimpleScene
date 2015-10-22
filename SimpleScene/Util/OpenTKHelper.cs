@@ -101,7 +101,12 @@ namespace SimpleScene
             dir2.Normalize();
             axis = Vector3.Cross(dir1, dir2).Normalized();
             float dot = Vector3.Dot(dir1, dir2);
-            angle = (float)Math.Acos(dot);
+            if (dot >= 1f) {
+                // do this because Acos function below returns NaN when input is 1
+                angle = 0f;
+            } else {
+                angle = (float)Math.Acos(dot);
+            }
         }
 			       
         /// <summary>

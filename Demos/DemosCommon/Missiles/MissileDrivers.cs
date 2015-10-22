@@ -126,7 +126,7 @@ namespace SimpleScene.Demos
             OpenTKHelper.neededRotation(_missile.direction, _missile.velocity.Normalized(),
                 out axis, out angle);
             float abs = Math.Abs(angle);
-            if (abs > mParams.pursuitVisualRotationRate) {
+            if (abs > mParams.pursuitVisualRotationRate && abs > 0f) {
                 angle = angle / abs * mParams.pursuitVisualRotationRate;
             }
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
