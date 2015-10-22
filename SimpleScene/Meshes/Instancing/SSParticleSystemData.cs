@@ -289,11 +289,13 @@ namespace SimpleScene
 
             // somewhat hacky workaround for zombie particles that seem to be related to sortByDepth()
             _numParticles = numAlive;
+            _activeBlockLength = _numParticles;
 
-            if (_numParticles < _capacity) {
+            if (_numParticles == 0) {
+                _nextIdxToWrite = _nextIdxToOverwrite = 0;
+            } else if (_numParticles < _capacity) {
                 // update pointers to reflect dead particles that just got sorted to the back
                 _nextIdxToWrite = _numParticles - 1;
-                _activeBlockLength = _numParticles;
             }
 
             #if false
