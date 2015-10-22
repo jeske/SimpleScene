@@ -18,7 +18,7 @@ namespace SimpleScene.Demos
     {
         enum ParticleEffectorMasks : ushort { Smoke=0 };
 
-        protected readonly SSpaceMissilesVisualSimulation _simulation;
+        protected readonly SSpaceMissilesSimulation _simulation;
         protected readonly SSScene _objScene;
         protected readonly SSScene _screenScene;
 
@@ -30,12 +30,12 @@ namespace SimpleScene.Demos
 
         readonly List<SSpaceMissileRenderInfo> _missileRuntimes = new List<SSpaceMissileRenderInfo> ();
 
-        public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
+        public SSpaceMissilesSimulation simulation { get { return _simulation; } }
 
         public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, SSScene screenScene,
                                             int particleCapacity = 2000)
         {
-            _simulation = new SSpaceMissilesVisualSimulation ();
+            _simulation = new SSpaceMissilesSimulation ();
 
             _objScene = objScene;
             objScene.preRenderHooks += _preRenderUpdate;
@@ -76,7 +76,7 @@ namespace SimpleScene.Demos
         public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileVisualParameters clusterParams)
+            SSpaceMissileParameters clusterParams)
         {
             _initParamsSpecific(clusterParams);
             var cluster = _simulation.launchCluster(launchPos, launchVel, numMissiles,
@@ -87,7 +87,7 @@ namespace SimpleScene.Demos
             return cluster;
         }
 
-        protected void _initParamsSpecific(SSpaceMissileVisualParameters mParams)
+        protected void _initParamsSpecific(SSpaceMissileParameters mParams)
         {
             // smoke effectors
             if (_particleRenderer.textureMaterial == null) {

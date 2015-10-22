@@ -24,7 +24,7 @@ namespace SimpleScene.Demos
         public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileVisualParameters clusterParams)
+            SSpaceMissileParameters clusterParams)
         {
             var cluster = new SSpaceMissileClusterData (
               launchPos, launchVel, numMissiles, target, timeToHit, clusterParams);
@@ -76,7 +76,7 @@ namespace SimpleScene.Demos
     public class SSpaceMissileClusterData
     {
         public SSpaceMissileData[] missiles { get { return _missiles; } }
-        public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
+        public SSpaceMissileParameters parameters { get { return _parameters; } }
         public ISSpaceMissileTarget target { get { return _target; } }
         public float timeToHit { get { return _timeToHit; } }
         public float timeSinceLaunch { get { return _timeSinceLaunch; } }
@@ -84,7 +84,7 @@ namespace SimpleScene.Demos
 
         protected readonly SSpaceMissileData[] _missiles;
         protected readonly ISSpaceMissileTarget _target;
-        protected readonly SSpaceMissileVisualParameters _parameters;
+        protected readonly SSpaceMissileParameters _parameters;
 
         protected float _timeDeltaAccumulator = 0f;
         protected float _timeSinceLaunch = 0f;
@@ -94,7 +94,7 @@ namespace SimpleScene.Demos
         public SSpaceMissileClusterData(
             Vector3 launcherPos, Vector3 launcherVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileVisualParameters mParams)
+            SSpaceMissileParameters mParams)
         {
             _target = target;
             _timeToHit = timeToHit;

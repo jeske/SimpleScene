@@ -25,9 +25,9 @@ namespace TestBench3
         protected SSObjectMesh attackerDrone;
         protected SSObjectMesh targetDrone;
 
-        protected SSpaceMissileVisualParameters attackerDroneMissileParams;
-        protected SSpaceMissileVisualParameters vandalShipMissileParams;
-        protected SSpaceMissileVisualParameters cameraMissileParams;
+        protected SSpaceMissileParameters attackerDroneMissileParams;
+        protected SSpaceMissileParameters vandalShipMissileParams;
+        protected SSpaceMissileParameters cameraMissileParams;
 
         protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
         protected MissileTargets missileTarget = MissileTargets.TargetDrone1;
@@ -109,11 +109,11 @@ namespace TestBench3
             particlesScene.AddObject(explosionManager);
 
             // attacker drone missile parameters
-            attackerDroneMissileParams = new SSpaceMissileVisualParameters();
+            attackerDroneMissileParams = new SSpaceMissileParameters();
             attackerDroneMissileParams.targetHitHandlers += targetHitHandler;
 
             // vandal missile params
-            vandalShipMissileParams = new SSpaceMissileVisualParameters();
+            vandalShipMissileParams = new SSpaceMissileParameters();
             vandalShipMissileParams.spawnGenerator = null;
             vandalShipMissileParams.spawnTxfm = vandalMissileSpawnTxfm;
             vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
@@ -121,7 +121,7 @@ namespace TestBench3
 
             vandalShipMissileParams.targetHitHandlers += targetHitHandler;
 
-            cameraMissileParams = new SSpaceMissileVisualParameters();
+            cameraMissileParams = new SSpaceMissileParameters();
             cameraMissileParams.targetHitHandlers += targetHitHandler;
             cameraMissileParams.spawnGenerator = null;
             cameraMissileParams.spawnTxfm = cameraMissileSpawnTxfm;
@@ -332,7 +332,7 @@ namespace TestBench3
             vandalShip.Orient(desiredDir, Vector3.Transform(Vector3.UnitY, vandalOrient));
         }
 
-        protected void targetHitHandler(Vector3 position, SSpaceMissileVisualParameters mParams)
+        protected void targetHitHandler(Vector3 position, SSpaceMissileParameters mParams)
         {
             explosionManager.showExplosion(position, 2.5f);
         }
@@ -382,7 +382,7 @@ namespace TestBench3
             throw new Exception ("unhandled enum");
         }
 
-        protected SSpaceMissileVisualParameters getLauncherParams()
+        protected SSpaceMissileParameters getLauncherParams()
         {
             switch (missileLauncher) {
             case MissileLaunchers.AttackerDrone: return attackerDroneMissileParams;
