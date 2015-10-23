@@ -15,7 +15,7 @@ namespace TestBench3
         protected enum MissileTargets : int 
             { TargetDrone1, VandalShip, Camera, Selected, AttackerDrone, End}
         protected enum HitTimeMode : int 
-            { Disabled, Auto, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
+            { Auto, Disabled, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
 
         protected SSScene particlesScene;
         protected SExplosionRenderManager explosionManager;
@@ -123,6 +123,8 @@ namespace TestBench3
 
             vandalShipMissileParams.targetHitHandlers += targetHitHandler;
             vandalShipMissileParams.activationTime = 0.1f;
+            vandalShipMissileParams.ejectionSmokeDuration = 0.5f;
+            vandalShipMissileParams.smokeSizeMax = 5f;
 
             cameraMissileParams = new SSpaceMissileParameters();
             cameraMissileParams.targetHitHandlers += targetHitHandler;
@@ -130,7 +132,6 @@ namespace TestBench3
             cameraMissileParams.spawnTxfm = cameraMissileSpawnTxfm;
             cameraMissileParams.ejectionMaxRotationVel = 0.05f;
             cameraMissileParams.ejectionVelocity = 10f;
-            cameraMissileParams.activationTime = 0.1f;
 
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);

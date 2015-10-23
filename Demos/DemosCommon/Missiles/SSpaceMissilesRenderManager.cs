@@ -95,7 +95,7 @@ namespace SimpleScene.Demos
         {
             // smoke effectors
             if (_particleRenderer.textureMaterial == null) {
-                _particleRenderer.textureMaterial = new SSTextureMaterial (mParams.particlesTexture);
+                _particleRenderer.textureMaterial = new SSTextureMaterial (mParams.smokeParticlesTexture);
             }
             if (_flameSmokeColorEffector == null) {
                 _flameSmokeColorEffector = new SSColorKeyframesEffector ();
@@ -244,7 +244,7 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.billboardXY = true;
                 flameSmokeEmitter.particlesPerEmissionMin = mParams.flameSmokePerEmissionMin;
                 flameSmokeEmitter.particlesPerEmissionMax = mParams.flameSmokePerEmissionMax;
-                flameSmokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
+                flameSmokeEmitter.spriteRectangles = mParams.smokeSpriteRects;
                 //smokeEmitter.phiMin = 0f;
                 //smokeEmitter.phiMax = (float)Math.PI/6f;
                 flameSmokeEmitter.phiMin = (float)Math.PI/3f;
@@ -268,11 +268,11 @@ namespace SimpleScene.Demos
                 bodyObj.Pos = missile.position;
                 bodyObj.Orient(missile.visualDirection, missile.up);
 
-                float smokeFrequency = Interpolate.Lerp(
-                    mParams.flameSmokeEmissionFrequencyMin, mParams.flameSmokeEmissionFrequencyMax, missile.visualSmokeAmmount);
-                float smokeSize = Interpolate.Lerp(
-                    mParams.flameSmokeSizeMin, mParams.flameSmokeSizeMax, missile.visualSmokeSize);
                 bool ejection = missile.state == SSpaceMissileData.State.Ejection;
+                float smokeFrequency = Interpolate.Lerp(
+                    mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, missile.visualSmokeAmmount);
+                float smokeSize = 
+                    Interpolate.Lerp(mParams.smokeSizeMin, mParams.smokeSizeMax, missile.visualSmokeSize);
 
                 //flameSmokeEmitter.velocity = -missile.velocity;
                 flameSmokeEmitter.center = missile.jetPosition();
