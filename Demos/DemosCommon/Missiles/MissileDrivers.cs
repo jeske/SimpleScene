@@ -21,19 +21,22 @@ namespace SimpleScene.Demos
             _missile = missile;
             var mParams = _missile.cluster.parameters;
 
-            _missile.direction = (_missile.position - clusterInitPos);
-            if (_missile.direction.LengthSquared < 0.0001f) {
+            _missile.visualDirection = (_missile.position - clusterInitPos);
+            if (_missile.visualDirection.LengthSquared < 0.0001f) {
                 // means missile was spawned right at the launcher. pick a direction towards target
-                _missile.direction = (_missile.cluster.target.position - _missile.position).Normalized();
+                _missile.visualDirection = (_missile.cluster.target.position - _missile.position).Normalized();
             } else {
                 // spawned away from launcher. ok to orient away from launcher
-                _missile.direction.Normalize();
+                _missile.visualDirection.Normalize();
             }
-            _missile.velocity = clusterInitVel + _missile.direction * mParams.ejectionVelocity;
+            _missile.velocity = clusterInitVel + _missile.visualDirection * mParams.ejectionVelocity;
 
             var rand = SSpaceMissilesSimulation.rand;
             _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
             _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+
+            missile.jetFlameToSmoke = false; // smoke only
+            missile.visualSmokeSize = 1f;
         }
 
         public void updateExecution(float timeElapsed) 
@@ -44,10 +47,10 @@ namespace SimpleScene.Demos
 
             Quaternion q = Quaternion.FromAxisAngle(_missile.up, dy)
                            * Quaternion.FromAxisAngle(_missile.pitchAxis, dp);
-            _missile.direction = Vector3.Transform(_missile.direction, q);
+            _missile.visualDirection = Vector3.Transform(_missile.visualDirection, q);
 
             var mParams = _missile.cluster.parameters;
-            _missile.velocity += _missile.direction * mParams.ejectionAcc;
+            _missile.velocity += _missile.visualDirection * mParams.ejectionAcc;
         }
     }
 
@@ -64,6 +67,9 @@ namespace SimpleScene.Demos
         public SProportionalNavigationPursuitDriver(SSpaceMissileData missile)
         {
             _missile = missile;
+
+            _missile.jetFlameToSmoke = true;
+            _missile.visualSmokeSize = 0.5f;
         }
 
         public void updateExecution(float timeElapsed)
@@ -123,7 +129,7 @@ namespace SimpleScene.Demos
             // make visual direction "lean into" velocity
             Vector3 axis;
             float angle;
-            OpenTKHelper.neededRotation(_missile.direction, _missile.velocity.Normalized(),
+            OpenTKHelper.neededRotation(_missile.visualDirection, _missile.velocity.Normalized(),
                 out axis, out angle);
             float abs = Math.Abs(angle);
             if (abs > mParams.pursuitVisualRotationRate && abs > 0f) {
@@ -131,8 +137,10 @@ namespace SimpleScene.Demos
             }
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 
-            _missile.direction = Vector3.Transform(_missile.direction, quat);
+            _missile.visualDirection = Vector3.Transform(_missile.visualDirection, quat);
 
+
+            _missile.visualSmokeSize = _missile.velocity.LengthFast / 80f;
             //_missile.direction = _missile.velocity.Normalized();
         }
 

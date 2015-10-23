@@ -6,6 +6,8 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
+using SimpleScene.Util;
+
 namespace SimpleScene.Demos
 {
     public interface ISSpriteUpdater

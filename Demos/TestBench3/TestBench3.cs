@@ -120,6 +120,7 @@ namespace TestBench3
             vandalShipMissileParams.ejectionVelocity = 10f;
 
             vandalShipMissileParams.targetHitHandlers += targetHitHandler;
+            vandalShipMissileParams.minActivationTime = 0.1f;
 
             cameraMissileParams = new SSpaceMissileParameters();
             cameraMissileParams.targetHitHandlers += targetHitHandler;
@@ -127,6 +128,7 @@ namespace TestBench3
             cameraMissileParams.spawnTxfm = cameraMissileSpawnTxfm;
             cameraMissileParams.ejectionMaxRotationVel = 0.05f;
             cameraMissileParams.ejectionVelocity = 10f;
+            cameraMissileParams.minActivationTime = 0.1f;
 
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);

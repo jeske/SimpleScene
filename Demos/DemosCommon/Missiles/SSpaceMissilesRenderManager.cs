@@ -16,7 +16,7 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissilesRenderManager
     {
-        enum ParticleEffectorMasks : ushort { Smoke=0 };
+        enum ParticleEffectorMasks : ushort { Flame=1, Smoke=2 };
 
         protected readonly SSpaceMissilesSimulation _simulation;
         protected readonly SSScene _objScene;
@@ -25,8 +25,9 @@ namespace SimpleScene.Demos
         protected readonly SSParticleSystemData _particlesData;
         protected readonly SSInstancedMeshRenderer _particleRenderer;
 
+        protected SSColorKeyframesEffector _flameColorEffector = null;
         protected SSColorKeyframesEffector _smokeColorEffector = null;
-        protected SSMasterScaleKeyframesEffector _smokeScaleEffector = null;
+        protected SSMasterScaleKeyframesEffector _flameSmokeScaleEffector = null;
 
         readonly List<SSpaceMissileRenderInfo> _missileRuntimes = new List<SSpaceMissileRenderInfo> ();
 
@@ -87,26 +88,46 @@ namespace SimpleScene.Demos
             return cluster;
         }
 
+
+
         protected void _initParamsSpecific(SSpaceMissileParameters mParams)
         {
             // smoke effectors
             if (_particleRenderer.textureMaterial == null) {
                 _particleRenderer.textureMaterial = new SSTextureMaterial (mParams.particlesTexture);
             }
+            if (_flameColorEffector == null) {
+                _flameColorEffector = new SSColorKeyframesEffector ();
+                _flameColorEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
+                _flameColorEffector.effectorMask = (ushort)ParticleEffectorMasks.Flame;
+                _flameColorEffector.particleLifetime = mParams.flameSmokeDuration;
+                //_smokeColorEffector.colorMask = ;
+                _flameColorEffector.keyframes.Clear();
+                var flameColor = mParams.innerFlameColor;
+                flameColor.A = 0.9f;
+                _flameColorEffector.keyframes.Add(0f, flameColor);
+                flameColor = mParams.outerFlameColor;
+                flameColor.A = 0.7f;
+                _flameColorEffector.keyframes.Add(0.1f, flameColor);
+                var smokeColor = mParams.smokeColor;
+                smokeColor.A = 0.2f;
+                _flameColorEffector.keyframes.Add(0.2f, smokeColor);
+                smokeColor.A = 0f;
+                _flameColorEffector.keyframes.Add(1f, smokeColor);
+
+                _particlesData.addEffector(_flameColorEffector);
+            }
             if (_smokeColorEffector == null) {
                 _smokeColorEffector = new SSColorKeyframesEffector ();
                 _smokeColorEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
                 _smokeColorEffector.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
-                _smokeColorEffector.particleLifetime = mParams.smokeDuration;
-                //_smokeColorEffector.colorMask = ;
+                _smokeColorEffector.particleLifetime = mParams.flameSmokeDuration;
                 _smokeColorEffector.keyframes.Clear();
-                var flameColor = mParams.innerFlameColor;
-                flameColor.A = 0.9f;
-                _smokeColorEffector.keyframes.Add(0f, flameColor);
-                flameColor = mParams.outerFlameColor;
-                flameColor.A = 0.7f;
-                _smokeColorEffector.keyframes.Add(0.1f, flameColor);
                 var smokeColor = mParams.smokeColor;
+                smokeColor.A = 1f;
+                _smokeColorEffector.keyframes.Add(0f, smokeColor);
+                smokeColor.A = 0.7f;
+                _smokeColorEffector.keyframes.Add(0.1f, smokeColor);
                 smokeColor.A = 0.2f;
                 _smokeColorEffector.keyframes.Add(0.2f, smokeColor);
                 smokeColor.A = 0f;
@@ -114,17 +135,18 @@ namespace SimpleScene.Demos
 
                 _particlesData.addEffector(_smokeColorEffector);
             }
-            if (_smokeScaleEffector == null) {
-                _smokeScaleEffector = new SSMasterScaleKeyframesEffector ();
-                _smokeScaleEffector.maskMatchFunction = SSParticleEffector.MatchFunction.Equals;
-                _smokeScaleEffector.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
-                _smokeScaleEffector.particleLifetime = mParams.smokeDuration;
-                _smokeScaleEffector.keyframes.Clear();
-                _smokeScaleEffector.keyframes.Add(0f, 0.3f);
-                _smokeScaleEffector.keyframes.Add(0.1f, 1f);
-                _smokeScaleEffector.keyframes.Add(1f, 2f);
+            if (_flameSmokeScaleEffector == null) {
+                _flameSmokeScaleEffector = new SSMasterScaleKeyframesEffector ();
+                _flameSmokeScaleEffector.maskMatchFunction = SSParticleEffector.MatchFunction.And;
+                _flameSmokeScaleEffector.effectorMask = 
+                    (ushort)ParticleEffectorMasks.Smoke | (ushort)ParticleEffectorMasks.Flame;
+                _flameSmokeScaleEffector.particleLifetime = mParams.flameSmokeDuration;
+                _flameSmokeScaleEffector.keyframes.Clear();
+                _flameSmokeScaleEffector.keyframes.Add(0f, 0.3f);
+                _flameSmokeScaleEffector.keyframes.Add(0.1f, 1f);
+                _flameSmokeScaleEffector.keyframes.Add(1f, 2f);
 
-                _particlesData.addEffector(_smokeScaleEffector);
+                _particlesData.addEffector(_flameSmokeScaleEffector);
             }
         }
 
@@ -135,7 +157,7 @@ namespace SimpleScene.Demos
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             #if MISSILE_SHOW
             _objScene.AddObject(missileRuntime.bodyObj);
-            _particlesData.addEmitter(missileRuntime.smokeEmitter);
+            _particlesData.addEmitter(missileRuntime.flameSmokeEmitter);
             #endif
             _missileRuntimes.Add(missileRuntime);
 
@@ -149,7 +171,7 @@ namespace SimpleScene.Demos
         {
             #if MISSILE_SHOW
             missileRuntime.bodyObj.renderState.toBeDeleted = true;
-            _particlesData.removeEmitter(missileRuntime.smokeEmitter);
+            _particlesData.removeEmitter(missileRuntime.flameSmokeEmitter);
             #endif
 
             #if MISSILE_DEBUG
@@ -185,7 +207,7 @@ namespace SimpleScene.Demos
             public readonly MissileDebugRays debugRays;
             public readonly SSObject2DSurface_AGGText debugCountdown;
 
-            public readonly SSRadialEmitter smokeEmitter;
+            public readonly SSRadialEmitter flameSmokeEmitter;
             public readonly SSpaceMissileData missile;
 
             public SSpaceMissileRenderInfo(SSpaceMissileData missile)
@@ -205,23 +227,27 @@ namespace SimpleScene.Demos
                 debugCountdown.MainColor = Color4Helper.RandomDebugColor();
                 #endif
 
-                smokeEmitter = new SSRadialEmitter();
-                smokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
-                smokeEmitter.life = mParams.smokeDuration;
-                smokeEmitter.color = new Color4(1f, 1f, 1f, 1f);
-                smokeEmitter.billboardXY = true;
-                smokeEmitter.particlesPerEmissionMin = mParams.smokeParticlesPerEmissionMin;
-                smokeEmitter.particlesPerEmissionMax = mParams.smokeParticlesPerEmissionMax;
-                smokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
-                smokeEmitter.velocityMagnitudeMin = 11f;
-                smokeEmitter.velocityMagnitudeMax = 20f;
+                flameSmokeEmitter = new SSRadialEmitter();
+                flameSmokeEmitter.effectorMask = (ushort)ParticleEffectorMasks.Smoke;
+                flameSmokeEmitter.life = mParams.flameSmokeDuration;
+                flameSmokeEmitter.color = new Color4(1f, 1f, 1f, 1f);
+                flameSmokeEmitter.billboardXY = true;
+                flameSmokeEmitter.particlesPerEmissionMin = mParams.flameSmokePerEmissionMin;
+                flameSmokeEmitter.particlesPerEmissionMax = mParams.flameSmokePerEmissionMax;
+                flameSmokeEmitter.spriteRectangles = mParams.flameSmokeSpriteRects;
+                flameSmokeEmitter.velocityMagnitudeMin = 11f;
+                flameSmokeEmitter.velocityMagnitudeMax = 20f;
                 //smokeEmitter.phiMin = 0f;
                 //smokeEmitter.phiMax = (float)Math.PI/6f;
-                smokeEmitter.phiMin = (float)Math.PI/3f;
-                smokeEmitter.phiMax = (float)Math.PI/2f;
+                flameSmokeEmitter.phiMin = (float)Math.PI/3f;
+                flameSmokeEmitter.phiMax = (float)Math.PI/2f;
+                flameSmokeEmitter.orientationMin = new Vector3 (0f, 0f, 0f);
+                flameSmokeEmitter.orientationMax = new Vector3 (0f, 0f, 2f * (float)Math.PI);
+                flameSmokeEmitter.angularVelocityMin = new Vector3 (0f, 0f, -0.5f);
+                flameSmokeEmitter.angularVelocityMax = new Vector3 (0f, 0f, +0.5f);
 
-                smokeEmitter.radiusOffsetMin = 0f;
-                smokeEmitter.radiusOffsetMax = 0.1f;  
+                flameSmokeEmitter.radiusOffsetMin = 0f;
+                flameSmokeEmitter.radiusOffsetMax = 0.1f;  
 
                 // positions emitters and mesh
                 preRenderUpdate(0f);
@@ -232,19 +258,20 @@ namespace SimpleScene.Demos
                 var mParams = missile.cluster.parameters;
 
                 bodyObj.Pos = missile.position;
-                bodyObj.Orient(missile.direction, missile.up);
+                bodyObj.Orient(missile.visualDirection, missile.up);
 
-                var emissionRatio = missile.jetStrength / mParams.fullSmokeEmissionAcc;
-                var emissionFreq = 160f;
-                //var emissionFreq = Interpolate.Lerp(
-                //   mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, emissionRatio);
-                
-                smokeEmitter.center = missile.jetPosition();
-                smokeEmitter.up = -missile.direction;
+                float smokeFrequency = Interpolate.Lerp(
+                    mParams.flameSmokeEmissionFrequencyMin, mParams.flameSmokeEmissionFrequencyMax, missile.visualSmokeAmmount);
+                float smokeSize = Interpolate.Lerp(
+                    mParams.flameSmokeSizeMin, mParams.flameSmokeSizeMax, missile.visualSmokeSize);
 
-                smokeEmitter.emissionInterval = 1f / emissionFreq;
-                smokeEmitter.componentScale = new Vector3(emissionRatio);
-                //smokeEmitter.emissionInterval = 1f / 80f;
+                flameSmokeEmitter.velocity = -missile.velocity;
+                flameSmokeEmitter.center = missile.jetPosition();
+                flameSmokeEmitter.up = -missile.visualDirection;
+                flameSmokeEmitter.emissionInterval = 1f / smokeFrequency;
+                flameSmokeEmitter.componentScale = new Vector3(smokeSize);
+                flameSmokeEmitter.effectorMask = (ushort)
+                    (missile.jetFlameToSmoke ? ParticleEffectorMasks.Flame : ParticleEffectorMasks.Smoke);
 
                 #if MISSILE_DEBUG
                 RectangleF clientRect = OpenTKHelper.GetClientRect();

@@ -9,7 +9,7 @@ namespace SimpleScene.Demos
 
         public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
 
-        #region accessors to internally managed
+        #region accessors to the internally managed
         public SSpaceMissileClusterData cluster { get { return _cluster; } }
         public int clusterId { get { return _clusterId; } }
         public State state { get { return _state; } }
@@ -18,28 +18,38 @@ namespace SimpleScene.Demos
 
         #region mutable by drivers
         public Vector3 velocity = Vector3.Zero;
-        public Vector3 direction = Vector3.UnitZ;
-        #endregion
 
-        #region for debugging only
-        public Vector3 _lataxDebug = Vector3.Zero;
-        public Vector3 _hitTimeCorrAccDebug = Vector3.Zero;
+        /// <summary> direction where the missile is visually facing </summary>>
+        public Vector3 visualDirection = Vector3.UnitZ;
+
+        /// <summary> How much of the freshly emitted smoke is jet smoke? [0-1] </summary>
+        public bool jetFlameToSmoke = true;
+
+        /// <summary> How much smoke is there? [0-1] </summary>
+        public float visualSmokeAmmount = 0.5f;
+
+        /// <summary> Size of smoke sprites [0-1] </summary>
+        public float visualSmokeSize = 0.5f;
         #endregion
 
         #region render helpers
         public Vector3 up { 
             get { 
-                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, direction);
+                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, visualDirection);
                 return Vector3.Transform(Vector3.UnitY, quat);
             } 
         }
         public Vector3 pitchAxis { 
             get { 
-                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, direction);
+                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, visualDirection);
                 return Vector3.Transform(Vector3.UnitX, quat);
             } 
         }
-        public float jetStrength { get { return velocity.LengthFast; } }
+        #endregion
+
+        #region for debugging only
+        public Vector3 _lataxDebug = Vector3.Zero;
+        public Vector3 _hitTimeCorrAccDebug = Vector3.Zero;
         #endregion
 
         #region internally managed
@@ -74,7 +84,7 @@ namespace SimpleScene.Demos
         public Vector3 jetPosition()
         {
             var mParams = cluster.parameters;
-            return this.position - this.direction * mParams.missileScale * mParams.jetPosition;
+            return this.position - this.visualDirection * mParams.missileScale * mParams.jetPosition;
         }
 
         public void terminate()

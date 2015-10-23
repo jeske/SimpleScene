@@ -20,11 +20,11 @@ namespace SimpleScene.Demos
         #endregion
 
         #region ejection
-        public float minActivationTime = 1f;
-        public float ejectionVelocity = 5f;
-        public float ejectionAcc = 1f;
+        public float minActivationTime = 0.5f;
+        public float ejectionVelocity = 10f;
+        public float ejectionAcc = 4f;
         //public float ejectionAcc = 0.2f;
-        public float ejectionMaxRotationVel = 0.3f;
+        public float ejectionMaxRotationVel = 5f;
 
         public BodiesFieldGenerator spawnGenerator 
             = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
@@ -40,7 +40,7 @@ namespace SimpleScene.Demos
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
         /// <summary> basic proportional navigation's coefficient (N) </summary>
-        public float pursuitNavigationGain = 3f;
+        public float pursuitNavigationGain = 5f;
         /// <summary> augment proportional navigation with target's lateral acceleration </summary>
         public bool pursuitAugmentedPN = false;
         /// <summary> throttles/accelerates the missile hit at the time specified by the hit time </summary>
@@ -77,12 +77,13 @@ namespace SimpleScene.Demos
         public Color4 innerFlameColor = Color4.LightGoldenrodYellow;
         public Color4 outerFlameColor = Color4.DarkOrange;
         public Color4 smokeColor = Color4.LightGray;
-        public float smokeDuration = 0.5f;
-        //public float smokeEmissionFrequencyMin = 10f;
-        //public float smokeEmissionFrequencyMax = 200f;
-        public int smokeParticlesPerEmissionMin = 1;
-        public int smokeParticlesPerEmissionMax = 1;
-        public float fullSmokeEmissionAcc = 10f;
+        public float flameSmokeDuration = 0.5f;
+        public float flameSmokeEmissionFrequencyMin = 10f;
+        public float flameSmokeEmissionFrequencyMax = 200f;
+        public float flameSmokeSizeMin = 1f;
+        public float flameSmokeSizeMax = 10f;
+        public int flameSmokePerEmissionMin = 1;
+        public int flameSmokePerEmissionMax = 1;
         #endregion
 
         public bool debuggingAid = false;
