@@ -282,7 +282,7 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.effectorMask = (ushort)
                     (ejection ? ParticleEffectorMasks.EjectionSmoke : ParticleEffectorMasks.FlameToSmoke);
                 var vel = missile.velocity.LengthFast;
-                //flameSmokeEmitter.velocity = missile.velocity;
+                flameSmokeEmitter.velocity = missile.velocity;
                 flameSmokeEmitter.velocityMagnitudeMin = ejection ? -vel : (-vel / 4f);
                 flameSmokeEmitter.velocityMagnitudeMax = vel;
                 flameSmokeEmitter.life = ejection ? mParams.ejectionSmokeDuration : mParams.flameSmokeDuration;

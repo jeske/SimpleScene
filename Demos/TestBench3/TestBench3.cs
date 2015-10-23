@@ -24,6 +24,7 @@ namespace TestBench3
         protected SSObjectMesh vandalShip;
         protected SSObjectMesh attackerDrone;
         protected SSObjectMesh targetDrone;
+        protected Vector3 vandalVelocity = Vector3.Zero;
 
         protected SSpaceMissileParameters attackerDroneMissileParams;
         protected SSpaceMissileParameters vandalShipMissileParams;
@@ -118,7 +119,7 @@ namespace TestBench3
             vandalShipMissileParams.spawnGenerator = null;
             vandalShipMissileParams.spawnTxfm = vandalMissileSpawnTxfm;
             vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
-            vandalShipMissileParams.ejectionVelocity = 10f;
+            vandalShipMissileParams.ejectionVelocity = 15f;
 
             vandalShipMissileParams.targetHitHandlers += targetHitHandler;
             vandalShipMissileParams.activationTime = 0.1f;
@@ -148,6 +149,8 @@ namespace TestBench3
                     if (target == null) {
                         camera.FollowTarget = attackerDrone;
                     } else if (target == attackerDrone) {
+                        camera.FollowTarget = vandalShip;
+                    } else if (target == vandalShip) {
                         camera.FollowTarget = targetDrone;
                     } else {
                         camera.FollowTarget = null;
@@ -286,11 +289,12 @@ namespace TestBench3
             var launcher = getLauncherObject();
             var hitTime = getHitTime();
             var mParams = getLauncherParams();
+            var vel = (missileLauncher == MissileLaunchers.VandalShip) ? vandalVelocity : Vector3.Zero;
             mParams.pursuitHitTimeCorrection = (hitTimeMode != HitTimeMode.Disabled);
             if (target != null) {
                 missileManager.launchCluster(
                     launcher.Pos, 
-                    Vector3.Zero,
+                    vel,
                     clusterSize,
                     target,
                     hitTime,
@@ -301,6 +305,8 @@ namespace TestBench3
 
         protected void moveShips(float timeElapsed)
         {
+            if (timeElapsed <= 0f) return;
+
             // make the target drone move from side to side
             localTime += timeElapsed;
             Vector3 pos = targetDrone.Pos;
@@ -336,11 +342,15 @@ namespace TestBench3
             Vector3 desiredMotion = desiredPos - vandalShip.Pos;
             const float vel = 100f;
             float displacement = vel * timeElapsed;
+            Vector3 vandalNewPos;
             if (displacement > desiredMotion.LengthFast) {
-                vandalShip.Pos = desiredPos;
+                vandalNewPos = desiredPos;
             } else {
-                vandalShip.Pos = vandalShip.Pos + desiredMotion.Normalized() * displacement;
+                vandalNewPos = vandalShip.Pos + desiredMotion.Normalized() * displacement;
             }
+
+            vandalVelocity = (vandalNewPos - vandalShip.Pos) / timeElapsed;
+            vandalShip.Pos = vandalNewPos;
 
             Quaternion vandalOrient = OpenTKHelper.neededRotation(Vector3.UnitZ, desiredDir);
             vandalShip.Orient(desiredDir, Vector3.Transform(Vector3.UnitY, vandalOrient));
