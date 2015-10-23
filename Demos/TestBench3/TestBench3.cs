@@ -34,7 +34,8 @@ namespace TestBench3
         protected HitTimeMode hitTimeMode = HitTimeMode.Auto;
 
         protected Dictionary<SSObject, ISSpaceMissileTarget> targets 
-        = new Dictionary<SSObject, ISSpaceMissileTarget> ();
+            = new Dictionary<SSObject, ISSpaceMissileTarget> ();
+        protected int clusterSize = 1;
 
         protected float localTime = 0f;
 
@@ -170,6 +171,14 @@ namespace TestBench3
                 switchHitTime();
                 updateTextDisplay();
                 break;
+            case Key.Minus:
+                clusterSize = Math.Max(1, clusterSize - 1);
+                updateTextDisplay();
+                break;
+            case Key.Plus:
+                clusterSize++;
+                updateTextDisplay();
+                break;
             case Key.V:
                 attackerDroneMissileParams.debuggingAid = !attackerDroneMissileParams.debuggingAid;
                 vandalShipMissileParams.debuggingAid = !vandalShipMissileParams.debuggingAid;
@@ -251,6 +260,9 @@ namespace TestBench3
             // hit time
             text += "\n[H] toggle hit time: [" + hitTimeMode.ToString() + ']';
 
+            // num missiles
+            text += "\n[+/-] cluster size: [" + clusterSize + ']';
+
             // debugging
             text += "\n[V] visual debugigng aid: [";
             text += (attackerDroneMissileParams.debuggingAid ? "ON" : "OFF")  + ']';
@@ -279,7 +291,7 @@ namespace TestBench3
                 missileManager.launchCluster(
                     launcher.Pos, 
                     Vector3.Zero,
-                    1,
+                    clusterSize,
                     target,
                     hitTime,
                     mParams
