@@ -422,7 +422,7 @@ namespace SimpleScene
 
 			p.pos = center + r * xyz;
 			float velocityMag = Interpolate.Lerp (velocityMagnitudeMin, velocityMagnitudeMax, nextFloat ());
-			p.vel = velocityMag * xyz;
+			p.vel += velocityMag * xyz;
 
 			if (orientAwayFromCenter) {
 				p.orientation.Z = -theta;

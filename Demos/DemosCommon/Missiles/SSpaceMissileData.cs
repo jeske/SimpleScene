@@ -22,9 +22,6 @@ namespace SimpleScene.Demos
         /// <summary> direction where the missile is visually facing </summary>>
         public Vector3 visualDirection = Vector3.UnitZ;
 
-        /// <summary> How much of the freshly emitted smoke is jet smoke? [0-1] </summary>
-        public bool jetFlameToSmoke = true;
-
         /// <summary> How much smoke is there? [0-1] </summary>
         public float visualSmokeAmmount = 0.5f;
 

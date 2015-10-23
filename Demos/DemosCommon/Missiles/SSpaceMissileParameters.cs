@@ -77,6 +77,7 @@ namespace SimpleScene.Demos
         public Color4 innerFlameColor = Color4.LightGoldenrodYellow;
         public Color4 outerFlameColor = Color4.DarkOrange;
         public Color4 smokeColor = Color4.LightGray;
+        public float ejectionSmokeDuration = 1f;
         public float flameSmokeDuration = 0.5f;
         public float flameSmokeEmissionFrequencyMin = 10f;
         public float flameSmokeEmissionFrequencyMax = 200f;
