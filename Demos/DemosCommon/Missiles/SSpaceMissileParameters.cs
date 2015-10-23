@@ -20,7 +20,7 @@ namespace SimpleScene.Demos
         #endregion
 
         #region ejection
-        public float minActivationTime = 0.5f;
+        public float activationTime = 0.5f;
         public float ejectionVelocity = 10f;
         public float ejectionAcc = 4f;
         //public float ejectionAcc = 0.2f;
@@ -40,7 +40,7 @@ namespace SimpleScene.Demos
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
         /// <summary> basic proportional navigation's coefficient (N) </summary>
-        public float pursuitNavigationGain = 5f;
+        public float pursuitNavigationGain = 3f;
         /// <summary> augment proportional navigation with target's lateral acceleration </summary>
         public bool pursuitAugmentedPN = false;
         /// <summary> throttles/accelerates the missile hit at the time specified by the hit time </summary>
@@ -63,7 +63,7 @@ namespace SimpleScene.Demos
         /// <summary> Missile mesh must be facing into positive Z axis </summary>
         public SSAbstractMesh missileMesh
             = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
-        public float missileScale = 0.3f;
+        public float missileBodyScale = 0.3f;
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4.2f;
         public SSTexture particlesTexture

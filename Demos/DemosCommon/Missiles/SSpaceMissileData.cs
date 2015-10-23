@@ -81,7 +81,7 @@ namespace SimpleScene.Demos
         public Vector3 jetPosition()
         {
             var mParams = cluster.parameters;
-            return this.position - this.visualDirection * mParams.missileScale * mParams.jetPosition;
+            return this.position - this.visualDirection * mParams.missileBodyScale * mParams.jetPosition;
         }
 
         public void terminate()
@@ -98,7 +98,7 @@ namespace SimpleScene.Demos
             var mParams = _cluster.parameters;
             switch (_state) {
             case State.Ejection:
-                if (cluster.timeSinceLaunch >= mParams.minActivationTime) {
+                if (cluster.timeSinceLaunch >= mParams.activationTime) {
                     _state = State.Pursuit;
                     _driver = mParams.createPursuit(this);
                     if (mParams.debuggingAid) {
