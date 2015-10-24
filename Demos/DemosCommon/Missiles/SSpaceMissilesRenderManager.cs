@@ -246,8 +246,8 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.life = mParams.flameSmokeDuration;
                 flameSmokeEmitter.color = new Color4(1f, 1f, 1f, 1f);
                 flameSmokeEmitter.billboardXY = true;
-                flameSmokeEmitter.particlesPerEmissionMin = mParams.flameSmokePerEmissionMin;
-                flameSmokeEmitter.particlesPerEmissionMax = mParams.flameSmokePerEmissionMax;
+                flameSmokeEmitter.particlesPerEmissionMin = mParams.smokePerEmissionMin;
+                flameSmokeEmitter.particlesPerEmissionMax = mParams.smokePerEmissionMax;
                 flameSmokeEmitter.spriteRectangles = mParams.smokeSpriteRects;
                 //smokeEmitter.phiMin = 0f;
                 //smokeEmitter.phiMax = (float)Math.PI/6f;
@@ -275,8 +275,10 @@ namespace SimpleScene.Demos
                 bool ejection = missile.state == SSpaceMissileData.State.Ejection;
                 float smokeFrequency = Interpolate.Lerp(
                     mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, missile.visualSmokeAmmount);
-                float smokeSize = 
-                    Interpolate.Lerp(mParams.smokeSizeMin, mParams.smokeSizeMax, missile.visualSmokeSize);
+                float sizeMin = ejection ? mParams.ejectionSmokeSizeMin : mParams.flameSmokeSizeMin;
+                float sizeMax = ejection ? mParams.ejectionSmokeSizeMax : mParams.flameSmokeSizeMax;
+                float smokeSize = Interpolate.Lerp(sizeMin, sizeMax, 
+                    (float)SSpaceMissilesSimulation.rand.NextDouble());
 
                 //flameSmokeEmitter.velocity = -missile.velocity;
                 flameSmokeEmitter.center = missile.jetPosition();

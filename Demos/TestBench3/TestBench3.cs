@@ -37,7 +37,7 @@ namespace TestBench3
 
         protected Dictionary<SSObject, ISSpaceMissileTarget> targets 
             = new Dictionary<SSObject, ISSpaceMissileTarget> ();
-        protected int clusterSize = 1;
+        protected int clusterSize = 5;
 
         protected float localTime = 0f;
 
@@ -125,7 +125,7 @@ namespace TestBench3
             vandalShipMissileParams.targetHitHandlers += targetHitHandler;
             vandalShipMissileParams.activationTime = 0.1f;
             vandalShipMissileParams.ejectionSmokeDuration = 0.5f;
-            vandalShipMissileParams.smokeSizeMax = 5f;
+            vandalShipMissileParams.ejectionSmokeSizeMax = 5f;
 
             cameraMissileParams = new SSpaceMissileParameters();
             cameraMissileParams.targetHitHandlers += targetHitHandler;
@@ -140,7 +140,7 @@ namespace TestBench3
             // additional statistics text
             missileStatsText = new SSObjectGDISurface_Text();
             missileStatsText.alphaBlendingEnabled = true;
-            missileStatsText.Label = "stats initializing...";
+            missileStatsText.Label = "stats placeholder...";
             missileStatsText.Pos = new Vector3 (100f, 100f, 0f);
             //missileStatsText.Size = 20f;
             hudScene.AddObject(missileStatsText);

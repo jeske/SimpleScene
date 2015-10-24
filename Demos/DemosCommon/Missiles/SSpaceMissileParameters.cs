@@ -79,19 +79,20 @@ namespace SimpleScene.Demos
         public Color4 smokeColor = Color4.LightGray;
         public float smokeEmissionFrequencyMin = 10f;
         public float smokeEmissionFrequencyMax = 200f;
-        public float smokeSizeMin = 1f;
-        public float smokeSizeMax = 10f;
-            
+        public int smokePerEmissionMin = 1;
+        public int smokePerEmissionMax = 1;
+
+        public float ejectionSmokeSizeMin = 2f;
+        public float ejectionSmokeSizeMax = 15f;           
         public float ejectionSmokeDuration = 1f;
 
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
-        public float jetPosition = 4.2f;
-
         public Color4 innerFlameColor = Color4.LightGoldenrodYellow;
         public Color4 outerFlameColor = Color4.DarkOrange;
+        public float jetPosition = 4.2f;
+        public float flameSmokeSizeMin = 2f;
+        public float flameSmokeSizeMax = 3f;
         public float flameSmokeDuration = 0.5f;
-        public int flameSmokePerEmissionMin = 1;
-        public int flameSmokePerEmissionMax = 1;
         #endregion
 
         public bool debuggingAid = false;

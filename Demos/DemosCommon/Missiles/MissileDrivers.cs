@@ -35,8 +35,8 @@ namespace SimpleScene.Demos
             _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
             _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
 
-            missile.visualSmokeSize = 1f;
-            missile.visualSmokeAmmount = 1f;;
+            _missile.visualSmokeSize = 1f;
+            _missile.visualSmokeAmmount = 1f;
         }
 
         public void updateExecution(float timeElapsed) 
@@ -68,7 +68,9 @@ namespace SimpleScene.Demos
         {
             _missile = missile;
 
-            _missile.visualSmokeSize = 0.5f;
+            _missile.visualSmokeSize = 0.1f;
+            _missile.visualSmokeAmmount = 1f;
+
         }
 
         public void updateExecution(float timeElapsed)
