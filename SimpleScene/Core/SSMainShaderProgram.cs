@@ -70,7 +70,7 @@ namespace SimpleScene
             set { assertActive (); GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
         }
 
-        public Rectangle UniWinScale {
+        public Size UniWinScale {
             set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
         }
 

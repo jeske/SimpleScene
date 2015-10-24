@@ -33,6 +33,7 @@ namespace TestBench3
         protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
         protected MissileTargets missileTarget = MissileTargets.TargetDrone1;
         protected HitTimeMode hitTimeMode = HitTimeMode.Auto;
+        protected SSObjectGDISurface_Text missileStatsText;
 
         protected Dictionary<SSObject, ISSpaceMissileTarget> targets 
             = new Dictionary<SSObject, ISSpaceMissileTarget> ();
@@ -135,6 +136,14 @@ namespace TestBench3
 
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);
+
+            // additional statistics text
+            missileStatsText = new SSObjectGDISurface_Text();
+            missileStatsText.alphaBlendingEnabled = true;
+            missileStatsText.Label = "stats initializing...";
+            missileStatsText.Pos = new Vector3 (100f, 100f, 0f);
+            //missileStatsText.Size = 20f;
+            hudScene.AddObject(missileStatsText);
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)
@@ -235,6 +244,23 @@ namespace TestBench3
             moveShips(timeElapsed);
         }
 
+        protected override void OnRenderFrame (FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            updateMissileStatistics();
+        }
+
+        protected override void OnResize (EventArgs e)
+        {
+            base.OnResize(e);
+
+            var sz = this.ClientSize;
+            missileStatsText.Pos = new Vector3 (
+                10f, sz.Height - 10f - missileStatsText.getGdiSize.Height, 0f
+            );
+        }
+
         protected override void updateTextDisplay ()
         {
             base.updateTextDisplay ();
@@ -272,6 +298,15 @@ namespace TestBench3
             text += (attackerDroneMissileParams.debuggingAid ? "ON" : "OFF")  + ']';
 
             textDisplay.Label += text;
+        }
+
+        public virtual void updateMissileStatistics()
+        {
+            string text 
+                = "#missile renders: " + missileManager.numRenderedMissiles
+                + "\n#particles: " + missileManager.numRenderParticles
+                + "\n#missile clusters: " + missileManager.numMissileClusters;
+            missileStatsText.Label = text;
         }
 
         // going deeper into demo logic...

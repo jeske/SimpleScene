@@ -449,11 +449,17 @@ namespace SimpleScene
             //return Matrix4.Identity;
         }
 
-        public static RectangleF GetClientRect()
+        public static RectangleF GetClientRectF()
+        {
+            Rectangle rect = GetClientRect();
+            return new RectangleF (rect.Left, rect.Top, rect.Width, rect.Height);
+        }
+
+        public static Rectangle GetClientRect()
         {
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
-            return new RectangleF (viewport [0], viewport [1], viewport [2], viewport [3]);
+            return new Rectangle (viewport [0], viewport [1], viewport [2], viewport [3]);
         }
 
 		public static bool areFramebuffersSupported() {

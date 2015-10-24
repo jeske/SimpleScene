@@ -21,6 +21,8 @@ namespace SimpleScene.Demos
         public float targetUpdateInterval = 0.2f;
         #endregion
 
+        public int numClusters { get { return _clusters.Count; } }
+
         public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,

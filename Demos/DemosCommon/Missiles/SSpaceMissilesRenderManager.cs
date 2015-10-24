@@ -34,6 +34,10 @@ namespace SimpleScene.Demos
 
         public SSpaceMissilesSimulation simulation { get { return _simulation; } }
 
+        public int numRenderedMissiles { get { return _missileRuntimes.Count; } }
+        public int numRenderParticles { get { return _particlesData.numElements; } }
+        public int numMissileClusters { get { return _simulation.numClusters; } }
+
         public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, SSScene screenScene,
                                             int particleCapacity = 2000)
         {
