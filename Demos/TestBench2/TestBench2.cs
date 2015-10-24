@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SimpleScene;
+using SimpleScene.Util;
 using SimpleScene.Demos;
 using OpenTK;
 using OpenTK.Input;

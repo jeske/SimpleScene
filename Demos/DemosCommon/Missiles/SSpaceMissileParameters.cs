@@ -20,7 +20,6 @@ namespace SimpleScene.Demos
         #endregion
 
         #region ejection
-        public float activationTime = 0.5f;
         public float ejectionVelocity = 10f;
         public float ejectionAcc = 4f;
         //public float ejectionAcc = 0.2f;
@@ -37,11 +36,13 @@ namespace SimpleScene.Demos
         #endregion
 
         #region pursuit
+        /// <summary> time after launch when we transition from ejection into pursuit phase </summary>
+        public float activationTime = 0.5f;
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
         /// <summary> basic proportional navigation's coefficient (N) </summary>
         public float pursuitNavigationGain = 3f;
-        /// <summary> augment proportional navigation with target's lateral acceleration </summary>
+        /// <summary> augment proportional navigation with target's lateral acceleration. needs more testing </summary>
         public bool pursuitAugmentedPN = false;
         /// <summary> throttles/accelerates the missile hit at the time specified by the hit time </summary>
         public bool pursuitHitTimeCorrection = false;
@@ -67,7 +68,6 @@ namespace SimpleScene.Demos
         #endregion
 
         #region smoke render parameters
-        /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public SSTexture smokeParticlesTexture
             = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
         public RectangleF[] smokeSpriteRects = {
@@ -84,7 +84,9 @@ namespace SimpleScene.Demos
             
         public float ejectionSmokeDuration = 1f;
 
+        /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4.2f;
+
         public Color4 innerFlameColor = Color4.LightGoldenrodYellow;
         public Color4 outerFlameColor = Color4.DarkOrange;
         public float flameSmokeDuration = 0.5f;
