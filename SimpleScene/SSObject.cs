@@ -112,7 +112,7 @@ namespace SimpleScene
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniObjectWorldTransform = this.worldMat;
-                pgm.ReceivesShadow = renderState.receivesShadows;
+                pgm.UniReceivesShadow = renderState.receivesShadows;
                 pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
                 pgm.SetupTextures(textureMaterial);
             }

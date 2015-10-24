@@ -233,6 +233,7 @@ namespace SimpleScene.Demos
                 bodyObj.renderState.castsShadow = false;
                 bodyObj.renderState.receivesShadows = false;
                 //bodyObj.renderState.visible = false;
+                bodyObj.Name = "a missile body";
 
                 #if MISSILE_DEBUG
                 debugRays = new MissileDebugRays(missile);

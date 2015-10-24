@@ -79,7 +79,7 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public bool ReceivesShadow {
+        public bool UniReceivesShadow {
             set { assertActive(); GL.Uniform1(u_receivesShadow, value ? 1 : 0); }
         }
 

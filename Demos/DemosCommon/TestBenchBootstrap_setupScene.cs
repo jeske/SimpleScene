@@ -35,6 +35,7 @@ namespace SimpleScene.Demos
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
                 if (scene.renderConfig.pssmShader != null && scene.renderConfig.instancePssmShader != null) {
+                //if (false) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);
