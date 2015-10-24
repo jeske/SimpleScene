@@ -47,10 +47,12 @@ namespace SimpleScene.Demos
 			scene.AddLight(light);
 
 			#if true
-            shadowmapDebugQuad = new SSObjectHUDQuad (light.ShadowMap.TextureID);
-            shadowmapDebugQuad.Scale = new Vector3(0.3f);
-            shadowmapDebugQuad.Pos = new Vector3(50f, 200, 0f);
-            hudScene.AddObject(shadowmapDebugQuad);
+            if (light.ShadowMap != null) {
+                shadowmapDebugQuad = new SSObjectHUDQuad (light.ShadowMap.TextureID);
+                shadowmapDebugQuad.Scale = new Vector3(0.3f);
+                shadowmapDebugQuad.Pos = new Vector3(50f, 200, 0f);
+                hudScene.AddObject(shadowmapDebugQuad);
+            }
 			#endif
 
             #if true

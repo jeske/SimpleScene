@@ -44,7 +44,9 @@ namespace TestBench3
         public TestBench3 ()
             : base("TestBench3: Missiles")
         {
-            shadowmapDebugQuad.renderState.visible = false;
+            if (shadowmapDebugQuad != null) {
+                shadowmapDebugQuad.renderState.visible = false;
+            }
         }
 
         static void Main()
