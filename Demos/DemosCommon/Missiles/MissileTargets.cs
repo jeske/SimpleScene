@@ -51,6 +51,9 @@ namespace SimpleScene.Demos
 
         public virtual bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation)
         {
+            hitLocation = missile.cluster.target.position;
+            return false;
+
             var mParams = missile.cluster.parameters;
             float simStep = missile.cluster.parameters.simulationStep;
             float nextTickDist = missile.velocity.LengthFast * simStep;
@@ -59,6 +62,7 @@ namespace SimpleScene.Demos
             float distSq = (targetObj.Pos - missile.position).LengthSquared;
 
             if (testDistSq > distSq) {
+
                 Vector3 velNorm = (missile.velocity - this.velocity);
                 velNorm.NormalizeFast();
                 SSRay ray = new SSRay(missile.position, velNorm);

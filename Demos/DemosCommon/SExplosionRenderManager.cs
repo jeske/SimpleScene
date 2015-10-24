@@ -16,7 +16,7 @@ namespace SimpleScene.Demos
 			get { return base.instanceData as SExplosionSystem; }
 		}
 
-		public SExplosionRenderManager(int particleCapacity = 100, SSTexture texture = null)
+		public SExplosionRenderManager(int particleCapacity = 500, SSTexture texture = null)
 			: base(new SExplosionSystem(particleCapacity),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   _defaultUsageHint
@@ -46,6 +46,9 @@ namespace SimpleScene.Demos
 		public void showExplosion(Vector3 position, float intensity)
 		{
 			particleSystem.showExplosion (position, intensity);
+            if (float.IsNaN(position.X)) {
+                System.Console.WriteLine("bad position");
+            }
 		}
 
 		/// <summary>

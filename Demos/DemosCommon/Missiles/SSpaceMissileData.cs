@@ -23,10 +23,10 @@ namespace SimpleScene.Demos
         public Vector3 visualDirection = Vector3.UnitZ;
 
         /// <summary> How much smoke is there? [0-1] </summary>
-        public float visualSmokeAmmount = 0.5f;
+        public float visualSmokeAmmount = 1f;
 
         /// <summary> Size of smoke sprites [0-1] </summary>
-        public float visualSmokeSize = 0.5f;
+        public float visualSmokeSize = 1f;
         #endregion
 
         #region render helpers
@@ -125,6 +125,9 @@ namespace SimpleScene.Demos
                     _driver = null;
                     if (mParams.debuggingAid) {
                         System.Console.WriteLine("missile at target at t = " + cluster.timeSinceLaunch);
+                        if (float.IsNaN(_position.X)) {
+                            System.Console.WriteLine("bad position");
+                        }
                     }
                 }
                 break;
