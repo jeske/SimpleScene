@@ -68,6 +68,7 @@ namespace SimpleScene.Demos
             _particleRenderer.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
             _particleRenderer.ShininessMatColor = 0f;
 
+            _particleRenderer.Name = "missile smoke renderer";
             particleScene.AddObject(_particleRenderer);
         }
 
