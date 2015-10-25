@@ -17,6 +17,7 @@ namespace TestBench3
         protected enum HitTimeMode : int 
             { Auto, Disabled, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
 
+        protected SSScene missileBodiesScene;
         protected SSScene particlesScene;
         protected SExplosionRenderManager explosionManager;
         protected SSpaceMissilesRenderManager missileManager;
@@ -64,6 +65,8 @@ namespace TestBench3
             base.setupScene();
 
             particlesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            missileBodiesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            missileBodiesScene.BeforeRenderObject += base.beforeRenderObjectHandler;
 
             var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
             //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
@@ -137,7 +140,7 @@ namespace TestBench3
             cameraMissileParams.ejectionVelocity = 10f;
 
             // missile manager
-            missileManager = new SSpaceMissilesRenderManager(scene, particlesScene, hudScene);
+            missileManager = new SSpaceMissilesRenderManager(missileBodiesScene, particlesScene, hudScene);
 
             // additional statistics text
             missileStatsText = new SSObjectGDISurface_Text();
@@ -231,7 +234,12 @@ namespace TestBench3
             base.renderScenes(fovy, aspect, nearPlane, farPlane, 
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
-            // laser middle sections and burn particles
+            // missile bodies
+            missileBodiesScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            missileBodiesScene.renderConfig.projectionMatrix = mainSceneProj;
+            missileBodiesScene.Render ();
+
+            // missile smoke particles
             particlesScene.renderConfig.invCameraViewMatrix = mainSceneView;
             particlesScene.renderConfig.projectionMatrix = mainSceneProj;
             particlesScene.Render ();
@@ -242,6 +250,7 @@ namespace TestBench3
             base.OnUpdateFrame(e);
 
             float timeElapsed = (float)e.Time;
+            missileBodiesScene.Update(timeElapsed);
             particlesScene.Update(timeElapsed);
             moveShips(timeElapsed);
         }
@@ -249,6 +258,8 @@ namespace TestBench3
         protected override void OnRenderFrame (FrameEventArgs e)
         {
             base.OnRenderFrame(e);
+
+            missileBodiesScene.Update((float)e.Time);
 
             updateMissileStatistics();
         }

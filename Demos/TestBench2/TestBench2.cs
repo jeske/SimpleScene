@@ -60,7 +60,7 @@ namespace TestBench2
 			base.setupScene ();
 
             laserBeamScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            laserBeamScene3d.BeforeRenderObject += this.beforeRenderObjectHandler;
+            laserBeamScene3d.BeforeRenderObject += base.beforeRenderObjectHandler;
             laserOccDiskScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             laserFlareScene2d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
