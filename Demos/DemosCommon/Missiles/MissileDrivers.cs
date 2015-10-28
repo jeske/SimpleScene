@@ -68,9 +68,8 @@ namespace SimpleScene.Demos
         {
             _missile = missile;
 
-            _missile.visualSmokeSize = 0.1f;
+            _missile.visualSmokeSize = 1f;
             _missile.visualSmokeAmmount = 1f;
-
         }
 
         public void updateExecution(float timeElapsed)
@@ -140,8 +139,6 @@ namespace SimpleScene.Demos
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 
             _missile.visualDirection = Vector3.Transform(_missile.visualDirection, quat);
-            _missile.visualSmokeSize = 1f;
-            _missile.visualSmokeAmmount = 1f;
         }
     }
 }
