@@ -2,7 +2,7 @@
 using System.Drawing; // for RectangleF
 using OpenTK;
 using OpenTK.Graphics;
-
+using SimpleScene.Util;
 
 namespace SimpleScene
 {

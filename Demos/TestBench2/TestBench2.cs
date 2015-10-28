@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SimpleScene;
+using SimpleScene.Util;
 using SimpleScene.Demos;
 using OpenTK;
 using OpenTK.Input;
@@ -41,6 +42,7 @@ namespace TestBench2
 		public TestBench2 ()
 			: base("TestBench2: Lasers")
 		{
+            shadowmapDebugQuad.renderState.visible = false;
 		}
 
 		static void Main()
@@ -58,7 +60,7 @@ namespace TestBench2
 			base.setupScene ();
 
             laserBeamScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            laserBeamScene3d.BeforeRenderObject += this.beforeRenderObjectHandler;
+            laserBeamScene3d.BeforeRenderObject += base.beforeRenderObjectHandler;
             laserOccDiskScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             laserFlareScene2d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
@@ -203,7 +205,7 @@ namespace TestBench2
                     + (target == null ? "none" : target.Name) + ']';
             }
 
-	}
+	    }
 
 		protected override void setupInput ()
 		{

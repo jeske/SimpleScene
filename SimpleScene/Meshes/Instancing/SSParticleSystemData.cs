@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DEBUG_PARTICLE_SORTING
+
+using System;
 using System.Collections.Generic;
 
 using OpenTK;
@@ -137,6 +139,11 @@ namespace SimpleScene
 		public override SSAttributeFloat[] spriteSizesU { get { return _spriteSizesU; } }
 		public override SSAttributeFloat[] spriteSizesV { get { return _spriteSizesV; } }
 
+        #if DEBUG_PARTICLE_SORTING
+        protected int debugNumSorted = 0;
+        protected int debugNumSortSkipped = 0;
+        #endif
+
         public SSParticleSystemData (int capacity)
         {
             _capacity = capacity;
@@ -270,26 +277,55 @@ namespace SimpleScene
         {
             if (_numParticles == 0) return;
 
+            int numAlive = 0;
+            float prevViewDepth = float.NegativeInfinity;
+            bool alreadySorted = true;
             for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
                     Vector3 pos = readData(_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
                     writeDataIfNeeded(ref _viewDepths, i, pos.Z);
+                    ++numAlive;
+                    if (alreadySorted && pos.Z < prevViewDepth) {
+                        alreadySorted = false;
+                    }
                 } else {
                     // since we are doing a sort pass later, might as well make it so
                     // so the dead particles get pushed the back of the arrays
                     writeDataIfNeeded(ref _viewDepths, i, float.PositiveInfinity);
+                    alreadySorted = false; //force a "sort" to puch dead particles towards the end
                 }
             }
 
-            quickSort(0, _activeBlockLength - 1);
+            if (!alreadySorted) {
+                quickSort(0, _activeBlockLength - 1);
 
-            if (_numParticles < _capacity) {
-                // update pointers to reflect dead particles that just got sorted to the back
-                _nextIdxToWrite = _numParticles - 1;
+                // somewhat hacky workaround for zombie particles that seem to be related to sortByDepth()
+                _numParticles = numAlive;
                 _activeBlockLength = _numParticles;
+
+                if (_numParticles == 0) {
+                    _nextIdxToWrite = _nextIdxToOverwrite = 0;
+                } else if (_numParticles < _capacity) {
+                    // update pointers to reflect dead particles that just got sorted to the back
+                    _nextIdxToWrite = _numParticles - 1;
+                }
+                #if DEBUG_PARTICLE_SORTING
+                ++debugNumSorted;
+                #endif
+            } else {
+                #if DEBUG_PARTICLE_SORTING
+                ++debugNumSortSkipped;
+                #endif
             }
+
+            #if DEBUG_PARTICLE_SORTING
+            System.Console.WriteLine(
+                "particle data actually sorted " 
+                + ((float)debugNumSorted / (float)(debugNumSorted + debugNumSortSkipped) * 100f) 
+                + "% of the time");
+            #endif
 
             #if false
             // set color based on the index of the particle in the arrays

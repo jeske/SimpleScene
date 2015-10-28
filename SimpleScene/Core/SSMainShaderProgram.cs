@@ -70,7 +70,7 @@ namespace SimpleScene
             set { assertActive (); GL.Uniform1 (u_showWireframes, value ? 1 : 0); }
         }
 
-        public Rectangle UniWinScale {
+        public Size UniWinScale {
             set { assertActive (); GL.Uniform2 (u_winScale, (float)value.Width, (float)value.Height); }
         }
 
@@ -79,7 +79,7 @@ namespace SimpleScene
             set { assertActive(); GL.UniformMatrix4(u_objectWorldTransform, false, ref value); }
         }
 
-        public bool ReceivesShadow {
+        public bool UniReceivesShadow {
             set { assertActive(); GL.Uniform1(u_receivesShadow, value ? 1 : 0); }
         }
 

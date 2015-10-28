@@ -16,6 +16,7 @@ namespace SimpleScene.Demos
 		protected bool autoWireframeMode = true;
 		protected SSObjectGDISurface_Text fpsDisplay;
 		protected SSObjectGDISurface_Text textDisplay;
+        protected SSObjectHUDQuad shadowmapDebugQuad;
 
 		protected virtual void setupScene() {
 			sunDiskScene = new SSScene ();
@@ -34,6 +35,7 @@ namespace SimpleScene.Demos
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
                 if (scene.renderConfig.pssmShader != null && scene.renderConfig.instancePssmShader != null) {
+                //if (false) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
 					light.ShadowMap = new SSSimpleShadowMap (TextureUnit.Texture7);
@@ -46,10 +48,12 @@ namespace SimpleScene.Demos
 			scene.AddLight(light);
 
 			#if true
-			var smapDebug = new SSObjectHUDQuad (light.ShadowMap.TextureID);
-			smapDebug.Scale = new Vector3(0.3f);
-			smapDebug.Pos = new Vector3(50f, 200, 0f);
-			hudScene.AddObject(smapDebug);
+            if (light.ShadowMap != null) {
+                shadowmapDebugQuad = new SSObjectHUDQuad (light.ShadowMap.TextureID);
+                shadowmapDebugQuad.Scale = new Vector3(0.3f);
+                shadowmapDebugQuad.Pos = new Vector3(50f, 200, 0f);
+                hudScene.AddObject(shadowmapDebugQuad);
+            }
 			#endif
 
             #if true
@@ -78,6 +82,7 @@ namespace SimpleScene.Demos
 		{
 			var camera = new SSCameraThirdPerson (null);
 			camera.followDistance = 50.0f;
+            camera.Name = "camera";
 			scene.ActiveCamera = camera;
 			scene.AddObject (camera);
 		}

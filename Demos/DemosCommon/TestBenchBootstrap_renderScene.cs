@@ -2,6 +2,7 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
+using System.Drawing; // RectangleF
 
 using OpenTK;
 using OpenTK.Graphics;
@@ -154,16 +155,15 @@ namespace SimpleScene.Demos
 			this.mouseButtonDown = false; // hack to fix resize mouse issue..
 
 			// setup the viewport projection
-
-			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
-			System.Console.WriteLine ("Resizing to width = " + ClientRectangle.Width +
-									 " and height = " + ClientRectangle.Height);
+            Size sz = this.ClientSize;
+			System.Console.WriteLine ("Resizing to width = " + sz.Width +
+									 " and height = " + sz.Height);
 
 			// setup WIN_SCALE for our shader...
             mainShader.Activate();
-			mainShader.UniWinScale = ClientRectangle;
+			mainShader.UniWinScale = sz;
             instancingShader.Activate();
-			instancingShader.UniWinScale = ClientRectangle;
+			instancingShader.UniWinScale = sz;
 
 			saveClientWindowLocation ();
 		}

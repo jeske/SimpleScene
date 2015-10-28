@@ -68,7 +68,7 @@ namespace SimpleScene
 			} 
         }
 
-		protected override bool PreciseIntersect (ref SSRay worldSpaceRay, out float distanceAlongWorldRay)
+		public override bool PreciseIntersect (ref SSRay worldSpaceRay, ref float distanceAlongWorldRay)
 		{
             SSRay localRay = worldSpaceRay.Transformed (this.worldMat.Inverted ());
             if (this.Mesh != null) {

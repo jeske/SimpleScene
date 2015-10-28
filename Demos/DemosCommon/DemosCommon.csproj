@@ -34,7 +34,6 @@
     <Compile Include="TestBenchBootstrap_renderScene.cs" />
     <Compile Include="TestBenchBootstrap_setupInput.cs" />
     <Compile Include="TestBenchBootstrap_setupScene.cs" />
-    <Compile Include="SExplosionRenderer.cs" />
     <Compile Include="SStarfieldObject.cs" />
     <Compile Include="Lasers\SLaserManager.cs" />
     <Compile Include="Lasers\SLaser.cs" />
@@ -44,6 +43,13 @@
     <Compile Include="Lasers\SLaserEmissionFlareUpdater.cs" />
     <Compile Include="Lasers\SLaserParameters.cs" />
     <Compile Include="SSunFlareRenderer.cs" />
+    <Compile Include="Missiles\MissileDrivers.cs" />
+    <Compile Include="Missiles\MissileTargets.cs" />
+    <Compile Include="Missiles\SSpaceMissilesRenderManager.cs" />
+    <Compile Include="SExplosionRenderManager.cs" />
+    <Compile Include="Missiles\SSpaceMissilesSimulation.cs" />
+    <Compile Include="Missiles\SSpaceMissileParameters.cs" />
+    <Compile Include="Missiles\SSpaceMissileData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
@@ -127,6 +133,13 @@
     <None Include="Assets\lasers\middleBackground.png" />
     <None Include="Assets\lasers\middleInterference.png" />
     <None Include="Assets\lasers\middleOverlay.png" />
+    <None Include="Assets\missiles\missile.mtl" />
+    <None Include="Assets\missiles\missile.obj" />
+    <None Include="Assets\missiles\missile.txt" />
+    <None Include="Assets\missiles\texture-vandal.jpg" />
+    <None Include="Assets\missiles\vandal_assembled.mtl" />
+    <None Include="Assets\missiles\vandal_assembled.obj" />
+    <None Include="Assets\missiles\vandal_terms_of_use.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">
@@ -137,5 +150,7 @@
   <ItemGroup>
     <Folder Include="Lasers\" />
     <Folder Include="Assets\lasers\" />
+    <Folder Include="Missiles\" />
+    <Folder Include="Assets\missiles\" />
   </ItemGroup>
 </Project>

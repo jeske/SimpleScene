@@ -81,6 +81,33 @@ namespace SimpleScene
 			//return new Vector3 (phi, theta, gamma);
 			return new Vector3 (gamma - (float)Math.PI, theta, phi);
         }
+
+        /// <summary>
+        /// Quaterionon needed to transform direction dir1 into direction dir2
+        /// </summary>
+        public static Quaternion neededRotation(Vector3 dir1, Vector3 dir2)
+        {
+            dir1.Normalize();
+            dir2.Normalize();
+            Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
+            float dot = Vector3.Dot(dir1, dir2);
+            float angle = (float)Math.Acos(dot);
+            return Quaternion.FromAxisAngle(crossNormalized, angle);
+        }
+
+        public static void neededRotation(Vector3 dir1, Vector3 dir2, out Vector3 axis, out float angle)
+        {
+            dir1.Normalize();
+            dir2.Normalize();
+            axis = Vector3.Cross(dir1, dir2).Normalized();
+            float dot = Vector3.Dot(dir1, dir2);
+            if (dot >= 1f) {
+                // do this because Acos function below returns NaN when input is 1
+                angle = 0f;
+            } else {
+                angle = (float)Math.Acos(dot);
+            }
+        }
 			       
         /// <summary>
         /// Distance from a ray to a point at the closest spot. The ray is assumed to be infinite length.
@@ -385,10 +412,10 @@ namespace SimpleScene
                 trans.X, trans.Y, trans.Z, 1f);
         }
 
-        public static Vector2 WorldToScreen(Vector3 worldPos, ref Matrix4 modelViewProjMat, 
+        public static Vector2 WorldToScreen(Vector3 worldPos, ref Matrix4 viewProjMat, 
                                             ref RectangleF clientRect)
         {
-            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), modelViewProjMat);
+            Vector4 pos = Vector4.Transform(new Vector4(worldPos, 1f), viewProjMat);
             pos /= pos.W;
             pos.Y = -pos.Y;
             Vector2 screenSize = new Vector2(clientRect.Width, clientRect.Height);
@@ -422,11 +449,17 @@ namespace SimpleScene
             //return Matrix4.Identity;
         }
 
-        public static RectangleF GetClientRect()
+        public static RectangleF GetClientRectF()
+        {
+            Rectangle rect = GetClientRect();
+            return new RectangleF (rect.Left, rect.Top, rect.Width, rect.Height);
+        }
+
+        public static Rectangle GetClientRect()
         {
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
-            return new RectangleF (viewport [0], viewport [1], viewport [2], viewport [3]);
+            return new Rectangle (viewport [0], viewport [1], viewport [2], viewport [3]);
         }
 
 		public static bool areFramebuffersSupported() {

@@ -9,6 +9,8 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
+using SimpleScene.Util;
+
 namespace SimpleScene
 {
 	public static class SSVertexFormatHelper

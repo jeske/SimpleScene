@@ -32,6 +32,7 @@ namespace SimpleScene
             m_bodyScaleMax = bodyScaleMax;
             m_bodyRadius = bodyRadius;
 			m_safetyDistance = safetyDistance;
+            SetSeed(0);
         }
         public void SetSeed(int seed)
         {
@@ -48,7 +49,7 @@ namespace SimpleScene
             m_partFieldGen.Generate(numParticles, onNewParticle);
 
             // Prepare the garbage
-            m_rand = null;
+            //m_rand = null;
             m_newBodyDel = null;
             m_bodiesSoFar = null;
         }

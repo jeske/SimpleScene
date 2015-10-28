@@ -13,6 +13,8 @@ namespace SimpleScene {
         Size gdiSize;
         Size textureSize;
 
+        public Size getGdiSize { get { return gdiSize; } }
+
         public SSObjectGDISurface() { 
 			textureSurface = new SSTexture();
             this.renderState.lighted = false;

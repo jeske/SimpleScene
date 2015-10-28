@@ -25,7 +25,7 @@ namespace SimpleScene
             base.PrepareForRenderBase(renderConfig, objects);
 
             ComputeProjections(objects, m_light,
-                                renderConfig.invCameraViewMatrix, renderConfig.projectionMatrix);
+                               renderConfig.invCameraViewMatrix, renderConfig.projectionMatrix);
 
             // update info for the regular draw pass later
 			Matrix4[] vp = { m_shadowViewMatrix * m_shadowProjMatrix * c_biasMatrix };
@@ -84,8 +84,8 @@ namespace SimpleScene
 
             foreach (var obj in objects) {
                 // pass through all shadow casters and receivers
-				if (obj.renderState.toBeDeleted || obj.localBoundingSphereRadius <= 0f 
-                 || !obj.renderState.visible || !obj.renderState.receivesShadows) {
+				if (obj.renderState.toBeDeleted || !obj.renderState.visible 
+                    || !obj.renderState.receivesShadows || obj.localBoundingSphereRadius <= 0f) {
                     continue;
 				} else if (cameraFrustum.isSphereInsideFrustum(obj.worldBoundingSphere)) {
                     // determine AABB in light coordinates of the objects so far
@@ -118,8 +118,8 @@ namespace SimpleScene
             // Now extend Z of the result AABB to cover shadow-casters closer to the light inside the
             // original box
             foreach (var obj in objects) {
-				if (obj.renderState.toBeDeleted || obj.localBoundingSphereRadius <= 0f
-                 || !obj.renderState.visible || !obj.renderState.castsShadow) {
+				if (obj.renderState.toBeDeleted || !obj.renderState.visible 
+                    || !obj.renderState.castsShadow || obj.localBoundingSphereRadius <= 0f) {
                     continue;
                 }
 				Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);

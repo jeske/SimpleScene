@@ -112,7 +112,7 @@ namespace SimpleScene
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniObjectWorldTransform = this.worldMat;
-                pgm.ReceivesShadow = renderState.receivesShadows;
+                pgm.UniReceivesShadow = renderState.receivesShadows;
                 pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
                 pgm.SetupTextures(textureMaterial);
             }
@@ -205,15 +205,14 @@ namespace SimpleScene
 			if (localBoundingSphereRadius > 0f) {
 				var objBoundingSphere = worldBoundingSphere;
 				if (objBoundingSphere.IntersectsRay(ref worldSpaceRay, out distanceAlongRay)) {
-                    return PreciseIntersect(ref worldSpaceRay, out distanceAlongRay);
+                    return PreciseIntersect(ref worldSpaceRay, ref distanceAlongRay);
 				}
 			}
             distanceAlongRay = 0f;
 			return false;
 		}
 
-		protected virtual bool PreciseIntersect(ref SSRay worldSpaceRay, out float distanceAlongRay) {
-            distanceAlongRay = 0f;
+		public virtual bool PreciseIntersect(ref SSRay worldSpaceRay, ref float distanceAlongRay) {
 			return true;
 		}
 
@@ -291,6 +290,14 @@ namespace SimpleScene
 			this._right = Vector3.Cross(this._up, this._dir).Normalized();
 			this.calcMatFromState(); 
 		}
+
+        public void Orient(Vector3 dir, Vector3 up)
+        {
+            this._dir = dir;
+            this._up = up;
+            this._right = Vector3.Cross(this._up, this._dir).Normalized();
+            this.calcMatFromState(); 
+        }
 		
 		private float DegreeToRadian(float angleInDegrees) {
 			return (float)Math.PI * angleInDegrees / 180.0f;

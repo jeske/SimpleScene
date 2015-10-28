@@ -1,0 +1,13 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl missileMat
+Ns 94.117647
+Ka 0.000000 0.000000 0.000000
+Kd 0.651734 0.632244 0.632244
+Ks 0.814042 0.814042 0.814042
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Kd Missile_Texture.png

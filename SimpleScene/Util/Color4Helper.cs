@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics;
 
-namespace SimpleScene
+namespace SimpleScene.Util
 {
 	public static class Color4Helper
 	{
@@ -62,6 +62,16 @@ namespace SimpleScene
 				(byte)((rgba & 0xFF000000) >> 24)   // A
 			);
 		}
+
+        public static Color4 lerp(Color4 start, Color4 end, float ammount)
+        {
+            return new Color4(
+                Interpolate.Lerp(start.R, end.R, ammount),
+                Interpolate.Lerp(start.G, end.G, ammount),
+                Interpolate.Lerp(start.B, end.B, ammount),
+                Interpolate.Lerp(start.A, end.A, ammount)
+            );
+        }
 	}
 }
 

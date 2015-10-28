@@ -14,9 +14,10 @@ namespace SimpleScene
 {
     public class SSMesh_wfOBJ : SSAbstractMesh, ISSInstancable {
  
-		protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
-		SSAssetManager.Context ctx;
 		public readonly string srcFilename;
+
+        protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
+        protected readonly float _boundingSphereRadius;
 		
 	    public class SSMeshOBJSubsetData {
 			public SSTextureMaterial TextureMaterial = null;
@@ -43,8 +44,7 @@ namespace SimpleScene
 
 #region Constructor
         public SSMesh_wfOBJ(SSAssetManager.Context ctx, string filename) {
-            this.srcFilename = filename;            
-            this.ctx = ctx;
+            this.srcFilename = ctx.fullResourcePath(filename);
 
 
             Console.WriteLine("SSMesh_wfOBJ: loading wff {0}",filename);
@@ -54,6 +54,15 @@ namespace SimpleScene
 			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
 
             _loadData(ctx, wff_data);
+
+            // update radius
+            float maxRadSq = 0f;
+            foreach (var subset in geometrySubsets) {
+                foreach (var vtx in subset.triangleMesh.lastAssignedVertices) {
+                    maxRadSq = Math.Max (maxRadSq, vtx.Position.LengthSquared);
+                }
+            }
+            _boundingSphereRadius = (float)Math.Sqrt (maxRadSq);
         }
 #endregion
 
@@ -112,14 +121,7 @@ namespace SimpleScene
 
 		public override float boundingSphereRadius {
 			get {
-				float maxRadSq = 0f;
-				Vector3 maxCoponent = new Vector3 (0f);
-				foreach (var subset in geometrySubsets) {
-                    foreach (var vtx in subset.triangleMesh.lastAssignedVertices) {
-						maxRadSq = Math.Max (maxRadSq, vtx.Position.LengthSquared);
-					}
-				}
-				return (float)Math.Sqrt (maxRadSq);
+                return _boundingSphereRadius;
 			}
 		}
 

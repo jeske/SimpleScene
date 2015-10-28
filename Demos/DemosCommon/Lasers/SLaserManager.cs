@@ -53,6 +53,9 @@ namespace SimpleScene.Demos
 
         ~SLaserManager()
         {
+            foreach (var laserRuntime in _laserRuntimes) {
+                removeLaser(laserRuntime.laser);
+            }
             _laserBurnParticles.renderState.toBeDeleted = true;
             _2dEffectRenderer.renderState.toBeDeleted = true;
         }

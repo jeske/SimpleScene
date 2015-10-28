@@ -10,13 +10,13 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-	public class SExplosionRenderer : SSInstancedMeshRenderer
+	public class SExplosionRenderManager : SSInstancedMeshRenderer
 	{
 		public SExplosionSystem particleSystem {
 			get { return base.instanceData as SExplosionSystem; }
 		}
 
-		public SExplosionRenderer(int particleCapacity = 100, SSTexture texture = null)
+		public SExplosionRenderManager(int particleCapacity = 500, SSTexture texture = null)
 			: base(new SExplosionSystem(particleCapacity),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   _defaultUsageHint
@@ -46,6 +46,9 @@ namespace SimpleScene.Demos
 		public void showExplosion(Vector3 position, float intensity)
 		{
 			particleSystem.showExplosion (position, intensity);
+            if (float.IsNaN(position.X)) {
+                System.Console.WriteLine("bad position");
+            }
 		}
 
 		/// <summary>
@@ -294,7 +297,7 @@ namespace SimpleScene.Demos
 			#endregion
 
 			#region timing settings
-			protected float _timeScale = 1f;
+			public float timeScale = 1f;
 			protected float _flameSmokeDuration = 2.5f;
 			protected float _flashDuration = 0.5f;
 			protected float _flyingSparksDuration = 2.5f;
@@ -366,15 +369,19 @@ namespace SimpleScene.Demos
 
 			public override void update(float timeDelta)
 			{
-				timeDelta *= _timeScale;
+				timeDelta *= timeScale;
 				base.update(timeDelta);
 			}
 
 			public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
 			{
                 var modelView = model * view;
-				_radialOrientator.updateModelView (ref modelView);
-				_shockwaveEmitter.updateModelView (ref modelView);
+                if (_radialOrientator != null) {
+                    _radialOrientator.updateModelView(ref modelView);
+                }
+                if (_shockwaveEmitter != null) {
+    				_shockwaveEmitter.updateModelView (ref modelView);
+                }
 			}
 
 			protected void configureFlameSmoke()
