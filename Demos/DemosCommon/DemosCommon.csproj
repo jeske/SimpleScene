@@ -133,6 +133,13 @@
     <None Include="Assets\lasers\middleBackground.png" />
     <None Include="Assets\lasers\middleInterference.png" />
     <None Include="Assets\lasers\middleOverlay.png" />
+    <None Include="Assets\missiles\missile.mtl" />
+    <None Include="Assets\missiles\missile.obj" />
+    <None Include="Assets\missiles\missile.txt" />
+    <None Include="Assets\missiles\texture-vandal.jpg" />
+    <None Include="Assets\missiles\vandal_assembled.mtl" />
+    <None Include="Assets\missiles\vandal_assembled.obj" />
+    <None Include="Assets\missiles\vandal_terms_of_use.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SimpleScene\_SimpleScene.csproj">

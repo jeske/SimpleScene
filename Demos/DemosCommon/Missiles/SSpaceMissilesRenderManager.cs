@@ -39,7 +39,7 @@ namespace SimpleScene.Demos
         public int numMissileClusters { get { return _simulation.numClusters; } }
 
         public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, SSScene screenScene,
-                                            int particleCapacity = 2000)
+                                            int particleCapacity = 10000)
         {
             _simulation = new SSpaceMissilesSimulation ();
 
