@@ -416,10 +416,17 @@ namespace TestBench3
         {
             const float sideDispersal = 2f;
             float angle = (float)Math.PI * 2f / (float)clusterSize * id;
-            Vector3 targetDir = (target.position - launcherPos).Normalized();
+            Vector3 toTarget = (target.position - launcherPos);
+            float length = toTarget.Length;
+            if (length < 0.0001f) {
+                toTarget = -Vector3.UnitZ;
+            } else {
+                // normalize
+                toTarget /= length;
+            }
             return Matrix4.CreateTranslation(sideDispersal * (float)Math.Cos(angle), 
                                              sideDispersal * (float)Math.Sin(angle), 0f)
-                * Matrix4.CreateTranslation(launcherPos) * Matrix4.CreateTranslation(targetDir * 7f);
+                * Matrix4.CreateTranslation(launcherPos) * Matrix4.CreateTranslation(toTarget * 7f);
         }
 
         protected void switchTarget()

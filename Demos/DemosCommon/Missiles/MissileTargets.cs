@@ -51,9 +51,6 @@ namespace SimpleScene.Demos
 
         public virtual bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation)
         {
-            //hitLocation = missile.cluster.target.position;
-            //return false;
-
             var mParams = missile.cluster.parameters;
             float simStep = missile.cluster.parameters.simulationStep;
             float nextTickDist = missile.velocity.LengthFast * simStep;
@@ -90,7 +87,6 @@ namespace SimpleScene.Demos
 
             _velocity = newVel;
             _prevPos = targetObj.Pos;
-            //_velocity = Vector3.Zero;
         }
     }
 }

@@ -22,12 +22,19 @@ namespace SimpleScene.Demos
             var mParams = _missile.cluster.parameters;
 
             _missile.visualDirection = (_missile.position - clusterInitPos);
-            if (_missile.visualDirection.LengthSquared < 0.0001f) {
-                // means missile was spawned right at the launcher. pick a direction towards target
-                _missile.visualDirection = (_missile.cluster.target.position - _missile.position).Normalized();
-            } else {
-                // spawned away from launcher. ok to orient away from launcher
+            if (_missile.visualDirection.LengthSquared > 0.0001f) {
                 _missile.visualDirection.Normalize();
+            } else {
+                // means missile was spawned right at the launcher. pick a direction towards target
+                Vector3 toTarget = _missile.cluster.target.position - _missile.position;
+                float length = toTarget.Length;
+                if (length >= 0.0001f) {
+                    // normalize
+                    _missile.visualDirection = toTarget / length;
+                } else {
+                    // target is also on top of missile. just pick a direction and keep everything NaN free
+                    _missile.visualDirection = Vector3.UnitZ;
+                }
             }
             _missile.velocity = clusterInitVel + _missile.visualDirection * mParams.ejectionVelocity;
 
@@ -74,11 +81,12 @@ namespace SimpleScene.Demos
 
         public void updateExecution(float timeElapsed)
         {
-            // TODO adjust things (thrust?) so that distanceToTarget = closing velocity * timeToHit
+            if (timeElapsed <= 0f) return;
 
             var mParams = _missile.cluster.parameters;
-
             var target = _missile.cluster.target;
+
+            // basic proportional navigation. see wikipedia
             Vector3 Vr = target.velocity - _missile.velocity;
             Vector3 R = target.position - _missile.position;
             Vector3 omega = Vector3.Cross(R, Vr) / R.LengthSquared;
@@ -91,7 +99,6 @@ namespace SimpleScene.Demos
                 Vector3 targetLatAx = target.acceleration - targetAccLos * losDir;
                 latax += mParams.pursuitNavigationGain * targetLatAx / 2f;
             }
-
             _missile._lataxDebug = latax;
 
             // apply latax
