@@ -424,9 +424,11 @@ namespace TestBench3
                 // normalize
                 toTarget /= length;
             }
-            return Matrix4.CreateTranslation(sideDispersal * (float)Math.Cos(angle), 
-                                             sideDispersal * (float)Math.Sin(angle), 0f)
-                * Matrix4.CreateTranslation(launcherPos) * Matrix4.CreateTranslation(toTarget * 7f);
+            Quaternion orientQuat = OpenTKHelper.neededRotation(Vector3.UnitZ, toTarget);
+            Matrix4 orientMat = Matrix4.CreateFromQuaternion(orientQuat);
+            Matrix4 disperalMat = Matrix4.CreateTranslation(sideDispersal * (float)Math.Cos(angle), 
+                                      sideDispersal * (float)Math.Sin(angle), 0f);
+            return disperalMat * orientMat * Matrix4.CreateTranslation(launcherPos) * Matrix4.CreateTranslation(toTarget * 7f);
         }
 
         protected void switchTarget()
