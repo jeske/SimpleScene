@@ -98,7 +98,7 @@ namespace SimpleScene.Demos
             var mParams = _cluster.parameters;
             switch (_state) {
             case State.Ejection:
-                if (cluster.timeSinceLaunch >= mParams.activationTime) {
+                if (cluster.timeSinceLaunch >= mParams.pursuitActivationTime) {
                     _state = State.Pursuit;
                     _driver = mParams.createPursuit(this);
                     if (mParams.debuggingAid) {

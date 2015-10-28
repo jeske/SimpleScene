@@ -38,7 +38,7 @@ namespace TestBench3
 
         protected Dictionary<SSObject, ISSpaceMissileTarget> targets 
             = new Dictionary<SSObject, ISSpaceMissileTarget> ();
-        protected int clusterSize = 5;
+        protected int clusterSize = 1;
 
         protected float localTime = 0f;
 
@@ -123,19 +123,19 @@ namespace TestBench3
             // vandal missile params
             vandalShipMissileParams = new SSpaceMissileParameters();
             vandalShipMissileParams.spawnGenerator = null;
-            vandalShipMissileParams.spawnTxfm = vandalMissileSpawnTxfm;
+            vandalShipMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
             vandalShipMissileParams.ejectionVelocity = 15f;
 
             vandalShipMissileParams.targetHitHandlers += targetHitHandler;
-            vandalShipMissileParams.activationTime = 0.1f;
+            vandalShipMissileParams.pursuitActivationTime = 0.1f;
             vandalShipMissileParams.ejectionSmokeDuration = 0.5f;
             vandalShipMissileParams.ejectionSmokeSizeMax = 5f;
 
             cameraMissileParams = new SSpaceMissileParameters();
             cameraMissileParams.targetHitHandlers += targetHitHandler;
             cameraMissileParams.spawnGenerator = null;
-            cameraMissileParams.spawnTxfm = cameraMissileSpawnTxfm;
+            cameraMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             cameraMissileParams.ejectionMaxRotationVel = 0.05f;
             cameraMissileParams.ejectionVelocity = 10f;
 
@@ -410,18 +410,16 @@ namespace TestBench3
             explosionManager.showExplosion(position, 2.5f);
         }
 
-        protected Matrix4 vandalMissileSpawnTxfm(ISSpaceMissileTarget target, 
-                                                 Vector3 launcherPos, Vector3 launcherVel)
+        protected Matrix4 straightMissileSpawnTxfm(ISSpaceMissileTarget target, 
+                                                   Vector3 launcherPos, Vector3 launcherVel,
+                                                   int id, int clusterSize)
         {
+            const float sideDispersal = 2f;
+            float angle = (float)Math.PI * 2f / (float)clusterSize * id;
             Vector3 targetDir = (target.position - launcherPos).Normalized();
-            return vandalShip.worldMat * Matrix4.CreateTranslation(targetDir * 7f);
-        }
-
-        protected Matrix4 cameraMissileSpawnTxfm(ISSpaceMissileTarget target, Vector3 
-                                                 launcherPos, Vector3 launcherVel)
-        {
-            Vector3 targetDir = (target.position - launcherPos).Normalized();
-            return scene.ActiveCamera.worldMat * Matrix4.CreateTranslation(targetDir * 7f);
+            return Matrix4.CreateTranslation(sideDispersal * (float)Math.Cos(angle), 
+                                             sideDispersal * (float)Math.Sin(angle), 0f)
+                * Matrix4.CreateTranslation(launcherPos) * Matrix4.CreateTranslation(targetDir * 7f);
         }
 
         protected void switchTarget()

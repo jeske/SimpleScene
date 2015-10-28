@@ -9,7 +9,9 @@ namespace SimpleScene.Demos
 
     public class SSpaceMissileParameters
     {
-        public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, Vector3 launcherPos, Vector3 launcherVel);
+        public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, 
+                                                  Vector3 launcherPos, Vector3 launcherVel,
+                                                  int missileId, int clusterSize);
         public delegate ISSpaceMissileDriver 
             EjectionCreationDelegate(SSpaceMissileData missile, Vector3 clusterPos, Vector3 clusterVel);
         public delegate ISSpaceMissileDriver PursuitCreationDelegate(SSpaceMissileData missile);
@@ -19,25 +21,32 @@ namespace SimpleScene.Demos
         public float simulationStep = 0.05f;
         #endregion
 
-        #region ejection
+        #region spawn and ejection
+        /// <summary> default ejection driver: velocity at the moment of ejection</summary>
         public float ejectionVelocity = 10f;
+        /// <summary> default ejection driver: acceleration during ejection</summary>
         public float ejectionAcc = 4f;
-        //public float ejectionAcc = 0.2f;
+        /// <summary> default ejection driver: angular velocity can be initialized to at most this </summary>
         public float ejectionMaxRotationVel = 5f;
 
+        /// <summary> used to plugin field generators. Can be set to null, in which case only spawn transform delegates are used </summary>
         public BodiesFieldGenerator spawnGenerator 
             = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
+        /// <summary> on the presense of generator scales its output distance from the center </summary>
+        public float spawnGeneratorScale = 10f;
+        /// <summary> initial transform applied to every spawned missile. </summary>
         public SpawnTxfmDelegate spawnTxfm 
-            = (target, launcherPos, launcherVel) => { return Matrix4.CreateTranslation(launcherPos); };
-        public float spawnDistanceScale = 10f;
-
+            = (target, launcherPos, launcherVel, id, num) 
+                => { return Matrix4.CreateTranslation(launcherPos); };
+        /// <summary> delegate for creating new ejection phase missile drivers </summary>
         public EjectionCreationDelegate createEjection = (missile, clusterPos, clusterVel) =>
             { return new SSimpleMissileEjectionDriver (missile, clusterPos, clusterVel); };
         #endregion
 
         #region pursuit
         /// <summary> time after launch when we transition from ejection into pursuit phase </summary>
-        public float activationTime = 0.5f;
+        public float pursuitActivationTime = 0.5f;
+        /// <summary> delegate for creating pursuit phase missile drivers </summary>
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
         /// <summary> basic proportional navigation's coefficient (N) </summary>
@@ -46,24 +55,30 @@ namespace SimpleScene.Demos
         public bool pursuitAugmentedPN = false;
         /// <summary> throttles/accelerates the missile hit at the time specified by the hit time </summary>
         public bool pursuitHitTimeCorrection = false;
-        /// <summary> ignored when hit time correction is active. can be set to pos. infinity </summary>
+        /// <summary> maximum velocity of a pursuit. ignored when hit time correction is active. can be set to +infinity </summary>
         public float pursuitMaxVelocity = float.PositiveInfinity;
-        /// <summary> ignored when hit time correction is active </summary>
+        /// <summary> maximum lateral acceleration that can be applied while in pursuit. ignored when hit time correction is active </summary>
         public float pursuitMaxAcc = 10f;
         #endregion
 
-        #region at target
+        #region target hit and termination
+        /// <summary> roughly distance from the mesh or target center where we are sure to be hitting the target</summary>
         public float atTargetDistance = 1f;
+        /// <summary> when true missiles are terminated when at target. otherwise external logic has to clean them up </summary>
         public bool terminateWhenAtTarget = true;
+        /// <summary> invoked a missile hits a target. for example to show explosions </summary>
         public MissileEventDelegate targetHitHandlers = null;
         #endregion
 
         #region body render parameters
         /// <summary> radians rate by which the missile's visual orientation leans into its velocity </summary>
         public float pursuitVisualRotationRate = 0.1f;
-        /// <summary> Missile mesh must be facing into positive Z axis </summary>
-        public SSAbstractMesh missileMesh
+        /// <summary> missile body mesh must be facing into +Z axis </summary>
+        public SSAbstractMesh missileBodyMesh
             = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
+        /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
+        public float jetPosition = 4.2f;
+        /// <summary> scale applied to rendering missile body</summary>
         public float missileBodyScale = 0.3f;
         #endregion
 
@@ -86,15 +101,14 @@ namespace SimpleScene.Demos
         public float ejectionSmokeSizeMax = 15f;           
         public float ejectionSmokeDuration = 1f;
 
-        /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public Color4 innerFlameColor = Color4.LightGoldenrodYellow;
         public Color4 outerFlameColor = Color4.DarkOrange;
-        public float jetPosition = 4.2f;
         public float flameSmokeSizeMin = 2f;
         public float flameSmokeSizeMax = 3f;
         public float flameSmokeDuration = 0.5f;
         #endregion
 
+        /// <summary> show visual and stdout debugging helpers </summary>
         public bool debuggingAid = false;
     }
 }
