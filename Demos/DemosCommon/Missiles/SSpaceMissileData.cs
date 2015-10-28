@@ -5,8 +5,6 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissileData
     {
-        // TODO actual rendering constructs. Where do they go?
-
         public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
 
         #region accessors to the internally managed
@@ -53,13 +51,13 @@ namespace SimpleScene.Demos
         /// <summary> The cluster this missile belongs to </summary>
         protected readonly SSpaceMissileClusterData _cluster; 
 
-        /// <summary> ID within a cluster. Can be referenced by ejection/pursuit behaviors. </summary>
+        /// <summary> id within a cluster. Can be referenced by ejection/pursuit behaviors. </summary>
         protected readonly int _clusterId;
 
-        /// <summary> High level state of what the missile is doing </summary>
+        /// <summary> high level state of what the missile is doing </summary>
         protected State _state = State.Ejection;
 
-        /// <summary> Currently active missile driver </summary>
+        /// <summary> currently active missile driver, controls missile velocity and visual orientation </summary>
         protected ISSpaceMissileDriver _driver = null;
 
         protected Vector3 _position = Vector3.Zero;
@@ -78,6 +76,7 @@ namespace SimpleScene.Demos
             _driver.updateExecution(0f);
         }
 
+        /// <summary> position in world space where the jet starts </summary>
         public Vector3 jetPosition()
         {
             var mParams = cluster.parameters;

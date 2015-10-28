@@ -7,10 +7,17 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissilesSimulation
     {
+        /// <summary> shared randomizer object </summary>
         public static Random rand = new Random();
 
+        /// <summary> delta time multiplier </summary>
         public float timeScale = 1f;
-        //public float timeScale = 0.3f;
+
+        /// <summary> interval at which target velocity/acc/etc can be updated </summary>
+        public float targetUpdateInterval = 0.2f;
+
+        /// <summary> number of missile clusters currently active </value>
+        public int numClusters { get { return _clusters.Count; } }
 
         protected readonly List<SSpaceMissileClusterData> _clusters
             = new List<SSpaceMissileClusterData>();
@@ -18,10 +25,7 @@ namespace SimpleScene.Demos
         #region targets
         protected readonly HashSet<ISSpaceMissileTarget> _targets = new HashSet<ISSpaceMissileTarget>();
         protected float _timeDeltaAccumulator = 0f;
-        public float targetUpdateInterval = 0.2f;
         #endregion
-
-        public int numClusters { get { return _clusters.Count; } }
 
         public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
@@ -68,13 +72,22 @@ namespace SimpleScene.Demos
             _timeDeltaAccumulator = accTime;
 
             // update clusters/missiles
+            bool skipRemove = true;
             foreach (var cluster in _clusters) {
                 cluster.updateSimulation(timeElapsed);
+                if (skipRemove && cluster.isTerminated) {
+                    skipRemove = false;
+                }
             }
-            _clusters.RemoveAll( (cluster) => cluster.isTerminated );
+
+            // remove missile clusters that are fully terminated
+            if (!skipRemove) {
+                _clusters.RemoveAll((cluster) => cluster.isTerminated);
+            }
         }
     }
 
+    /// <summary> Missile cluster contains missiles and their shared data </summary>
     public class SSpaceMissileClusterData
     {
         public SSpaceMissileData[] missiles { get { return _missiles; } }

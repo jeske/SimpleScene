@@ -86,6 +86,7 @@ namespace SimpleScene.Demos
             Vector3 latax = mParams.pursuitNavigationGain * Vector3.Cross(Vr, omega);
 
             if (mParams.pursuitAugmentedPN == true) {
+                // this code is not tested as there are currently no targets with well defined accelerations
                 Vector3 losDir = R.Normalized();
                 float targetAccLos = Vector3.Dot(target.acceleration, losDir);
                 Vector3 targetLatAx = target.acceleration - targetAccLos * losDir;
@@ -139,16 +140,8 @@ namespace SimpleScene.Demos
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 
             _missile.visualDirection = Vector3.Transform(_missile.visualDirection, quat);
-
-
-            _missile.visualSmokeSize = _missile.velocity.LengthFast / 80f;
-            //_missile.direction = _missile.velocity.Normalized();
-        }
-
-        public float estimateTimeNeededToHit(SSpaceMissileData missile)
-        {
-            // TODO
-            return 100f;
+            _missile.visualSmokeSize = 1f;
+            _missile.visualSmokeAmmount = 1f;
         }
     }
 }
