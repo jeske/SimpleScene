@@ -116,9 +116,7 @@ namespace SimpleScene.Demos
                     }
                 } 
                 Vector3 hitPos;
-                float atTargetDist = mParams.atTargetDistance;
-                bool hitTestSucceeded = cluster.target.hitTest(this, out hitPos)
-                    || (cluster.target.position - this.position).LengthSquared <= atTargetDist*atTargetDist;
+                bool hitTestSucceeded = cluster.target.hitTest(this, out hitPos);
                 if (hitTestSucceeded || forceHit) {
                     _position = hitTestSucceeded ? hitPos : _cluster.target.position;
                     velocity = Vector3.Zero;

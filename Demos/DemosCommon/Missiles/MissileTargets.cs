@@ -56,22 +56,26 @@ namespace SimpleScene.Demos
             float nextTickDist = missile.velocity.LengthFast * simStep;
             float testDistSq = (nextTickDist + targetObj.worldBoundingSphereRadius);
             testDistSq *= testDistSq;
-            float distSq = (targetObj.Pos - missile.position).LengthSquared;
+            float toTargetDistSq = (targetObj.Pos - missile.position).LengthSquared;
 
-            if (testDistSq > distSq) {
-
+            if (toTargetDistSq <= mParams.atTargetDistance * mParams.atTargetDistance) {
+                hitLocation = missile.position;
+                return true;
+            } else if (testDistSq > toTargetDistSq) {
                 Vector3 velNorm = (missile.velocity - this.velocity);
                 velNorm.NormalizeFast();
-                SSRay ray = new SSRay(missile.position, velNorm);
+                SSRay ray = new SSRay (missile.position, velNorm);
                 float rayDistance = 0f;
-                if(targetObj.PreciseIntersect(ref ray, ref rayDistance)) {
+                if (targetObj.PreciseIntersect(ref ray, ref rayDistance)) {
                     if (rayDistance - nextTickDist < mParams.atTargetDistance) {
                         hitLocation = missile.position + this.velocity * simStep
                             + velNorm * rayDistance;
                         return true;
                     }
                 }
-            }
+            } 
+
+
             hitLocation = new Vector3(float.PositiveInfinity);
             return false;
         }
