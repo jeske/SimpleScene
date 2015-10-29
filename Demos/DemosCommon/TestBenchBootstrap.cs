@@ -180,9 +180,9 @@ namespace SimpleScene.Demos
 
             float time = (float)e.Time;
 			main3dScene.Update (time);
-            sunDiskScene.Update(time);
-            alpha3dScene.Update(time);
             environmentScene.Update(time);
+            alpha3dScene.Update(time);
+            sunDiskScene.Update(time);
 			hudScene.Update (time);
             sunFlareScene.Update(time);
 

@@ -95,7 +95,6 @@ namespace SimpleScene.Demos
 			camera.followDistance = 50.0f;
             camera.Name = "camera";
 			main3dScene.ActiveCamera = camera;
-			main3dScene.AddObject (camera);
 		}
 
 		protected virtual void setupEnvironment() 

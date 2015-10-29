@@ -15,11 +15,6 @@ namespace TestBench2
 		protected Random rand = new Random();
 
         /// <summary>
-        /// For rendering laser beams
-        /// </summary>
-		protected SSScene laserBeamScene3d;
-
-        /// <summary>
         /// For rendering (transparent) occlusion test disks that are used in the flare intensity mechanic
         /// </summary>
         protected SSScene laserOccDiskScene3d;
@@ -59,8 +54,6 @@ namespace TestBench2
 		{
 			base.setupScene ();
 
-            laserBeamScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            laserBeamScene3d.BeforeRenderObject += base.beforeRenderObjectHandler;
             laserOccDiskScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             laserFlareScene2d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
@@ -90,7 +83,7 @@ namespace TestBench2
 			main3dScene.AddObject (droneObj2);
 
 			// manages laser objects
-            laserManager = new SLaserManager(laserBeamScene3d, laserOccDiskScene3d, laserFlareScene2d);
+            laserManager = new SLaserManager(alpha3dScene, laserOccDiskScene3d, laserFlareScene2d);
 
 			// tweak the laser start point (by adding an offset in object-local coordinates)
 			laserSourceTxfm = Matrix4.CreateTranslation (0f, 1f, 2.75f);
@@ -127,14 +120,12 @@ namespace TestBench2
             activeLaser.Target = newLaser;
 		}
 
-        protected override void renderAlpha3dScenes (float fovy, float aspect, float nearPlane, float farPlane, ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        protected override void renderOcclusion3dScenes (
+            float fovy, float aspect, float nearPlane, float farPlane, 
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
         {
-            base.renderAlpha3dScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
-
-            // laser middle sections and burn particles
-            laserBeamScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
-            laserBeamScene3d.renderConfig.projectionMatrix = mainSceneProj;
-            laserBeamScene3d.Render ();
+            base.renderOcclusion3dScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
             // laser occlusion test disks (not visible)
             laserOccDiskScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
@@ -144,19 +135,15 @@ namespace TestBench2
 
         protected override void renderScreen2dScenes (
             float fovy, float aspect, float nearPlane, float farPlane, 
-            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
         {
+            // render before HUD and sun flare
             laserFlareScene2d.renderConfig.projectionMatrix = screenProj;
             laserFlareScene2d.Render();
 
             base.renderScreen2dScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
         }
-
-		protected override void OnUpdateFrame (FrameEventArgs e)
-		{
-			base.OnUpdateFrame (e);
-			laserBeamScene3d.Update ((float)e.Time);
-		}
 
 		protected void laserKeyDownHandler(object sender, KeyboardKeyEventArgs e)
 		{
@@ -223,9 +210,6 @@ namespace TestBench2
 			camera.followDistance = 80.0f;
 
 			main3dScene.ActiveCamera = camera;
-			main3dScene.AddObject (camera);
-			laserBeamScene3d.ActiveCamera = camera;
-			laserBeamScene3d.AddObject (camera);
 		}
 	}
 }

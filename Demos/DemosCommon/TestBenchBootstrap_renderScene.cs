@@ -78,7 +78,7 @@ namespace SimpleScene.Demos
             GL.Viewport(ClientRectangle.X, ClientRectangle.Y, 
                 ClientRectangle.Width, ClientRectangle.Height);
 
-			render3dScenes (fovy, aspect, nearPlane, farPlane, 
+			renderSolid3dScenes (fovy, aspect, nearPlane, farPlane, 
 			    ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
             renderEnvironment3dScenes(fovy, aspect, nearPlane, farPlane, 
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
@@ -109,7 +109,7 @@ namespace SimpleScene.Demos
 			#endif
 		}
 
-		protected virtual void render3dScenes(
+		protected virtual void renderSolid3dScenes(
 			float fovy, float aspect, float nearPlane, float farPlane,
 			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
 			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)

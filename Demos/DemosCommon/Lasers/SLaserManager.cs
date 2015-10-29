@@ -48,7 +48,7 @@ namespace SimpleScene.Demos
             //_laserBurnParticles.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             _beamScene3d.AddObject(_laserBurnParticles);
 
-            beamScene3d.preRenderHooks += this._update;
+            _beamScene3d.preRenderHooks += this._update;
 		}
 
         ~SLaserManager()
@@ -188,7 +188,8 @@ namespace SimpleScene.Demos
                     _occDiskFlatObj = new SSObjectOcclusionQueuery (new SSMeshDisk ());
                     _occDiskFlatObj.renderState.alphaBlendingOn = true;
                     _occDiskFlatObj.renderState.lighted = false;
-                    _occDiskFlatObj.renderState.depthWrite = false;
+                    _occDiskFlatObj.renderState.depthTest = true;
+                    _occDiskFlatObj.renderState.depthWrite = false; 
                     _occDiskFlatObj.renderState.doBillboarding = false;
                     _occDiskFlatObj.renderState.matchScaleToScreenPixels = true;
                     _occDiskFlatObj.Scale = new Vector3 (_laser.parameters.emissionOccDiskRadiusPx);

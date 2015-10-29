@@ -192,7 +192,6 @@ namespace TestBench1
 			camera.basePos = new Vector3 (0f, 10f, 0f);
 			camera.followDistance = 50.0f;
 			main3dScene.ActiveCamera = camera;
-			main3dScene.AddObject (camera);
 
 			if (tracker0 != null) {
 				tracker0.targetObject = main3dScene.ActiveCamera;

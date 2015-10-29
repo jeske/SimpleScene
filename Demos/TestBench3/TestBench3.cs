@@ -17,8 +17,6 @@ namespace TestBench3
         protected enum HitTimeMode : int 
             { Auto, Disabled, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
 
-        protected SSScene missileBodiesScene;
-        protected SSScene particlesScene;
         protected SExplosionRenderManager explosionManager;
         protected SSpaceMissilesRenderManager missileManager;
 
@@ -63,10 +61,6 @@ namespace TestBench3
         protected override void setupScene ()
         {
             base.setupScene();
-
-            particlesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            missileBodiesScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            missileBodiesScene.BeforeRenderObject += base.beforeRenderObjectHandler;
 
             var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
             //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
@@ -114,7 +108,7 @@ namespace TestBench3
             explosionManager.particleSystem.doDebris = false;
             explosionManager.particleSystem.timeScale = 3f;
             //explosionManager.renderState.visible = false;
-            particlesScene.AddObject(explosionManager);
+            alpha3dScene.AddObject(explosionManager);
 
             // attacker drone missile parameters
             attackerDroneMissileParams = new SSpaceMissileParameters();
@@ -140,7 +134,7 @@ namespace TestBench3
             cameraMissileParams.ejectionVelocity = 10f;
 
             // missile manager
-            missileManager = new SSpaceMissilesRenderManager(missileBodiesScene, particlesScene, hudScene);
+            missileManager = new SSpaceMissilesRenderManager(main3dScene, alpha3dScene, hudScene);
 
             // additional statistics text
             missileStatsText = new SSObjectGDISurface_Text();
@@ -222,27 +216,6 @@ namespace TestBench3
             camera.localBoundingSphereRadius = 0.1f;
 
             main3dScene.ActiveCamera = camera;
-            main3dScene.AddObject (camera);
-        }
-
-        protected override void render3dScenes (
-            float fovy, float aspect, 
-            float nearPlane, float farPlane, 
-            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
-            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
-        {
-            base.render3dScenes(fovy, aspect, nearPlane, farPlane, 
-                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
-
-            // missile bodies
-            missileBodiesScene.renderConfig.invCameraViewMatrix = mainSceneView;
-            missileBodiesScene.renderConfig.projectionMatrix = mainSceneProj;
-            missileBodiesScene.Render ();
-
-            // missile smoke particles
-            particlesScene.renderConfig.invCameraViewMatrix = mainSceneView;
-            particlesScene.renderConfig.projectionMatrix = mainSceneProj;
-            particlesScene.Render ();
         }
 
         protected override void OnUpdateFrame (FrameEventArgs e)
@@ -250,16 +223,12 @@ namespace TestBench3
             base.OnUpdateFrame(e);
 
             float timeElapsed = (float)e.Time;
-            missileBodiesScene.Update(timeElapsed);
-            particlesScene.Update(timeElapsed);
             moveShips(timeElapsed);
         }
 
         protected override void OnRenderFrame (FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-
-            missileBodiesScene.Update((float)e.Time);
 
             updateMissileStatistics();
         }
