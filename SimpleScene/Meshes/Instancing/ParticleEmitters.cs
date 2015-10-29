@@ -405,6 +405,11 @@ namespace SimpleScene
 		public bool orientAwayFromCenter = false;
 		#endregion
 
+        public SSRadialEmitter()
+        {
+            base.velocity = Vector3.Zero;
+        }
+
 		protected override void configureNewParticle (SSParticle p)
 		{
 			base.configureNewParticle (p);

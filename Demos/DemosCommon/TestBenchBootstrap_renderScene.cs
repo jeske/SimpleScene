@@ -84,13 +84,12 @@ namespace SimpleScene.Demos
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
             renderAlpha3dScenes(fovy, aspect, nearPlane, farPlane, 
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+            renderOcclusion3dScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
             renderScreen2dScenes(fovy, aspect, nearPlane, farPlane, 
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
 			SwapBuffers();
-
-            renderOcclusion3dScenes(fovy, aspect, nearPlane, farPlane, 
-                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 		}
 
 		protected virtual void renderShadowmaps(
