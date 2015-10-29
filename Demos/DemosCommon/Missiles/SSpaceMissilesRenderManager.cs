@@ -44,8 +44,10 @@ namespace SimpleScene.Demos
             _simulation = new SSpaceMissilesSimulation ();
 
             _objScene = objScene;
-            objScene.preRenderHooks += _preRenderUpdate;
+            objScene.preRenderHooks += this._preRenderUpdate;
+
             objScene.preUpdateHooks += _simulation.updateSimulation;
+            objScene.preRenderHooks += simulation.updateSimulation;
 
             _screenScene = screenScene;
 

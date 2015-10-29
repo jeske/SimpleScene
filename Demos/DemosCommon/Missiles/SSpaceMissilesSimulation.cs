@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing; // for RectangleF
+using System.Diagnostics; // stopwatch
 using OpenTK;
 
 namespace SimpleScene.Demos
@@ -26,6 +27,8 @@ namespace SimpleScene.Demos
         protected readonly HashSet<ISSpaceMissileTarget> _targets = new HashSet<ISSpaceMissileTarget>();
         protected float _timeDeltaAccumulator = 0f;
         #endregion
+
+        protected Stopwatch _stopwatch = new Stopwatch ();
 
         public SSpaceMissileClusterData launchCluster(
             Vector3 launchPos, Vector3 launchVel, int numMissiles,
@@ -57,8 +60,11 @@ namespace SimpleScene.Demos
             _clusters.Clear();
         }
 
-        public void updateSimulation(float timeElapsed)
+        public void updateSimulation(float unused)
         {
+            float timeElapsed = (float)_stopwatch.ElapsedMilliseconds / 1000f;
+            _stopwatch.Restart();
+
             timeElapsed *= timeScale;
 
             // update targets
