@@ -393,11 +393,11 @@ namespace SimpleScene
 		}
 		#endregion
 
-		#region magnitude of the spawns' velocity
-		public float velocityMagnitudeMin = 1f;
-		public float velocityMagnitudeMax = 1f;
-		public float velocityMagnitude {
-			set { velocityMagnitudeMin = velocityMagnitudeMax = value; }
+		#region velocity 
+		public float velocityFromCenterMagnitudeMin = 1f;
+		public float velocityFromCenterMagnitudeMax = 1f;
+		public float velocityFromCenterMagnitude {
+			set { velocityFromCenterMagnitudeMin = velocityFromCenterMagnitudeMax = value; }
 		}
 		#endregion
 
@@ -407,6 +407,7 @@ namespace SimpleScene
 
         public SSRadialEmitter()
         {
+            // non-radial velocity offset zero by default
             base.velocity = Vector3.Zero;
         }
 
@@ -426,7 +427,7 @@ namespace SimpleScene
             Vector3 xyz = x * xAxis + y * yAxis + z * up;
 
 			p.pos = center + r * xyz;
-			float velocityMag = Interpolate.Lerp (velocityMagnitudeMin, velocityMagnitudeMax, nextFloat ());
+			float velocityMag = Interpolate.Lerp (velocityFromCenterMagnitudeMin, velocityFromCenterMagnitudeMax, nextFloat ());
 			p.vel += velocityMag * xyz;
 
 			if (orientAwayFromCenter) {

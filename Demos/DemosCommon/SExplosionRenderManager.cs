@@ -438,8 +438,8 @@ namespace SimpleScene.Demos
 			{
                 if (!_doFlameSmoke) return;
 				_flameSmokeEmitter.componentScale = new Vector3(intensity*3f, intensity*3f, 1f);
-				_flameSmokeEmitter.velocityMagnitudeMin = 0.60f * intensity;
-				_flameSmokeEmitter.velocityMagnitudeMax = 0.80f * intensity;
+                _flameSmokeEmitter.velocityFromCenterMagnitudeMin = 0.60f * intensity;
+				_flameSmokeEmitter.velocityFromCenterMagnitudeMax = 0.80f * intensity;
 				_flameSmokeEmitter.center = position;
 				_flameSmokeEmitter.totalEmissionsLeft = 5;
 			}
@@ -538,8 +538,8 @@ namespace SimpleScene.Demos
 			{
                 if (!_doFlyingSparks) return;
                 _flyingSparksEmitter.center = position;
-				_flyingSparksEmitter.velocityMagnitudeMin = intensity * 2f;
-				_flyingSparksEmitter.velocityMagnitudeMax = intensity * 3f;
+                _flyingSparksEmitter.velocityFromCenterMagnitudeMin = intensity * 2f;
+				_flyingSparksEmitter.velocityFromCenterMagnitudeMax = intensity * 3f;
 				_flyingSparksEmitter.particlesPerEmission = (int)(5.0*Math.Log(intensity));
 				_flyingSparksEmitter.totalEmissionsLeft = 1;
 			}
@@ -594,8 +594,8 @@ namespace SimpleScene.Demos
                 if (!_doSmokeTrails) return;
 
 				_smokeTrailsEmitter.center = position;
-				_smokeTrailsEmitter.velocityMagnitudeMin = intensity * 0.8f;
-				_smokeTrailsEmitter.velocityMagnitudeMax = intensity * 1f;
+                _smokeTrailsEmitter.velocityFromCenterMagnitudeMin = intensity * 0.8f;
+				_smokeTrailsEmitter.velocityFromCenterMagnitudeMax = intensity * 1f;
 				_smokeTrailsEmitter.particlesPerEmission = (int)(5.0*Math.Log(intensity));
 				_smokeTrailsEmitter.totalEmissionsLeft = 1;
 				_smokeTrailsEmitter.radiusOffset = intensity;
@@ -655,8 +655,8 @@ namespace SimpleScene.Demos
 			{
                 if (!_doRoundSparks) return;
 				_roundSparksEmitter.componentScale = new Vector3(intensity, intensity, 1f);
-				_roundSparksEmitter.velocityMagnitudeMin = 0.7f * intensity;
-				_roundSparksEmitter.velocityMagnitudeMax = 1.2f * intensity;
+                _roundSparksEmitter.velocityFromCenterMagnitudeMin = 0.7f * intensity;
+				_roundSparksEmitter.velocityFromCenterMagnitudeMax = 1.2f * intensity;
 				_roundSparksEmitter.center = position;
 				_roundSparksEmitter.totalEmissionsLeft = 3;
 			}
@@ -705,8 +705,8 @@ namespace SimpleScene.Demos
 				//m_debrisEmitter.MasterScale = intensity / 2f;
 				_debrisEmitter.masterScaleMin = 3f;
 				_debrisEmitter.masterScaleMax = 0.4f*intensity;
-				_debrisEmitter.velocityMagnitudeMin = 1f * intensity;
-				_debrisEmitter.velocityMagnitudeMax = 3f * intensity;
+                _debrisEmitter.velocityFromCenterMagnitudeMin = 1f * intensity;
+				_debrisEmitter.velocityFromCenterMagnitudeMax = 3f * intensity;
 				_debrisEmitter.center = position;
 				_debrisEmitter.particlesPerEmission = (int)(2.5*Math.Log(intensity));
 				_debrisEmitter.totalEmissionsLeft = 1;

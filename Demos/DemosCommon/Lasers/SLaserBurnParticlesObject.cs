@@ -164,15 +164,15 @@ namespace SimpleScene.Demos
                         newFlameSmokeEmitter.componentScaleMax = new Vector3(laserParams.flameSmokeScaleMax);
                         newFlameSmokeEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         newFlameSmokeEmitter.life = laserParams.flameSmokeLifetime;
-                        newFlameSmokeEmitter.velocityMagnitudeMin = laserParams.flameSmokeRadialVelocityMin;
-                        newFlameSmokeEmitter.velocityMagnitudeMax = laserParams.flameSmokeRadialVelocityMax;
+                        newFlameSmokeEmitter.velocityFromCenterMagnitudeMin = laserParams.flameSmokeRadialVelocityMin;
+                        newFlameSmokeEmitter.velocityFromCenterMagnitudeMax = laserParams.flameSmokeRadialVelocityMax;
                         _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                     // hit spot flash
                     {
                         var newFlashEmitter = new SSRadialEmitter();
                         newFlashEmitter.effectorMask = flashEffectorMask;
-                        newFlashEmitter.velocityMagnitude = 0f;
+                        newFlashEmitter.velocityFromCenterMagnitude = 0f;
                         newFlashEmitter.billboardXY = true;
                         newFlashEmitter.spriteRectangles = laserParams.flashSpriteRects;
                         newFlashEmitter.emissionInterval = 1f / laserParams.flashEmitFrequency;

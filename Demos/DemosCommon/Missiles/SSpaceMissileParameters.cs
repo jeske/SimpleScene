@@ -18,7 +18,7 @@ namespace SimpleScene.Demos
         public delegate void MissileEventDelegate (Vector3 position, SSpaceMissileParameters mParams);
 
         #region simulation parameters
-        public float simulationStep = 0.05f;
+        public float simulationStep = 0.025f;
         #endregion
 
         #region spawn and ejection
@@ -45,7 +45,7 @@ namespace SimpleScene.Demos
 
         #region pursuit
         /// <summary> time after launch when we transition from ejection into pursuit phase </summary>
-        public float pursuitActivationTime = 0.5f;
+        public float pursuitActivationTime = 0.25f;
         /// <summary> delegate for creating pursuit phase missile drivers </summary>
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
