@@ -127,7 +127,7 @@ namespace SimpleScene.Demos
                 Vector2 compScale = new Vector2(Math.Max (_sunDiskScreenSize.X, _sunDiskScreenSize.Y) 
                     * Math.Min (1.5f, 1f / (1f - _sunDiskOccIntensity)));
                 Vector2 center = new Vector2 (clientRect.X, clientRect.Y)
-                    + new Vector2 (clientRect.Width, clientRect.Width) / 2f;
+                    + new Vector2 (clientRect.Width, clientRect.Height) / 2f;
                 Vector2 towardsCenter = center - _sunDiskOccPos;
                 var color4 = _sunDiskOccObj.MainColor;
                 color4.A = _sunDiskOccIntensity;
