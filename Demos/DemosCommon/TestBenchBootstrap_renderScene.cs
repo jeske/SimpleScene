@@ -114,6 +114,8 @@ namespace SimpleScene.Demos
             // todo: should move this after the scene render, with a proper depth
             //  test, because it's more efficient when it doesn't have to write every pixel
             {
+                //skyboxCube.Scale = new Vector3 (1000f);
+
                 // setup infinite projection for cubemap
                 environmentScene.renderConfig.projectionMatrix 
                 = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
@@ -124,6 +126,7 @@ namespace SimpleScene.Demos
 			/////////////////////////////////////////
 			// rendering the sun dsk scene....
 			{
+                sunBillboard.Pos = new Vector3 (0f, 0f, farPlane-1f);
 				sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
 				sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
 				sunDiskScene.Render();

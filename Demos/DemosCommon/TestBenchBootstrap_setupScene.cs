@@ -18,11 +18,16 @@ namespace SimpleScene.Demos
 		protected SSObjectGDISurface_Text textDisplay;
         protected SSObjectHUDQuad shadowmapDebugQuad;
 
+        protected SSObject skyboxCube;
+        protected SSObject skyboxStars;
+        protected SSObjectOcclusionQueuery sunBillboard;
+
 		protected virtual void setupScene() {
 			sunDiskScene = new SSScene ();
             sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
 			hudScene = new SSScene ();
 			environmentScene = new SSScene ();
+            environmentScene.BeforeRenderObject += this.beforeRenderObjectHandler;
 
             mainScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 			mainScene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
@@ -60,11 +65,10 @@ namespace SimpleScene.Demos
 			// setup a sun billboard object and a sun flare spriter renderer
 			{
 				var sunDisk = new SSMeshDisk ();
-				var sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
+				sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
 				sunBillboard.renderState.doBillboarding = true;
 				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
-                sunBillboard.Pos = new Vector3 (0f, 0f, farPlane-1f);
-				sunBillboard.Scale = new Vector3 (30f);
+				sunBillboard.Scale = new Vector3 (25f);
                 sunBillboard.renderState.matchScaleToScreenPixels = true;
                 sunBillboard.renderState.depthFunc = DepthFunction.Lequal;
 				sunBillboard.renderState.frustumCulling = false;
@@ -92,17 +96,18 @@ namespace SimpleScene.Demos
 		{
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
-			SSObject skyboxCube = new SSObjectMesh(mesh);
+			skyboxCube = new SSObjectMesh(mesh);
             skyboxCube.renderState.depthTest = true;
-            skyboxCube.renderState.depthWrite = false;
+            skyboxCube.renderState.depthWrite = true;
             skyboxCube.renderState.lighted = false;
 			environmentScene.AddObject(skyboxCube);
 			//skyboxCube.Scale = new Vector3(0.7f);
             skyboxCube.Scale = new Vector3(1000f);
+            skyboxCube.renderState.matchScaleToScreenPixels = true;
 
 			// scene.addObject(skyboxCube);
 
-			SSObject skyboxStars = new SStarfieldObject(1600);
+			skyboxStars = new SStarfieldObject(1600);
 			//environmentScene.AddObject(skyboxStars);
 
 		}
