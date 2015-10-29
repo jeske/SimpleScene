@@ -105,7 +105,11 @@ namespace SimpleScene.Demos
                 _sunDiskOccPos = OpenTKHelper.WorldToScreen(_sunDiskOccObj.Pos, ref camera3dViewProjMat, ref clientRect);
                 Vector2 occRightMostPt = OpenTKHelper.WorldToScreen(occRightMost, ref camera3dViewProjMat, ref clientRect);
                 Vector2 occTopMostPt = OpenTKHelper.WorldToScreen(occTopMost, ref camera3dViewProjMat, ref clientRect);
-                _sunDiskOccSize = 2f * new Vector2 (occRightMostPt.X - _sunDiskOccPos.X, _sunDiskOccPos.Y - occTopMostPt.Y);
+                if (_sunDiskOccObj.renderState.matchScaleToScreenPixels) {
+                    _sunDiskOccSize = new Vector2 (_sunDiskOccObj.Scale.X, _sunDiskOccObj.Scale.Y);
+                } else {
+                    _sunDiskOccSize = 2f * new Vector2 (occRightMostPt.X - _sunDiskOccPos.X, _sunDiskOccPos.Y - occTopMostPt.Y);
+                }
                 float bbFullEstimate = (float)Math.PI * (float)_sunDiskOccSize.X * (float)_sunDiskOccSize.Y / 4f;
                 _sunDiskOccIntensity = Math.Min((float)_sunDiskOccObj.OcclusionQueueryResult / bbFullEstimate, 1f);
             }

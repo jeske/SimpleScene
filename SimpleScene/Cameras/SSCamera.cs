@@ -12,9 +12,12 @@ namespace SimpleScene
 		public SSCamera () : base() {
 		
 		}
-		public override void Update(float fElapsedMS) {
-			this.calcMatFromState ();
-		}
+
+        public virtual void preRenderUpdate(float timeElapsed)
+        {
+            this.calcMatFromState ();
+        }
+
 		private float DegreeToRadian(float angleInDegrees) {
 			return (float)Math.PI * angleInDegrees / 180.0f;
 		}

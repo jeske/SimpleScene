@@ -24,7 +24,9 @@ namespace SimpleScene
 		public SSCameraThirdPerson (Vector3 origin) : base() {
 			this.basePos = origin;
 		}
-		public override void Update(float fElapsedMS) {
+
+        public override void preRenderUpdate (float timeElapsed)
+        {
 			Vector3 targetPos = basePos;
 			// FPS follow the target
 			if (this.FollowTarget != null) {
@@ -42,7 +44,8 @@ namespace SimpleScene
 			this.Pos = targetPos + (this.Dir * followDistance);
 			// Console.WriteLine("Camera Up {0} / Dir {1} / Right {2}",this.Up,this.Dir,this.Right);
 			// Console.WriteLine("Camera Pos = {0}",this.Pos);
-			base.Update(fElapsedMS);
+
+            base.preRenderUpdate(timeElapsed);
 		}
 	}
 }

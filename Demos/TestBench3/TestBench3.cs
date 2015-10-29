@@ -81,7 +81,7 @@ namespace TestBench3
             attackerDrone.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             attackerDrone.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             attackerDrone.Name = "attacker drone";
-            scene.AddObject (attackerDrone);
+            mainScene.AddObject (attackerDrone);
 
             targetDrone = new SSObjectMesh (droneMesh);
             targetDrone.Pos = new OpenTK.Vector3(200f, 0f, 0f);
@@ -92,7 +92,7 @@ namespace TestBench3
             targetDrone.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             targetDrone.Name = "target drone";
             targetDrone.MainColor = new Color4(1f, 0f, 0.7f, 1f);
-            scene.AddObject (targetDrone);
+            mainScene.AddObject (targetDrone);
 
             vandalShip = new SSObjectMesh (vandalMesh);
             vandalShip.Pos = new OpenTK.Vector3(100f, 0f, 0f);
@@ -106,7 +106,7 @@ namespace TestBench3
             //vandalShip.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
             vandalShip.Orient((targetDrone.Pos-vandalShip.Pos).Normalized(), Vector3.UnitY);
-            scene.AddObject (vandalShip);
+            mainScene.AddObject (vandalShip);
 
             // shows explosions
             explosionManager = new SExplosionRenderManager ();
@@ -158,7 +158,7 @@ namespace TestBench3
                 _launchMissiles();
                 break;
             case Key.M:
-                var camera = (scene.ActiveCamera as SSCameraThirdPerson);
+                var camera = (mainScene.ActiveCamera as SSCameraThirdPerson);
                 if (camera != null) {
                     var target = camera.FollowTarget;
                     if (target == null) {
@@ -221,8 +221,8 @@ namespace TestBench3
             camera.followDistance = 225f;
             camera.localBoundingSphereRadius = 0.1f;
 
-            scene.ActiveCamera = camera;
-            scene.AddObject (camera);
+            mainScene.ActiveCamera = camera;
+            mainScene.AddObject (camera);
         }
 
         protected override void renderScenes (
@@ -280,7 +280,7 @@ namespace TestBench3
             var text =  "\n[Q] to fire missiles";
 
             // camera mode
-            var camera = scene.ActiveCamera as SSCameraThirdPerson;
+            var camera = mainScene.ActiveCamera as SSCameraThirdPerson;
             if (camera != null) {
                 var target = camera.FollowTarget;
                 text += "\n[M] toggle camera target: [";
@@ -331,7 +331,7 @@ namespace TestBench3
                 targets.Add(attackerDrone, new SSpaceMissileObjectTarget(attackerDrone));
                 targets.Add(targetDrone, new SSpaceMissileObjectTarget(targetDrone));
                 targets.Add(vandalShip, new SSpaceMissileObjectTarget(vandalShip));
-                targets.Add(scene.ActiveCamera, new SSpaceMissileObjectTarget(scene.ActiveCamera));
+                targets.Add(mainScene.ActiveCamera, new SSpaceMissileObjectTarget(mainScene.ActiveCamera));
             }
 
             var target = targets[getTargetObject()];
@@ -376,9 +376,9 @@ namespace TestBench3
                 desiredPos = new Vector3 (100f, 0f, 0f);
                 desiredDir = -Vector3.UnitX;
             }
-            else if (target == scene.ActiveCamera) {
-                desiredPos = scene.ActiveCamera.Pos + -scene.ActiveCamera.Dir * 300f;
-                Quaternion cameraOrient = OpenTKHelper.neededRotation(Vector3.UnitZ, -scene.ActiveCamera.Up);
+            else if (target == mainScene.ActiveCamera) {
+                desiredPos = mainScene.ActiveCamera.Pos + -mainScene.ActiveCamera.Dir * 300f;
+                Quaternion cameraOrient = OpenTKHelper.neededRotation(Vector3.UnitZ, -mainScene.ActiveCamera.Up);
                 desiredPos += Vector3.Transform(desiredOffset * 0.1f, cameraOrient); 
                 desiredDir = (target.Pos - vandalShip.Pos).Normalized();
 
@@ -457,7 +457,7 @@ namespace TestBench3
             switch (missileLauncher) {
             case MissileLaunchers.AttackerDrone: return attackerDrone;
             case MissileLaunchers.VandalShip: return vandalShip;
-            case MissileLaunchers.Camera: return scene.ActiveCamera;
+            case MissileLaunchers.Camera: return mainScene.ActiveCamera;
             }
             throw new Exception ("unhandled enum");
         }
@@ -478,8 +478,8 @@ namespace TestBench3
             case MissileTargets.TargetDrone1: return targetDrone;
             case MissileTargets.AttackerDrone: return attackerDrone;
             case MissileTargets.VandalShip: return vandalShip;
-            case MissileTargets.Camera: return scene.ActiveCamera;
-            case MissileTargets.Selected: return selectedObject ?? scene.ActiveCamera;
+            case MissileTargets.Camera: return mainScene.ActiveCamera;
+            case MissileTargets.Selected: return selectedObject ?? mainScene.ActiveCamera;
             }
             throw new Exception ("unhandled enum");
         }

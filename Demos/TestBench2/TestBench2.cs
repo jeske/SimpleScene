@@ -76,7 +76,7 @@ namespace TestBench2
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             //droneObj1.renderState.visible = false;
 			droneObj1.Name = "attacker drone";
-			scene.AddObject (droneObj1);
+			mainScene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
@@ -87,7 +87,7 @@ namespace TestBench2
 			droneObj2.Name = "target drone";
             droneObj2.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
-			scene.AddObject (droneObj2);
+			mainScene.AddObject (droneObj2);
 
 			// manages laser objects
             laserManager = new SLaserManager(laserBeamScene3d, laserOccDiskScene3d, laserFlareScene2d);
@@ -177,7 +177,7 @@ namespace TestBench2
                     activeLaser.Target = null;
                 }
             } else if (e.Key == Key.M) {
-                var camera = (scene.ActiveCamera as SSCameraThirdPerson);
+                var camera = (mainScene.ActiveCamera as SSCameraThirdPerson);
                 if (camera != null) {
                     var target = camera.FollowTarget;
                     if (target == null) {
@@ -197,7 +197,7 @@ namespace TestBench2
 			base.updateTextDisplay ();
             textDisplay.Label += "\n\nPress Q to engage a laser";
 
-            var camera = scene.ActiveCamera as SSCameraThirdPerson;
+            var camera = mainScene.ActiveCamera as SSCameraThirdPerson;
             if (camera != null) {
                 var target = camera.FollowTarget;
                 textDisplay.Label += 
@@ -221,8 +221,8 @@ namespace TestBench2
 			camera.Pos = Vector3.Zero;
 			camera.followDistance = 80.0f;
 
-			scene.ActiveCamera = camera;
-			scene.AddObject (camera);
+			mainScene.ActiveCamera = camera;
+			mainScene.AddObject (camera);
 			laserBeamScene3d.ActiveCamera = camera;
 			laserBeamScene3d.AddObject (camera);
 		}

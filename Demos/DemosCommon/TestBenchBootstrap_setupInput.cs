@@ -38,12 +38,12 @@ namespace SimpleScene.Demos
 			Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
 			SSRay ray = OpenTKHelper.MouseToWorldRay(
-                this.scene.renderConfig.projectionMatrix, this.scene.renderConfig.invCameraViewMatrix, clientRect, mouseLoc);
+                this.mainScene.renderConfig.projectionMatrix, this.mainScene.renderConfig.invCameraViewMatrix, clientRect, mouseLoc);
 
 			// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 			// scene.addObject(new SSObjectRay(ray));
 
-			selectedObject = scene.Intersect(ref ray);
+			selectedObject = mainScene.Intersect(ref ray);
 			updateTextDisplay ();
 		}
 
@@ -57,7 +57,7 @@ namespace SimpleScene.Demos
 			if (this.mouseButtonDown) {
 
 				// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-				this.scene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+				this.mainScene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 				// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 			}
 		}
@@ -67,7 +67,7 @@ namespace SimpleScene.Demos
 			if (!base.Focused) return;
 
 			// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
-			SSCameraThirdPerson ctp = scene.ActiveCamera as SSCameraThirdPerson;
+			SSCameraThirdPerson ctp = mainScene.ActiveCamera as SSCameraThirdPerson;
 			if (ctp != null) {
 				ctp.followDistance += -e.DeltaPrecise;
 			} 
@@ -83,8 +83,8 @@ namespace SimpleScene.Demos
 				if (autoWireframeMode == true) {
 					autoWireframeMode = false;
 				} else {
-                    scene.renderConfig.drawWireframeMode = SSRenderConfig.NextWireFrameMode(scene.renderConfig.drawWireframeMode);
-                    if (scene.renderConfig.drawWireframeMode == WireframeMode.None) {
+                    mainScene.renderConfig.drawWireframeMode = SSRenderConfig.NextWireFrameMode(mainScene.renderConfig.drawWireframeMode);
+                    if (mainScene.renderConfig.drawWireframeMode == WireframeMode.None) {
 						autoWireframeMode = true; // rollover completes toggling modes
 					}
 				}

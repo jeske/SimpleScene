@@ -21,7 +21,7 @@ namespace SimpleScene.Demos
 		public SStarfieldObject (int numstars) 
         {
             this.renderState.lighted = false;
-            this.renderState.depthTest = false;
+            this.renderState.depthTest = true;
             this.renderState.depthWrite = false;
 
 		    // generate the stars

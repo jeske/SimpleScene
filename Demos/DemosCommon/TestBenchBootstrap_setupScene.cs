@@ -24,17 +24,17 @@ namespace SimpleScene.Demos
 			hudScene = new SSScene ();
 			environmentScene = new SSScene ();
 
-            scene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-			scene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
-            scene.renderConfig.usePoissonSampling = true;
-			scene.BeforeRenderObject += beforeRenderObjectHandler;
+            mainScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+			mainScene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
+            mainScene.renderConfig.usePoissonSampling = true;
+			mainScene.BeforeRenderObject += this.beforeRenderObjectHandler;
 
 			// 0. Add Lights
 			var light = new SSDirectionalLight (LightName.Light0);
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-                if (scene.renderConfig.pssmShader != null && scene.renderConfig.instancePssmShader != null) {
+                if (mainScene.renderConfig.pssmShader != null && mainScene.renderConfig.instancePssmShader != null) {
                 //if (false) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
@@ -45,7 +45,7 @@ namespace SimpleScene.Demos
 				light.ShadowMap = null;
 			}
 			#endif
-			scene.AddLight(light);
+			mainScene.AddLight(light);
 
 			#if true
             if (light.ShadowMap != null) {
@@ -63,8 +63,9 @@ namespace SimpleScene.Demos
 				var sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
 				sunBillboard.renderState.doBillboarding = true;
 				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
-				sunBillboard.Pos = new Vector3 (0f, 0f, 18000f);
-				sunBillboard.Scale = new Vector3 (600f);
+                sunBillboard.Pos = new Vector3 (0f, 0f, farPlane-1f);
+				sunBillboard.Scale = new Vector3 (30f);
+                sunBillboard.renderState.matchScaleToScreenPixels = true;
                 sunBillboard.renderState.depthFunc = DepthFunction.Lequal;
 				sunBillboard.renderState.frustumCulling = false;
 				sunBillboard.renderState.lighted = false;
@@ -83,8 +84,8 @@ namespace SimpleScene.Demos
 			var camera = new SSCameraThirdPerson (null);
 			camera.followDistance = 50.0f;
             camera.Name = "camera";
-			scene.ActiveCamera = camera;
-			scene.AddObject (camera);
+			mainScene.ActiveCamera = camera;
+			mainScene.AddObject (camera);
 		}
 
 		protected virtual void setupEnvironment() 
@@ -92,16 +93,17 @@ namespace SimpleScene.Demos
 			// add skybox cube
 			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./skybox/","skybox.obj");
 			SSObject skyboxCube = new SSObjectMesh(mesh);
-            skyboxCube.renderState.depthTest = false;
+            skyboxCube.renderState.depthTest = true;
             skyboxCube.renderState.depthWrite = false;
             skyboxCube.renderState.lighted = false;
 			environmentScene.AddObject(skyboxCube);
-			skyboxCube.Scale = new Vector3(0.7f);
+			//skyboxCube.Scale = new Vector3(0.7f);
+            skyboxCube.Scale = new Vector3(1000f);
 
 			// scene.addObject(skyboxCube);
 
 			SSObject skyboxStars = new SStarfieldObject(1600);
-			environmentScene.AddObject(skyboxStars);
+			//environmentScene.AddObject(skyboxStars);
 
 		}
 
@@ -144,7 +146,7 @@ namespace SimpleScene.Demos
                     showWireFrames = false;
 				}
 			} else { // manual
-                showWireFrames = (scene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
+                showWireFrames = (mainScene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
 			}
             mainShader.Activate();
             mainShader.UniShowWireframes = showWireFrames;
