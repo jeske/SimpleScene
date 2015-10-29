@@ -26,8 +26,9 @@ namespace SimpleScene.Demos
 			renderState.receivesShadows = false;
             renderState.doBillboarding = false;
             renderState.alphaBlendingOn = true;
-			renderState.depthTest = true;
-            renderState.depthWrite = false;
+			//renderState.depthTest = true;
+            renderState.depthTest = true;
+            renderState.depthWrite = true;
             renderState.lighted = false;
 			
             simulateOnUpdate = true;

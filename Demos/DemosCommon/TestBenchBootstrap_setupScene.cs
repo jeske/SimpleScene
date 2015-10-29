@@ -23,23 +23,27 @@ namespace SimpleScene.Demos
         protected SSObjectOcclusionQueuery sunBillboard;
 
 		protected virtual void setupScene() {
-			sunDiskScene = new SSScene ();
-            sunFlareScene = new SSScene (mainShader, null, instancingShader, null);
-			hudScene = new SSScene ();
-			environmentScene = new SSScene ();
-            environmentScene.BeforeRenderObject += this.beforeRenderObjectHandler;
+            hudScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            environmentScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            sunFlareScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            sunDiskScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
-            mainScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-			mainScene.renderConfig.frustumCulling = true;  // TODO: fix the frustum math, since it seems to be broken.
-            mainScene.renderConfig.usePoissonSampling = true;
-			mainScene.BeforeRenderObject += this.beforeRenderObjectHandler;
+            main3dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+			main3dScene.renderConfig.frustumCulling = true;
+            main3dScene.renderConfig.usePoissonSampling = true;
+			main3dScene.BeforeRenderObject += this.beforeRenderObjectHandler;
+
+            alpha3dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            alpha3dScene.renderConfig.frustumCulling = true;
+            alpha3dScene.renderConfig.usePoissonSampling = false;
+            alpha3dScene.BeforeRenderObject += this.beforeRenderObjectHandler;
 
 			// 0. Add Lights
 			var light = new SSDirectionalLight (LightName.Light0);
 			light.Direction = new Vector3(0f, 0f, -1f);
 			#if true
 			if (OpenTKHelper.areFramebuffersSupported ()) {
-                if (mainScene.renderConfig.pssmShader != null && mainScene.renderConfig.instancePssmShader != null) {
+                if (main3dScene.renderConfig.pssmShader != null && main3dScene.renderConfig.instancePssmShader != null) {
                 //if (false) {
 					light.ShadowMap = new SSParallelSplitShadowMap (TextureUnit.Texture7);
 				} else {
@@ -50,7 +54,7 @@ namespace SimpleScene.Demos
 				light.ShadowMap = null;
 			}
 			#endif
-			mainScene.AddLight(light);
+			main3dScene.AddLight(light);
 
 			#if true
             if (light.ShadowMap != null) {
@@ -77,6 +81,8 @@ namespace SimpleScene.Demos
 				sunDiskScene.AddObject(sunBillboard);
 
                 var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunBillboard);
+                sunFlare.renderState.depthTest = false;
+                sunFlare.renderState.depthWrite = false;
                 sunFlare.Name = "sun flare renderer";
 				sunFlareScene.AddObject (sunFlare);
 			}
@@ -88,8 +94,8 @@ namespace SimpleScene.Demos
 			var camera = new SSCameraThirdPerson (null);
 			camera.followDistance = 50.0f;
             camera.Name = "camera";
-			mainScene.ActiveCamera = camera;
-			mainScene.AddObject (camera);
+			main3dScene.ActiveCamera = camera;
+			main3dScene.AddObject (camera);
 		}
 
 		protected virtual void setupEnvironment() 
@@ -100,12 +106,11 @@ namespace SimpleScene.Demos
             skyboxCube.renderState.depthTest = true;
             skyboxCube.renderState.depthWrite = true;
             skyboxCube.renderState.lighted = false;
-			environmentScene.AddObject(skyboxCube);
 			//skyboxCube.Scale = new Vector3(0.7f);
-            skyboxCube.Scale = new Vector3(1000f);
-            skyboxCube.renderState.matchScaleToScreenPixels = true;
+            //skyboxCube.Scale = new Vector3(farPlane);
+            //skyboxCube.renderState.matchScaleToScreenPixels = true;
+            environmentScene.AddObject(skyboxCube);
 
-			// scene.addObject(skyboxCube);
 
 			skyboxStars = new SStarfieldObject(1600);
 			//environmentScene.AddObject(skyboxStars);
@@ -151,7 +156,7 @@ namespace SimpleScene.Demos
                     showWireFrames = false;
 				}
 			} else { // manual
-                showWireFrames = (mainScene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
+                showWireFrames = (main3dScene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
 			}
             mainShader.Activate();
             mainShader.UniShowWireframes = showWireFrames;

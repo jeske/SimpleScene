@@ -68,7 +68,8 @@ namespace SimpleScene.Demos
 	/// </summary>
 	public abstract partial class TestBenchBootstrap : OpenTK.GameWindow
 	{
-        protected SSScene mainScene;
+        protected SSScene main3dScene;
+        protected SSScene alpha3dScene;
         protected SSScene sunDiskScene;
         protected SSScene sunFlareScene;
         protected SSScene hudScene;
@@ -178,10 +179,11 @@ namespace SimpleScene.Demos
 			base.OnUpdateFrame(e);
 
             float time = (float)e.Time;
-			environmentScene.Update(time);
-			mainScene.Update (time);
-			hudScene.Update (time);
+			main3dScene.Update (time);
             sunDiskScene.Update(time);
+            alpha3dScene.Update(time);
+            environmentScene.Update(time);
+			hudScene.Update (time);
             sunFlareScene.Update(time);
 
 			driveCamera ((float)e.Time);
@@ -192,7 +194,7 @@ namespace SimpleScene.Demos
             // TODO this doesn't work well after turning upside down
 			if (!base.Focused) return; // no window focus = no action
 
-			SSCameraThirdPerson ctp = mainScene.ActiveCamera as SSCameraThirdPerson;
+			SSCameraThirdPerson ctp = main3dScene.ActiveCamera as SSCameraThirdPerson;
 			if (ctp == null) return;
 
 			KeyboardState state = OpenTK.Input.Keyboard.GetState ();

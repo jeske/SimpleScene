@@ -33,8 +33,8 @@ namespace SimpleScene.Demos
 			// NOTE: this is a workaround for the fact that the ThirdPersonCamera is not parented to the target...
 			//   before we can remove this, we need to parent it properly, currently it's transform only follows
 			//   the target during Update() and input event processing.
-            if (mainScene.ActiveCamera != null) {
-                mainScene.ActiveCamera.preRenderUpdate((float)e.Time);
+            if (main3dScene.ActiveCamera != null) {
+                main3dScene.ActiveCamera.preRenderUpdate((float)e.Time);
             }
 			
 			fpsCalc.newFrame (e.Time);
@@ -56,7 +56,7 @@ namespace SimpleScene.Demos
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
 
 			// setup the inverse matrix of the active camera...
-			Matrix4 mainSceneView = mainScene.ActiveCamera.worldMat.Inverted();
+			Matrix4 mainSceneView = main3dScene.ActiveCamera.worldMat.Inverted();
 			// setup the view projection. technically only need to do this on window resize..
 			Matrix4 mainSceneProj = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, nearPlane, farPlane);
 			// create a matrix of just the camera rotation only (it needs to stay at the origin)
@@ -72,11 +72,23 @@ namespace SimpleScene.Demos
             GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			renderShadowmaps (fovy, aspect, nearPlane, farPlane, 
-					          ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
-			renderScenes (fovy, aspect, nearPlane, farPlane, 
-						  ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+		        ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
-			// setup the view-bounds.
+            // setup the view-bounds.
+            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, 
+                ClientRectangle.Width, ClientRectangle.Height);
+
+			render3dScenes (fovy, aspect, nearPlane, farPlane, 
+			    ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+            renderEnvironment3dScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+            renderAlpha3dScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+            renderOcclusion3dScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+            renderScreen2dScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+
 			SwapBuffers();
 		}
 
@@ -87,67 +99,80 @@ namespace SimpleScene.Demos
 			)
 		{
 			#if true
-			mainScene.renderConfig.projectionMatrix = mainSceneProj;
-			mainScene.renderConfig.invCameraViewMatrix = mainSceneView;
-			mainScene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
+			main3dScene.renderConfig.projectionMatrix = mainSceneProj;
+			main3dScene.renderConfig.invCameraViewMatrix = mainSceneView;
+			main3dScene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
+
+            alpha3dScene.renderConfig.projectionMatrix = mainSceneProj;
+            alpha3dScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            alpha3dScene.RenderShadowMap(fovy, aspect, nearPlane, farPlane);
 			#endif
 		}
 
-		protected virtual void renderScenes(
+		protected virtual void render3dScenes(
 			float fovy, float aspect, float nearPlane, float farPlane,
 			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
 			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
 		{
-			GL.Viewport(ClientRectangle.X, ClientRectangle.Y, 
-					    ClientRectangle.Width, ClientRectangle.Height);
-
 			/////////////////////////////////////////
 			// rendering the "main" 3d scene....
 			{
-				mainScene.renderConfig.invCameraViewMatrix = mainSceneView;
-				mainScene.renderConfig.projectionMatrix = mainSceneProj;
-				mainScene.Render ();
-			}
-            /////////////////////////////////////////
-            // render the "environment" scene
-            // 
-            // todo: should move this after the scene render, with a proper depth
-            //  test, because it's more efficient when it doesn't have to write every pixel
-            {
-                //skyboxCube.Scale = new Vector3 (1000f);
-
-                // setup infinite projection for cubemap
-                environmentScene.renderConfig.projectionMatrix 
-                = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, 0.1f, 2.0f);
-                environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
-                environmentScene.Render ();
-            }
-
-			/////////////////////////////////////////
-			// rendering the sun dsk scene....
-			{
-                sunBillboard.Pos = new Vector3 (0f, 0f, farPlane-1f);
-				sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
-				sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
-				sunDiskScene.Render();
-			}
-
-			////////////////////////////////////////
-			//  render the sun flare scene
-			{
-				// Note that a default identity view matrix is used and doesn't need to be changed	
-				sunFlareScene.renderConfig.projectionMatrix = screenProj;
-				sunFlareScene.Render ();
-			}
-
-			////////////////////////////////////////
-			//  render the HUD scene
-			{
-				// Note that a default identity view matrix is used and doesn't need to be changed
-				hudScene.renderConfig.projectionMatrix = screenProj;
-				hudScene.Render ();
+				main3dScene.renderConfig.invCameraViewMatrix = mainSceneView;
+				main3dScene.renderConfig.projectionMatrix = mainSceneProj;
+				main3dScene.Render ();
 			}
 		}
+
+        /////////////////////////////////////////
+        // render the "environment" scene
+        // 
+        // keep this move this after the scene render, with a proper depth
+        // test, because it's more efficient when it doesn't have to write every pixel
+        protected virtual void renderEnvironment3dScenes(
+            float fovy, float aspect, float nearPlane, float farPlane,
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
+            skyboxCube.Scale = new Vector3 (farPlane/2f);
+            environmentScene.renderConfig.projectionMatrix = mainSceneProj;
+            environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
+            environmentScene.Render ();
+        }
+
+        protected virtual void renderAlpha3dScenes (
+            float fovy, float aspect, float nearPlane, float farPlane,
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
+            alpha3dScene.renderConfig.projectionMatrix = mainSceneProj;
+            alpha3dScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            alpha3dScene.Render ();
+        }
+
+        protected virtual void renderOcclusion3dScenes (
+            float fovy, float aspect, float nearPlane, float farPlane,
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
+            sunBillboard.Pos = new Vector3 (0f, 0f, farPlane / 2f - 100f);
+            sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
+            sunDiskScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            sunDiskScene.Render ();
+        }
+
+        protected virtual void renderScreen2dScenes(
+            float fovy, float aspect, float nearPlane, float farPlane,
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
+            ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
+            // Note that a default identity view matrices are used and doesn't need to be changed
+
+            sunFlareScene.renderConfig.projectionMatrix = screenProj;
+            sunFlareScene.Render ();
+
+            hudScene.renderConfig.projectionMatrix = screenProj;
+            hudScene.Render ();
+        }
 
 		/// <summary>
 		/// Called when your window is resized. Set your viewport here. It is also
@@ -183,7 +208,7 @@ namespace SimpleScene.Demos
 				techinqueInfo = (selectedObject == null ? WireframeMode.None : WireframeMode.GLSL_SinglePass);
 			} else {
 				selectionInfo = "all";
-				techinqueInfo = mainScene.renderConfig.drawWireframeMode;
+				techinqueInfo = main3dScene.renderConfig.drawWireframeMode;
 			}
 			textDisplay.Label = String.Format (
 				"press '1' to toggle wireframe mode: [{0}:{1}]",

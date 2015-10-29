@@ -76,7 +76,7 @@ namespace TestBench2
 			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
             //droneObj1.renderState.visible = false;
 			droneObj1.Name = "attacker drone";
-			mainScene.AddObject (droneObj1);
+			main3dScene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
@@ -87,7 +87,7 @@ namespace TestBench2
 			droneObj2.Name = "target drone";
             droneObj2.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
-			mainScene.AddObject (droneObj2);
+			main3dScene.AddObject (droneObj2);
 
 			// manages laser objects
             laserManager = new SLaserManager(laserBeamScene3d, laserOccDiskScene3d, laserFlareScene2d);
@@ -127,12 +127,12 @@ namespace TestBench2
             activeLaser.Target = newLaser;
 		}
 
-		protected override void renderScenes (
+		protected override void render3dScenes (
 			float fovy, float aspect, float nearPlane, float farPlane, 
 			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
 			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
 		{
-			base.renderScenes (
+			base.render3dScenes (
 				fovy, aspect, nearPlane, farPlane, 
 				ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
@@ -177,7 +177,7 @@ namespace TestBench2
                     activeLaser.Target = null;
                 }
             } else if (e.Key == Key.M) {
-                var camera = (mainScene.ActiveCamera as SSCameraThirdPerson);
+                var camera = (main3dScene.ActiveCamera as SSCameraThirdPerson);
                 if (camera != null) {
                     var target = camera.FollowTarget;
                     if (target == null) {
@@ -197,7 +197,7 @@ namespace TestBench2
 			base.updateTextDisplay ();
             textDisplay.Label += "\n\nPress Q to engage a laser";
 
-            var camera = mainScene.ActiveCamera as SSCameraThirdPerson;
+            var camera = main3dScene.ActiveCamera as SSCameraThirdPerson;
             if (camera != null) {
                 var target = camera.FollowTarget;
                 textDisplay.Label += 
@@ -221,8 +221,8 @@ namespace TestBench2
 			camera.Pos = Vector3.Zero;
 			camera.followDistance = 80.0f;
 
-			mainScene.ActiveCamera = camera;
-			mainScene.AddObject (camera);
+			main3dScene.ActiveCamera = camera;
+			main3dScene.AddObject (camera);
 			laserBeamScene3d.ActiveCamera = camera;
 			laserBeamScene3d.AddObject (camera);
 		}

@@ -161,9 +161,9 @@ namespace SimpleScene
 			}
         }
 
-        public SSObject Intersect(ref SSRay worldSpaceRay) {
+        public SSObject Intersect(ref SSRay worldSpaceRay, out float nearestDistance) {
             SSObject nearestIntersection = null;
-            float nearestDistance = float.MaxValue;
+            nearestDistance = float.PositiveInfinity;
             // distances get "smaller" as they move in camera direction for some reason (why?)
             foreach (var obj in objects) {
                 float distanceAlongRay;
@@ -179,7 +179,6 @@ namespace SimpleScene
                     }
                 }
             }
-
             return nearestIntersection;
         }
 

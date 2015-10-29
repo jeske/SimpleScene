@@ -38,7 +38,7 @@ namespace TestBench1
 				tileObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, (float)Math.PI/2f));
 				tileObj.Scale = new Vector3(tileSz * gridSz);
 				//tileObj.boundingSphere = new SSObjectSphere(0f);
-				mainScene.AddObject(tileObj);
+				main3dScene.AddObject(tileObj);
 			}
 			#endif
 
@@ -64,7 +64,7 @@ namespace TestBench1
 				obj0.Name = "grey bones (bind pose)";
 				obj0.Pos = new Vector3(-18f, 0f, -18f);
 				obj0.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				mainScene.AddObject(obj0);
+				main3dScene.AddObject(obj0);
 
 				tracker0 = new SSSimpleObjectTrackingJoint(obj0);
 				tracker0.jointPositionLocal = animIdle.computeJointFrame(11, 0).position;
@@ -81,7 +81,7 @@ namespace TestBench1
 				obj1.Name = "red bones (running loop)";
 				obj1.Pos = new Vector3(6f, 0f, -12f);
 				obj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				mainScene.AddObject(obj1);
+				main3dScene.AddObject(obj1);
 
 				renderMesh1.playAnimationLoop(animRunning, 0f);
 				#endif
@@ -95,7 +95,7 @@ namespace TestBench1
 				obj2.Name = "green bones (idle + running loop mixed)";
 				obj2.Pos = new Vector3(0f, 0f, -12f);
 				obj2.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				mainScene.AddObject(obj2);
+				main3dScene.AddObject(obj2);
 				#endif
 
 				#if true
@@ -106,7 +106,7 @@ namespace TestBench1
 				obj3.Name = "blue bones (idle loop)";
 				obj3.Pos = new Vector3(-6f, 0f, -12f);
 				obj3.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				mainScene.AddObject(obj3);
+				main3dScene.AddObject(obj3);
 				#endif
 				
 				// state machines setup for skeletal render mesh 4 and 5
@@ -134,7 +134,7 @@ namespace TestBench1
 				obj4.Name = "magenta bones (looping idle/walk; interactive attack; slowmo)";
 				obj4.Pos = new Vector3(-12f, 0f, 0f);
 				obj4.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				mainScene.AddObject(obj4);
+				main3dScene.AddObject(obj4);
 
 				var renderMesh4WallSm = renderMesh4.addStateMachine(skeletonWalkDescr, "all");
 				renderMesh4AttackSm = renderMesh4.addStateMachine(skeletonAttackDescr, "LeftClavicle", "RightClavicle");
@@ -156,7 +156,7 @@ namespace TestBench1
 				obj5.Pos = new Vector3(12f, 0f, 0f);
 				obj5.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
 				obj5.MainColor = Color4.DarkOrange;
-				mainScene.AddObject(obj5);
+				main3dScene.AddObject(obj5);
 
 				renderMesh5NeckJoint = new SSPolarJoint();
 				renderMesh5NeckJoint.positionOffset = new Vector3(0f, 0.75f, 0f);
@@ -181,7 +181,7 @@ namespace TestBench1
 				bobObj.Name = "Bob";
 				bobObj.Pos = new Vector3(10f, 0f, 10f);
 				bobObj.Orient(Quaternion.FromAxisAngle(Vector3.UnitX, -(float)Math.PI/2f));
-				mainScene.AddObject(bobObj);
+                alpha3dScene.AddObject(bobObj);
 			}
 			#endif
 		}
@@ -191,14 +191,14 @@ namespace TestBench1
 			var camera = new SSCameraThirdPerson (null);
 			camera.basePos = new Vector3 (0f, 10f, 0f);
 			camera.followDistance = 50.0f;
-			mainScene.ActiveCamera = camera;
-			mainScene.AddObject (camera);
+			main3dScene.ActiveCamera = camera;
+			main3dScene.AddObject (camera);
 
 			if (tracker0 != null) {
-				tracker0.targetObject = mainScene.ActiveCamera;
+				tracker0.targetObject = main3dScene.ActiveCamera;
 			}
 			if (tracker4 != null) {
-				tracker4.targetObject = mainScene.ActiveCamera;
+				tracker4.targetObject = main3dScene.ActiveCamera;
 			}
 		}
 	}

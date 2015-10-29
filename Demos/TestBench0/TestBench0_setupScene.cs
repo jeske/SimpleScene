@@ -37,7 +37,7 @@ namespace TestBench0
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (mesh);
-			mainScene.AddObject (droneObj);
+			main3dScene.AddObject (droneObj);
 			droneObj.renderState.lighted = true;
 			droneObj.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
 			droneObj.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -53,7 +53,7 @@ namespace TestBench0
 			SSObject drone2Obj = new SSObjectMesh(
 				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/", "Drone2.obj")
 			);
-			mainScene.AddObject (drone2Obj);
+			main3dScene.AddObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
 			drone2Obj.AmbientMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
 			drone2Obj.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
@@ -91,7 +91,7 @@ namespace TestBench0
 				asteroidRingRenderer.renderState.receivesShadows = true;
                 asteroidRingRenderer.selectable = true;
                 asteroidRingRenderer.useBVHForIntersections = true;
-				mainScene.AddObject (asteroidRingRenderer);
+				main3dScene.AddObject (asteroidRingRenderer);
 			}
 
 			// particle system test
@@ -150,7 +150,7 @@ namespace TestBench0
 				cubesRenderer.renderState.receivesShadows = true;
 				cubesRenderer.textureMaterial = new SSTextureMaterial (null, null, tex, null);
                 cubesRenderer.selectable = true;
-				mainScene.AddObject(cubesRenderer);
+				main3dScene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
 
 				// test explositons
@@ -158,7 +158,7 @@ namespace TestBench0
 				{
 					SExplosionRenderManager aer = new SExplosionRenderManager (100);
 					aer.Pos = cubesRenderer.Pos;
-					mainScene.AddObject (aer);
+                    alpha3dScene.AddObject (aer);
 
 					periodicExplosiveForce.explosionEventHandlers += (pos, force) => { 
 						aer.showExplosion(pos, force/periodicExplosiveForce.explosiveForceMin*1.5f); 

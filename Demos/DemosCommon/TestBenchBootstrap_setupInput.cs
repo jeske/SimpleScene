@@ -38,12 +38,16 @@ namespace SimpleScene.Demos
 			Vector2 mouseLoc = new Vector2(e.X,e.Y);
 
 			SSRay ray = OpenTKHelper.MouseToWorldRay(
-                this.mainScene.renderConfig.projectionMatrix, this.mainScene.renderConfig.invCameraViewMatrix, clientRect, mouseLoc);
+                this.main3dScene.renderConfig.projectionMatrix, this.main3dScene.renderConfig.invCameraViewMatrix, clientRect, mouseLoc);
 
 			// Console.WriteLine("mouse ({0},{1}) unproject to ray ({2})",e.X,e.Y,ray);
 			// scene.addObject(new SSObjectRay(ray));
 
-			selectedObject = mainScene.Intersect(ref ray);
+            float nearestMain, nearestAlpha;
+            SSObject selectedObjMain = main3dScene.Intersect(ref ray, out nearestMain);
+            SSObject selectedObjAlpha = alpha3dScene.Intersect(ref ray, out nearestAlpha);
+            selectedObject = nearestMain < nearestAlpha ? selectedObjMain : selectedObjAlpha;
+
 			updateTextDisplay ();
 		}
 
@@ -57,7 +61,7 @@ namespace SimpleScene.Demos
 			if (this.mouseButtonDown) {
 
 				// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-				this.mainScene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+				this.main3dScene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
 				// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 			}
 		}
@@ -67,7 +71,7 @@ namespace SimpleScene.Demos
 			if (!base.Focused) return;
 
 			// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
-			SSCameraThirdPerson ctp = mainScene.ActiveCamera as SSCameraThirdPerson;
+			SSCameraThirdPerson ctp = main3dScene.ActiveCamera as SSCameraThirdPerson;
 			if (ctp != null) {
 				ctp.followDistance += -e.DeltaPrecise;
 			} 
@@ -83,8 +87,8 @@ namespace SimpleScene.Demos
 				if (autoWireframeMode == true) {
 					autoWireframeMode = false;
 				} else {
-                    mainScene.renderConfig.drawWireframeMode = SSRenderConfig.NextWireFrameMode(mainScene.renderConfig.drawWireframeMode);
-                    if (mainScene.renderConfig.drawWireframeMode == WireframeMode.None) {
+                    main3dScene.renderConfig.drawWireframeMode = SSRenderConfig.NextWireFrameMode(main3dScene.renderConfig.drawWireframeMode);
+                    if (main3dScene.renderConfig.drawWireframeMode == WireframeMode.None) {
 						autoWireframeMode = true; // rollover completes toggling modes
 					}
 				}
