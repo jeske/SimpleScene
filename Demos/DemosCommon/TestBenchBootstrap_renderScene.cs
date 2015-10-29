@@ -154,9 +154,9 @@ namespace SimpleScene.Demos
             ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj,
             ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
         {
-            sunBillboard.Pos = new Vector3 (0f, 0f, farPlane / 2f - 100f);
+            sunBillboard.Pos = new Vector3 (0f, 0f, farPlane / 2f - 200f);
             sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
-            sunDiskScene.renderConfig.invCameraViewMatrix = mainSceneView;
+            sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
             sunDiskScene.Render ();
         }
 

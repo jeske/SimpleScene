@@ -28,7 +28,7 @@ namespace SimpleScene.Demos
             renderState.alphaBlendingOn = true;
 			//renderState.depthTest = true;
             renderState.depthTest = true;
-            renderState.depthWrite = true;
+            renderState.depthWrite = false;
             renderState.lighted = false;
 			
             simulateOnUpdate = true;
@@ -299,13 +299,13 @@ namespace SimpleScene.Demos
 
 			#region timing settings
 			public float timeScale = 1f;
-			protected float _flameSmokeDuration = 2.5f;
-			protected float _flashDuration = 0.5f;
-			protected float _flyingSparksDuration = 2.5f;
-			protected float _smokeTrailsDuration = 1.5f;
-			protected float _roundSparksDuration = 2.5f;
-			protected float _debrisDuration = 4f;
-			protected float _shockwaveDuration = 2f;
+			protected float _flameSmokeDuration = 1.25f;
+			protected float _flashDuration = 0.25f;
+			protected float _flyingSparksDuration = 1.25f;
+			protected float _smokeTrailsDuration = 0.75f;
+			protected float _roundSparksDuration = 1.25f;
+			protected float _debrisDuration = 2f;
+			protected float _shockwaveDuration = 1f;
 			#endregion
 
 			#region emitters and effectors

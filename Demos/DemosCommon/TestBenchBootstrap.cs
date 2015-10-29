@@ -26,7 +26,7 @@ namespace SimpleScene.Demos
 	/// (http://www.opentk.com/book/export/html/1039)
 	/// 
 	/// To start a new test bench project:
-	/// 
+	///
 	/// 1) Create a new empty project under SimpleDemos (lets say TestBenchX)
 	/// 
 	/// 2) Add a class derived from TestBenchBootstrap (lets say TestBenchX); 
