@@ -78,7 +78,7 @@ namespace SimpleScene.Demos
 				sunBillboard.renderState.frustumCulling = false;
 				sunBillboard.renderState.lighted = false;
 				sunBillboard.renderState.castsShadow = false;
-				sunDiskScene.AddObject(sunBillboard);
+                sunDiskScene.AddObject(sunBillboard);
 
                 var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunBillboard);
                 sunFlare.renderState.depthTest = false;

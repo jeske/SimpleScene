@@ -127,29 +127,30 @@ namespace TestBench2
             activeLaser.Target = newLaser;
 		}
 
-		protected override void render3dScenes (
-			float fovy, float aspect, float nearPlane, float farPlane, 
-			ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, 
-			ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
-		{
-			base.render3dScenes (
-				fovy, aspect, nearPlane, farPlane, 
-				ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+        protected override void renderAlpha3dScenes (float fovy, float aspect, float nearPlane, float farPlane, ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
+            base.renderAlpha3dScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
             // laser middle sections and burn particles
-			laserBeamScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
-			laserBeamScene3d.renderConfig.projectionMatrix = mainSceneProj;
-			laserBeamScene3d.Render ();
+            laserBeamScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
+            laserBeamScene3d.renderConfig.projectionMatrix = mainSceneProj;
+            laserBeamScene3d.Render ();
 
             // laser occlusion test disks (not visible)
             laserOccDiskScene3d.renderConfig.invCameraViewMatrix = mainSceneView;
             laserOccDiskScene3d.renderConfig.projectionMatrix = mainSceneProj;
             laserOccDiskScene3d.Render();
+        }
 
-            // 2d sprites; flare effects
+        protected override void renderScreen2dScenes (
+            float fovy, float aspect, float nearPlane, float farPlane, 
+            ref Matrix4 mainSceneView, ref Matrix4 mainSceneProj, ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
+        {
             laserFlareScene2d.renderConfig.projectionMatrix = screenProj;
             laserFlareScene2d.Render();
-		}
+
+            base.renderScreen2dScenes(fovy, aspect, nearPlane, farPlane, ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
+        }
 
 		protected override void OnUpdateFrame (FrameEventArgs e)
 		{

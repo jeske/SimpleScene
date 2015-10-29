@@ -84,12 +84,13 @@ namespace SimpleScene.Demos
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
             renderAlpha3dScenes(fovy, aspect, nearPlane, farPlane, 
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
-            renderOcclusion3dScenes(fovy, aspect, nearPlane, farPlane, 
-                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
             renderScreen2dScenes(fovy, aspect, nearPlane, farPlane, 
                 ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 
 			SwapBuffers();
+
+            renderOcclusion3dScenes(fovy, aspect, nearPlane, farPlane, 
+                ref mainSceneView, ref mainSceneProj, ref rotationOnlyView, ref screenProj);
 		}
 
 		protected virtual void renderShadowmaps(
@@ -137,6 +138,11 @@ namespace SimpleScene.Demos
             environmentScene.renderConfig.projectionMatrix = mainSceneProj;
             environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
             environmentScene.Render ();
+
+            sunBillboard.Pos = new Vector3 (0f, 0f, farPlane / 2f - 200f);
+            sunDiskScene.renderConfig.projectionMatrix = mainSceneProj;
+            sunDiskScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
+            sunDiskScene.Render ();
         }
 
         protected virtual void renderAlpha3dScenes (
