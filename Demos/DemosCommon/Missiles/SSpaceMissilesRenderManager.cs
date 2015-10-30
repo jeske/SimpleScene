@@ -160,8 +160,8 @@ namespace SimpleScene.Demos
                 _ejectionSmokeScaleEffector.particleLifetime = mParams.ejectionSmokeDuration;
                 _ejectionSmokeScaleEffector.keyframes.Clear();
                 _ejectionSmokeScaleEffector.keyframes.Add(0f, 0.1f);
-                _ejectionSmokeScaleEffector.keyframes.Add(0.5f, 1f);
-                _ejectionSmokeScaleEffector.keyframes.Add(1f, 1.5f);
+                _ejectionSmokeScaleEffector.keyframes.Add(0.35f, 0.8f);
+                _ejectionSmokeScaleEffector.keyframes.Add(1f, 1.35f);
 
                 _particlesData.addEffector(_ejectionSmokeScaleEffector);
             }
@@ -259,8 +259,8 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.phiMax = (float)Math.PI/2f;
                 flameSmokeEmitter.orientationMin = new Vector3 (0f, 0f, 0f);
                 flameSmokeEmitter.orientationMax = new Vector3 (0f, 0f, 2f * (float)Math.PI);
-                flameSmokeEmitter.angularVelocityMin = new Vector3 (0f, 0f, -0.5f);
-                flameSmokeEmitter.angularVelocityMax = new Vector3 (0f, 0f, +0.5f);
+                flameSmokeEmitter.angularVelocityMin = new Vector3 (0f, 0f, -1f);
+                flameSmokeEmitter.angularVelocityMax = new Vector3 (0f, 0f, +1f);
 
                 flameSmokeEmitter.radiusOffsetMin = 0f;
                 flameSmokeEmitter.radiusOffsetMax = 0.1f;  
@@ -292,8 +292,8 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.effectorMask = (ushort)
                     (ejection ? ParticleEffectorMasks.EjectionSmoke : ParticleEffectorMasks.FlameToSmoke);
                 var vel = missile.velocity.LengthFast;
-                flameSmokeEmitter.velocityFromCenterMagnitude = ejection ? -vel/4f : (-vel / 8f);
-                flameSmokeEmitter.velocityFromCenterMagnitudeMax = vel;
+                flameSmokeEmitter.velocityFromCenterMagnitudeMin = ejection ? -vel/2f : (-vel / 8f);
+                flameSmokeEmitter.velocityFromCenterMagnitudeMax = ejection ? vel/2f : (vel / 5f);
                 flameSmokeEmitter.life = ejection ? mParams.ejectionSmokeDuration : mParams.flameSmokeDuration;
 
                 #if MISSILE_DEBUG

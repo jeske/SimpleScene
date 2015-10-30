@@ -25,9 +25,9 @@ namespace SimpleScene.Demos
         /// <summary> default ejection driver: velocity at the moment of ejection</summary>
         public float ejectionVelocity = 10f;
         /// <summary> default ejection driver: acceleration during ejection</summary>
-        public float ejectionAcc = 4f;
+        public float ejectionAcc = 6f;
         /// <summary> default ejection driver: angular velocity can be initialized to at most this </summary>
-        public float ejectionMaxRotationVel = 5f;
+        public float ejectionMaxRotationVel = 7f;
 
         /// <summary> used to plugin field generators. Can be set to null, in which case only spawn transform delegates are used </summary>
         public BodiesFieldGenerator spawnGenerator 
@@ -45,7 +45,7 @@ namespace SimpleScene.Demos
 
         #region pursuit
         /// <summary> time after launch when we transition from ejection into pursuit phase </summary>
-        public float pursuitActivationTime = 0.25f;
+        public float pursuitActivationTime = 0.35f;
         /// <summary> delegate for creating pursuit phase missile drivers </summary>
         public PursuitCreationDelegate createPursuit = (missile) => 
             { return new SProportionalNavigationPursuitDriver (missile); };
@@ -58,7 +58,7 @@ namespace SimpleScene.Demos
         /// <summary> maximum velocity of a pursuit. ignored when hit time correction is active. can be set to +infinity </summary>
         public float pursuitMaxVelocity = float.PositiveInfinity;
         /// <summary> maximum lateral acceleration that can be applied while in pursuit. ignored when hit time correction is active </summary>
-        public float pursuitMaxAcc = 10f;
+        public float pursuitMaxAcc = 20f;
         #endregion
 
         #region target hit and termination
@@ -97,7 +97,7 @@ namespace SimpleScene.Demos
         public int smokePerEmissionMin = 1;
         public int smokePerEmissionMax = 1;
 
-        public float ejectionSmokeSizeMin = 2f;
+        public float ejectionSmokeSizeMin = 1f;
         public float ejectionSmokeSizeMax = 15f;           
         public float ejectionSmokeDuration = 1f;
 

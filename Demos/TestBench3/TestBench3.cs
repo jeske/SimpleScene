@@ -466,7 +466,7 @@ namespace TestBench3
                 var launcher = getLauncherObject();
                 var target = getTargetObject();
                 float dist = (target.Pos - launcher.Pos).LengthFast;
-                return dist / 30f;
+                return dist / 45f;
             }
             throw new Exception ("unhandled enum");
         }
