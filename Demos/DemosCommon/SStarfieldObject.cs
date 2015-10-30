@@ -50,7 +50,9 @@ namespace SimpleScene.Demos
             }
 		}
 
-		public override void Render(SSRenderConfig renderConfig) {
+		public override void Render(SSRenderConfig renderConfig) 
+        {
+            base.Render(renderConfig);
 			SSShaderProgram.DeactivateAll ();
 
 			GL.Disable(EnableCap.Texture2D);

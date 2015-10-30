@@ -134,6 +134,8 @@ namespace SimpleScene.Demos
             ref Matrix4 rotationOnlyView, ref Matrix4 screenProj)
         {
             skyboxCube.Scale = new Vector3 (farPlane/2f);
+            skyboxStars.Scale = new Vector3 (farPlane/2f - 100f);
+
             environmentScene.renderConfig.projectionMatrix = mainSceneProj;
             environmentScene.renderConfig.invCameraViewMatrix = rotationOnlyView;
             environmentScene.Render ();

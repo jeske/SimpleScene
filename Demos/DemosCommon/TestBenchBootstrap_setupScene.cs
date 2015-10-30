@@ -105,15 +105,10 @@ namespace SimpleScene.Demos
             skyboxCube.renderState.depthTest = true;
             skyboxCube.renderState.depthWrite = true;
             skyboxCube.renderState.lighted = false;
-			//skyboxCube.Scale = new Vector3(0.7f);
-            //skyboxCube.Scale = new Vector3(farPlane);
-            //skyboxCube.renderState.matchScaleToScreenPixels = true;
             environmentScene.AddObject(skyboxCube);
 
-
 			skyboxStars = new SStarfieldObject(1600);
-			//environmentScene.AddObject(skyboxStars);
-
+			environmentScene.AddObject(skyboxStars);
 		}
 
 		protected virtual void setupHUD() 
