@@ -20,7 +20,7 @@ namespace SimpleScene.Demos
 
         protected SSObject skyboxCube;
         protected SSObject skyboxStars;
-        protected SSObjectOcclusionQueuery sunBillboard;
+        protected SSObjectOcclusionQueuery sunDisk;
 
 		protected virtual void setupScene() {
             hudScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
@@ -64,29 +64,6 @@ namespace SimpleScene.Demos
                 hudScene.AddObject(shadowmapDebugQuad);
             }
 			#endif
-
-            #if true
-			// setup a sun billboard object and a sun flare spriter renderer
-			{
-				var sunDisk = new SSMeshDisk ();
-				sunBillboard = new SSObjectOcclusionQueuery (sunDisk);
-				sunBillboard.renderState.doBillboarding = true;
-				sunBillboard.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
-				sunBillboard.Scale = new Vector3 (25f);
-                sunBillboard.renderState.matchScaleToScreenPixels = true;
-                sunBillboard.renderState.depthFunc = DepthFunction.Lequal;
-				sunBillboard.renderState.frustumCulling = false;
-				sunBillboard.renderState.lighted = false;
-				sunBillboard.renderState.castsShadow = false;
-                sunDiskScene.AddObject(sunBillboard);
-
-                var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunBillboard);
-                sunFlare.renderState.depthTest = false;
-                sunFlare.renderState.depthWrite = false;
-                sunFlare.Name = "sun flare renderer";
-				sunFlareScene.AddObject (sunFlare);
-			}
-            #endif
 		}
 
 		protected virtual void setupCamera()
@@ -107,8 +84,32 @@ namespace SimpleScene.Demos
             skyboxCube.renderState.lighted = false;
             environmentScene.AddObject(skyboxCube);
 
+            // add stars
 			skyboxStars = new SStarfieldObject(1600);
 			environmentScene.AddObject(skyboxStars);
+
+            #if true
+            // setup a sun billboard object and a sun flare spriter renderer
+            {
+                var sunDiskMesh = new SSMeshDisk ();
+                sunDisk = new SSObjectOcclusionQueuery (sunDiskMesh);
+                sunDisk.renderState.doBillboarding = true;
+                sunDisk.MainColor = new Color4 (1f, 1f, 0.8f, 1f);
+                sunDisk.Scale = new Vector3 (25f);
+                sunDisk.renderState.matchScaleToScreenPixels = true;
+                sunDisk.renderState.depthFunc = DepthFunction.Lequal;
+                sunDisk.renderState.frustumCulling = false;
+                sunDisk.renderState.lighted = false;
+                sunDisk.renderState.castsShadow = false;
+                sunDiskScene.AddObject(sunDisk);
+
+                var sunFlare = new SSSunFlareRenderer(sunDiskScene, sunDisk);
+                sunFlare.renderState.depthTest = false;
+                sunFlare.renderState.depthWrite = false;
+                sunFlare.Name = "sun flare renderer";
+                sunFlareScene.AddObject (sunFlare);
+            }
+            #endif
 		}
 
 		protected virtual void setupHUD() 
