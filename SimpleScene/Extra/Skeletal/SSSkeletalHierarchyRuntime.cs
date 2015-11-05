@@ -5,7 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL; // debug hacks
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	public class SSSkeletalJointRuntime
 	{

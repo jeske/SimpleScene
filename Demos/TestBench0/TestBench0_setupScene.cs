@@ -23,10 +23,10 @@ namespace TestBench0
 			testDisplay.backgroundColor = Color.Transparent;
 			testDisplay.alphaBlendingEnabled = true;
 			testDisplay.Label = "TEST AGG";
-			hudScene.AddObject (testDisplay);
+			hud2dScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
-			hudScene.AddObject (testDisplay);
+			hud2dScene.AddObject (testDisplay);
 		}
 
 		protected override void setupScene() 

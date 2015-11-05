@@ -10,6 +10,7 @@ namespace SimpleScene
         where V : struct, ISSVertexLayout
     {
         public bool useBVHForIntersections = true;
+        public PrimitiveType defaultPrimType = PrimitiveType.Triangles;
 
         protected SSVertexBuffer<V> _vbo;
         protected SSIndexBuffer _ibo;
@@ -69,7 +70,7 @@ namespace SimpleScene
 
         public override void renderMesh(SSRenderConfig renderConfig)
         {
-            drawSingle(renderConfig, PrimitiveType.Triangles);
+            drawSingle(renderConfig, defaultPrimType);
         }
 
 		public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)

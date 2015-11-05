@@ -4,7 +4,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	/// <summary>
 	/// Manages skeletal runtime hierarchy and animation channels.

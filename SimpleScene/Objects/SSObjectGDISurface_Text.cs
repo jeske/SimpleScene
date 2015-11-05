@@ -21,6 +21,7 @@ namespace SimpleScene {
         }
 
         public SSObjectGDISurface_Text() {
+            renderState.frustumCulling = false;
         }
 
 

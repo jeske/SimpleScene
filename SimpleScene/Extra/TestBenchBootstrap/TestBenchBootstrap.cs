@@ -72,7 +72,7 @@ namespace SimpleScene.Demos
         protected SSScene alpha3dScene;
         protected SSScene sunDiskScene;
         protected SSScene sunFlareScene;
-        protected SSScene hudScene;
+        protected SSScene hud2dScene;
         protected SSScene environmentScene;
 
 		protected bool mouseButtonDown = false;
@@ -128,7 +128,6 @@ namespace SimpleScene.Demos
 			SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../Assets"));
 			SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../Assets"));
 			SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../../Assets"));
-			SSAssetManager.AddAssetArchive(new SSAssetArchiveHandler_FileSystem("../../../DemosCommon/Assets"));
 
 			mainShader = new SSMainShaderProgram(); // before mscene
 			if (!mainShader.IsValid) {
@@ -183,7 +182,7 @@ namespace SimpleScene.Demos
             environmentScene.Update(time);
             alpha3dScene.Update(time);
             sunDiskScene.Update(time);
-			hudScene.Update (time);
+			hud2dScene.Update (time);
             sunFlareScene.Update(time);
 
 			driveCamera ((float)e.Time);

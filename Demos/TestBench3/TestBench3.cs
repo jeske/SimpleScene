@@ -13,12 +13,13 @@ namespace TestBench3
         protected enum MissileLaunchers : int 
             {AttackerDrone, VandalShip, Camera, End }
         protected enum MissileTargets : int 
-            { TargetDrone1, VandalShip, Camera, Selected, AttackerDrone, End}
+            { TargetDrone, VandalShip, Camera, Selected, AttackerDrone, End}
         protected enum HitTimeMode : int 
             { Auto, Disabled, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
 
         protected SExplosionRenderManager explosionManager;
         protected SSpaceMissilesRenderManager missileManager;
+        protected SHudTargetsManager.TargetSpecific targetHud;
 
         protected SSObjectMesh vandalShip;
         protected SSObjectMesh attackerDrone;
@@ -30,7 +31,7 @@ namespace TestBench3
         protected SSpaceMissileParameters cameraMissileParams;
 
         protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
-        protected MissileTargets missileTarget = MissileTargets.TargetDrone1;
+        protected MissileTargets missileTarget = MissileTargets.TargetDrone;
         protected HitTimeMode hitTimeMode = HitTimeMode.Auto;
         protected SSObjectGDISurface_Text missileStatsText;
 
@@ -134,7 +135,8 @@ namespace TestBench3
             cameraMissileParams.ejectionVelocity = 10f;
 
             // missile manager
-            missileManager = new SSpaceMissilesRenderManager(main3dScene, alpha3dScene, hudScene);
+            missileManager = new SSpaceMissilesRenderManager(main3dScene, alpha3dScene, hud2dScene);
+
 
             // additional statistics text
             missileStatsText = new SSObjectGDISurface_Text();
@@ -142,7 +144,23 @@ namespace TestBench3
             missileStatsText.Label = "stats placeholder...";
             missileStatsText.Pos = new Vector3 (100f, 100f, 0f);
             //missileStatsText.Size = 20f;
-            hudScene.AddObject(missileStatsText);
+            hud2dScene.AddObject(missileStatsText);
+
+            var targetsManager = new SHudTargetsManager (main3dScene, hud2dScene);
+            targetHud = targetsManager.addTarget(
+                Color4.Red,
+                _showDistanceFunc,
+                (o) => o != null ? o.Name : "none",
+                getTargetObject()
+            );
+
+        }
+
+        protected string _showDistanceFunc(SSObject target)
+        {
+            var launcherObj = getLauncherObject();
+            var targetPos = target != null ? target.Pos : Vector3.Zero;
+            return "dist:" + Math.Floor((launcherObj.Pos - targetPos).LengthFast).ToString();
         }
 
         protected void missileKeyUpHandler(object sender, KeyboardKeyEventArgs e)
@@ -168,8 +186,13 @@ namespace TestBench3
                 }
                 break;
             case Key.T:
-                do { switchTarget(); } while (getTargetObject() == getLauncherObject());
+                do {
+                    switchTarget();
+                } while (getTargetObject() == getLauncherObject());
                 updateTextDisplay();
+                var targetObj = getTargetObject();
+                targetHud.target =
+                    (targetObj == main3dScene.ActiveCamera) ? null : targetObj;
                 break;
             case Key.L: 
                 switchLauncher();
@@ -197,6 +220,16 @@ namespace TestBench3
                 cameraMissileParams.debuggingAid = !cameraMissileParams.debuggingAid;
                 updateTextDisplay();
                 break;
+            }
+        }
+
+        protected override void mouseDownHandler (object sender, MouseButtonEventArgs e)
+        {
+            base.mouseDownHandler(sender, e);
+
+            if (this.missileTarget == MissileTargets.Selected) {
+                targetHud.target = 
+                    (selectedObject == main3dScene.ActiveCamera) ? null : selectedObject;
             }
         }
 
@@ -444,7 +477,7 @@ namespace TestBench3
         protected SSObject getTargetObject()
         {
             switch (missileTarget) {
-            case MissileTargets.TargetDrone1: return targetDrone;
+            case MissileTargets.TargetDrone: return targetDrone;
             case MissileTargets.AttackerDrone: return attackerDrone;
             case MissileTargets.VandalShip: return vandalShip;
             case MissileTargets.Camera: return main3dScene.ActiveCamera;

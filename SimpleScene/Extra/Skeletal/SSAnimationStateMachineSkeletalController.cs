@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL; // debug hacks
 
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	// TODO repeat count of sorts
 

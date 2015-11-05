@@ -165,7 +165,11 @@ namespace SimpleScene
                     SSShaderProgram.DeactivateAll();
                 }
             } else {
-                setDefaultShaderState(renderConfig.mainShader);
+                if (renderState.noShader) {
+                    SSShaderProgram.DeactivateAll();
+                } else {
+                    setDefaultShaderState(renderConfig.mainShader);
+                }
 				setMaterialState(renderConfig.mainShader);
 
 				if (this.alphaBlendingEnabled) {
@@ -240,6 +244,7 @@ namespace SimpleScene
         public bool lighted = true;
         public bool alphaTest = false;
         public bool alphaBlendingOn = false;
+        public bool noShader = false;
         public BlendEquationMode blendEquationMode = BlendEquationMode.FuncAdd;
         public BlendingFactorSrc blendFactorSrc = BlendingFactorSrc.SrcAlpha;
         public BlendingFactorDest blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;

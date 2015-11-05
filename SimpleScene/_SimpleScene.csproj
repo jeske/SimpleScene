@@ -123,14 +123,9 @@
     <Compile Include="Core\SSSphere.cs" />
     <Compile Include="Util\ssBVH\ssBVH_Sphere.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedNormalCube.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalRenderMesh.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalMeshRuntime.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalAnimation.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalMesh.cs" />
     <Compile Include="Meshes\Shapes\SSTexturedNormalQuad.cs" />
     <Compile Include="Meshes\SSVertexMesh.cs" />
     <Compile Include="Core\SSTextureMaterial.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalHierarchyRuntime.cs" />
     <Compile Include="Util\Files\SSAssetManager.cs" />
     <Compile Include="Util\Files\WavefrontObjLoader.cs" />
     <Compile Include="Util\Files\SSMD5AnimParser.cs" />
@@ -139,13 +134,6 @@
     <Compile Include="Util\Files\SSWavefrontParser.cs" />
     <Compile Include="Util\Files\SSMD5Parser.cs" />
     <Compile Include="Meshes\Shapes\SSMeshBoundingSphere.cs" />
-    <Compile Include="Meshes\Skeletal\SSSkeletalChannelController.cs" />
-    <Compile Include="Meshes\Skeletal\SSAnimationStateMachine.cs" />
-    <Compile Include="Meshes\Skeletal\SSBindPoseSkeletalController.cs" />
-    <Compile Include="Meshes\Skeletal\SSAnimationStateMachineSkeletalController.cs" />
-    <Compile Include="Meshes\Skeletal\SSCustomizedJointsController.cs" />
-    <Compile Include="Meshes\Skeletal\SSPolarJoint.cs" />
-    <Compile Include="Meshes\Skeletal\SSSimpleObjectTrackingJoint.cs" />
     <Compile Include="Util\Files\SSAssetManagerRegisterDefaultTypes.cs" />
     <Compile Include="Util\ADSREnvelope.cs" />
     <Compile Include="Objects\SSObjectOcclusionQueuery.cs" />
@@ -159,6 +147,41 @@
     <Compile Include="Meshes\Instancing\SSParticleSystemData.cs" />
     <Compile Include="Meshes\Instancing\SSInstancedSpriteRenderer.cs" />
     <Compile Include="Meshes\Instancing\SSInstancesData.cs" />
+    <Compile Include="Extra\Lasers\SLaser.cs" />
+    <Compile Include="Extra\Lasers\SLaserBeamMiddleObject.cs" />
+    <Compile Include="Extra\Lasers\SLaserBurnParticlesObject.cs" />
+    <Compile Include="Extra\Lasers\SLaserEmissionFlareUpdater.cs" />
+    <Compile Include="Extra\Lasers\SLaserHitFlareUpdater.cs" />
+    <Compile Include="Extra\Lasers\SLaserManager.cs" />
+    <Compile Include="Extra\Lasers\SLaserParameters.cs" />
+    <Compile Include="Extra\Missiles\MissileDrivers.cs" />
+    <Compile Include="Extra\Missiles\MissileTargets.cs" />
+    <Compile Include="Extra\Missiles\SSpaceMissileData.cs" />
+    <Compile Include="Extra\Missiles\SSpaceMissileParameters.cs" />
+    <Compile Include="Extra\Missiles\SSpaceMissilesRenderManager.cs" />
+    <Compile Include="Extra\Missiles\SSpaceMissilesSimulation.cs" />
+    <Compile Include="Extra\SExplosionRenderManager.cs" />
+    <Compile Include="Extra\SStarfieldObject.cs" />
+    <Compile Include="Extra\SSunFlareRenderer.cs" />
+    <Compile Include="Extra\Skeletal\SSAnimationStateMachine.cs" />
+    <Compile Include="Extra\Skeletal\SSAnimationStateMachineSkeletalController.cs" />
+    <Compile Include="Extra\Skeletal\SSBindPoseSkeletalController.cs" />
+    <Compile Include="Extra\Skeletal\SSCustomizedJointsController.cs" />
+    <Compile Include="Extra\Skeletal\SSPolarJoint.cs" />
+    <Compile Include="Extra\Skeletal\SSSimpleObjectTrackingJoint.cs" />
+    <Compile Include="Extra\Skeletal\SSSkeletalAnimation.cs" />
+    <Compile Include="Extra\Skeletal\SSSkeletalChannelController.cs" />
+    <Compile Include="Extra\Skeletal\SSSkeletalHierarchyRuntime.cs" />
+    <Compile Include="Extra\Skeletal\SSSkeletalMesh.cs" />
+    <Compile Include="Extra\Skeletal\SSSkeletalMeshRuntime.cs" />
+    <Compile Include="Extra\Skeletal\SSSkeletalRenderMesh.cs" />
+    <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap.cs" />
+    <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_renderScene.cs" />
+    <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_setupInput.cs" />
+    <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_setupScene.cs" />
+    <Compile Include="Extra\TargetHud\SObjectTargetHudOutline.cs" />
+    <Compile Include="Extra\TargetHud\SHudTargetsManager.cs" />
+    <Compile Include="Extra\TargetHud\SObjectTargetHudLabel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -202,11 +225,256 @@
     </None>
     <None Include="TODO.txt" />
     <None Include="TODO_BUG_hid_removal.txt" />
+    <None Include="..\Assets\checkerboard.png">
+      <Link>Assets\checkerboard.png</Link>
+    </None>
+    <None Include="..\Assets\elements.png">
+      <Link>Assets\elements.png</Link>
+    </None>
+    <None Include="..\Assets\sun_flare.png">
+      <Link>Assets\sun_flare.png</Link>
+    </None>
+    <None Include="..\Assets\sun_flare.txt">
+      <Link>Assets\sun_flare.txt</Link>
+    </None>
+    <None Include="..\Assets\testcube.mtl">
+      <Link>Assets\testcube.mtl</Link>
+    </None>
+    <None Include="..\Assets\testcube.obj">
+      <Link>Assets\testcube.obj</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\Readme.txt">
+      <Link>Assets\bob_lamp\Readme.txt</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_body.png">
+      <Link>Assets\bob_lamp\bob_body.png</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_body.tga">
+      <Link>Assets\bob_lamp\bob_body.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_body_h.tga">
+      <Link>Assets\bob_lamp\bob_body_h.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_body_local.tga">
+      <Link>Assets\bob_lamp\bob_body_local.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_body_s.tga">
+      <Link>Assets\bob_lamp\bob_body_s.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_head.png">
+      <Link>Assets\bob_lamp\bob_head.png</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_head.tga">
+      <Link>Assets\bob_lamp\bob_head.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_head_h.tga">
+      <Link>Assets\bob_lamp\bob_head_h.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_head_local.tga">
+      <Link>Assets\bob_lamp\bob_head_local.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_head_s.tga">
+      <Link>Assets\bob_lamp\bob_head_s.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_helmet.png">
+      <Link>Assets\bob_lamp\bob_helmet.png</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_helmet.tga">
+      <Link>Assets\bob_lamp\bob_helmet.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_helmet_h.tga">
+      <Link>Assets\bob_lamp\bob_helmet_h.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_helmet_local.tga">
+      <Link>Assets\bob_lamp\bob_helmet_local.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_helmet_s.tga">
+      <Link>Assets\bob_lamp\bob_helmet_s.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_lamp_update.blend">
+      <Link>Assets\bob_lamp\bob_lamp_update.blend</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_lamp_update.md5anim">
+      <Link>Assets\bob_lamp\bob_lamp_update.md5anim</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_lamp_update.md5mesh">
+      <Link>Assets\bob_lamp\bob_lamp_update.md5mesh</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_lamp_update_export.blend">
+      <Link>Assets\bob_lamp\bob_lamp_update_export.blend</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_lamp_update_export.md5anim">
+      <Link>Assets\bob_lamp\bob_lamp_update_export.md5anim</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\bob_lamp_update_export.md5mesh">
+      <Link>Assets\bob_lamp\bob_lamp_update_export.md5mesh</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern.png">
+      <Link>Assets\bob_lamp\lantern.png</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern.tga">
+      <Link>Assets\bob_lamp\lantern.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern_h.tga">
+      <Link>Assets\bob_lamp\lantern_h.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern_local.tga">
+      <Link>Assets\bob_lamp\lantern_local.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern_top.png">
+      <Link>Assets\bob_lamp\lantern_top.png</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern_top.tga">
+      <Link>Assets\bob_lamp\lantern_top.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern_top_h.tga">
+      <Link>Assets\bob_lamp\lantern_top_h.tga</Link>
+    </None>
+    <None Include="..\Assets\bob_lamp\lantern_top_local.tga">
+      <Link>Assets\bob_lamp\lantern_top_local.tga</Link>
+    </None>
+    <None Include="..\Assets\boneman\LICENSE.txt">
+      <Link>Assets\boneman\LICENSE.txt</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman.md5mesh">
+      <Link>Assets\boneman\boneman.md5mesh</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_attack.md5anim">
+      <Link>Assets\boneman\boneman_attack.md5anim</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_dead.md5anim">
+      <Link>Assets\boneman\boneman_dead.md5anim</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_dying.md5anim">
+      <Link>Assets\boneman\boneman_dying.md5anim</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_idle.md5anim">
+      <Link>Assets\boneman\boneman_idle.md5anim</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_pain.md5anim">
+      <Link>Assets\boneman\boneman_pain.md5anim</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_running.blend">
+      <Link>Assets\boneman\boneman_running.blend</Link>
+    </None>
+    <None Include="..\Assets\boneman\boneman_running.md5anim">
+      <Link>Assets\boneman\boneman_running.md5anim</Link>
+    </None>
+    <None Include="..\Assets\boneman\md5.cfg">
+      <Link>Assets\boneman\md5.cfg</Link>
+    </None>
+    <None Include="..\Assets\boneman\skin.png">
+      <Link>Assets\boneman\skin.png</Link>
+    </None>
+    <None Include="..\Assets\boneman\skin_n.png">
+      <Link>Assets\boneman\skin_n.png</Link>
+    </None>
+    <None Include="..\Assets\drone2\Drone2.mtl">
+      <Link>Assets\drone2\Drone2.mtl</Link>
+    </None>
+    <None Include="..\Assets\drone2\Drone2.obj">
+      <Link>Assets\drone2\Drone2.obj</Link>
+    </None>
+    <None Include="..\Assets\drone2\drone2_bump.png">
+      <Link>Assets\drone2\drone2_bump.png</Link>
+    </None>
+    <None Include="..\Assets\drone2\drone2_color.png">
+      <Link>Assets\drone2\drone2_color.png</Link>
+    </None>
+    <None Include="..\Assets\drone2\drone2_glow.png">
+      <Link>Assets\drone2\drone2_glow.png</Link>
+    </None>
+    <None Include="..\Assets\drone2\drone2_readme.txt">
+      <Link>Assets\drone2\drone2_readme.txt</Link>
+    </None>
+    <None Include="..\Assets\drone2\drone2_spec.png">
+      <Link>Assets\drone2\drone2_spec.png</Link>
+    </None>
+    <None Include="..\Assets\explosions\fig7.png">
+      <Link>Assets\explosions\fig7.png</Link>
+    </None>
+    <None Include="..\Assets\explosions\fig7_debug.png">
+      <Link>Assets\explosions\fig7_debug.png</Link>
+    </None>
+    <None Include="..\Assets\explosions\fix7.txt">
+      <Link>Assets\explosions\fix7.txt</Link>
+    </None>
+    <None Include="..\Assets\lasers\laserEmissionSprites.png">
+      <Link>Assets\lasers\laserEmissionSprites.png</Link>
+    </None>
+    <None Include="..\Assets\lasers\laserMiddle.txt">
+      <Link>Assets\lasers\laserMiddle.txt</Link>
+    </None>
+    <None Include="..\Assets\lasers\middleBackground.png">
+      <Link>Assets\lasers\middleBackground.png</Link>
+    </None>
+    <None Include="..\Assets\lasers\middleInterference.png">
+      <Link>Assets\lasers\middleInterference.png</Link>
+    </None>
+    <None Include="..\Assets\lasers\middleOverlay.png">
+      <Link>Assets\lasers\middleOverlay.png</Link>
+    </None>
+    <None Include="..\Assets\missiles\missile.mtl">
+      <Link>Assets\missiles\missile.mtl</Link>
+    </None>
+    <None Include="..\Assets\missiles\missile.obj">
+      <Link>Assets\missiles\missile.obj</Link>
+    </None>
+    <None Include="..\Assets\missiles\missile.txt">
+      <Link>Assets\missiles\missile.txt</Link>
+    </None>
+    <None Include="..\Assets\missiles\texture-vandal.jpg">
+      <Link>Assets\missiles\texture-vandal.jpg</Link>
+    </None>
+    <None Include="..\Assets\missiles\vandal_assembled.mtl">
+      <Link>Assets\missiles\vandal_assembled.mtl</Link>
+    </None>
+    <None Include="..\Assets\missiles\vandal_assembled.obj">
+      <Link>Assets\missiles\vandal_assembled.obj</Link>
+    </None>
+    <None Include="..\Assets\missiles\vandal_terms_of_use.txt">
+      <Link>Assets\missiles\vandal_terms_of_use.txt</Link>
+    </None>
+    <None Include="..\Assets\simpleasteroid\asteroid.mtl">
+      <Link>Assets\simpleasteroid\asteroid.mtl</Link>
+    </None>
+    <None Include="..\Assets\simpleasteroid\asteroid.obj">
+      <Link>Assets\simpleasteroid\asteroid.obj</Link>
+    </None>
+    <None Include="..\Assets\simpleasteroid\asteroid.png">
+      <Link>Assets\simpleasteroid\asteroid.png</Link>
+    </None>
+    <None Include="..\Assets\simpleasteroid\readme.txt">
+      <Link>Assets\simpleasteroid\readme.txt</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox-envmap-diagnostic.mtl">
+      <Link>Assets\skybox\skybox-envmap-diagnostic.mtl</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox-envmap-diagnostic.obj">
+      <Link>Assets\skybox\skybox-envmap-diagnostic.obj</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox-envmap-diagnostic.png">
+      <Link>Assets\skybox\skybox-envmap-diagnostic.png</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox.mtl">
+      <Link>Assets\skybox\skybox.mtl</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox.obj">
+      <Link>Assets\skybox\skybox.obj</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox.png">
+      <Link>Assets\skybox\skybox.png</Link>
+    </None>
+    <None Include="..\Assets\skybox\skybox_readme.txt">
+      <Link>Assets\skybox\skybox_readme.txt</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Shaders\Instancing\" />
-    <Folder Include="Meshes\Skeletal\" />
     <Folder Include="Util\Files\" />
     <Folder Include="Meshes\Instancing\" />
+    <Folder Include="Extra\" />
+    <Folder Include="Extra\TestBenchBootstrap\" />
+    <Folder Include="Extra\TargetHud\" />
   </ItemGroup>
 </Project>

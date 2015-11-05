@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using OpenTK;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	// only used to register with the asset manager
 	public class SSSkeletalMeshMD5 : SSSkeletalMesh 

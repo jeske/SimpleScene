@@ -8,6 +8,7 @@ namespace SimpleScene
     public class SSVertexMesh<V> : SSAbstractMesh, ISSInstancable
 		where V : struct, ISSVertexLayout
 	{
+        public PrimitiveType defaultPrimType = PrimitiveType.Triangles;
 		protected SSVertexBuffer<V> _vbo;
 
 		/// <summary>
@@ -21,13 +22,14 @@ namespace SimpleScene
 		/// <summary>
 		/// Initialize given arrays of vertices and/or indices.
 		/// </summary>
-		public SSVertexMesh(V[] vertices)
+        public SSVertexMesh(V[] vertices, PrimitiveType primType = PrimitiveType.Triangles)
 		{
 			if (vertices == null) {
 				_vbo = new SSVertexBuffer<V> (BufferUsageHint.DynamicDraw);
 			} else {
 				_vbo = new SSVertexBuffer<V> (vertices);
 			}
+            defaultPrimType = primType;
 		}
 
 		public SSVertexMesh(SSVertexBuffer<V> vbo)
@@ -42,7 +44,7 @@ namespace SimpleScene
 		public override void renderMesh(SSRenderConfig renderConfig)
 		{
 			base.renderMesh (renderConfig);
-			_vbo.DrawArrays (renderConfig, PrimitiveType.Triangles);
+            _vbo.DrawArrays (renderConfig, defaultPrimType);
 		}
 
 		public void drawInstanced(SSRenderConfig renderConfig, int instanceCount, PrimitiveType primType)

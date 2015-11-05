@@ -23,7 +23,7 @@ namespace SimpleScene.Demos
         protected SSObjectOcclusionQueuery sunDisk;
 
 		protected virtual void setupScene() {
-            hudScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            hud2dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             environmentScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             sunFlareScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             sunDiskScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
@@ -61,7 +61,7 @@ namespace SimpleScene.Demos
                 shadowmapDebugQuad = new SSObjectHUDQuad (light.ShadowMap.TextureID);
                 shadowmapDebugQuad.Scale = new Vector3(0.3f);
                 shadowmapDebugQuad.Pos = new Vector3(50f, 200, 0f);
-                hudScene.AddObject(shadowmapDebugQuad);
+                hud2dScene.AddObject(shadowmapDebugQuad);
             }
 			#endif
 		}
@@ -114,7 +114,7 @@ namespace SimpleScene.Demos
 
 		protected virtual void setupHUD() 
 		{
-            hudScene.renderConfig.projectionMatrix = Matrix4.Identity;
+            hud2dScene.renderConfig.projectionMatrix = Matrix4.Identity;
 
 			// HUD Triangle...
 			//SSObject triObj = new SSObjectTriangle ();
@@ -126,14 +126,14 @@ namespace SimpleScene.Demos
 			fpsDisplay = new SSObjectGDISurface_Text ();
 			fpsDisplay.Label = "FPS: ...";
 			fpsDisplay.alphaBlendingEnabled = true;
-			hudScene.AddObject (fpsDisplay);
+			hud2dScene.AddObject (fpsDisplay);
 			fpsDisplay.Pos = new Vector3 (10f, 10f, 0f);
 			fpsDisplay.Scale = new Vector3 (1.0f);
 
 			// wireframe mode text....
 			textDisplay = new SSObjectGDISurface_Text ();
 			textDisplay.alphaBlendingEnabled = true;
-			hudScene.AddObject (textDisplay);
+			hud2dScene.AddObject (textDisplay);
 			textDisplay.Pos = new Vector3 (10f, 40f, 0f);
 			textDisplay.Scale = new Vector3 (1.0f);
 			updateTextDisplay ();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using OpenTK;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	/// <summary>
 	/// Define only a method by which a joint creates a transform

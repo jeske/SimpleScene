@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 using OpenTK;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	public struct SSSkeletalVertexRuntime
 	{

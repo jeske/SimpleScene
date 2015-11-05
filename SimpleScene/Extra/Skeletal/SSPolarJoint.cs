@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	/// <summary>
 	/// See Common Robot Configurations: http://nptel.ac.in/courses/112103174/module7/lec5/3.html

@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	public class SSSkeletalAnimation
 	{

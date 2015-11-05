@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleScene
+namespace SimpleScene.Demos
 {
 	public class SSBindPoseSkeletalController : SSSkeletalChannelController
 	{

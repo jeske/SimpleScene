@@ -177,8 +177,8 @@ namespace SimpleScene.Demos
             sunFlareScene.renderConfig.projectionMatrix = screenProj;
             sunFlareScene.Render ();
 
-            hudScene.renderConfig.projectionMatrix = screenProj;
-            hudScene.Render ();
+            hud2dScene.renderConfig.projectionMatrix = screenProj;
+            hud2dScene.Render ();
         }
 
 		/// <summary>
