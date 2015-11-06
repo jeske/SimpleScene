@@ -82,10 +82,12 @@ namespace SimpleScene.Demos
             skyboxCube.renderState.depthTest = true;
             skyboxCube.renderState.depthWrite = true;
             skyboxCube.renderState.lighted = false;
+            skyboxCube.selectable = false;
             environmentScene.AddObject(skyboxCube);
 
             // add stars
 			skyboxStars = new SStarfieldObject(1600);
+            skyboxStars.selectable = false;
 			environmentScene.AddObject(skyboxStars);
 
             #if true

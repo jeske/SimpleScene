@@ -53,6 +53,62 @@ namespace SimpleScene.Demos
             public static readonly SSVertexMesh<SSVertex_Pos> hudTriMesh;
             public static readonly SSVertexMesh<SSVertex_Pos> hudCircleMesh;
 
+            protected static Quaternion[] outlineOrients = {
+                // 0000 - center
+                Quaternion.Identity,
+                // 0001 - above
+                Quaternion.Identity,
+                // 0010 - below
+                Quaternion.FromAxisAngle(Vector3.UnitZ, +(float)Math.PI),
+                // 0011 - skip
+                Quaternion.Identity,
+                // 0100 - to the left
+                Quaternion.FromAxisAngle(Vector3.UnitZ, -(float)Math.PI/2f),
+                // 0101 - to the left and above
+                Quaternion.FromAxisAngle(Vector3.UnitZ, -(float)Math.PI/4f),
+                // 0110 - to the left and below
+                Quaternion.FromAxisAngle(Vector3.UnitZ, -(float)Math.PI*3f/4f), 
+                // 0111 - skip
+                Quaternion.Identity,
+                // 1000 - to the right
+                Quaternion.FromAxisAngle(Vector3.UnitZ, +(float)Math.PI/2f),
+                // 1001 - to the right and above
+                Quaternion.FromAxisAngle(Vector3.UnitZ, +(float)Math.PI/4f),
+                // 1010 - to the right and below
+                Quaternion.FromAxisAngle(Vector3.UnitZ, +(float)Math.PI*3f/4f),
+                // 1011, 11xx - skip the rest
+            };
+
+            static TargetSpecific()
+            {
+                SSVertex_Pos[] rectVertices = {
+                    new SSVertex_Pos (-1f, +1f, 0f),
+                    new SSVertex_Pos (+1f, +1f, 0f),
+                    new SSVertex_Pos (+1f, -1f, 0f),
+                    new SSVertex_Pos (-1f, -1f, 0f),
+                };
+                hudRectLinesMesh = new SSVertexMesh<SSVertex_Pos> (rectVertices, PrimitiveType.LineLoop);
+
+                SSVertex_Pos[] triVertices = {
+                    new SSVertex_Pos (0f, -1f, 0f),
+                    new SSVertex_Pos (2f, 1f, 0f),
+                    new SSVertex_Pos (-2f, 1f, 0f),
+                };
+                hudTriMesh = new SSVertexMesh<SSVertex_Pos> (triVertices, PrimitiveType.LineLoop);
+
+                const int numCircleVertices = 16;
+                float angleSlice = (float)Math.PI * 2f / numCircleVertices;
+                SSVertex_Pos[] circleVertices = new SSVertex_Pos[numCircleVertices];
+                for (int i = 0; i < numCircleVertices; ++i) {
+                    float angle = i * angleSlice;
+                    circleVertices [i] = new SSVertex_Pos (
+                        (float)Math.Cos(angle),
+                        (float)Math.Sin(angle),
+                        0f);
+                }
+                hudCircleMesh = new SSVertexMesh<SSVertex_Pos> (circleVertices, PrimitiveType.LineLoop);
+            }
+
             public SSObject target = null;
             public float lineWidthWhenInFront = 3f;
             public float lineWidthWhenBehind = 1f;
@@ -75,36 +131,6 @@ namespace SimpleScene.Demos
                     _labelBelow.MainColor = value;
                     _labelAbove.MainColor = value;
                 }
-            }
-
-            static TargetSpecific()
-            {
-                SSVertex_Pos[] rectVertices = {
-                    new SSVertex_Pos (-1f, +1f, 0f),
-                    new SSVertex_Pos (+1f, +1f, 0f),
-                    new SSVertex_Pos (+1f, -1f, 0f),
-                    new SSVertex_Pos (-1f, -1f, 0f),
-                };
-                hudRectLinesMesh = new SSVertexMesh<SSVertex_Pos> (rectVertices, PrimitiveType.LineLoop);
-
-                SSVertex_Pos[] triVertices = {
-                    new SSVertex_Pos (0f, 1f, 0f),
-                    new SSVertex_Pos (1f, -1f, 0f),
-                    new SSVertex_Pos (-1f, -1f, 0f),
-                };
-                hudTriMesh = new SSVertexMesh<SSVertex_Pos> (triVertices, PrimitiveType.LineLoop);
-
-                const int numCircleVertices = 16;
-                float angleSlice = (float)Math.PI * 2f / numCircleVertices;
-                SSVertex_Pos[] circleVertices = new SSVertex_Pos[numCircleVertices];
-                for (int i = 0; i < numCircleVertices; ++i) {
-                    float angle = i * angleSlice;
-                    circleVertices [i] = new SSVertex_Pos (
-                        (float)Math.Cos(angle),
-                        (float)Math.Sin(angle),
-                        0f);
-                }
-                hudCircleMesh = new SSVertexMesh<SSVertex_Pos> (circleVertices, PrimitiveType.LineLoop);
             }
 
             public TargetSpecific(SSScene main3dScene, SSScene hud2dScene)
@@ -163,33 +189,84 @@ namespace SimpleScene.Demos
                 Vector3 targetTopMost = target.Pos + viewUp * size;
                 Vector2 screenRightMostPt = OpenTKHelper.WorldToScreen(targetRightMost, ref targetViewProj, ref clientRect);
                 Vector2 screenTopMostPt = OpenTKHelper.WorldToScreen(targetTopMost, ref targetViewProj, ref clientRect);
-                float outlineWidth = 2f*(screenRightMostPt.X - targetScreenPos.X);
-                outlineWidth = Math.Max(outlineWidth, this.minPixelSz);
-                float outlineHeight = 2f*(targetScreenPos.Y - screenTopMostPt.Y);
-                outlineHeight = Math.Max(outlineHeight, this.minPixelSz);
+                float outlineHalfWidth = 2f*(screenRightMostPt.X - targetScreenPos.X);
+                outlineHalfWidth = Math.Max(outlineHalfWidth, this.minPixelSz);
+                float outlineHalfHeight = 2f*(targetScreenPos.Y - screenTopMostPt.Y);
+                outlineHalfHeight = Math.Max(outlineHalfHeight, this.minPixelSz);
 
                 Vector3 targetViewPos = Vector3.Transform(target.Pos, targetRc.invCameraViewMatrix);
-                bool targetIsInFrontOfCamera = targetViewPos.Z < 0f;
+                bool targetIsInFront = targetViewPos.Z < 0f;
+                float lineWidth = targetIsInFront ? lineWidthWhenInFront : lineWidthWhenBehind;
+                bool above, below, left, right;
+                if (targetIsInFront) {
+                    left = targetScreenPos.X + outlineHalfWidth < 0f;
+                    right = !left && targetScreenPos.X - outlineHalfWidth > clientRect.Width;
+                    above = targetScreenPos.Y + outlineHalfHeight < 0f;
+                    below = !above && targetScreenPos.Y + outlineHalfHeight > clientRect.Height;
+                } else { // target is behind
+                    float halfScrWidth = clientRect.Width / 2f;
+                    float halfScrHeight = clientRect.Height / 2f;
+                    left = targetScreenPos.X < halfScrWidth;
+                    right = !left;
+                    above = targetScreenPos.Y < halfScrHeight;
+                    below = !above;
+                }
+                int orientIdx = (above ? 1 : 0) + (below ? 2 : 0) + (left ? 4 : 0) + (right ? 8 : 0);
+                bool inTheCenter = targetIsInFront && (orientIdx == 0);
+                if (!inTheCenter) {
+                    outlineHalfWidth = minPixelSz;
+                    outlineHalfHeight = minPixelSz;
+                    if (left) {
+                        targetScreenPos.X = outlineHalfWidth;
+                    } else if (right) {
+                        targetScreenPos.X = clientRect.Width - outlineHalfWidth - lineWidth*2f;
+                    }
+                    if (above) {
+                        targetScreenPos.Y = outlineHalfHeight  + _labelAbove.getGdiSize.Height; 
+                    } else if (below) {
+                        targetScreenPos.Y = clientRect.Height - outlineHalfHeight - _labelBelow.getGdiSize.Height;
+                    }
+                }
 
+
+                _outline.Mesh = inTheCenter ? hudRectLinesMesh : hudTriMesh;
+                _outline.Scale = new Vector3 (outlineHalfWidth, outlineHalfHeight, 1f);
+                _outline.Orient(outlineOrients [orientIdx]);
                 _outline.Pos = new Vector3(targetScreenPos.X, targetScreenPos.Y, 0f);
-                _outline.Scale = new Vector3 (outlineWidth, outlineHeight, 1f);
-                _outline.Mesh = hudRectLinesMesh;
 
-                // it's hacky to have it here
-                GL.LineWidth(targetIsInFrontOfCamera ? lineWidthWhenInFront : lineWidthWhenBehind);
+                // it's hacky to have this here. it should probably become part of SSObject's renderState
+                GL.LineWidth(lineWidth);
                 GL.Disable(EnableCap.LineSmooth);
 
                 // labels
                 _labelBelow.Label = fetchTextBelow(target);
                 var labelBelowPos = targetScreenPos;
-                labelBelowPos.X -= outlineWidth;
-                labelBelowPos.Y += outlineHeight;
+                if (left) {
+                    labelBelowPos.X = 0f;
+                } else if (right) {
+                    labelBelowPos.X = clientRect.Width - _labelBelow.getGdiSize.Width - 10f;
+                } else {
+                    labelBelowPos.X -= _labelBelow.getGdiSize.Width/2f;
+                }
+                labelBelowPos.Y += outlineHalfHeight;
+                if ((left || right) && !below) {
+                    labelBelowPos.Y += outlineHalfHeight;
+                }
                 _labelBelow.Pos = new Vector3(labelBelowPos.X, labelBelowPos.Y, 0f);
 
                 _labelAbove.Label = fetchTextAbove(target);
                 var labelAbovePos = targetScreenPos;
-                labelAbovePos.X -= outlineWidth;
-                labelAbovePos.Y -= (outlineHeight + _labelAbove.getGdiSize.Height);
+                if (left) {
+                    labelAbovePos.X = 0f;
+                } else if (right) {
+                    labelAbovePos.X = clientRect.Width - _labelAbove.getGdiSize.Width - 10f;
+                } else {
+                    labelAbovePos.X -= _labelAbove.getGdiSize.Width/2f;
+                }
+                if ((left || right) && !above) {
+                    labelAbovePos.Y -= outlineHalfHeight;
+                }
+                labelAbovePos.Y -= (outlineHalfHeight + _labelAbove.getGdiSize.Height);
                 _labelAbove.Pos = new Vector3(labelAbovePos.X, labelAbovePos.Y, 0f);
             }
         }
