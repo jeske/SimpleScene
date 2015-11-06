@@ -179,9 +179,7 @@
     <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_renderScene.cs" />
     <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_setupInput.cs" />
     <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_setupScene.cs" />
-    <Compile Include="Extra\TargetHud\SObjectTargetHudOutline.cs" />
-    <Compile Include="Extra\TargetHud\SHudTargetsManager.cs" />
-    <Compile Include="Extra\TargetHud\SObjectTargetHudLabel.cs" />
+    <Compile Include="Extra\SHudTargetsManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -475,6 +473,5 @@
     <Folder Include="Meshes\Instancing\" />
     <Folder Include="Extra\" />
     <Folder Include="Extra\TestBenchBootstrap\" />
-    <Folder Include="Extra\TargetHud\" />
   </ItemGroup>
 </Project>
