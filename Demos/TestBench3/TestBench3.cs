@@ -137,7 +137,6 @@ namespace TestBench3
             // missile manager
             missileManager = new SSpaceMissilesRenderManager(main3dScene, alpha3dScene, hud2dScene);
 
-
             // additional statistics text
             missileStatsText = new SSObjectGDISurface_Text();
             missileStatsText.alphaBlendingEnabled = true;
@@ -159,7 +158,7 @@ namespace TestBench3
         protected string _showDistanceFunc(SSObject target)
         {
             var launcherObj = getLauncherObject();
-            var targetPos = target != null ? target.Pos : Vector3.Zero;
+            var targetPos = target != null ? target.Pos : launcherObj.Pos;
             return "dist:" + Math.Floor((launcherObj.Pos - targetPos).LengthFast).ToString();
         }
 
