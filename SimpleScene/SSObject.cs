@@ -15,7 +15,10 @@ namespace SimpleScene
 	// abstract base class for "tangible" Renderable objects
 
 	public abstract class SSObject : SSObjectBase {
-		protected static SSMeshBoundingSphere _boundingSphereMesh = new SSMeshBoundingSphere (1f);
+        protected static SSMeshBoundingSphere _boundingSphereMesh = new SSMeshBoundingSphere (1f);
+
+        public delegate void PreRenderFunc(SSObject obj, SSRenderConfig renderCOnfig);
+        public PreRenderFunc preRenderHook = null;
 
 		public Color4 MainColor = Color4.White;
 		public bool selectable = true;
@@ -25,7 +28,7 @@ namespace SimpleScene
 		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
 		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
 		public float ShininessMatColor = 10.0f;
-        
+
 		public virtual SSTextureMaterial textureMaterial { get; set; }
 		public virtual bool alphaBlendingEnabled { 
             get { return renderState.alphaBlendingOn; }
@@ -201,6 +204,10 @@ namespace SimpleScene
                 GL.Disable (EnableCap.DepthTest);
             }
             GL.DepthMask(this.renderState.depthWrite);
+
+            if (preRenderHook != null) {
+                preRenderHook(this, renderConfig);
+            }
 		}
 
 		public virtual bool Intersect(ref SSRay worldSpaceRay, out float distanceAlongRay) 

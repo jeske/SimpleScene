@@ -121,6 +121,7 @@ namespace SimpleScene.Demos
             protected readonly SSObjectMesh _outline;
             protected readonly SSObjectGDISurface_Text _labelBelow;
             protected readonly SSObjectGDISurface_Text _labelAbove;
+            protected bool _targetIsInFront;
 
             protected Color4 _color;
 
@@ -144,6 +145,10 @@ namespace SimpleScene.Demos
                 _outline.renderState.frustumCulling = false;
                 _outline.renderState.noShader = true;
                 _outline.Name = "hud target outline";
+                _outline.preRenderHook += (obj, rc) => {
+                    GL.LineWidth(_targetIsInFront ? lineWidthWhenInFront : lineWidthWhenBehind);
+                    GL.Disable(EnableCap.LineSmooth);
+                };
                 hud2dScene.AddObject(_outline);
 
                 _labelBelow = new SSObjectGDISurface_Text();
@@ -195,10 +200,10 @@ namespace SimpleScene.Demos
                 outlineHalfHeight = Math.Max(outlineHalfHeight, this.minPixelSz);
 
                 Vector3 targetViewPos = Vector3.Transform(target.Pos, targetRc.invCameraViewMatrix);
-                bool targetIsInFront = targetViewPos.Z < 0f;
-                float lineWidth = targetIsInFront ? lineWidthWhenInFront : lineWidthWhenBehind;
+                _targetIsInFront = targetViewPos.Z < 0f;
+                float lineWidth = _targetIsInFront ? lineWidthWhenInFront : lineWidthWhenBehind;
                 bool above, below, left, right;
-                if (targetIsInFront) {
+                if (_targetIsInFront) {
                     left = targetScreenPos.X + outlineHalfWidth < 0f;
                     right = !left && targetScreenPos.X - outlineHalfWidth > clientRect.Width;
                     above = targetScreenPos.Y + outlineHalfHeight < 0f;
@@ -212,7 +217,7 @@ namespace SimpleScene.Demos
                     below = !above;
                 }
                 int orientIdx = (above ? 1 : 0) + (below ? 2 : 0) + (left ? 4 : 0) + (right ? 8 : 0);
-                bool inTheCenter = targetIsInFront && (orientIdx == 0);
+                bool inTheCenter = _targetIsInFront && (orientIdx == 0);
                 if (!inTheCenter) {
                     outlineHalfWidth = minPixelSz;
                     outlineHalfHeight = minPixelSz;
@@ -233,10 +238,6 @@ namespace SimpleScene.Demos
                 _outline.Scale = new Vector3 (outlineHalfWidth, outlineHalfHeight, 1f);
                 _outline.Orient(outlineOrients [orientIdx]);
                 _outline.Pos = new Vector3(targetScreenPos.X, targetScreenPos.Y, 0f);
-
-                // it's hacky to have this here. it should probably become part of SSObject's renderState
-                GL.LineWidth(lineWidth);
-                GL.Disable(EnableCap.LineSmooth);
 
                 // labels
                 _labelBelow.Label = fetchTextBelow(target);
