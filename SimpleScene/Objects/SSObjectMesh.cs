@@ -91,11 +91,13 @@ namespace SimpleScene
 
 		public override void Update(float elapsedS) 
 		{
-			if (Mesh.updateSource.Target == null) {
-				Mesh.updateSource.Target = this;
+            if (_mesh == null) return;
+
+			if (_mesh.updateSource.Target == null) {
+				_mesh.updateSource.Target = this;
 			}
-			if (Mesh.updateSource.Target == this) {
-				Mesh.update (elapsedS);
+            if (_mesh.updateSource.Target == this) {
+                _mesh.update (elapsedS);
 			}
 		}
 

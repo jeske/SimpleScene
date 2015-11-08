@@ -211,13 +211,15 @@ namespace SimpleScene.Demos
                 } else { // target is behind
                     float halfScrWidth = clientRect.Width / 2f;
                     float halfScrHeight = clientRect.Height / 2f;
-                    left = targetScreenPos.X < halfScrWidth;
-                    right = !left;
-                    above = targetScreenPos.Y < halfScrHeight;
-                    below = !above;
+                    float quartScrWidth = halfScrWidth / 2f;
+                    float quartScrHeight = halfScrHeight / 2f;
+                    right = targetScreenPos.X < quartScrWidth;
+                    left = !right && targetScreenPos.X > halfScrWidth + quartScrWidth;
+                    below = targetScreenPos.Y < quartScrHeight;
+                    above = !below && targetScreenPos.Y > halfScrHeight + quartScrHeight;
                 }
                 int orientIdx = (above ? 1 : 0) + (below ? 2 : 0) + (left ? 4 : 0) + (right ? 8 : 0);
-                bool inTheCenter = _targetIsInFront && (orientIdx == 0);
+                bool inTheCenter = (orientIdx == 0);
                 if (!inTheCenter) {
                     outlineHalfWidth = minPixelSz;
                     outlineHalfHeight = minPixelSz;
@@ -232,9 +234,8 @@ namespace SimpleScene.Demos
                         targetScreenPos.Y = clientRect.Height - outlineHalfHeight - _labelBelow.getGdiSize.Height;
                     }
                 }
-
-
-                _outline.Mesh = inTheCenter ? hudRectLinesMesh : hudTriMesh;
+                _outline.Mesh = inTheCenter ? (_targetIsInFront ? hudRectLinesMesh : hudCircleMesh)
+                                            : hudTriMesh;
                 _outline.Scale = new Vector3 (outlineHalfWidth, outlineHalfHeight, 1f);
                 _outline.Orient(outlineOrients [orientIdx]);
                 _outline.Pos = new Vector3(targetScreenPos.X, targetScreenPos.Y, 0f);
