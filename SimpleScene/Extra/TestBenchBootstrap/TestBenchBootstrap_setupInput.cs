@@ -73,7 +73,12 @@ namespace SimpleScene.Demos
 			// Console.WriteLine("mousewheel {0} {1}",e.Delta,e.DeltaPrecise);
 			SSCameraThirdPerson ctp = main3dScene.ActiveCamera as SSCameraThirdPerson;
 			if (ctp != null) {
-				ctp.followDistance += -e.DeltaPrecise;
+                var amount = -e.DeltaPrecise;
+                var kbState = OpenTK.Input.Keyboard.GetState();
+                if (kbState.IsKeyDown(OpenTK.Input.Key.ShiftLeft)) {
+                    amount *= 10f;
+                }
+				ctp.followDistance += amount;
 			} 
 		}
 
