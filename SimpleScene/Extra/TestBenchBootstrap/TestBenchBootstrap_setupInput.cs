@@ -61,7 +61,7 @@ namespace SimpleScene.Demos
 			if (this.mouseButtonDown) {
 
 				// Console.WriteLine("mouse dragged: {0},{1}",e.XDelta,e.YDelta);
-				this.main3dScene.ActiveCamera.MouseDeltaOrient(e.XDelta,e.YDelta);
+				this.main3dScene.ActiveCamera.mouseDeltaOrient(e.XDelta,e.YDelta);
 				// this.activeModel.MouseDeltaOrient(e.XDelta,e.YDelta);
 			}
 		}

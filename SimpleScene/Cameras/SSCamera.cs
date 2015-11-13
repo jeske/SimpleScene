@@ -9,7 +9,11 @@ namespace SimpleScene
 {
 	public class SSCamera : SSObject
 	{
-		public SSCamera () : base() {
+        protected float pitchAngle = 0f;
+        protected float yawAngle = 0f;
+
+
+        public SSCamera () : base() {
 		
 		}
 
@@ -18,21 +22,40 @@ namespace SimpleScene
             this.calcMatFromState ();
         }
 
-		private float DegreeToRadian(float angleInDegrees) {
+		protected float DegreeToRadian(float angleInDegrees) {
 			return (float)Math.PI * angleInDegrees / 180.0f;
 		}
 
-		public void MouseDeltaOrient(float XDelta, float YDelta) {
-			Quaternion yaw_Rotation = Quaternion.FromAxisAngle(Vector3.UnitY,DegreeToRadian(-XDelta));
-    		Quaternion pitch_Rotation = Quaternion.FromAxisAngle(this.Right,DegreeToRadian(-YDelta));
+        public void mouseDeltaOrient(float XDelta, float YDelta) 
+        {
+            if (pitchAngle > (float)Math.PI/2f && pitchAngle < 1.5f*(float)Math.PI) {
+                // upside down
+                XDelta *= -1f;
+            }
 
-			this.calcMatFromState(); // make sure our local matrix is current
+            pitchAngle += DegreeToRadian(YDelta);
+            yawAngle += DegreeToRadian(XDelta);
 
-			// openGL requires pre-multiplation of these matricies...
-			Quaternion qResult = yaw_Rotation * pitch_Rotation * this.localMat.ExtractRotation();
-						
-			this.Orient(qResult);
-		}
+            const float twoPi = (float)(2.0 * Math.PI);
+            if (pitchAngle < 0f) {
+                pitchAngle += twoPi;
+            } else if (pitchAngle > twoPi) {
+                pitchAngle -= twoPi;
+            }
+
+
+            //var pitchOri = Quaternion.FromAxisAngle(this.Up, pitchAngle);
+            var pitchOri = Quaternion.FromAxisAngle(Vector3.UnitY, -yawAngle);
+            var yawOri = Quaternion.FromAxisAngle(Vector3.UnitX, -pitchAngle);
+            this.Orient(pitchOri * yawOri);
+
+            this.calcMatFromState(); // make sure our local matrix is current
+
+            // openGL requires pre-multiplation of these matricies...
+            //Quaternion qResult = yawDelta * pitch_Rotation * this.localMat.ExtractRotation();
+
+
+        }
 	}
 }
 
