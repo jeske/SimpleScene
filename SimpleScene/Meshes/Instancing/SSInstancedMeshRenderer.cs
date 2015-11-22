@@ -122,11 +122,11 @@ namespace SimpleScene
             }
         }
 
-        public override void Update (float fElapsedMS)
+        public override void Update (float fElapsedSecs)
         {
             if (simulateOnUpdate) {
                 float prevRadius = instanceData.radius;
-                instanceData.update(fElapsedMS);
+                instanceData.update(fElapsedSecs);
                 if (instanceData.radius != prevRadius) {
                     NotifyPositionOrSizeChanged ();
                 }

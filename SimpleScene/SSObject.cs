@@ -402,7 +402,7 @@ namespace SimpleScene
 
 		protected virtual void NotifyPositionOrSizeChanged() { }
 
-		public virtual void Update (float fElapsedS) {}
+		public virtual void Update (float fElapsedSecs) {}
 
 		// constructor
 		public SSObjectBase() { 

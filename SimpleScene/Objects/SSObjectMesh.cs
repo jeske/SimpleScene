@@ -89,7 +89,7 @@ namespace SimpleScene
             }
 		}
 
-		public override void Update(float elapsedS) 
+		public override void Update(float elapsedSecs) 
 		{
             if (_mesh == null) return;
 
@@ -97,7 +97,7 @@ namespace SimpleScene
 				_mesh.updateSource.Target = this;
 			}
             if (_mesh.updateSource.Target == this) {
-                _mesh.update (elapsedS);
+                _mesh.update (elapsedSecs);
 			}
 		}
 
