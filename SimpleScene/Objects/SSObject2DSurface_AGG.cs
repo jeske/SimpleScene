@@ -28,6 +28,7 @@ namespace SimpleScene {
             this.renderState.lighted = false;
             this.renderState.depthTest = false;
             this.renderState.depthWrite = false;
+            this.renderState.frustumCulling = false;
 		}
 
         private int nextPowerOf2(int biggerThan) {
