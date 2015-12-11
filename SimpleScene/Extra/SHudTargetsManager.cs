@@ -34,19 +34,28 @@ namespace SimpleScene.Demos
             newTarget.fetchTextBelow = fetchTextBelow ?? _defaultFetchText;
             newTarget.fetchTextAbove = fetchTextAbove ?? _defaultFetchText;
 
+            _targets.Add(newTarget);
+
             return newTarget;
         }
 
         public void clear()
         {
+            foreach (var ts in _targets) {
+                ts.prepareForDelete();
+            }
             _targets.Clear();
         }
 
         public void removeTargets(SSObject target)
         {
-            _targets.RemoveAll((t) => (t.target == target));
+            var toRemove = _targets.FindAll((t) => t.target == target);
+            foreach (var ts in toRemove) {
+                ts.prepareForDelete();
+                _targets.Remove(ts);
+            }
         }
-        
+
         public class TargetSpecific
         {
             public static readonly SSVertexMesh<SSVertex_Pos> hudRectLinesMesh;
@@ -162,11 +171,18 @@ namespace SimpleScene.Demos
                 hud2dScene.AddObject(_labelAbove);
             }
 
-            ~TargetSpecific()
+            public void prepareForDelete()
             {
                 _outline.renderState.toBeDeleted = true;
                 _labelBelow.renderState.toBeDeleted = true;
                 _labelAbove.renderState.toBeDeleted = true;
+
+                _targetObj3dScene.preRenderHooks -= preRenderUpdate;
+            }
+
+            ~TargetSpecific()
+            {
+                prepareForDelete();
             }
 
             public void preRenderUpdate(float timeElapsed)
