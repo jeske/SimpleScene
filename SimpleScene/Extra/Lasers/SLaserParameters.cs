@@ -197,7 +197,9 @@ namespace SimpleScene.Demos
         public float flashLifetime = 1f;
         #endregion
 
-        //SSAssetManager.GetInstance<SSTextureWithAlpha>("./", "uv_checker large.png");
+        public SLaserParameters() 
+        { 
+        }
     }
 }
 

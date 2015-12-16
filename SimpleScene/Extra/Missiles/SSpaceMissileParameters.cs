@@ -110,6 +110,10 @@ namespace SimpleScene.Demos
 
         /// <summary> show visual and stdout debugging helpers </summary>
         public bool debuggingAid = false;
+
+        public SSpaceMissileParameters() 
+        {
+        }
     }
 }
 
