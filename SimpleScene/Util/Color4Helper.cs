@@ -18,6 +18,7 @@ namespace SimpleScene.Util
 			Color4.Cyan,
             Color4.OrangeRed,
             Color4.BlueViolet,
+            Color4.LightGray
 		};
 
 		public static Color4 Add (ref Color4 left, ref Color4 right) 
