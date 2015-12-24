@@ -87,7 +87,9 @@ namespace SimpleScene.Demos
         {
             _state = State.Terminated;
             _driver = null;
-            System.Console.WriteLine("missile terminated on request at t = " + _cluster.timeSinceLaunch);
+            if (cluster.parameters.debuggingAid) {
+                System.Console.WriteLine("missile terminated on request at t = " + _cluster.timeSinceLaunch);
+            }
         }
 
         public void updateExecution(float timeElapsed)
