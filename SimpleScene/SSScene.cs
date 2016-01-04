@@ -127,6 +127,9 @@ namespace SimpleScene
         #endregion
 
         public void AddObject(SSObject obj) {
+            if (objects.Contains(obj)) {
+                throw new Exception ("scene already contains object: " + obj);
+            }
             objects.Add(obj);
         }
 
