@@ -58,11 +58,21 @@ namespace SimpleScene
 
 		public string Name = "";
 
+        #region debugging aid
+        public static int instanceCount = 0;
+        #endregion
+
 		public SSObject() : base() {
 			Name = String.Format("Unnamed:{0}",this.GetHashCode());	
 			localBoundingSphereCenter = Vector3.Zero;
 			localBoundingSphereRadius = 1f;
+            ++instanceCount;
 		}
+
+        ~SSObject()
+        {
+            --instanceCount;
+        }
 
         protected static void resetTexturingState()
         {
