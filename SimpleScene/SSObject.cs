@@ -215,6 +215,8 @@ namespace SimpleScene
             }
             GL.DepthMask(this.renderState.depthWrite);
 
+            GL.Disable(EnableCap.LineStipple);
+
             if (preRenderHook != null) {
                 preRenderHook(this, renderConfig);
             }

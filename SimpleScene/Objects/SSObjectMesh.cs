@@ -48,11 +48,18 @@ namespace SimpleScene
 				return _mesh.boundingSphereRadius;
 			}
 		}
+
+        public bool enableLineStipple = false;
+        public ushort lineStipplePattern = 0xF0;
         
         public override void Render (SSRenderConfig renderConfig)
 		{
 			if (_mesh != null) {
 				base.Render (renderConfig);
+                if (enableLineStipple) {
+                    GL.Enable(EnableCap.LineStipple);
+                    GL.LineStipple(1, lineStipplePattern);
+                }
 				this._mesh.renderMesh (renderConfig);
             }
         }

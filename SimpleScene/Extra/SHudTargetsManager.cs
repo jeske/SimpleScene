@@ -132,6 +132,10 @@ namespace SimpleScene.Demos
             protected readonly SSObjectGDISurface_Text _labelAbove;
             protected bool _targetIsInFront;
 
+            protected const float stippleStepInterval = 0.05f;
+            protected float _stippleAccumulator = 0f;
+            protected ushort _stipplePattern = 0xFF00;
+
             protected Color4 _color;
 
             public Color4 color {
@@ -286,6 +290,17 @@ namespace SimpleScene.Demos
                 }
                 labelAbovePos.Y -= (outlineHalfHeight + _labelAbove.getGdiSize.Height);
                 _labelAbove.Pos = new Vector3(labelAbovePos.X, labelAbovePos.Y, 0f);
+
+                // line stipple
+                _stippleAccumulator += timeElapsed;
+                while (_stippleAccumulator >= stippleStepInterval) {
+                    ushort firstBit = (ushort)((uint)_stipplePattern & 0x1);
+                    _stipplePattern >>= 1;
+                    _stipplePattern |= (ushort)((uint)firstBit << 15);
+                    _stippleAccumulator -= stippleStepInterval;
+                }
+                _outline.enableLineStipple = true;
+                _outline.lineStipplePattern = _stipplePattern;
             }
         }
     }
