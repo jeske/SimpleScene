@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene.Util;
 
 namespace SimpleScene.Demos
 {
@@ -11,6 +12,14 @@ namespace SimpleScene.Demos
     {
         public delegate string FetchTextFunc(SSObject target);
         protected static FetchTextFunc _defaultFetchText = (obj) => "";
+
+        public delegate Color4 FetchColorFunc(SSObject target);
+        protected static FetchColorFunc _defaultFetchColor = (obj) => {
+            var colors = Color4Helper.DebugPresets;
+            int hash = obj.Name.GetHashCode();
+            var pickColorIdx = (uint)hash % colors.Length;
+            return colors [pickColorIdx];
+        };
 
         protected readonly SSScene _main3dScene;
         protected readonly SSScene _hud2dScene;
@@ -76,14 +85,14 @@ namespace SimpleScene.Demos
         }
 
         public TargetSpecific addTarget(
-            Color4 color,
+            FetchColorFunc fetchColor = null,
             FetchTextFunc fetchTextBelow = null,
             FetchTextFunc fetchTextAbove = null,
             SSObject target = null)
         {
             var newTarget = new TargetSpecific (_main3dScene, _hud2dScene);
             newTarget.targetObj = target;
-            newTarget.color = color;
+            newTarget.fetchColor = fetchColor ?? _defaultFetchColor;
             newTarget.fetchTextBelow = fetchTextBelow ?? _defaultFetchText;
             newTarget.fetchTextAbove = fetchTextAbove ?? _defaultFetchText;
 
@@ -179,6 +188,7 @@ namespace SimpleScene.Demos
             public SSObject targetObj = null;
 
             public bool isSelected = false;
+            public FetchColorFunc fetchColor = null;
             public FetchTextFunc fetchTextBelow = null;
             public FetchTextFunc fetchTextAbove = null;
 
@@ -189,17 +199,6 @@ namespace SimpleScene.Demos
             protected bool _targetIsInFront;
 
             protected float _stippleTimeAccumulator = 0f;
-
-            protected Color4 _color;
-
-            public Color4 color {
-                get { return _outline.MainColor; }
-                set {
-                    _outline.MainColor = value;
-                    _labelBelow.MainColor = value;
-                    _labelAbove.MainColor = value;
-                }
-            }
 
             public TargetSpecific(SSScene main3dScene, SSScene hud2dScene)
             {
@@ -360,6 +359,12 @@ namespace SimpleScene.Demos
                 }
                 labelAbovePos.Y -= (outlineHalfHeight + _labelAbove.getGdiSize.Height);
                 _labelAbove.Pos = new Vector3(labelAbovePos.X, labelAbovePos.Y, 0f);
+
+                Color4 color = fetchColor(targetObj);
+                _outline.MainColor = color;
+                _labelBelow.MainColor = color;
+                _labelAbove.MainColor = color;
+
             }
         }
     }
