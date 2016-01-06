@@ -19,7 +19,7 @@ namespace SimpleScene.Demos
         public void selectObject(SSObject obj)
         {
             foreach (var target in _targets) {
-                target.isSelected = (target.target == obj);
+                target.isSelected = (target.targetObj == obj);
             }
         }
 
@@ -27,8 +27,46 @@ namespace SimpleScene.Demos
         {
             var objs = new HashSet<SSObject> (objects);
             foreach (var target in _targets) {
-                target.isSelected = objs.Contains(target.target);
+                target.isSelected = objs.Contains(target.targetObj);
             }
+        }
+
+        public IEnumerable<SSObject> getSelected()
+        {
+            foreach (var obj in _targets) {
+                if (obj.isSelected) {
+                    yield return obj.targetObj;
+                }
+            }
+        }
+
+        public bool isSelected(SSObject targetObj)
+        {
+            foreach (var ts in _targets) {
+                if (ts.targetObj == targetObj) {
+                    return ts.isSelected;
+                }
+            }
+            return false;
+        }
+
+        public SSObject selectNextObject()
+        {
+            if (_targets.Count == 0) return null;
+            SSObject toSelect = null;
+            for (int i = _targets.Count-1; i >= 0 ; --i) {
+                if (_targets [i].isSelected) {
+                    int iNext = i + 1;
+                    if (iNext == _targets.Count) {
+                        iNext = 0;
+                    }
+                    toSelect = _targets [iNext].targetObj;
+                    break;
+                }
+            }
+            toSelect = toSelect ?? _targets [0].targetObj;
+            selectObject(toSelect);
+            return toSelect;
         }
 
         public SHudTargetsManager (SSScene main3dScene, SSScene hud2dScene)
@@ -44,7 +82,7 @@ namespace SimpleScene.Demos
             SSObject target = null)
         {
             var newTarget = new TargetSpecific (_main3dScene, _hud2dScene);
-            newTarget.target = target;
+            newTarget.targetObj = target;
             newTarget.color = color;
             newTarget.fetchTextBelow = fetchTextBelow ?? _defaultFetchText;
             newTarget.fetchTextAbove = fetchTextAbove ?? _defaultFetchText;
@@ -64,7 +102,7 @@ namespace SimpleScene.Demos
 
         public void removeTargets(SSObject target)
         {
-            var toRemove = _targets.FindAll((t) => t.target == target);
+            var toRemove = _targets.FindAll((t) => t.targetObj == target);
             foreach (var ts in toRemove) {
                 ts.prepareForDelete();
                 _targets.Remove(ts);
@@ -138,7 +176,7 @@ namespace SimpleScene.Demos
                 hudCircleMesh = new SSVertexMesh<SSVertex_Pos> (circleVertices, PrimitiveType.LineLoop);
             }
 
-            public SSObject target = null;
+            public SSObject targetObj = null;
 
             public bool isSelected = false;
             public FetchTextFunc fetchTextBelow = null;
@@ -150,7 +188,7 @@ namespace SimpleScene.Demos
             protected readonly SSObjectGDISurface_Text _labelAbove;
             protected bool _targetIsInFront;
 
-            protected float _stippleAccumulator = 0f;
+            protected float _stippleTimeAccumulator = 0f;
 
             protected Color4 _color;
 
@@ -173,7 +211,6 @@ namespace SimpleScene.Demos
                 _outline.renderState.alphaBlendingOn = true;
                 _outline.renderState.frustumCulling = false;
                 _outline.renderState.noShader = true;
-                _outline.enableLineStipple = true;
                 _outline.lineStipplePattern = 0xFFC0;
                 _outline.Name = "hud target outline";
                 _outline.preRenderHook += (obj, rc) => {
@@ -209,7 +246,7 @@ namespace SimpleScene.Demos
 
             public void preRenderUpdate(float timeElapsed)
             {
-                bool visible = (target != null);
+                bool visible = (targetObj != null);
                 _outline.renderState.visible = visible;          
                 _labelBelow.renderState.visible = visible;
                 _labelAbove.renderState.visible = visible;
@@ -224,27 +261,27 @@ namespace SimpleScene.Demos
                 Quaternion viewRotInverted = viewRotOnly.Inverted();
                 Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
                 Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewRotInverted).Normalized();
-                Vector2 targetScreenPos = OpenTKHelper.WorldToScreen(target.Pos, ref targetViewProj, ref clientRect);
+                Vector2 targetScreenPos = OpenTKHelper.WorldToScreen(targetObj.Pos, ref targetViewProj, ref clientRect);
 
                 // animate outline line stipple
                 _outline.enableLineStipple = this.isSelected;
                 if (_outline.enableLineStipple) {
                     ushort stipplePattern = _outline.lineStipplePattern;
-                    _stippleAccumulator += timeElapsed;
-                    while (_stippleAccumulator >= stippleStepInterval) {
+                    _stippleTimeAccumulator += timeElapsed;
+                    while (_stippleTimeAccumulator >= stippleStepInterval) {
                         ushort firstBit = (ushort)((uint)stipplePattern & 0x1);
                         stipplePattern >>= 1;
                         stipplePattern |= (ushort)((uint)firstBit << 15);
                         _outline.lineStipplePattern = stipplePattern;
 
-                        _stippleAccumulator -= stippleStepInterval;
+                        _stippleTimeAccumulator -= stippleStepInterval;
                     }
                 }
 
                 // assumes target is a convential SSObject without billboarding, match scale to screen, etc.
-                var size = target.worldBoundingSphereRadius;
-                Vector3 targetRightMost = target.Pos + viewRight * size;
-                Vector3 targetTopMost = target.Pos + viewUp * size;
+                var size = targetObj.worldBoundingSphereRadius;
+                Vector3 targetRightMost = targetObj.Pos + viewRight * size;
+                Vector3 targetTopMost = targetObj.Pos + viewUp * size;
                 Vector2 screenRightMostPt = OpenTKHelper.WorldToScreen(targetRightMost, ref targetViewProj, ref clientRect);
                 Vector2 screenTopMostPt = OpenTKHelper.WorldToScreen(targetTopMost, ref targetViewProj, ref clientRect);
                 float outlineHalfWidth = 2f*(screenRightMostPt.X - targetScreenPos.X);
@@ -252,7 +289,7 @@ namespace SimpleScene.Demos
                 float outlineHalfHeight = 2f*(targetScreenPos.Y - screenTopMostPt.Y);
                 outlineHalfHeight = Math.Max(outlineHalfHeight, outlineMinPixelSz);
 
-                Vector3 targetViewPos = Vector3.Transform(target.Pos, targetRc.invCameraViewMatrix);
+                Vector3 targetViewPos = Vector3.Transform(targetObj.Pos, targetRc.invCameraViewMatrix);
                 _targetIsInFront = targetViewPos.Z < 0f;
                 float lineWidth = _targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind;
                 bool above, below, left, right;
@@ -294,7 +331,7 @@ namespace SimpleScene.Demos
                 _outline.Pos = new Vector3(targetScreenPos.X, targetScreenPos.Y, 0f);
 
                 // labels
-                _labelBelow.Label = fetchTextBelow(target);
+                _labelBelow.Label = fetchTextBelow(targetObj);
                 var labelBelowPos = targetScreenPos;
                 if (left) {
                     labelBelowPos.X = 0f;
@@ -309,7 +346,7 @@ namespace SimpleScene.Demos
                 }
                 _labelBelow.Pos = new Vector3(labelBelowPos.X, labelBelowPos.Y, 0f);
 
-                _labelAbove.Label = fetchTextAbove(target);
+                _labelAbove.Label = fetchTextAbove(targetObj);
                 var labelAbovePos = targetScreenPos;
                 if (left) {
                     labelAbovePos.X = 0f;

@@ -190,7 +190,7 @@ namespace TestBench3
                 } while (getTargetObject() == getLauncherObject());
                 updateTextDisplay();
                 var targetObj = getTargetObject();
-                targetHud.target =
+                targetHud.targetObj =
                     (targetObj == main3dScene.ActiveCamera) ? null : targetObj;
                 break;
             case Key.L: 
@@ -227,7 +227,7 @@ namespace TestBench3
             base.mouseDownHandler(sender, e);
 
             if (this.missileTarget == MissileTargets.Selected) {
-                targetHud.target = 
+                targetHud.targetObj = 
                     (selectedObject == main3dScene.ActiveCamera) ? null : selectedObject;
             }
         }
