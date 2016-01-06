@@ -16,6 +16,21 @@ namespace SimpleScene.Demos
         protected readonly SSScene _hud2dScene;
         protected List<TargetSpecific> _targets = new List<TargetSpecific>();
 
+        public void selectObject(SSObject obj)
+        {
+            foreach (var target in _targets) {
+                target.isSelected = (target.target == obj);
+            }
+        }
+
+        public void selectObjects(IEnumerable<SSObject> objects)
+        {
+            var objs = new HashSet<SSObject> (objects);
+            foreach (var target in _targets) {
+                target.isSelected = objs.Contains(target.target);
+            }
+        }
+
         public SHudTargetsManager (SSScene main3dScene, SSScene hud2dScene)
         {
             _main3dScene = main3dScene;
@@ -58,6 +73,11 @@ namespace SimpleScene.Demos
 
         public class TargetSpecific
         {
+            public static float outlineWidthWhenInFront = 3f;
+            public static float outlinelineWidthWhenBehind = 1f;
+            public static float outlineMinPixelSz = 20f;
+            public static float stippleStepInterval = 0.05f;
+
             public static readonly SSVertexMesh<SSVertex_Pos> hudRectLinesMesh;
             public static readonly SSVertexMesh<SSVertex_Pos> hudTriMesh;
             public static readonly SSVertexMesh<SSVertex_Pos> hudCircleMesh;
@@ -119,10 +139,8 @@ namespace SimpleScene.Demos
             }
 
             public SSObject target = null;
-            public float lineWidthWhenInFront = 3f;
-            public float lineWidthWhenBehind = 1f;
-            public float minPixelSz = 20f;
 
+            public bool isSelected = false;
             public FetchTextFunc fetchTextBelow = null;
             public FetchTextFunc fetchTextAbove = null;
 
@@ -132,9 +150,7 @@ namespace SimpleScene.Demos
             protected readonly SSObjectGDISurface_Text _labelAbove;
             protected bool _targetIsInFront;
 
-            protected const float stippleStepInterval = 0.05f;
             protected float _stippleAccumulator = 0f;
-            protected ushort _stipplePattern = 0xFF00;
 
             protected Color4 _color;
 
@@ -157,9 +173,11 @@ namespace SimpleScene.Demos
                 _outline.renderState.alphaBlendingOn = true;
                 _outline.renderState.frustumCulling = false;
                 _outline.renderState.noShader = true;
+                _outline.enableLineStipple = true;
+                _outline.lineStipplePattern = 0xFFC0;
                 _outline.Name = "hud target outline";
                 _outline.preRenderHook += (obj, rc) => {
-                    GL.LineWidth(_targetIsInFront ? lineWidthWhenInFront : lineWidthWhenBehind);
+                    GL.LineWidth(_targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind);
                     GL.Disable(EnableCap.LineSmooth);
                 };
                 hud2dScene.AddObject(_outline);
@@ -208,6 +226,21 @@ namespace SimpleScene.Demos
                 Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewRotInverted).Normalized();
                 Vector2 targetScreenPos = OpenTKHelper.WorldToScreen(target.Pos, ref targetViewProj, ref clientRect);
 
+                // animate outline line stipple
+                _outline.enableLineStipple = this.isSelected;
+                if (_outline.enableLineStipple) {
+                    ushort stipplePattern = _outline.lineStipplePattern;
+                    _stippleAccumulator += timeElapsed;
+                    while (_stippleAccumulator >= stippleStepInterval) {
+                        ushort firstBit = (ushort)((uint)stipplePattern & 0x1);
+                        stipplePattern >>= 1;
+                        stipplePattern |= (ushort)((uint)firstBit << 15);
+                        _outline.lineStipplePattern = stipplePattern;
+
+                        _stippleAccumulator -= stippleStepInterval;
+                    }
+                }
+
                 // assumes target is a convential SSObject without billboarding, match scale to screen, etc.
                 var size = target.worldBoundingSphereRadius;
                 Vector3 targetRightMost = target.Pos + viewRight * size;
@@ -215,13 +248,13 @@ namespace SimpleScene.Demos
                 Vector2 screenRightMostPt = OpenTKHelper.WorldToScreen(targetRightMost, ref targetViewProj, ref clientRect);
                 Vector2 screenTopMostPt = OpenTKHelper.WorldToScreen(targetTopMost, ref targetViewProj, ref clientRect);
                 float outlineHalfWidth = 2f*(screenRightMostPt.X - targetScreenPos.X);
-                outlineHalfWidth = Math.Max(outlineHalfWidth, this.minPixelSz);
+                outlineHalfWidth = Math.Max(outlineHalfWidth, outlineMinPixelSz);
                 float outlineHalfHeight = 2f*(targetScreenPos.Y - screenTopMostPt.Y);
-                outlineHalfHeight = Math.Max(outlineHalfHeight, this.minPixelSz);
+                outlineHalfHeight = Math.Max(outlineHalfHeight, outlineMinPixelSz);
 
                 Vector3 targetViewPos = Vector3.Transform(target.Pos, targetRc.invCameraViewMatrix);
                 _targetIsInFront = targetViewPos.Z < 0f;
-                float lineWidth = _targetIsInFront ? lineWidthWhenInFront : lineWidthWhenBehind;
+                float lineWidth = _targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind;
                 bool above, below, left, right;
                 if (_targetIsInFront) {
                     left = targetScreenPos.X + outlineHalfWidth < 0f;
@@ -241,8 +274,8 @@ namespace SimpleScene.Demos
                 int orientIdx = (above ? 1 : 0) + (below ? 2 : 0) + (left ? 4 : 0) + (right ? 8 : 0);
                 bool inTheCenter = (orientIdx == 0);
                 if (!inTheCenter) {
-                    outlineHalfWidth = minPixelSz;
-                    outlineHalfHeight = minPixelSz;
+                    outlineHalfWidth = outlineMinPixelSz;
+                    outlineHalfHeight = outlineMinPixelSz;
                     if (left) {
                         targetScreenPos.X = outlineHalfWidth;
                     } else if (right) {
@@ -290,17 +323,6 @@ namespace SimpleScene.Demos
                 }
                 labelAbovePos.Y -= (outlineHalfHeight + _labelAbove.getGdiSize.Height);
                 _labelAbove.Pos = new Vector3(labelAbovePos.X, labelAbovePos.Y, 0f);
-
-                // line stipple
-                _stippleAccumulator += timeElapsed;
-                while (_stippleAccumulator >= stippleStepInterval) {
-                    ushort firstBit = (ushort)((uint)_stipplePattern & 0x1);
-                    _stipplePattern >>= 1;
-                    _stipplePattern |= (ushort)((uint)firstBit << 15);
-                    _stippleAccumulator -= stippleStepInterval;
-                }
-                _outline.enableLineStipple = true;
-                _outline.lineStipplePattern = _stipplePattern;
             }
         }
     }
