@@ -49,6 +49,16 @@ namespace SimpleScene.Demos
             }
         }
 
+        public SSObject getFirstSelected()
+        {
+            foreach (var obj in _targets) {
+                if (obj.isSelected) {
+                    return obj.targetObj;
+                }
+            }
+            return null;
+        }
+
         public bool isSelected(SSObject targetObj)
         {
             foreach (var ts in _targets) {
