@@ -34,7 +34,7 @@ namespace SimpleScene.Demos
 
         public void selectObjects(IEnumerable<SSObject> objects)
         {
-            var objs = new HashSet<SSObject> (objects);
+            var objs = new List<SSObject> (objects);
             foreach (var target in _targets) {
                 target.isSelected = objs.Contains(target.targetObj);
             }
@@ -69,21 +69,28 @@ namespace SimpleScene.Demos
             return false;
         }
 
-        public SSObject selectNextObject()
+        public SSObject pickAnotherObject(SSObject skipPlayersOwn=null)
         {
             if (_targets.Count == 0) return null;
             SSObject toSelect = null;
-            for (int i = _targets.Count-1; i >= 0 ; --i) {
-                if (_targets [i].isSelected) {
-                    int iNext = i + 1;
-                    if (iNext == _targets.Count) {
-                        iNext = 0;
+
+            int lastSelectedIndex = _targets.FindLastIndex((t) => (t.isSelected == true)); // -1 works for below
+            for (int i = (lastSelectedIndex + 1) % _targets.Count; 
+                i != lastSelectedIndex;
+                i = (i+1)%_targets.Count) {
+                if (_targets [i].targetObj == skipPlayersOwn) {
+                    if (_targets.Count == 1) {
+                        // nothing to select except player's own object
+                        break;
+                    } else {
+                        // dont select player's own object
+                        continue;
                     }
-                    toSelect = _targets [iNext].targetObj;
+                } else {
+                    toSelect = _targets [i].targetObj;
                     break;
                 }
             }
-            toSelect = toSelect ?? _targets [0].targetObj;
             selectObject(toSelect);
             return toSelect;
         }
