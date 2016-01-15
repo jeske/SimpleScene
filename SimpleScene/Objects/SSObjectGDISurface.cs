@@ -10,8 +10,8 @@ namespace SimpleScene {
         private SSTexture textureSurface;
 
         public bool Dirty = true;
-        Size gdiSize;
-        Size textureSize;
+        public Size gdiSize;
+        public Size textureSize;
 
         public Size getGdiSize { get { return gdiSize; } }
 

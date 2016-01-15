@@ -9,7 +9,6 @@ namespace SimpleScene {
     public class SSObjectGDISurface_Text : SSObjectGDISurface {
 
         public Font font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, 15.0f);
-        SizeF labelSize;
 
         private string _label;
         public string Label {
