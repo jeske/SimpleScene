@@ -43,7 +43,7 @@ namespace SimpleScene.Demos
             _flareScene2d.AddObject(_2dEffectRenderer);
 
             _laserBurnParticles = new SLaserBurnParticlesObject (
-                laserBurnParticlesCapacity, SLaserParameters.laserBurnParticlesDefaultTexture());
+                laserBurnParticlesCapacity, null);
             _laserBurnParticles.Name = "laser manager's laser burn particle system renderer";
             //_laserBurnParticles.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             _beamScene3d.AddObject(_laserBurnParticles);
@@ -64,7 +64,7 @@ namespace SimpleScene.Demos
 		   		     		   SSObject srcObject, SSObject dstObject)
 		{
             if (_2dEffectRenderer.textureMaterial == null) {
-                _2dEffectRenderer.textureMaterial = new SSTextureMaterial (laserParams.emissionSpritesTexture);
+                _2dEffectRenderer.textureMaterial = new SSTextureMaterial (laserParams.emissionSpritesTexture());
             }
 
             var newLaser = new SLaser (laserParams);
@@ -79,6 +79,12 @@ namespace SimpleScene.Demos
                 _laserBurnParticles.particleSystem.addHitSpots(newLaser);
             }
 			
+            if (_laserBurnParticles.textureMaterial == null
+             || _laserBurnParticles.textureMaterial.diffuseTex == null) {
+                _laserBurnParticles.textureMaterial = new SSTextureMaterial(
+                    laserParams.laserBurnParticlesTexture());
+            }
+
             // debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
 			//newLaser.sourceTxfm = Matrix4.Identity;
@@ -203,8 +209,8 @@ namespace SimpleScene.Demos
                 if (_beamObj == null) {
                     _beamObj = new SLaserBeamMiddleObject (
                         _laser, _beamId, _beamScene,
-                        laserParams.middleBackgroundTexture, laserParams.middleOverlayTexture,
-                        laserParams.middleInterferenceTexture);
+                        laserParams.middleBackgroundTexture(), laserParams.middleOverlayTexture(),
+                        laserParams.middleInterferenceTexture());
                     _beamObj.Name = "laser beam middle section object";
                     _beamScene.AddObject(_beamObj);
                 }

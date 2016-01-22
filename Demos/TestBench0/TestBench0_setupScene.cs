@@ -26,7 +26,6 @@ namespace TestBench0
 			hud2dScene.AddObject (testDisplay);
 			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
 			testDisplay.Scale = new Vector3 (1.0f);
-			hud2dScene.AddObject (testDisplay);
 		}
 
 		protected override void setupScene() 

@@ -147,7 +147,7 @@ namespace TestBench3
 
             var targetsManager = new SHudTargetsManager (main3dScene, hud2dScene);
             targetHud = targetsManager.addTarget(
-                Color4.Red,
+                (o) => Color4.Red,
                 _showDistanceFunc,
                 (o) => o != null ? o.Name : "none",
                 getTargetObject()

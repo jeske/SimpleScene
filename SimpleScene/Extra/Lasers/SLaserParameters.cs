@@ -97,12 +97,18 @@ namespace SimpleScene.Demos
         #endregion
 
         #region middle cross-beam section
-        public SSTexture middleBackgroundTexture
-            = SSAssetManager.GetInstance<SSTextureWithAlpha>("lasers", "middleBackground.png");
-        public SSTexture middleOverlayTexture 
-            = SSAssetManager.GetInstance<SSTextureWithAlpha>("lasers", "middleOverlay.png");
-        public SSTexture middleInterferenceTexture
-            = SSAssetManager.GetInstance<SSTextureWithAlpha> ("lasers", "middleInterference.png");
+        public string middleBackgroundTextureFilename = "lasers/middleBackground.png";
+        public SSTexture middleBackgroundTexture()
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", middleBackgroundTextureFilename); }
+
+        public string middleOverlayTextureFilename="lasers/middleOverlay.png";
+        public SSTexture middleOverlayTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".",  middleOverlayTextureFilename); }
+        
+        public string middleInterferenceTextureFilename = "lasers/middleInterference.png";
+        public SSTexture middleInterferenceTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha> (".", middleInterferenceTextureFilename ); }
+
 
         /// <summary>
         /// padding for the start+middle stretched sprite. Mid section vertices gets streched 
@@ -133,8 +139,10 @@ namespace SimpleScene.Demos
         #region emission flare 
         public bool doEmissionFlare = true;
 
-        public SSTexture emissionSpritesTexture =
-            SSAssetManager.GetInstance<SSTextureWithAlpha>("lasers", "laserEmissionSprites.png"); 
+        public string emissionSpritesTextureFilename = "lasers/laserEmissionSprites.png";
+        public SSTexture emissionSpritesTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", emissionSpritesTextureFilename); }
+
         public RectangleF emissionBackgroundRect = new RectangleF(0f, 0.5f, 0.5f, 0.5f);
         public RectangleF emissionOverlayRect = new RectangleF(0f, 0.5f, 0.5f, 0.5f);
 
@@ -157,10 +165,9 @@ namespace SimpleScene.Demos
         #region particle system for burn effects
         public bool doLaserBurn = true;
 
-        public static SSTexture laserBurnParticlesDefaultTexture() 
-        {
-            return SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
-        }
+        public string laserBurnParticlesFilename = "explosions/fig7.png";
+        public SSTexture laserBurnParticlesTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", laserBurnParticlesFilename); }
 
         public RectangleF[] flameSmokeSpriteRects = {
             new RectangleF(0f,    0f,    0.25f, 0.25f),
