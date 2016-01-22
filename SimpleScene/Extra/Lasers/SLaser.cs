@@ -216,23 +216,10 @@ namespace SimpleScene.Demos
 			float periodicT = absoluteTimeS + _periodicTOffset;
 			var laserParams = _laser.parameters;
 
-			// interference sprite U coordinates' offset
-			if (laserParams.middleInterferenceUFunc != null) {
-				_interferenceOffset = laserParams.middleInterferenceUFunc (periodicT);
-			} else {
-				_interferenceOffset = 0f;
-			}
-
-			// periodic intensity
-			if (laserParams.intensityPeriodicFunction != null) {
-				_periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
-			} else {
-				_periodicIntensity = 1f;
-			}
-
-			if (laserParams.intensityModulation != null) {
-				_periodicIntensity *= laserParams.intensityModulation (periodicT);
-			}
+			// update variables
+			_interferenceOffset = laserParams.middleInterferenceUFunc (periodicT);
+            _periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
+            _periodicIntensity *= laserParams.intensityModulation (periodicT);
 
 			// beam emission point placement
 			var src = _laser.sourcePos();
@@ -251,24 +238,11 @@ namespace SimpleScene.Demos
 			}
 
 			// periodic world-coordinate drift
-			float driftX, driftY;
-			if (laserParams.driftXFunc != null) {
-				driftX = laserParams.driftXFunc (periodicT);
-			} else {
-				driftX = 0f;
-			}
-
-			if (laserParams.driftYFunc != null) {
-				driftY = laserParams.driftYFunc (periodicT);
-			} else {
-				driftY = 0f;
-			}
-
-			if (laserParams.driftModulationFunc != null) {
-				var driftMod = laserParams.driftModulationFunc (periodicT);
-				driftX *= driftMod;
-				driftY *= driftMod;
-			}
+            float driftX = laserParams.driftXFunc (periodicT);
+            float driftY = laserParams.driftYFunc (periodicT);
+            var driftMod = laserParams.driftModulationFunc (periodicT);
+            driftX *= driftMod;
+            driftY *= driftMod;
 
 			if (driftX != 0f && driftY != 0f) {
 				Vector3 driftXAxis, driftYAxis;

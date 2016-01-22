@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
@@ -8,6 +9,26 @@ namespace SimpleScene.Demos
 {
     public class SLaserParameters
     {
+        public static Dictionary<string, NCalc.Expression> periodicExpressionCache 
+            = new Dictionary<string, NCalc.Expression> ();
+        public static float evaluatePeriodicScalar(string expressionStr, float t, float fallback = 0f)
+        {
+            if (expressionStr == null || expressionStr.Length <= 0f) {
+                return fallback;
+            }
+
+            NCalc.Expression expr;
+            if (periodicExpressionCache.ContainsKey(expressionStr)) {
+                expr = periodicExpressionCache [expressionStr];
+            } else {
+                expr = new NCalc.Expression (expressionStr);
+                expr.Parameters ["Pi"] = Math.PI;
+                periodicExpressionCache [expressionStr] = expr;
+            }
+            expr.Parameters ["t"] = t;
+            return (float)((double)(expr.Evaluate()));
+        }
+
         #region auxiliary function types
         /// <summary>
         /// Intensity as a function of period fraction t (from 0 to 1)
@@ -28,17 +49,19 @@ namespace SimpleScene.Demos
 
         #region periodic intensity      
         /// <summary>
-        /// Intensity as a function of period fraction t (from 0 to 1)
+        /// Intensity as a function of period fraction t (from 0 to 1) using NCalc expression
         /// </summary>
-        public PeriodicFunction intensityPeriodicFunction = 
-            t => 0.8f + 0.1f * (float)Math.Sin(2.0f * (float)Math.PI * 10f * t) 
-            * (float)Math.Sin(2.0f * (float)Math.PI * 2f * t) ;
+        public string intensityPeriodicFunctionStr =
+            "0.8 + 0.1 * Sin(2.0 * Pi * 10.0 * t) * Sin(2.0 * Pi * t)";
+        public float intensityPeriodicFunction(float t)
+            { return evaluatePeriodicScalar(intensityPeriodicFunctionStr, t, fallback: 1f); }
 
         /// <summary>
         /// Further periodic modulation or scale, if needed
         /// </summary>
-        public PeriodicFunction intensityModulation =
-            t => 1f;
+        public string intensityModulationFunctionStr = "1.0";
+        public float intensityModulation(float t) 
+            { return evaluatePeriodicScalar(intensityModulationFunctionStr, t, fallback: 1f); }
         #endregion
 
         #region intensity ADSR envelope
@@ -47,21 +70,21 @@ namespace SimpleScene.Demos
         /// "engaged-until-released" lasers by default
         /// </summary>
         public ADSREnvelope intensityEnvelope 
-        = new ADSREnvelope (0.15f, 0.15f, float.PositiveInfinity, 0.5f, 1f, 0.7f);
+            = new ADSREnvelope (0.15f, 0.15f, float.PositiveInfinity, 0.5f, 1f, 0.7f);
         //= new ADSREnvelope (0.20f, 0.20f, float.PositiveInfinity, 1f, 1f, 0.7f);
         #endregion
 
         #region periodic drift
-        public PeriodicFunction driftXFunc = 
-            t => (float)Math.Cos (2.0f * (float)Math.PI * 0.1f * t) 
-            * (float)Math.Cos (2.0f * (float)Math.PI * 0.53f * t);
+        public string driftXFuncStr = "Cos(2.0 * Pi * 0.1 * t) * Cos(2.0 * Pi * 0.53 * t)";
+        public string driftYFuncStr = "Sin(2.0 * Pi * 0.1 * t) * Sin(2.0 * Pi * 0.57 * t)";
+        public string driftModulationFuncStr = "0.1";
 
-        public PeriodicFunction driftYFunc =
-            t => (float)Math.Sin (2.0f * (float)Math.PI * 0.1f * t) 
-            * (float)Math.Sin (2.0f * (float)Math.PI * 0.57f * t);
-
-        public PeriodicFunction driftModulationFunc =
-            t => 0.1f;
+        public float driftXFunc(float t) 
+            { return evaluatePeriodicScalar(driftXFuncStr, t); }
+        public float driftYFunc(float t)
+            { return evaluatePeriodicScalar(driftYFuncStr, t); }
+        public float driftModulationFunc(float t)
+            { return evaluatePeriodicScalar(driftModulationFuncStr, t); }
         #endregion
 
         #region multi-beam settings
@@ -133,7 +156,9 @@ namespace SimpleScene.Demos
         /// <summary>
         /// Describes the value of the U-coordinate offset for the interference as a function of time
         /// </summary>
-        public PeriodicFunction middleInterferenceUFunc = (t) => -0.75f * t;
+        public string middleInterferenceUFuncStr = "-0.75 * t";
+        public float middleInterferenceUFunc(float t)
+            { return  evaluatePeriodicScalar(middleInterferenceUFuncStr, t, fallback:1f); }
         #endregion
 
         #region emission flare 

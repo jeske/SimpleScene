@@ -61,6 +61,9 @@
       <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="NCalc">
+      <HintPath>..\Libs\NCalc.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\SSAABB.cs" />
