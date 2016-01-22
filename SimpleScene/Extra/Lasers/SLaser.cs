@@ -222,20 +222,18 @@ namespace SimpleScene.Demos
             _periodicIntensity *= laserParams.intensityModulation (periodicT);
 
 			// beam emission point placement
-			var src = _laser.sourcePos();
-			var dst = _laser.destPos();
-			if (laserParams.beamStartPlacementFunc != null) {
-				var zAxis = (dst - src).Normalized ();
-				Vector3 xAxis, yAxis;
-				OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
-				var localPlacement = laserParams.beamStartPlacementFunc (_beamId, laserParams.numBeams, absoluteTimeS);
-				var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
-				_beamStart = src + laserParams.beamStartPlacementScale * placement;
-				_beamEnd = dst + laserParams.beamDestSpread * placement;
-			} else {
-				_beamStart = src;
-				_beamEnd = dst;
-			}
+            _beamStart = _laser.sourcePos();
+            _beamEnd = _laser.destPos();
+            Vector3 localPlacement = laserParams.beamStartPlacementFunc(
+                    _beamId, laserParams.numBeams, absoluteTimeS);
+            if (localPlacement != Vector3.Zero) {
+                var zAxis = (_beamEnd - _beamStart).Normalized ();
+                Vector3 xAxis, yAxis;
+                OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
+                var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
+                _beamStart += laserParams.beamStartPlacementScale * placement;
+                _beamEnd += laserParams.beamDestSpread * placement;
+            }
 
 			// periodic world-coordinate drift
             float driftX = laserParams.driftXFunc (periodicT);

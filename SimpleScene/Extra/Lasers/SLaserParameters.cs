@@ -9,25 +9,37 @@ namespace SimpleScene.Demos
 {
     public class SLaserParameters
     {
-        public static Dictionary<string, NCalc.Expression> periodicExpressionCache 
-            = new Dictionary<string, NCalc.Expression> ();
+        #region customizable and serializable expressions
         public static float evaluatePeriodicScalar(string expressionStr, float t, float fallback = 0f)
         {
             if (expressionStr == null || expressionStr.Length <= 0f) {
                 return fallback;
             }
-
-            NCalc.Expression expr;
-            if (periodicExpressionCache.ContainsKey(expressionStr)) {
-                expr = periodicExpressionCache [expressionStr];
-            } else {
-                expr = new NCalc.Expression (expressionStr);
-                expr.Parameters ["Pi"] = Math.PI;
-                periodicExpressionCache [expressionStr] = expr;
-            }
+            // note that Expression caching is already done internally by NCalc:
+            // https://ncalc.codeplex.com/wikipage?title=description&referringTitle=Home
+            var expr = new NCalc.Expression(expressionStr); 
+            expr.Parameters ["Pi"] = Math.PI;
             expr.Parameters ["t"] = t;
             return (float)((double)(expr.Evaluate()));
         }
+        public static float evaluateBeamPlacement(
+            string expressionStr, int beamId, int numBeams, float t)
+        {
+            if (expressionStr == null || expressionStr.Length <= 0) {
+                return 0f;
+            }
+
+            // note that Expression caching is already done internally by NCalc:
+            // https://ncalc.codeplex.com/wikipage?title=description&referringTitle=Home
+
+            var expr = new NCalc.Expression (expressionStr);
+            expr.Parameters ["Pi"] = Math.PI;
+            expr.Parameters ["beamId"] = beamId;
+            expr.Parameters ["numBeams"] = beamId;
+            expr.Parameters ["t"] = t;
+            return (float)((double)(expr.Evaluate()));
+        }
+        #endregion
 
         #region auxiliary function types
         /// <summary>
@@ -95,17 +107,24 @@ namespace SimpleScene.Demos
 
         /// <summary>
         /// Beam placement functions positions beam origins for one or more laser beams. When implementing
-        /// assume laser origin is at (0, 0, 0) and the target is in the +z direction. Default function
-        /// arranges beams in a circle around the origin.
+        /// assume laser origin is at (0, 0, 0) and the target is in the +z direction. Default functions
+        /// arrange beams in a circle around the origin.
         /// </summary>
-        public BeamPlacementFunction beamStartPlacementFunc = (beamID, numBeams, t) => {
-            if (numBeams <= 1) {
-                return Vector3.Zero;
-            } else {
-                float a = 2f * (float)Math.PI / (float)numBeams * beamID;
-                return new Vector3((float)Math.Cos(a), (float)Math.Sin(a), 0f);
-            }
-        };
+        public string beamStartPlacementFuncXStr 
+            = "numBeams <= 1 ? 0.0 : Cos(2.0 * Pi * beamId / numBeams)";
+        public string beamStartPlacementFuncYStr 
+            = "numBeams <= 1 ? 0.0 : Sin(2.0 * Pi * beamId / numBeams)";
+        public string beamStartPlacementFuncZStr
+            = "0.0";
+
+        public Vector3 beamStartPlacementFunc (int beamId, int numBeams, float t)
+        {
+            return new Vector3 (
+                evaluateBeamPlacement(beamStartPlacementFuncXStr, beamId, numBeams, t), 
+                evaluateBeamPlacement(beamStartPlacementFuncYStr, beamId, numBeams, t),
+                evaluateBeamPlacement(beamStartPlacementFuncZStr, beamId, numBeams, t)
+            );
+        }
 
         /// <summary>
         /// Beam-placement function output will be scaled by this much to produce the final beam start
