@@ -7,6 +7,7 @@ using SimpleScene.Util;
 
 namespace SimpleScene.Demos
 {
+    [Serializable]
     public class SLaserParameters
     {
         #region customizable and serializable expressions
@@ -41,19 +42,6 @@ namespace SimpleScene.Demos
         }
         #endregion
 
-        #region auxiliary function types
-        /// <summary>
-        /// Intensity as a function of period fraction t (from 0 to 1)
-        /// </summary>
-        public delegate float PeriodicFunction(float t);
-
-        /// <summary>
-        /// Beam placement functions positions beam origins for one or more laser beams. When implementing
-        /// assume laser origin is at (0, 0, 0) and the target is in the +z direction
-        /// </summary>
-        public delegate Vector3 BeamPlacementFunction(int beamID, int numBeams, float t);
-        #endregion
-
         #region shared color parameters
         public Color4 backgroundColor = Color4.Magenta;
         public Color4 overlayColor = Color4.White;
@@ -65,15 +53,11 @@ namespace SimpleScene.Demos
         /// </summary>
         public string intensityPeriodicFunctionStr =
             "0.8 + 0.1 * Sin(2.0 * Pi * 10.0 * t) * Sin(2.0 * Pi * t)";
-        public float intensityPeriodicFunction(float t)
-            { return evaluatePeriodicScalar(intensityPeriodicFunctionStr, t, fallback: 1f); }
 
         /// <summary>
         /// Further periodic modulation or scale, if needed
         /// </summary>
         public string intensityModulationFunctionStr = "1.0";
-        public float intensityModulation(float t) 
-            { return evaluatePeriodicScalar(intensityModulationFunctionStr, t, fallback: 1f); }
         #endregion
 
         #region intensity ADSR envelope
@@ -81,8 +65,8 @@ namespace SimpleScene.Demos
         /// Attack-decay-sustain-release envelope, with infinite sustain to simulate
         /// "engaged-until-released" lasers by default
         /// </summary>
-        public ADSREnvelope intensityEnvelope 
-            = new ADSREnvelope (0.15f, 0.15f, float.PositiveInfinity, 0.5f, 1f, 0.7f);
+        public LinearADSREnvelope intensityEnvelope 
+            = new LinearADSREnvelope (0.15f, 0.15f, float.PositiveInfinity, 0.5f, 1f, 0.7f);
         //= new ADSREnvelope (0.20f, 0.20f, float.PositiveInfinity, 1f, 1f, 0.7f);
         #endregion
 
@@ -90,13 +74,6 @@ namespace SimpleScene.Demos
         public string driftXFuncStr = "Cos(2.0 * Pi * 0.1 * t) * Cos(2.0 * Pi * 0.53 * t)";
         public string driftYFuncStr = "Sin(2.0 * Pi * 0.1 * t) * Sin(2.0 * Pi * 0.57 * t)";
         public string driftModulationFuncStr = "0.1";
-
-        public float driftXFunc(float t) 
-            { return evaluatePeriodicScalar(driftXFuncStr, t); }
-        public float driftYFunc(float t)
-            { return evaluatePeriodicScalar(driftYFuncStr, t); }
-        public float driftModulationFunc(float t)
-            { return evaluatePeriodicScalar(driftModulationFuncStr, t); }
         #endregion
 
         #region multi-beam settings
@@ -140,17 +117,8 @@ namespace SimpleScene.Demos
 
         #region middle cross-beam section
         public string middleBackgroundTextureFilename = "lasers/middleBackground.png";
-        public SSTexture middleBackgroundTexture()
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", middleBackgroundTextureFilename); }
-
         public string middleOverlayTextureFilename="lasers/middleOverlay.png";
-        public SSTexture middleOverlayTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".",  middleOverlayTextureFilename); }
-        
         public string middleInterferenceTextureFilename = "lasers/middleInterference.png";
-        public SSTexture middleInterferenceTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha> (".", middleInterferenceTextureFilename ); }
-
 
         /// <summary>
         /// padding for the start+middle stretched sprite. Mid section vertices gets streched 
@@ -210,10 +178,8 @@ namespace SimpleScene.Demos
         public bool doLaserBurn = true;
 
         public string laserBurnParticlesFilename = "explosions/fig7.png";
-        public SSTexture laserBurnParticlesTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", laserBurnParticlesFilename); }
 
-        public RectangleF[] flameSmokeSpriteRects = {
+        public RectangleF[] flameSmokeSpriteRects = new RectangleF[] {
             new RectangleF(0f,    0f,    0.25f, 0.25f),
             new RectangleF(0f,    0.25f, 0.25f, 0.25f),
             new RectangleF(0.25f, 0.25f, 0.25f, 0.25f),
@@ -233,7 +199,7 @@ namespace SimpleScene.Demos
         /// <summary>
         /// Default locations of flash sprites in fig7.png
         /// </summary>
-        public RectangleF[] flashSpriteRects = {
+        public RectangleF[] flashSpriteRects = new RectangleF[] {
             new RectangleF(0.5f,  0f,    0.25f, 0.25f),
             new RectangleF(0.75f, 0f,    0.25f, 0.25f),
             new RectangleF(0.5f,  0.25f, 0.25f, 0.25f),
@@ -246,6 +212,27 @@ namespace SimpleScene.Demos
         public float flashScaleMin = 1f;
         public float flashScaleMax = 2f;
         public float flashLifetime = 1f;
+        #endregion
+
+        #region runtime helpers
+        public float intensityPeriodicFunction(float t)
+            { return evaluatePeriodicScalar(intensityPeriodicFunctionStr, t, fallback: 1f); }
+        public float intensityModulation(float t) 
+            { return evaluatePeriodicScalar(intensityModulationFunctionStr, t, fallback: 1f); }
+        public float driftXFunc(float t) 
+            { return evaluatePeriodicScalar(driftXFuncStr, t); }
+        public float driftYFunc(float t)
+            { return evaluatePeriodicScalar(driftYFuncStr, t); }
+        public float driftModulationFunc(float t)
+            { return evaluatePeriodicScalar(driftModulationFuncStr, t); }
+        public SSTexture middleBackgroundTexture()
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", middleBackgroundTextureFilename); }
+        public SSTexture middleOverlayTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".",  middleOverlayTextureFilename); }
+        public SSTexture middleInterferenceTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha> (".", middleInterferenceTextureFilename ); }
+        public SSTexture laserBurnParticlesTexture() 
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", laserBurnParticlesFilename); }
         #endregion
 
         public SLaserParameters() 

@@ -52,7 +52,7 @@ namespace SimpleScene.Demos
 		/// Points to the intensity envelope actually used (so as to not temper with the original one
 		/// that may be shared with other lasers)
 		/// </summary>
-		protected readonly ADSREnvelope _localIntensityEnvelope = null;
+		protected readonly LinearADSREnvelope _localIntensityEnvelope = null;
 
 		/// <summary>
 		/// Hack for the ADSR envelope to skip the infinite sustain part and begin releasing the laser

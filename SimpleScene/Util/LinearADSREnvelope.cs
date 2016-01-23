@@ -6,7 +6,7 @@ namespace SimpleScene.Util
 	/// For modeling Attack-Delay-Sustain-Release levels of anyting
 	/// https://en.wikipedia.org/wiki/Synthesizer#ADSR_envelope
 	/// </summary>
-	public class ADSREnvelope
+	public class LinearADSREnvelope
 	{
 		public float attackDuration;
 		public float decayDuration;
@@ -17,14 +17,14 @@ namespace SimpleScene.Util
 			get { return attackDuration + decayDuration + sustainDuration + releaseDuration; }
 		}
 
-		IInterpolater attackInterpolater = new LinearInterpolater();
-		IInterpolater decayInterpolater = new LinearInterpolater();
-		IInterpolater releaseInterpolater = new LinearInterpolater();
+        LinearInterpolater attackInterpolater = new LinearInterpolater();
+        LinearInterpolater decayInterpolater = new LinearInterpolater();
+        LinearInterpolater releaseInterpolater = new LinearInterpolater();
 
 		public float peakLevel;
 		public float sustainLevel;
 
-		public ADSREnvelope(
+		public LinearADSREnvelope(
 			float attackDuration = 1f, float decayDuration = 1f, 
 			float sustainDuration = 1f, float releaseDuration = 1f,
 			float peakLevel = 1f, float sustainLevel = 0.5f)
@@ -37,9 +37,19 @@ namespace SimpleScene.Util
 			this.sustainLevel = sustainLevel;
 		}
 
-		public ADSREnvelope Clone()
+        public LinearADSREnvelope()
+        {
+            this.attackDuration = 1f;
+            this.decayDuration = 1f;
+            this.sustainDuration = 1f;
+            this.releaseDuration = 1f;
+            this.peakLevel = 1f;
+            this.sustainLevel = 0.5f;
+        }
+
+		public LinearADSREnvelope Clone()
 		{
-			return new ADSREnvelope (
+			return new LinearADSREnvelope (
 				this.attackDuration, this.decayDuration,
 				this.sustainDuration, this.releaseDuration,
 				this.peakLevel, this.sustainLevel);

@@ -290,12 +290,12 @@ namespace SimpleScene
 			set { centerMin = centerMax = value; }
 		}
 
-		protected ADSREnvelope _adsr;
+		protected LinearADSREnvelope _adsr;
 		protected List<BlastInfo> _blasts;
 
 		public SSPeriodicExplosiveForceEffector()
 		{
-			_adsr = new ADSREnvelope ();
+			_adsr = new LinearADSREnvelope ();
 			_adsr.peakLevel = 1f;
 			_adsr.sustainLevel = 0.5f;
 
