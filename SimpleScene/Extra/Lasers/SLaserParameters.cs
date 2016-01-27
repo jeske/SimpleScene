@@ -238,6 +238,11 @@ namespace SimpleScene.Demos
         public SLaserParameters() 
         { 
         }
+
+        public SLaserParameters shallowCopy()
+        {
+            return (SLaserParameters)this.MemberwiseClone();
+        }
     }
 }
 
