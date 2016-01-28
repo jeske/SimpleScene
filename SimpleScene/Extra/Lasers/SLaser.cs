@@ -256,7 +256,7 @@ namespace SimpleScene.Demos
                 // this will cause problems. Consider using BVH for ray tests or analyzing
                 // intersection math.
                 var ray = this.ray();
-                float closestDistance = this.lengthFast();
+                float closestDistance = this.lengthFast(); 
                 foreach (var obj in _laser.beamObstacles) {
                     float distanceToInterect;
                     if (obj.Intersect(ref ray, out distanceToInterect)) {

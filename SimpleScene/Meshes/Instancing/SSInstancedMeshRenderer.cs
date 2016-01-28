@@ -17,7 +17,7 @@ namespace SimpleScene
         void drawSingle (SSRenderConfig renderConfig, PrimitiveType primType);
     }
 
-    /// <summary>5
+    /// <summary>
     /// Renders particle system with attribute buffers and an ISSInstancable object
     /// </summary>
     public class SSInstancedMeshRenderer : SSObject
