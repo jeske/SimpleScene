@@ -64,6 +64,9 @@
     <Reference Include="NCalc">
       <HintPath>..\Libs\NCalc.dll</HintPath>
     </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\Libs\Antlr3.Runtime.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\SSAABB.cs" />
@@ -155,7 +158,10 @@
     <Compile Include="Extra\Lasers\SLaserEmissionFlareUpdater.cs" />
     <Compile Include="Extra\Lasers\SLaserHitFlareUpdater.cs" />
     <Compile Include="Extra\Lasers\SLaserManager.cs" />
-    <Compile Include="Extra\Lasers\SLaserParameters.cs" />
+    <Compile Include="Extra\Lasers\SLaserParameters.cs">
+      <DeployService-Deploy>True</DeployService-Deploy>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Extra\Missiles\MissileDrivers.cs" />
     <Compile Include="Extra\Missiles\MissileTargets.cs" />
     <Compile Include="Extra\Missiles\SSpaceMissileData.cs" />

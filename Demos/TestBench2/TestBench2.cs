@@ -109,7 +109,7 @@ namespace TestBench2
 			laserParams.overlayColor = Color4.White;
 			laserParams.middleInterferenceColor = Color4.White;
 
-            laserParams.driftModulationFuncStr = (rand.NextDouble() * 0.1).ToString();
+            //laserParams.driftModulationFuncStr = (rand.NextDouble() * 0.1).ToString();
 
 			var newLaser = laserManager.addLaser (laserParams, droneObj1, droneObj2);
 			newLaser.sourceTxfm = laserSourceTxfm;

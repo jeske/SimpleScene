@@ -73,7 +73,7 @@ namespace SimpleScene.Demos
         #region periodic drift
         public string driftXFuncStr = "Cos(2.0 * Pi * 0.1 * t) * Cos(2.0 * Pi * 0.53 * t)";
         public string driftYFuncStr = "Sin(2.0 * Pi * 0.1 * t) * Sin(2.0 * Pi * 0.57 * t)";
-        public string driftModulationFuncStr = "0.1";
+        public string driftModulationFuncStr = "0.01";
         #endregion
 
         #region multi-beam settings
