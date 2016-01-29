@@ -9,7 +9,7 @@ namespace SimpleScene.Demos
 {
     public class SLaserBurnParticlesObject : SSInstancedMeshRenderer
     {
-        public  SLaserBurnParticleSystem particleSystem {
+        public SLaserBurnParticleSystem particleSystem {
             get { return base.instanceData as SLaserBurnParticleSystem; }
         }
 
@@ -106,6 +106,14 @@ namespace SimpleScene.Demos
             float newFlameSmokeDuration = laser.parameters.flameSmokeLifetime;
             _globalSmokeDimmerEffector.particleLifetime = newFlameSmokeDuration;
             _globalSmokeScaleEffector.particleLifetime = newFlameSmokeDuration;
+        }
+
+        public void updateHitSpotVelocity(SLaser laser, Vector3 velocity)
+        {
+            var hitSpot = _hitSpots [laser];
+            foreach (var emitter in hitSpot.emitters()) {
+                emitter.velocity = velocity;
+            }
         }
 
         public void removeHitSpots(SLaser laser)

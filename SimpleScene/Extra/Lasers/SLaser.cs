@@ -17,6 +17,15 @@ namespace SimpleScene.Demos
 	/// </summary>
 	public class SLaser
 	{
+        // TODO switch targets while firing
+
+        public delegate Vector3 TargetVelFunc(SSObject target);
+
+        /// <summary>
+        /// Customized to spawn laser burn particles at target velocity
+        /// </summary>
+        public readonly TargetVelFunc targetVelFunc;
+
 		/// <summary>
 		/// Laser parameters. This is NOT to be tempered with by laser render and update code.
 		/// </summary>
@@ -70,10 +79,11 @@ namespace SimpleScene.Demos
 		protected SLaserBeam[] _beams = null;
 		#endregion
 
-		public SLaser(SLaserParameters laserParams)
+        public SLaser(SLaserParameters laserParams, TargetVelFunc targetVelFunc=null)
 		{
 			this.parameters = laserParams;
 			this._localIntensityEnvelope = laserParams.intensityEnvelope.Clone();
+            this.targetVelFunc = targetVelFunc;
 
             _beams = new SLaserBeam[parameters.numBeams];
             for (int i = 0; i < parameters.numBeams; ++i) {
@@ -112,6 +122,14 @@ namespace SimpleScene.Demos
 		{
 			return (destPos () - sourcePos ()).Normalized ();
 		}
+
+        public Vector3 targetVelocity()
+        {
+            if (targetVelFunc != null) {
+                return targetVelFunc(targetObject);
+            }
+            return Vector3.Zero;
+        }
 
 		public SLaserBeam beam(int id)
 		{

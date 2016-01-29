@@ -9,7 +9,9 @@ namespace SimpleScene.Demos
 {
 	public class SLaserManager
 	{
-		// TODO switch targets while firing
+
+
+
 
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
@@ -61,13 +63,14 @@ namespace SimpleScene.Demos
         }
 
 		public SLaser addLaser(SLaserParameters laserParams, 
-		   		     		   SSObject srcObject, SSObject dstObject)
+		   		     		   SSObject srcObject, SSObject dstObject,
+                               SLaser.TargetVelFunc targetVelFunc = null)
 		{
             if (_2dEffectRenderer.textureMaterial == null) {
                 _2dEffectRenderer.textureMaterial = new SSTextureMaterial (laserParams.emissionSpritesTexture());
             }
 
-            var newLaser = new SLaser (laserParams);
+            var newLaser = new SLaser (laserParams, targetVelFunc);
 			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
 			newLaser.targetObject = dstObject;
@@ -112,11 +115,14 @@ namespace SimpleScene.Demos
 		{
 			for (int i = 0; i < _laserRuntimes.Count; ++i) {
 				var lrt = _laserRuntimes [i];
+                _laserBurnParticles.particleSystem.updateHitSpotVelocity(
+                    lrt.laser, lrt.laser.targetVelocity());
 				lrt.update (timeElapsedS);
 				if (lrt.laser.hasExpired) {
                     _removeLaser(i);
 				}
 			}
+
             _laserBurnParticles.particleSystem.update(timeElapsedS);
 
             #if false
