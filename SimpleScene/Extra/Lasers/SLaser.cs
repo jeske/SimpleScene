@@ -221,9 +221,34 @@ namespace SimpleScene.Demos
             _periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
             _periodicIntensity *= laserParams.intensityModulation (periodicT);
 
-			// beam emission point placement
+            // intersects with any of the intersecting objects
+            _hitsAnObstacle = false;
+            if (_laser.beamObstacles != null) {
+                //if (false) {
+                // TODO note the code below is slow. Wen you start having many lasers
+                // this will cause problems. Consider using BVH for ray tests or analyzing
+                // intersection math.
+                var ray = this.ray();
+                float closestDistance = float.PositiveInfinity; 
+                foreach (var obj in _laser.beamObstacles) {
+                    float distanceToInterect;
+                    if (obj.Intersect(ref ray, out distanceToInterect)) {
+
+                        if (distanceToInterect < closestDistance) {
+                            closestDistance = distanceToInterect;
+                            _hitsAnObstacle = true;
+                            _beamEnd = _beamStart + ray.dir * closestDistance;
+                        }
+                    }
+                }
+            }
+
+            // final start and end points of the beam (for this update)
             _beamStart = _laser.sourcePos();
-            _beamEnd = _laser.destPos();
+            if (!_hitsAnObstacle) {
+                _beamEnd = _laser.destPos();
+            }
+
             Vector3 localPlacement = laserParams.beamStartPlacementFunc(
                     _beamId, laserParams.numBeams, absoluteTimeS);
             if (localPlacement != Vector3.Zero) {
@@ -247,28 +272,6 @@ namespace SimpleScene.Demos
 				OpenTKHelper.TwoPerpAxes (_laser.direction(), out driftXAxis, out driftYAxis);
 				_beamEnd += (driftX * driftXAxis + driftY * driftYAxis);
 			}
-
-            // intersects with any of the intersecting objects
-            _hitsAnObstacle = false;
-            if (_laser.beamObstacles != null) {
-            //if (false) {
-                // TODO note the code below is slow. Wen you start having many lasers
-                // this will cause problems. Consider using BVH for ray tests or analyzing
-                // intersection math.
-                var ray = this.ray();
-                float closestDistance = this.lengthFast(); 
-                foreach (var obj in _laser.beamObstacles) {
-                    float distanceToInterect;
-                    if (obj.Intersect(ref ray, out distanceToInterect)) {
-
-                        if (distanceToInterect < closestDistance) {
-                            closestDistance = distanceToInterect;
-                            _hitsAnObstacle = true;
-                        }
-                    }
-                }
-                _beamEnd = _beamStart + ray.dir * closestDistance;
-            }
 		}
 	}
 }
