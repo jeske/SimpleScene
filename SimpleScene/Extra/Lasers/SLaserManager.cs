@@ -9,10 +9,6 @@ namespace SimpleScene.Demos
 {
 	public class SLaserManager
 	{
-
-
-
-
 		/// <summary>
 		/// Scene that the lasers will be added to/removed from
 		/// </summary>
