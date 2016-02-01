@@ -51,7 +51,8 @@ namespace SimpleScene.Demos
 		// TODO cache these computations
 		public override Vector3 localBoundingSphereCenter {
 			get {
-				Vector3 middleWorld = (_laser.sourcePos() + _laser.destPos()) / 2f;
+                var beam = _laser.beam(_beamId);
+                Vector3 middleWorld = (beam.startPosWorld + beam.endPosWorld) / 2f;
 				return Vector3.Transform (middleWorld, this.worldMat.Inverted ());
 			}
 		}
@@ -59,8 +60,8 @@ namespace SimpleScene.Demos
 		// TODO cache these computations
 		public override float localBoundingSphereRadius {
 			get {
-				Vector3 diff = (_laser.destPos() - _laser.sourcePos());
-				return diff.LengthFast/2f;
+                var beam = _laser.beam(_beamId);
+                return beam.lengthFastWorld();
 			}
 		}
 
@@ -116,8 +117,8 @@ namespace SimpleScene.Demos
 
 			var laserParams = _laser.parameters;
 
-			var startView = Vector3.Transform(beam.startPos, renderConfig.invCameraViewMatrix);
-			var endView = Vector3.Transform (beam.endPos, renderConfig.invCameraViewMatrix);
+			var startView = Vector3.Transform(beam.startPosWorld, renderConfig.invCameraViewMatrix);
+			var endView = Vector3.Transform (beam.endPosWorld, renderConfig.invCameraViewMatrix);
 			var middleView = (startView + endView) / 2f;
 
 			// step: draw middle section:
@@ -134,7 +135,7 @@ namespace SimpleScene.Demos
 
 			Vector3 cameraDir = Vector3.Transform(
 				-Vector3.UnitZ, _cameraScene.renderConfig.invCameraViewMatrix).Normalized();
-			float dot = Vector3.Dot (cameraDir, _laser.direction());
+            float dot = Vector3.Dot (cameraDir, beam.directionWorld());
 			dot = Math.Max (dot, 0f);
 			float interferenceWidth = middleWidth * laserParams.middleInterferenceScale;
 

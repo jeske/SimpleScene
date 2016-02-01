@@ -180,8 +180,8 @@ namespace SimpleScene.Demos
                 _createRenderObjects();
 
                 if (_occDiskFlatObj != null) {
-                    _occDiskFlatObj.Pos = beam.startPos 
-                        + _laser.direction() * _laser.parameters.emissionOccDiskDirOffset;
+                    _occDiskFlatObj.Pos = beam.startPosWorld 
+                        + beam.directionWorld() * _laser.parameters.emissionOccDiskDirOffset;
 
                     _occDiskFlatObj.Orient(_laser.sourceOrient());
                 }

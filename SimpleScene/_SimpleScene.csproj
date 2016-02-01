@@ -189,6 +189,7 @@
     <Compile Include="Extra\TestBenchBootstrap\TestBenchBootstrap_setupScene.cs" />
     <Compile Include="Extra\SHudTargetsManager.cs" />
     <Compile Include="Util\LinearADSREnvelope.cs" />
+    <Compile Include="Extra\Lasers\SLaserBeam.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

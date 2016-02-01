@@ -66,9 +66,9 @@ namespace SimpleScene.Demos
                                   ref Vector3 cameraPos, ref Matrix4 camera3dView, ref Matrix4 camera3dProj)
         {
             var beam = _laser.beam(_beamId);
-            var ray = beam.ray();
+            var ray = beam.rayWorld();
             var laserParams = _laser.parameters;
-            var beamSrcInViewSpace = Vector3.Transform(beam.startPos, camera3dView);
+            var beamSrcInViewSpace = Vector3.Transform(beam.startPosWorld, camera3dView);
 
             bool hideSprites = true;
             Vector3 intersectPt3d;
@@ -82,8 +82,8 @@ namespace SimpleScene.Demos
                 nearPlane.D = cameraViewProjMat3d.M44 + cameraViewProjMat3d.M43;
 
                 if (nearPlane.intersects(ref ray, out intersectPt3d)) {
-                    float lengthToIntersectionSq = (intersectPt3d - beam.startPos).LengthSquared;
-                    float beamLengthSq = beam.lengthSq();
+                    float lengthToIntersectionSq = (intersectPt3d - beam.startPosWorld).LengthSquared;
+                    float beamLengthSq = beam.lengthSqWorld();
                     if (lengthToIntersectionSq  < beamLengthSq) {
                         hideSprites = false;
                         Vector2 drawScreenPos = OpenTKHelper.WorldToScreen(

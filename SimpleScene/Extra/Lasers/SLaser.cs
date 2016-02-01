@@ -41,6 +41,9 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public Matrix4 sourceTxfm = Matrix4.Identity;
 
+        /// <summary> get added to beam placement function results </summary>
+        public List<Vector3> beamOriginPresets = null;
+
 		/// <summary>
 		/// Object that the laser hits
 		/// </summary>
@@ -91,15 +94,6 @@ namespace SimpleScene.Demos
             }
 		}
 
-		public Vector3 sourcePos()
-		{
-            var mat = sourceTxfm;
-            if (sourceObject != null) {
-                mat = mat * sourceObject.worldMat;
-            }
-            return Vector3.Transform (Vector3.Zero, mat);
-		}
-
 		public Quaternion sourceOrient()
 		{
             var ret = sourceTxfm.ExtractRotation();
@@ -107,20 +101,6 @@ namespace SimpleScene.Demos
                 ret = sourceObject.worldMat.ExtractRotation() * ret;
             }
 			return ret;
-		}
-
-		public Vector3 destPos()
-		{
-            var mat = targetTxfm;
-            if (targetObject != null) {
-                mat = mat * targetObject.worldMat;
-            }
-			return Vector3.Transform (Vector3.Zero, mat);
-		}
-
-		public Vector3 direction()
-		{
-			return (destPos () - sourcePos ()).Normalized ();
 		}
 
         public Vector3 targetVelocity()
@@ -171,126 +151,26 @@ namespace SimpleScene.Demos
 				beam.update (_localT);
 			}
 		}
-	}
 
-	/// <summary>
-	/// Data model for a laser beam
-	/// </summary>
-	public class SLaserBeam
-	{
-        // TODO receive laser hit locations
-
-		protected static readonly Random _random = new Random();
-
-		protected readonly int _beamId;
-		protected readonly SLaser _laser;
-
-		protected float _periodicTOffset = 0f;
-
-		protected float _periodicT = 0f;
-		protected float _periodicIntensity = 1f;
-		protected Vector3 _beamStart = Vector3.Zero;
-		protected Vector3 _beamEnd = Vector3.Zero;
-        protected bool _hitsAnObstacle = false;
-		protected float _interferenceOffset = 0f;
-
-		public Vector3 startPos { get { return _beamStart; } }
-		public Vector3 endPos { get { return _beamEnd; } }
-        public bool hitsAnObstacle { get { return _hitsAnObstacle; } }
-		public float periodicIntensity { get { return _periodicIntensity; } }
-		public float interferenceOffset { get { return _interferenceOffset; } }
-
-		public Vector3 direction()
-		{
-			return (_beamEnd - _beamStart).Normalized ();
-		}
-
-        public float lengthFast()
+        internal Vector3 txfmSourceToWorld(Vector3 localPos)
         {
-            return (_beamEnd - _beamStart).LengthFast;
+            // TODO cache matrix?
+            var mat = sourceTxfm;
+            if (sourceObject != null) {
+                mat = mat * sourceObject.worldMat;
+            }
+            return Vector3.Transform(localPos, mat);
         }
 
-        public float lengthSq()
+        internal Vector3 txfmTargetToWorld(Vector3 localPos)
         {
-            return (_beamEnd - _beamStart).LengthSquared;
+            var mat = targetTxfm;
+            if (targetObject != null) {
+                mat = mat * targetObject.worldMat;
+            }
+            return Vector3.Transform(localPos, mat);
         }
 
-        public SSRay ray()
-        {
-            return new SSRay (_beamStart, direction());
-        }
-
-        public SLaserBeam(SLaser laser, int beamId)
-		{
-			_laser = laser;
-			_beamId = beamId;
-
-			// make periodic beam effects slightly out of sync with each other
-			_periodicTOffset = (float)_random.NextDouble() * 10f;
-		}
-
-		public void update(float absoluteTimeS)
-		{
-			float periodicT = absoluteTimeS + _periodicTOffset;
-			var laserParams = _laser.parameters;
-
-			// update variables
-			_interferenceOffset = laserParams.middleInterferenceUFunc (periodicT);
-            _periodicIntensity = laserParams.intensityPeriodicFunction (periodicT);
-            _periodicIntensity *= laserParams.intensityModulation (periodicT);
-
-            // intersects with any of the intersecting objects
-            _hitsAnObstacle = false;
-            if (_laser.beamObstacles != null) {
-                //if (false) {
-                // TODO note the code below is slow. Wen you start having many lasers
-                // this will cause problems. Consider using BVH for ray tests or analyzing
-                // intersection math.
-                var ray = this.ray();
-                float closestDistance = float.PositiveInfinity; 
-                foreach (var obj in _laser.beamObstacles) {
-                    float distanceToInterect;
-                    if (obj.Intersect(ref ray, out distanceToInterect)) {
-
-                        if (distanceToInterect < closestDistance) {
-                            closestDistance = distanceToInterect;
-                            _hitsAnObstacle = true;
-                            _beamEnd = _beamStart + ray.dir * closestDistance;
-                        }
-                    }
-                }
-            }
-
-            // final start and end points of the beam (for this update)
-            _beamStart = _laser.sourcePos();
-            if (!_hitsAnObstacle) {
-                _beamEnd = _laser.destPos();
-            }
-
-            Vector3 localPlacement = laserParams.beamStartPlacementFunc(
-                    _beamId, laserParams.numBeams, absoluteTimeS);
-            if (localPlacement != Vector3.Zero) {
-                var zAxis = (_beamEnd - _beamStart).Normalized ();
-                Vector3 xAxis, yAxis;
-                OpenTKHelper.TwoPerpAxes (zAxis, out xAxis, out yAxis);
-                var placement = localPlacement.X * xAxis + localPlacement.Y * yAxis + localPlacement.Z * zAxis;
-                _beamStart += laserParams.beamStartPlacementScale * placement;
-                _beamEnd += laserParams.beamDestSpread * placement;
-            }
-
-			// periodic world-coordinate drift
-            float driftX = laserParams.driftXFunc (periodicT);
-            float driftY = laserParams.driftYFunc (periodicT);
-            var driftMod = laserParams.driftModulationFunc (periodicT);
-            driftX *= driftMod;
-            driftY *= driftMod;
-
-			if (driftX != 0f && driftY != 0f) {
-				Vector3 driftXAxis, driftYAxis;
-				OpenTKHelper.TwoPerpAxes (_laser.direction(), out driftXAxis, out driftYAxis);
-				_beamEnd += (driftX * driftXAxis + driftY * driftYAxis);
-			}
-		}
 	}
 }
 

@@ -36,7 +36,7 @@ namespace SimpleScene.Demos
             var expr = new NCalc.Expression (expressionStr);
             expr.Parameters ["Pi"] = Math.PI;
             expr.Parameters ["beamId"] = beamId;
-            expr.Parameters ["numBeams"] = beamId;
+            expr.Parameters ["numBeams"] = numBeams;
             expr.Parameters ["t"] = t;
             return (float)((double)(expr.Evaluate()));
         }
@@ -73,7 +73,7 @@ namespace SimpleScene.Demos
         #region periodic drift
         public string driftXFuncStr = "Cos(2.0 * Pi * 0.1 * t) * Cos(2.0 * Pi * 0.53 * t)";
         public string driftYFuncStr = "Sin(2.0 * Pi * 0.1 * t) * Sin(2.0 * Pi * 0.57 * t)";
-        public string driftModulationFuncStr = "0.01";
+        public string driftModulationFuncStr = "0.1";
         #endregion
 
         #region multi-beam settings
@@ -87,20 +87,21 @@ namespace SimpleScene.Demos
         /// assume laser origin is at (0, 0, 0) and the target is in the +z direction. Default functions
         /// arrange beams in a circle around the origin.
         /// </summary>
-        public string beamStartPlacementFuncXStr 
+        public string beamPlacementFuncXStr 
             = "numBeams <= 1 ? 0.0 : Cos(2.0 * Pi * beamId / numBeams)";
-        public string beamStartPlacementFuncYStr 
+        public string beamPlacementFuncYStr 
             = "numBeams <= 1 ? 0.0 : Sin(2.0 * Pi * beamId / numBeams)";
-        public string beamStartPlacementFuncZStr
+        public string beamPlacementFuncZStr
             = "0.0";
 
-        public Vector3 beamStartPlacementFunc (int beamId, int numBeams, float t)
+        public Vector3 getBeamPlacementVector (int beamId, int numBeams, float t)
         {
-            return new Vector3 (
-                evaluateBeamPlacement(beamStartPlacementFuncXStr, beamId, numBeams, t), 
-                evaluateBeamPlacement(beamStartPlacementFuncYStr, beamId, numBeams, t),
-                evaluateBeamPlacement(beamStartPlacementFuncZStr, beamId, numBeams, t)
+            var ret = new Vector3 (
+                evaluateBeamPlacement(beamPlacementFuncXStr, beamId, numBeams, t), 
+                evaluateBeamPlacement(beamPlacementFuncYStr, beamId, numBeams, t),
+                evaluateBeamPlacement(beamPlacementFuncZStr, beamId, numBeams, t)
             );
+            return ret;
         }
 
         /// <summary>
@@ -245,4 +246,5 @@ namespace SimpleScene.Demos
         }
     }
 }
+
 

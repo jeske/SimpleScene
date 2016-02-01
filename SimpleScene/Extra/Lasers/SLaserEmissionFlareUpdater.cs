@@ -68,7 +68,7 @@ namespace SimpleScene.Demos
 
             // position sprites at the beam start in screen space
             Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
-            var beamStartScreen = OpenTKHelper.WorldToScreen(beam.startPos, 
+            var beamStartScreen = OpenTKHelper.WorldToScreen(beam.startPosWorld, 
                                       ref camera3dViewProjMat, ref screenClientRect);
             instanceData.writePosition(_backgroundSpriteIdx, beamStartScreen);
             instanceData.writePosition(_overlaySpriteIdx, beamStartScreen);
@@ -101,8 +101,8 @@ namespace SimpleScene.Demos
             float occDiskAreaRatio = occDiskScreenAreaUsed / maxScreenArea;
             //System.Console.WriteLine("occDiskAreaRatio = " + occDiskAreaRatio);
 
-            Vector3 toCamera = (cameraPos - beam.startPos).Normalized();
-            float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.direction()));
+            Vector3 toCamera = (cameraPos - beam.startPosWorld).Normalized();
+            float dot = Math.Max(0f, Vector3.Dot(toCamera, beam.directionWorld()));
             //System.Console.WriteLine("dot = " + dot);
 
             var alpha = occDiskAreaRatio*1.2f * (float)Math.Pow(beamIntensity, 0.1) * (float)Math.Pow(dot, 0.1);

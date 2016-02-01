@@ -242,7 +242,7 @@ namespace SimpleScene.Demos
                     var smokeEmitter = _smokeEmitters [i];
                     // TODO need intersection location
                     if (beam.hitsAnObstacle) {
-                        var hitPos = Vector3.Transform(beam.endPos, rendererWorldMat);
+                        var hitPos = Vector3.Transform(beam.endPosWorld, rendererWorldMat);
                         flashEmitter.center = hitPos;
                         flashEmitter.particlesPerEmissionMin = laserParams.flashParticlesPerEmissionMin;
                         flashEmitter.particlesPerEmissionMax = laserParams.flashParticlesPerEmissionMax;
@@ -251,6 +251,7 @@ namespace SimpleScene.Demos
                         smokeEmitter.particlesPerEmissionMin = laserParams.flameSmokeParticlesPerEmissionMin;
                         smokeEmitter.particlesPerEmissionMax = laserParams.flameSmokeParticlesPerEmissionMax;
                     } else {
+                        // no hit = no particle emissions
                         flashEmitter.particlesPerEmission = 0;
                         smokeEmitter.particlesPerEmission = 0;
                     }
