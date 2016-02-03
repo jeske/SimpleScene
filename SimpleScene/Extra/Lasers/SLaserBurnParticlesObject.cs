@@ -112,7 +112,8 @@ namespace SimpleScene.Demos
         {
             var hitSpot = _hitSpots [laser];
             foreach (var emitter in hitSpot.emitters()) {
-                emitter.velocity = velocity;
+                emitter.velocity = velocity / 2f;
+                //emitter.velocity = Vector3.Zero;
             }
         }
 
@@ -172,8 +173,13 @@ namespace SimpleScene.Demos
                         newFlameSmokeEmitter.componentScaleMax = new Vector3(laserParams.flameSmokeScaleMax);
                         newFlameSmokeEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         newFlameSmokeEmitter.life = laserParams.flameSmokeLifetime;
+                        #if false
                         newFlameSmokeEmitter.velocityFromCenterMagnitudeMin = laserParams.flameSmokeRadialVelocityMin;
                         newFlameSmokeEmitter.velocityFromCenterMagnitudeMax = laserParams.flameSmokeRadialVelocityMax;
+                        #else
+                        newFlameSmokeEmitter.velocityFromCenterMagnitudeMin = 0;
+                        newFlameSmokeEmitter.velocityFromCenterMagnitudeMax = 0;
+                        #endif
                         _smokeEmitters[i] = newFlameSmokeEmitter;
                     }
                     // hit spot flash

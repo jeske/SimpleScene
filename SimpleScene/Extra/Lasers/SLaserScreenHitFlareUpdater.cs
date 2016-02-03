@@ -7,7 +7,7 @@ using SimpleScene.Util3d;
 
 namespace SimpleScene.Demos
 {
-    public class SLaserHitFlareUpdater : ISSpriteUpdater
+    public class SLaserScreenHitFlareUpdater : ISSpriteUpdater
     {
         public enum SpriteId : int { coronaBackground=0, coronaOverlay=1, ring1=2, ring2=3 };
 
@@ -31,7 +31,7 @@ namespace SimpleScene.Demos
         protected readonly float[] _masterScales;
         protected int[] _spriteSlotIdxs;
 
-        public SLaserHitFlareUpdater (
+        public SLaserScreenHitFlareUpdater (
             SLaser laser, int beamId,
             SSScene camera3dScene,
             RectangleF[] rects = null,
@@ -75,19 +75,30 @@ namespace SimpleScene.Demos
             if (beamSrcInViewSpace.Z < 0f) {
                 Matrix4 cameraViewProjMat3d = camera3dView * camera3dProj;
                 // extract a near plane from the camera view projection matrix
-                SSPlane3d nearPlane = new SSPlane3d ();
-                nearPlane.A = cameraViewProjMat3d.M14 + cameraViewProjMat3d.M13;
-                nearPlane.B = cameraViewProjMat3d.M24 + cameraViewProjMat3d.M23;
-                nearPlane.C = cameraViewProjMat3d.M34 + cameraViewProjMat3d.M33;
-                nearPlane.D = cameraViewProjMat3d.M44 + cameraViewProjMat3d.M43;
+                // https://www.opengl.org/discussion_boards/showthread.php/159332-Extract-clip-planes-from-projection-matrix
+                SSPlane3d nearPlane = new SSPlane3d () {
+                    A = cameraViewProjMat3d.M14 + cameraViewProjMat3d.M13,
+                    B = cameraViewProjMat3d.M24 + cameraViewProjMat3d.M23,
+                    C = cameraViewProjMat3d.M34 + cameraViewProjMat3d.M33,
+                    D = cameraViewProjMat3d.M44 + cameraViewProjMat3d.M43
+                };
 
                 if (nearPlane.intersects(ref ray, out intersectPt3d)) {
-                    float lengthToIntersectionSq = (intersectPt3d - beam.startPosWorld).LengthSquared;
+                    #if false
+                    Console.WriteLine("camera at world pos = " + cameraPos);
+                    Console.WriteLine("camera in screen pos = " + OpenTKHelper.WorldToScreen(
+                        cameraPos, ref cameraViewProjMat3d, ref clientRect));
+                    Console.WriteLine("screen hit at world pos = " + intersectPt3d);
+                    #endif
+
+                    float lengthToIntersectionSq = 
+                        (intersectPt3d - beam.startPosWorld).LengthSquared;
                     float beamLengthSq = beam.lengthSqWorld();
                     if (lengthToIntersectionSq  < beamLengthSq) {
                         hideSprites = false;
                         Vector2 drawScreenPos = OpenTKHelper.WorldToScreen(
-                            intersectPt3d, ref cameraViewProjMat3d, ref clientRect);
+                            intersectPt3d - ray.dir * 1f, ref cameraViewProjMat3d, ref clientRect);
+                        //Console.WriteLine("screen hit at screen pos = " + drawScreenPos);
                         float intensity = _laser.envelopeIntensity * beam.periodicIntensity;
                         Vector2 drawScale 
                             = new Vector2 (laserParams.hitFlareSizeMaxPx * (float)Math.Exp(intensity));

@@ -98,6 +98,11 @@ namespace SimpleScene.Demos
             _laserBurnParticles.particleSystem.removeHitSpots(laser);
         }
 
+        public void releaseLaser(SLaser laser)
+        {
+            laser.release();
+        }
+
         protected void _removeLaser(int i) 
         {
             var lrt = _laserRuntimes [i];
@@ -141,7 +146,7 @@ namespace SimpleScene.Demos
 
             protected SLaserBeamMiddleObject _beamObj = null;
             protected SLaserEmissionFlareUpdater _emissionFlareUpdater = null;
-            protected SLaserHitFlareUpdater _hitFlareUpdater = null;
+            protected SLaserScreenHitFlareUpdater _hitFlareUpdater = null;
 
 			public BeamRuntimeInfo(SLaser laser, int beamId, 
                                    SSScene beamScene, SSScene occDiskScene,
@@ -227,7 +232,7 @@ namespace SimpleScene.Demos
                 if (laserParams.doScreenHitFlare && _hitFlareUpdater == null) {
                     float[] masterScales = { laserParams.hitFlareCoronaOverlayScale, laserParams.hitFlareCoronaOverlayScale,
                                              laserParams.hitFlareRing1Scale, laserParams.hitFlareRing2Scale };
-                    _hitFlareUpdater = new SLaserHitFlareUpdater (_laser, _beamId, _beamScene, null, masterScales);
+                    _hitFlareUpdater = new SLaserScreenHitFlareUpdater (_laser, _beamId, _beamScene, null, masterScales);
                     _sprite2dRenderer.addUpdater(_hitFlareUpdater);
                 }
             }

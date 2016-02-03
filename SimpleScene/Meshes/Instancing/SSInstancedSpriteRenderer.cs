@@ -86,7 +86,8 @@ namespace SimpleScene.Demos
             RectangleF clientRect = OpenTKHelper.GetClientRect();
             var cameraPos 
                 = (cameraScene3d.ActiveCamera != null) ? cameraScene3d.ActiveCamera.Pos
-                : Vector3.Transform(-Vector3.UnitZ, rc.invCameraViewMatrix.Inverted()).Normalized();
+                //: Vector3.Transform(-Vector3.UnitZ, rc.invCameraViewMatrix.Inverted()).Normalized();
+                : Vector3.Transform(Vector3.Zero, rc.invCameraViewMatrix.Inverted()).Normalized();
 
             foreach (var updater in _spriteUpdaters) {
                 updater.updateSprites(this.instanceData, ref clientRect, 

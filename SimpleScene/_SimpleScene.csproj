@@ -156,7 +156,6 @@
     <Compile Include="Extra\Lasers\SLaserBeamMiddleObject.cs" />
     <Compile Include="Extra\Lasers\SLaserBurnParticlesObject.cs" />
     <Compile Include="Extra\Lasers\SLaserEmissionFlareUpdater.cs" />
-    <Compile Include="Extra\Lasers\SLaserHitFlareUpdater.cs" />
     <Compile Include="Extra\Lasers\SLaserManager.cs" />
     <Compile Include="Extra\Lasers\SLaserParameters.cs">
       <DeployService-Deploy>True</DeployService-Deploy>
@@ -190,6 +189,7 @@
     <Compile Include="Extra\SHudTargetsManager.cs" />
     <Compile Include="Util\LinearADSREnvelope.cs" />
     <Compile Include="Extra\Lasers\SLaserBeam.cs" />
+    <Compile Include="Extra\Lasers\SLaserScreenHitFlareUpdater.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
