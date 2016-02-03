@@ -123,14 +123,14 @@ namespace SimpleScene.Demos
 
 			// step: draw middle section:
 			Vector3 diff = endView - startView;
-			float diff_xy = diff.Xy.LengthFast;
+            float diff_xy = diff.Xy.Length;
 			float phi = -(float)Math.Atan2 (diff.Z, diff_xy);
 			float theta = (float)Math.Atan2 (diff.Y, diff.X);
 			Matrix4 backgroundOrientMat = Matrix4.CreateRotationY (phi) * Matrix4.CreateRotationZ (theta);
 			Matrix4 middlePlacementMat = backgroundOrientMat * Matrix4.CreateTranslation (middleView);
 			//Matrix4 startPlacementMat = Matrix4.CreateTranslation (startView);
 
-			float laserLength = diff.LengthFast;
+            float laserLength = diff.Length;
 			float middleWidth = laserParams.middleBackgroundWidth * _laser.envelopeIntensity;
 
 			Vector3 cameraDir = Vector3.Transform(
@@ -146,7 +146,6 @@ namespace SimpleScene.Demos
 			#if true
 			// stretched middle background sprite
 			if (middleBackgroundSprite != null) {
-                _updateMiddleMesh (laserLength, middleWidth);
 
 				GL.Material(MaterialFace.Front, MaterialParameter.Emission, laserParams.backgroundColor);
 				GL.BindTexture (TextureTarget.Texture2D, middleBackgroundSprite.TextureID);
@@ -216,6 +215,8 @@ namespace SimpleScene.Demos
 
 		protected void _updateMiddleMesh(float laserLength, float meshWidth)
 		{
+            //meshWidth = 1f;
+
 			float halfWidth = meshWidth / 2f;
 			float halfLength = laserLength / 2f;
 
