@@ -23,6 +23,10 @@ namespace SimpleScene.Demos
 
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
+		public SLaserBurnParticlesObject laserBurnParticlesObject {
+			get { return _laserBurnParticles; }
+		}
+
         public SLaserManager (SSScene beamScene3d, SSScene occDiskScene, SSScene flareScene2d,
             int sprite2dCapacity = 1000, int laserBurnParticlesCapacity = 2000)
 		{
