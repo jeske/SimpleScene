@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene.Util;
 
 namespace SimpleScene.Demos
 {
@@ -98,9 +99,11 @@ namespace SimpleScene.Demos
             foreach (var emitter in newHitSpot.emitters()) {
                 base.addEmitter(emitter);
             }
+            #if true
             foreach (var effector in newHitSpot.effectors()) {
                 base.addEffector(effector);
             }
+            #endif
 
             // update global smoke smoke effectors with particle lifetime
             float newFlameSmokeDuration = laser.parameters.flameSmokeLifetime;
@@ -112,8 +115,7 @@ namespace SimpleScene.Demos
         {
             var hitSpot = _hitSpots [laser];
             foreach (var emitter in hitSpot.emitters()) {
-                emitter.velocity = velocity / 2f;
-                //emitter.velocity = Vector3.Zero;
+                emitter.velocity = velocity;
             }
         }
 
@@ -194,6 +196,7 @@ namespace SimpleScene.Demos
                         newFlashEmitter.masterScaleMax = laserParams.flashScaleMax;
                         newFlashEmitter.particlesPerEmission = 0; // init to 0 to not emit until updated
                         newFlashEmitter.life = laserParams.flashLifetime;
+                        //snewFlashEmitter.colorPresets = Color4Helper.DebugPresets;
                         _flashEmitters[i] = newFlashEmitter;
                     }
                 }
@@ -227,7 +230,9 @@ namespace SimpleScene.Demos
             public List<SSParticleEmitter> emitters()
             {
                 var ret = new List<SSParticleEmitter> (_flashEmitters);
+                #if true
                 ret.AddRange(_smokeEmitters);
+                #endif
                 return ret;
             }
 

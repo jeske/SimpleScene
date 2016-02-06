@@ -128,7 +128,7 @@ namespace SimpleScene.Demos
 				}
 			}
 
-            _laserBurnParticles.particleSystem.update(timeElapsedS);
+            //_laserBurnParticles.particleSystem.update(timeElapsedS);
 
             #if false
             // debugging
