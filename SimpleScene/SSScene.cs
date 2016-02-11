@@ -104,8 +104,10 @@ namespace SimpleScene
         public readonly SSRenderConfig renderConfig;
         public List<SSObject> objects = new List<SSObject>();
         public List<SSLightBase> lights = new List<SSLightBase>();
-		public SceneUpdateDelegate preUpdateHooks = null;
-        public SceneUpdateDelegate preRenderHooks = null;
+		public event SceneUpdateDelegate preUpdateHooks;
+        public event SceneUpdateDelegate postUpdateHooks;
+        public event SceneUpdateDelegate preRenderHooks;
+        public event SceneUpdateDelegate postRenderHooks;
         public Stopwatch renderStopwatch = new Stopwatch ();
 
         public SSCamera ActiveCamera { 
@@ -193,6 +195,10 @@ namespace SimpleScene
             foreach (var obj in objects) {
                 obj.Update(fElapsedS);
             }
+
+            if (postUpdateHooks != null) {
+                postUpdateHooks(fElapsedS);
+            }
         }
 
         #region Render Pass Logic
@@ -246,6 +252,10 @@ namespace SimpleScene
             renderPass(true, new SimpleScene.Util3d.SSFrustumCuller(ref frustumMatrix));
 
             disableLighting();
+
+            if (postRenderHooks != null) {
+                postRenderHooks(renderConfig.timeElapsedS);
+            }
         }
 
         private void setupLighting() {
