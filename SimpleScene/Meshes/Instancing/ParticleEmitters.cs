@@ -434,6 +434,7 @@ namespace SimpleScene
 				p.orientation.Z = -theta;
 				p.orientation.Y = phi;
 			}
+            //Console.WriteLine("particle emitted with vel = " + p.vel.Length);
 		}
 	}
 

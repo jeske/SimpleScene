@@ -192,10 +192,10 @@ namespace SimpleScene.Demos
         public int flameSmokeParticlesPerEmissionMax = 1;
         public float flameSmokeEmitFrequency = 10f;
         public float flameSmokeScaleMin = 1.5f;
-        public float flameSmokeScaleMax = 2.5f;
-        public float flameSmokeLifetime = 2.5f;
-        public float flameSmokeRadialVelocityMin = 0.25f;
-        public float flameSmokeRadialVelocityMax = 0.5f;
+        public float flameSmokeScaleMax = 2f;
+        public float flameSmokeLifetime = 4f;
+        public float spriteVelocityTowardsCameraMin = 1f;
+        public float spriteVelocityTowardsCameraMax = 2f;
 
         /// <summary>
         /// Default locations of flash sprites in fig7.png
@@ -210,9 +210,9 @@ namespace SimpleScene.Demos
         public int flashParticlesPerEmissionMin = 1;
         public int flashParticlesPerEmissionMax = 1;
         public float flashEmitFrequency = 10f;
-        public float flashScaleMin = 1f;
-        public float flashScaleMax = 2f;
-        public float flashLifetime = 1f;
+        public float flashScaleMin = 1.5f;
+        public float flashScaleMax = 1.5f;
+        public float flashLifetime = 1.5f;
         #endregion
 
         #region runtime helpers

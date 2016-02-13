@@ -4,6 +4,7 @@ using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene.Util;
 
 namespace SimpleScene.Demos
 {
@@ -19,16 +20,17 @@ namespace SimpleScene.Demos
         protected readonly SInstancedSpriteData _2dEffectInstanceData;
         protected readonly SSInstancedSpriteRenderer _2dEffectRenderer; 
 
-        protected readonly SLaserBurnParticlesObject _laserBurnParticles;
-
+        protected readonly int _maxBurnParticlesPerObject;
+        protected readonly Dictionary<SSObject, SLaserBurnParticlesObject> _laserBurnParticleRenderers
+            = new Dictionary<SSObject, SLaserBurnParticlesObject> ();
 		protected List<LaserRuntimeInfo> _laserRuntimes = new List<LaserRuntimeInfo>();
 
-		public SLaserBurnParticlesObject laserBurnParticlesObject {
-			get { return _laserBurnParticles; }
-		}
+		//public SLaserBurnParticlesObject laserBurnParticlesObject {
+		//	get { return _laserBurnParticles; }
+		//}
 
         public SLaserManager (SSScene beamScene3d, SSScene occDiskScene, SSScene flareScene2d,
-            int sprite2dCapacity = 1000, int laserBurnParticlesCapacity = 2000)
+            int sprite2dCapacity = 1000, int laserBurnParticlesCapacity = 500)
 		{
 			_beamScene3d = beamScene3d;
             _occDiskScene = occDiskScene;
@@ -44,21 +46,18 @@ namespace SimpleScene.Demos
             //_2dEffectRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             _flareScene2d.AddObject(_2dEffectRenderer);
 
-            _laserBurnParticles = new SLaserBurnParticlesObject (
-                laserBurnParticlesCapacity, null);
-            _laserBurnParticles.Name = "laser manager's laser burn particle system renderer";
-            //_laserBurnParticles.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
-            _beamScene3d.AddObject(_laserBurnParticles);
-
             _beamScene3d.preRenderHooks += this._update;
+
+            _maxBurnParticlesPerObject = laserBurnParticlesCapacity;
 		}
 
         ~SLaserManager()
         {
-            foreach (var laserRuntime in _laserRuntimes) {
-                removeLaser(laserRuntime.laser);
+            foreach (var psRenderer in _laserBurnParticleRenderers.Values) {
+                if (psRenderer != null) {
+                    psRenderer.renderState.toBeDeleted = true;
+                }
             }
-            _laserBurnParticles.renderState.toBeDeleted = true;
             _2dEffectRenderer.renderState.toBeDeleted = true;
         }
 
@@ -71,7 +70,6 @@ namespace SimpleScene.Demos
             }
 
             var newLaser = new SLaser (laserParams, targetVelFunc);
-			//newLaser.intensityEnvelope.sustainDuration = sustainDuration;
 			newLaser.sourceObject = srcObject;
 			newLaser.targetObject = dstObject;
 
@@ -79,14 +77,21 @@ namespace SimpleScene.Demos
 			_laserRuntimes.Add (newLaserRuntime);
 
             if (laserParams.doLaserBurn) {
-                _laserBurnParticles.particleSystem.addHitSpots(newLaser);
-            }
-			
-            if (_laserBurnParticles.textureMaterial == null
-             || _laserBurnParticles.textureMaterial.diffuseTex == null) {
-                _laserBurnParticles.textureMaterial = new SSTextureMaterial(
-                    laserParams.laserBurnParticlesTexture());
-            }
+                SLaserBurnParticlesObject burnRenderer;
+                bool ok = _laserBurnParticleRenderers.TryGetValue(dstObject, out burnRenderer);
+                if (!ok) {
+                    burnRenderer = new SLaserBurnParticlesObject (dstObject, _maxBurnParticlesPerObject, null);
+                    burnRenderer.Name = "laser manager's laser burn particle system renderer";
+                    burnRenderer.textureMaterial = new SSTextureMaterial(laserParams.laserBurnParticlesTexture());
+                    //_laserBurnParticles.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
+                    burnRenderer.simulateOnUpdate = false;
+                    burnRenderer.simulateOnRender = true;
+                    _beamScene3d.AddObject(burnRenderer);
+                    _laserBurnParticleRenderers [dstObject] = burnRenderer;
+                }
+                burnRenderer.particleSystem.addHitSpots(newLaser);
+            }	
+
 
             // debug hacks
 			//newLaser.sourceObject = newLaserRuntime.beamRuntimes[0].emissionBillboard;
@@ -99,7 +104,22 @@ namespace SimpleScene.Demos
         {
             int idx = _laserRuntimes.FindIndex(lrt => lrt.laser == laser);
             _removeLaser(idx);
-            _laserBurnParticles.particleSystem.removeHitSpots(laser);
+        }
+
+        protected void _removeLaser(int i) 
+        {
+            var lrt = _laserRuntimes [i];
+            SLaserBurnParticlesObject burnRenderer;
+            bool ok = _laserBurnParticleRenderers.TryGetValue(lrt.laser.targetObject, out burnRenderer);
+            if (ok) {
+                burnRenderer.particleSystem.removeHitSpots(lrt.laser);
+                if (burnRenderer.particleSystem.numHitSpots <= 0) {
+                    burnRenderer.renderState.toBeDeleted = true;
+                    _laserBurnParticleRenderers.Remove(lrt.laser.targetObject);
+                }
+            }
+            lrt.requestDeleteFromScene();
+            _laserRuntimes.RemoveAt(i);
         }
 
         public void releaseLaser(SLaser laser)
@@ -107,26 +127,35 @@ namespace SimpleScene.Demos
             laser.release();
         }
 
-        protected void _removeLaser(int i) 
-        {
-            var lrt = _laserRuntimes [i];
-            _laserBurnParticles.particleSystem.removeHitSpots(lrt.laser);
-
-            lrt.requestDeleteFromScene();
-            _laserRuntimes.RemoveAt(i);
-        }
-
 		protected void _update(float timeElapsedS)
 		{
 			for (int i = 0; i < _laserRuntimes.Count; ++i) {
 				var lrt = _laserRuntimes [i];
-                _laserBurnParticles.particleSystem.updateHitSpotVelocity(
-                    lrt.laser, lrt.laser.targetVelocity());
+                #if false
+                SLaserBurnParticlesObject burnRenderer;
+                bool ok = _laserBurnParticleRenderers.TryGetValue(lrt.laser.targetObject, out burnRenderer);
+                if (ok) {
+                    burnRenderer.particleSystem.updateHitSpotVelocity(
+                        lrt.laser, Vector3.Zero);                    
+                }
+                #endif
 				lrt.update (timeElapsedS);
 				if (lrt.laser.hasExpired) {
                     _removeLaser(i);
 				}
 			}
+
+            // TODO remove objects that are being deleted
+
+            var toBeDeleted = new List<SSObject> ();
+            foreach (var key in _laserBurnParticleRenderers.Keys) {
+                if (key != null && key.renderState.toBeDeleted) {
+                    toBeDeleted.Add(key);
+                }
+            }
+            foreach (var key in toBeDeleted) {
+                _laserBurnParticleRenderers.Remove(key);
+            }
 
             //_laserBurnParticles.particleSystem.update(timeElapsedS);
 

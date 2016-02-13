@@ -75,6 +75,11 @@ namespace SimpleScene
 		/// </summary>
         public float simulationStep = .025f;
 
+        /// <summary>
+        /// Made accessible for on-the fly (re)synchronization with other components
+        /// </summary>
+        public float elapsedTimeAccumulator;
+
         // TODO bounding sphere or cube
         protected List<SSParticleEmitter> _emitters = new List<SSParticleEmitter> ();
         protected List<SSParticleEffector> _effectors = new List<SSParticleEffector> ();
@@ -120,7 +125,6 @@ namespace SimpleScene
         #endregion
 
         protected float _radius;
-        protected float _timeDeltaAccumulator;
 
         public override int capacity { get { return _capacity; } }
         public override int numElements { get { return _numParticles; } }
@@ -138,6 +142,7 @@ namespace SimpleScene
 		public override SSAttributeFloat[] spriteOffsetsV { get { return _spriteOffsetsV; } }
 		public override SSAttributeFloat[] spriteSizesU { get { return _spriteSizesU; } }
 		public override SSAttributeFloat[] spriteSizesV { get { return _spriteSizesV; } }
+
 
         #if DEBUG_PARTICLE_SORTING
         protected int debugNumSorted = 0;
@@ -167,7 +172,7 @@ namespace SimpleScene
 			_numParticles = 0;
 
 			_radius = 0f;
-			_timeDeltaAccumulator = 0f;
+			elapsedTimeAccumulator = 0f;
 
             _positions = new SSAttributeVec3[1];
 			_orientationsXY = new SSAttributeVec2[1];
@@ -215,12 +220,12 @@ namespace SimpleScene
 
 		public override void update(float elapsedS)
         {
-            elapsedS += _timeDeltaAccumulator;
+            elapsedS += elapsedTimeAccumulator;
             while (elapsedS >= simulationStep) {
                 simulateStep();
                 elapsedS -= simulationStep;
             }
-            _timeDeltaAccumulator = elapsedS;
+            elapsedTimeAccumulator = elapsedS;
         }
 
 		public virtual void addEmitter(SSParticleEmitter emitter)
@@ -378,6 +383,17 @@ namespace SimpleScene
                         if (distFromOrogin > _radius) {
                             _radius = distFromOrogin;
                         }
+
+                        #if false
+                        Console.WriteLine(p.life.ToString() + '\t' 
+                            + p.pos.X + '\t' 
+                            + p.pos.Y + '\t' 
+                            + p.pos.Z + '\t' 
+                            + p.vel.X + '\t'
+                            + p.vel.Y + '\t'
+                            + p.vel.Z + '\t'
+                        );
+                        #endif
                     } else {
                         // Particle just died. Hack to not draw?
                         writeDataIfNeeded(ref _positions, i, _notAPosition);

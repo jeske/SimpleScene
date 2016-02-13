@@ -31,6 +31,7 @@ namespace SimpleScene
         public PrimitiveType primType = PrimitiveType.Triangles;
 
         public bool simulateOnUpdate = true;
+        public bool simulateOnRender = false;
         public bool useBVHForIntersections = false;
         public RenderMode renderMode = RenderMode.Auto;
         /// <summary>
@@ -102,6 +103,10 @@ namespace SimpleScene
             // allow particle system to react to camera/world mat changes (even if there are no particles)
             instanceData.updateCamera (ref this.worldMat, 
                 ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
+
+            if (this.simulateOnRender == true) {
+                instanceData.update(renderConfig.timeElapsedS);
+            }
 
 			// do we have anything to draw?
             if (instanceData.numElements <= 0) return;
