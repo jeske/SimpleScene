@@ -7,11 +7,6 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-	// TODO have an easy way to update laser start and finish
-	// TODO ability to "hold" laser active
-
-	// TODO pulse, interference effects
-	// TODO laser "drift"
 	/// <summary>
 	/// Data model for a laser (which is to be used in conjunction with one or more laser beams)
 	/// </summary>
