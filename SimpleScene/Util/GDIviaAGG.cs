@@ -201,6 +201,21 @@ namespace UG
 			this.DrawString(text,font,brush,curPoint.X,curPoint.Y);
 		}
 
+        public void DrawString (string text, Font font, TypeFace typeFace, Brush brush, float x, float y)
+        {
+            SolidBrush colorBrush = brush as SolidBrush;
+            //var s1 = new TypeFacePrinter (text, font.SizeInPoints, new MatterHackers.VectorMath.Vector2 (0, 0), Justification.Left, Baseline.BoundsTop);    
+            var s1 = new TypeFacePrinter (text,
+                new StyledTypeFace (typeFace, font.SizeInPoints, font.Underline),
+                new MatterHackers.VectorMath.Vector2 (0, 0), Justification.Left, Baseline.BoundsTop);
+            var s2 = new VertexSourceApplyTransform (s1, Affine.NewScaling (1, -1));
+            if (x != 0.0f || y != 0.0f) {
+                s2 = new VertexSourceApplyTransform (s2, Affine.NewTranslation (x, y));
+            }
+
+            _InternalRender(s2, new RGBA_Bytes((uint)colorBrush.Color.ToArgb()) );
+        }
+
 		public void DrawString (string text, Font font, Brush brush, float x, float y)
 		{
 			// TODO: handle different brushes

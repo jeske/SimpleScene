@@ -60,13 +60,13 @@
     <Reference Include="MatterHackers.VectorMath">
       <HintPath>..\Libs\MatterHackers.VectorMath.dll</HintPath>
     </Reference>
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="NCalc">
       <HintPath>..\Libs\NCalc.dll</HintPath>
     </Reference>
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\Libs\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\SSAABB.cs" />
@@ -190,6 +190,7 @@
     <Compile Include="Util\LinearADSREnvelope.cs" />
     <Compile Include="Extra\Lasers\SLaserBeam.cs" />
     <Compile Include="Extra\Lasers\SLaserScreenHitFlareUpdater.cs" />
+    <Compile Include="Extra\SSFontLoader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
