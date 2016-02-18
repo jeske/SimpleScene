@@ -201,13 +201,14 @@ namespace UG
 			this.DrawString(text,font,brush,curPoint.X,curPoint.Y);
 		}
 
-        public void DrawString (string text, Font font, TypeFace typeFace, Brush brush, float x, float y)
+        public void DrawString (string text, Font font, TypeFace typeFace, Brush brush, float x, float y,
+            Justification justification = Justification.Left, Baseline baseline = Baseline.BoundsTop)
         {
             SolidBrush colorBrush = brush as SolidBrush;
             //var s1 = new TypeFacePrinter (text, font.SizeInPoints, new MatterHackers.VectorMath.Vector2 (0, 0), Justification.Left, Baseline.BoundsTop);    
             var s1 = new TypeFacePrinter (text,
                 new StyledTypeFace (typeFace, font.SizeInPoints, font.Underline),
-                new MatterHackers.VectorMath.Vector2 (0, 0), Justification.Left, Baseline.BoundsTop);
+                new MatterHackers.VectorMath.Vector2 (0, 0), justification, baseline);
             var s2 = new VertexSourceApplyTransform (s1, Affine.NewScaling (1, -1));
             if (x != 0.0f || y != 0.0f) {
                 s2 = new VertexSourceApplyTransform (s2, Affine.NewTranslation (x, y));
