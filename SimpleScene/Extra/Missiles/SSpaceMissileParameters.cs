@@ -6,7 +6,7 @@ using OpenTK.Graphics;
 namespace SimpleScene.Demos
 {
     // TODO: fuel strategy???
-
+    [Serializable]
     public class SSpaceMissileParameters
     {
         public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, 
@@ -74,8 +74,7 @@ namespace SimpleScene.Demos
         /// <summary> radians rate by which the missile's visual orientation leans into its velocity </summary>
         public float pursuitVisualRotationRate = 0.1f;
         /// <summary> missile body mesh must be facing into +Z axis </summary>
-        public SSAbstractMesh missileBodyMesh
-            = SSAssetManager.GetInstance<SSMesh_wfOBJ>("missiles", "missile.obj");
+        public string missileBodyMeshFilename = "missiles/missile.obj";
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4.2f;
         /// <summary> scale applied to rendering missile body</summary>
@@ -83,8 +82,7 @@ namespace SimpleScene.Demos
         #endregion
 
         #region smoke render parameters
-        public SSTexture smokeParticlesTexture
-            = SSAssetManager.GetInstance<SSTextureWithAlpha>("explosions", "fig7.png");
+        public string smokeParticlesTextureFilename = "explosions/fig7.png";
         public RectangleF[] smokeSpriteRects = {
             new RectangleF(0f,    0f,    0.25f, 0.25f),
             new RectangleF(0f,    0.25f, 0.25f, 0.25f),
@@ -114,6 +112,18 @@ namespace SimpleScene.Demos
         public SSpaceMissileParameters() 
         {
         }
+
+        #region runtime helpers
+        public SSAbstractMesh missileBodyMesh()
+        {
+            return SSAssetManager.GetInstance<SSMesh_wfOBJ>(".", missileBodyMeshFilename); 
+        }
+
+        public SSTexture smokeParticlesTexture()
+        {
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", smokeParticlesTextureFilename);
+        }
+        #endregion
     }
 }
 

@@ -102,7 +102,7 @@ namespace SimpleScene.Demos
         {
             // smoke effectors
             if (_particleRenderer.textureMaterial == null) {
-                _particleRenderer.textureMaterial = new SSTextureMaterial (mParams.smokeParticlesTexture);
+                _particleRenderer.textureMaterial = new SSTextureMaterial (mParams.smokeParticlesTexture());
             }
             if (_flameSmokeColorEffector == null) {
                 _flameSmokeColorEffector = new SSColorKeyframesEffector ();
@@ -231,7 +231,7 @@ namespace SimpleScene.Demos
             {
                 this.missile = missile;
                 var mParams = missile.cluster.parameters;
-                bodyObj = new SSObjectMesh(mParams.missileBodyMesh);
+                bodyObj = new SSObjectMesh(mParams.missileBodyMesh());
                 bodyObj.Scale = new Vector3(mParams.missileBodyScale);
                 bodyObj.renderState.castsShadow = false;
                 bodyObj.renderState.receivesShadows = false;

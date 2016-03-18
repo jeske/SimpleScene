@@ -9,6 +9,7 @@ namespace SimpleScene
     /// <summary>
     /// Generates a number of particles/bodies with 3D coordinates and orientation
     /// </summary>
+    [Serializable]
     public class BodiesFieldGenerator 
     {
         public delegate bool NewBodyDelegate(int id, float scale, Vector3 pos, Quaternion orient);
