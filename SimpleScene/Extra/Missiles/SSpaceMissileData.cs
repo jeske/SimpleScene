@@ -64,15 +64,18 @@ namespace SimpleScene.Demos
         #endregion
 
         public SSpaceMissileData(SSpaceMissileClusterData cluster, int clusterId,
-                                        Vector3 initClusterPos, Vector3 initClusterVel, 
-                                        Vector3 missilePos, float timeToHitTarget)
+                                 //Vector3 initClusterPos, Vector3 initClusterVel, 
+                                 Vector3 missileWorldPos, Vector3 missileWorldDir, Vector3 missileWorldVel,
+                                 float timeToHitTarget)
         {
             _cluster = cluster;
             _clusterId = clusterId;
             _state = State.Ejection;
-            _position = missilePos;
+            _position = missileWorldPos;
+            visualDirection = missileWorldDir;
+            velocity = missileWorldVel;
 
-            _driver = _cluster.parameters.createEjection(this, initClusterPos, initClusterVel);
+            _driver = _cluster.parameters.createEjection(this);
             _driver.updateExecution(0f);
         }
 
@@ -136,8 +139,8 @@ namespace SimpleScene.Demos
                 if (mParams.terminateWhenAtTarget) {
                     _state = State.Terminated;
                     _driver = null;
-                    if (mParams.targetHitHandlers != null) {
-                        mParams.targetHitHandlers(_position, mParams);
+                    if (cluster.missileHitDelegate != null) {
+                        cluster.missileHitDelegate(_position, mParams);
                     }
                     if (mParams.debuggingAid) {
                         System.Console.WriteLine("missile terminated at target at t = " + cluster.timeSinceLaunch);

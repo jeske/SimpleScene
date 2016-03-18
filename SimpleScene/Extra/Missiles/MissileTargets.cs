@@ -21,6 +21,8 @@ namespace SimpleScene.Demos
     {
         public readonly SSObject targetObj;
 
+        public Vector3 targetLocalOffset = Vector3.Zero;
+
         protected Vector3 _prevPos;
         protected Vector3 _velocity;
         protected Vector3 _acc;
@@ -33,7 +35,10 @@ namespace SimpleScene.Demos
             _acc = Vector3.Zero;
         }
 
-        public virtual Vector3 position { get { return targetObj.Pos; } }
+        public virtual Vector3 position { get { 
+            // TODO multiple hit positions!
+            return Vector3.Transform(targetLocalOffset, targetObj.worldMat); 
+        } }
 
         public virtual Vector3 direction { get { return targetObj.Dir; } }
 

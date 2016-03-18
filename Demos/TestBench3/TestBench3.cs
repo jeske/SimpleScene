@@ -26,6 +26,7 @@ namespace TestBench3
         protected SSObjectMesh targetDrone;
         protected Vector3 vandalVelocity = Vector3.Zero;
 
+        protected BodiesFieldGenerator attackerDroneFieldGen;
         protected SSpaceMissileParameters attackerDroneMissileParams;
         protected SSpaceMissileParameters vandalShipMissileParams;
         protected SSpaceMissileParameters cameraMissileParams;
@@ -112,25 +113,22 @@ namespace TestBench3
             alpha3dScene.AddObject(explosionManager);
 
             // attacker drone missile parameters
+            attackerDroneFieldGen = new BodiesFieldGenerator (new ParticlesSphereGenerator (Vector3.Zero, 1f));
             attackerDroneMissileParams = new SSpaceMissileParameters();
-            attackerDroneMissileParams.targetHitHandlers += targetHitHandler;
 
             // vandal missile params
             vandalShipMissileParams = new SSpaceMissileParameters();
-            vandalShipMissileParams.spawnGenerator = null;
-            vandalShipMissileParams.spawnTxfm = straightMissileSpawnTxfm;
+            //vandalShipMissileParams.spawnGenerator = null;
+            //vandalShipMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
             vandalShipMissileParams.ejectionVelocity = 15f;
-
-            vandalShipMissileParams.targetHitHandlers += targetHitHandler;
             vandalShipMissileParams.pursuitActivationTime = 0.1f;
             vandalShipMissileParams.ejectionSmokeDuration = 0.5f;
             vandalShipMissileParams.ejectionSmokeSizeMax = 5f;
 
             cameraMissileParams = new SSpaceMissileParameters();
-            cameraMissileParams.targetHitHandlers += targetHitHandler;
-            cameraMissileParams.spawnGenerator = null;
-            cameraMissileParams.spawnTxfm = straightMissileSpawnTxfm;
+            //cameraMissileParams.spawnGenerator = null;
+            //cameraMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             cameraMissileParams.ejectionMaxRotationVel = 0.05f;
             cameraMissileParams.ejectionVelocity = 10f;
 
@@ -339,16 +337,24 @@ namespace TestBench3
             var launcher = getLauncherObject();
             var hitTime = getHitTime();
             var mParams = getLauncherParams();
-            var vel = (missileLauncher == MissileLaunchers.VandalShip) ? vandalVelocity : Vector3.Zero;
+            var launcherVel = (missileLauncher == MissileLaunchers.VandalShip) ? vandalVelocity : Vector3.Zero;
+            var localPosOffsets = getLauncherLocalPosOffsets();
+            var localDirs = getLauncherLocalDirs();
+            var localBodyGen = getLauncherMissileBodyGen();
+
             mParams.pursuitHitTimeCorrection = (hitTimeMode != HitTimeMode.Disabled);
             if (target != null) {
                 missileManager.launchCluster(
-                    launcher.Pos, 
-                    vel,
+                    launcher.worldMat, 
+                    launcherVel,
                     clusterSize,
                     target,
                     hitTime,
-                    mParams
+                    mParams,
+                    localPosOffsets,
+                    localDirs,
+                    localBodyGen,
+                    targetHitHandler
                 );
             }
         }
@@ -471,6 +477,46 @@ namespace TestBench3
             case MissileLaunchers.Camera: return cameraMissileParams;
             }
             throw new Exception ("unhandled enum");
+        }
+
+        protected BodiesFieldGenerator getLauncherMissileBodyGen()
+        {
+            if (missileLauncher == MissileLaunchers.AttackerDrone) {
+                return attackerDroneFieldGen;
+            } else {
+                return null;
+            }
+        }
+
+        protected Vector3[] getLauncherLocalPosOffsets()
+        {
+            switch (missileLauncher) {
+            case MissileLaunchers.VandalShip:
+            case MissileLaunchers.Camera:
+                Vector3[] ret = new Vector3[clusterSize];
+                for (int i = 0; i < clusterSize; ++i) {
+                    const float sideDispersal = 2f;
+                    const float zOffset = 7f;
+                    float angle = 2f * (float)Math.PI / (float)clusterSize * (float)i;
+                    ret [i] = new Vector3 (sideDispersal * (float)Math.Cos(angle),
+                                           sideDispersal * (float)Math.Sin(angle),
+                                           zOffset);
+                }
+                return ret;
+            default:
+                return null;
+            }
+        }
+
+        protected Vector3[] getLauncherLocalDirs()
+        {
+            switch (missileLauncher) {
+            case MissileLaunchers.VandalShip:
+            case MissileLaunchers.Camera:
+                return new Vector3[] { Vector3.UnitZ };
+            default:
+                return null;
+            }
         }
 
         protected SSObject getTargetObject()

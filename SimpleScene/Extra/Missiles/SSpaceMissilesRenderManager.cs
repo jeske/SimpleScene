@@ -83,13 +83,21 @@ namespace SimpleScene.Demos
         }
 
         public SSpaceMissileClusterData launchCluster(
-            Vector3 launchPos, Vector3 launchVel, int numMissiles,
+            Matrix4 launcherWorldMat, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileParameters clusterParams)
+            SSpaceMissileParameters clusterParams,
+            Vector3[] localPositioningOffsets = null,
+            Vector3[] localDirections = null,
+            BodiesFieldGenerator localPositioningGenerator = null,
+            SSpaceMissileClusterData.MissileHitDelegate missileHitDelegate = null
+        )
         {
             _initParamsSpecific(clusterParams);
-            var cluster = _simulation.launchCluster(launchPos, launchVel, numMissiles,
-                                                    target, timeToHit, clusterParams);
+            var cluster = _simulation.launchCluster(
+                launcherWorldMat, launchVel, numMissiles,
+                target, timeToHit, clusterParams, 
+                localPositioningOffsets, localDirections, localPositioningGenerator,
+                missileHitDelegate);
             foreach (var missile in cluster.missiles) {
                 _addMissileRender(missile);
             }

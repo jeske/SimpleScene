@@ -9,7 +9,7 @@ namespace SimpleScene
     /// <summary>
     /// Generates a number of particles/bodies with 3D coordinates and orientation
     /// </summary>
-    [Serializable]
+    //[Serializable]
     public class BodiesFieldGenerator 
     {
         public delegate bool NewBodyDelegate(int id, float scale, Vector3 pos, Quaternion orient);
@@ -19,6 +19,7 @@ namespace SimpleScene
         private readonly float m_bodyScaleMin;
         private readonly float m_bodyScaleMax;
 		private readonly float m_safetyDistance;
+        private readonly bool m_orientAwayFromCenter;
         private Random m_rand = new Random();
         private NewBodyDelegate m_newBodyDel = null;
 		private SSSphereBVH m_bodiesSoFar = null;
@@ -26,13 +27,14 @@ namespace SimpleScene
 
         public BodiesFieldGenerator(ParticlesFieldGenerator partFieldGen,
             float bodyScaleMin=1.0f, float bodyScaleMax=1.0f, float bodyRadius=0.0f,
-			float safetyDistance = 0.0f)
+            float safetyDistance = 0.0f, bool orientAwayFromCenter = false)
         {
             m_partFieldGen = partFieldGen;
             m_bodyScaleMin = bodyScaleMin;
             m_bodyScaleMax = bodyScaleMax;
             m_bodyRadius = bodyRadius;
 			m_safetyDistance = safetyDistance;
+            m_orientAwayFromCenter = orientAwayFromCenter;
             SetSeed(0);
         }
         public void SetSeed(int seed)
@@ -63,8 +65,13 @@ namespace SimpleScene
 			newBodyInfo.radius = m_bodyRadius * scale;
 			newBodyInfo.center = pos;
             if (validate(newBodyInfo)) {
-                Quaternion randOri = randomOrient();
-                if (m_newBodyDel(m_id, scale, pos, randOri)) {
+                Quaternion ori;
+                if (m_orientAwayFromCenter) {
+                    ori = OpenTKHelper.getRotationTo(Vector3.UnitZ, pos, Vector3.UnitZ);
+                } else {
+                    ori = randomOrient();
+                }
+                if (m_newBodyDel(m_id, scale, pos, ori)) {
                     ++m_id;
                     return true; // accept
                 }
