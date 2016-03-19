@@ -21,7 +21,7 @@ namespace TestBench1
 			// checkerboard floor
 			#if true
 			{
-				SSTexture tex = SSAssetManager.GetInstance<SSTexture> (".", "checkerboard.png");
+				SSTexture tex = SSAssetManager.GetInstance<SSTexture> ("checkerboard.png");
 				const float tileSz = 4f;
 				const int gridSz = 10;
 				var tileVertices = new SSVertex_PosNormTex[SSTexturedNormalQuad.c_doubleFaceVertices.Length];
@@ -46,15 +46,15 @@ namespace TestBench1
 			#if true
 			{
 				SSSkeletalAnimation animIdle
-					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_idle.md5anim");
+					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman/boneman_idle.md5anim");
 				SSSkeletalAnimation animRunning
-					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_running.md5anim");
+					= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman/boneman_running.md5anim");
 				SSSkeletalAnimation animAttack
-				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman", "boneman_attack.md5anim");
+				= SSAssetManager.GetInstance<SSSkeletalAnimationMD5>("./boneman/boneman_attack.md5anim");
 
 				SSSkeletalMesh[] meshes 
-					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman", "boneman.md5mesh");
-				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman", "skin.png");
+					= SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>("./boneman/boneman.md5mesh");
+				var tex = SSAssetManager.GetInstance<SSTexture>("./boneman/skin.png");
 				foreach (var skeliMesh in meshes) {
 
 				#if true
@@ -170,9 +170,9 @@ namespace TestBench1
 			// bob mesh test
 			{
 				var bobMeshes = SSAssetManager.GetInstance<SSSkeletalMeshMD5[]>(
-					"./bob_lamp/", "bob_lamp_update.md5mesh");
+					"./bob_lamp/bob_lamp_update.md5mesh");
 				var bobAnim = SSAssetManager.GetInstance<SSSkeletalAnimationMD5>(
-					"./bob_lamp/", "bob_lamp_update.md5anim");
+					"./bob_lamp/bob_lamp_update.md5anim");
 				var bobRender = new SSSkeletalRenderMesh(bobMeshes);
 				bobRender.playAnimationLoop(bobAnim, 0f);
 				bobRender.alphaBlendingEnabled = true;

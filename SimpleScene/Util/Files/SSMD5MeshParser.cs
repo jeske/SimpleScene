@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using OpenTK;
@@ -12,18 +13,21 @@ namespace SimpleScene.Demos
 
 	public class SSMD5MeshParser : SSMD5Parser
 	{
-		public static SSSkeletalMeshMD5[] ReadMeshes(SSAssetManager.Context ctx, string filename)
+        private string _basePath;
+
+        public static SSSkeletalMeshMD5[] ReadMeshes(string path)
 		{
-			var parser = new SSMD5MeshParser (ctx, filename);
+            var parser = new SSMD5MeshParser (path);
 			return parser.readMeshes ();
 		}
 
-		private SSMD5MeshParser (SSAssetManager.Context ctx, string filename)
-			: base(ctx, filename)
+        private SSMD5MeshParser (string path)
+			: base(path)
 		{
+            _basePath = Path.GetDirectoryName(path);
 		}
 
-		private SSSkeletalMeshMD5[] readMeshes()
+        private SSSkeletalMeshMD5[] readMeshes()
 		{
 			Match[] matches;
 			seekEntry ("MD5Version", "10");
@@ -49,7 +53,7 @@ namespace SimpleScene.Demos
 				meshes [m].joints = joints;
 				seekEntry ("}");
 
-				meshes [m].assetContext = Context;
+                meshes [m].basePath = _basePath;
 			}
 			return meshes;
 		}

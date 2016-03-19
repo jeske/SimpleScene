@@ -165,12 +165,12 @@ namespace SimpleScene.Demos
         #region runtime helpers
         public SSAbstractMesh missileBodyMesh()
         {
-            return SSAssetManager.GetInstance<SSMesh_wfOBJ>(".", missileBodyMeshFilename); 
+            return SSAssetManager.GetInstance<SSMesh_wfOBJ>(missileBodyMeshFilename); 
         }
 
         public SSTexture smokeParticlesTexture()
         {
-            return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", smokeParticlesTextureFilename);
+            return SSAssetManager.GetInstance<SSTextureWithAlpha>(smokeParticlesTextureFilename);
         }
         #endregion
     }

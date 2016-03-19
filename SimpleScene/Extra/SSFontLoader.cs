@@ -8,9 +8,9 @@ namespace SimpleScene
 {
     public static class SSFontLoader
     {
-        public static TypeFace loadTypeFace(SSAssetManager.Context ctx, string filename)
+        public static TypeFace loadTypeFace(string path)
         {
-            var reader = ctx.OpenText(filename);
+            var reader = SSAssetManager.OpenStreamReader(path);
             TypeFace newTypeFace = new TypeFace ();
             newTypeFace.ReadSVG(reader.ReadToEnd());
             return newTypeFace;

@@ -112,7 +112,7 @@ namespace SimpleScene
         private Dictionary<Type, LoadDelegate> m_loadDelegates = new Dictionary<Type,LoadDelegate>();
 
         #region Public User Functions
-        public delegate object LoadDelegate(Context ctx, string filename);
+        public delegate object LoadDelegate(string filename);
 
 		static SSAssetManager()
 		{
@@ -128,26 +128,29 @@ namespace SimpleScene
             s_mgr.registerLoadDelegate<T>(dlg);
         }
 
-        static public T GetInstance<T>(SSAssetManager.Context context, string filename) {
-            return s_mgr.getInstance<T>(context, filename);
+        static public T GetInstance<T>(string path) {
+            return s_mgr.getInstance<T>(path);
         }
 
-        static public T GetInstance<T>(string context, string filename) {
-            var ctx = new Context(context);
-            return s_mgr.getInstance<T>(ctx, filename);
-        }
-
-        static public void DeleteInstance<T>(Context context, string filename) {
-            s_mgr.deleteInstance<T>(context, filename);
+        static public void DeleteInstance<T>(string path) {
+            s_mgr.deleteInstance<T>(path);
         }
 
         static public void AddAssetArchive(ISSAssetArchiveHandler handler) {
             s_mgr.addAssetArchive(handler);
         }
 
-		static public bool ResourceExists(Context context, string filename) {
-			return s_mgr.resourceExists (context, filename);
+		static public bool ResourceExists(string path) {
+			return s_mgr.resourceExists (path);
 		}
+
+        static public Stream OpenStream(string path) {
+            return s_mgr.openStream(path);
+        }
+
+        static public StreamReader OpenStreamReader(string path) {
+            return s_mgr.openStreamReader(path);
+        }
         #endregion
 
         private void registerLoadDelegate<T>(LoadDelegate dlg) {
@@ -188,7 +191,7 @@ namespace SimpleScene
             throw new SSNoSuchAssetException(fullPath, handlersArr);
         }
 
-		private StreamReader openTextReader(string fullPath) {
+		private StreamReader openStreamReader(string fullPath) {
 			ISSAssetArchiveHandler[] handlersArr;
 
 			lock (this) { handlersArr = this.m_handlers.ToArray(); }
@@ -205,10 +208,9 @@ namespace SimpleScene
 			throw new SSNoSuchAssetException(fullPath, handlersArr);
 		}
 
-        private T getInstance<T>(Context context, string filename) {
+        private T getInstance<T>(string path) {
             object obj = null;
-            string fullPath = context.fullResourcePath(filename);
-            var key = new Tuple<string, Type>(fullPath, typeof(T));
+            var key = new Tuple<string, Type>(path, typeof(T));
             bool found;
             lock (this) {
                 found = m_instances.TryGetValue(key, out obj);
@@ -216,13 +218,12 @@ namespace SimpleScene
             if (found) {
                 return (T)obj;
             } else {
-                return (T)createInstance(context, filename, typeof(T));
+                return (T)createInstance(path, typeof(T));
             }
         }
 
-        private bool deleteInstance<T>(Context context, string filename) {
-            string fullPath = context.fullResourcePath(filename);
-            var key = new Tuple<string, Type>(fullPath, typeof(T));
+        private bool deleteInstance<T>(string path) {
+            var key = new Tuple<string, Type>(path, typeof(T));
             bool ok;
             lock (this) {
                 ok = m_instances.Remove(key);
@@ -233,7 +234,7 @@ namespace SimpleScene
             return ok;
         }
 
-        private object createInstance(Context context, string filename, Type resType) {
+        private object createInstance(string path, Type resType) {
             ISSAssetArchiveHandler[] handlersArr;
             // make sure we are thread-safe on asset handler registration (though this really sholdn't happen)
             lock (this) { 
@@ -244,9 +245,8 @@ namespace SimpleScene
                 throw new Exception("SSAssetManager: no handlers available for load");
             }
 
-            string fullPath = context.fullResourcePath(filename);
             foreach (ISSAssetArchiveHandler handler in handlersArr) {
-                if (handler.resourceExists(fullPath)) {
+                if (handler.resourceExists(path)) {
                     LoadDelegate dlg;
                     bool found;
                     lock (this) {
@@ -255,28 +255,28 @@ namespace SimpleScene
                     if (!found) {
                         throw new Exception("SSAssetManager: Load delegate not found");
                     }
-                    Object newObj = dlg(context, filename);
-                    var key = new Tuple<string, Type>(fullPath, resType);
+                    Object newObj = dlg(path);
+                    var key = new Tuple<string, Type>(path, resType);
                     lock(this) {
                         m_instances.Add(key, newObj);
                     }
                     return newObj;
                 }
             }
-            throw new SSNoSuchAssetException(filename, handlersArr);
+            throw new SSNoSuchAssetException(path, handlersArr);
         }
 
-		private bool resourceExists(Context context, string filename)
+		private bool resourceExists(string path)
 		{
-			string fullname = context.fullResourcePath (filename);
 			foreach (ISSAssetArchiveHandler handler in m_handlers) {
-				if (handler.resourceExists (fullname)) {
+				if (handler.resourceExists (path)) {
 					return true;
 				}
 			}
 			return false;
 		}
 
+        #if false
         public class Context
         {
             private readonly string m_basepath;
@@ -302,6 +302,7 @@ namespace SimpleScene
                 return Path.Combine(m_basepath, filename);
             }
         }
+        #endif
     }
 	#endregion
 

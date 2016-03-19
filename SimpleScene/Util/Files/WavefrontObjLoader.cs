@@ -95,10 +95,10 @@ namespace SimpleScene.Util3d {
         /// <param name="d3ddevice"></param>
         /// <param name="file"></param>
        
-		private void parseOBJ(SSAssetManager.Context ctx, string filename) {
+        private void parseOBJ(string basePath, string filename) {
 			MaterialInfoWithFaces currentMaterial = null;
 
-			StreamReader sr = ctx.OpenText (filename);
+            StreamReader sr = SSAssetManager.OpenStreamReader (Path.Combine(basePath, filename));
 
             //Read the first line of text
 			string line = sr.ReadLine();
@@ -182,7 +182,7 @@ namespace SimpleScene.Util3d {
                     case "mtllib":  // load named material file
                         string mtlFile = lineContent;
 						{
-							var mtls = SSWavefrontMTLInfo.ReadMTLs (ctx, mtlFile);
+                        var mtls = SSWavefrontMTLInfo.ReadMTLs (Path.Combine(basePath, mtlFile));
 							foreach (var mtl in mtls) {
 								materials.Add (new MaterialInfoWithFaces (mtl));
 							}
@@ -218,9 +218,11 @@ namespace SimpleScene.Util3d {
 			sr.Close();
         }
 
-		public WavefrontObjLoader(SSAssetManager.Context ctx, string filename) 
+		public WavefrontObjLoader(string path) 
 		{
-			this.parseOBJ(ctx, filename);
+            string basePath = Path.GetDirectoryName(path);
+            string filename = Path.GetFileName(path); 
+            this.parseOBJ(basePath, filename);
         }
         
         public static System.Drawing.Color CIEXYZtoColor(Vector4 xyzColor) {

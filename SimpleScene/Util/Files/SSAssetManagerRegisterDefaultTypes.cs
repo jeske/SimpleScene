@@ -10,35 +10,35 @@ namespace SimpleScene
 		{
 			// Register SS types for loading by SSAssetManager
 			SSAssetManager.RegisterLoadDelegate<SSTexture>(
-				(ctx, filename) => { return new SSTexture(ctx, filename); }
+				(path) => { return new SSTexture(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSTextureWithAlpha>(
-				(ctx, filename) => { return new SSTextureWithAlpha(ctx, filename); }
+				(path) => { return new SSTextureWithAlpha(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSMesh_wfOBJ>(
-				(ctx, filename) => { return new SSMesh_wfOBJ(ctx, filename); }
+				(path) => { return new SSMesh_wfOBJ(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSVertexShader>(
-				(ctx, filename) => { return new SSVertexShader(ctx, filename); }
+				(path) => { return new SSVertexShader(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSFragmentShader>(
-				(ctx, filename) => { return new SSFragmentShader(ctx, filename); }
+				(path) => { return new SSFragmentShader(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSGeometryShader>(
-				(ctx, filename) => { return new SSGeometryShader(ctx, filename); }
+				(path) => { return new SSGeometryShader(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSSkeletalMeshMD5[]> (
-				(ctx, filename) => { return SSMD5MeshParser.ReadMeshes(ctx, filename); }
+				(path) => { return SSMD5MeshParser.ReadMeshes(path); }
 			);
 			SSAssetManager.RegisterLoadDelegate<SSSkeletalAnimationMD5> (
-				(ctx, filename) => { return SSMD5AnimParser.ReadAnimation(ctx, filename); }
+				(path) => { return SSMD5AnimParser.ReadAnimation(path); }
 			);
             SSAssetManager.RegisterLoadDelegate<MatterHackers.Agg.Font.TypeFace>(
-                (ctx, filename) => { return SSFontLoader.loadTypeFace(ctx, filename); }
+                (path) => { return SSFontLoader.loadTypeFace(path); }
             );
             #if false
             SSAssetManager.RegisterLoadDelegate<FontFamily[]>(
-            (ctx, filename) => { return SSFontLoader.loadFontFamilies(ctx, filename); }
+            (ctx, path) => { return SSFontLoader.loadFontFamilies(path); }
             );
             #endif
 		}

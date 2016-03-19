@@ -154,7 +154,7 @@ namespace SimpleScene.Demos
 
         public string emissionSpritesTextureFilename = "lasers/laserEmissionSprites.png";
         public SSTexture emissionSpritesTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", emissionSpritesTextureFilename); }
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(emissionSpritesTextureFilename); }
 
         public RectangleF emissionBackgroundRect = new RectangleF(0f, 0.5f, 0.5f, 0.5f);
         public RectangleF emissionOverlayRect = new RectangleF(0f, 0.5f, 0.5f, 0.5f);
@@ -227,13 +227,13 @@ namespace SimpleScene.Demos
         public float driftModulationFunc(float t)
             { return evaluatePeriodicScalar(driftModulationFuncStr, t); }
         public SSTexture middleBackgroundTexture()
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", middleBackgroundTextureFilename); }
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(middleBackgroundTextureFilename); }
         public SSTexture middleOverlayTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".",  middleOverlayTextureFilename); }
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(middleOverlayTextureFilename); }
         public SSTexture middleInterferenceTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha> (".", middleInterferenceTextureFilename ); }
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha> (middleInterferenceTextureFilename ); }
         public SSTexture laserBurnParticlesTexture() 
-            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(".", laserBurnParticlesFilename); }
+            { return SSAssetManager.GetInstance<SSTextureWithAlpha>(laserBurnParticlesFilename); }
         #endregion
 
         public SLaserParameters() 

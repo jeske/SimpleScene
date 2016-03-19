@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SimpleScene
 {
@@ -10,49 +11,47 @@ namespace SimpleScene
 		public SSTexture ambientTex;
 		public SSTexture bumpMapTex;
 
-		public static SSTextureMaterial FromMaterialString(SSAssetManager.Context ctx, string materialString)
+        public static SSTextureMaterial FromMaterialString(string basePath, string materialString)
 		{
-			string existingFilename = null;
-			SSAssetManager.Context existingCtx = null;
+			string existingPath = null;
 
-			if (ctx != null && SSAssetManager.ResourceExists (ctx, materialString)) {
-				existingCtx = ctx;
-				existingFilename = materialString;
-			} else if (SSAssetManager.ResourceExists (SSAssetManager.Context.Root, materialString)) {
-				existingCtx = SSAssetManager.Context.Root;
-				existingFilename = materialString;
+            string combined = Path.Combine(basePath, materialString);
+			if (SSAssetManager.ResourceExists (combined)) {
+                existingPath = combined;
+			} else if (SSAssetManager.ResourceExists (materialString)) {
+                existingPath = materialString;
 			} else {
-				SSAssetManager.Context[] ctxs = { ctx, SSAssetManager.Context.Root };
+                string[] basePaths = { "", basePath }; // search in root as well as supplied base path
 				var extensions = new List<string> (SSTexture.commonImageExtensions);
 				extensions.Insert (0, ".mtl"); // check mtl first
 
-				foreach (var context in ctxs) {
+                foreach (var bp in basePaths) {
 					// for each context (current vs root directory)...
 					foreach (string extension in extensions) {
 						// for each extension of interest...
-						string filename = materialString + extension;
-						if (SSAssetManager.ResourceExists (context, filename)) {
-							existingCtx = context;
-							existingFilename = filename;
+                        string fullPath = Path.Combine(bp, materialString + extension);
+                        if (SSAssetManager.ResourceExists (fullPath)) {
+                            existingPath = fullPath;
 							break;
 						}
 					}
 				}
 			}
 
-			if (existingFilename != null) {
+            if (existingPath != null) {
 				// try loading a material
 				try {
-					SSWavefrontMTLInfo[] mtls = SSWavefrontMTLInfo.ReadMTLs(existingCtx, existingFilename);
-					if (mtls.Length < 0) {
+                    SSWavefrontMTLInfo[] mtls = SSWavefrontMTLInfo.ReadMTLs(existingPath);
+					if (mtls.Length <= 0) {
 						throw new Exception("No MTLs available in a file");
 					}
-					return SSTextureMaterial.FromBlenderMtl(existingCtx, mtls[0]);
+                    string baseDir = Path.GetDirectoryName(existingPath);
+                    return SSTextureMaterial.FromBlenderMtl(baseDir, mtls[0]);
 				} catch {
 
 					// try loading an image
 					try {
-						SSTexture diffTex = SSAssetManager.GetInstance<SSTextureWithAlpha> (existingCtx, existingFilename);
+                        SSTexture diffTex = SSAssetManager.GetInstance<SSTextureWithAlpha> (existingPath);
 						return new SSTextureMaterial (diffTex);
 					} catch {
 					}
@@ -64,20 +63,24 @@ namespace SimpleScene
 			throw new Exception (errMsg);
 		}
 
-		public static SSTextureMaterial FromBlenderMtl(SSAssetManager.Context ctx, SSWavefrontMTLInfo mtl)
+        public static SSTextureMaterial FromBlenderMtl(string basePath, SSWavefrontMTLInfo mtl)
 		{
 			SSTexture diffuse = null, specular = null, ambient = null, bumpMap = null;
 			if (mtl.diffuseTextureResourceName != null && mtl.diffuseTextureResourceName.Length > 0) {
-				diffuse = SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, mtl.diffuseTextureResourceName);
+                string path = Path.Combine(basePath, mtl.diffuseTextureResourceName);
+				diffuse = SSAssetManager.GetInstance<SSTextureWithAlpha> (path);
 			}
 			if (mtl.specularTextureResourceName != null && mtl.specularTextureResourceName.Length > 0) {
-				specular = SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, mtl.specularTextureResourceName);
+                string path = Path.Combine(basePath, mtl.specularTextureResourceName);
+                specular = SSAssetManager.GetInstance<SSTextureWithAlpha> (path);
 			}
 			if (mtl.ambientTextureResourceName != null && mtl.ambientTextureResourceName.Length > 0) {
-				ambient = SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, mtl.ambientTextureResourceName);
+                string path = Path.Combine(basePath, mtl.ambientTextureResourceName);
+                ambient = SSAssetManager.GetInstance<SSTextureWithAlpha> (path);
 			}
 			if (mtl.bumpTextureResourceName != null && mtl.bumpTextureResourceName.Length > 0) {
-				bumpMap = SSAssetManager.GetInstance<SSTextureWithAlpha> (ctx, mtl.bumpTextureResourceName);
+                string path = Path.Combine(basePath, mtl.bumpTextureResourceName);
+                bumpMap = SSAssetManager.GetInstance<SSTextureWithAlpha> (path);
 			}
 
 			return new SSTextureMaterial (diffuse, specular, ambient, bumpMap);

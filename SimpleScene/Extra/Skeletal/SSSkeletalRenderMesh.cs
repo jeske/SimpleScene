@@ -232,7 +232,7 @@ namespace SimpleScene.Demos
 				string matString = skeletalMesh.materialShaderString;
 				if (matString != null && matString.Length > 0) {
 					base.textureMaterial 
-					= SSTextureMaterial.FromMaterialString (skeletalMesh.assetContext, matString);
+                    = SSTextureMaterial.FromMaterialString (skeletalMesh.basePath, matString);
 				}
 
                 // don't use BVH because vertices keep changing on every render frame

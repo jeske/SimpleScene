@@ -64,9 +64,9 @@ namespace TestBench3
         {
             base.setupScene();
 
-            var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
+            var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/Drone2.obj");
             //var droneMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "missile.obj");
-            var vandalMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles", "vandal_assembled.obj");
+            var vandalMesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("missiles/vandal_assembled.obj");
 
             // add drones
             attackerDrone = new SSObjectMesh (droneMesh);

@@ -9,9 +9,8 @@ namespace SimpleScene.Demos
 		public SSSkeletalWeight[] weights = null;
 		public UInt16[] triangleIndices = null;
 		public SSSkeletalJoint[] joints = null;
+        public string basePath = null;
 		public string materialShaderString = null;
-
-		public SSAssetManager.Context assetContext = null;
 	}
 
 	public struct SSSkeletalVertex

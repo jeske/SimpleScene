@@ -21,17 +21,11 @@ namespace SimpleScene
 		private Dictionary<string, Regex> m_regexCache = new Dictionary<string, Regex>();
 		private int m_lineIdx = 0;
 		private StreamReader m_reader;
-		private SSAssetManager.Context m_ctx;
 
-		public SSAssetManager.Context Context {
-			get { return m_ctx; }
-		}
-
-		public SSMD5Parser(SSAssetManager.Context ctx, string filename)
+        public SSMD5Parser(string path)
 		{
-			m_ctx = ctx;
-			m_reader = ctx.OpenText (filename);
-			System.Console.WriteLine ("Reading a \"doom\" file: " + ctx.fullResourcePath(filename));
+            m_reader = SSAssetManager.OpenStreamReader (path);
+			System.Console.WriteLine ("Reading a \"doom\" file: " + path);
 		}
 
 		public Match[] seekEntry(params string[] wordRegExStrArray)

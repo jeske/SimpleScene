@@ -1,11 +1,11 @@
 // Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 // Released to the public domain. 
 
-using System;
-
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene;
+using System;
+using System.IO;
 using System.Drawing;
 using System.Collections.Generic;
 
@@ -21,7 +21,7 @@ namespace SimpleScene
 
 	public class SSPssmShaderProgram : SSShaderProgram, ISSPssmShaderProgram
     {
-        private static string c_ctx = "./Shaders/Shadowmap";
+        private static string c_basePath = "./Shaders/Shadowmap";
 
         #region Shaders
         private readonly SSShader m_vertexShader;  
@@ -57,17 +57,20 @@ namespace SimpleScene
 				m_isValid = false;
 				return;
 			}
-            m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "pssm_vertex.glsl");
+            m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(
+                Path.Combine(c_basePath, "pssm_vertex.glsl"));
 			m_vertexShader.Prepend (preprocessorDefs);
             m_vertexShader.LoadShader();
             attach(m_vertexShader);
 
-            m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "pssm_fragment.glsl");
+            m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(
+                Path.Combine(c_basePath, "pssm_fragment.glsl"));
 			m_fragmentShader.Prepend (preprocessorDefs);
             m_fragmentShader.LoadShader();
             attach(m_fragmentShader);
 
-            m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "pssm_geometry.glsl");
+            m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(
+                Path.Combine(c_basePath, "pssm_geometry.glsl"));
 			m_geometryShader.Prepend (preprocessorDefs);
             m_geometryShader.LoadShader();
             GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);

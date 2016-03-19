@@ -32,7 +32,7 @@ namespace TestBench0
 		{
 			base.setupScene ();
 
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
+			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/Drone2.obj");
 						
 			// add drone
 			SSObject droneObj = new SSObjectMesh (mesh);
@@ -50,7 +50,7 @@ namespace TestBench0
 			// add second drone
 			
 			SSObject drone2Obj = new SSObjectMesh(
-				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/", "Drone2.obj")
+				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/Drone2.obj")
 			);
 			main3dScene.AddObject (drone2Obj);
 			drone2Obj.renderState.lighted = true;
@@ -66,7 +66,7 @@ namespace TestBench0
 			// instanced asteroid ring
 			//if (false)
 			{
-				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid", "asteroid.obj");
+				var roidmesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("simpleasteroid/asteroid.obj");
 				var ringGen = new BodiesRingGenerator (
 					120f, 50f,
 					Vector3.Zero, Vector3.UnitY, 250f,
@@ -140,7 +140,7 @@ namespace TestBench0
 				cubesPs.addEffector (periodicExplosiveForce);
 
 				// test a renderer
-				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(".", "elements.png");
+				var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>("elements.png");
 				var cubesRenderer = new SSInstancedMeshRenderer (cubesPs, SSTexturedNormalCube.Instance);
 				cubesRenderer.Pos = new Vector3 (0f, 0f, -30f);
 				cubesRenderer.alphaBlendingEnabled = false;

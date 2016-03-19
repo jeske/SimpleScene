@@ -2,6 +2,7 @@
 // Released to the public domain. 
 
 using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using OpenTK.Graphics.OpenGL;
 
@@ -89,28 +90,26 @@ namespace SimpleScene
 
     public class SSVertexShader : SSShader
     {
-        public SSVertexShader(SSAssetManager.Context context, string filename)
-            : base(ShaderType.VertexShader,
-                   filename, 
-                   context.Open(filename).AsString())
+        public SSVertexShader(string path)
+            : base(ShaderType.VertexShader, Path.GetFileName(path), 
+                SSAssetManager.OpenStream(path).AsString())
         { }
     }
 
     public class SSFragmentShader : SSShader
     {
-        public SSFragmentShader(SSAssetManager.Context context, string filename)
-            : base(ShaderType.FragmentShader,
-                   filename,
-                   context.Open(filename).AsString()) 
+        public SSFragmentShader(string path)
+            : base(ShaderType.FragmentShader, Path.GetFileName(path), 
+                SSAssetManager.OpenStream(path).AsString())
         { }
     }
 
     public class SSGeometryShader : SSShader
     {
-        public SSGeometryShader(SSAssetManager.Context context, string filename)
-            : base(ShaderType.GeometryShader,
-                   filename,
-                   context.Open(filename).AsString()) { }
+        public SSGeometryShader(string path)
+            : base(ShaderType.GeometryShader, Path.GetFileName(path), 
+                SSAssetManager.OpenStream(path).AsString())
+        { }
     }
 }
 

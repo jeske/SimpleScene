@@ -54,12 +54,12 @@ namespace SimpleScene
 		public float fTransparency;
 
 
-		public static SSWavefrontMTLInfo[] ReadMTLs(SSAssetManager.Context ctx, string filename)
+        public static SSWavefrontMTLInfo[] ReadMTLs(string path)
 		{
 			var materials = new List<SSWavefrontMTLInfo> ();
 			SSWavefrontMTLInfo parseMaterial = null;
 
-			StreamReader sr = ctx.OpenText(filename);
+            StreamReader sr = SSAssetManager.OpenStreamReader(path);
 
 			//Read the first line of text
 			string line = sr.ReadLine();

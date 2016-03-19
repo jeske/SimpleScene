@@ -57,7 +57,7 @@ namespace TestBench2
             laserOccDiskScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
             laserFlareScene2d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
 
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/", "Drone2.obj");
+			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/Drone2.obj");
 
 			// add drones
 			droneObj1 = new SSObjectMesh (mesh);

@@ -60,8 +60,8 @@ namespace SimpleScene.Demos
 		{
 			public static SSTexture getDefaultTexture()
 			{
-				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7.png");
-				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions", "fig7_debug.png");
+				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions/fig7.png");
+				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions/fig7_debug.png");
 			}
 
 			#region flame smoke parameters

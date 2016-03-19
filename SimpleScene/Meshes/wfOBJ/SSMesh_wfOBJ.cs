@@ -43,17 +43,16 @@ namespace SimpleScene
 		}
 
 #region Constructor
-        public SSMesh_wfOBJ(SSAssetManager.Context ctx, string filename) {
-            this.srcFilename = ctx.fullResourcePath(filename);
+        public SSMesh_wfOBJ(string path) {
+            this.srcFilename = path;
 
+            Console.WriteLine("SSMesh_wfOBJ: loading wff {0}", path);
+			WavefrontObjLoader wff_data = new WavefrontObjLoader(path);
 
-            Console.WriteLine("SSMesh_wfOBJ: loading wff {0}",filename);
-			WavefrontObjLoader wff_data = new WavefrontObjLoader(ctx, filename);
+			Console.WriteLine("wff vertex count = {0}", wff_data.positions.Count);
+			Console.WriteLine("wff face count = {0}", wff_data.numFaces);
 
-			Console.WriteLine("wff vertex count = {0}",wff_data.positions.Count);
-			Console.WriteLine("wff face count = {0}",wff_data.numFaces);
-
-            _loadData(ctx, wff_data);
+            _loadData(Path.GetDirectoryName(path), wff_data);
 
             // update radius
             float maxRadSq = 0f;
@@ -229,15 +228,15 @@ namespace SimpleScene
 		}
 
 #region Load Data
-        private void _loadData(SSAssetManager.Context ctx ,WavefrontObjLoader m) {
+        private void _loadData(string baseDirectory ,WavefrontObjLoader m) {
             foreach (var srcmat in m.materials) {
                 if (srcmat.faces.Count != 0) {
-                    this.geometrySubsets.Add(_loadMaterialSubset(ctx, m, srcmat));
+                    this.geometrySubsets.Add(_loadMaterialSubset(baseDirectory, m, srcmat));
                 }
             }
         }
         
-		private SSMeshOBJSubsetData _loadMaterialSubset(SSAssetManager.Context ctx, WavefrontObjLoader wff, 
+        private SSMeshOBJSubsetData _loadMaterialSubset(string baseDirectory, WavefrontObjLoader wff, 
 														WavefrontObjLoader.MaterialInfoWithFaces objMatSubset) 
         {
             // generate renderable geometry data...
@@ -253,16 +252,20 @@ namespace SimpleScene
             // load and link every texture present 
 			subsetData.TextureMaterial = new SSTextureMaterial();
             if (objMatSubset.mtl.diffuseTextureResourceName != null) {
-				subsetData.TextureMaterial.diffuseTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.diffuseTextureResourceName);
+                string diffusePath = Path.Combine(baseDirectory, objMatSubset.mtl.diffuseTextureResourceName);
+                subsetData.TextureMaterial.diffuseTex = SSAssetManager.GetInstance<SSTexture>(diffusePath);
             }
             if (objMatSubset.mtl.ambientTextureResourceName != null) {
-				subsetData.TextureMaterial.ambientTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.ambientTextureResourceName);
+                string ambientPath = Path.Combine(baseDirectory, objMatSubset.mtl.ambientTextureResourceName);
+				subsetData.TextureMaterial.ambientTex = SSAssetManager.GetInstance<SSTexture>(ambientPath);
             } 
 			if (objMatSubset.mtl.bumpTextureResourceName != null) {
-				subsetData.TextureMaterial.bumpMapTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.bumpTextureResourceName);
+                string bumpMapPath = Path.Combine(baseDirectory, objMatSubset.mtl.bumpTextureResourceName);
+                subsetData.TextureMaterial.bumpMapTex = SSAssetManager.GetInstance<SSTexture>(bumpMapPath);
             }
 			if (objMatSubset.mtl.specularTextureResourceName != null) {
-				subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(ctx, objMatSubset.mtl.specularTextureResourceName);
+                string specularPath = Path.Combine(baseDirectory, objMatSubset.mtl.specularTextureResourceName);
+                subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(specularPath);
             }
             return subsetData;
        }

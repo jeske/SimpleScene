@@ -11,11 +11,11 @@
 //#define MAIN_SHADER_INSTANCING
 
 
-using System;
-
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene;
+using System;
+using System.IO;
 using System.Drawing;
 using System.Collections.Generic;
 
@@ -25,7 +25,7 @@ namespace SimpleScene
 	{
         public enum LightingMode { BlinnPhong = 0, BumpMapBlinnPhong = 1, ShadowMapDebug = 2 };
 
-        private static readonly string c_ctx = "./Shaders";
+        private static readonly string c_basePath = "./Shaders";
 
         #region Shaders
         protected readonly SSShader m_vertexShader;
@@ -235,17 +235,20 @@ namespace SimpleScene
                 try {
                     m_programID = GL.CreateProgram();
 
-                    m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "ss4_vertex.glsl");
+                    m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(
+                        Path.Combine(c_basePath, "ss4_vertex.glsl"));
 				    m_vertexShader.Prepend (preprocessorDefs);
                     m_vertexShader.LoadShader();
                     attach(m_vertexShader);
 
-                    m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "ss4_fragment.glsl");
+                    m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(
+                        Path.Combine(c_basePath, "ss4_fragment.glsl"));
 				    m_fragmentShader.Prepend (preprocessorDefs);
                     m_fragmentShader.LoadShader();
                     attach(m_fragmentShader);
 
-                    m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(c_ctx, "ss4_geometry.glsl");
+                    m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(
+                        Path.Combine(c_basePath, "ss4_geometry.glsl"));
                     GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                     GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
                     GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
@@ -265,11 +268,13 @@ namespace SimpleScene
             if (load_fallback_shader) {
                 m_programID = GL.CreateProgram();
 
-                m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(c_ctx, "ss1_vertex.glsl");
+                m_vertexShader = SSAssetManager.GetInstance<SSVertexShader>(
+                    Path.Combine(c_basePath, "ss1_vertex.glsl"));
                 m_vertexShader.LoadShader();
                 attach(m_vertexShader);
 
-                m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(c_ctx, "ss1_fragment.glsl");
+                m_fragmentShader = SSAssetManager.GetInstance<SSFragmentShader>(
+                    Path.Combine(c_basePath, "ss1_fragment.glsl"));
                 m_fragmentShader.LoadShader();
                 attach(m_fragmentShader);
                 Console.WriteLine(" !!!! SS1 shader loaded  ");

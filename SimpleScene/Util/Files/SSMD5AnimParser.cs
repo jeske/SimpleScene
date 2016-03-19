@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using OpenTK;
@@ -18,11 +19,11 @@ namespace SimpleScene.Demos
 
 	public class SSMD5AnimParser : SSMD5Parser
 	{
-		public static SSSkeletalAnimationMD5 ReadAnimation(SSAssetManager.Context ctx, string filename)
+        public static SSSkeletalAnimationMD5 ReadAnimation(string path)
 		{
-			var parser = new SSMD5AnimParser(ctx, filename);
+			var parser = new SSMD5AnimParser(path);
 			var anim = parser.readAnimation ();
-			anim.name = filename;
+            anim.name = Path.GetFileName(path);
 			return anim;
 		}
 
@@ -31,8 +32,8 @@ namespace SimpleScene.Demos
 			Qx = 8, Qy = 16, Qz = 32
 		}
 
-		private SSMD5AnimParser (SSAssetManager.Context ctx, string filename)
-			: base(ctx, filename)
+        private SSMD5AnimParser (string path)
+			: base(path)
 		{
 		}
 
