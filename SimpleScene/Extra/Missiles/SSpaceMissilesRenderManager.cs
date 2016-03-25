@@ -175,8 +175,6 @@ namespace SimpleScene.Demos
             }
         }
 
-        // TODO: remove cluster??? or missile?
-
         protected void _addMissileRender(SSpaceMissileData missile)
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
