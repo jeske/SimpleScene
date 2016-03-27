@@ -90,6 +90,10 @@ namespace SimpleScene
             dir1.Normalize();
             dir2.Normalize();
             Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
+            if (float.IsNaN(crossNormalized.X)) {
+                // this means dir1 == dir2. we can do it less cryptically but why add processing?
+                return Quaternion.Identity;
+            }
             float dot = Vector3.Dot(dir1, dir2);
             float angle = (float)Math.Acos(dot);
             return Quaternion.FromAxisAngle(crossNormalized, angle);
@@ -146,7 +150,7 @@ namespace SimpleScene
 			UInt16[] line_indicies = new UInt16[line_count * 6];
 			int v = 0;
 			for (int i = 2; i < indicies.Length; i += 3) {
-				var v1i = indicies [i - 2];
+				var v1i = indicies [i - 2]; 
 				var v2i = indicies [i - 1];
 				var v3i = indicies [i];
 
