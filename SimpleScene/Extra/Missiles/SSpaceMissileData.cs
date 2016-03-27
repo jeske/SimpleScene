@@ -5,6 +5,8 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissileData
     {
+        public delegate void MissileAtTargetFunc (SSpaceMissileData missileData);
+
         public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
 
         #region accessors to the internally managed
@@ -133,15 +135,15 @@ namespace SimpleScene.Demos
                             System.Console.WriteLine("bad position");
                         }
                     }
+                    if (cluster.atTargetFunc != null) {
+                        cluster.atTargetFunc(this);
+                    }
                 }
                 break;
             case State.AtTarget:
                 if (mParams.terminateWhenAtTarget) {
                     _state = State.Terminated;
                     _driver = null;
-                    if (cluster.missileHitDelegate != null) {
-                        cluster.missileHitDelegate(_position, mParams);
-                    }
                     if (mParams.debuggingAid) {
                         System.Console.WriteLine("missile terminated at target at t = " + cluster.timeSinceLaunch);
                     }

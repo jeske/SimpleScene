@@ -89,7 +89,7 @@ namespace SimpleScene.Demos
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirections = null,
             BodiesFieldGenerator localPositioningGenerator = null,
-            SSpaceMissileClusterData.MissileHitDelegate missileHitDelegate = null
+            SSpaceMissileData.MissileAtTargetFunc missileAtTargetFunc = null
         )
         {
             _initParamsSpecific(clusterParams);
@@ -97,7 +97,7 @@ namespace SimpleScene.Demos
                 launcherWorldMat, launchVel, numMissiles,
                 target, timeToHit, clusterParams, 
                 localPositioningOffsets, localDirections, localPositioningGenerator,
-                missileHitDelegate);
+                missileAtTargetFunc);
             foreach (var missile in cluster.missiles) {
                 _addMissileRender(missile);
             }

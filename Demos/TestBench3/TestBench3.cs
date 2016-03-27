@@ -412,9 +412,9 @@ namespace TestBench3
             vandalShip.Orient(desiredDir, Vector3.Transform(Vector3.UnitY, vandalOrient));
         }
 
-        protected void targetHitHandler(Vector3 position, SSpaceMissileParameters mParams)
+        protected void targetHitHandler(SSpaceMissileData missileData)
         {
-            explosionManager.showExplosion(position, 2.5f);
+            explosionManager.showExplosion(missileData.position, 2.5f);
         }
 
         protected Matrix4 straightMissileSpawnTxfm(ISSpaceMissileTarget target, 

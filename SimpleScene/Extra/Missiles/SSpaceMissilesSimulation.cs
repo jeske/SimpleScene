@@ -37,13 +37,13 @@ namespace SimpleScene.Demos
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirectionPresets = null,
             BodiesFieldGenerator meshPositioningGenerator = null,
-            SSpaceMissileClusterData.MissileHitDelegate missileHitDelegate = null
+            SSpaceMissileData.MissileAtTargetFunc atTargetFunc = null
         )
         {
             var cluster = new SSpaceMissileClusterData (
                 launcherWorldMat, launchVel, numMissiles, target, timeToHit, clusterParams, 
                 localPositioningOffsets, localDirectionPresets, meshPositioningGenerator,
-                missileHitDelegate
+                atTargetFunc
             );
             _clusters.Add(cluster);
             _targets.Add(target);
@@ -104,8 +104,7 @@ namespace SimpleScene.Demos
     /// <summary> Missile cluster contains missiles and their shared data </summary>
     public class SSpaceMissileClusterData
     {
-        public delegate void MissileHitDelegate (Vector3 missilePosition, SSpaceMissileParameters mParams);
-        internal MissileHitDelegate missileHitDelegate = null;
+        public SSpaceMissileData.MissileAtTargetFunc atTargetFunc = null;
 
         public SSpaceMissileData[] missiles { get { return _missiles; } }
         public SSpaceMissileParameters parameters { get { return _parameters; } }
@@ -130,13 +129,13 @@ namespace SimpleScene.Demos
             Vector3[] meshPositioningOffsets = null,
             Vector3[] meshPositioningDirections = null,
             BodiesFieldGenerator meshPositioningGenerator = null,
-            MissileHitDelegate missileHitDelegate = null)
+            SSpaceMissileData.MissileAtTargetFunc atTargetFunc = null)
         {
             _target = target;
             _timeToHit = timeToHit;
             _parameters = mParams;
             _missiles = new SSpaceMissileData[numMissiles];
-            this.missileHitDelegate = missileHitDelegate;
+            this.atTargetFunc = atTargetFunc;
 
             Vector3[] localSpawnPts = new Vector3[numMissiles];
             Quaternion[] localSpawnOrients = new Quaternion[numMissiles];
