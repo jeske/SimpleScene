@@ -18,7 +18,7 @@ namespace SimpleScene.Demos
     {
         enum ParticleEffectorMasks : ushort { FlameToSmoke=1, EjectionSmoke=2 };
 
-        protected readonly SSpaceMissilesSimulation _simulation;
+        protected readonly SSpaceMissilesVisualSimulation _simulation;
         protected readonly SSScene _objScene;
         protected readonly SSScene _screenScene;
 
@@ -32,7 +32,7 @@ namespace SimpleScene.Demos
 
         readonly List<SSpaceMissileRenderInfo> _missileRuntimes = new List<SSpaceMissileRenderInfo> ();
 
-        public SSpaceMissilesSimulation simulation { get { return _simulation; } }
+        public SSpaceMissilesVisualSimulation simulation { get { return _simulation; } }
 
         public int numRenderedMissiles { get { return _missileRuntimes.Count; } }
         public int numRenderParticles { get { return _particlesData.numElements; } }
@@ -41,7 +41,7 @@ namespace SimpleScene.Demos
         public SSpaceMissilesRenderManager (SSScene objScene, SSScene particleScene, SSScene screenScene,
                                             int particleCapacity = 10000)
         {
-            _simulation = new SSpaceMissilesSimulation ();
+            _simulation = new SSpaceMissilesVisualSimulation ();
 
             _objScene = objScene;
             objScene.preRenderHooks += this._preRenderUpdate;
@@ -82,14 +82,14 @@ namespace SimpleScene.Demos
             _particleRenderer.renderState.toBeDeleted = true;
         }
 
-        public SSpaceMissileClusterData launchCluster(
+        public SSpaceMissileClusterVisualData launchCluster(
             Matrix4 launcherWorldMat, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileParameters clusterParams,
+            SSpaceMissileVisualParameters clusterParams,
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirections = null,
             BodiesFieldGenerator localPositioningGenerator = null,
-            SSpaceMissileData.MissileAtTargetFunc missileAtTargetFunc = null
+            SSpaceMissileVisualData.MissileAtTargetFunc missileAtTargetFunc = null
         )
         {
             _initParamsSpecific(clusterParams);
@@ -106,7 +106,7 @@ namespace SimpleScene.Demos
 
 
 
-        protected void _initParamsSpecific(SSpaceMissileParameters mParams)
+        protected void _initParamsSpecific(SSpaceMissileVisualParameters mParams)
         {
             // smoke effectors
             if (_particleRenderer.textureMaterial == null) {
@@ -175,7 +175,7 @@ namespace SimpleScene.Demos
             }
         }
 
-        protected void _addMissileRender(SSpaceMissileData missile)
+        protected void _addMissileRender(SSpaceMissileVisualData missile)
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             #if MISSILE_SHOW
@@ -208,14 +208,14 @@ namespace SimpleScene.Demos
             for (int i = 0; i < _missileRuntimes.Count; ++i) {
                 var missileRuntime = _missileRuntimes [i];
                 var missile = missileRuntime.missile;
-                if (missile.state == SSpaceMissileData.State.Terminated) {
+                if (missile.state == SSpaceMissileVisualData.State.Terminated) {
                     _removeMissileRender(missileRuntime);
                 } else {
                     missileRuntime.preRenderUpdate(timeElapsed);
                 }
             }
             _missileRuntimes.RemoveAll(
-                (missileRuntime) => missileRuntime.missile.state == SSpaceMissileData.State.Terminated);
+                (missileRuntime) => missileRuntime.missile.state == SSpaceMissileVisualData.State.Terminated);
 
             // debugging
             #if false
@@ -231,9 +231,9 @@ namespace SimpleScene.Demos
             public readonly SSObject2DSurface_AGGText debugCountdown;
 
             public readonly SSRadialEmitter flameSmokeEmitter;
-            public readonly SSpaceMissileData missile;
+            public readonly SSpaceMissileVisualData missile;
 
-            public SSpaceMissileRenderInfo(SSpaceMissileData missile)
+            public SSpaceMissileRenderInfo(SSpaceMissileVisualData missile)
             {
                 this.missile = missile;
                 var mParams = missile.cluster.parameters;
@@ -282,13 +282,13 @@ namespace SimpleScene.Demos
                 bodyObj.Pos = missile.position;
                 bodyObj.Orient(missile.visualDirection, missile.up);
 
-                bool ejection = missile.state == SSpaceMissileData.State.Ejection;
+                bool ejection = missile.state == SSpaceMissileVisualData.State.Ejection;
                 float smokeFrequency = Interpolate.Lerp(
                     mParams.smokeEmissionFrequencyMin, mParams.smokeEmissionFrequencyMax, missile.visualSmokeAmmount);
                 float sizeMin = ejection ? mParams.ejectionSmokeSizeMin : mParams.flameSmokeSizeMin;
                 float sizeMax = ejection ? mParams.ejectionSmokeSizeMax : mParams.flameSmokeSizeMax;
                 float smokeSize = Interpolate.Lerp(sizeMin, sizeMax, 
-                    (float)SSpaceMissilesSimulation.rand.NextDouble());
+                    (float)SSpaceMissilesVisualSimulation.rand.NextDouble());
 
                 //flameSmokeEmitter.velocity = -missile.velocity;
                 flameSmokeEmitter.center = missile.jetPosition();
@@ -317,10 +317,10 @@ namespace SimpleScene.Demos
 
             public class MissileDebugRays : SSObject
             {
-                protected readonly SSpaceMissileData _missile;
+                protected readonly SSpaceMissileVisualData _missile;
                 public Matrix4 viewProjMat; // maintain this matrix to held 2d countdown renderer 
 
-                public MissileDebugRays(SSpaceMissileData missile)
+                public MissileDebugRays(SSpaceMissileVisualData missile)
                 {
                     _missile = missile;
                     renderState.castsShadow = false;

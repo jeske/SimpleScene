@@ -8,60 +8,60 @@ namespace SimpleScene.Demos
         void updateExecution(float timeElapsed);
     }
 
-    public class SSimpleMissileEjectionDriver : ISSpaceMissileDriver
+    public class SMissileEjectionDriver : ISSpaceMissileDriver
     {
-        protected readonly SSpaceMissileData _missile;
+        public virtual SSpaceMissileData missile { get; } 
+
+        public SMissileEjectionDriver(SSpaceMissileData missile)
+        {
+            this.missile = missile;
+        }
+
+        public virtual void updateExecution(float timeElapsed)
+        {
+            // for a non-visual missile model, we can just idle for a bit
+        }
+    }
+
+    public class SMissileEjectionVisualDriver : SMissileEjectionDriver
+    {
 
         protected readonly float _yawVelocity; // purely visual
         protected readonly float _pitchVelocity; // purely visual
         protected readonly Vector3 _initDir;
 
-        public SSimpleMissileEjectionDriver(SSpaceMissileData missile)
+        protected new SSpaceMissileVisualData missile { 
+            get { return base.missile as SSpaceMissileVisualData; }
+        }
+            
+        public SMissileEjectionVisualDriver(SSpaceMissileVisualData missile)
+            : base(missile)
         {
-            _missile = missile;
-            var mParams = _missile.cluster.parameters;
+            var mParams = missile.cluster.parameters;
 
-            #if false
-            _missile.visualDirection = (_missile.position - clusterInitPos);
-            if (_missile.visualDirection.LengthSquared > 0.0001f) {
-                _missile.visualDirection.Normalize();
-            } else {
-                // means missile was spawned right at the launcher. pick a direction towards target
-                Vector3 toTarget = _missile.cluster.target.position - _missile.position;
-                float length = toTarget.Length;
-                if (length >= 0.0001f) {
-                    // normalize
-                    _missile.visualDirection = toTarget / length;
-                } else {
-                    // target is also on top of missile. just pick a direction and keep everything NaN free
-                    _missile.visualDirection = Vector3.UnitZ;
-                }
-            }
-            _missile.velocity = clusterInitVel + _missile.visualDirection * mParams.ejectionVelocity;
-            #endif
-
-            var rand = SSpaceMissilesSimulation.rand;
+            var rand = SSpaceMissilesVisualSimulation.rand;
             _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
             _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
-
-            _missile.visualSmokeSize = 1f;
-            _missile.visualSmokeAmmount = 1f;
         }
 
-        public void updateExecution(float timeElapsed) 
+        public override void updateExecution(float timeElapsed) 
         { 
-            float t = _missile.cluster.timeSinceLaunch;
+            base.updateExecution(timeElapsed);
+
+            float t = missile.cluster.timeSinceLaunch;
             float dy = _yawVelocity * t;
             float dp = _pitchVelocity * t;
 
-            Quaternion q = Quaternion.FromAxisAngle(_missile.up, dy)
-                           * Quaternion.FromAxisAngle(_missile.pitchAxis, dp);
-            _missile.visualDirection = Vector3.Transform(_missile.visualDirection, q);
+            Quaternion q = Quaternion.FromAxisAngle(missile.up, dy)
+                           * Quaternion.FromAxisAngle(missile.pitchAxis, dp);
+            missile.visualDirection = Vector3.Transform(missile.visualDirection, q);
 
-            var mParams = _missile.cluster.parameters;
-            _missile.velocity += _missile.visualDirection * mParams.ejectionAcc;
+            var mParams = missile.cluster.parameters;
+            missile.velocity += missile.visualDirection * mParams.ejectionAcc;
         }
     }
+
+
 
     /// <summary>
     /// http://en.wikipedia.org/wiki/Proportional_navigation
@@ -71,26 +71,23 @@ namespace SimpleScene.Demos
     /// </summary>
     public class SProportionalNavigationPursuitDriver : ISSpaceMissileDriver
     {
-        protected SSpaceMissileData _missile;
+        protected virtual SSpaceMissileData missile { get; }
 
         public SProportionalNavigationPursuitDriver(SSpaceMissileData missile)
         {
-            _missile = missile;
-
-            _missile.visualSmokeSize = 1f;
-            _missile.visualSmokeAmmount = 1f;
+            this.missile = missile;
         }
 
-        public void updateExecution(float timeElapsed)
+        public virtual void updateExecution(float timeElapsed) 
         {
             if (timeElapsed <= 0f) return;
 
-            var mParams = _missile.cluster.parameters;
-            var target = _missile.cluster.target;
-
             // basic proportional navigation. see wikipedia
-            Vector3 Vr = target.velocity - _missile.velocity;
-            Vector3 R = target.position - _missile.position;
+            var mParams = missile.parameters;
+            var target = missile.target;
+
+            Vector3 Vr = target.velocity - missile.velocity;
+            Vector3 R = target.position - missile.position;
             Vector3 omega = Vector3.Cross(R, Vr) / R.LengthSquared;
             Vector3 latax = mParams.pursuitNavigationGain * Vector3.Cross(Vr, omega);
 
@@ -101,16 +98,17 @@ namespace SimpleScene.Demos
                 Vector3 targetLatAx = target.acceleration - targetAccLos * losDir;
                 latax += mParams.pursuitNavigationGain * targetLatAx / 2f;
             }
-            _missile._lataxDebug = latax;
+
+            missile._lataxDebug = latax;
 
             // apply latax
-            var oldVelMag = _missile.velocity.LengthFast;
-            _missile.velocity += latax * timeElapsed;
-            float tempVelMag = _missile.velocity.LengthFast;
+            var oldVelMag = missile.velocity.LengthFast;
+            missile.velocity += latax * timeElapsed;
+            float tempVelMag = missile.velocity.LengthFast;
             if (oldVelMag != 0f) {
                 float r = tempVelMag / oldVelMag;
                 if (r > 1f) {
-                    _missile.velocity /= r;
+                    missile.velocity /= r;
                 }
             }
 
@@ -120,26 +118,49 @@ namespace SimpleScene.Demos
                 if (dist != 0f) {
                     Vector3 targetDir = R / dist;
                     float v0 = -Vector3.Dot(Vr, targetDir);
-                    float t = _missile.cluster.timeToHit;
+                    float t = missile.timeToHit;
                     float correctionAccMag = 2f * (dist - v0 * t) / t / t;
                     Vector3 corrAcc = correctionAccMag * targetDir;
-                    _missile.velocity += corrAcc * timeElapsed;
-                    _missile._hitTimeCorrAccDebug = corrAcc;
+                    missile.velocity += corrAcc * timeElapsed;
+                    missile._hitTimeCorrAccDebug = corrAcc;
                 }
             } else {
                 // hit time correction inactive. allow accelerating to achieve optimal velocity or forever
-                oldVelMag = _missile.velocity.LengthFast;
+                oldVelMag = missile.velocity.LengthFast;
                 float velDelta = mParams.pursuitMaxAcc * timeElapsed;
                 float newVelMag = Math.Min(oldVelMag + velDelta, mParams.pursuitMaxVelocity);
                 if (oldVelMag != 0f) {
-                    _missile.velocity *= (newVelMag / oldVelMag);
+                    missile.velocity *= (newVelMag / oldVelMag);
                 }
             }
+
+        }
+    }
+
+    public class SProportionalNavigationPursuitVisualDriver : SProportionalNavigationPursuitDriver
+    {
+        public new SSpaceMissileVisualData missile {
+            get { return base.missile as SSpaceMissileVisualData; }
+        }
+
+        public SProportionalNavigationPursuitVisualDriver(SSpaceMissileVisualData missile)
+            : base(missile)
+        {
+        }
+
+        public override void updateExecution(float timeElapsed)
+        {
+            base.updateExecution(timeElapsed);
+
+            if (timeElapsed <= 0f) return;
+
+            var mParams = missile.parameters as SSpaceMissileVisualParameters;
+            var target = missile.target;
 
             // make visual direction "lean into" velocity
             Vector3 axis;
             float angle;
-            OpenTKHelper.neededRotation(_missile.visualDirection, _missile.velocity.Normalized(),
+            OpenTKHelper.neededRotation(missile.visualDirection, missile.velocity.Normalized(),
                 out axis, out angle);
             float abs = Math.Abs(angle);
             if (abs > mParams.pursuitVisualRotationRate && abs > 0f) {
@@ -147,7 +168,7 @@ namespace SimpleScene.Demos
             }
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 
-            _missile.visualDirection = Vector3.Transform(_missile.visualDirection, quat);
+            missile.visualDirection = Vector3.Transform(missile.visualDirection, quat);
         }
     }
 }

@@ -27,9 +27,9 @@ namespace TestBench3
         protected Vector3 vandalVelocity = Vector3.Zero;
 
         protected BodiesFieldGenerator attackerDroneFieldGen;
-        protected SSpaceMissileParameters attackerDroneMissileParams;
-        protected SSpaceMissileParameters vandalShipMissileParams;
-        protected SSpaceMissileParameters cameraMissileParams;
+        protected SSpaceMissileVisualParameters attackerDroneMissileParams;
+        protected SSpaceMissileVisualParameters vandalShipMissileParams;
+        protected SSpaceMissileVisualParameters cameraMissileParams;
 
         protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
         protected MissileTargets missileTarget = MissileTargets.TargetDrone;
@@ -114,10 +114,10 @@ namespace TestBench3
 
             // attacker drone missile parameters
             attackerDroneFieldGen = new BodiesFieldGenerator (new ParticlesSphereGenerator (Vector3.Zero, 1f));
-            attackerDroneMissileParams = new SSpaceMissileParameters();
+            attackerDroneMissileParams = new SSpaceMissileVisualParameters();
 
             // vandal missile params
-            vandalShipMissileParams = new SSpaceMissileParameters();
+            vandalShipMissileParams = new SSpaceMissileVisualParameters();
             //vandalShipMissileParams.spawnGenerator = null;
             //vandalShipMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
@@ -126,7 +126,7 @@ namespace TestBench3
             vandalShipMissileParams.ejectionSmokeDuration = 0.5f;
             vandalShipMissileParams.ejectionSmokeSizeMax = 5f;
 
-            cameraMissileParams = new SSpaceMissileParameters();
+            cameraMissileParams = new SSpaceMissileVisualParameters();
             //cameraMissileParams.spawnGenerator = null;
             //cameraMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             cameraMissileParams.ejectionMaxRotationVel = 0.05f;
@@ -469,7 +469,7 @@ namespace TestBench3
             throw new Exception ("unhandled enum");
         }
 
-        protected SSpaceMissileParameters getLauncherParams()
+        protected SSpaceMissileVisualParameters getLauncherParams()
         {
             switch (missileLauncher) {
             case MissileLaunchers.AttackerDrone: return attackerDroneMissileParams;

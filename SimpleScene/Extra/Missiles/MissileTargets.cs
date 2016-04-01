@@ -56,8 +56,8 @@ namespace SimpleScene.Demos
 
         public virtual bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation)
         {
-            var mParams = missile.cluster.parameters;
-            float simStep = missile.cluster.parameters.simulationStep;
+            var mParams = missile.parameters;
+            float simStep = missile.parameters.simulationStep;
             float nextTickDist = missile.velocity.LengthFast * simStep;
             float testDistSq = (nextTickDist + targetObj.worldBoundingSphereRadius);
             testDistSq *= testDistSq;

@@ -6,7 +6,7 @@ using OpenTK;
 
 namespace SimpleScene.Demos
 {
-    public class SSpaceMissilesSimulation
+    public class SSpaceMissilesVisualSimulation
     {
         /// <summary> shared randomizer object </summary>
         public static Random rand = new Random();
@@ -20,8 +20,8 @@ namespace SimpleScene.Demos
         /// <summary> number of missile clusters currently active </value>
         public int numClusters { get { return _clusters.Count; } }
 
-        protected readonly List<SSpaceMissileClusterData> _clusters
-            = new List<SSpaceMissileClusterData>();
+        protected readonly List<SSpaceMissileClusterVisualData> _clusters
+            = new List<SSpaceMissileClusterVisualData>();
 
         #region targets
         protected readonly HashSet<ISSpaceMissileTarget> _targets = new HashSet<ISSpaceMissileTarget>();
@@ -30,17 +30,17 @@ namespace SimpleScene.Demos
 
         protected Stopwatch _stopwatch = new Stopwatch ();
 
-        public SSpaceMissileClusterData launchCluster(
+        public SSpaceMissileClusterVisualData launchCluster(
             Matrix4 launcherWorldMat, Vector3 launchVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileParameters clusterParams,
+            SSpaceMissileVisualParameters clusterParams,
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirectionPresets = null,
             BodiesFieldGenerator meshPositioningGenerator = null,
-            SSpaceMissileData.MissileAtTargetFunc atTargetFunc = null
+            SSpaceMissileVisualData.MissileAtTargetFunc atTargetFunc = null
         )
         {
-            var cluster = new SSpaceMissileClusterData (
+            var cluster = new SSpaceMissileClusterVisualData (
                 launcherWorldMat, launchVel, numMissiles, target, timeToHit, clusterParams, 
                 localPositioningOffsets, localDirectionPresets, meshPositioningGenerator,
                 atTargetFunc
@@ -50,12 +50,12 @@ namespace SimpleScene.Demos
             return cluster;
         }
 
-        public void removeMissile(SSpaceMissileData missile)
+        public void removeMissile(SSpaceMissileVisualData missile)
         {
             missile.terminate();
         }
 
-        public void removeCluster(SSpaceMissileClusterData cluster)
+        public void removeCluster(SSpaceMissileClusterVisualData cluster)
         {
             cluster.terminateAll();
         }
@@ -102,39 +102,39 @@ namespace SimpleScene.Demos
     }
 
     /// <summary> Missile cluster contains missiles and their shared data </summary>
-    public class SSpaceMissileClusterData
+    public class SSpaceMissileClusterVisualData
     {
-        public SSpaceMissileData.MissileAtTargetFunc atTargetFunc = null;
+        public SSpaceMissileVisualData.MissileAtTargetFunc atTargetFunc = null;
 
-        public SSpaceMissileData[] missiles { get { return _missiles; } }
-        public SSpaceMissileParameters parameters { get { return _parameters; } }
+        public SSpaceMissileVisualData[] missiles { get { return _missiles; } }
+        public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
         public ISSpaceMissileTarget target { get { return _target; } }
         public float timeToHit { get { return _timeToHit; } }
         public float timeSinceLaunch { get { return _timeSinceLaunch; } }
         public bool isTerminated { get { return _isTerminated; } }
 
-        protected readonly SSpaceMissileData[] _missiles;
+        protected readonly SSpaceMissileVisualData[] _missiles;
         protected readonly ISSpaceMissileTarget _target;
-        protected readonly SSpaceMissileParameters _parameters;
+        protected readonly SSpaceMissileVisualParameters _parameters;
 
         protected float _timeDeltaAccumulator = 0f;
         protected float _timeSinceLaunch = 0f;
         protected float _timeToHit = 0f;
         protected bool _isTerminated = false;
 
-        public SSpaceMissileClusterData(
+        public SSpaceMissileClusterVisualData(
             Matrix4 launcherWorldMat, Vector3 launcherVel, int numMissiles,
             ISSpaceMissileTarget target, float timeToHit,
-            SSpaceMissileParameters mParams,
+            SSpaceMissileVisualParameters mParams,
             Vector3[] meshPositioningOffsets = null,
             Vector3[] meshPositioningDirections = null,
             BodiesFieldGenerator meshPositioningGenerator = null,
-            SSpaceMissileData.MissileAtTargetFunc atTargetFunc = null)
+            SSpaceMissileVisualData.MissileAtTargetFunc atTargetFunc = null)
         {
             _target = target;
             _timeToHit = timeToHit;
             _parameters = mParams;
-            _missiles = new SSpaceMissileData[numMissiles];
+            _missiles = new SSpaceMissileVisualData[numMissiles];
             this.atTargetFunc = atTargetFunc;
 
             Vector3[] localSpawnPts = new Vector3[numMissiles];
@@ -161,34 +161,9 @@ namespace SimpleScene.Demos
                 Vector3 missileWorldDir = Vector3.Transform(Vector3.UnitZ, localSpawnOrients [i]);
                 Vector3 missileWorldVel = launcherVel + missileWorldDir * mParams.ejectionVelocity;
 
-                _missiles [i] = new SSpaceMissileData (
+                _missiles [i] = new SSpaceMissileVisualData (
                     this, i, missileWorldPos, missileWorldDir, missileWorldVel, timeToHit);
             }
-
-
-            #if false
-            if (_parameters.spawnGenerator != null) {
-                _parameters.spawnGenerator.Generate(numMissiles,
-                    (i, scale, pos, orient) => {
-                        Matrix4 spawnTxfm = _parameters.spawnTxfm(_target, 
-                            launcherPos, launcherVel, i, numMissiles);
-                        Vector3 missilePos = pos * _parameters.spawnGeneratorScale;
-                        missilePos = Vector3.Transform(missilePos, spawnTxfm);
-                        _missiles [i] = new SSpaceMissileData (
-                            this, i, launcherPos, launcherVel, missilePos, timeToHit);
-                        return true; // accept new missile from the generator
-                    }
-                );
-            } else {
-                for (int i = 0; i < numMissiles; ++i) {
-                    Matrix4 spawnTxfm = _parameters.spawnTxfm(_target, 
-                        launcherPos, launcherVel, i, numMissiles);
-                    var missilePos = Vector3.Transform(Vector3.Zero, spawnTxfm);
-                    _missiles [i] = new SSpaceMissileData (
-                        this, i, launcherPos, launcherVel, missilePos, timeToHit);
-                }
-            }
-            #endif
         }
 
         public void updateTimeToHit(float timeToHit)
@@ -219,7 +194,7 @@ namespace SimpleScene.Demos
         {
             bool isTerminated = true;
             foreach (var missile in _missiles) {
-                if (missile.state != SSpaceMissileData.State.Terminated) {
+                if (missile.state != SSpaceMissileVisualData.State.Terminated) {
                     isTerminated = false;
                     missile.updateExecution(timeElapsed);
                 }

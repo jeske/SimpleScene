@@ -5,22 +5,16 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-    // TODO: fuel strategy???
     [Serializable]
     public class SSpaceMissileParameters
     {
-        #if false
-        public delegate Matrix4 SpawnTxfmDelegate(ISSpaceMissileTarget target, 
-                                                  Vector3 launcherPos, Vector3 launcherVel,
-                                                  int missileId, int clusterSize);
-        public delegate ISSpaceMissileDriver 
-            EjectionCreationDelegate(SSpaceMissileData missile, Vector3 clusterPos, Vector3 clusterVel);
-        public delegate ISSpaceMissileDriver PursuitCreationDelegate(SSpaceMissileData missile);
-        public delegate void MissileEventDelegate (Vector3 position, SSpaceMissileParameters mParams);
-        #endif
-
-        #region simulation parameters
+        #region simulation details
         public float simulationStep = 0.025f;
+
+        /// <summary> when true missiles are terminated when at target. otherwise external logic has to clean them up </summary>
+        public bool terminateWhenAtTarget = true;
+        /// <summary> invoked a missile hits a target. for example to show explosions </summary>
+        //public MissileEventDelegate targetHitHandlers = null;
         #endregion
 
         #region spawn and ejection
@@ -30,74 +24,14 @@ namespace SimpleScene.Demos
         public float ejectionAcc = 6f;
         /// <summary> default ejection driver: angular velocity can be initialized to at most this </summary>
         public float ejectionMaxRotationVel = 7f;
-
         /// <summary> used to plugin field generators. Can be set to null, in which case only spawn transform delegates are used </summary>
         public virtual ISSpaceMissileDriver createEjection(SSpaceMissileData missile)
-            { return new SSimpleMissileEjectionDriver (missile); }
-        #if false
-        public BodiesFieldGenerator spawnGenerator
-            = new BodiesFieldGenerator(new ParticlesSphereGenerator(Vector3.Zero, 1f));
-        /// <summary> on the presense of generator scales its output distance from the center </summary>
-        public float spawnGeneratorScale = 10f;
-        /// <summary> initial transform applied to every spawned missile. </summary>
-        public SpawnTxfmDelegate spawnTxfm 
-            = (target, launcherPos, launcherVel, id, num) 
-                => { return Matrix4.CreateTranslation(launcherPos); };
-        /// <summary> delegate for creating new ejection phase missile drivers </summary>
-        public string [] spawnPosOffsetFuncs = {"0.0", "0.0", "0.0"}; // customizable ncalc expressions for x, y, z
-        /// <summary> angle above z axis </summary>
-        // public string spawnDirThetaFunc = "0.0"; 
-        /// <summary> angle above xy plane </summary>
-        // public string spawnDirPhiFunc = "0.0";
-
-        protected static NCalc.Expression _setupSpawnExpr(string exprStr,
-            Vector3 launcherPos, Vector3 launcherVel,
-            int missileId, int numMissiles, Vector3 targetPosLocal) 
-        {
-            var ret = new NCalc.Expression(exprStr); 
-            ret.Parameters ["Pi"] = Math.PI;
-            ret.Parameters ["targetPosX"] = targetPos.X;
-            ret.Parameters ["targetPosY"] = targetPos.Y;
-            ret.Parameters ["targetPosZ"] = targetPos.Z;
-            ret.Parameters ["launcherPosX"] = launcherPos.X;
-            ret.Parameters ["launcherPosY"] = launcherPos.Y;
-            ret.Parameters ["launcherPosZ"] = launcherPos.Z;
-            ret.Parameters ["launcherVelX"] = launcherVel.X;
-            ret.Parameters ["launcherVelY"] = launcherVel.Y;
-            ret.Parameters ["launcherVelZ"] = launcherVel.Z;
-            ret.Parameters ["i"] = missileId;
-            ret.Parameters ["numMissiles"] = numMissiles;
-            return ret;
-        }
-
-        public Vector3 evaluateSpawnPosOffset (int missileId, int numMissiles, Vector3 targetPosLocal)
-        {
-            Vector3 ret = Vector3.Zero;
-            for (int i = 0; i < 3; ++i) {
-                string expressionStr = spawnPosOffsetFuncs [i];
-                if (expressionStr != null || expressionStr.Length <= 0f) {
-                    var expr = _setupSpawnExpr(expressionStr, 
-                        launcherPos, launcherVel, missileId, numMissiles, targetPos);
-                    ret [i] += (float)((double)expr.Evaluate());
-                }
-            }
-            return ret;
-
-
-            // note that Expression caching is already done internally by NCalc:
-            // https://ncalc.codeplex.com/wikipage?title=description&referringTitle=Home
-            /return (float)((double)(expr.Evaluate()));
-        }
-        #endif
-
+            { return new SMissileEjectionDriver (missile); }
         #endregion
 
-        #region pursuit
+        #region pursuit parameters and hit details
         /// <summary> time after launch when we transition from ejection into pursuit phase </summary>
         public float pursuitActivationTime = 0.35f;
-        /// <summary> delegate for creating pursuit phase missile drivers </summary>
-        public virtual ISSpaceMissileDriver createPursuit(SSpaceMissileData missile)
-            { return new SProportionalNavigationPursuitDriver (missile); }
         /// <summary> basic proportional navigation's coefficient (N) </summary>
         public float pursuitNavigationGain = 3f;
         /// <summary> augment proportional navigation with target's lateral acceleration. needs more testing </summary>
@@ -108,15 +42,31 @@ namespace SimpleScene.Demos
         public float pursuitMaxVelocity = float.PositiveInfinity;
         /// <summary> maximum lateral acceleration that can be applied while in pursuit. ignored when hit time correction is active </summary>
         public float pursuitMaxAcc = 20f;
-        #endregion
 
-        #region target hit and termination
+        /// <summary> delegate for creating pursuit phase missile drivers </summary>
+        public virtual ISSpaceMissileDriver createPursuit(SSpaceMissileData missile)
+            { return new SProportionalNavigationPursuitDriver (missile); }
+
         /// <summary> roughly distance from the mesh or target center where we are sure to be hitting the target</summary>
         public float atTargetDistance = 1f;
-        /// <summary> when true missiles are terminated when at target. otherwise external logic has to clean them up </summary>
-        public bool terminateWhenAtTarget = true;
-        /// <summary> invoked a missile hits a target. for example to show explosions </summary>
-        //public MissileEventDelegate targetHitHandlers = null;
+        #endregion
+
+        /// <summary> show visual and stdout debugging helpers </summary>
+        public bool debuggingAid = false;
+
+        public SSpaceMissileParameters()
+        { }
+    }
+
+    [Serializable]
+    public class SSpaceMissileVisualParameters : SSpaceMissileParameters
+    {
+        #region visual missile drivers
+        public override ISSpaceMissileDriver createEjection(SSpaceMissileData missile)
+            { return new SMissileEjectionVisualDriver (missile as SSpaceMissileVisualData); }
+        /// <summary> delegate for creating pursuit phase missile drivers </summary>
+        public override ISSpaceMissileDriver createPursuit(SSpaceMissileData missile)
+            { return new SProportionalNavigationPursuitVisualDriver (missile as SSpaceMissileVisualData); }
         #endregion
 
         #region body render parameters
@@ -155,10 +105,7 @@ namespace SimpleScene.Demos
         public float flameSmokeDuration = 0.5f;
         #endregion
 
-        /// <summary> show visual and stdout debugging helpers </summary>
-        public bool debuggingAid = false;
-
-        public SSpaceMissileParameters() 
+        public SSpaceMissileVisualParameters() 
         {
         }
 
