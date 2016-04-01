@@ -22,12 +22,12 @@ namespace SimpleScene.Demos
         #region may be shared by a missile cluster
         public virtual ISSpaceMissileTarget target { get; }
         public virtual SSpaceMissileParameters parameters { get; }
-        public virtual float timeSinceLaunch { get; }
+        public virtual float timeSinceLaunch { get { return _timeSinceLaunchPriv; } }
         public virtual float timeToHit { get; set; }
         public virtual MissileAtTargetFunc atTargetFunc { get; set; }
         #endregion
 
-        protected float _timeSinceLaunch = 0f;
+        private float _timeSinceLaunchPriv = 0f;
 
         public SSpaceMissileData(SSpaceMissileParameters parameters, ISSpaceMissileTarget target,
             Vector3 missileWorldPos, Vector3 missileWorldVel,
@@ -109,7 +109,7 @@ namespace SimpleScene.Demos
                 // todo
                 break;
             case State.Terminated:
-                throw new Exception ("missile state machine still running while in the terminated state");
+                //throw new Exception ("missile state machine still running while in the terminated state");
                 break;
             }
 
@@ -117,15 +117,13 @@ namespace SimpleScene.Demos
                 _driver.updateExecution(timeElapsed);
             }
 
-            _timeSinceLaunch += timeElapsed;
+            _timeSinceLaunchPriv += timeElapsed;
         }
 
         #region for debugging only
         public Vector3 _lataxDebug = Vector3.Zero;
         public Vector3 _hitTimeCorrAccDebug = Vector3.Zero;
         #endregion
-
-
     }  
 
     public class SSpaceMissileVisualData : SSpaceMissileData
@@ -162,7 +160,7 @@ namespace SimpleScene.Demos
         }
         #endregion
 
-        #region internally managed
+        #region self managed
         /// <summary> The cluster this missile belongs to </summary>
         protected readonly SSpaceMissileClusterVisualData _cluster; 
 

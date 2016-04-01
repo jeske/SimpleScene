@@ -22,8 +22,6 @@ namespace SimpleScene.Demos
         public float ejectionVelocity = 10f;
         /// <summary> default ejection driver: acceleration during ejection</summary>
         public float ejectionAcc = 6f;
-        /// <summary> default ejection driver: angular velocity can be initialized to at most this </summary>
-        public float ejectionMaxRotationVel = 7f;
         /// <summary> used to plugin field generators. Can be set to null, in which case only spawn transform delegates are used </summary>
         public virtual ISSpaceMissileDriver createEjection(SSpaceMissileData missile)
             { return new SMissileEjectionDriver (missile); }
@@ -56,6 +54,26 @@ namespace SimpleScene.Demos
 
         public SSpaceMissileParameters()
         { }
+
+        /// <summary>
+        /// can be used with derived classes to obtain a copy of simpler parameters
+        /// of this class
+        /// </summary>
+        public SSpaceMissileParameters(SSpaceMissileParameters other)
+        {
+            this.simulationStep = other.simulationStep;
+            this.terminateWhenAtTarget = other.terminateWhenAtTarget;
+            this.debuggingAid = other.debuggingAid;
+            this.atTargetDistance = other.atTargetDistance;
+            this.ejectionAcc = other.ejectionAcc;
+            this.ejectionVelocity = other.ejectionVelocity;
+            this.pursuitActivationTime = other.pursuitActivationTime;
+            this.pursuitAugmentedPN = other.pursuitAugmentedPN;
+            this.pursuitHitTimeCorrection = other.pursuitHitTimeCorrection;
+            this.pursuitMaxAcc = other.pursuitMaxAcc;
+            this.pursuitMaxVelocity = other.pursuitMaxVelocity;
+            this.pursuitNavigationGain = other.pursuitNavigationGain;
+        }
     }
 
     [Serializable]
@@ -69,7 +87,9 @@ namespace SimpleScene.Demos
             { return new SProportionalNavigationPursuitVisualDriver (missile as SSpaceMissileVisualData); }
         #endregion
 
-        #region body render parameters
+        #region visual parameters for extending the basic physics model
+        /// <summary> default ejection driver: angular velocity can be initialized to at most this </summary>
+        public float ejectionMaxRotationVel = 7f;
         /// <summary> radians rate by which the missile's visual orientation leans into its velocity </summary>
         public float pursuitVisualRotationRate = 0.1f;
         /// <summary> missile body mesh must be facing into +Z axis </summary>

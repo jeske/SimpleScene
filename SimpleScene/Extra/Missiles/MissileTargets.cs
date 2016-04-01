@@ -11,8 +11,6 @@ namespace SimpleScene.Demos
         Vector3 position { get; }
         Vector3 velocity { get; }
         Vector3 acceleration { get; }
-        Vector3 direction { get; }
-        bool isAlive{ get; } // target is structurally intact
         bool hitTest(SSpaceMissileData missile, out Vector3 hitLocation);
         void update(float timeElapsed);
     }
@@ -39,8 +37,6 @@ namespace SimpleScene.Demos
             // TODO multiple hit positions!
             return Vector3.Transform(targetLocalOffset, targetObj.worldMat); 
         } }
-
-        public virtual Vector3 direction { get { return targetObj.Dir; } }
 
         public virtual Vector3 velocity { get { return _velocity; } }
 

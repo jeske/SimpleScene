@@ -89,7 +89,13 @@ namespace SimpleScene.Demos
             Vector3 Vr = target.velocity - missile.velocity;
             Vector3 R = target.position - missile.position;
             Vector3 omega = Vector3.Cross(R, Vr) / R.LengthSquared;
-            Vector3 latax = mParams.pursuitNavigationGain * Vector3.Cross(Vr, omega);
+            Vector3 cross = Vector3.Cross(Vr, omega);
+            Vector3 latax;
+            if (cross.LengthSquared == 0) {
+                latax = R.Normalized() * mParams.pursuitMaxAcc;
+            } else {
+                latax = mParams.pursuitNavigationGain * cross;
+            }
 
             if (mParams.pursuitAugmentedPN == true) {
                 // this code is not tested as there are currently no targets with well defined accelerations
