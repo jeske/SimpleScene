@@ -92,7 +92,7 @@ namespace SimpleScene.Demos
         public float ejectionMaxRotationVel = 7f;
         /// <summary> radians rate by which the missile's visual orientation leans into its velocity </summary>
         public float pursuitVisualRotationRate = 0.1f;
-        /// <summary> missile body mesh must be facing into +Z axis </summary>
+        /// <summary> missile body mesh must be facing towards +Z axis </summary>
         public string missileBodyMeshFilename = "missiles/missile.obj";
         /// <summary> distance from the center of the mesh to the jet (before scale) </summary>
         public float jetPosition = 4.2f;

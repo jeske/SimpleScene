@@ -37,8 +37,7 @@ namespace SimpleScene.Demos
         public SMissileEjectionVisualDriver(SSpaceMissileVisualData missile)
             : base(missile)
         {
-            var mParams = missile.cluster.parameters;
-
+            var mParams = missile.parameters as SSpaceMissileVisualParameters;
             var rand = SSpaceMissilesVisualSimulation.rand;
             _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
             _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
@@ -48,7 +47,7 @@ namespace SimpleScene.Demos
         { 
             base.updateExecution(timeElapsed);
 
-            float t = missile.cluster.timeSinceLaunch;
+            float t = missile.timeSinceLaunch;
             float dy = _yawVelocity * t;
             float dp = _pitchVelocity * t;
 
@@ -56,7 +55,7 @@ namespace SimpleScene.Demos
                            * Quaternion.FromAxisAngle(missile.pitchAxis, dp);
             missile.visualDirection = Vector3.Transform(missile.visualDirection, q);
 
-            var mParams = missile.cluster.parameters;
+            var mParams = missile.parameters;
             missile.velocity += missile.visualDirection * mParams.ejectionAcc;
         }
     }

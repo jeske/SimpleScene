@@ -5,38 +5,45 @@ namespace SimpleScene.Demos
 {
     public class SSpaceMissileData
     {
-        public delegate void MissileAtTargetFunc (SSpaceMissileData missileData);
-
-        public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
+        public delegate void AtTargetFunc (SSpaceMissileData missileData);
 
         #region missile specific
+        /// <summary> high level state of what the missile is doing </summary>
+        public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
+
         public Vector3 position = Vector3.Zero;
         public Vector3 velocity = Vector3.Zero;
         public State state = State.Ejection;
 
-        /// <summary> high level state of what the missile is doing </summary>
         /// <summary> currently active missile driver, controls missile velocity and visual orientation </summary>
         protected ISSpaceMissileDriver _driver = null;
         #endregion
 
         #region may be shared by a missile cluster
-        public virtual ISSpaceMissileTarget target { get; }
-        public virtual SSpaceMissileParameters parameters { get; }
-        public virtual float timeSinceLaunch { get { return _timeSinceLaunchPriv; } }
-        public virtual float timeToHit { get; set; }
-        public virtual MissileAtTargetFunc atTargetFunc { get; set; }
+        public ISSpaceMissileTarget target { get { return _sharableData.target; } }
+        public SSpaceMissileParameters parameters { get { return _sharableData.parameters; } }
+        public float timeSinceLaunch { get { return _sharableData.timeSinceLaunch; } }
+        public float timeToHit { get { return _sharableData.timeToHit; } }
+        public AtTargetFunc atTargetFunc { get { return _sharableData.atTargetFunc; } }
+
+        protected ISharableData _sharableData;
         #endregion
 
-        private float _timeSinceLaunchPriv = 0f;
-
-        public SSpaceMissileData(SSpaceMissileParameters parameters, ISSpaceMissileTarget target,
+        public SSpaceMissileData(
             Vector3 missileWorldPos, Vector3 missileWorldVel,
-            float timeToHitTarget)
+            SSpaceMissileParameters parameters = null, ISSpaceMissileTarget target = null,
+            float timeToHitTarget = 0f, ISharableData sharableData = null, AtTargetFunc atf = null)
         {
+            _sharableData = sharableData ?? new SingleInstanceData () {
+                target = target,
+                parameters = parameters,
+                timeSinceLaunch = 0f,
+                timeToHit = timeToHitTarget,
+                atTargetFunc = atf,
+            };
+
             this.position = missileWorldPos;
             this.velocity = missileWorldVel;
-            this.parameters = parameters;
-            this.target = target;
         }
 
         public void terminate()
@@ -117,19 +124,43 @@ namespace SimpleScene.Demos
                 _driver.updateExecution(timeElapsed);
             }
 
-            _timeSinceLaunchPriv += timeElapsed;
+            _sharableData.update(timeElapsed);
         }
 
         #region for debugging only
         public Vector3 _lataxDebug = Vector3.Zero;
         public Vector3 _hitTimeCorrAccDebug = Vector3.Zero;
         #endregion
+
+        public interface ISharableData
+        {
+            ISSpaceMissileTarget target { get; }
+            SSpaceMissileParameters parameters { get; }
+            float timeSinceLaunch { get; }
+            float timeToHit { get; }
+            SSpaceMissileData.AtTargetFunc atTargetFunc { get; }
+            void update(float elapsed);
+        }
+
+        protected class SingleInstanceData : ISharableData
+        {
+            public ISSpaceMissileTarget target { get; set; }
+            public SSpaceMissileParameters parameters { get; set; }
+            public float timeSinceLaunch { get; set; }
+            public float timeToHit { get; set; }
+            public SSpaceMissileData.AtTargetFunc atTargetFunc { get; set; }
+            public void update(float elapsed) { 
+                timeSinceLaunch += elapsed; 
+                timeToHit -= elapsed;
+            }
+        }
     }  
 
     public class SSpaceMissileVisualData : SSpaceMissileData
     {
         #region accessors to the internally managed
-        public SSpaceMissileClusterVisualData cluster { get { return _cluster; } }
+        public SSpaceMissileClusterVisualData cluster { 
+            get { return (_sharableData as ClusterData).cluster; } }
         public int clusterId { get { return _clusterId; } }
         #endregion
 
@@ -160,39 +191,44 @@ namespace SimpleScene.Demos
         }
         #endregion
 
-        #region self managed
-        /// <summary> The cluster this missile belongs to </summary>
-        protected readonly SSpaceMissileClusterVisualData _cluster; 
-
         /// <summary> id within a cluster. Can be referenced by ejection/pursuit behaviors. </summary>
         protected readonly int _clusterId;
-        #endregion
 
-        public SSpaceMissileVisualData(SSpaceMissileClusterVisualData cluster, int clusterId,
-                                 //Vector3 initClusterPos, Vector3 initClusterVel, 
-                                 Vector3 missileWorldPos, Vector3 missileWorldDir, Vector3 missileWorldVel,
-                                 float timeToHitTarget)
-            : base(cluster.parameters, cluster.target, missileWorldPos, missileWorldVel, timeToHitTarget)
+        public SSpaceMissileVisualData (
+            Vector3 missileWorldPos, Vector3 missileWorldDir, Vector3 missileWorldVel,
+            SSpaceMissileClusterVisualData cluster, int clusterId)
+            : base(missileWorldPos, missileWorldVel, sharableData: new ClusterData (cluster))
         {
-            _cluster = cluster;
+            _sharableData = new ClusterData (cluster);
             _clusterId = clusterId;
             visualDirection = missileWorldDir;
-
         }
 
         /// <summary> position in world space where the jet starts </summary>
         public Vector3 jetPosition()
         {
-            var mParams = cluster.parameters;
+            var mParams = parameters as SSpaceMissileVisualParameters;
             return this.position - this.visualDirection * mParams.missileBodyScale * mParams.jetPosition;
         }
 
         #region shared by all missiles in a cluster
-        public override ISSpaceMissileTarget target { get { return _cluster.target; } }
-        public override SSpaceMissileParameters parameters { get { return _cluster.parameters; } }
-        public override float timeSinceLaunch { get { return _cluster.timeSinceLaunch; } }
-        public override float timeToHit { get { return _cluster.timeToHit; } }
-        public override MissileAtTargetFunc atTargetFunc { get { return _cluster.atTargetFunc; } }
+        protected class ClusterData : ISharableData
+        {
+            public readonly SSpaceMissileClusterVisualData cluster;
+
+            public ClusterData(SSpaceMissileClusterVisualData cluster) { this.cluster = cluster; }
+
+            public ISSpaceMissileTarget target { get { return cluster.target; } }
+            public SSpaceMissileParameters parameters { get { return cluster.parameters; } }
+            public float timeSinceLaunch { get { return cluster.timeSinceLaunch; } }
+            public float timeToHit { get { return cluster.timeToHit; } }
+            public AtTargetFunc atTargetFunc { get { return cluster.atTargetFunc; } }
+            public void update(float elapsed) 
+            { 
+                // do nothing; cluster updates already take care of time variables
+            }
+        }
+
         #endregion
 
 

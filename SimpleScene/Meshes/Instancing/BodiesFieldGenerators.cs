@@ -12,6 +12,8 @@ namespace SimpleScene
     //[Serializable]
     public class BodiesFieldGenerator 
     {
+        public enum OrientPolicy { None, Random, AwayFromCenter };
+
         public delegate bool NewBodyDelegate(int id, float scale, Vector3 pos, Quaternion orient);
 
         private readonly ParticlesFieldGenerator m_partFieldGen;
@@ -19,7 +21,7 @@ namespace SimpleScene
         private readonly float m_bodyScaleMin;
         private readonly float m_bodyScaleMax;
 		private readonly float m_safetyDistance;
-        private readonly bool m_orientAwayFromCenter;
+        private readonly OrientPolicy m_orientPolicy;
         private Random m_rand = new Random();
         private NewBodyDelegate m_newBodyDel = null;
 		private SSSphereBVH m_bodiesSoFar = null;
@@ -27,14 +29,14 @@ namespace SimpleScene
 
         public BodiesFieldGenerator(ParticlesFieldGenerator partFieldGen,
             float bodyScaleMin=1.0f, float bodyScaleMax=1.0f, float bodyRadius=0.0f,
-            float safetyDistance = 0.0f, bool orientAwayFromCenter = false)
+            float safetyDistance = 0.0f, OrientPolicy oriPolicy = OrientPolicy.Random)
         {
             m_partFieldGen = partFieldGen;
             m_bodyScaleMin = bodyScaleMin;
             m_bodyScaleMax = bodyScaleMax;
             m_bodyRadius = bodyRadius;
 			m_safetyDistance = safetyDistance;
-            m_orientAwayFromCenter = orientAwayFromCenter;
+            m_orientPolicy = oriPolicy;
             SetSeed(0);
         }
         public void SetSeed(int seed)
@@ -66,10 +68,17 @@ namespace SimpleScene
 			newBodyInfo.center = pos;
             if (validate(newBodyInfo)) {
                 Quaternion ori;
-                if (m_orientAwayFromCenter) {
-                    ori = OpenTKHelper.getRotationTo(Vector3.UnitZ, pos, Vector3.UnitZ);
-                } else {
+                switch (m_orientPolicy) {
+                case OrientPolicy.Random:
                     ori = randomOrient();
+                    break;
+                case OrientPolicy.AwayFromCenter:
+                    ori = OpenTKHelper.getRotationTo(Vector3.UnitZ, pos, Vector3.UnitZ);
+                    break;
+                case OrientPolicy.None:
+                default:
+                    ori = Quaternion.Identity;
+                    break;
                 }
                 if (m_newBodyDel(m_id, scale, pos, ori)) {
                     ++m_id;
@@ -119,10 +128,10 @@ namespace SimpleScene
             float sectionStart = 0.0f,
             float sectionEnd = (float)(2.0*Math.PI),
             float bodyScaleMin = 1.0f, float bodyScaleMax = 1.0f, float bodyRadius = 0.0f,
-			float safetyDistance = 0.0f)
+            float safetyDistance = 0.0f, OrientPolicy oriPolicy = OrientPolicy.Random)
             : base(new ParticlesRingGenerator(sliceGenerator, 
                 ringCenter, up, ringRadius, sectionStart, sectionEnd),
-				bodyScaleMin, bodyScaleMax, bodyRadius, safetyDistance)
+                bodyScaleMin, bodyScaleMax, bodyRadius, safetyDistance, oriPolicy)
         { }
 
         public BodiesRingGenerator(float ovalHorizontal, float ovalVertical,
@@ -130,10 +139,10 @@ namespace SimpleScene
             float sectionStart = 0.0f,
             float sectionEnd = (float)(2.0*Math.PI),
             float bodyScaleMin = 1.0f, float bodyScaleMax = 1.0f, float bodyRadius = 0.0f,
-			float safetyDistance = 0.0f)
+            float safetyDistance = 0.0f, OrientPolicy oriPolicy = OrientPolicy.Random)
             : base(new ParticlesRingGenerator(new ParticlesOvalGenerator(ovalHorizontal, ovalVertical),
                 ringCenter, up, ringRadius, sectionStart, sectionEnd),
-				bodyScaleMin, bodyScaleMax, bodyRadius, safetyDistance)
+                bodyScaleMin, bodyScaleMax, bodyRadius, safetyDistance, oriPolicy)
         { }
     }
     #endregion

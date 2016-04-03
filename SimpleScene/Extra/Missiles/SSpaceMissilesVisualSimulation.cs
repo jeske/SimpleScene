@@ -37,7 +37,7 @@ namespace SimpleScene.Demos
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirectionPresets = null,
             BodiesFieldGenerator meshPositioningGenerator = null,
-            SSpaceMissileVisualData.MissileAtTargetFunc atTargetFunc = null
+            SSpaceMissileVisualData.AtTargetFunc atTargetFunc = null
         )
         {
             var cluster = new SSpaceMissileClusterVisualData (
@@ -104,7 +104,7 @@ namespace SimpleScene.Demos
     /// <summary> Missile cluster contains missiles and their shared data </summary>
     public class SSpaceMissileClusterVisualData
     {
-        public SSpaceMissileVisualData.MissileAtTargetFunc atTargetFunc = null;
+        public SSpaceMissileVisualData.AtTargetFunc atTargetFunc = null;
 
         public SSpaceMissileVisualData[] missiles { get { return _missiles; } }
         public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
@@ -129,7 +129,7 @@ namespace SimpleScene.Demos
             Vector3[] meshPositioningOffsets = null,
             Vector3[] meshPositioningDirections = null,
             BodiesFieldGenerator meshPositioningGenerator = null,
-            SSpaceMissileVisualData.MissileAtTargetFunc atTargetFunc = null)
+            SSpaceMissileVisualData.AtTargetFunc atTargetFunc = null)
         {
             _target = target;
             _timeToHit = timeToHit;
@@ -148,6 +148,8 @@ namespace SimpleScene.Demos
                     }
                 );
             }
+
+            Quaternion launcherOrientation = launcherWorldMat.ExtractRotation();
             for (int i = 0; i < numMissiles; ++i) {
                 if (meshPositioningOffsets != null && meshPositioningOffsets.Length > 0) {
                     localSpawnPts [i] += meshPositioningOffsets [i % meshPositioningOffsets.Length];
@@ -158,11 +160,13 @@ namespace SimpleScene.Demos
                         Vector3.UnitZ, meshPositioningDirections [idx], Vector3.UnitZ);
                 }
                 Vector3 missileWorldPos = Vector3.Transform(localSpawnPts [i], launcherWorldMat);
-                Vector3 missileWorldDir = Vector3.Transform(Vector3.UnitZ, localSpawnOrients [i]);
+                Vector3 missileLocalDir = Vector3.Transform(Vector3.UnitZ, localSpawnOrients [i]);
+                Vector3 missileWorldDir = Vector3.Transform(missileLocalDir, launcherOrientation);
                 Vector3 missileWorldVel = launcherVel + missileWorldDir * mParams.ejectionVelocity;
 
                 _missiles [i] = new SSpaceMissileVisualData (
-                    this, i, missileWorldPos, missileWorldDir, missileWorldVel, timeToHit);
+                    missileWorldPos, missileWorldDir, missileWorldVel,
+                    this, clusterId: i);
             }
         }
 

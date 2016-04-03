@@ -89,7 +89,7 @@ namespace SimpleScene.Demos
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirections = null,
             BodiesFieldGenerator localPositioningGenerator = null,
-            SSpaceMissileVisualData.MissileAtTargetFunc missileAtTargetFunc = null
+            SSpaceMissileVisualData.AtTargetFunc missileAtTargetFunc = null
         )
         {
             _initParamsSpecific(clusterParams);
@@ -236,7 +236,7 @@ namespace SimpleScene.Demos
             public SSpaceMissileRenderInfo(SSpaceMissileVisualData missile)
             {
                 this.missile = missile;
-                var mParams = missile.cluster.parameters;
+                var mParams = missile.parameters as SSpaceMissileVisualParameters;
                 bodyObj = new SSObjectMesh(mParams.missileBodyMesh());
                 bodyObj.Scale = new Vector3(mParams.missileBodyScale);
                 bodyObj.renderState.castsShadow = false;
@@ -277,7 +277,7 @@ namespace SimpleScene.Demos
 
             public void preRenderUpdate(float timeElapsed)
             {
-                var mParams = missile.cluster.parameters;
+                var mParams = missile.parameters as SSpaceMissileVisualParameters;
 
                 bodyObj.Pos = missile.position;
                 bodyObj.Orient(missile.visualDirection, missile.up);
@@ -307,7 +307,7 @@ namespace SimpleScene.Demos
                 var xy = OpenTKHelper.WorldToScreen(
                     missile.position, ref debugRays.viewProjMat, ref clientRect);
                 debugCountdown.Pos = new Vector3(xy.X, xy.Y, 0f);
-                debugCountdown.Label = Math.Floor(missile.cluster.timeToHit).ToString();
+                debugCountdown.Label = Math.Floor(missile.timeToHit).ToString();
                 //debugCountdown.Label = missile.losRate.ToString("G3") + " : " + missile.losRateRate.ToString("G3");
 
                 debugRays.renderState.visible = mParams.debuggingAid;

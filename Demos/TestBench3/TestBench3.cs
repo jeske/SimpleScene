@@ -28,6 +28,7 @@ namespace TestBench3
 
         protected BodiesFieldGenerator attackerDroneFieldGen;
         protected SSpaceMissileVisualParameters attackerDroneMissileParams;
+        protected BodiesFieldGenerator vandalShipFieldGen;
         protected SSpaceMissileVisualParameters vandalShipMissileParams;
         protected SSpaceMissileVisualParameters cameraMissileParams;
 
@@ -113,15 +114,22 @@ namespace TestBench3
             alpha3dScene.AddObject(explosionManager);
 
             // attacker drone missile parameters
-            attackerDroneFieldGen = new BodiesFieldGenerator (new ParticlesSphereGenerator (Vector3.Zero, 1f));
+            attackerDroneFieldGen = new BodiesFieldGenerator (
+                new ParticlesSphereGenerator (Vector3.Zero, 1f));
             attackerDroneMissileParams = new SSpaceMissileVisualParameters();
 
             // vandal missile params
+            vandalShipFieldGen = new BodiesRingGenerator (
+                new ParticlesOvalGenerator (1f, 1f),
+                ringCenter: new Vector3 (0f, 0f, 0f),
+                up: Vector3.UnitZ,
+                ringRadius: 80f,
+                oriPolicy: BodiesFieldGenerator.OrientPolicy.None
+            );
+
             vandalShipMissileParams = new SSpaceMissileVisualParameters();
-            //vandalShipMissileParams.spawnGenerator = null;
-            //vandalShipMissileParams.spawnTxfm = straightMissileSpawnTxfm;
             vandalShipMissileParams.ejectionMaxRotationVel = 0.05f;
-            vandalShipMissileParams.ejectionVelocity = 15f;
+            vandalShipMissileParams.ejectionVelocity = 30f;
             vandalShipMissileParams.pursuitActivationTime = 0.1f;
             vandalShipMissileParams.ejectionSmokeDuration = 0.5f;
             vandalShipMissileParams.ejectionSmokeSizeMax = 5f;
@@ -483,6 +491,8 @@ namespace TestBench3
         {
             if (missileLauncher == MissileLaunchers.AttackerDrone) {
                 return attackerDroneFieldGen;
+            } else if (missileLauncher == MissileLaunchers.VandalShip) {
+                return vandalShipFieldGen;
             } else {
                 return null;
             }
@@ -512,6 +522,7 @@ namespace TestBench3
         {
             switch (missileLauncher) {
             case MissileLaunchers.VandalShip:
+                return new Vector3[] { Vector3.UnitZ };
             case MissileLaunchers.Camera:
                 return new Vector3[] { Vector3.UnitZ };
             default:
