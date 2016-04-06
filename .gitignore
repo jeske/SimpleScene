@@ -15,6 +15,9 @@
 **/bin/**
 **/obj/**
 
+# visual studio
+*.suo
+*.vs
 
 
 
