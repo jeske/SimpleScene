@@ -84,12 +84,13 @@ namespace SimpleScene.Demos
 
         public SSpaceMissileClusterVisualData launchCluster(
             Matrix4 launcherWorldMat, Vector3 launchVel, int numMissiles,
-            ISSpaceMissileTarget target, float timeToHit,
+            ISSpaceMissileTarget target,
             SSpaceMissileVisualParameters clusterParams,
             Vector3[] localPositioningOffsets = null,
             Vector3[] localDirections = null,
             BodiesFieldGenerator localPositioningGenerator = null,
-            SSpaceMissileVisualData.AtTargetFunc missileAtTargetFunc = null
+            SSpaceMissileVisualData.AtTargetFunc missileAtTargetFunc = null,
+            float timeToHit = float.NaN
         )
         {
             _initParamsSpecific(clusterParams);

@@ -117,7 +117,8 @@ namespace SimpleScene.Demos
                 }
             }
 
-            if (mParams.pursuitHitTimeCorrection) {
+            if (mParams.pursuitHitTimeCorrection 
+             && !float.IsNaN(missile.timeToHit)) {
                 // apply pursuit hit time correction
                 float dist = R.LengthFast;
                 if (dist != 0f) {
