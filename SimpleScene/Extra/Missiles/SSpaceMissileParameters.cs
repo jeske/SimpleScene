@@ -74,6 +74,11 @@ namespace SimpleScene.Demos
             this.pursuitMaxVelocity = other.pursuitMaxVelocity;
             this.pursuitNavigationGain = other.pursuitNavigationGain;
         }
+
+        public SSpaceMissileParameters shallowClone()
+        {
+            return (SSpaceMissileParameters)this.MemberwiseClone();
+        }
     }
 
     [Serializable]
