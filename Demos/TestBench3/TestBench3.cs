@@ -357,12 +357,12 @@ namespace TestBench3
                     launcherVel,
                     clusterSize,
                     target,
-                    hitTime,
                     mParams,
                     localPosOffsets,
                     localDirs,
                     localBodyGen,
-                    targetHitHandler
+                    targetHitHandler,
+                    hitTime
                 );
             }
         }
