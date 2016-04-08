@@ -22,8 +22,14 @@ namespace SimpleScene.Demos
         #region may be shared by a missile cluster
         public ISSpaceMissileTarget target { get { return _sharableData.target; } }
         public SSpaceMissileParameters parameters { get { return _sharableData.parameters; } }
-        public float timeSinceLaunch { get { return _sharableData.timeSinceLaunch; } }
-        public float timeToHit { get { return _sharableData.timeToHit; } }
+        public float timeSinceLaunch { 
+            get { return _sharableData.timeSinceLaunch; } 
+            set { _sharableData.timeSinceLaunch = value; }
+        }
+        public float timeToHit { 
+            get { return _sharableData.timeToHit; } 
+            set { _sharableData.timeToHit = value; }
+        }
         public AtTargetFunc atTargetFunc { get { return _sharableData.atTargetFunc; } }
 
         protected ISharableData _sharableData;
@@ -136,8 +142,8 @@ namespace SimpleScene.Demos
         {
             ISSpaceMissileTarget target { get; }
             SSpaceMissileParameters parameters { get; }
-            float timeSinceLaunch { get; }
-            float timeToHit { get; }
+            float timeSinceLaunch { get; set; }
+            float timeToHit { get; set; }
             SSpaceMissileData.AtTargetFunc atTargetFunc { get; }
             void update(float elapsed);
         }
@@ -150,8 +156,8 @@ namespace SimpleScene.Demos
             public float timeToHit { get; set; }
             public SSpaceMissileData.AtTargetFunc atTargetFunc { get; set; }
             public void update(float elapsed) { 
-                timeSinceLaunch += elapsed; 
-                timeToHit -= elapsed;
+                //timeSinceLaunch += elapsed; 
+                //timeToHit -= elapsed;
             }
         }
     }  
@@ -220,8 +226,14 @@ namespace SimpleScene.Demos
 
             public ISSpaceMissileTarget target { get { return cluster.target; } }
             public SSpaceMissileParameters parameters { get { return cluster.parameters; } }
-            public float timeSinceLaunch { get { return cluster.timeSinceLaunch; } }
-            public float timeToHit { get { return cluster.timeToHit; } }
+            public float timeSinceLaunch { 
+                get { return cluster.timeSinceLaunch; } 
+                set { cluster.timeSinceLaunch = value; }
+            }
+            public float timeToHit { 
+                get { return cluster.timeToHit; } 
+                set { cluster.timeToHit = value; }
+            }
             public AtTargetFunc atTargetFunc { get { return cluster.atTargetFunc; } }
             public void update(float elapsed) 
             { 

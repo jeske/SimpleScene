@@ -109,8 +109,14 @@ namespace SimpleScene.Demos
         public SSpaceMissileVisualData[] missiles { get { return _missiles; } }
         public SSpaceMissileVisualParameters parameters { get { return _parameters; } }
         public ISSpaceMissileTarget target { get { return _target; } }
-        public float timeToHit { get { return _timeToHit; } }
-        public float timeSinceLaunch { get { return _timeSinceLaunch; } }
+        public float timeToHit { 
+            get { return _timeToHit; } 
+            set { _timeToHit = value; }
+        }
+        public float timeSinceLaunch { 
+            get { return _timeSinceLaunch; } 
+            set { timeSinceLaunch = value; }
+        }
         public bool isTerminated { get { return _isTerminated; } }
 
         protected readonly SSpaceMissileVisualData[] _missiles;
