@@ -170,9 +170,14 @@ namespace SimpleScene.Demos
                 Vector3 missileWorldDir = Vector3.Transform(missileLocalDir, launcherOrientation);
                 Vector3 missileWorldVel = launcherVel + missileWorldDir * mParams.ejectionVelocity;
 
+                _missiles [i] = mParams.createMissile(
+                    missileWorldPos, missileWorldDir, missileWorldVel, this, i);
+
+                #if false
                 _missiles [i] = new SSpaceMissileVisualData (
                     missileWorldPos, missileWorldDir, missileWorldVel,
                     this, clusterId: i);
+                #endif
             }
         }
 

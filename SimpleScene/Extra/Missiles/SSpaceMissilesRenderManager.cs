@@ -105,7 +105,15 @@ namespace SimpleScene.Demos
             return cluster;
         }
 
+        public SSpaceMissileRenderInfo addMissileRender(SSpaceMissileVisualData missile)
+        {
+            return _addMissileRender(missile);
+        }
 
+        public void removeMissileRender(SSpaceMissileRenderInfo missileRenderInfo)
+        {
+            _removeMissileRender(missileRenderInfo);
+        }
 
         protected void _initParamsSpecific(SSpaceMissileVisualParameters mParams)
         {
@@ -176,7 +184,7 @@ namespace SimpleScene.Demos
             }
         }
 
-        protected void _addMissileRender(SSpaceMissileVisualData missile)
+        protected SSpaceMissileRenderInfo _addMissileRender(SSpaceMissileVisualData missile)
         {
             var missileRuntime = new SSpaceMissileRenderInfo (missile);
             #if MISSILE_SHOW
@@ -189,6 +197,8 @@ namespace SimpleScene.Demos
             _objScene.AddObject(missileRuntime.debugRays);
             _screenScene.AddObject(missileRuntime.debugCountdown);
             #endif
+
+            return missileRuntime;
         }
 
         protected void _removeMissileRender(SSpaceMissileRenderInfo missileRuntime)
@@ -225,7 +235,7 @@ namespace SimpleScene.Demos
             #endif
         }
 
-        protected class SSpaceMissileRenderInfo
+        public class SSpaceMissileRenderInfo
         {
             public readonly SSObjectMesh bodyObj;
             public readonly MissileDebugRays debugRays;
@@ -280,7 +290,7 @@ namespace SimpleScene.Demos
             {
                 var mParams = missile.parameters as SSpaceMissileVisualParameters;
 
-                bodyObj.Pos = missile.position;
+                bodyObj.Pos = missile.displayPosition;
                 bodyObj.Orient(missile.visualDirection, missile.up);
 
                 bool ejection = missile.state == SSpaceMissileVisualData.State.Ejection;
@@ -306,7 +316,7 @@ namespace SimpleScene.Demos
                 #if MISSILE_DEBUG
                 RectangleF clientRect = OpenTKHelper.GetClientRect();
                 var xy = OpenTKHelper.WorldToScreen(
-                    missile.position, ref debugRays.viewProjMat, ref clientRect);
+                    missile.displayPosition, ref debugRays.viewProjMat, ref clientRect);
                 debugCountdown.Pos = new Vector3(xy.X, xy.Y, 0f);
                 debugCountdown.Label = Math.Floor(missile.timeToHit).ToString();
                 //debugCountdown.Label = missile.losRate.ToString("G3") + " : " + missile.losRateRate.ToString("G3");
@@ -331,7 +341,7 @@ namespace SimpleScene.Demos
 
                 public override void Render (SSRenderConfig renderConfig)
                 {
-                    this.Pos = _missile.position;
+                    this.Pos = _missile.displayPosition;
                     base.Render(renderConfig);
                     SSShaderProgram.DeactivateAll();
                     GL.LineWidth(3f);

@@ -11,6 +11,8 @@ namespace SimpleScene.Demos
         /// <summary> high level state of what the missile is doing </summary>
         public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
 
+        public virtual Vector3 displayPosition { get { return position; } }
+
         public Vector3 position = Vector3.Zero;
         public Vector3 velocity = Vector3.Zero;
         public State state = State.Ejection;
@@ -61,7 +63,7 @@ namespace SimpleScene.Demos
             }
         }
 
-        public void updateExecution(float timeElapsed)
+        public virtual void updateExecution(float timeElapsed)
         {
             if (state == State.Ejection && _driver == null) {
                 _driver = parameters.createEjection(this);
@@ -209,6 +211,15 @@ namespace SimpleScene.Demos
             _clusterId = clusterId;
             visualDirection = missileWorldDir;
         }
+
+        public SSpaceMissileVisualData (
+            Vector3 missileWorldPos, Vector3 missileWorldVel,
+            SSpaceMissileParameters parameters = null, ISSpaceMissileTarget target = null,
+            AtTargetFunc atf = null)
+            : base(missileWorldPos, missileWorldVel, parameters, target)
+        {
+        }
+
 
         /// <summary> position in world space where the jet starts </summary>
         public Vector3 jetPosition()

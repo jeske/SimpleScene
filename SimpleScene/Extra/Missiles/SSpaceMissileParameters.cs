@@ -90,6 +90,9 @@ namespace SimpleScene.Demos
         /// <summary> delegate for creating pursuit phase missile drivers </summary>
         public override ISSpaceMissileDriver createPursuit(SSpaceMissileData missile)
             { return new SProportionalNavigationPursuitVisualDriver (missile as SSpaceMissileVisualData); }
+        public virtual SSpaceMissileVisualData createMissile(
+            Vector3 pos, Vector3 dir, Vector3 vel, SSpaceMissileClusterVisualData cluster, int clusterId)
+            { return new SSpaceMissileVisualData (pos, dir, vel, cluster, clusterId); }
         #endregion
 
         #region visual parameters for extending the basic physics model
