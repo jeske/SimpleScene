@@ -16,7 +16,7 @@ namespace SimpleScene
  
 		public readonly string srcFilename;
 
-        protected List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
+		public readonly List<SSMeshOBJSubsetData> geometrySubsets = new List<SSMeshOBJSubsetData>();
         protected readonly float _boundingSphereRadius;
 		
 	    public class SSMeshOBJSubsetData {
