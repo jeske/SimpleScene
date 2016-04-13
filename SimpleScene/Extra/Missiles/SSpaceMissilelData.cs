@@ -158,8 +158,8 @@ namespace SimpleScene.Demos
             public float timeToHit { get; set; }
             public SSpaceMissileData.AtTargetFunc atTargetFunc { get; set; }
             public void update(float elapsed) { 
-                //timeSinceLaunch += elapsed; 
-                //timeToHit -= elapsed;
+                timeSinceLaunch += elapsed; 
+                timeToHit -= elapsed;
             }
         }
     }  
