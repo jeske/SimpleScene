@@ -17,6 +17,8 @@ namespace SimpleScene.Demos
         public Vector3 velocity = Vector3.Zero;
         public State state = State.Ejection;
 
+        public ISSpaceMissileDriver driver { get { return _driver; } }
+
         /// <summary> currently active missile driver, controls missile velocity and visual orientation </summary>
         protected ISSpaceMissileDriver _driver = null;
         #endregion
@@ -52,6 +54,9 @@ namespace SimpleScene.Demos
 
             this.position = missileWorldPos;
             this.velocity = missileWorldVel;
+
+            _driver = parameters.createEjection(this);
+            _driver.updateExecution(0f);
         }
 
         public void terminate()
@@ -59,17 +64,12 @@ namespace SimpleScene.Demos
             state = State.Terminated;
             _driver = null;
             if (parameters.debuggingAid) {
-                System.Console.WriteLine("missile terminated on request at t = " + timeSinceLaunch);
+                Console.WriteLine("missile terminated on request at t = " + timeSinceLaunch);
             }
         }
 
         public virtual void updateExecution(float timeElapsed)
         {
-            if (state == State.Ejection && _driver == null) {
-                _driver = parameters.createEjection(this);
-                _driver.updateExecution(0f);
-            }
-
             position += velocity * timeElapsed;
 
             var mParams = parameters;
@@ -79,7 +79,7 @@ namespace SimpleScene.Demos
                     state = State.Pursuit;
                     _driver = mParams.createPursuit(this);
                     if (mParams.debuggingAid) {
-                        System.Console.WriteLine("missile pursuit activated at t = " + timeSinceLaunch);
+                        Console.WriteLine("missile pursuit activated at t = " + timeSinceLaunch);
                     }
                 }
                 break;
@@ -90,7 +90,7 @@ namespace SimpleScene.Demos
                     velocity = target.velocity
                         + (target.position - this.position) / timeElapsed;
                     if (mParams.debuggingAid) {
-                        System.Console.WriteLine("forcing missile at target (hit time correction)");
+                        Console.WriteLine("forcing missile at target (hit time correction)");
                     }
                 } 
                 Vector3 hitPos;
@@ -101,9 +101,9 @@ namespace SimpleScene.Demos
                     state = State.AtTarget;
                     _driver = null;
                     if (mParams.debuggingAid) {
-                        System.Console.WriteLine("missile at target at t = " + timeSinceLaunch);
+                        Console.WriteLine("missile at target at t = " + timeSinceLaunch);
                         if (float.IsNaN(position.X)) {
-                            System.Console.WriteLine("bad position");
+                            Console.WriteLine("bad position");
                         }
                     }
                     if (this.atTargetFunc != null) {
@@ -116,7 +116,7 @@ namespace SimpleScene.Demos
                     state = State.Terminated;
                     _driver = null;
                     if (mParams.debuggingAid) {
-                        System.Console.WriteLine("missile terminated at target at t = " + timeSinceLaunch);
+                        Console.WriteLine("missile terminated at target at t = " + timeSinceLaunch);
                     }
                 }
                 break;

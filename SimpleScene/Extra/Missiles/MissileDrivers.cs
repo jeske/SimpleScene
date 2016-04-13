@@ -25,31 +25,20 @@ namespace SimpleScene.Demos
 
     public class SMissileEjectionVisualDriver : SMissileEjectionDriver
     {
-
-        protected readonly float _yawVelocity; // purely visual
-        protected readonly float _pitchVelocity; // purely visual
-        protected readonly Vector3 _initDir;
+        public float yawVelocity; // purely visual
+        public float pitchVelocity; // purely visual
 
         protected new SSpaceMissileVisualData missile { 
             get { return base.missile as SSpaceMissileVisualData; }
         }
             
-        public SMissileEjectionVisualDriver(SSpaceMissileVisualData missile,
-            float yawVelocity = float.NaN, float pitchVelocity = float.NaN)
+        public SMissileEjectionVisualDriver(SSpaceMissileVisualData missile)
             : base(missile)
         {
             var mParams = missile.parameters as SSpaceMissileVisualParameters;
             var rand = SSpaceMissilesVisualSimulation.rand;
-            if (float.IsNaN(yawVelocity)) {
-                _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
-            } else {
-                _yawVelocity = yawVelocity;
-            }
-            if (float.IsNaN(pitchVelocity)) {
-                _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
-            } else {
-                _pitchVelocity = pitchVelocity;
-            }
+            yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+            pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
         }
 
         public override void updateExecution(float timeElapsed) 
@@ -57,11 +46,11 @@ namespace SimpleScene.Demos
             base.updateExecution(timeElapsed);
 
             float t = missile.timeSinceLaunch;
-            float dy = _yawVelocity * t;
-            float dp = _pitchVelocity * t;
+            float dy = yawVelocity * t;
+            float dp = pitchVelocity * t;
 
             Quaternion q = Quaternion.FromAxisAngle(missile.up, dy)
-                           * Quaternion.FromAxisAngle(missile.pitchAxis, dp);
+                         * Quaternion.FromAxisAngle(missile.pitchAxis, dp);
             missile.visualDirection = Vector3.Transform(missile.visualDirection, q);
 
             var mParams = missile.parameters;
