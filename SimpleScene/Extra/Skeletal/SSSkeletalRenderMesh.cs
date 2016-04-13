@@ -16,7 +16,7 @@ namespace SimpleScene.Demos
 
 		public float timeScale = 1f;
 
-		protected readonly List<RenderSubMesh> _renderSubMeshes = new List<RenderSubMesh> ();
+		public readonly List<RenderSubMesh> renderSubMeshes = new List<RenderSubMesh> ();
 		protected readonly SSSkeletalHierarchyRuntime _hierarchy;
 		protected readonly List<SSSkeletalChannelController> _channelControllers
 			= new List<SSSkeletalChannelController> ();
@@ -25,8 +25,8 @@ namespace SimpleScene.Demos
 			get { return base.alphaBlendingEnabled; }
 			set {
 				base.alphaBlendingEnabled = value;
-				if (_renderSubMeshes != null) {
-					foreach (var child in _renderSubMeshes) {
+				if (renderSubMeshes != null) {
+					foreach (var child in renderSubMeshes) {
 						child.alphaBlendingEnabled = value;
 					}
 				}
@@ -153,7 +153,7 @@ namespace SimpleScene.Demos
 		{
 			var newRender = new RenderSubMesh (mesh, _hierarchy);
 			newRender.alphaBlendingEnabled = this.alphaBlendingEnabled;
-			_renderSubMeshes.Add (newRender);
+			renderSubMeshes.Add (newRender);
 		}
 
 		public override void update(float elapsedS)
@@ -170,7 +170,7 @@ namespace SimpleScene.Demos
 			_hierarchy.applySkeletalControllers (_channelControllers);
 
 			SSAABB totalAABB = new SSAABB (float.PositiveInfinity, float.NegativeInfinity);
-			foreach (var sub in _renderSubMeshes) {
+			foreach (var sub in renderSubMeshes) {
 				SSAABB aabb = sub.ComputeVertices ();
 				sub.renderMesh (renderConfig);
 				totalAABB.ExpandBy (aabb);
@@ -184,7 +184,7 @@ namespace SimpleScene.Demos
 
 		public void drawInstanced(SSRenderConfig cfg, int instanceCount, PrimitiveType primType) 
 		{
-			foreach (var sub in _renderSubMeshes) {
+			foreach (var sub in renderSubMeshes) {
                 sub.drawInstanced (cfg, instanceCount, primType);
 			}
 		}
@@ -197,7 +197,7 @@ namespace SimpleScene.Demos
 		public override bool preciseIntersect (ref SSRay localRay, out float nearestLocalRayContact)
         {
             nearestLocalRayContact = float.PositiveInfinity;
-			foreach (var s in _renderSubMeshes) {
+			foreach (var s in renderSubMeshes) {
                 float contact;
                 if (s.preciseIntersect(ref localRay, out contact)
                     && contact < nearestLocalRayContact) {
@@ -212,7 +212,7 @@ namespace SimpleScene.Demos
 		/// <summary>
 		/// Draws the submeshes
 		/// </summary>
-		protected class RenderSubMesh : SSIndexedMesh<SSVertex_PosNormTex>
+		public class RenderSubMesh : SSIndexedMesh<SSVertex_PosNormTex>
 		{
 			protected readonly SSSkeletalMeshRuntime _runtimeMesh;
 			protected readonly SSVertex_PosNormTex[] _vertices;
