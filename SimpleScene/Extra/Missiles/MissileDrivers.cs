@@ -34,13 +34,22 @@ namespace SimpleScene.Demos
             get { return base.missile as SSpaceMissileVisualData; }
         }
             
-        public SMissileEjectionVisualDriver(SSpaceMissileVisualData missile)
+        public SMissileEjectionVisualDriver(SSpaceMissileVisualData missile,
+            float yawVelocity = float.NaN, float pitchVelocity = float.NaN)
             : base(missile)
         {
             var mParams = missile.parameters as SSpaceMissileVisualParameters;
             var rand = SSpaceMissilesVisualSimulation.rand;
-            _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
-            _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+            if (float.IsNaN(yawVelocity)) {
+                _yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+            } else {
+                _yawVelocity = yawVelocity;
+            }
+            if (float.IsNaN(pitchVelocity)) {
+                _pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+            } else {
+                _pitchVelocity = pitchVelocity;
+            }
         }
 
         public override void updateExecution(float timeElapsed) 
