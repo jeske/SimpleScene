@@ -55,8 +55,7 @@ namespace SimpleScene.Demos
             this.position = missileWorldPos;
             this.velocity = missileWorldVel;
 
-            _driver = parameters.createEjection(this);
-            _driver.updateExecution(0f);
+            updateExecution(0f);
         }
 
         public void terminate()
@@ -70,6 +69,11 @@ namespace SimpleScene.Demos
 
         public virtual void updateExecution(float timeElapsed)
         {
+            if (_driver == null) {
+                _driver = parameters.createEjection(this);
+                _driver.updateExecution(0f);
+            }
+
             position += velocity * timeElapsed;
 
             var mParams = parameters;
