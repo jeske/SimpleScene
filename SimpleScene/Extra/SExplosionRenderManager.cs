@@ -44,9 +44,10 @@ namespace SimpleScene.Demos
 			textureMaterial = new SSTextureMaterial(null, null, tex, null);
 		}
 
-		public void showExplosion(Vector3 position, float intensity)
+        public void showExplosion(Vector3 position, float intensity, 
+            Vector3 baseVelocity = new Vector3())
 		{
-			particleSystem.showExplosion (position, intensity);
+            particleSystem.showExplosion (position, intensity, baseVelocity);
             if (float.IsNaN(position.X)) {
                 System.Console.WriteLine("bad position");
             }
@@ -357,15 +358,16 @@ namespace SimpleScene.Demos
 				addEffector (_radialOrientator);
 			}
 
-			public virtual void showExplosion(Vector3 position, float intensity)
+            public virtual void showExplosion(Vector3 position, float intensity, 
+                Vector3 baseVelocity = new Vector3())
 			{
-				emitFlameSmoke (position, intensity);
-				emitFlash (position, intensity);
-				emitFlyingSparks (position, intensity);
-				emitSmokeTrails (position, intensity);
-				emitRoundSparks (position, intensity);
-				emitDebris (position, intensity);
-				emitShockwave (position, intensity);
+                emitFlameSmoke (position, baseVelocity, intensity);
+                emitFlash (position, baseVelocity, intensity);
+                emitFlyingSparks (position, baseVelocity, intensity);
+                emitSmokeTrails (position, baseVelocity, intensity);
+                emitRoundSparks (position, baseVelocity, intensity);
+                emitDebris (position, baseVelocity, intensity);
+                emitShockwave (position, baseVelocity, intensity);
 			}
 
 			public override void update(float timeDelta)
@@ -434,13 +436,14 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void emitFlameSmoke(Vector3 position, float intensity)
+			protected void emitFlameSmoke(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doFlameSmoke) return;
 				_flameSmokeEmitter.componentScale = new Vector3(intensity*3f, intensity*3f, 1f);
                 _flameSmokeEmitter.velocityFromCenterMagnitudeMin = 0.60f * intensity;
 				_flameSmokeEmitter.velocityFromCenterMagnitudeMax = 0.80f * intensity;
 				_flameSmokeEmitter.center = position;
+                _flameSmokeEmitter.velocity = baseVelocity;
 				_flameSmokeEmitter.totalEmissionsLeft = 5;
 			}
 
@@ -491,13 +494,14 @@ namespace SimpleScene.Demos
 
 			}
 
-			protected void emitFlash(Vector3 position, float intensity)
+            protected void emitFlash(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doFlash) return;
 				_flashEmitter.componentScale = new Vector3(intensity*3f, intensity*3f, 1f);
 				ParticlesSphereGenerator flashSphere = _flashEmitter.Field as ParticlesSphereGenerator;
 				flashSphere.Center = position;
 				flashSphere.Radius = 0.3f * intensity;
+                _flashEmitter.velocity = baseVelocity;
 				_flashEmitter.totalEmissionsLeft = 2;
 			}
 
@@ -534,10 +538,11 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void emitFlyingSparks(Vector3 position, float intensity)
+            protected void emitFlyingSparks(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doFlyingSparks) return;
                 _flyingSparksEmitter.center = position;
+                _flyingSparksEmitter.velocity = baseVelocity;
                 _flyingSparksEmitter.velocityFromCenterMagnitudeMin = intensity * 2f;
 				_flyingSparksEmitter.velocityFromCenterMagnitudeMax = intensity * 3f;
 				_flyingSparksEmitter.particlesPerEmission = (int)(5.0*Math.Log(intensity));
@@ -589,11 +594,12 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void emitSmokeTrails(Vector3 position, float intensity)
+			protected void emitSmokeTrails(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doSmokeTrails) return;
 
 				_smokeTrailsEmitter.center = position;
+                _smokeTrailsEmitter.velocity = baseVelocity;
                 _smokeTrailsEmitter.velocityFromCenterMagnitudeMin = intensity * 0.8f;
 				_smokeTrailsEmitter.velocityFromCenterMagnitudeMax = intensity * 1f;
 				_smokeTrailsEmitter.particlesPerEmission = (int)(5.0*Math.Log(intensity));
@@ -651,13 +657,14 @@ namespace SimpleScene.Demos
                 }  
 			}
 
-			protected void emitRoundSparks(Vector3 position, float intensity)
+            protected void emitRoundSparks(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doRoundSparks) return;
 				_roundSparksEmitter.componentScale = new Vector3(intensity, intensity, 1f);
                 _roundSparksEmitter.velocityFromCenterMagnitudeMin = 0.7f * intensity;
 				_roundSparksEmitter.velocityFromCenterMagnitudeMax = 1.2f * intensity;
 				_roundSparksEmitter.center = position;
+                _roundSparksEmitter.velocity = baseVelocity;
 				_roundSparksEmitter.totalEmissionsLeft = 3;
 			}
 
@@ -699,7 +706,7 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void emitDebris(Vector3 position, float intensity)
+            protected void emitDebris(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doDebris) return;
 				//m_debrisEmitter.MasterScale = intensity / 2f;
@@ -708,6 +715,7 @@ namespace SimpleScene.Demos
                 _debrisEmitter.velocityFromCenterMagnitudeMin = 1f * intensity;
 				_debrisEmitter.velocityFromCenterMagnitudeMax = 3f * intensity;
 				_debrisEmitter.center = position;
+                _debrisEmitter.velocity = baseVelocity;
 				_debrisEmitter.particlesPerEmission = (int)(2.5*Math.Log(intensity));
 				_debrisEmitter.totalEmissionsLeft = 1;
 			}
@@ -751,11 +759,12 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void emitShockwave(Vector3 position, float intensity)
+            protected void emitShockwave(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
                 if (!_doShockwave) return;
 				_shockwaveEmitter.componentScale = new Vector3(intensity, intensity, 1f);
 				_shockwaveEmitter.position = position;
+                _shockwaveEmitter.velocity = baseVelocity;
 				_shockwaveEmitter.totalEmissionsLeft = 1;
 			}
 		}
