@@ -95,7 +95,7 @@ namespace SimpleScene
                 if (dir1 == -dir2) {
                     Vector3 perpAxis1, perpAxis2;
                     TwoPerpAxes(dir1, out perpAxis1, out perpAxis2);
-                    return Quaternion.FromAxisAngle(perpAxis1, (float)Math.PI / 2f);
+                    return Quaternion.FromAxisAngle(perpAxis1, (float)Math.PI);
                 } else {
                     return Quaternion.Identity;
                 }
