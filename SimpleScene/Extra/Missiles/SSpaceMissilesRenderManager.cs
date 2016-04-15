@@ -107,6 +107,7 @@ namespace SimpleScene.Demos
 
         public SSpaceMissileRenderInfo addMissileRender(SSpaceMissileVisualData missile)
         {
+            _initParamsSpecific(missile.parameters as SSpaceMissileVisualParameters);
             return _addMissileRender(missile);
         }
 

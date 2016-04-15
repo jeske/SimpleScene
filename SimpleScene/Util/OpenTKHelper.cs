@@ -91,9 +91,16 @@ namespace SimpleScene
             dir2.Normalize();
             Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
             if (float.IsNaN(crossNormalized.X)) {
-                // this means dir1 == dir2. we can do it less cryptically but why add processing?
-                return Quaternion.Identity;
+                // this means dir1 is parallel to dir2. we can do it less cryptically but why add processing?
+                if (dir1 == -dir2) {
+                    Vector3 perpAxis1, perpAxis2;
+                    TwoPerpAxes(dir1, out perpAxis1, out perpAxis2);
+                    return Quaternion.FromAxisAngle(perpAxis1, (float)Math.PI / 2f);
+                } else {
+                    return Quaternion.Identity;
+                }
             }
+
             float dot = Vector3.Dot(dir1, dir2);
             float angle = (float)Math.Acos(dot);
             return Quaternion.FromAxisAngle(crossNormalized, angle);
