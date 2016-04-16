@@ -10,14 +10,57 @@ using OpenTK.Graphics;
 
 namespace SimpleScene.Demos
 {
-	public class SExplosionRenderManager : SSInstancedMeshRenderer
+    /// <summary>
+    /// Manages multiple types of explosions and the renderers to make them happen
+    /// </summary>
+    public class SExplosionManager
+    {
+        protected readonly SSScene _renderScene;
+        protected readonly int _particleCapacity;
+        protected Dictionary<SExplosionParameters, SExplosionRenderer> _renderers
+            = new Dictionary<SExplosionParameters, SExplosionRenderer>();
+
+        public SExplosionManager(SSScene renderScene, int particleCapacity = 500)
+        {
+            _renderScene = renderScene;
+            _particleCapacity = particleCapacity;
+        }
+
+        public void showExplosion(SExplosionParameters eParams, float intensity,
+            Vector3 position, Vector3 velocity)
+        {
+            SExplosionRenderer renderer;
+            bool ok = _renderers.TryGetValue(eParams, out renderer);
+            if (!ok) {
+                renderer = new SExplosionRenderer (_particleCapacity, eParams);
+                _renderScene.AddObject(renderer);
+                _renderers [eParams] = renderer;
+            }
+            renderer.showExplosion(position, intensity, velocity);
+        }
+
+        public void uncache()
+        {
+            foreach (var obj in _renderers.Values) {
+                obj.renderState.toBeDeleted = true;
+            }
+            _renderers.Clear();
+        }
+    }
+
+    public class SExplosionRenderer : SSInstancedMeshRenderer
 	{
 		public SExplosionSystem particleSystem {
 			get { return base.instanceData as SExplosionSystem; }
 		}
 
-		public SExplosionRenderManager(int particleCapacity = 500, SSTexture texture = null)
-			: base(new SExplosionSystem(particleCapacity),
+        public SExplosionParameters parameters {
+            get { return particleSystem.parameters; }
+        }
+
+        public SExplosionRenderer(int particleCapacity = 500, 
+                                  SExplosionParameters eParams = null)
+            : base(new SExplosionSystem(eParams ?? new SExplosionParameters(), particleCapacity),
 				   SSTexturedQuad.DoubleFaceInstance,
 				   _defaultUsageHint
 			 )
@@ -40,8 +83,8 @@ namespace SimpleScene.Demos
 			base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
 			base.ShininessMatColor = 0f;
 
-			var tex = texture ?? SExplosionSystem.getDefaultTexture();
-			textureMaterial = new SSTextureMaterial(null, null, tex, null);
+            var texture = particleSystem.parameters.getTexture();
+            textureMaterial = new SSTextureMaterial(diffuse: texture);
 		}
 
         public void showExplosion(Vector3 position, float intensity, 
@@ -59,153 +102,7 @@ namespace SimpleScene.Demos
 		/// </summary>
 		public class SExplosionSystem : SSParticleSystemData
 		{
-			public static SSTexture getDefaultTexture()
-			{
-				return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions/fig7.png");
-				//return SSAssetManager.GetInstance<SSTextureWithAlpha> ("explosions/fig7_debug.png");
-			}
-
-			#region flame smoke parameters
-            public bool doFlameSmoke {
-                get { return _doFlameSmoke; }
-                set { _doFlameSmoke = value; configureFlameSmoke(); }
-            }
-			public RectangleF[] flameSmokeSprites {
-				get { return _flameSmokeSprites; }
-				set { _flameSmokeSprites = value; configureFlameSmoke (); }
-			}
-			public Color4 flameColor
-			{
-				get { return _flameColor; }
-				set { _flameColor = value; configureFlameSmoke (); }
-			}
-			public float flameSmokeDuration
-			{
-				get { return _flameSmokeDuration; }
-				set { _flameSmokeDuration = value; configureFlameSmoke (); }
-			}
-			#endregion
-
-			#region flash parameters
-            public bool doFlash {
-                get { return _doFlash; }
-                set { _doFlash = value; configureFlash();
-                }
-            }
-			public RectangleF[] flashSprites {
-				get { return _flashSprites; }
-				set { _flashSprites = value; configureFlash (); }
-			}
-			public Color4 flashColor {
-				get { return _flashColor; }
-				set { _flashColor = value; configureFlash (); }
-			}
-			public float flashDuration {
-				get { return _flashDuration; }
-				set { _flashDuration = value; configureFlash (); }
-			}
-			#endregion
-
-			#region flying sparks parameters
-            public bool doflyingSparks {
-                get { return _doFlyingSparks; }
-                set { _doFlyingSparks = value; configureFlyingSparks(); }
-            }
-			public RectangleF[] flyingSparksSprites {
-				get { return _flyingSparksSprites; }
-				set { _flyingSparksSprites = value; configureFlyingSparks (); }
-			}
-			public Color4 flyingSparksColor {
-				get { return _flyingSparksColor; }
-				set { _flyingSparksColor = value; configureFlyingSparks (); }
-			}
-			public float flyingSparksDuration {
-				get { return _flyingSparksDuration; }
-				set { _flyingSparksDuration = value; configureFlyingSparks (); }
-			}
-			#endregion
-
-			#region smoke trails parameters
-            public bool doSmokeTrails {
-                get { return _doSmokeTrails; }
-                set { _doSmokeTrails = value; configureSmokeTrails(); }
-            }
-			public RectangleF[] smokeTrailsSprites {
-				get { return _smokeTrailsSprites; }
-				set { _smokeTrailsSprites = value; configureSmokeTrails (); }
-			}
-			public Color4 smokeTrailsColor {
-				get { return _smokeTrailsColor; }
-				set { _smokeTrailsColor = value; configureSmokeTrails (); }
-			}
-			public float smokeTrailsDuration {
-				get { return _smokeTrailsDuration; }
-				set { _smokeTrailsDuration = value; configureSmokeTrails (); }
-			}
-			#endregion
-
-			#region round sparks parameters
-            public bool doRoundSparks {
-                get { return _doRoundSparks; }
-                set { _doRoundSparks = value; configureRoundSparks(); }
-            }
-			public RectangleF[] roundSparksSprites {
-				get { return _roundSparksSprites; }
-				set { _roundSparksSprites = value; configureRoundSparks (); }
-			}
-			public Color4 roundSparksColor {
-				get { return _roundSparksColor; }
-				set { _roundSparksColor = value; configureRoundSparks (); }
-			}
-			public float roundSparksDuration {
-				get { return _roundSparksDuration; }
-				set { _roundSparksDuration = value; configureRoundSparks (); }
-			}
-			#endregion
-
-			#region debris parameters
-            public bool doDebris {
-                get { return _doDebris; }
-                set { _doDebris = value; configureDebris(); }
-            }
-			public RectangleF[] debrisSprites {
-				get { return _debrisSprites; }
-				set { _debrisSprites = value; configureDebris (); }
-			}
-			public Color4 debrisColorStart {
-				get { return _debrisColorStart; }
-				set { _debrisColorStart = value; configureDebris (); }
-			}
-			public Color4 debrisColorEnd {
-				get { return _debrisColorEnd; }
-				set { _debrisColorEnd = value; configureDebris (); }
-			}
-			public float debrisDuration {
-				get { return _debrisDuration; }
-				set { _debrisDuration = value; configureDebris (); }
-			}
-			#endregion
-
-			#region shockwave parameters
-            public bool doShockwave {
-                get { return _doShockwave; }
-                set { _doShockwave = value; configureShockwave(); }
-            }
-			public RectangleF[] shockwaveSprites {
-				get { return _shockwaveSprites; }
-				set { _shockwaveSprites = value; configureShockwave (); }
-			}
-			public Color4 shockwaveColor {
-				get { return _shockwaveColor; }
-				set { _shockwaveColor = value; configureShockwave (); }
-			}
-			public float shockwaveDuration {
-				get { return _shockwaveDuration; }
-				set { _shockwaveDuration = value; configureShockwave (); }
-			}
-			#endregion
-
-			/// <summary>
+   			/// <summary>
 			/// Used to match emitted particles with effectors
 			/// </summary>
 			protected enum ComponentMask : ushort { 
@@ -218,96 +115,7 @@ namespace SimpleScene.Demos
 				Shockwave = 0x40,
 			};
 
-			#region sprite rectangles
-			// default to fig7.png asset by Mike McClelland
-
-			/// <summary>
-			/// Default locations of flame sprites in fig7.png
-			/// </summary>
-			protected RectangleF[] _flameSmokeSprites = {
-				new RectangleF(0f,    0f,    0.25f, 0.25f),
-				new RectangleF(0f,    0.25f, 0.25f, 0.25f),
-				new RectangleF(0.25f, 0.25f, 0.25f, 0.25f),
-				new RectangleF(0.25f, 0f,    0.25f, 0.25f),
-			};
-
-			/// <summary>
-			/// Default locations of flash sprites in fig7.png
-			/// </summary>
-			protected RectangleF[] _flashSprites = {
-				new RectangleF(0.5f,  0f,    0.25f, 0.25f),
-				new RectangleF(0.75f, 0f,    0.25f, 0.25f),
-				new RectangleF(0.5f,  0.25f, 0.25f, 0.25f),
-				new RectangleF(0.75f, 0.25f, 0.25f, 0.25f),
-			};
-
-			/// <summary>
-			/// Default locations of smoke trails sprites in fig7.png
-			/// </summary>
-			protected RectangleF[] _smokeTrailsSprites = {
-				new RectangleF(0f, 0.5f,   0.5f, 0.125f),
-				new RectangleF(0f, 0.625f, 0.5f, 0.125f),
-				new RectangleF(0f, 0.75f,  0.5f, 0.125f),
-			};
-
-			protected RectangleF[] _flyingSparksSprites = {
-				new RectangleF(0.75f, 0.85f, 0.25f, 0.05f)
-			};
-
-			protected RectangleF[] _roundSparksSprites = {
-				new RectangleF(0.5f, 0.75f, 0.25f, 0.25f)
-			};
-
-			protected RectangleF[] _debrisSprites = {
-				new RectangleF(0.5f, 0.5f, 0.083333f, 0.083333f),
-				new RectangleF(0.583333f, 0.5f, 0.083333f, 0.083333f),
-				new RectangleF(0.66667f, 0.5f, 0.083333f, 0.083333f),
-
-				new RectangleF(0.5f, 0.583333f, 0.083333f, 0.083333f),
-				new RectangleF(0.583333f, 0.583333f, 0.083333f, 0.083333f),
-				new RectangleF(0.66667f, 0.583333f, 0.083333f, 0.083333f),
-
-				new RectangleF(0.5f, 0.66667f, 0.083333f, 0.083333f),
-				new RectangleF(0.583333f, 0.66667f, 0.083333f, 0.083333f),
-				new RectangleF(0.66667f, 0.66667f, 0.083333f, 0.083333f),
-			};
-
-			protected RectangleF[] _shockwaveSprites = {
-				new RectangleF (0.75f, 0.5f, 0.25f, 0.25f)
-			};
-			#endregion
-
-            #region effects's enable on/off
-            protected bool _doFlameSmoke = true;
-            protected bool _doFlash = true;
-            protected bool _doFlyingSparks = true;
-            protected bool _doSmokeTrails = true;
-            protected bool _doRoundSparks = true;
-            protected bool _doDebris = true;
-            protected bool _doShockwave = true;
-            #endregion
-
-			#region effects' colors
-			protected Color4 _flameColor = Color4.DarkOrange;
-			protected Color4 _flashColor = Color4.Yellow;
-			protected Color4 _flyingSparksColor = Color4.DarkGoldenrod;
-			protected Color4 _smokeTrailsColor = Color4.Orange;
-			protected Color4 _roundSparksColor = Color4.OrangeRed;
-			protected Color4 _debrisColorStart = Color4.Orange;
-			protected Color4 _debrisColorEnd = Color4.Silver;
-			protected Color4 _shockwaveColor = Color4.Orange;
-			#endregion
-
-			#region timing settings
-			public float timeScale = 1f;
-			protected float _flameSmokeDuration = 1.25f;
-			protected float _flashDuration = 0.25f;
-			protected float _flyingSparksDuration = 1.25f;
-			protected float _smokeTrailsDuration = 0.75f;
-			protected float _roundSparksDuration = 1.25f;
-			protected float _debrisDuration = 2f;
-			protected float _shockwaveDuration = 1f;
-			#endregion
+            protected SExplosionParameters _eParams;
 
 			#region emitters and effectors
 			// flame/smoke
@@ -340,16 +148,20 @@ namespace SimpleScene.Demos
             protected RadialBillboardOrientator _radialOrientator = null;
 			#endregion
 
-			public SExplosionSystem (int particleCapacity)
+            public SExplosionParameters parameters { get { return _eParams; } }
+
+            public SExplosionSystem (SExplosionParameters eParams, int particleCapacity)
 				: base(particleCapacity)
 			{
+                _eParams = eParams;
+
                 configureFlameSmoke();
                 configureFlash();
                 configureFlyingSparks();
                 configureSmokeTrails();
-    			configureRoundSparks();
-    			configureDebris();
-			    configureShockwave();
+                configureRoundSparks();
+                configureDebris();
+                configureShockwave();
 				
                 // shared
                 _radialOrientator = new RadialBillboardOrientator();
@@ -372,7 +184,7 @@ namespace SimpleScene.Demos
 
 			public override void update(float timeDelta)
 			{
-				timeDelta *= timeScale;
+                timeDelta *= _eParams.timeScale;
 				base.update(timeDelta);
 			}
 
@@ -387,9 +199,9 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void configureFlameSmoke()
+            protected void configureFlameSmoke()
 			{
-                if (_doFlameSmoke) {
+                if (_eParams.doFlameSmoke) {
                     if (_flameSmokeEmitter == null) {
                         _flameSmokeEmitter = new SSRadialEmitter ();
                         _flamesSmokeColorEffector = new SSColorKeyframesEffector ();
@@ -401,11 +213,11 @@ namespace SimpleScene.Demos
                             = _flamesSmokeColorEffector.effectorMask = (ushort)ComponentMask.FlameSmoke;
                     }
 
-                    _flameSmokeEmitter.spriteRectangles = _flameSmokeSprites;
+                    _flameSmokeEmitter.spriteRectangles = _eParams.flameSmokeSprites;
                     _flameSmokeEmitter.particlesPerEmission = 2;
-                    _flameSmokeEmitter.emissionInterval = 0.03f * _flameSmokeDuration;
+                    _flameSmokeEmitter.emissionInterval = 0.03f * _eParams.flameSmokeDuration;
                     _flameSmokeEmitter.totalEmissionsLeft = 0; // Control this in ShowExplosion()
-                    _flameSmokeEmitter.life = _flameSmokeDuration;
+                    _flameSmokeEmitter.life = _eParams.flameSmokeDuration;
                     _flameSmokeEmitter.orientationMin = new Vector3 (0f, 0f, 0f);
                     _flameSmokeEmitter.orientationMax = new Vector3 (0f, 0f, 2f * (float)Math.PI);
                     _flameSmokeEmitter.billboardXY = true;
@@ -414,14 +226,14 @@ namespace SimpleScene.Demos
                     _flameSmokeEmitter.radiusOffsetMin = 0f;
                     _flameSmokeEmitter.radiusOffsetMax = 0.5f;
 
-                    _flamesSmokeColorEffector.colorMask = _flameColor;
-                    _flamesSmokeColorEffector.particleLifetime = _flameSmokeDuration;
+                    _flamesSmokeColorEffector.colorMask = _eParams.flameColor;
+                    _flamesSmokeColorEffector.particleLifetime = _eParams.flameSmokeDuration;
                     _flamesSmokeColorEffector.keyframes.Clear();
                     _flamesSmokeColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
                     _flamesSmokeColorEffector.keyframes.Add(0.4f, new Color4 (0f, 0f, 0f, 0.5f));
                     _flamesSmokeColorEffector.keyframes.Add(1f, new Color4 (0f, 0f, 0f, 0f));
 
-                    _flameSmokeScaleEffector.particleLifetime = _flameSmokeDuration;
+                    _flameSmokeScaleEffector.particleLifetime = _eParams.flameSmokeDuration;
                     _flameSmokeScaleEffector.keyframes.Clear();
                     _flameSmokeScaleEffector.keyframes.Add(0f, 0.1f);
                     _flameSmokeScaleEffector.keyframes.Add(0.25f, 1f);
@@ -438,7 +250,7 @@ namespace SimpleScene.Demos
 
 			protected void emitFlameSmoke(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doFlameSmoke) return;
+                if (!_eParams.doFlameSmoke) return;
 				_flameSmokeEmitter.componentScale = new Vector3(intensity*3f, intensity*3f, 1f);
                 _flameSmokeEmitter.velocityFromCenterMagnitudeMin = 0.60f * intensity;
 				_flameSmokeEmitter.velocityFromCenterMagnitudeMax = 0.80f * intensity;
@@ -449,7 +261,7 @@ namespace SimpleScene.Demos
 
 			protected void configureFlash()
 			{
-                if (_doFlash) {
+                if (_eParams.doFlash) {
                     if (_flashEmitter == null) {
                         _flashEmitter = new SSParticlesFieldEmitter (new ParticlesSphereGenerator ());
                         _flashColorEffector = new SSColorKeyframesEffector ();
@@ -461,25 +273,25 @@ namespace SimpleScene.Demos
                             = _flashScaleEffector.effectorMask = (ushort)ComponentMask.Flash;
                     }
 
-                    _flashEmitter.spriteRectangles = _flashSprites;
+                    _flashEmitter.spriteRectangles = _eParams.flashSprites;
                     _flashEmitter.particlesPerEmissionMin = 1;
                     _flashEmitter.particlesPerEmissionMax = 2;
                     _flashEmitter.emissionIntervalMin = 0f;
-                    _flashEmitter.emissionIntervalMax = 0.2f * _flashDuration;
-                    _flashEmitter.life = _flashDuration;
+                    _flashEmitter.emissionIntervalMax = 0.2f * _eParams.flashDuration;
+                    _flashEmitter.life = _eParams.flashDuration;
                     _flashEmitter.velocity = Vector3.Zero;
                     _flashEmitter.orientationMin = new Vector3 (0f, 0f, 0f);
                     _flashEmitter.orientationMax = new Vector3 (0f, 0f, 2f * (float)Math.PI);
                     _flashEmitter.billboardXY = true;
                     _flashEmitter.totalEmissionsLeft = 0; // Control this in ShowExplosion()
 
-                    _flashColorEffector.particleLifetime = _flashDuration;
-                    _flashColorEffector.colorMask = _flashColor;
+                    _flashColorEffector.particleLifetime = _eParams.flashDuration;
+                    _flashColorEffector.colorMask = _eParams.flashColor;
                     _flashColorEffector.keyframes.Clear();
                     _flashColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
                     _flashColorEffector.keyframes.Add(1f, new Color4 (1f, 1f, 1f, 0f));
 
-                    _flashScaleEffector.particleLifetime = _flashDuration;
+                    _flashScaleEffector.particleLifetime = _eParams.flashDuration;
                     _flashScaleEffector.keyframes.Clear();
                     _flashScaleEffector.keyframes.Add(0f, 1f);
                     _flashScaleEffector.keyframes.Add(1f, 1.5f);
@@ -496,7 +308,7 @@ namespace SimpleScene.Demos
 
             protected void emitFlash(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doFlash) return;
+                if (!_eParams.doFlash) return;
 				_flashEmitter.componentScale = new Vector3(intensity*3f, intensity*3f, 1f);
 				ParticlesSphereGenerator flashSphere = _flashEmitter.Field as ParticlesSphereGenerator;
 				flashSphere.Center = position;
@@ -507,7 +319,7 @@ namespace SimpleScene.Demos
 
 			protected void configureFlyingSparks()
 			{
-                if (_doFlyingSparks) {
+                if (_eParams.doFlyingSparks) {
                     if (_flyingSparksEmitter == null) {
                         _flyingSparksEmitter = new SSRadialEmitter ();
                         _flyingSparksColorEffector = new SSColorKeyframesEffector ();
@@ -517,19 +329,19 @@ namespace SimpleScene.Demos
                             = (ushort)ComponentMask.FlyingSparks;
                     }
 
-                    _flyingSparksEmitter.spriteRectangles = _flyingSparksSprites;
+                    _flyingSparksEmitter.spriteRectangles = _eParams.flyingSparksSprites;
                     _flyingSparksEmitter.emissionIntervalMin = 0f;
-                    _flyingSparksEmitter.emissionIntervalMax = 0.1f * _flyingSparksDuration;
-                    _flyingSparksEmitter.life = _flyingSparksDuration;
+                    _flyingSparksEmitter.emissionIntervalMax = 0.1f * _eParams.flyingSparksDuration;
+                    _flyingSparksEmitter.life = _eParams.flyingSparksDuration;
                     _flyingSparksEmitter.totalEmissionsLeft = 0; // Control this in ShowExplosion()
                     _flyingSparksEmitter.componentScale = new Vector3 (5f, 1f, 1f);
-                    _flyingSparksEmitter.color = _flyingSparksColor;
+                    _flyingSparksEmitter.color = _eParams.flyingSparksColor;
 
-                    _flyingSparksColorEffector.colorMask = _flashColor;
+                    _flyingSparksColorEffector.colorMask = _eParams.flashColor;
                     _flyingSparksColorEffector.keyframes.Clear();
                     _flyingSparksColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
                     _flyingSparksColorEffector.keyframes.Add(1f, new Color4 (1f, 1f, 1f, 0f));
-                    _flyingSparksColorEffector.particleLifetime = _flyingSparksDuration;
+                    _flyingSparksColorEffector.particleLifetime = _eParams.flyingSparksDuration;
                 } else if (_flyingSparksEmitter != null) {
                     removeEmitter(_flyingSparksEmitter);
                     removeEffector(_flyingSparksColorEffector);
@@ -540,7 +352,7 @@ namespace SimpleScene.Demos
 
             protected void emitFlyingSparks(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doFlyingSparks) return;
+                if (!_eParams.doFlyingSparks) return;
                 _flyingSparksEmitter.center = position;
                 _flyingSparksEmitter.velocity = baseVelocity;
                 _flyingSparksEmitter.velocityFromCenterMagnitudeMin = intensity * 2f;
@@ -551,7 +363,7 @@ namespace SimpleScene.Demos
 
 			protected void configureSmokeTrails()
 			{
-                if (_doSmokeTrails) {
+                if (_eParams.doSmokeTrails) {
                     if (_smokeTrailsEmitter == null) {
                         _smokeTrailsEmitter = new SSRadialEmitter ();
                         _smokeTrailsColorEffector = new SSColorKeyframesEffector ();
@@ -564,21 +376,21 @@ namespace SimpleScene.Demos
                     }
 
                     _smokeTrailsEmitter.radiusOffset = 3f;
-                    _smokeTrailsEmitter.spriteRectangles = _smokeTrailsSprites;
+                    _smokeTrailsEmitter.spriteRectangles = _eParams.smokeTrailsSprites;
                     _smokeTrailsEmitter.particlesPerEmission = 16;
                     _smokeTrailsEmitter.emissionIntervalMin = 0f;
-                    _smokeTrailsEmitter.emissionIntervalMax = 0.1f * _smokeTrailsDuration;
-                    _smokeTrailsEmitter.life = _smokeTrailsDuration;
+                    _smokeTrailsEmitter.emissionIntervalMax = 0.1f * _eParams.smokeTrailsDuration;
+                    _smokeTrailsEmitter.life = _eParams.smokeTrailsDuration;
                     _smokeTrailsEmitter.totalEmissionsLeft = 0; // control this in ShowExplosion()
-                    _smokeTrailsEmitter.color = _smokeTrailsColor;
+                    _smokeTrailsEmitter.color = _eParams.smokeTrailsColor;
 
-                    _smokeTrailsColorEffector.particleLifetime = _smokeTrailsDuration;
-                    _smokeTrailsColorEffector.colorMask = _smokeTrailsColor;
+                    _smokeTrailsColorEffector.particleLifetime = _eParams.smokeTrailsDuration;
+                    _smokeTrailsColorEffector.colorMask = _eParams.smokeTrailsColor;
                     _smokeTrailsColorEffector.keyframes.Clear();
                     _smokeTrailsColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
                     _smokeTrailsColorEffector.keyframes.Add(1f, new Color4 (0.3f, 0.3f, 0.3f, 0f));
 
-                    _smokeTrailsScaleEffector.particleLifetime = _smokeTrailsDuration;
+                    _smokeTrailsScaleEffector.particleLifetime = _eParams.smokeTrailsDuration;
                     _smokeTrailsScaleEffector.baseOffset = new Vector3 (1f, 1f, 1f);
                     _smokeTrailsScaleEffector.keyframes.Clear();
                     _smokeTrailsScaleEffector.keyframes.Add(0f, new Vector3 (0f));
@@ -596,7 +408,7 @@ namespace SimpleScene.Demos
 
 			protected void emitSmokeTrails(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doSmokeTrails) return;
+                if (!_eParams.doSmokeTrails) return;
 
 				_smokeTrailsEmitter.center = position;
                 _smokeTrailsEmitter.velocity = baseVelocity;
@@ -612,7 +424,7 @@ namespace SimpleScene.Demos
 			protected void configureRoundSparks()
 			{
 
-                if (_doRoundSparks) {
+                if (_eParams.doRoundSparks) {
                     _roundSparksEmitter = new SSRadialEmitter ();
                     _roundSparksColorEffector = new SSColorKeyframesEffector ();
                     _roundSparksScaleEffector = new SSMasterScaleKeyframesEffector ();
@@ -622,12 +434,12 @@ namespace SimpleScene.Demos
                     _roundSparksEmitter.effectorMask = _roundSparksScaleEffector.effectorMask 
                         = _roundSparksColorEffector.effectorMask = (ushort)ComponentMask.RoundSparks;
 
-                    _roundSparksEmitter.spriteRectangles = _roundSparksSprites;
+                    _roundSparksEmitter.spriteRectangles = _eParams.roundSparksSprites;
                     _roundSparksEmitter.particlesPerEmission = 6;
                     _roundSparksEmitter.emissionIntervalMin = 0f;
-                    _roundSparksEmitter.emissionIntervalMax = 0.05f * _roundSparksDuration;
+                    _roundSparksEmitter.emissionIntervalMax = 0.05f * _eParams.roundSparksDuration;
                     _roundSparksEmitter.totalEmissionsLeft = 0; // Control this in ShowExplosion()
-                    _roundSparksEmitter.life = _roundSparksDuration;
+                    _roundSparksEmitter.life = _eParams.roundSparksDuration;
                     _roundSparksEmitter.billboardXY = true;
                     _roundSparksEmitter.orientationMin = new Vector3 (0f, 0f, 0f);
                     _roundSparksEmitter.orientationMax = new Vector3 (0f, 0f, 2f * (float)Math.PI);
@@ -636,13 +448,13 @@ namespace SimpleScene.Demos
                     _roundSparksEmitter.radiusOffsetMin = 0f;
                     _roundSparksEmitter.radiusOffsetMax = 1f;
 
-                    _roundSparksColorEffector.particleLifetime = _roundSparksDuration;
-                    _roundSparksColorEffector.colorMask = _roundSparksColor;
+                    _roundSparksColorEffector.particleLifetime = _eParams.roundSparksDuration;
+                    _roundSparksColorEffector.colorMask = _eParams.roundSparksColor;
                     _roundSparksColorEffector.keyframes.Clear();
                     _roundSparksColorEffector.keyframes.Add(0.1f, new Color4 (1f, 1f, 1f, 1f));
                     _roundSparksColorEffector.keyframes.Add(1f, new Color4 (1f, 1f, 1f, 0f));
 
-                    _roundSparksScaleEffector.particleLifetime = _roundSparksDuration;
+                    _roundSparksScaleEffector.particleLifetime = _eParams.roundSparksDuration;
                     _roundSparksScaleEffector.keyframes.Clear();
                     _roundSparksScaleEffector.keyframes.Add(0f, 1f);
                     _roundSparksScaleEffector.keyframes.Add(0.25f, 3f);
@@ -659,7 +471,7 @@ namespace SimpleScene.Demos
 
             protected void emitRoundSparks(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doRoundSparks) return;
+                if (!_eParams.doRoundSparks) return;
 				_roundSparksEmitter.componentScale = new Vector3(intensity, intensity, 1f);
                 _roundSparksEmitter.velocityFromCenterMagnitudeMin = 0.7f * intensity;
 				_roundSparksEmitter.velocityFromCenterMagnitudeMax = 1.2f * intensity;
@@ -670,7 +482,7 @@ namespace SimpleScene.Demos
 
 			protected void configureDebris()
 			{
-                if (_doDebris) {
+                if (_eParams.doDebris) {
                     if (_debrisEmitter == null) {
                         _debrisEmitter = new SSRadialEmitter ();
                         _debrisColorEffector = new SSColorKeyframesEffector ();
@@ -679,11 +491,11 @@ namespace SimpleScene.Demos
                         _debrisEmitter.effectorMask = _debrisColorEffector.effectorMask
                             = (ushort)ComponentMask.Debris;
                     }
-                    _debrisEmitter.spriteRectangles = _debrisSprites;
+                    _debrisEmitter.spriteRectangles = _eParams.debrisSprites;
                     _debrisEmitter.particlesPerEmissionMin = 7;
                     _debrisEmitter.particlesPerEmissionMax = 10;
                     _debrisEmitter.totalEmissionsLeft = 0; // Control this in ShowExplosion()
-                    _debrisEmitter.life = _debrisDuration;
+                    _debrisEmitter.life = _eParams.debrisDuration;
                     _debrisEmitter.orientationMin = new Vector3 (0f, 0f, 0f);
                     _debrisEmitter.orientationMax = new Vector3 (0f, 0f, 2f * (float)Math.PI);
                     _debrisEmitter.billboardXY = true;
@@ -692,11 +504,12 @@ namespace SimpleScene.Demos
                     _debrisEmitter.radiusOffsetMin = 0f;
                     _debrisEmitter.radiusOffsetMax = 1f;
 
-                    var debrisColorFinal = new Color4 (_debrisColorEnd.R, _debrisColorEnd.G, _debrisColorEnd.B, 0f);
-                    _debrisColorEffector.particleLifetime = _debrisDuration;
+                    var debrisColorFinal = new Color4 (_eParams.debrisColorEnd.R, 
+                        _eParams.debrisColorEnd.G, _eParams.debrisColorEnd.B, 0f);
+                    _debrisColorEffector.particleLifetime = _eParams.debrisDuration;
                     _debrisColorEffector.keyframes.Clear();
-                    _debrisColorEffector.keyframes.Add(0f, _debrisColorStart);
-                    _debrisColorEffector.keyframes.Add(0.3f, _debrisColorEnd);
+                    _debrisColorEffector.keyframes.Add(0f, _eParams.debrisColorStart);
+                    _debrisColorEffector.keyframes.Add(0.3f, _eParams.debrisColorEnd);
                     _debrisColorEffector.keyframes.Add(1f, debrisColorFinal);
                 } else if (_debrisEmitter != null) {
                     removeEmitter(_debrisEmitter);
@@ -708,7 +521,7 @@ namespace SimpleScene.Demos
 
             protected void emitDebris(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doDebris) return;
+                if (!_eParams.doDebris) return;
 				//m_debrisEmitter.MasterScale = intensity / 2f;
 				_debrisEmitter.masterScaleMin = 3f;
 				_debrisEmitter.masterScaleMax = 0.4f*intensity;
@@ -722,7 +535,7 @@ namespace SimpleScene.Demos
 
 			protected void configureShockwave()
 			{
-                if (_doShockwave) {
+                if (_eParams.doShockwave) {
                     if (_shockwaveEmitter == null) {
                         _shockwaveEmitter = new ShockwaveEmitter ();
                         _shockwaveColorEffector = new SSColorKeyframesEffector ();
@@ -733,19 +546,19 @@ namespace SimpleScene.Demos
                         _shockwaveEmitter.effectorMask = _shockwaveScaleEffector.effectorMask
                             = _shockwaveColorEffector.effectorMask = (ushort)ComponentMask.Shockwave;
                     }
-                    _shockwaveEmitter.spriteRectangles = _shockwaveSprites;
+                    _shockwaveEmitter.spriteRectangles = _eParams.shockwaveSprites;
                     _shockwaveEmitter.particlesPerEmission = 1;
                     _shockwaveEmitter.totalEmissionsLeft = 0;   // Control this in ShowExplosion()
-                    _shockwaveEmitter.life = _shockwaveDuration;
+                    _shockwaveEmitter.life = _eParams.shockwaveDuration;
                     _shockwaveEmitter.velocity = Vector3.Zero;
 
-                    _shockwaveScaleEffector.particleLifetime = _shockwaveDuration;
+                    _shockwaveScaleEffector.particleLifetime = _eParams.shockwaveDuration;
                     _shockwaveScaleEffector.keyframes.Clear();
                     _shockwaveScaleEffector.keyframes.Add(0f, 0f);
-                    _shockwaveScaleEffector.keyframes.Add(_shockwaveDuration, 7f);
+                    _shockwaveScaleEffector.keyframes.Add(_eParams.shockwaveDuration, 7f);
 
-                    _shockwaveColorEffector.colorMask = _shockwaveColor;
-                    _shockwaveColorEffector.particleLifetime = _shockwaveDuration;
+                    _shockwaveColorEffector.colorMask = _eParams.shockwaveColor;
+                    _shockwaveColorEffector.particleLifetime = _eParams.shockwaveDuration;
                     _shockwaveColorEffector.keyframes.Clear();
                     _shockwaveColorEffector.keyframes.Add(0f, new Color4 (1f, 1f, 1f, 1f));
                     _shockwaveColorEffector.keyframes.Add(1f, new Color4 (1f, 1f, 1f, 0f));
@@ -761,7 +574,7 @@ namespace SimpleScene.Demos
 
             protected void emitShockwave(Vector3 position, Vector3 baseVelocity, float intensity)
 			{
-                if (!_doShockwave) return;
+                if (!_eParams.doShockwave) return;
 				_shockwaveEmitter.componentScale = new Vector3(intensity, intensity, 1f);
 				_shockwaveEmitter.position = position;
                 _shockwaveEmitter.velocity = baseVelocity;

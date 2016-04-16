@@ -164,7 +164,6 @@
     <Compile Include="Extra\Missiles\MissileDrivers.cs" />
     <Compile Include="Extra\Missiles\MissileTargets.cs" />
     <Compile Include="Extra\Missiles\SSpaceMissilesRenderManager.cs" />
-    <Compile Include="Extra\SExplosionRenderManager.cs" />
     <Compile Include="Extra\SStarfieldObject.cs" />
     <Compile Include="Extra\SSunFlareRenderer.cs" />
     <Compile Include="Extra\Skeletal\SSAnimationStateMachine.cs" />
@@ -191,6 +190,8 @@
     <Compile Include="Extra\Missiles\SSpaceMissileParameters.cs" />
     <Compile Include="Extra\Missiles\SSpaceMissilelData.cs" />
     <Compile Include="Extra\Missiles\SSpaceMissilesVisualSimulation.cs" />
+    <Compile Include="Extra\SExplosionParameters.cs" />
+    <Compile Include="Extra\SExplosionManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

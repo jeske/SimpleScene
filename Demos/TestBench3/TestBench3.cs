@@ -17,7 +17,7 @@ namespace TestBench3
         protected enum HitTimeMode : int 
             { Auto, Disabled, Fixed5s, Fixed10s, Fixed15s, Fixed20s, End }
 
-        protected SExplosionRenderManager explosionManager;
+        protected SExplosionRenderer explosionManager;
         protected SSpaceMissilesRenderManager missileManager;
         protected SHudTargetsManager.TargetSpecific targetHud;
 
@@ -106,10 +106,10 @@ namespace TestBench3
             main3dScene.AddObject (vandalShip);
 
             // shows explosions
-            explosionManager = new SExplosionRenderManager ();
-            explosionManager.particleSystem.doShockwave = false;
-            explosionManager.particleSystem.doDebris = false;
-            explosionManager.particleSystem.timeScale = 3f;
+            explosionManager = new SExplosionRenderer ();
+            explosionManager.parameters.doShockwave = false;
+            explosionManager.parameters.doDebris = false;
+            explosionManager.parameters.timeScale = 3f;
             //explosionManager.renderState.visible = false;
             alpha3dScene.AddObject(explosionManager);
 
