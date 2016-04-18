@@ -10,7 +10,7 @@ namespace SimpleScene.Demos
 
     public class SMissileEjectionDriver : ISSpaceMissileDriver
     {
-        public virtual SSpaceMissileData missile { get; } 
+        protected readonly SSpaceMissileData missile;
 
         public SMissileEjectionDriver(SSpaceMissileData missile)
         {
@@ -61,8 +61,6 @@ namespace SimpleScene.Demos
         }
     }
 
-
-
     /// <summary>
     /// http://en.wikipedia.org/wiki/Proportional_navigation
     /// 
@@ -71,7 +69,7 @@ namespace SimpleScene.Demos
     /// </summary>
     public class SProportionalNavigationPursuitDriver : ISSpaceMissileDriver
     {
-        protected virtual SSpaceMissileData missile { get; }
+        protected readonly SSpaceMissileData missile;
 
         public SProportionalNavigationPursuitDriver(SSpaceMissileData missile)
         {
