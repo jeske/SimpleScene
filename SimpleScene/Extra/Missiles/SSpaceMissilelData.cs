@@ -201,6 +201,12 @@ namespace SimpleScene.Demos
                 return Vector3.Transform(Vector3.UnitX, quat);
             } 
         }
+
+        public float distToTarget {
+            get {
+                return (target.position - this.position).LengthFast;
+            }
+        }
         #endregion
 
         /// <summary> id within a cluster. Can be referenced by ejection/pursuit behaviors. </summary>
