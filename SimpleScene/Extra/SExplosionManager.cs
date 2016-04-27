@@ -17,8 +17,8 @@ namespace SimpleScene.Demos
     {
         protected readonly SSScene _renderScene;
         protected readonly int _particleCapacity;
-        protected Dictionary<SExplosionParameters, SExplosionRenderer> _renderers
-            = new Dictionary<SExplosionParameters, SExplosionRenderer>();
+
+        protected List<SExplosionRenderer> _renderers = new List<SExplosionRenderer> ();
 
         public SExplosionManager(SSScene renderScene, int particleCapacity = 500)
         {
@@ -27,21 +27,47 @@ namespace SimpleScene.Demos
         }
 
         public void showExplosion(SExplosionParameters eParams, float intensity,
-            Vector3 position, Vector3 velocity)
+            Vector3 position, Vector3 velocity, float simInterval = float.NaN)
         {
-            SExplosionRenderer renderer;
-            bool ok = _renderers.TryGetValue(eParams, out renderer);
-            if (!ok) {
+            _showExplosionCommon(null, eParams, position, velocity, intensity, simInterval);
+        }
+
+        public void showExplosionAttached(SExplosionParameters eParams, float intensity,
+            SSObject attachTo, Vector3 localPos, float simInterval = float.NaN)
+        {
+            _showExplosionCommon(attachTo, eParams, localPos, Vector3.Zero, intensity, simInterval);
+        }
+
+        protected void _showExplosionCommon(SSObject attachTo, SExplosionParameters eParams,
+            Vector3 position, Vector3 velocity, float intensity, float simInterval = float.NaN) 
+        {
+            SExplosionRenderer renderer = null;
+            foreach (var existing in _renderers) {
+                if (existing.particleSystem.numElements == 0) {
+                    // recycle existing renderers...
+                    renderer = existing;
+                    renderer.attachTo = attachTo;
+                    renderer.parameters = eParams;
+                    break;
+                }
+            }
+            if (renderer == null) {
+                // have to allocate a new renderer
                 renderer = new SExplosionRenderer (_particleCapacity, eParams);
+                renderer.attachTo = attachTo;
                 _renderScene.AddObject(renderer);
-                _renderers [eParams] = renderer;
+                _renderers.Add(renderer);
+            }
+            if (!float.IsNaN(simInterval)) {
+                renderer.particleSystem.simulationStep = simInterval;
             }
             renderer.showExplosion(position, intensity, velocity);
         }
 
+        // TODO: automatic uncache on explosions not used in a long time?
         public void uncache()
         {
-            foreach (var obj in _renderers.Values) {
+            foreach (var obj in _renderers) {
                 obj.renderState.toBeDeleted = true;
             }
             _renderers.Clear();
@@ -50,12 +76,19 @@ namespace SimpleScene.Demos
 
     public class SExplosionRenderer : SSInstancedMeshRenderer
 	{
-		public SExplosionSystem particleSystem {
+        public SSObject attachTo = null;
+
+        public SExplosionSystem particleSystem {
 			get { return base.instanceData as SExplosionSystem; }
 		}
 
         public SExplosionParameters parameters {
             get { return particleSystem.parameters; }
+            set {
+                this.particleSystem.parameters = value;
+                var texture = particleSystem.parameters.getTexture();
+                this.textureMaterial = new SSTextureMaterial(diffuse: texture);
+            }
         }
 
         public SExplosionRenderer(int particleCapacity = 500, 
@@ -84,7 +117,7 @@ namespace SimpleScene.Demos
 			base.ShininessMatColor = 0f;
 
             var texture = particleSystem.parameters.getTexture();
-            textureMaterial = new SSTextureMaterial(diffuse: texture);
+            this.textureMaterial = new SSTextureMaterial(diffuse: texture);
 		}
 
         public void showExplosion(Vector3 position, float intensity, 
@@ -95,6 +128,15 @@ namespace SimpleScene.Demos
                 System.Console.WriteLine("bad position");
             }
 		}
+
+        public override void Render (SSRenderConfig renderConfig)
+        {
+            if (attachTo != null) {
+                this.worldMat = attachTo.worldMat;
+            }
+
+            base.Render(renderConfig);
+        }
 
 		/// <summary>
 		/// An explosion system based on a a gamedev.net article
@@ -148,20 +190,15 @@ namespace SimpleScene.Demos
             protected RadialBillboardOrientator _radialOrientator = null;
 			#endregion
 
-            public SExplosionParameters parameters { get { return _eParams; } }
+            public SExplosionParameters parameters {
+                get { return _eParams; }
+                set { _configureParameters(value); }
+            }
 
             public SExplosionSystem (SExplosionParameters eParams, int particleCapacity)
 				: base(particleCapacity)
 			{
-                _eParams = eParams;
-
-                configureFlameSmoke();
-                configureFlash();
-                configureFlyingSparks();
-                configureSmokeTrails();
-                configureRoundSparks();
-                configureDebris();
-                configureShockwave();
+                _configureParameters(eParams);
 				
                 // shared
                 _radialOrientator = new RadialBillboardOrientator();
@@ -198,6 +235,19 @@ namespace SimpleScene.Demos
     				_shockwaveEmitter.updateModelView (ref modelView);
                 }
 			}
+
+            protected void _configureParameters(SExplosionParameters eParams)
+            {
+                _eParams = eParams;
+
+                configureFlameSmoke();
+                configureFlash();
+                configureFlyingSparks();
+                configureSmokeTrails();
+                configureRoundSparks();
+                configureDebris();
+                configureShockwave();
+            }
 
             protected void configureFlameSmoke()
 			{
