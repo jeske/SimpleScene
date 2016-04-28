@@ -88,6 +88,8 @@ namespace SimpleScene.Demos
             set { 
                 _attachTo = value;
                 if (_attachTo != null) {
+                    // do this now because render may never get called otherwise due to frustum culling
+                    // and world mat will never get updated and never rendered
                     this.worldMat = _attachTo.worldMat;
                 }
             }
