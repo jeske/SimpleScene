@@ -37,8 +37,10 @@ namespace SimpleScene.Demos
         {
             var mParams = missile.parameters as SSpaceMissileVisualParameters;
             var rand = SSpaceMissilesVisualSimulation.rand;
-            yawVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
-            pitchVelocity = (float)rand.NextDouble() * mParams.ejectionMaxRotationVel;
+            yawVelocity = (2f * (float)rand.NextDouble() - 1f) 
+                * mParams.ejectionMaxRotationVel;
+            pitchVelocity = (2f * (float)rand.NextDouble() - 1f) 
+                * mParams.ejectionMaxRotationVel;
             if (missile.velocity.Length > 0f) {
                 missile.visualDirection = missile.velocity.Normalized();
             }

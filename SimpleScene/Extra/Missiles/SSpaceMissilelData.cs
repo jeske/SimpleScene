@@ -235,7 +235,7 @@ namespace SimpleScene.Demos
         public Vector3 jetPosition()
         {
             var mParams = parameters as SSpaceMissileVisualParameters;
-            return this.position - this.visualDirection * mParams.missileBodyScale * mParams.jetPosition;
+            return this.displayPosition - this.visualDirection * mParams.missileBodyScale * mParams.jetPosition;
         }
 
         #region shared by all missiles in a cluster
