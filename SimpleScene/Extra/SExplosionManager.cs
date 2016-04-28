@@ -47,6 +47,11 @@ namespace SimpleScene.Demos
                     // recycle existing renderers...
                     renderer = existing;
                     renderer.attachTo = attachTo;
+                    if (attachTo == null) {
+                        renderer.worldMat = Matrix4.Identity;
+                    } else {
+                        renderer.worldMat = attachTo.worldMat;
+                    }
                     renderer.parameters = eParams;
                     break;
                 }
@@ -76,7 +81,17 @@ namespace SimpleScene.Demos
 
     public class SExplosionRenderer : SSInstancedMeshRenderer
 	{
-        public SSObject attachTo = null;
+        protected SSObject _attachTo = null;
+
+        public SSObject attachTo {
+            get { return _attachTo; }
+            set { 
+                _attachTo = value;
+                if (_attachTo != null) {
+                    this.worldMat = _attachTo.worldMat;
+                }
+            }
+        }
 
         public SExplosionSystem particleSystem {
 			get { return base.instanceData as SExplosionSystem; }
@@ -131,8 +146,8 @@ namespace SimpleScene.Demos
 
         public override void Render (SSRenderConfig renderConfig)
         {
-            if (attachTo != null) {
-                this.worldMat = attachTo.worldMat;
+            if (_attachTo != null) {
+                this.worldMat = _attachTo.worldMat;
             }
 
             base.Render(renderConfig);
