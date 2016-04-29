@@ -224,10 +224,17 @@ namespace SimpleScene.Demos
 
         public SSpaceMissileVisualData (
             Vector3 missileWorldPos, Vector3 missileWorldVel,
-            SSpaceMissileParameters parameters = null, ISSpaceMissileTarget target = null,
-            AtTargetFunc atf = null)
+            SSpaceMissileParameters parameters = null, ISSpaceMissileTarget target = null, AtTargetFunc atf = null,
+            float ejectionYawVelocity = float.NaN, float ejectionPitchVelocity = float.NaN)
             : base(missileWorldPos, missileWorldVel, parameters, target)
         {
+            var ejectionAsVisual = _driver as SMissileEjectionVisualDriver;
+            if (!float.IsNaN(ejectionYawVelocity)) {
+                ejectionAsVisual.yawVelocity = ejectionYawVelocity;
+            }
+            if (!float.IsNaN(ejectionPitchVelocity)) {
+                ejectionAsVisual.pitchVelocity = ejectionPitchVelocity;
+            }
         }
 
 
