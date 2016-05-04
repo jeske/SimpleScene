@@ -15,7 +15,35 @@ namespace SimpleScene.Demos
 
         public Vector3 position = Vector3.Zero;
         public Vector3 velocity = Vector3.Zero;
-        public State state = State.Ejection;
+
+        public State state {
+            get { return _state; }
+            set {
+                // it may be desirable to assign state externally, f.e. when synchronizing over a network.
+                // the state has to be closely synced with the missile driver
+                _state = value;
+                switch (state) {
+                case State.Ejection:
+                    if (_driver == null || !(_driver is SMissileEjectionDriver)) { // is this slow?
+                        _driver = parameters.createEjection(this);
+                    }
+                    break;
+                case State.Pursuit:
+                    if (_driver == null || !(_driver is SProportionalNavigationPursuitDriver)) { // is this slow?
+                        _driver = parameters.createPursuit(this);
+                    }
+                    break;
+                default:
+                    if (_driver != null) {
+                        // we could just write null unconditionally. but doing it this way may help caching?
+                        _driver = null;
+                    }
+                    break;
+                }
+            }
+        }
+
+        protected State _state = State.Ejection;
 
         public ISSpaceMissileDriver driver { get { return _driver; } }
 
@@ -55,12 +83,13 @@ namespace SimpleScene.Demos
             this.position = missileWorldPos;
             this.velocity = missileWorldVel;
 
+            state = State.Ejection;
             updateExecution(0f);
         }
 
         public void terminate()
         {
-            state = State.Terminated;
+            _state = State.Terminated;
             _driver = null;
             if (parameters.debuggingAid) {
                 Console.WriteLine("missile terminated on request at t = " + timeSinceLaunch);
@@ -69,19 +98,13 @@ namespace SimpleScene.Demos
 
         public virtual void updateExecution(float timeElapsed)
         {
-            if (_driver == null) {
-                _driver = parameters.createEjection(this);
-                _driver.updateExecution(0f);
-            }
-
             position += velocity * timeElapsed;
 
             var mParams = parameters;
-            switch (state) {
+            switch (_state) {
             case State.Ejection:
                 if (this.timeSinceLaunch >= mParams.pursuitActivationTime) {
                     state = State.Pursuit;
-                    _driver = mParams.createPursuit(this);
                     if (mParams.debuggingAid) {
                         Console.WriteLine("missile pursuit activated at t = " + timeSinceLaunch);
                     }
@@ -103,7 +126,6 @@ namespace SimpleScene.Demos
                     position = hitTestSucceeded ? hitPos : target.position;
                     velocity = Vector3.Zero;
                     state = State.AtTarget;
-                    _driver = null;
                     if (mParams.debuggingAid) {
                         Console.WriteLine("missile at target at t = " + timeSinceLaunch);
                         if (float.IsNaN(position.X)) {
@@ -118,7 +140,6 @@ namespace SimpleScene.Demos
             case State.AtTarget:
                 if (mParams.terminateWhenAtTarget) {
                     state = State.Terminated;
-                    _driver = null;
                     if (mParams.debuggingAid) {
                         Console.WriteLine("missile terminated at target at t = " + timeSinceLaunch);
                     }
