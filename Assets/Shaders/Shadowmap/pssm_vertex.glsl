@@ -14,7 +14,7 @@ uniform mat4 shadowMapVPs[MAX_NUM_SMAP_SPLITS];
 
 varying float splitOverlapMask_Float;
 
-vec2 boundaries[4] = vec2[](
+const vec2 boundaries[4] = vec2[](
     vec2(-1.0f, -1.0f),
     vec2( 0.0f, -1.0f),
     vec2(-1.0f,  0.0f),
