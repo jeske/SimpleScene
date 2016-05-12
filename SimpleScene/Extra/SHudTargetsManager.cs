@@ -10,6 +10,8 @@ namespace SimpleScene.Demos
 {
     public class SHudTargetsManager
     {
+        public static bool fixedSizeTargets = true;
+
         public delegate string FetchTextFunc(SSObject target);
         protected static FetchTextFunc _defaultFetchText = (obj) => "";
 
@@ -69,7 +71,32 @@ namespace SimpleScene.Demos
             return false;
         }
 
-        public SSObject pickAnotherObject(SSObject skipPlayersOwn=null)
+        public SSObject pickWithMouse(Point pt) 
+        {
+            var matchingTargets = new List<TargetSpecific> ();
+            foreach (var ts in _targets) {
+                if (ts.mouseHitTest(pt)) {
+                    int insertIndex = matchingTargets.FindIndex((mt) => mt.targetViewDepth >= ts.targetViewDepth);
+                    insertIndex = Math.Max(insertIndex, 0);
+                    matchingTargets.Insert(insertIndex, ts);
+                }
+            }
+            if (matchingTargets.Count <= 0) {
+                return null;
+            }
+            int selectIdx = 0;
+            for (int i = 0; i < matchingTargets.Count-1; ++i) {
+                var mt = matchingTargets [i];
+                if (mt.isSelected) {
+                    selectIdx = i + 1;
+                }
+            }
+            var toSelect = matchingTargets [selectIdx].targetObj;
+            selectObject(toSelect);
+            return toSelect;
+        }
+
+        public SSObject pickNextObject(SSObject skipPlayersOwn=null)
         {
             if (_targets.Count == 0) return null;
             SSObject toSelect = null;
@@ -93,6 +120,34 @@ namespace SimpleScene.Demos
             }
             selectObject(toSelect);
             return toSelect;
+        }
+
+        public SSObject pickPrevObject(SSObject skipPlayersOwn=null)
+        {
+            // TODO
+            if (_targets.Count == 0) return null;
+            SSObject toSelect = null;
+
+            int lastSelectedIndex = _targets.FindLastIndex((t) => (t.isSelected == true)); // -1 works for below
+            for (int i = (lastSelectedIndex - 1) % _targets.Count; 
+                i != lastSelectedIndex;
+                i = (i - 1) %_targets.Count) {
+                if (_targets [i].targetObj == skipPlayersOwn) {
+                    if (_targets.Count == 1) {
+                        // nothing to select except player's own object
+                        break;
+                    } else {
+                        // dont select player's own object
+                        continue;
+                    }
+                } else {
+                    toSelect = _targets [i].targetObj;
+                    break;
+                }
+            }
+            selectObject(toSelect);
+            return toSelect;
+
         }
 
         public SHudTargetsManager (SSScene main3dScene, SSScene hud2dScene)
@@ -209,13 +264,16 @@ namespace SimpleScene.Demos
             public FetchTextFunc fetchTextBelow = null;
             public FetchTextFunc fetchTextAbove = null;
 
+            public float targetViewDepth { get { return _targetViewDepth; } }
+
             protected readonly SSScene _targetObj3dScene;
             protected readonly SSObjectMesh _outline;
             protected readonly SSObjectGDISurface_Text _labelBelow;
             protected readonly SSObjectGDISurface_Text _labelAbove;
-            protected bool _targetIsInFront;
 
             protected float _stippleTimeAccumulator = 0f;
+            protected Rectangle _outlineScreenRect = new Rectangle();
+            protected float _targetViewDepth = 0f;
 
             public TargetSpecific(SSScene main3dScene, SSScene hud2dScene)
             {
@@ -230,7 +288,7 @@ namespace SimpleScene.Demos
                 _outline.lineStipplePattern = 0xFFC0;
                 _outline.Name = "hud target outline";
                 _outline.preRenderHook += (obj, rc) => {
-                    GL.LineWidth(_targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind);
+                    GL.LineWidth(_targetViewDepth < 0f ? outlineWidthWhenInFront : outlinelineWidthWhenBehind);
                     GL.Disable(EnableCap.LineSmooth);
                 };
                 hud2dScene.AddObject(_outline);
@@ -258,6 +316,11 @@ namespace SimpleScene.Demos
             ~TargetSpecific()
             {
                 prepareForDelete();
+            }
+
+            public bool mouseHitTest(Point pt)
+            {
+                return _outlineScreenRect.Contains(pt);
             }
 
             public void preRenderUpdate(float timeElapsed)
@@ -294,22 +357,30 @@ namespace SimpleScene.Demos
                     }
                 }
 
-                // assumes target is a convential SSObject without billboarding, match scale to screen, etc.
-                var size = targetObj.worldBoundingSphereRadius;
-                Vector3 targetRightMost = targetObj.Pos + viewRight * size;
-                Vector3 targetTopMost = targetObj.Pos + viewUp * size;
-                Vector2 screenRightMostPt = OpenTKHelper.WorldToScreen(targetRightMost, ref targetViewProj, ref clientRect);
-                Vector2 screenTopMostPt = OpenTKHelper.WorldToScreen(targetTopMost, ref targetViewProj, ref clientRect);
-                float outlineHalfWidth = 2f*(screenRightMostPt.X - targetScreenPos.X);
-                outlineHalfWidth = Math.Max(outlineHalfWidth, outlineMinPixelSz);
-                float outlineHalfHeight = 2f*(targetScreenPos.Y - screenTopMostPt.Y);
-                outlineHalfHeight = Math.Max(outlineHalfHeight, outlineMinPixelSz);
+                float outlineHalfWidth;
+                float outlineHalfHeight;
+                if (fixedSizeTargets) {
+                    outlineHalfWidth = outlineMinPixelSz;
+                    outlineHalfHeight = outlineMinPixelSz;
+                } else {
+                    // assumes target is a convential SSObject without billboarding, match scale to screen, etc.
+                    var size = targetObj.worldBoundingSphereRadius;
+                    Vector3 targetRightMost = targetObj.Pos + viewRight * size;
+                    Vector3 targetTopMost = targetObj.Pos + viewUp * size;
+                    Vector2 screenRightMostPt = OpenTKHelper.WorldToScreen(targetRightMost, ref targetViewProj, ref clientRect);
+                    Vector2 screenTopMostPt = OpenTKHelper.WorldToScreen(targetTopMost, ref targetViewProj, ref clientRect);
+                    outlineHalfWidth = 2f * (screenRightMostPt.X - targetScreenPos.X);
+                    outlineHalfWidth = Math.Max(outlineHalfWidth, outlineMinPixelSz);
+                    outlineHalfHeight = 2f * (targetScreenPos.Y - screenTopMostPt.Y);
+                    outlineHalfHeight = Math.Max(outlineHalfHeight, outlineMinPixelSz);
+                }
 
                 Vector3 targetViewPos = Vector3.Transform(targetObj.Pos, targetRc.invCameraViewMatrix);
-                _targetIsInFront = targetViewPos.Z < 0f;
-                float lineWidth = _targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind;
+                _targetViewDepth = targetViewPos.Z;
+                bool targetIsInFront = _targetViewDepth < 0f;
+                float lineWidth = targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind;
                 bool above, below, left, right;
-                if (_targetIsInFront) {
+                if (targetIsInFront) {
                     left = targetScreenPos.X + outlineHalfWidth < 0f;
                     right = !left && targetScreenPos.X - outlineHalfWidth > clientRect.Width;
                     above = targetScreenPos.Y + outlineHalfHeight < 0f;
@@ -340,7 +411,7 @@ namespace SimpleScene.Demos
                         targetScreenPos.Y = clientRect.Height - outlineHalfHeight - _labelBelow.getGdiSize.Height;
                     }
                 }
-                _outline.Mesh = inTheCenter ? (_targetIsInFront ? hudRectLinesMesh : hudCircleMesh)
+                _outline.Mesh = inTheCenter ? (targetIsInFront ? hudRectLinesMesh : hudCircleMesh)
                                             : hudTriMesh;
                 _outline.Scale = new Vector3 (outlineHalfWidth, outlineHalfHeight, 1f);
                 _outline.Orient(outlineOrients [orientIdx]);
@@ -382,6 +453,12 @@ namespace SimpleScene.Demos
                 _labelBelow.MainColor = color;
                 _labelAbove.MainColor = color;
 
+                _outlineScreenRect = new Rectangle (
+                    (int)(targetScreenPos.X - outlineHalfWidth), 
+                    (int)(targetScreenPos.Y - outlineHalfHeight), 
+                    (int)(outlineHalfWidth * 2f), 
+                    (int)(outlineHalfHeight * 2f)
+                );
             }
         }
     }
