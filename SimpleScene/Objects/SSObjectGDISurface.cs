@@ -48,10 +48,17 @@ namespace SimpleScene {
             // http://florianblock.blogspot.com/2008/06/copying-dynamically-created-bitmap-to.html          
 
             Bitmap bitmap = this.RepaintGDI(out gdiSize);
-            textureSize = bitmap.Size;
+            if (bitmap != null) {
+                textureSize = bitmap.Size;
 
-            // download bits into a texture...
-			textureSurface.loadFromBitmap(bitmap, hasAlpha: base.alphaBlendingEnabled, mipmap:false);
+                // download bits into a texture...
+                textureSurface.loadFromBitmap(bitmap, hasAlpha: base.alphaBlendingEnabled, mipmap: false);
+            } else {
+                if (textureSurface != null) {
+                    textureSurface.DeleteTexture();
+                    textureSurface = null;
+                }
+            } 
         }
 
         public abstract Bitmap RepaintGDI(out Size gdiSize);
@@ -84,7 +91,7 @@ namespace SimpleScene {
             float w = gdiSize.Width;
             float h = gdiSize.Height;
 
-            if (gdiSize != textureSize) {
+            if (gdiSize != textureSize && gdiSize.Width > 0 && gdiSize.Height > 0) {
                 // adjust texture coordinates
                 throw new Exception("not implemented");
             }

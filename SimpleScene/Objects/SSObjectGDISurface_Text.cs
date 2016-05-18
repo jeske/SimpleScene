@@ -24,12 +24,18 @@ namespace SimpleScene {
         }
 
 
-        public override Bitmap RepaintGDI(out Size gdiSize) {
+        public override Bitmap RepaintGDI(out Size gdiSize) 
+        {
+
             // figure out the size of the label
             gdiSize = Graphics.FromImage(new Bitmap(1, 1)).MeasureString(_label, font).ToSize();
+            if (gdiSize.Width <= 0 || gdiSize.Height <= 0) {
+                return null;
+            }
 
             // adjust labelSize to power of 2
-            Size textureSize = makeValidTextureSize((int)gdiSize.Width, (int)gdiSize.Height);			
+            Size textureSize = makeValidTextureSize((int)gdiSize.Width, (int)gdiSize.Height);
+
 
             // draw the string onto a bitmap
             var bitmap = new Bitmap(textureSize.Width, textureSize.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
