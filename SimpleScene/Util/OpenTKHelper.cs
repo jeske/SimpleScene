@@ -338,6 +338,17 @@ namespace SimpleScene
             yAxis = Vector3.Cross(zAxis, xAxis);
         }
 
+        public static Vector3 randomDirection()
+        {
+            double theta = 2.0 * Math.PI * s_debugRandom.NextDouble();
+            double phi = Math.PI * s_debugRandom.NextDouble() - Math.PI/2.0;
+            float xy = (float)(Math.Cos(phi));
+            return new Vector3(
+                xy * (float)Math.Cos(theta),
+                xy * (float)Math.Sin(theta),
+                (float)Math.Sin(phi));
+        }
+
 		/// <summary>
 		/// https://bitbucket.org/sinbad/ogre/src/9db75e3ba05c/OgreMain/include/OgreVector3.h#cl-651
 		/// </summary>
