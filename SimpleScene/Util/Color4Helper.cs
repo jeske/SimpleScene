@@ -6,6 +6,7 @@ namespace SimpleScene.Util
 	public static class Color4Helper
 	{
 		public static readonly Color4 Zero = new Color4 (0f, 0f, 0f, 0f);
+        public static readonly Color4 Full = new Color4 (1f, 1f, 1f, 1f);
 
 		public static Color4[] DebugPresets = {
 			Color4.Red,
@@ -65,6 +66,11 @@ namespace SimpleScene.Util
 				(byte)((rgba & 0xFF000000) >> 24)   // A
 			);
 		}
+
+        public static Color4 fromVector4(OpenTK.Vector4 vect4)
+        {
+            return new Color4 (vect4 [0], vect4 [1], vect4 [2], vect4 [3]);
+        }
 
         public static Color4 lerp(Color4 start, Color4 end, float ammount)
         {

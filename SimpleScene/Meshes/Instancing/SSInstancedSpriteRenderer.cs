@@ -51,16 +51,11 @@ namespace SimpleScene.Demos
             base.renderState.depthTest = false;
             base.renderState.depthWrite = false;
             base.renderState.lighted = false;
-            base.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
-            base.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
-            base.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
-            base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
-            base.ShininessMatColor = 0f;
+            base.colorMaterial = SSColorMaterial.pureAmbient;
             base.selectable = false;
             if (tex != null) {
                 base.textureMaterial = new SSTextureMaterial (tex);
             }
-
             this.cameraScene3d = cameraScene3d;
 		}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene.Util;
 
 namespace SimpleScene.Demos
 {
@@ -86,10 +87,7 @@ namespace SimpleScene.Demos
             this.renderState.blendFactorDest = BlendingFactorDest.One;
 
             // reset all mat colors. emission will be controlled during rendering
-            this.AmbientMatColor = new Color4(0f, 0f, 0f, 0f);
-            this.DiffuseMatColor = new Color4(0f, 0f, 0f, 0f);
-            this.SpecularMatColor = new Color4(0f, 0f, 0f, 0f);
-            this.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
+            this.colorMaterial = new SSColorMaterial(Color4Helper.Zero);
 
             this.middleBackgroundSprite = middleBackgroundTexture;
             this.middleOverlayTexture = middleOverlayTexture;

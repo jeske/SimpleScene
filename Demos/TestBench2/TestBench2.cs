@@ -63,20 +63,25 @@ namespace TestBench2
 			droneObj1 = new SSObjectMesh (mesh);
 			droneObj1.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
 			droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
-			droneObj1.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-			droneObj1.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj1.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj1.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            droneObj1.colorMaterial = new SSColorMaterial(
+                new Color4(0.3f,0.3f,0.3f,0.3f), // diffuse
+                new Color4(0.1f,0.1f,0.1f,0.1f), // ambient
+                new Color4(0.3f,0.3f,0.3f,0.3f), // specular
+                new Color4(0.3f,0.3f,0.3f,0.3f), // emission
+                10f); // shininess
+            
             //droneObj1.renderState.visible = false;
 			droneObj1.Name = "attacker drone";
 			main3dScene.AddObject (droneObj1);
 
 			droneObj2 = new SSObjectMesh (mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
-			droneObj2.AmbientMatColor = new Color4(0.1f,0.1f,0.1f,0.1f);
-			droneObj2.DiffuseMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj2.SpecularMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
-			droneObj2.EmissionMatColor = new Color4(0.3f,0.3f,0.3f,0.3f);
+            droneObj2.colorMaterial = new SSColorMaterial(
+                new Color4(0.3f,0.3f,0.3f,0.3f), // diffuse
+                new Color4(0.1f,0.1f,0.1f,0.1f), // ambient
+                new Color4(0.3f,0.3f,0.3f,0.3f), // specular
+                new Color4(0.3f,0.3f,0.3f,0.3f), // emission
+                10f); // shininess
 			droneObj2.Name = "target drone";
             droneObj2.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;

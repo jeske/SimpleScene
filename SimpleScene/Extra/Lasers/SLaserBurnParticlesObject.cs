@@ -45,11 +45,7 @@ namespace SimpleScene.Demos
             base.simulateOnUpdate = false;
             base.simulateOnRender = false;
 
-            base.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
-            base.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
-            base.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
-            base.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
-            base.ShininessMatColor = 0f;
+            base.colorMaterial = SSColorMaterial.pureAmbient;
 
             base.textureMaterial = new SSTextureMaterial(null, null, texture, null);
         }

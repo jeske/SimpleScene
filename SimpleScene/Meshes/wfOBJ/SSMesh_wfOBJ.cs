@@ -20,20 +20,21 @@ namespace SimpleScene
         protected readonly float _boundingSphereRadius;
 		
 	    public class SSMeshOBJSubsetData {
-			public SSTextureMaterial TextureMaterial = null;
+			public SSTextureMaterial textureMaterial = null;
+            public SSColorMaterial colorMaterial = null;
 
-            public readonly SSIndexedMesh<SSVertex_PosNormTexDiff> triangleMesh;
-            public readonly SSIndexedMesh<SSVertex_PosNormTexDiff> wireframeMesh;
+            public readonly SSIndexedMesh<SSVertex_PosNormTex> triangleMesh;
+            public readonly SSIndexedMesh<SSVertex_PosNormTex> wireframeMesh;
 
-            public SSMeshOBJSubsetData(SSVertex_PosNormTexDiff[] vertices, 
+            public SSMeshOBJSubsetData(SSVertex_PosNormTex[] vertices, 
                                        UInt16[] indices, UInt16[] wireframeIndices)
             {
-                SSVertexBuffer<SSVertex_PosNormTexDiff> vbo
-                    = new SSVertexBuffer<SSVertex_PosNormTexDiff>(vertices, BufferUsageHint.StaticDraw);
+                SSVertexBuffer<SSVertex_PosNormTex> vbo
+                    = new SSVertexBuffer<SSVertex_PosNormTex>(vertices, BufferUsageHint.StaticDraw);
                 SSIndexBuffer triIbo = new SSIndexBuffer(indices, vbo, BufferUsageHint.StaticDraw);
                 SSIndexBuffer wireframeIbo = new SSIndexBuffer(wireframeIndices, vbo, BufferUsageHint.StaticDraw);
-                this.triangleMesh = new SSIndexedMesh<SSVertex_PosNormTexDiff>(vbo, triIbo);
-                this.wireframeMesh = new SSIndexedMesh<SSVertex_PosNormTexDiff>(vbo, wireframeIbo);
+                this.triangleMesh = new SSIndexedMesh<SSVertex_PosNormTex>(vbo, triIbo);
+                this.wireframeMesh = new SSIndexedMesh<SSVertex_PosNormTex>(vbo, wireframeIbo);
             }
 		}
 
@@ -96,18 +97,19 @@ namespace SimpleScene
                 return;
             }
 
+            SSColorMaterial.applyColorMaterial(subset.colorMaterial);
  			if (shaderPgm == null) {
 				SSShaderProgram.DeactivateAll ();
 
 				// fixed function single-texture
-				if (subset.TextureMaterial.diffuseTex != null) {
+				if (subset.textureMaterial.diffuseTex != null) {
 					GL.ActiveTexture(TextureUnit.Texture0);
 					GL.Enable(EnableCap.Texture2D);
-					GL.BindTexture(TextureTarget.Texture2D, subset.TextureMaterial.diffuseTex.TextureID);
+					GL.BindTexture(TextureTarget.Texture2D, subset.textureMaterial.diffuseTex.TextureID);
 				}
 			} else {
                 shaderPgm.Activate();
-				shaderPgm.SetupTextures(subset.TextureMaterial);		
+				shaderPgm.SetupTextures(subset.textureMaterial);		
 			}
 		}
 
@@ -158,7 +160,6 @@ namespace SimpleScene
                 var vertex = subset.triangleMesh.lastAssignedVertices[idx];  // retrieve the vertex
 
 				// draw the vertex..
-				GL.Color3(System.Drawing.Color.FromArgb(vertex.DiffuseColor));
 				GL.TexCoord2(vertex.TexCoord.X, vertex.TexCoord.Y);
 				GL.Normal3(vertex.Normal);
 				GL.Vertex3(vertex.Position);
@@ -189,7 +190,7 @@ namespace SimpleScene
                 var v3 = subset.wireframeMesh.lastAssignedVertices [indices[i+2]];
 
 				// draw the vertex..
-				GL.Color3(System.Drawing.Color.FromArgb(v1.DiffuseColor));
+				//GL.Color3(System.Drawing.Color.FromArgb(v1.DiffuseColor));
 
 				GL.Begin(PrimitiveType.LineLoop);
 				GL.Vertex3 (v1.Position);
@@ -240,7 +241,7 @@ namespace SimpleScene
 														WavefrontObjLoader.MaterialInfoWithFaces objMatSubset) 
         {
             // generate renderable geometry data...
-            SSVertex_PosNormTexDiff[] vertices;
+            SSVertex_PosNormTex[] vertices;
             UInt16[] triIndices, wireframeIndices;
             VertexSoup_VertexFormatBinder.generateDrawIndexBuffer(
                 wff, out triIndices, out vertices);
@@ -250,23 +251,8 @@ namespace SimpleScene
 
             // setup the material...            
             // load and link every texture present 
-			subsetData.TextureMaterial = new SSTextureMaterial();
-            if (objMatSubset.mtl.diffuseTextureResourceName != null) {
-                string diffusePath = Path.Combine(baseDirectory, objMatSubset.mtl.diffuseTextureResourceName);
-                subsetData.TextureMaterial.diffuseTex = SSAssetManager.GetInstance<SSTexture>(diffusePath);
-            }
-            if (objMatSubset.mtl.ambientTextureResourceName != null) {
-                string ambientPath = Path.Combine(baseDirectory, objMatSubset.mtl.ambientTextureResourceName);
-				subsetData.TextureMaterial.ambientTex = SSAssetManager.GetInstance<SSTexture>(ambientPath);
-            } 
-			if (objMatSubset.mtl.bumpTextureResourceName != null) {
-                string bumpMapPath = Path.Combine(baseDirectory, objMatSubset.mtl.bumpTextureResourceName);
-                subsetData.TextureMaterial.bumpMapTex = SSAssetManager.GetInstance<SSTexture>(bumpMapPath);
-            }
-			if (objMatSubset.mtl.specularTextureResourceName != null) {
-                string specularPath = Path.Combine(baseDirectory, objMatSubset.mtl.specularTextureResourceName);
-                subsetData.TextureMaterial.specularTex = SSAssetManager.GetInstance<SSTexture>(specularPath);
-            }
+            subsetData.textureMaterial =  SSTextureMaterial.FromBlenderMtl(baseDirectory, objMatSubset.mtl);
+            subsetData.colorMaterial = SSColorMaterial.fromMtl(objMatSubset.mtl);
             return subsetData;
        }
 #endregion

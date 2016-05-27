@@ -16,18 +16,15 @@ namespace SimpleScene
 
 	public abstract class SSObject : SSObjectBase {
         protected static SSMeshBoundingSphere _boundingSphereMesh = new SSMeshBoundingSphere (1f);
+        protected static readonly SSColorMaterial _defaultColorMat = new SSColorMaterial();
 
-        public delegate void PreRenderFunc(SSObject obj, SSRenderConfig renderCOnfig);
+        public delegate void PreRenderFunc(SSObject obj, SSRenderConfig renderConfig);
         public PreRenderFunc preRenderHook = null;
 
 		public Color4 MainColor = Color4.White;
 		public bool selectable = true;
 
-	    public Color4 AmbientMatColor = new Color4(0.0006f,0.0006f,0.0006f,1.0f);
-		public Color4 DiffuseMatColor = new Color4(0.3f, 0.3f, 0.3f, 1f);
-		public Color4 SpecularMatColor = new Color4(0.6f, 0.6f, 0.6f, 1f);
-		public Color4 EmissionMatColor = new Color4(0.001f, 0.001f, 0.001f, 1f);
-		public float ShininessMatColor = 10.0f;
+        public SSColorMaterial colorMaterial { get; set; }
 
 		public virtual SSTextureMaterial textureMaterial { get; set; }
 		public virtual bool alphaBlendingEnabled { 
@@ -102,11 +99,8 @@ namespace SimpleScene
             GL.Color4(this.MainColor);
 
             // setup the base color values...
-            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, AmbientMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, DiffuseMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Specular, SpecularMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Emission, EmissionMatColor);
-            GL.Material(MaterialFace.Front, MaterialParameter.Shininess, ShininessMatColor);
+            var colorMat = this.colorMaterial ?? _defaultColorMat;
+            SSColorMaterial.applyColorMaterial(colorMat);
 
 			if (textureMaterial != null) {
 				GL.ActiveTexture(TextureUnit.Texture0);

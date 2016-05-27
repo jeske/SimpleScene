@@ -64,11 +64,7 @@ namespace SimpleScene.Demos
             //_particleRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             //_particleRenderer.renderState.visible = false;
 
-            _particleRenderer.AmbientMatColor = new Color4 (1f, 1f, 1f, 1f);
-            _particleRenderer.DiffuseMatColor = new Color4 (0f, 0f, 0f, 0f);
-            _particleRenderer.EmissionMatColor = new Color4(0f, 0f, 0f, 0f);
-            _particleRenderer.SpecularMatColor = new Color4 (0f, 0f, 0f, 0f);
-            _particleRenderer.ShininessMatColor = 0f;
+            _particleRenderer.colorMaterial = SSColorMaterial.pureAmbient;
 
             _particleRenderer.Name = "missile smoke renderer";
             particleScene.AddObject(_particleRenderer);

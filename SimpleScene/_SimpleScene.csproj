@@ -192,6 +192,7 @@
     <Compile Include="Extra\Missiles\SSpaceMissilesVisualSimulation.cs" />
     <Compile Include="Extra\SExplosionParameters.cs" />
     <Compile Include="Extra\SExplosionManager.cs" />
+    <Compile Include="Core\SSColorMaterial.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
