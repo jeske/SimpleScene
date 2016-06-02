@@ -11,8 +11,9 @@
 // see also:  Space Partitioning: Octree vs. BVH
 //            http://thomasdiewald.com/blog/?p=1488
 //
-//
-
+// TODO: pick the best axis to split based on SAH, instead of the biggest
+// TODO: Switch SAH comparisons to use (SAH(A) * itemCount(A)) currently it just uses SAH(A)
+// TODO: when inserting, compare parent node SAH(A) * itemCount to sum of children, to see if it is better to not split at all
 // TODO: implement node merge/split, to handle updates when LEAF_OBJ_MAX > 1
 // 
 
