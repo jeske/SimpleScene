@@ -244,7 +244,7 @@ namespace SimpleScene
             SSVertex_PosNormTex[] vertices;
             UInt16[] triIndices, wireframeIndices;
             VertexSoup_VertexFormatBinder.generateDrawIndexBuffer(
-                wff, out triIndices, out vertices);
+                wff, objMatSubset, out triIndices, out vertices);
             wireframeIndices = OpenTKHelper.generateLineIndicies (triIndices);
             SSMeshOBJSubsetData subsetData = new SSMeshOBJSubsetData(
                 vertices, triIndices, wireframeIndices);

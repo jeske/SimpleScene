@@ -172,10 +172,11 @@ namespace SimpleScene
             // distances get "smaller" as they move in camera direction for some reason (why?)
             foreach (var obj in objects) {
                 float distanceAlongRay;
+                DateTime start = DateTime.Now;
 				if (obj.selectable && obj.Intersect(ref worldSpaceRay, out distanceAlongRay)) {
                     // intersection must be in front of the camera ( < 0.0 )
                     if (distanceAlongRay > 0.0) {
-                        Console.WriteLine("intersect: [{0}] @distance: {1}", obj.Name, distanceAlongRay);
+                        Console.WriteLine("intersect: [{0}] @distance: {1}  in {2}ms", obj.Name, distanceAlongRay, (DateTime.Now - start).TotalMilliseconds);
                         // then we want the nearest one (numerically biggest
                         if (distanceAlongRay < nearestDistance) {
                             nearestDistance = distanceAlongRay;

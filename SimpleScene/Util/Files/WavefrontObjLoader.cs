@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using System.IO;
-
-
-using OpenTK;
-
-using SimpleScene;
-using SimpleScene.Util;
-
-// WavefrontObjLoader.cs
+﻿// WavefrontObjLoader.cs
 //
 // Wavefront .OBJ 3d fileformat loader in C# (csharp dot net)
 //
@@ -34,6 +21,41 @@ using SimpleScene.Util;
 // AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+// Wavefront OBJ file format documentation:
+//
+// http://en.wikipedia.org/wiki/Wavefront_.obj_file
+// http://www.fileformat.info/format/wavefrontobj/egff.htm
+// http://www.fileformat.info/format/material/
+// http://www.martinreddy.net/gfx/3d/OBJ.spec
+//
+// NOTE: OBJ uses CIE-XYZ color space...
+//
+// http://www.codeproject.com/Articles/19045/Manipulating-colors-in-NET-Part-1
+// 
+// TODO: handle 'o' object names, and 'g' object groups
+// TODO: handle negative vertex indices in face specification
+// TODO: handle "s" smoothing group
+// TODO: handle "Tr"/"d" material transparency/alpha
+//
+// NOTE: OBJ puts (0,0) in the Upper Left, OpenGL Lower Left, DirectX Lower Left
+// 
+// http://stackoverflow.com/questions/4233152/how-to-setup-calculate-texturebuffer-in-gltexcoordpointer-when-importing-from-ob
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using System.IO;
+
+
+using OpenTK;
+
+using SimpleScene;
+using SimpleScene.Util;
+
 
 namespace SimpleScene.Util3d {
 
@@ -42,24 +64,6 @@ namespace SimpleScene.Util3d {
     }
 
     public class WavefrontObjLoader {
-        // file format info...
-        //
-        // http://en.wikipedia.org/wiki/Wavefront_.obj_file
-        // http://www.fileformat.info/format/wavefrontobj/egff.htm
-        // http://www.fileformat.info/format/material/
-        //
-        // NOTE: OBJ uses CIE-XYZ color space...
-        //
-        // http://www.codeproject.com/Articles/19045/Manipulating-colors-in-NET-Part-1
-        // 
-        // TODO: handle multi-line faces continued with "\"
-        // TODO: handle negative vertex indices in face specification
-        // TODO: handle "s" smoothing group
-        // TODO: handle "Tr"/"d" material transparency/alpha
-        //
-        // NOTE: OBJ puts (0,0) in the Upper Left, OpenGL Lower Left, DirectX Lower Left
-        // 
-        // http://stackoverflow.com/questions/4233152/how-to-setup-calculate-texturebuffer-in-gltexcoordpointer-when-importing-from-ob
 
         public struct Face {
             public Int16[] v_idx;
@@ -106,6 +110,20 @@ namespace SimpleScene.Util3d {
 			//Continue to read until you reach end of file            
 			while (line != null) 
 			{
+                // handle line continuation with "\"
+                if (line.Length > 0) {
+                    while (line[line.Length-1] == '\\') {
+                        line = line.Substring(0,line.Length-1); // remove line extender..
+                        var nextline = sr.ReadLine();
+                        if (nextline != null && nextline.Length != 0) {
+                            line = line + nextline; // merge with next line
+                        } else {
+                            break; // be sure to avoid infinite loop...
+                        }
+                    }
+                }
+
+                // split the line into tokens, separated by space
                 string[] tokens = line.Split(" ".ToArray(), 2);
                 if (tokens.Length < 2) {
                     goto next_line;
@@ -115,6 +133,40 @@ namespace SimpleScene.Util3d {
                 string lineContent = tokens[1];
 
                 switch(firstToken) {
+                        /* unsupported features - fatal */
+                    case "cstype":    // curved surface type (bmatrix, bezier, bspline, cardinal, taylor)
+                    case "deg":       // curve attr: degree
+                    case "step":       // curve attr: step size
+                    case "bmat":      // curve attr: basis matrix
+                    case "surf":      // surface
+                    case "parm":      // curve body: paramater value
+                    case "trim":      // curve body: outer trimming loop
+                    case "hole":      // curve body: inner trimming loop
+                    case "scrv":      // curve body: special curve
+                    case "sp":        // curve body: special point
+                    case "end":       // curve body: end
+                    case "con":       // connection between free form surfaces
+                    case "vp":        // paramater space vertex (for free form surfaces)
+
+                    case "bevel":     // bevel interpolation
+                    case "c_interp":  // color interpolation
+                    case "d_interp":  // dissolve interpolation
+                    case "lod":       // level of detail                                        
+                    case "ctech":     // Curve approximation technique
+                    case "stech":     // Surface approximation technique
+                    case "mg":        // merging group (for free form surfaces)
+
+                        throw new WavefrontObjParseException("WavefrontObjLoader.cs: fatal error, token not supported :  " + firstToken);
+                        /* unsupported features - warning */
+                    case "o":         // object name                  
+                    case "g":         // group name
+                    case "s":         // smoothing group
+                    case "shadow_obj":// shadow casting
+                    case "trace_obj": // ray tracing
+                        Console.WriteLine("WavefrontObjLoader.cs: warning - unsupported wavefront token : " + firstToken);
+                        break;
+
+                        /* supported features */
                     case "#":   // Nothing to read, these are comments.                        
                         break;
                     case "v":   // Vertex position
@@ -216,6 +268,21 @@ namespace SimpleScene.Util3d {
 
 			//close the file
 			sr.Close();
+
+
+            // debug print loaded stats
+            Console.WriteLine("WavefrontObjLoader.cs: file processed...");
+            Console.WriteLine("   vertex positions: {0}", positions.Count);
+            Console.WriteLine("   vertex   normals: {0}", normals.Count);
+            Console.WriteLine("   vertex texCoords: {0}", texCoords.Count);            
+            foreach(var mtl in materials) {
+                Console.WriteLine(
+                              "           Material:      faces: {1}  indicies: {2}  ({0})", mtl.mtl.name, mtl.faces.Count, mtl.nbrIndices);
+                Console.WriteLine( 
+                              "                       diff Tex: {0}", mtl.mtl.diffuseTextureResourceName);                        
+            }
+            Console.WriteLine("WavefrontObjLoader.cs: end.");
+
         }
 
 		public WavefrontObjLoader(string path) 
