@@ -93,7 +93,7 @@ namespace SimpleScene
         }
 
 
-		protected void setMaterialState(SSMainShaderProgram mainShader)
+		protected void setMaterialState()
         {
             GL.Enable(EnableCap.ColorMaterial); // turn off per-vertex color
             GL.Color4(this.MainColor);
@@ -115,12 +115,14 @@ namespace SimpleScene
 			}
         }
 
-        protected void setDefaultShaderState(SSMainShaderProgram pgm) {
+        protected void setDefaultShaderState(SSMainShaderProgram pgm, SSRenderConfig config) 
+        {
             if (pgm != null) {
                 pgm.Activate();
                 pgm.UniObjectWorldTransform = this.worldMat;
                 pgm.UniReceivesShadow = renderState.receivesShadows;
                 pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
+                pgm.UniShowWireframes = (config.drawWireframeMode == WireframeMode.GLSL_SinglePass);
                 pgm.SetupTextures(textureMaterial);
             }
         }
@@ -175,9 +177,9 @@ namespace SimpleScene
                 if (renderState.noShader) {
                     SSShaderProgram.DeactivateAll();
                 } else {
-                    setDefaultShaderState(renderConfig.mainShader);
+                    setDefaultShaderState(renderConfig.mainShader, renderConfig);
                 }
-				setMaterialState(renderConfig.mainShader);
+				setMaterialState();
 
 				if (this.alphaBlendingEnabled) {
 					GL.Enable (EnableCap.Blend);

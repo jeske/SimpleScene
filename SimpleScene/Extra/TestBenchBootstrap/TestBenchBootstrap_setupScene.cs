@@ -143,23 +143,13 @@ namespace SimpleScene.Demos
 
 		protected virtual void beforeRenderObjectHandler (Object obj, SSRenderConfig renderConfig)
 		{
-            bool showWireFrames;
 			if (autoWireframeMode) {
 				if (obj == selectedObject) {
 					renderConfig.drawWireframeMode = WireframeMode.GLSL_SinglePass;
-                    showWireFrames = true;
 				} else {
 					renderConfig.drawWireframeMode = WireframeMode.None;
-                    showWireFrames = false;
 				}
-			} else { // manual
-                showWireFrames = (main3dScene.renderConfig.drawWireframeMode == WireframeMode.GLSL_SinglePass);
 			}
-            mainShader.Activate();
-            mainShader.UniShowWireframes = showWireFrames;
-            instancingShader.Activate();
-            instancingShader.UniShowWireframes = showWireFrames;
-
 		}
 	}
 }

@@ -146,7 +146,7 @@ namespace SimpleScene
             } else {
                 // texture binding and world mat setup
                 renderConfig.instanceShader.Activate ();
-                base.setDefaultShaderState(renderConfig.instanceShader);
+                base.setDefaultShaderState(renderConfig.instanceShader, renderConfig);
             }
 
             ISSInstancableShaderProgram instanceShader = renderConfig.ActiveInstanceShader;
