@@ -16,6 +16,8 @@
 // TODO: when inserting, compare parent node SAH(A) * itemCount to sum of children, to see if it is better to not split at all
 // TODO: implement node merge/split, to handle updates when LEAF_OBJ_MAX > 1
 // 
+// TODO: implement SBVH spacial splits
+//        http://www.nvidia.com/docs/IO/77714/sbvh.pdf
 
 using System;
 using System.Collections.Generic;
