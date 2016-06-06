@@ -100,6 +100,13 @@ namespace SimpleScene.Demos
 			return newLaser;
 		}
 
+        public void removeAll()
+        {
+            while (_laserRuntimes.Count > 0) {
+                _removeLaser(_laserRuntimes.Count - 1);
+            }
+        }
+
         public void removeLaser(SLaser laser)
         {
             int idx = _laserRuntimes.FindIndex(lrt => lrt.laser == laser);

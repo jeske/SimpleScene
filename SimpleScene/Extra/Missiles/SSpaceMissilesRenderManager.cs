@@ -112,6 +112,13 @@ namespace SimpleScene.Demos
             _removeMissileRender(missileRenderInfo);
         }
 
+        public void removeAll()
+        {
+            foreach (var rt in _missileRuntimes) {
+                removeMissileRender(rt);
+            }
+        }
+
         protected void _initParamsSpecific(SSpaceMissileVisualParameters mParams)
         {
             // smoke effectors
