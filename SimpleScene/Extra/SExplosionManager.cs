@@ -15,15 +15,22 @@ namespace SimpleScene.Demos
     /// </summary>
     public class SExplosionManager
     {
+        public static Random rand = new Random();
+
         protected readonly SSScene _renderScene;
         protected readonly int _particleCapacity;
 
         protected List<SExplosionRenderer> _renderers = new List<SExplosionRenderer> ();
+        protected List<ExplosionChainInfo> _explosionChains = new List<ExplosionChainInfo>();
+        protected List<DelayedExplosionInfo> _delayedExpls = new List<DelayedExplosionInfo> ();
 
         public SExplosionManager(SSScene renderScene, int particleCapacity = 500)
         {
             _renderScene = renderScene;
             _particleCapacity = particleCapacity;
+
+            // TODO unattach at the right time
+            renderScene.preRenderHooks += _update;
         }
 
         public void showExplosion(SExplosionParameters eParams, float intensity,
@@ -32,10 +39,25 @@ namespace SimpleScene.Demos
             _showExplosionCommon(null, eParams, position, velocity, intensity, simInterval);
         }
 
+        public void showExplosionDelayed(SExplosionParameters eParams, float intensity,
+            float delay, Vector3 position, Vector3 velocity)
+        {
+            var di = new DelayedExplosionInfo (
+                this, eParams, intensity, position, velocity, delay);
+            _delayedExpls.Add(di);
+        }
+
         public void showExplosionAttached(SExplosionParameters eParams, float intensity,
             SSObject attachTo, Vector3 localPos, float simInterval = float.NaN)
         {
             _showExplosionCommon(attachTo, eParams, localPos, Vector3.Zero, intensity, simInterval);
+        }
+
+        public void showExplosionChain(SChainExplosionParameters cParams,
+            Vector3 position, Vector3 velocity, float simInterval = float.NaN) 
+        {
+            var ci = new ExplosionChainInfo (this, cParams, position, velocity);
+            _explosionChains.Add(ci);
         }
 
         protected void _showExplosionCommon(SSObject attachTo, SExplosionParameters eParams,
@@ -76,6 +98,121 @@ namespace SimpleScene.Demos
                 obj.renderState.toBeDeleted = true;
             }
             _renderers.Clear();
+        }
+
+        protected void _update(float timeElapsed)
+        {
+            var finishedChains = new List<ExplosionChainInfo> ();
+            foreach (var chain in _explosionChains) {
+                chain.update(timeElapsed);
+                if (chain.isDone) {
+                    finishedChains.Add(chain);
+                }
+            }
+            foreach (var fc in finishedChains) {
+                _explosionChains.Remove(fc);
+            }
+
+            var finishedDelayedExpls = new List<DelayedExplosionInfo> ();
+            foreach (var delExpl in _delayedExpls) {
+                delExpl.update(timeElapsed);
+                if (delExpl.isDone) {
+                    finishedDelayedExpls.Add(delExpl);
+                }
+            }
+            foreach (var fde in finishedDelayedExpls) {
+                _delayedExpls.Remove(fde);
+            }
+        }
+
+        protected class DelayedExplosionInfo
+        {
+            public bool isDone { get { return _delayRemaining <= 0f; } }
+
+            protected readonly SExplosionParameters _explParams;
+            protected readonly SExplosionManager _em;
+            protected readonly Vector3 _position;
+            protected readonly Vector3 _velocity;
+            protected readonly float _intensity;
+
+            protected float _delayRemaining;
+
+            public DelayedExplosionInfo(SExplosionManager em, SExplosionParameters ep,
+                float intensity, Vector3 position, Vector3 velocity, float delay)
+            {
+                _explParams = ep;
+                _em = em;
+                _position = position;
+                _velocity = velocity;
+                _intensity = intensity;
+                _delayRemaining = delay;
+            }
+
+            public void update(float timeElapsed)
+            {
+                _delayRemaining -= timeElapsed;
+                if (isDone) {
+                    _em.showExplosion(_explParams, _intensity, _position, _velocity);
+                }
+            }
+        }
+
+        protected class ExplosionChainInfo
+        {
+            public bool isDone { get { return _explosionsRemaining > 0; } }
+
+            protected readonly SChainExplosionParameters _chainParams;
+            protected readonly SExplosionManager _em;
+            protected readonly Vector3 _position;
+            protected readonly Vector3 _velocity;
+            protected readonly float[] _delaysRemaining;
+
+            protected int _explosionsRemaining;
+            protected int _explosionsActive = 0;
+
+            public ExplosionChainInfo(SExplosionManager em, SChainExplosionParameters cep,
+                Vector3 position, Vector3 velocity)
+            {
+                _em = em;
+                _chainParams = cep;
+                _position = position;
+                _velocity = velocity;
+
+                _explosionsRemaining = rand.Next(cep.numExplosionMin, cep.numExplosionsMax+1);
+
+                _delaysRemaining = new float[cep.maxNumConcurrent];
+                _delaysRemaining[0] = cep.initDelay; // have one explosion kick in right away with no delay
+                for (int i = 1; i < cep.maxNumConcurrent; ++i) {
+                    _delaysRemaining[i] = cep.initDelay + cep.minDelay
+                        + (float)rand.NextDouble() * (cep.maxDelay - cep.minDelay);
+                }
+            }
+
+            public void update(float timeElapsed)
+            {
+                for (int i = 0; i < _delaysRemaining.Length; ++i) {
+                    if (_explosionsRemaining > 0 && _delaysRemaining [i] <= 0f) {
+                        float intensity = _chainParams.minDelay
+                            + (float)rand.NextDouble() * (_chainParams.maxDelay - _chainParams.minDelay);
+                        double r = _chainParams.radiusMin 
+                            + rand.NextDouble() * (_chainParams.radiusMax - _chainParams.radiusMin);
+                        double theta = 2.0 * Math.PI * rand.NextDouble();
+                        double phi = Math.PI * (rand.NextDouble() - 0.5);
+                        double xy = r * Math.Cos(theta);
+                        Vector3 pos = _position + new Vector3 (
+                            (float)(xy * Math.Cos(theta)),
+                            (float)(xy * Math.Sin(theta)),
+                            (float)(r * Math.Sin(phi)));
+                        _em.showExplosion(_chainParams, intensity, pos, _velocity);
+
+                        _delaysRemaining [i] = _chainParams.minDelay
+                            + (float)rand.NextDouble() * (_chainParams.maxDelay - _chainParams.minDelay);
+
+                        --_explosionsRemaining;
+                    }
+                    _delaysRemaining [i] -= timeElapsed;
+                }
+            }
         }
     }
 

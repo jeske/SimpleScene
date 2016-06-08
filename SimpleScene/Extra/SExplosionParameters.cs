@@ -98,5 +98,19 @@ namespace SimpleScene.Demos
             { return SSAssetManager.GetInstance<SSTextureWithAlpha> (textureFilename); }
         #endregion
     }
+
+    public class SChainExplosionParameters : SExplosionParameters
+    {
+        public int numExplosionMin = 3;
+        public int numExplosionsMax = 6;
+        public int maxNumConcurrent = 2;
+        public float initDelay = 0f;
+        public float minDelay = 0.3f;
+        public float maxDelay = 0.5f;
+        public float minIntensity = 10f;
+        public float maxIntensity = 20f;
+        public float radiusMin = 0f;
+        public float radiusMax = 30f;
+    }
 }
 
