@@ -159,7 +159,7 @@ namespace SimpleScene.Demos
 
         protected class ExplosionChainInfo
         {
-            public bool isDone { get { return _explosionsRemaining > 0; } }
+            public bool isDone { get { return _explosionsRemaining <= 0; } }
 
             protected readonly SChainExplosionParameters _chainParams;
             protected readonly SExplosionManager _em;
@@ -192,8 +192,8 @@ namespace SimpleScene.Demos
             {
                 for (int i = 0; i < _delaysRemaining.Length; ++i) {
                     if (_explosionsRemaining > 0 && _delaysRemaining [i] <= 0f) {
-                        float intensity = _chainParams.minDelay
-                            + (float)rand.NextDouble() * (_chainParams.maxDelay - _chainParams.minDelay);
+                        float intensity = _chainParams.minIntensity
+                            + (float)rand.NextDouble() * (_chainParams.maxIntensity - _chainParams.minIntensity);
                         double r = _chainParams.radiusMin 
                             + rand.NextDouble() * (_chainParams.radiusMax - _chainParams.radiusMin);
                         double theta = 2.0 * Math.PI * rand.NextDouble();
