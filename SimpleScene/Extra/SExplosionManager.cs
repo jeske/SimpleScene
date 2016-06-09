@@ -131,10 +131,10 @@ namespace SimpleScene.Demos
 
             protected readonly SExplosionParameters _explParams;
             protected readonly SExplosionManager _em;
-            protected readonly Vector3 _position;
             protected readonly Vector3 _velocity;
             protected readonly float _intensity;
 
+            protected Vector3 _position;
             protected float _delayRemaining;
 
             public DelayedExplosionInfo(SExplosionManager em, SExplosionParameters ep,
@@ -151,6 +151,7 @@ namespace SimpleScene.Demos
             public void update(float timeElapsed)
             {
                 _delayRemaining -= timeElapsed;
+                _position += _velocity * timeElapsed;
                 if (isDone) {
                     _em.showExplosion(_explParams, _intensity, _position, _velocity);
                 }
@@ -163,10 +164,10 @@ namespace SimpleScene.Demos
 
             protected readonly SChainExplosionParameters _chainParams;
             protected readonly SExplosionManager _em;
-            protected readonly Vector3 _position;
             protected readonly Vector3 _velocity;
             protected readonly float[] _delaysRemaining;
 
+            protected Vector3 _position;
             protected int _explosionsRemaining;
             protected int _explosionsActive = 0;
 
@@ -190,6 +191,7 @@ namespace SimpleScene.Demos
 
             public void update(float timeElapsed)
             {
+                _position += _velocity * timeElapsed;
                 for (int i = 0; i < _delaysRemaining.Length; ++i) {
                     if (_explosionsRemaining > 0 && _delaysRemaining [i] <= 0f) {
                         float intensity = _chainParams.minIntensity
