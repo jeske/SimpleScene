@@ -45,7 +45,7 @@ namespace SimpleScene.Util.ssBVH
         public override string ToString() {
             return String.Format("ssBVHNode<{0}>:{1}",typeof(GO),this.nodeNumber);
         }
-
+       
         private Axis pickSplitAxis() {            
             float axis_x = box.Max.X - box.Min.X; 
             float axis_y = box.Max.Y - box.Min.Y;
@@ -187,7 +187,9 @@ namespace SimpleScene.Util.ssBVH
         }
         internal static float SA(SSBVHNodeAdaptor<GO> nAda, GO obj) {            
             float radius = nAda.radius(obj);
-            return (float)(4.0 * Math.PI * radius * radius);  // bounding sphere surface area
+
+            float size = radius * 2;
+            return 6.0f * (size * size);            
         }
         
         internal static SSAABB AABBofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
@@ -205,6 +207,24 @@ namespace SimpleScene.Util.ssBVH
             SSAABB pairbox = boxa;
             pairbox.ExpandToFit(boxb);
             return SA(ref pairbox);
+        }
+        internal static SSAABB AABBofOBJ(SSBVHNodeAdaptor<GO> nAda, GO obj) {
+            float radius = nAda.radius(obj);
+            SSAABB box;
+            box.Min.X = -radius; box.Max.X = radius;
+            box.Min.Y = -radius; box.Max.Y = radius;
+            box.Min.Z = -radius; box.Max.Z = radius;
+            return box;
+        }
+
+        internal float SAofList(SSBVHNodeAdaptor<GO> nAda, List<GO> list) {
+            var box = AABBofOBJ(nAda,list[0]);
+            
+            list.ToList<GO>().GetRange(1,list.Count-1).ForEach( obj => {
+                var newbox = AABBofOBJ(nAda, obj);
+                box.ExpandBy(newbox);
+            });
+            return SA(box);
         }
 
         // The list of all candidate rotations, from "Fast, Effective BVH Updates for Animated Scenes", Figure 1.
@@ -225,11 +245,9 @@ namespace SimpleScene.Util.ssBVH
         }        
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private List<Rot>_rots = new List<Rot> ((Rot[])Enum.GetValues(typeof(Rot)));
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private List<Rot> eachRot {
+        private static List<Rot> eachRot {
             get {
-                return _rots;
+                return new List<Rot> ((Rot[])Enum.GetValues(typeof(Rot)));
             }
         }
         
@@ -334,34 +352,61 @@ namespace SimpleScene.Util.ssBVH
 
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private static List<Axis> eachAxis {
+            get {
+                return new List<Axis>((Axis[])Enum.GetValues(typeof(Axis)));
+            }
+        }
+        internal class SplitAxisOpt<GO> : IComparable<SplitAxisOpt<GO>>
+        {  // split Axis option
+            public float SAH;
+            public Axis axis;
+            public List<GO> left,right;
+            internal SplitAxisOpt(float SAH, Axis axis, List<GO> left, List<GO> right) {
+                this.SAH = SAH;
+                this.axis = axis;
+                this.left = left;
+                this.right = right;
+            }
+            public int CompareTo(SplitAxisOpt<GO> other) {
+                return SAH.CompareTo(other.SAH);
+            }
+        }        
+
         internal void splitNode(SSBVHNodeAdaptor<GO> nAda) {
             // second, decide which axis to split on, and sort..
             List<GO> splitlist = gobjects; 
-
             splitlist.ForEach( o => nAda.unmapObject(o) );
+            int center = (int)(splitlist.Count / 2); // find the center object
 
-            Axis splitAxis = pickSplitAxis();
-            switch (splitAxis) // sort along the appropriate axis
-            {
-                case Axis.X: 
-                    splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).X.CompareTo(nAda.objectpos(go2).X); }); 
-                    break;
-                case Axis.Y: 
-                    splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Y.CompareTo(nAda.objectpos(go2).Y); }); 
-                    break;
-                case Axis.Z: 
-                    splitlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Z.CompareTo(nAda.objectpos(go2).Z); }); 
-                    break;
-                default: throw new NotImplementedException();
-            }
-            int center = (int) (splitlist.Count / 2); // Find the center object in our current sub-list
-            
-            gobjects = null;           
+            SplitAxisOpt<GO> bestSplit = eachAxis.Min( (axis) => { 
+                var orderedlist = new List<GO>(splitlist);                
+                switch (axis) {
+                    case Axis.X: 
+                        orderedlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).X.CompareTo(nAda.objectpos(go2).X); }); 
+                        break;
+                    case Axis.Y: 
+                        orderedlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Y.CompareTo(nAda.objectpos(go2).Y); }); 
+                        break;
+                    case Axis.Z: 
+                        orderedlist.Sort(delegate(GO go1, GO go2) { return nAda.objectpos(go1).Z.CompareTo(nAda.objectpos(go2).Z); }); 
+                        break;
+                    default:
+                        throw new NotImplementedException("unknown split axis: " + axis.ToString());
+                }
+                
+                var left_s = orderedlist.GetRange(0, center);
+                var right_s = orderedlist.GetRange(center, splitlist.Count - center);
 
-            // create the new left and right nodes...
-            left = new ssBVHNode<GO>(nAda.BVH, this, splitlist.GetRange(0,center), splitAxis, this.depth+1); // Split the Hierarchy to the left
-            right = new ssBVHNode<GO>(nAda.BVH, this, splitlist.GetRange(center,splitlist.Count - center), splitAxis, this.depth+1); // Split the Hierarchy to the right                                
+                float SAH = SAofList(nAda,left_s) * left_s.Count  + SAofList(nAda,right_s) * right_s.Count;
+                return new SplitAxisOpt<GO>(SAH,axis, left_s, right_s);
+            } );
 
+            // perform the split
+            gobjects = null;
+            this.left = new ssBVHNode<GO>(nAda.BVH, this, bestSplit.left, bestSplit.axis, this.depth + 1); // Split the Hierarchy to the left
+            this.right = new ssBVHNode<GO>(nAda.BVH, this, bestSplit.right, bestSplit.axis, this.depth + 1); // Split the Hierarchy to the right                                
         }
 
         internal void splitIfNecessary(SSBVHNodeAdaptor<GO> nAda) {
