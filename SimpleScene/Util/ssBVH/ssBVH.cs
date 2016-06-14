@@ -46,6 +46,7 @@ namespace SimpleScene.Util.ssBVH
         public SSBVHNodeAdaptor<GO> nAda;
         public readonly int LEAF_OBJ_MAX;
         public int nodeCount = 0;
+        public int maxDepth = 0;
 
         public HashSet<ssBVHNode<GO>> refitNodes = new HashSet<ssBVHNode<GO>>();
 
@@ -107,7 +108,7 @@ namespace SimpleScene.Util.ssBVH
 
         public void addObject(GO newOb) {
             SSAABB box = SSAABB.FromSphere(nAda.objectpos(newOb),nAda.radius(newOb));
-            float boxSAH = ssBVHNode<GO>.SAH(ref box);
+            float boxSAH = ssBVHNode<GO>.SA(ref box);
             rootBVH.addObject(nAda,newOb, ref box, boxSAH);
         }
 

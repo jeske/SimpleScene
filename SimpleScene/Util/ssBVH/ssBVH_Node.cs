@@ -162,7 +162,7 @@ namespace SimpleScene.Util.ssBVH
             }
         }
         
-        internal static float SAH(SSAABB box) {
+        internal static float SA(SSAABB box) {
             float x_size = box.Max.X - box.Min.X;
             float y_size = box.Max.Y - box.Min.Y;
             float z_size = box.Max.Z - box.Min.Z;
@@ -170,7 +170,7 @@ namespace SimpleScene.Util.ssBVH
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
             
         }
-        internal static float SAH(ref SSAABB box) {
+        internal static float SA(ref SSAABB box) {
             float x_size = box.Max.X - box.Min.X;
             float y_size = box.Max.Y - box.Min.Y;
             float z_size = box.Max.Z - box.Min.Z;
@@ -178,35 +178,33 @@ namespace SimpleScene.Util.ssBVH
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
             
         }
-        internal static float SAH(ssBVHNode<GO> node) {            
+        internal static float SA(ssBVHNode<GO> node) {            
             float x_size = node.box.Max.X - node.box.Min.X;
             float y_size = node.box.Max.Y - node.box.Min.Y;
             float z_size = node.box.Max.Z - node.box.Min.Z;
 
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
         }
-        internal static float SAH(SSBVHNodeAdaptor<GO> nAda, GO obj) {            
+        internal static float SA(SSBVHNodeAdaptor<GO> nAda, GO obj) {            
             float radius = nAda.radius(obj);
             return (float)(4.0 * Math.PI * radius * radius);  // bounding sphere surface area
         }
-
         
-
         internal static SSAABB AABBofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
             SSAABB box = nodea.box;
             box.ExpandToFit(nodeb.box);
             return box;
         }
 
-        internal float SAHofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
+        internal float SAofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
             SSAABB box = nodea.box;
             box.ExpandToFit(nodeb.box);
-            return SAH(ref box);
+            return SA(ref box);
         }
-        internal float SAHofPair(SSAABB boxa, SSAABB boxb) {
+        internal float SAofPair(SSAABB boxa, SSAABB boxb) {
             SSAABB pairbox = boxa;
             pairbox.ExpandToFit(boxb);
-            return SAH(ref pairbox);
+            return SA(ref pairbox);
         }
 
         // The list of all candidate rotations, from "Fast, Effective BVH Updates for Animated Scenes", Figure 1.
@@ -253,31 +251,31 @@ namespace SimpleScene.Util.ssBVH
             // for each rotation, check that there are grandchildren as necessary (aka not a leaf)
             // then compute total SAH cost of our branches after the rotation.
 
-            float mySAH = SAH(left) + SAH(right);
+            float mySA = SA(left) + SA(right);
 
             rotOpt bestRot = eachRot.Min( (rot) => { 
                 switch (rot) {
-                 case Rot.NONE: return new rotOpt(mySAH,Rot.NONE);
+                 case Rot.NONE: return new rotOpt(mySA,Rot.NONE);
                  // child to grandchild rotations
                  case Rot.L_RL: 
                     if (right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
-                    else return new rotOpt(SAH(right.left) + SAH(AABBofPair(left,right.right)), rot);   
+                    else return new rotOpt(SA(right.left) + SA(AABBofPair(left,right.right)), rot);   
                  case Rot.L_RR: 
                     if (right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
-                    else return new rotOpt(SAH(right.right) + SAH(AABBofPair(left,right.left)), rot);
+                    else return new rotOpt(SA(right.right) + SA(AABBofPair(left,right.left)), rot);
                  case Rot.R_LL: 
                     if (left.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
-                    else return new rotOpt(SAH(AABBofPair(right,left.right)) + SAH(left.left), rot);
+                    else return new rotOpt(SA(AABBofPair(right,left.right)) + SA(left.left), rot);
                  case Rot.R_LR: 
                     if (left.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
-                    else return new rotOpt(SAH(AABBofPair(right,left.left)) + SAH(left.right), rot); 
+                    else return new rotOpt(SA(AABBofPair(right,left.left)) + SA(left.right), rot); 
                  // grandchild to grandchild rotations
                  case Rot.LL_RR: 
                     if (left.IsLeaf || right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
-                    else return new rotOpt(SAH(AABBofPair(right.right,left.right)) + SAH(AABBofPair(right.left,left.left)), rot);
+                    else return new rotOpt(SA(AABBofPair(right.right,left.right)) + SA(AABBofPair(right.left,left.left)), rot);
                  case Rot.LL_RL:
                     if (left.IsLeaf || right.IsLeaf) return new rotOpt(float.MaxValue,Rot.NONE);
-                    else return new rotOpt(SAH(AABBofPair(right.left,left.right)) + SAH(AABBofPair(left.left,right.right)), rot);
+                    else return new rotOpt(SA(AABBofPair(right.left,left.right)) + SA(AABBofPair(left.left,right.right)), rot);
                  // unknown...
                  default: throw new NotImplementedException("missing implementation for BVH Rotation SAH Computation .. " + rot.ToString());                                     
                 }
@@ -296,10 +294,10 @@ namespace SimpleScene.Util.ssBVH
 
                 if (parent != null) { bvh.refitNodes.Add(parent); }
 
-                if ( ((mySAH - bestRot.SAH) / mySAH ) < 0.3f) {
+                if ( ((mySA - bestRot.SAH) / mySA ) < 0.3f) {
                     return; // the benefit is not worth the cost
                 }
-                Console.WriteLine("BVH swap {0} from {1} to {2}", bestRot.rot.ToString(), mySAH, bestRot.SAH);
+                Console.WriteLine("BVH swap {0} from {1} to {2}", bestRot.rot.ToString(), mySA, bestRot.SAH);
 
                 // in order to swap we need to:
                 //  1. swap the node locations
@@ -310,19 +308,28 @@ namespace SimpleScene.Util.ssBVH
                 switch (bestRot.rot) {
                     case Rot.NONE: break;
                     // child to grandchild rotations
-                    case Rot.L_RL: swap = left;  swap.depth++; left  = right.left;  left.parent = this; left.depth--;  right.left  = swap;  swap.parent = right; right.childRefit(nAda); break;
-                    case Rot.L_RR: swap = left;  swap.depth++; left  = right.right; left.parent = this; left.depth--;  right.right = swap;  swap.parent = right; right.childRefit(nAda); break;
-                    case Rot.R_LL: swap = right; swap.depth++; right =  left.left;  right.parent = this; right.depth--; left.left  = swap;  swap.parent = left;   left.childRefit(nAda); break;
-                    case Rot.R_LR: swap = right; swap.depth++; right =  left.right; right.parent = this; right.depth--; left.right = swap;  swap.parent = left;   left.childRefit(nAda); break;
+                    case Rot.L_RL: swap = left;  left  = right.left;   left.parent = this; right.left  = swap;  swap.parent = right; right.childRefit(nAda,propagate:false); break;
+                    case Rot.L_RR: swap = left;  left  = right.right;  left.parent = this; right.right = swap;  swap.parent = right; right.childRefit(nAda,propagate:false); break;
+                    case Rot.R_LL: swap = right; right =  left.left;  right.parent = this;  left.left  = swap;  swap.parent = left;   left.childRefit(nAda,propagate:false); break;
+                    case Rot.R_LR: swap = right; right =  left.right; right.parent = this;  left.right = swap;  swap.parent = left;   left.childRefit(nAda,propagate:false); break;
                     
                     // grandchild to grandchild rotations
-                    case Rot.LL_RR: swap = left.left; left.left = right.right; right.right = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,propagate:false); right.childRefit(nAda); break;
-                    case Rot.LL_RL: swap = left.left; left.left = right.left;  right.left  = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,propagate:false); right.childRefit(nAda); break;
+                    case Rot.LL_RR: swap = left.left; left.left = right.right; right.right = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,propagate:false); right.childRefit(nAda,propagate:false); break;
+                    case Rot.LL_RL: swap = left.left; left.left = right.left;  right.left  = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,propagate:false); right.childRefit(nAda,propagate:false); break;
                     
                     // unknown...
                     default: throw new NotImplementedException("missing implementation for BVH Rotation .. " + bestRot.rot.ToString());                                     
                 }
-                
+
+                // fix the depths if necessary....
+                switch (bestRot.rot) {
+                    case Rot.L_RL:
+                    case Rot.L_RR:
+                    case Rot.R_LL:
+                    case Rot.R_LR:
+                        this.setDepth(nAda,this.depth);
+                        break;                   
+                }
             }
 
         }
@@ -391,7 +398,7 @@ namespace SimpleScene.Util.ssBVH
             // make assignments..
             curNode.left = mergedSubnode;
             curNode.right = newSubnode;
-            curNode.setDepth(curNode.depth); // propagate new depths to our children.
+            curNode.setDepth(nAda, curNode.depth); // propagate new depths to our children.
             curNode.childRefit(nAda);                  
         }
         internal static void addObject(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> curNode, GO newOb, ref SSAABB newObBox, float newObSAH) { 
@@ -405,11 +412,11 @@ namespace SimpleScene.Util.ssBVH
                 var left = curNode.left;
                 var right = curNode.right;
 
-                float leftSAH = SAH(left);
-                float rightSAH = SAH(right);
-                float sendLeftSAH = rightSAH + SAH(left.box.ExpandedBy(newObBox));    // (L+N,R)
-                float sendRightSAH = leftSAH + SAH(right.box.ExpandedBy(newObBox));   // (L,R+N)
-                float mergedLeftAndRightSAH = SAH(AABBofPair(left,right)) + newObSAH; // (L+R,N)
+                float leftSAH = SA(left);
+                float rightSAH = SA(right);
+                float sendLeftSAH = rightSAH + SA(left.box.ExpandedBy(newObBox));    // (L+N,R)
+                float sendRightSAH = leftSAH + SA(right.box.ExpandedBy(newObBox));   // (L,R+N)
+                float mergedLeftAndRightSAH = SA(AABBofPair(left,right)) + newObSAH; // (L+R,N)
 
                 // Doing a merge-and-pushdown can be expensive, so we only do it if it's notably better
                 const float MERGE_DISCOUNT = 0.3f; 
@@ -459,11 +466,14 @@ namespace SimpleScene.Util.ssBVH
             }
         }
 
-        void setDepth(int newdepth) {
+        void setDepth(SSBVHNodeAdaptor<GO> nAda, int newdepth) {
             this.depth = newdepth;
+            if (newdepth > nAda.BVH.maxDepth) {
+                nAda.BVH.maxDepth = newdepth;
+            }
             if (gobjects == null) {
-                left.setDepth(newdepth+1);
-                right.setDepth(newdepth+1);
+                left.setDepth(nAda, newdepth+1);
+                right.setDepth(nAda, newdepth+1);
             }
         }
 
@@ -487,7 +497,7 @@ namespace SimpleScene.Util.ssBVH
 
             if (gobjects == null) {
                 left.parent = this; right.parent = this;  // reassign child parents..
-                this.setDepth(this.depth); // this reassigns depth for our children
+                this.setDepth(nAda, this.depth); // this reassigns depth for our children
             } else {
                 // map the objects we adopted to us...                                                
                 gobjects.ForEach( o => { nAda.mapObjectToBVHLeaf(o,this); } );
@@ -613,6 +623,10 @@ namespace SimpleScene.Util.ssBVH
  
             this.parent = lparent; // save off the parent BVHGObj Node
             this.depth = curdepth;
+
+            if (bvh.maxDepth < curdepth) {
+                bvh.maxDepth = curdepth;
+            }
 
             // Early out check due to bad data
             // If the list is empty then we have no BVHGObj, or invalid parameters are passed in

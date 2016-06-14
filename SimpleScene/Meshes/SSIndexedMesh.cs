@@ -111,6 +111,7 @@ namespace SimpleScene
                     for (UInt16 triIdx = 0; triIdx < _ibo.numIndices / 3; ++triIdx) {
                         _bvh.addObject(triIdx);
                     }
+                    Console.WriteLine("New BVH MaxDepth = {0}",_bvh.maxDepth);
                 }
 
                 if (_bvh != null) {
