@@ -107,7 +107,7 @@ namespace SimpleScene.Util.ssBVH
 
         public void addObject(GO newOb) {
             SSAABB box = SSAABB.FromSphere(nAda.objectpos(newOb),nAda.radius(newOb));
-            float boxSAH = rootBVH.SAH(ref box);
+            float boxSAH = ssBVHNode<GO>.SAH(ref box);
             rootBVH.addObject(nAda,newOb, ref box, boxSAH);
         }
 

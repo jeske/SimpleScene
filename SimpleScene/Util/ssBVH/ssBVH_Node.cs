@@ -162,7 +162,7 @@ namespace SimpleScene.Util.ssBVH
             }
         }
         
-        internal float SAH(SSAABB box) {
+        internal static float SAH(SSAABB box) {
             float x_size = box.Max.X - box.Min.X;
             float y_size = box.Max.Y - box.Min.Y;
             float z_size = box.Max.Z - box.Min.Z;
@@ -170,7 +170,7 @@ namespace SimpleScene.Util.ssBVH
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
             
         }
-        internal float SAH(ref SSAABB box) {
+        internal static float SAH(ref SSAABB box) {
             float x_size = box.Max.X - box.Min.X;
             float y_size = box.Max.Y - box.Min.Y;
             float z_size = box.Max.Z - box.Min.Z;
@@ -178,21 +178,21 @@ namespace SimpleScene.Util.ssBVH
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
             
         }
-        internal float SAH(ssBVHNode<GO> node) {            
+        internal static float SAH(ssBVHNode<GO> node) {            
             float x_size = node.box.Max.X - node.box.Min.X;
             float y_size = node.box.Max.Y - node.box.Min.Y;
             float z_size = node.box.Max.Z - node.box.Min.Z;
 
             return 2.0f * ( (x_size * y_size) + (x_size * z_size) + (y_size * z_size) );
         }
-        internal float SAH(SSBVHNodeAdaptor<GO> nAda, GO obj) {            
+        internal static float SAH(SSBVHNodeAdaptor<GO> nAda, GO obj) {            
             float radius = nAda.radius(obj);
             return (float)(4.0 * Math.PI * radius * radius);  // bounding sphere surface area
         }
 
         
 
-        internal SSAABB AABBofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
+        internal static SSAABB AABBofPair(ssBVHNode<GO> nodea, ssBVHNode<GO> nodeb) {
             SSAABB box = nodea.box;
             box.ExpandToFit(nodeb.box);
             return box;
@@ -362,20 +362,48 @@ namespace SimpleScene.Util.ssBVH
                 splitNode(nAda);
             }
         }
-
+        
         internal void addObject(SSBVHNodeAdaptor<GO> nAda, GO newOb, ref SSAABB newObBox, float newObSAH) { 
-            if (gobjects != null) {
-                // add the object and map it to our leaf
-                gobjects.Add(newOb);
-                nAda.mapObjectToBVHLeaf(newOb,this);                
-                refitVolume(nAda);
-                // split if necessary...
-                splitIfNecessary(nAda);
-            } else {
+            addObject(nAda,this,newOb, ref newObBox, newObSAH);
+        }
+
+        internal static void addObject_Pushdown(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> curNode, GO newOb) {
+            var left = curNode.left;
+            var right = curNode.right;
+
+            // merge and pushdown left and right as a new node..
+            var mergedSubnode = new ssBVHNode<GO>(nAda.BVH);
+            mergedSubnode.left = left;
+            mergedSubnode.right = right;
+            mergedSubnode.parent = curNode;
+            mergedSubnode.gobjects = null; // we need to be an interior node... so null out our object list..
+            left.parent = mergedSubnode;
+            right.parent = mergedSubnode;
+            mergedSubnode.childRefit(nAda, propagate: false);
+
+            // make new subnode for obj
+            var newSubnode = new ssBVHNode<GO>(nAda.BVH);
+            newSubnode.parent = curNode;
+            newSubnode.gobjects = new List<GO> { newOb };
+            nAda.mapObjectToBVHLeaf(newOb, newSubnode);
+            newSubnode.computeVolume(nAda);
+
+            // make assignments..
+            curNode.left = mergedSubnode;
+            curNode.right = newSubnode;
+            curNode.setDepth(curNode.depth); // propagate new depths to our children.
+            curNode.childRefit(nAda);                  
+        }
+        internal static void addObject(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> curNode, GO newOb, ref SSAABB newObBox, float newObSAH) { 
+            // 1. first we traverse the node looking for the best leaf
+            while (curNode.gobjects == null) {
                 // find the best way to add this object.. 3 options..
                 // 1. send to left node  (L+N,R)
                 // 2. send to right node (L,R+N)
                 // 3. merge and pushdown left-and-right node (L+R,N)
+
+                var left = curNode.left;
+                var right = curNode.right;
 
                 float leftSAH = SAH(left);
                 float rightSAH = SAH(right);
@@ -387,39 +415,23 @@ namespace SimpleScene.Util.ssBVH
                 const float MERGE_DISCOUNT = 0.3f; 
 
                 if (mergedLeftAndRightSAH < ( Math.Min(sendLeftSAH,sendRightSAH)) * MERGE_DISCOUNT ) {
-                    // merge and pushdown left and right as a new node..
-                    var mSubnode = new ssBVHNode<GO>(nAda.BVH);
-                    mSubnode.left = left;
-                    mSubnode.right = right;                    
-                    mSubnode.parent = this;
-                    mSubnode.gobjects = null; // we need to be an interior node... so null out our object list..
-                    left.parent = mSubnode;
-                    right.parent = mSubnode;
-                    mSubnode.childRefit(nAda, propagate:false);                  
-                    
-                    // make new subnode for obj
-                    var nSubnode = new ssBVHNode<GO>(nAda.BVH);
-                    nSubnode.parent = this;
-                    nSubnode.gobjects = new List<GO>{ newOb };                                        
-                    nAda.mapObjectToBVHLeaf(newOb,nSubnode);
-                    nSubnode.computeVolume(nAda);                    
-
-                    // make assignments..
-                    this.left = mSubnode;
-                    this.right = nSubnode;
-                    this.setDepth(this.depth); // propagate new depths to our children.
-                    this.childRefit(nAda);                  
+                    addObject_Pushdown(nAda,curNode,newOb);
+                    return;
                 } else {
-                    if ( sendLeftSAH < sendRightSAH ) {
-                        // send left
-                        left.addObject(nAda,newOb,ref newObBox, newObSAH);
-                    } else {
-                        // send right
-                        right.addObject(nAda,newOb,ref newObBox, newObSAH);
+                    if ( sendLeftSAH < sendRightSAH ) {                        
+                        curNode = left;                        
+                    } else {                        
+                        curNode = right;                        
                     }
                 }
             }
-
+            
+            // 2. then we add the object and map it to our leaf
+            curNode.gobjects.Add(newOb);
+            nAda.mapObjectToBVHLeaf(newOb,curNode);                
+            curNode.refitVolume(nAda);
+            // split if necessary...
+            curNode.splitIfNecessary(nAda);                    
         }
       
         internal int countBVHNodes() {
