@@ -316,8 +316,8 @@ namespace SimpleScene.Util.ssBVH
                     case Rot.R_LR: swap = right; swap.depth++; right =  left.right; right.parent = this; right.depth--; left.right = swap;  swap.parent = left;   left.childRefit(nAda); break;
                     
                     // grandchild to grandchild rotations
-                    case Rot.LL_RR: swap = left.left; left.left = right.right; right.right = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
-                    case Rot.LL_RL: swap = left.left; left.left = right.left;  right.left  = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,recurse:false); right.childRefit(nAda); break;
+                    case Rot.LL_RR: swap = left.left; left.left = right.right; right.right = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,propagate:false); right.childRefit(nAda); break;
+                    case Rot.LL_RL: swap = left.left; left.left = right.left;  right.left  = swap; left.left.parent = left; swap.parent = right; left.childRefit(nAda,propagate:false); right.childRefit(nAda); break;
                     
                     // unknown...
                     default: throw new NotImplementedException("missing implementation for BVH Rotation .. " + bestRot.rot.ToString());                                     
@@ -395,7 +395,7 @@ namespace SimpleScene.Util.ssBVH
                     mSubnode.gobjects = null; // we need to be an interior node... so null out our object list..
                     left.parent = mSubnode;
                     right.parent = mSubnode;
-                    mSubnode.childRefit(nAda, recurse:false);                  
+                    mSubnode.childRefit(nAda, propagate:false);                  
                     
                     // make new subnode for obj
                     var nSubnode = new ssBVHNode<GO>(nAda.BVH);
@@ -555,21 +555,34 @@ namespace SimpleScene.Util.ssBVH
             }
         }  
 
-        internal void childRefit(SSBVHNodeAdaptor<GO> nAda, bool recurse=true) {
-            SSAABB oldbox = box;           
-            box.Min.X = left.box.Min.X; box.Max.X = left.box.Max.X;
-            box.Min.Y = left.box.Min.Y; box.Max.Y = left.box.Max.Y;
-            box.Min.Z = left.box.Min.Z; box.Max.Z = left.box.Max.Z;
+        internal void childRefit(SSBVHNodeAdaptor<GO> nAda, bool propagate=true) {
+            childRefit(nAda,this,propagate:propagate);
+        }
 
-            if (right.box.Min.X < box.Min.X) { box.Min.X = right.box.Min.X; }            
-            if (right.box.Min.Y < box.Min.Y) { box.Min.Y = right.box.Min.Y; }            
-            if (right.box.Min.Z < box.Min.Z) { box.Min.Z = right.box.Min.Z; }
+        internal static void childRefit(SSBVHNodeAdaptor<GO> nAda, ssBVHNode<GO> curNode, bool propagate = true) {           
+            do {
+                SSAABB oldbox = curNode.box;           
+                ssBVHNode<GO> left = curNode.left;
+                ssBVHNode<GO> right = curNode.right;
 
-            if (right.box.Max.X > box.Max.X) { box.Max.X = right.box.Max.X; }
-            if (right.box.Max.Y > box.Max.Y) { box.Max.Y = right.box.Max.Y; }            
-            if (right.box.Max.Z > box.Max.Z) { box.Max.Z = right.box.Max.Z; }
-            
-            if (recurse && parent != null) { parent.childRefit(nAda); }
+                // start with the left box
+                SSAABB newBox = left.box;
+                
+                // expand any dimension bigger in the right node
+                if (right.box.Min.X < newBox.Min.X) { newBox.Min.X = right.box.Min.X; }            
+                if (right.box.Min.Y < newBox.Min.Y) { newBox.Min.Y = right.box.Min.Y; }            
+                if (right.box.Min.Z < newBox.Min.Z) { newBox.Min.Z = right.box.Min.Z; }
+
+                if (right.box.Max.X > newBox.Max.X) { newBox.Max.X = right.box.Max.X; }
+                if (right.box.Max.Y > newBox.Max.Y) { newBox.Max.Y = right.box.Max.Y; }            
+                if (right.box.Max.Z > newBox.Max.Z) { newBox.Max.Z = right.box.Max.Z; }
+
+                // now set our box to the newly created box
+                curNode.box = newBox;
+
+                // and walk up the tree
+                curNode = curNode.parent;
+            } while (propagate && curNode != null);                
         }
                 
         internal ssBVHNode(ssBVH<GO> bvh) {
@@ -612,7 +625,7 @@ namespace SimpleScene.Util.ssBVH
                 gobjects = gobjectlist;            
                 computeVolume(nAda);
                 splitNode(nAda);  
-                childRefit(nAda,recurse:false);
+                childRefit(nAda,propagate:false);
             }
         }
 
