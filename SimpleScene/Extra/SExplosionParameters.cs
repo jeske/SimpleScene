@@ -111,6 +111,8 @@ namespace SimpleScene.Demos
         public float maxIntensity = 20f;
         public float radiusMin = 0f;
         public float radiusMax = 30f;
+        public float spreadVelocityMin = 10f;
+        public float spreadVelocityMax = 20f;
     }
 }
 

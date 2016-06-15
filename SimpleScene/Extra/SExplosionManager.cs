@@ -201,11 +201,19 @@ namespace SimpleScene.Demos
                         double theta = 2.0 * Math.PI * rand.NextDouble();
                         double phi = Math.PI * (rand.NextDouble() - 0.5);
                         double xy = r * Math.Cos(theta);
-                        Vector3 pos = _position + new Vector3 (
+                        Vector3 radialOffset = new Vector3 (
                             (float)(xy * Math.Cos(theta)),
                             (float)(xy * Math.Sin(theta)),
                             (float)(r * Math.Sin(phi)));
-                        _em.showExplosion(_chainParams, intensity, pos, _velocity);
+                        
+                        Vector3 pos = _position + radialOffset;
+                        double spreadVelScale = _chainParams.spreadVelocityMin
+                                + rand.NextDouble() * (_chainParams.spreadVelocityMax - _chainParams.spreadVelocityMin);
+                        Vector3 vel = _velocity;
+                        if (radialOffset.LengthFast > 0f) {
+                            vel += (float)spreadVelScale * radialOffset.Normalized();
+                        }
+                        _em.showExplosion(_chainParams, intensity, pos, vel);
 
                         _delaysRemaining [i] = _chainParams.minDelay
                             + (float)rand.NextDouble() * (_chainParams.maxDelay - _chainParams.minDelay);
