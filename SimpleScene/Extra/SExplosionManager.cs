@@ -377,8 +377,8 @@ namespace SimpleScene.Demos
 			{
                 emitFlameSmoke (position, baseVelocity, intensity);
                 emitFlash (position, baseVelocity, intensity);
-                emitFlyingSparks (position, baseVelocity, intensity);
-                emitSmokeTrails (position, baseVelocity, intensity);
+                emitFlyingSparks (position, intensity);
+                emitSmokeTrails (position, intensity);
                 emitRoundSparks (position, baseVelocity, intensity);
                 emitDebris (position, baseVelocity, intensity);
                 emitShockwave (position, baseVelocity, intensity);
@@ -565,11 +565,10 @@ namespace SimpleScene.Demos
                 }
 			}
 
-            protected void emitFlyingSparks(Vector3 position, Vector3 baseVelocity, float intensity)
+            protected void emitFlyingSparks(Vector3 position, float intensity)
 			{
                 if (!_eParams.doFlyingSparks) return;
                 _flyingSparksEmitter.center = position;
-                _flyingSparksEmitter.velocity = baseVelocity;
                 _flyingSparksEmitter.velocityFromCenterMagnitudeMin = intensity * 2f;
 				_flyingSparksEmitter.velocityFromCenterMagnitudeMax = intensity * 3f;
 				_flyingSparksEmitter.particlesPerEmission = (int)(5.0*Math.Log(intensity));
@@ -621,12 +620,11 @@ namespace SimpleScene.Demos
                 }
 			}
 
-			protected void emitSmokeTrails(Vector3 position, Vector3 baseVelocity, float intensity)
+			protected void emitSmokeTrails(Vector3 position, float intensity)
 			{
                 if (!_eParams.doSmokeTrails) return;
 
 				_smokeTrailsEmitter.center = position;
-                _smokeTrailsEmitter.velocity = baseVelocity;
                 _smokeTrailsEmitter.velocityFromCenterMagnitudeMin = intensity * 0.8f;
 				_smokeTrailsEmitter.velocityFromCenterMagnitudeMax = intensity * 1f;
 				_smokeTrailsEmitter.particlesPerEmission = (int)(5.0*Math.Log(intensity));
