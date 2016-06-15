@@ -170,6 +170,7 @@ namespace SimpleScene.Demos
             protected Vector3 _position;
             protected int _explosionsRemaining;
             protected int _explosionsActive = 0;
+            protected float _timeElapsedTotal = 0f;
 
             public ExplosionChainInfo(SExplosionManager em, SChainExplosionParameters cep,
                 Vector3 position, Vector3 velocity)
@@ -192,6 +193,7 @@ namespace SimpleScene.Demos
             public void update(float timeElapsed)
             {
                 _position += _velocity * timeElapsed;
+                _timeElapsedTotal += timeElapsed;
                 for (int i = 0; i < _delaysRemaining.Length; ++i) {
                     if (_explosionsRemaining > 0 && _delaysRemaining [i] <= 0f) {
                         float intensity = _chainParams.minIntensity
@@ -211,9 +213,12 @@ namespace SimpleScene.Demos
                                 + rand.NextDouble() * (_chainParams.spreadVelocityMax - _chainParams.spreadVelocityMin);
                         Vector3 vel = _velocity;
                         if (radialOffset.LengthFast > 0f) {
-                            vel += (float)spreadVelScale * radialOffset.Normalized();
+                            var radialDir = radialOffset.Normalized();
+                            var radialVelOffset = (float)spreadVelScale * radialDir;
+                            pos += radialVelOffset * _timeElapsedTotal;
+                            vel += radialVelOffset ;
                         }
-                        _em.showExplosion(_chainParams, intensity, pos, vel);
+                        _em.showExplosion(_chainParams, intensity, pos,  vel); 
 
                         _delaysRemaining [i] = _chainParams.minDelay
                             + (float)rand.NextDouble() * (_chainParams.maxDelay - _chainParams.minDelay);
