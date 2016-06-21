@@ -117,6 +117,10 @@ namespace SimpleScene.Demos
             get { return _timeSinceLaunch; } 
             set { timeSinceLaunch = value; }
         }
+        public float fadeTime {
+            get { return _fadeTime; }
+            set { _fadeTime = value; }
+        }
         public bool isTerminated { get { return _isTerminated; } }
 
         protected readonly SSpaceMissileVisualData[] _missiles;
@@ -126,6 +130,7 @@ namespace SimpleScene.Demos
         protected float _timeDeltaAccumulator = 0f;
         protected float _timeSinceLaunch = 0f;
         protected float _timeToHit = 0f;
+        protected float _fadeTime = 0f;
         protected bool _isTerminated = false;
 
         public SSpaceMissileClusterVisualData(

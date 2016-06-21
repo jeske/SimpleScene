@@ -112,6 +112,11 @@ namespace SimpleScene.Demos
             _removeMissileRender(missileRenderInfo);
         }
 
+        public void fadeOutMissile(SSpaceMissileRenderInfo missilerRenderInfo)
+        {
+            missilerRenderInfo.missile.fadeOut();
+        }
+
         public void removeAll()
         {
             foreach (var rt in _missileRuntimes) {
@@ -316,6 +321,15 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.velocityFromCenterMagnitudeMin = ejection ? -vel/2f : (-vel / 8f);
                 flameSmokeEmitter.velocityFromCenterMagnitudeMax = ejection ? vel/2f : (vel / 5f);
                 flameSmokeEmitter.life = ejection ? mParams.ejectionSmokeDuration : mParams.flameSmokeDuration;
+
+                if (missile.state == SSpaceMissileData.State.FadingOut) {
+                    float fadeFactor = (missile.timeSinceLaunch - missile.fadeTime) / mParams.fadeDuration;
+                    bodyObj.alphaBlendingEnabled = true;
+
+                    var color = bodyObj.MainColor;
+                    color.A = fadeFactor;
+                    bodyObj.MainColor = color;
+                }
 
                 #if MISSILE_DEBUG
                 RectangleF clientRect = OpenTKHelper.GetClientRect();

@@ -40,6 +40,8 @@ namespace SimpleScene.Demos
         public float pursuitMaxVelocity = float.PositiveInfinity;
         /// <summary> maximum lateral acceleration that can be applied while in pursuit. ignored when hit time correction is active </summary>
         public float pursuitMaxAcc = 20f;
+        ///<summary> how long it takes for a missile to fade, when requested </summary>
+        public float fadeDuration = 10f;
 
         /// <summary> delegate for creating pursuit phase missile drivers </summary>
         public virtual ISSpaceMissileDriver createPursuit(SSpaceMissileData missile)

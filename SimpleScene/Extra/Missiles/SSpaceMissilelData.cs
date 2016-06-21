@@ -9,7 +9,7 @@ namespace SimpleScene.Demos
 
         #region missile specific
         /// <summary> high level state of what the missile is doing </summary>
-        public enum State { Ejection, Pursuit, AtTarget, Intercepted, Terminated };
+        public enum State : byte { Uninitialized, Ejection, Pursuit, AtTarget, Intercepted, FadingOut, Terminated };
 
         public virtual Vector3 displayPosition { get { return position; } }
 
@@ -21,29 +21,38 @@ namespace SimpleScene.Demos
             set {
                 // it may be desirable to assign state externally, f.e. when synchronizing over a network.
                 // the state has to be closely synced with the missile driver
-                _state = value;
-                switch (state) {
-                case State.Ejection:
-                    if (_driver == null || !(_driver is SMissileEjectionDriver)) { // is this slow?
-                        _driver = parameters.createEjection(this);
-                    }
-                    break;
-                case State.Pursuit:
-                    if (_driver == null || !(_driver is SProportionalNavigationPursuitDriver)) { // is this slow?
-                        _driver = parameters.createPursuit(this);
-                    }
-                    break;
-                default:
-                    if (_driver != null) {
-                        // we could just write null unconditionally. but doing it this way may help caching?
+                if (state != value) {
+                    _state = value;
+                    switch (state) {
+                    case State.Ejection:
+                        if (_driver == null || !(_driver is SMissileEjectionDriver)) { // is this slow?
+                            _driver = parameters.createEjection(this);
+                        }
+                        break;
+                    case State.Pursuit:
+                        if (_driver == null || !(_driver is SProportionalNavigationPursuitDriver)) { // is this slow?
+                            _driver = parameters.createPursuit(this);
+                        }
+                        break;
+                    case State.FadingOut:
                         _driver = null;
+                        _sharableData.fadeTime = _sharableData.timeSinceLaunch;
+                        break;
+                    case State.Terminated:
+                        _driver = null;
+                        break;
+                    default:
+                        if (_driver != null) {
+                            // we could just write null unconditionally. but doing it this way may help caching?
+                            _driver = null;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
 
-        protected State _state = State.Ejection;
+        protected State _state = State.Uninitialized;
 
         public ISSpaceMissileDriver driver { get { return _driver; } }
 
@@ -61,6 +70,10 @@ namespace SimpleScene.Demos
         public float timeToHit { 
             get { return _sharableData.timeToHit; } 
             set { _sharableData.timeToHit = value; }
+        }
+        public float fadeTime {
+            get { return _sharableData.fadeTime; }
+            set { _sharableData.fadeTime = value; }
         }
         public AtTargetFunc atTargetFunc { get { return _sharableData.atTargetFunc; } }
 
@@ -89,10 +102,17 @@ namespace SimpleScene.Demos
 
         public void terminate()
         {
-            _state = State.Terminated;
-            _driver = null;
+            state = State.Terminated;
             if (parameters.debuggingAid) {
                 Console.WriteLine("missile terminated on request at t = " + timeSinceLaunch);
+            }
+        }
+
+        public void fadeOut()
+        {
+            this.state = State.FadingOut;
+            if (parameters.debuggingAid) {
+                Console.WriteLine("missile begins fading at t = " + timeSinceLaunch);
             }
         }
 
@@ -145,6 +165,14 @@ namespace SimpleScene.Demos
                     }
                 }
                 break;
+            case State.FadingOut:
+                if ((_sharableData.timeSinceLaunch - _sharableData.fadeTime) >= mParams.fadeDuration) {
+                    state = State.Terminated;
+                    if (mParams.debuggingAid) {
+                        Console.WriteLine("missile terminated after fading at t = " + timeSinceLaunch);
+                    }
+                }
+                break;
             case State.Intercepted:
                 // todo
                 break;
@@ -171,6 +199,7 @@ namespace SimpleScene.Demos
             SSpaceMissileParameters parameters { get; }
             float timeSinceLaunch { get; set; }
             float timeToHit { get; set; }
+            float fadeTime { get; set; }
             SSpaceMissileData.AtTargetFunc atTargetFunc { get; }
             void update(float elapsed);
         }
@@ -181,6 +210,7 @@ namespace SimpleScene.Demos
             public SSpaceMissileParameters parameters { get; set; }
             public float timeSinceLaunch { get; set; }
             public float timeToHit { get; set; }
+            public float fadeTime { get; set; }
             public SSpaceMissileData.AtTargetFunc atTargetFunc { get; set; }
             public void update(float elapsed) { 
                 timeSinceLaunch += elapsed; 
@@ -282,6 +312,10 @@ namespace SimpleScene.Demos
             public float timeToHit { 
                 get { return cluster.timeToHit; } 
                 set { cluster.timeToHit = value; }
+            }
+            public float fadeTime {
+                get { return cluster.fadeTime; }
+                set { cluster.fadeTime = value; }
             }
             public AtTargetFunc atTargetFunc { get { return cluster.atTargetFunc; } }
             public void update(float elapsed) 
