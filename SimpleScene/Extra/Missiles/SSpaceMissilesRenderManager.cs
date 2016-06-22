@@ -20,6 +20,7 @@ namespace SimpleScene.Demos
 
         protected readonly SSpaceMissilesVisualSimulation _simulation;
         protected readonly SSScene _objScene;
+        protected readonly SSScene _particleScene;
         protected readonly SSScene _screenScene;
 
         protected readonly SSParticleSystemData _particlesData;
@@ -49,6 +50,7 @@ namespace SimpleScene.Demos
             objScene.preUpdateHooks += _simulation.updateSimulation;
             objScene.preRenderHooks += simulation.updateSimulation;
 
+            _particleScene = particleScene;
             _screenScene = screenScene;
 
             // particle system
@@ -67,7 +69,7 @@ namespace SimpleScene.Demos
             _particleRenderer.colorMaterial = SSColorMaterial.pureAmbient;
 
             _particleRenderer.Name = "missile smoke renderer";
-            particleScene.AddObject(_particleRenderer);
+            _particleScene.AddObject(_particleRenderer);
         }
 
         ~SSpaceMissilesRenderManager()
@@ -231,6 +233,13 @@ namespace SimpleScene.Demos
                 if (missile.state == SSpaceMissileVisualData.State.Terminated) {
                     _removeMissileRender(missileRuntime);
                 } else {
+                    if (missile.state == SSpaceMissileData.State.FadingOut
+                     && missileRuntime.bodyObj.alphaBlendingEnabled == false) {
+                        // fading missile needs to be moved to the alpha scene (to be drawn last)
+                        missileRuntime.bodyObj.alphaBlendingEnabled = true;
+                        _objScene.RemoveObject(missileRuntime.bodyObj);
+                        _particleScene.AddObject(missileRuntime.bodyObj);
+                    }
                     missileRuntime.preRenderUpdate(timeElapsed);
                 }
             }
@@ -323,12 +332,11 @@ namespace SimpleScene.Demos
                 flameSmokeEmitter.life = ejection ? mParams.ejectionSmokeDuration : mParams.flameSmokeDuration;
 
                 if (missile.state == SSpaceMissileData.State.FadingOut) {
-                    float fadeFactor = (missile.timeSinceLaunch - missile.fadeTime) / mParams.fadeDuration;
-                    bodyObj.alphaBlendingEnabled = true;
-
+                    float fadeFactor = 1f - (missile.timeSinceLaunch - missile.fadeTime) / mParams.fadeDuration;
                     var color = bodyObj.MainColor;
                     color.A = fadeFactor;
                     bodyObj.MainColor = color;
+                    flameSmokeEmitter.life = flameSmokeEmitter.lifeMax * fadeFactor;
                 }
 
                 #if MISSILE_DEBUG
