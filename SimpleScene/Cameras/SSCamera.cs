@@ -17,6 +17,31 @@ namespace SimpleScene
 		
 		}
 
+        public virtual Matrix4 viewMatrix()
+        {
+            return worldMat.Inverted();
+        }
+
+        public virtual Matrix4 rotationOnlyViewMatrix()
+        {
+            Matrix4 mat = Matrix4.Identity;
+
+            // rotation..
+            mat.M11 = _right.X;
+            mat.M12 = _right.Y;
+            mat.M13 = _right.Z;
+
+            mat.M21 = _up.X;
+            mat.M22 = _up.Y;
+            mat.M23 = _up.Z;
+
+            mat.M31 = _dir.X;
+            mat.M32 = _dir.Y;
+            mat.M33 = _dir.Z;
+
+            return mat.Inverted();
+        }
+
         public virtual void preRenderUpdate(float timeElapsed)
         {
             this.calcMatFromState ();

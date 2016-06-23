@@ -56,11 +56,12 @@ namespace SimpleScene.Demos
 			float aspect = ClientRectangle.Width / (float)ClientRectangle.Height;
 
 			// setup the inverse matrix of the active camera...
-			Matrix4 mainSceneView = main3dScene.ActiveCamera.worldMat.Inverted();
+            Matrix4 mainSceneView = main3dScene.ActiveCamera.viewMatrix();
 			// setup the view projection. technically only need to do this on window resize..
 			Matrix4 mainSceneProj = Matrix4.CreatePerspectiveFieldOfView (fovy, aspect, nearPlane, farPlane);
 			// create a matrix of just the camera rotation only (it needs to stay at the origin)
-			Matrix4 rotationOnlyView = Matrix4.CreateFromQuaternion (mainSceneView.ExtractRotation ());
+			//Matrix4 rotationOnlyView = Matrix4.CreateFromQuaternion (mainSceneView.ExtractRotation ());
+            Matrix4 rotationOnlyView = main3dScene.ActiveCamera.rotationOnlyViewMatrix();
 			// create an orthographic projection matrix looking down the +Z matrix; for hud scene and sun flare scene
 			Matrix4 screenProj = Matrix4.CreateOrthographicOffCenter (0, ClientRectangle.Width, ClientRectangle.Height, 0, -1, 1);
 
