@@ -239,7 +239,7 @@ namespace SimpleScene.Demos
             get { return _attachTo; }
             set { 
                 _attachTo = value;
-                if (_attachTo != null) {
+                if (_attachTo != null && !_attachTo.renderState.toBeDeleted) {
                     // do this now because render may never get called otherwise due to frustum culling
                     // and world mat will never get updated and never rendered
                     this.worldMat = _attachTo.worldMat;
@@ -296,7 +296,7 @@ namespace SimpleScene.Demos
 
         public override void Render (SSRenderConfig renderConfig)
         {
-            if (_attachTo != null) {
+            if (_attachTo != null && !_attachTo.renderState.toBeDeleted) {
                 this.worldMat = _attachTo.worldMat;
             }
 
