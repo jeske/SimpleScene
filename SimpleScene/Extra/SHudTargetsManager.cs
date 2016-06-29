@@ -341,6 +341,8 @@ namespace SimpleScene.Demos
                 Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
                 Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewRotInverted).Normalized();
                 Vector2 targetScreenPos = OpenTKHelper.WorldToScreen(targetObj.Pos, ref targetViewProj, ref clientRect);
+                targetScreenPos.X = (float)Math.Round(targetScreenPos.X); // fixes off-by-one pixel jitter
+                targetScreenPos.Y = (float)Math.Round(targetScreenPos.Y);
 
                 // animate outline line stipple
                 _outline.enableLineStipple = this.isSelected;
@@ -415,7 +417,7 @@ namespace SimpleScene.Demos
                                             : hudTriMesh;
                 _outline.Scale = new Vector3 (outlineHalfWidth, outlineHalfHeight, 1f);
                 _outline.Orient(outlineOrients [orientIdx]);
-                _outline.Pos = new Vector3(targetScreenPos.X, targetScreenPos.Y, 0f);
+                _outline.Pos = new Vector3(targetScreenPos.X, targetScreenPos.Y, +1f);
 
                 // labels
                 _labelBelow.Label = fetchTextBelow(targetObj);
