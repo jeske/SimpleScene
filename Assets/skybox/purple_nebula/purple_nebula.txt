@@ -1,0 +1,3 @@
+Generated using Spacescape, software by Alex Peterson
+http://alexcpeterson.com/spacescape/
+"You can use Spacescape to make skyboxes for your free or commercial game, no license or royalties required!"

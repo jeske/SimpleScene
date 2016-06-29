@@ -193,6 +193,7 @@
     <Compile Include="Extra\SExplosionParameters.cs" />
     <Compile Include="Extra\SExplosionManager.cs" />
     <Compile Include="Core\SSColorMaterial.cs" />
+    <Compile Include="Extra\SSkyboxRenderer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

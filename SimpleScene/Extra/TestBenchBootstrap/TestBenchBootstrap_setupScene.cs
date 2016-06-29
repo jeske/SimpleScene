@@ -77,12 +77,10 @@ namespace SimpleScene.Demos
 		protected virtual void setupEnvironment() 
 		{
 			// add skybox cube
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("skybox/skybox.obj");
-			skyboxCube = new SSObjectMesh(mesh);
-            skyboxCube.renderState.depthTest = true;
-            skyboxCube.renderState.depthWrite = true;
-            skyboxCube.renderState.lighted = false;
-            skyboxCube.selectable = false;
+            skyboxCube = new SSkyboxRenderer () {
+                Scale = new Vector3(10f)
+            };
+
             environmentScene.AddObject(skyboxCube);
 
             // add stars
