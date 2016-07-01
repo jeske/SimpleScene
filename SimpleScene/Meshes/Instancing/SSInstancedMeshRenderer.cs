@@ -140,7 +140,7 @@ namespace SimpleScene
 
         protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
         {
-            if (renderConfig.drawingShadowMap) {
+			if (renderConfig.drawingShadowMap && renderConfig.drawingPssm) {
                 renderConfig.instancePssmShader.Activate ();
                 renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
             } else {
