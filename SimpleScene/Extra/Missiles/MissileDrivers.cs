@@ -140,7 +140,6 @@ namespace SimpleScene.Demos
                     missile.velocity *= (newVelMag / oldVelMag);
                 }
             }
-
         }
     }
 
@@ -176,6 +175,8 @@ namespace SimpleScene.Demos
             Quaternion quat = Quaternion.FromAxisAngle(axis, angle);
 
             missile.visualDirection = Vector3.Transform(missile.visualDirection, quat);
+
+            missile.visualSmokeAmmount = missile.velocity.LengthFast / mParams.pursuitMaxVelocity;
         }
     }
 }
