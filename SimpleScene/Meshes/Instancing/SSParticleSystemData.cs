@@ -422,7 +422,7 @@ namespace SimpleScene
 			}
         }
 
-        protected virtual void storeNewParticle(SSParticle newParticle)
+        protected virtual int storeNewParticle(SSParticle newParticle)
         {
 			// Apply effects before storing the new particle
 			// This can help avoid unnecessary array expansion for new particle's values
@@ -451,6 +451,8 @@ namespace SimpleScene
 			if (distFromOrogin > _radius) {
 				_radius = distFromOrogin;
 			}
+
+            return writeIdx;
         }
 
         protected int nextIdx(int idx) 

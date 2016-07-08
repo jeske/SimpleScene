@@ -11,7 +11,7 @@ namespace SimpleScene
     /// </summary>
     public abstract class SSParticleEmitter
     {
-        public delegate void ReceiverHandler(SSParticle newParticle);
+        public delegate int ReceiverHandler(SSParticle newParticle);
 
         protected readonly static SSParticle _defaultParticle = new SSParticle();
 
@@ -266,12 +266,17 @@ namespace SimpleScene
         /// <param name="receiver">Receiver.</param>
 		protected virtual void emitParticles (int particleCount, ReceiverHandler receiver)
 		{
-			SSParticle newParticle = new SSParticle();
+            SSParticle newParticle = createNewParticle();
 			for (int i = 0; i < particleCount; ++i) {
 				configureNewParticle (newParticle);
 				receiver (newParticle);
 			}
 		}
+
+        protected virtual SSParticle createNewParticle()
+        {
+            return new SSParticle ();
+        }
 
         /// <summary>
         /// To be used by derived classes for shared particle setup
