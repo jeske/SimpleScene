@@ -85,10 +85,12 @@ namespace SimpleScene
         /// <summary>
         /// Quaterionon needed to transform direction dir1 into direction dir2
         /// </summary>
-        public static Quaternion neededRotation(Vector3 dir1, Vector3 dir2)
+        public static Quaternion neededRotation(Vector3 dir1, Vector3 dir2, bool normalize = true)
         {
-            dir1.Normalize();
-            dir2.Normalize();
+            if (normalize) {
+                dir1.Normalize();
+                dir2.Normalize();
+            }
             Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
             if (float.IsNaN(crossNormalized.X)) {
                 // this means dir1 is parallel to dir2. we can do it less cryptically but why add processing?

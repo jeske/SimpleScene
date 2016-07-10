@@ -13,10 +13,11 @@ namespace SimpleScene
 
         public class STrailsParameters
         {
-            public int capacity = 20;
-            public float trailWidth = 20f;
-            public float trailsEmissionInterval = 0.5f;
-            public float velocityToLengthFactor = 1f;
+            public int capacity = 2000;
+            public float trailWidth = 5f;
+            public float trailsEmissionInterval = 0.05f;
+            public float velocityToLengthFactor = 0.2f;
+            public float trailLifetime = 20f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public string textureFilename = "trail.png";
@@ -35,7 +36,7 @@ namespace SimpleScene
             STrailsParameters trailsParams = null)
             : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
                 trailsParams ?? new STrailsParameters()),
-                SSTexturedQuad.DoubleFaceInstance, _defaultUsageHint)
+                SSTexturedQuad.DoubleFaceCrossBarInstance, _defaultUsageHint)
         {
             trailsParams = trailsData.trailsParams;
             var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(trailsParams.textureFilename);
@@ -61,8 +62,10 @@ namespace SimpleScene
 
             protected byte _headSegmentIdx = STrailsSegment.NotConnected;
             protected byte _tailSegmentIdx = STrailsSegment.NotConnected;
-            protected readonly  byte[] _nextSegmentData = null;
-            protected readonly  byte[] _prevSegmentData = null;
+            protected readonly byte[] _nextSegmentData = null;
+            protected readonly byte[] _prevSegmentData = null;
+            protected readonly Vector3[] _motionVecs = null;
+            protected readonly STrailUpdater _updater;
             //protected readonly SSParticleEmitter _headEmitter;
 
             public STrailsData(PositionFunc positionFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
@@ -73,10 +76,19 @@ namespace SimpleScene
 
                 _nextSegmentData = new byte[capacity];
                 _prevSegmentData = new byte[capacity];
+                _motionVecs = new Vector3[capacity];
                 //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
 
                 addEmitter(new STrailsEmitter(trailsParams, positionFunc, velocityFunc, fwdDirFunc));
-                addEffector(new SRadialBillboardOrientator());
+
+                _updater = new STrailUpdater(trailsParams);
+                addEffector(_updater);
+            }
+
+            public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
+            {
+                var modelView = model * view;
+                _updater.updateModelView(ref modelView);
             }
 
             protected override SSParticle createNewParticle ()
@@ -91,6 +103,7 @@ namespace SimpleScene
                 var ts = (STrailsSegment)p;
                 ts.nextSegmentIdx = _nextSegmentData [idx];
                 ts.prevSegmentIdx = _prevSegmentData [idx];
+                ts.motionVec = _motionVecs [idx];
             }
 
             protected override void writeParticle (int idx, SSParticle p)
@@ -122,6 +135,9 @@ namespace SimpleScene
                 if (_prevSegmentData != null) {
                     _prevSegmentData [idx] = ts.prevSegmentIdx;
                 }
+                if (_motionVecs != null) {
+                    _motionVecs [idx] = ts.motionVec;
+                }
             }
 
 
@@ -150,6 +166,7 @@ namespace SimpleScene
             {
                 public const byte NotConnected = 255;
 
+                public Vector3 motionVec = -Vector3.UnitZ;
                 public byte prevSegmentIdx = NotConnected;
                 public byte nextSegmentIdx = NotConnected;
             }
@@ -169,13 +186,19 @@ namespace SimpleScene
                     this.posFunc = posFunc;
                     this.velFunc = velFunc;
                     this.fwdDirFunc = fwdDirFunc;
+
+                    base.life = tParams.trailLifetime;
+                    base.emissionInterval = tParams.trailsEmissionInterval;
+                    base.velocity = Vector3.Zero;
+                    base.color = new Color4(1f, 1f, 1f, 0.3f);
                 }
 
+                #if false
                 protected override void emitParticles (int particleCount, ParticleFactory factory, ReceiverHandler receiver)
                 {
                     // don't emit particles when the motion is slow/wrong direction relative to "forward"
                     Vector3 vel = velFunc();
-                    Vector3 dir = fwdDirFunc();
+                    Vector3 dir = fwdDirFunc();gim
                     float relVelocity = Vector3.Dot(vel, dir);
                     if (relVelocity < trailParams.trailCutoffVelocity) {
                         return;
@@ -183,18 +206,83 @@ namespace SimpleScene
 
                     base.emitParticles(particleCount, factory, receiver);
                 }
+                #endif
 
                 protected override void configureNewParticle (SSParticle p)
                 {
                     base.configureNewParticle(p);
 
-                    var velocity = this.velFunc();
 
-                    p.pos = posFunc();
-                    p.componentScale = new Vector3 (
+                    var ts = (STrailsSegment)p;
+                    var velocity = this.velFunc();
+                    //var dir 
+
+                    ts.billboardXY = true;
+                    ts.pos = posFunc();
+                    ts.motionVec = velocity;
+                    ts.componentScale.Y = trailParams.trailWidth;
+
+                    /*
+                    ts.componentScale = new Vector3 (
                         trailParams.velocityToLengthFactor * velocity.LengthFast,
                         trailParams.trailWidth,
                         1f);
+                        */
+
+                    #if false
+                    //var dir = -1f * fwdDirFunc().Normalized(); 
+                    var dir = velocity.Normalized();
+
+                    float theta = (float)Math.Atan2(dir.Y, dir.X);
+                    float xy = (float)Math.Sqrt(dir.X * dir.X * dir.Y * dir.Y);
+                    float phi = (float)Math.Atan2(dir.Z, xy);
+
+                    //ts.orientation.X = -(float)Math.PI / 2f;
+                    //ts.orientation.Z = theta;
+                    //ts.orientation.Y = phi;
+
+                    //ts.orientation.X = 0f;
+                    //ts.orientation.Y = -phi;
+                    ts.orientation.Z = theta;
+                    #endif
+
+                    Console.WriteLine("orientation =  " + ts.orientation);
+
+                }
+            }
+
+            public class STrailUpdater : SSParticleEffector
+            {
+                //protected Vector3 _cameraX = Vector3.UnitX;
+                //protected Vector3 _cameraY = Vector3.UnitY;
+                protected Matrix4 _modelView = Matrix4.Identity;
+
+                public STrailsParameters trailsParams;
+
+                public STrailUpdater(STrailsParameters trailParams)
+                {
+                    this.trailsParams = trailParams;
+                }
+
+                public void updateModelView(ref Matrix4 modelView)
+                {
+                    _modelView = modelView;
+                    //_cameraX = Vector3.Transform(Vector3.UnitX, modelView);
+                    //_cameraY = Vector3.Transform(Vector3.UnitY, modelView);
+                }
+
+                protected override void effectParticle (SSParticle particle, float deltaT)
+                {
+                    var ts = (STrailsSegment)particle;
+
+                    Vector3 centerView = Vector3.Transform(ts.pos, _modelView);
+                    Vector3 endView = Vector3.Transform(ts.pos + ts.motionVec * trailsParams.velocityToLengthFactor, _modelView);
+                    Vector3 motionView = endView - centerView;
+                    float motionViewXy = motionView.Xy.LengthFast;
+
+                    ts.componentScale.X = motionViewXy; // * trailsParams.velocityToLengthFactor;
+                    ts.orientation.Z = (float)Math.Atan2(motionView.Y, motionView.X);
+                    //ts.orientation.Y = (float)Math.Atan2(motionView.Z, motionViewXy);
                 }
             }
         }
