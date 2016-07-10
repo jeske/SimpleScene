@@ -159,6 +159,14 @@ namespace TestBench3
                 getTargetObject()
             );
 
+
+            // trails test
+            var trailsRenderer = new STrailsRenderer(
+                () => vandalShip.Pos,
+                () => vandalVelocity,
+                () => vandalShip.Dir
+            );
+            alpha3dScene.AddObject(trailsRenderer);
         }
 
         protected string _showDistanceFunc(SSObject target)

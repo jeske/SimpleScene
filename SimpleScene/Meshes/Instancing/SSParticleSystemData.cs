@@ -198,7 +198,7 @@ namespace SimpleScene
 			_effectorMasksLow = new byte[1];
 			_effectorMasksHigh = new byte[1];
 
-            writeParticle(0, new SSParticle ()); // fill in default values
+            writeParticle(0, createNewParticle()); // fill in default values
             for (int i = 0; i < _capacity; ++i) {
                 _lives [i] = 0f;
             }
@@ -214,7 +214,7 @@ namespace SimpleScene
 		public virtual void emitAll()
         {
             foreach (SSParticleEmitter e in _emitters) {
-                e.emitParticles(storeNewParticle);
+                e.emitParticles(createNewParticle, storeNewParticle);
             }
         }
 
@@ -347,6 +347,11 @@ namespace SimpleScene
             #endif
         }
 
+        protected virtual SSParticle createNewParticle()
+        {
+            return new SSParticle ();
+        }
+
 		protected virtual void simulateStep()
         {
             _radius = 0f;
@@ -357,7 +362,7 @@ namespace SimpleScene
 				emitter.simulateSelf (simulationStep);
 			}
 
-            SSParticle p = new SSParticle ();
+            SSParticle p = createNewParticle();
             for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Alive particle
@@ -418,7 +423,7 @@ namespace SimpleScene
                 }
             }
 			foreach (SSParticleEmitter emitter in _emitters) {
-				emitter.simulateEmissions(simulationStep, storeNewParticle);
+                emitter.simulateEmissions(simulationStep, createNewParticle, storeNewParticle);
 			}
         }
 
@@ -594,8 +599,8 @@ namespace SimpleScene
             // TODO Consider swaping on a per component basis. 
             // It may have better peformance
             // But adds more per-component maintenance
-            SSParticle leftParticle = new SSParticle ();
-            SSParticle rightParticle = new SSParticle();
+            SSParticle leftParticle = createNewParticle();
+            SSParticle rightParticle = createNewParticle();
             readParticle(leftIdx, leftParticle);
             readParticle(rightIdx, rightParticle);
 

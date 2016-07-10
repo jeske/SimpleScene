@@ -11,6 +11,7 @@ namespace SimpleScene
     /// </summary>
     public abstract class SSParticleEmitter
     {
+        public delegate SSParticle ParticleFactory();
         public delegate int ReceiverHandler(SSParticle newParticle);
 
         protected readonly static SSParticle _defaultParticle = new SSParticle();
@@ -216,13 +217,13 @@ namespace SimpleScene
             _nextEmission = 0f;
         }
 
-        public void emitParticles(ReceiverHandler receiver)
+        public void emitParticles(ParticleFactory factory, ReceiverHandler receiver)
         {
             int numToEmit = _rand.Next(particlesPerEmissionMin, particlesPerEmissionMax);
-            emitParticles(numToEmit, receiver);
+            emitParticles(numToEmit, factory, receiver);
         }
 
-        public void simulateEmissions(float deltaT, ReceiverHandler receiver) 
+        public void simulateEmissions(float deltaT, ParticleFactory factory, ReceiverHandler receiver) 
         {
 			if (totalEmissionsLeft == 0) return;
 
@@ -237,7 +238,7 @@ namespace SimpleScene
             _timeSinceLastEmission += deltaT;
 			float diff;
 			while ((diff = _timeSinceLastEmission - _nextEmission) > 0f) {
-                emitParticles(receiver);
+                emitParticles(factory, receiver);
 				if (totalEmissionsLeft > 0 && --totalEmissionsLeft == 0) {
 					reset ();
                     break;
@@ -264,19 +265,14 @@ namespace SimpleScene
         /// </summary>
         /// <param name="particleCount">Particle count.</param>
         /// <param name="receiver">Receiver.</param>
-		protected virtual void emitParticles (int particleCount, ReceiverHandler receiver)
+        protected virtual void emitParticles (int particleCount, ParticleFactory factory, ReceiverHandler receiver)
 		{
-            SSParticle newParticle = createNewParticle();
+            SSParticle newParticle = factory();
 			for (int i = 0; i < particleCount; ++i) {
 				configureNewParticle (newParticle);
 				receiver (newParticle);
 			}
 		}
-
-        protected virtual SSParticle createNewParticle()
-        {
-            return new SSParticle ();
-        }
 
         /// <summary>
         /// To be used by derived classes for shared particle setup
@@ -464,9 +460,9 @@ namespace SimpleScene
             m_fieldGenerator.SetSeed(seed);
         }
 
-        protected override void emitParticles (int particleCount, ReceiverHandler particleReceiver)
+        protected override void emitParticles (int particleCount, ParticleFactory factory, ReceiverHandler particleReceiver)
         {
-            SSParticle newParticle = new SSParticle();
+            SSParticle newParticle = factory();
             ParticlesFieldGenerator.NewParticleDelegate fieldReceiver = (id, pos) => {
                 configureNewParticle(newParticle);
                 newParticle.pos = pos;
@@ -491,9 +487,9 @@ namespace SimpleScene
 			_bodiesGenerator.SetSeed(seed);
 		}
 
-		protected override void emitParticles (int particleCount, ReceiverHandler particleReceiver)
+		protected override void emitParticles (int particleCount, ParticleFactory factory, ReceiverHandler particleReceiver)
 		{
-			SSParticle newParticle = new SSParticle();
+            SSParticle newParticle = factory();
 			BodiesFieldGenerator.NewBodyDelegate bodyReceiver = (id, scale, pos, orient) => {
 				configureNewParticle(newParticle);
 				newParticle.pos = pos;
