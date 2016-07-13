@@ -16,7 +16,7 @@ namespace SimpleScene
             public int capacity = 2000;
             public float trailWidth = 5f;
             public float trailsEmissionInterval = 0.05f;
-            public float velocityToLengthFactor = 0.2f;
+            public float velocityToLengthFactor = 1f;
             public float trailLifetime = 20f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
@@ -51,9 +51,20 @@ namespace SimpleScene
             renderState.lighted = false;
             simulateOnUpdate = true;
 
-            colorMaterial = SSColorMaterial.pureAmbient;
+            // TODO this is kind of heavy heanded. try a few alternatives with bounding spheres
+            renderState.frustumCulling = false;
+
+            colorMaterial =         SSColorMaterial.pureAmbient;
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
+        }
+
+        public override void Render (SSRenderConfig renderConfig)
+        {
+            // a hack to draw segment particles in viewspace
+            this.worldMat = renderConfig.invCameraViewMatrix.Inverted();
+
+            base.Render(renderConfig);
         }
 
         public class STrailsData : SSParticleSystemData
@@ -65,6 +76,7 @@ namespace SimpleScene
             protected readonly byte[] _nextSegmentData = null;
             protected readonly byte[] _prevSegmentData = null;
             protected readonly Vector3[] _motionVecs = null;
+            protected readonly Vector3[] _worldCoords = null;
             protected readonly STrailUpdater _updater;
             //protected readonly SSParticleEmitter _headEmitter;
 
@@ -74,9 +86,11 @@ namespace SimpleScene
             {
                 this.trailsParams = trailsParams;
 
+                _worldCoords = new Vector3[capacity];
+                _motionVecs = new Vector3[capacity];
                 _nextSegmentData = new byte[capacity];
                 _prevSegmentData = new byte[capacity];
-                _motionVecs = new Vector3[capacity];
+
                 //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
 
                 addEmitter(new STrailsEmitter(trailsParams, positionFunc, velocityFunc, fwdDirFunc));
@@ -85,10 +99,16 @@ namespace SimpleScene
                 addEffector(_updater);
             }
 
+            protected override void simulateStep ()
+            {
+                base.simulateStep();
+
+
+            }
+
             public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
             {
-                var modelView = model * view;
-                _updater.updateModelView(ref modelView);
+                _updater.updateViewMatrix(ref view);
             }
 
             protected override SSParticle createNewParticle ()
@@ -101,9 +121,10 @@ namespace SimpleScene
                 base.readParticle(idx, p);
 
                 var ts = (STrailsSegment)p;
+                ts.worldPos = _worldCoords [idx];
+                ts.motionVec = _motionVecs [idx];
                 ts.nextSegmentIdx = _nextSegmentData [idx];
                 ts.prevSegmentIdx = _prevSegmentData [idx];
-                ts.motionVec = _motionVecs [idx];
             }
 
             protected override void writeParticle (int idx, SSParticle p)
@@ -129,14 +150,17 @@ namespace SimpleScene
                     _nextSegmentData [ts.prevSegmentIdx] = (byte)idx;
                 }
 
+                if (_worldCoords != null) {
+                    _worldCoords [idx] = ts.worldPos;
+                }
+                if (_motionVecs != null) {
+                    _motionVecs [idx] = ts.motionVec;
+                }
                 if (_nextSegmentData != null) {
                     _nextSegmentData [idx] = ts.nextSegmentIdx;
                 }
                 if (_prevSegmentData != null) {
                     _prevSegmentData [idx] = ts.prevSegmentIdx;
-                }
-                if (_motionVecs != null) {
-                    _motionVecs [idx] = ts.motionVec;
                 }
             }
 
@@ -166,6 +190,7 @@ namespace SimpleScene
             {
                 public const byte NotConnected = 255;
 
+                public Vector3 worldPos = Vector3.Zero;
                 public Vector3 motionVec = -Vector3.UnitZ;
                 public byte prevSegmentIdx = NotConnected;
                 public byte nextSegmentIdx = NotConnected;
@@ -217,10 +242,12 @@ namespace SimpleScene
                     var velocity = this.velFunc();
                     //var dir 
 
-                    ts.billboardXY = true;
-                    ts.pos = posFunc();
+                    //ts.billboardXY = true;
+                    ts.pos = Vector3.Zero;
+                    ts.worldPos = posFunc();
                     ts.motionVec = velocity;
                     ts.componentScale.Y = trailParams.trailWidth;
+                    ts.componentScale.Z = trailParams.trailWidth;
 
                     /*
                     ts.componentScale = new Vector3 (
@@ -246,7 +273,7 @@ namespace SimpleScene
                     ts.orientation.Z = theta;
                     #endif
 
-                    Console.WriteLine("orientation =  " + ts.orientation);
+                    //Console.WriteLine("orientation =  " + ts.orientation);
 
                 }
             }
@@ -255,7 +282,7 @@ namespace SimpleScene
             {
                 //protected Vector3 _cameraX = Vector3.UnitX;
                 //protected Vector3 _cameraY = Vector3.UnitY;
-                protected Matrix4 _modelView = Matrix4.Identity;
+                protected Matrix4 _viewMat = Matrix4.Identity;
 
                 public STrailsParameters trailsParams;
 
@@ -264,9 +291,9 @@ namespace SimpleScene
                     this.trailsParams = trailParams;
                 }
 
-                public void updateModelView(ref Matrix4 modelView)
+                public void updateViewMatrix(ref Matrix4 viewMat)
                 {
-                    _modelView = modelView;
+                    _viewMat = viewMat;
                     //_cameraX = Vector3.Transform(Vector3.UnitX, modelView);
                     //_cameraY = Vector3.Transform(Vector3.UnitY, modelView);
                 }
@@ -275,14 +302,18 @@ namespace SimpleScene
                 {
                     var ts = (STrailsSegment)particle;
 
-                    Vector3 centerView = Vector3.Transform(ts.pos, _modelView);
-                    Vector3 endView = Vector3.Transform(ts.pos + ts.motionVec * trailsParams.velocityToLengthFactor, _modelView);
+                    Vector3 centerView = Vector3.Transform(ts.worldPos, _viewMat);
+                    Vector3 endView = Vector3.Transform(
+                        ts.worldPos + ts.motionVec * trailsParams.velocityToLengthFactor, _viewMat);
                     Vector3 motionView = endView - centerView;
+
                     float motionViewXy = motionView.Xy.LengthFast;
 
-                    ts.componentScale.X = motionViewXy; // * trailsParams.velocityToLengthFactor;
+                    //ts.pos = Vector3.Zero;
+                    ts.pos = centerView; // draw in view space
+                    ts.componentScale.X = motionView.LengthFast;
                     ts.orientation.Z = (float)Math.Atan2(motionView.Y, motionView.X);
-                    //ts.orientation.Y = (float)Math.Atan2(motionView.Z, motionViewXy);
+                    ts.orientation.Y = -(float)Math.Atan2(motionView.Z, motionViewXy);
                 }
             }
         }
