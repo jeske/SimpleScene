@@ -138,21 +138,21 @@ namespace SimpleScene
             }
         }
 
-        protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
+        protected virtual void _prepareInstanceShader(SSRenderConfig renderConfig)
         {
-			if (renderConfig.drawingShadowMap && renderConfig.drawingPssm) {
+            ISSInstancableShaderProgram instanceShader;
+
+            if (renderConfig.drawingShadowMap && renderConfig.drawingPssm) {
                 renderConfig.instancePssmShader.Activate ();
                 renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
+                instanceShader = renderConfig.instancePssmShader;
             } else {
                 // texture binding and world mat setup
                 renderConfig.instanceShader.Activate ();
                 base.setDefaultShaderState(renderConfig.instanceShader, renderConfig);
+                instanceShader = renderConfig.instanceShader;
             }
 
-            ISSInstancableShaderProgram instanceShader = renderConfig.ActiveInstanceShader;
-
-            // prepare attribute arrays for draw
-            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             _prepareAttribute(_posBuffer, instanceShader.AttrInstancePos, 
                 instanceData.positions);
             _prepareAttribute(_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
@@ -177,6 +177,14 @@ namespace SimpleScene
                 instanceData.spriteSizesU);
             _prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
                 instanceData.spriteSizesV);
+        }
+
+        protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
+        {
+            // prepare attribute arrays for draw
+            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
+
+            _prepareInstanceShader(renderConfig);
 
             // do the draw
             mesh.drawInstanced(renderConfig, instanceData.activeBlockLength, this.primType);
@@ -194,7 +202,7 @@ namespace SimpleScene
             attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
 
-        protected void _renderWithCPUIterations(SSRenderConfig renderConfig)
+        protected virtual void _renderWithCPUIterations(SSRenderConfig renderConfig)
         {
             var mainShader = renderConfig.mainShader;
             mainShader.Activate();

@@ -2,28 +2,28 @@
 
 using OpenTK.Graphics.OpenGL;
 
-public interface ISSInstancableShaderProgram
-{
-	void Activate();
-
-	int AttrInstancePos { get; }
-	int AttrInstanceOrientationXY { get; }
-	int AttrInstanceOrientationZ { get; }
-	int AttrInstanceMasterScale { get; }
-	int AttrInstanceComponentScaleXY { get; }
-	int AttrInstanceComponentScaleZ { get; }
-	int AttrInstanceColor { get; }
-	int AttrInstanceSpriteOffsetU { get; }
-	int AttrInstanceSpriteOffsetV { get; }
-	int AttrInstanceSpriteSizeU { get; }
-	int AttrInstanceSpriteSizeV { get; }
-
-	int AttrTexCoord { get; }
-	int AttrNormal { get; }
-}
-
 namespace SimpleScene
 {
+    public interface ISSInstancableShaderProgram
+    {
+        void Activate();
+
+        int AttrInstancePos { get; }
+        int AttrInstanceOrientationXY { get; }
+        int AttrInstanceOrientationZ { get; }
+        int AttrInstanceMasterScale { get; }
+        int AttrInstanceComponentScaleXY { get; }
+        int AttrInstanceComponentScaleZ { get; }
+        int AttrInstanceColor { get; }
+        int AttrInstanceSpriteOffsetU { get; }
+        int AttrInstanceSpriteOffsetV { get; }
+        int AttrInstanceSpriteSizeU { get; }
+        int AttrInstanceSpriteSizeV { get; }
+
+        int AttrTexCoord { get; }
+        int AttrNormal { get; }
+    }
+
 	public class SSInstanceShaderProgram : SSMainShaderProgram, ISSInstancableShaderProgram
     {
 		#region attribute locations

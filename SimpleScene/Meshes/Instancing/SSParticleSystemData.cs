@@ -156,6 +156,33 @@ namespace SimpleScene
             reset();
         }
 
+        protected virtual void initArrays()
+        {
+            _positions = new SSAttributeVec3[1];
+            _orientationsXY = new SSAttributeVec2[1];
+            _orientationsZ = new SSAttributeFloat[1];
+            _masterScales = new SSAttributeFloat[1];
+            _componentScalesXY = new SSAttributeVec2[1];
+            _componentScalesZ = new SSAttributeFloat[1];
+            _colors = new SSAttributeColor[1];
+
+            //m_spriteIndices = new SSAttributeByte[1];
+            _spriteOffsetsU = new SSAttributeFloat[1];
+            _spriteOffsetsV = new SSAttributeFloat[1];
+            _spriteSizesU = new SSAttributeFloat[1];
+            _spriteSizesV = new SSAttributeFloat[1];
+
+            _velocities = new Vector3[1];
+            _angularVelocities = new Vector3[1];
+            _masses = new float[1];
+            _rotationalInnertias = new float[1];
+            _drags = new float[1];
+            _rotationalDrags = new float[1];
+            _viewDepths = new float[1];
+            _effectorMasksLow = new byte[1];
+            _effectorMasksHigh = new byte[1];
+        }
+
 		/// <summary>
 		/// This class tries faithfully to be resettable. One of the benefits may be being able to reset a
 		/// particle system if working in a game editor.
@@ -174,30 +201,7 @@ namespace SimpleScene
 			_radius = 0f;
 			elapsedTimeAccumulator = 0f;
 
-            _positions = new SSAttributeVec3[1];
-			_orientationsXY = new SSAttributeVec2[1];
-			_orientationsZ = new SSAttributeFloat[1];
-            _masterScales = new SSAttributeFloat[1];
-            _componentScalesXY = new SSAttributeVec2[1];
-			_componentScalesZ = new SSAttributeFloat[1];
-            _colors = new SSAttributeColor[1];
-
-			//m_spriteIndices = new SSAttributeByte[1];
-            _spriteOffsetsU = new SSAttributeFloat[1];
-            _spriteOffsetsV = new SSAttributeFloat[1];
-            _spriteSizesU = new SSAttributeFloat[1];
-            _spriteSizesV = new SSAttributeFloat[1];
-
-            _velocities = new Vector3[1];
-            _angularVelocities = new Vector3[1];
-            _masses = new float[1];
-			_rotationalInnertias = new float[1];
-			_drags = new float[1];
-			_rotationalDrags = new float[1];
-            _viewDepths = new float[1];
-			_effectorMasksLow = new byte[1];
-			_effectorMasksHigh = new byte[1];
-
+            initArrays();
             writeParticle(0, createNewParticle()); // fill in default values
             for (int i = 0; i < _capacity; ++i) {
                 _lives [i] = 0f;

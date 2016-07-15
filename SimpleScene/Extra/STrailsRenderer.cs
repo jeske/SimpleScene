@@ -1,7 +1,8 @@
-﻿        using System;
+﻿using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SimpleScene.Util;
 
 namespace SimpleScene
 {
@@ -54,7 +55,7 @@ namespace SimpleScene
             // TODO this is kind of heavy heanded. try a few alternatives with bounding spheres
             renderState.frustumCulling = false;
 
-            colorMaterial =         SSColorMaterial.pureAmbient;
+            colorMaterial = SSColorMaterial.pureAmbient;
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
         }
@@ -67,16 +68,22 @@ namespace SimpleScene
             base.Render(renderConfig);
         }
 
+        protected override void _prepareInstanceShader (SSRenderConfig renderConfig)
+        {
+            // TODO
+        }
+
         public class STrailsData : SSParticleSystemData
         {
             public readonly STrailsParameters trailsParams;
 
             protected byte _headSegmentIdx = STrailsSegment.NotConnected;
             protected byte _tailSegmentIdx = STrailsSegment.NotConnected;
-            protected readonly byte[] _nextSegmentData = null;
-            protected readonly byte[] _prevSegmentData = null;
-            protected readonly Vector3[] _motionVecs = null;
-            protected readonly Vector3[] _worldCoords = null;
+            protected byte[] _nextSegmentData = null;
+            protected byte[] _prevSegmentData = null;
+            protected Vector3[] _cylAxes = null;
+            protected float[] _cylLengths = null;
+            protected float[] _cylWidths = null;
             protected readonly STrailUpdater _updater;
             //protected readonly SSParticleEmitter _headEmitter;
 
@@ -86,10 +93,6 @@ namespace SimpleScene
             {
                 this.trailsParams = trailsParams;
 
-                _worldCoords = new Vector3[capacity];
-                _motionVecs = new Vector3[capacity];
-                _nextSegmentData = new byte[capacity];
-                _prevSegmentData = new byte[capacity];
 
                 //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
 
@@ -99,11 +102,15 @@ namespace SimpleScene
                 addEffector(_updater);
             }
 
-            protected override void simulateStep ()
+            protected override void initArrays ()
             {
-                base.simulateStep();
+                base.initArrays();
 
-
+                _cylAxes = new Vector3[1];
+                _cylLengths = new float[1];
+                _cylWidths = new float[1];
+                _nextSegmentData = new byte[1];
+                _prevSegmentData = new byte[1];
             }
 
             public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
@@ -121,10 +128,10 @@ namespace SimpleScene
                 base.readParticle(idx, p);
 
                 var ts = (STrailsSegment)p;
-                ts.worldPos = _worldCoords [idx];
-                ts.motionVec = _motionVecs [idx];
-                ts.nextSegmentIdx = _nextSegmentData [idx];
-                ts.prevSegmentIdx = _prevSegmentData [idx];
+                ts.cylAxis = _readElement(_cylAxes, idx);
+                ts.cylLendth = _readElement(_cylLengths, idx);
+                ts.nextSegmentIdx = _readElement(_nextSegmentData, idx);
+                ts.prevSegmentIdx = _readElement(_prevSegmentData, idx);
             }
 
             protected override void writeParticle (int idx, SSParticle p)
@@ -138,7 +145,7 @@ namespace SimpleScene
                     _headSegmentIdx = (byte)idx;
                 } else {
                     // update connection from the next segment
-                    _prevSegmentData [ts.nextSegmentIdx] = (byte)idx;
+                    writeDataIfNeeded(ref _prevSegmentData, ts.nextSegmentIdx, (byte)idx);
                 }
 
                 if (ts.prevSegmentIdx == STrailsSegment.NotConnected) {
@@ -147,21 +154,14 @@ namespace SimpleScene
                     _tailSegmentIdx = (byte)idx;
                 } else {
                     // update connection from the previous segment
-                    _nextSegmentData [ts.prevSegmentIdx] = (byte)idx;
+                    writeDataIfNeeded(ref _nextSegmentData, ts.prevSegmentIdx, (byte)idx);
                 }
 
-                if (_worldCoords != null) {
-                    _worldCoords [idx] = ts.worldPos;
-                }
-                if (_motionVecs != null) {
-                    _motionVecs [idx] = ts.motionVec;
-                }
-                if (_nextSegmentData != null) {
-                    _nextSegmentData [idx] = ts.nextSegmentIdx;
-                }
-                if (_prevSegmentData != null) {
-                    _prevSegmentData [idx] = ts.prevSegmentIdx;
-                }
+                writeDataIfNeeded(ref _cylAxes, idx, ts.cylAxis);
+                writeDataIfNeeded(ref _cylLengths, idx, ts.cylLendth);
+                writeDataIfNeeded(ref _cylWidths, idx, ts.cylWidth);
+                writeDataIfNeeded(ref _nextSegmentData, idx, ts.nextSegmentIdx);
+                writeDataIfNeeded(ref _prevSegmentData, idx, ts.prevSegmentIdx);
             }
 
 
@@ -176,8 +176,8 @@ namespace SimpleScene
                 if (numElements >= capacity) {
                     var oldTailIdx = _tailSegmentIdx;
                     // pre-tail is now tail
-                    byte preTail = _nextSegmentData [oldTailIdx];
-                    _prevSegmentData [preTail] = STrailsSegment.NotConnected;
+                    byte preTail = _readElement(_nextSegmentData, oldTailIdx);
+                    writeDataIfNeeded(ref _prevSegmentData, preTail, STrailsSegment.NotConnected);
                     _tailSegmentIdx = preTail;
                     // old trail will get overwritten in base.storeNewParticle()
                     _nextIdxToOverwrite = oldTailIdx;
@@ -190,8 +190,9 @@ namespace SimpleScene
             {
                 public const byte NotConnected = 255;
 
-                public Vector3 worldPos = Vector3.Zero;
-                public Vector3 motionVec = -Vector3.UnitZ;
+                public Vector3 cylAxis = -Vector3.UnitZ;
+                public float cylLendth = 5f;
+                public float cylWidth = 2f;
                 public byte prevSegmentIdx = NotConnected;
                 public byte nextSegmentIdx = NotConnected;
             }
@@ -237,44 +238,14 @@ namespace SimpleScene
                 {
                     base.configureNewParticle(p);
 
-
                     var ts = (STrailsSegment)p;
                     var velocity = this.velFunc();
-                    //var dir 
 
-                    //ts.billboardXY = true;
-                    ts.pos = Vector3.Zero;
-                    ts.worldPos = posFunc();
-                    ts.motionVec = velocity;
-                    ts.componentScale.Y = trailParams.trailWidth;
-                    ts.componentScale.Z = trailParams.trailWidth;
-
-                    /*
-                    ts.componentScale = new Vector3 (
-                        trailParams.velocityToLengthFactor * velocity.LengthFast,
-                        trailParams.trailWidth,
-                        1f);
-                        */
-
-                    #if false
-                    //var dir = -1f * fwdDirFunc().Normalized(); 
-                    var dir = velocity.Normalized();
-
-                    float theta = (float)Math.Atan2(dir.Y, dir.X);
-                    float xy = (float)Math.Sqrt(dir.X * dir.X * dir.Y * dir.Y);
-                    float phi = (float)Math.Atan2(dir.Z, xy);
-
-                    //ts.orientation.X = -(float)Math.PI / 2f;
-                    //ts.orientation.Z = theta;
-                    //ts.orientation.Y = phi;
-
-                    //ts.orientation.X = 0f;
-                    //ts.orientation.Y = -phi;
-                    ts.orientation.Z = theta;
-                    #endif
-
-                    //Console.WriteLine("orientation =  " + ts.orientation);
-
+                    ts.pos = posFunc();
+                    ts.cylAxis = velocity.Normalized();
+                    ts.cylLendth = velocity.Length * trailParams.velocityToLengthFactor;
+                    ts.cylWidth = trailParams.trailWidth;
+                    ts.color = Color4Helper.RandomDebugColor();
                 }
             }
 
@@ -302,6 +273,7 @@ namespace SimpleScene
                 {
                     var ts = (STrailsSegment)particle;
 
+                    #if false
                     Vector3 centerView = Vector3.Transform(ts.worldPos, _viewMat);
                     Vector3 endView = Vector3.Transform(
                         ts.worldPos + ts.motionVec * trailsParams.velocityToLengthFactor, _viewMat);
@@ -314,6 +286,7 @@ namespace SimpleScene
                     ts.componentScale.X = motionView.LengthFast;
                     ts.orientation.Z = (float)Math.Atan2(motionView.Y, motionView.X);
                     ts.orientation.Y = -(float)Math.Atan2(motionView.Z, motionViewXy);
+                    #endif
                 }
             }
         }

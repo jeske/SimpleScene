@@ -7,7 +7,6 @@ attribute vec3 cylinderAxis; // must be normalized
 attribute float cylinderWidth;
 attribute float cylinderLength;
 attribute vec4 cylinderColor;
-attribute vec3 scaledAxisIn;
 #else
 uniform vec3 cylinderCenter;
 uniform vec3 cylinderAxis; // must be normalized
