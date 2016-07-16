@@ -23,17 +23,17 @@ namespace SimpleScene.Demos
         protected SSObjectOcclusionQueuery sunDisk;
 
 		protected virtual void setupScene() {
-            hud2dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            environmentScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            sunFlareScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            sunDiskScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            hud2dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader, otherShaders);
+            environmentScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader, otherShaders);
+            sunFlareScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader, otherShaders);
+            sunDiskScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader, otherShaders);
 
-            main3dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            main3dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader, otherShaders);
 			main3dScene.renderConfig.frustumCulling = true;
             main3dScene.renderConfig.usePoissonSampling = true;
 			main3dScene.BeforeRenderObject += this.beforeRenderObjectHandler;
 
-            alpha3dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+            alpha3dScene = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader, otherShaders);
             alpha3dScene.renderConfig.frustumCulling = true;
             alpha3dScene.renderConfig.usePoissonSampling = false;
             alpha3dScene.BeforeRenderObject += this.beforeRenderObjectHandler;

@@ -2,10 +2,10 @@
 // Released to the public domain. Use, modify and relicense at will.
 
 using System;
-
 using System.Threading;
 using System.Globalization;
 using System.Drawing;
+using System.Collections.Generic;
 
 using OpenTK;
 using OpenTK.Graphics;
@@ -81,6 +81,7 @@ namespace SimpleScene.Demos
 		protected SSPssmShaderProgram pssmShader;
 		protected SSInstanceShaderProgram instancingShader;
 		protected SSInstancePssmShaderProgram instancingPssmShader;
+        protected Dictionary<string, SSShaderProgram> otherShaders;
 
 		#if false
 		/// <summary>
@@ -147,6 +148,11 @@ namespace SimpleScene.Demos
 			if (!instancingPssmShader.IsValid) {
 				instancingPssmShader = null;
 			}
+            otherShaders = new Dictionary<string, SSShaderProgram> ();
+            var cylinderInstanced = new SSInstancedCylinderShaderProgram ();
+            if (cylinderInstanced .IsValid) {
+                otherShaders.Add("instanced_cylinder", cylinderInstanced);
+            } 
 
 			setupInput ();
 			setupScene ();

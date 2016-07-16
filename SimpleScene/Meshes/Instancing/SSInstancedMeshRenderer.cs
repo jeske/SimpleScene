@@ -68,19 +68,7 @@ namespace SimpleScene
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
             instanceData = ps;
-			_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
-			_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
-			_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
-			_componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
-
-			//m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
-			_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _initAttributeBuffers(hint);
 
             // Fixes flicker issues for particles with "fighting" view depth values
             this.renderState.depthFunc = DepthFunction.Lequal;
@@ -97,6 +85,24 @@ namespace SimpleScene
 		{
 			this.mesh = mesh;
 		}
+
+        // TODO interface or abstract classify
+        protected virtual void _initAttributeBuffers(BufferUsageHint hint)
+        {
+            _posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+            _orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+            _componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
+
+            //m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
+            _spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+        }
 
         public override void Render (SSRenderConfig renderConfig)
         {

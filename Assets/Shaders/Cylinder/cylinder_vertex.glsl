@@ -13,44 +13,42 @@ uniform vec3 cylinderAxis; // must be normalized
 uniform float cylinderWidth;
 uniform float cylinderLength;
 #endif
-
-varying vec3 viewRay;
+varying vec3 varViewRay;
 varying vec3 varCylinderCenter;
 varying vec3 varCylinderAxis;
 varying float varCylinderLength;
 varying float varCylinderWidth;
 #ifdef INSTANCE_DRAW
-varying vec4 vaCylinderColor;
+varying vec4 varCylinderColor;
 #endif
 
 void main()
 {
-    viewRay = normalize(gl_ModelViewMatrixInverse * vec3(0, 0, -1));
-    viewRayX = normalize(gl_ModelViewMatrixInverse * vec3(1, 0, 0));
+    vec3 varViewRay = normalize(gl_ModelViewMatrixInverse * vec4(0, 0, -1, 1)).xyz;
+    vec3 varViewRayX = normalize(gl_ModelViewMatrixInverse * vec4(1, 0, 0, 1)).xyz;
 
-    vec2 centerInView = gl_ModelViewMatrix * (cylinderCenter);
-    vec3 scaledAxis = cylinderAxis * (cylinderLength/2 + cylinderWidth);   
+    vec2 centerInView = (gl_ModelViewMatrix * vec4(cylinderCenter, 1)).xy;
+    vec3 scaledAxis = cylinderAxis * (cylinderLength/2 + cylinderWidth);
     
-    vec2 endInView = (gl_ModelViewMatrix * (cylinderCenter + scaledAxis));
+    vec2 endInView = (gl_ModelViewMatrix * vec4(cylinderCenter + scaledAxis, 1)).xy;
     vec2 scaledAxisInView = endInView - centerInView;
     vec2 startInView = centerInView - scaledAxisInView;
 
-    float expand = (gl_ModelViewMatrix * (cylinderCenter + viewRayX * cylinderWidth)).X
-        - centerInView.X;    
-    if (abs(axisInView.X) < 0.001 && abs(axisInView.Y) < 0.001) {
+    float expand = (gl_ModelViewMatrix * vec4(cylinderCenter + varViewRayX * cylinderWidth, 1.0)).x - centerInView.x;
+    if (abs(scaledAxisInView.x) < 0.001 && abs(scaledAxisInView.y) < 0.001) {
         scaledAxisInView = vec2(expand, expand);
     }
-    vec2 axisInViewPerp = normalize(vec2(axisInView.y, -1axisInView.x)) * expand;
+    vec2 axisInViewPerp = normalize(vec2(scaledAxisInView.y, -scaledAxisInView.x));
 
-    gl_Position = centerInView
-        + gl_Vertex.x * scaledAxisInView
-        + gl_Vertex.y * axisInViewPerp;
+    gl_Position = vec4(
+       centerInView + gl_Vertex.x*scaledAxisInView + gl_Vertex.y*axisInViewPerp*expand,
+       0.0, 1.0);                
 
     varCylinderCenter = cylinderCenter;
     varCylinderAxis = cylinderAxis;
     varCylinderWidth = cylinderWidth;
     varCylinderLength = cylinderLength;
-    #if INSTANCE_DRAW
+    #ifdef INSTANCE_DRAW
     varCylinderColor = cylinderColor;
     #endif
 

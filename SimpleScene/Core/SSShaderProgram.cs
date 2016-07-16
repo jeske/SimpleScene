@@ -16,7 +16,7 @@ public class SSShaderProgram {
         DeactivateAll ();
     }
 
-	internal SSShaderProgram(string[] preprocessorDefines = null) {
+	internal SSShaderProgram() {
 		m_programID = GL.CreateProgram();
     }
 

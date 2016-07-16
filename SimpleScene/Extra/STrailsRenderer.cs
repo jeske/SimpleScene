@@ -12,6 +12,7 @@ namespace SimpleScene
         public delegate Vector3 PositionFunc ();
         public delegate Vector3 DirFunc();
 
+
         public class STrailsParameters
         {
             public int capacity = 2000;
@@ -30,8 +31,13 @@ namespace SimpleScene
         }
 
         public STrailsData trailsData {
-            get { return base.instanceData as STrailsData; }
+            get { return (STrailsData)base.instanceData; }
         }
+
+        protected SSInstancedCylinderShaderProgram _shader;
+        protected SSAttributeBuffer<SSAttributeVec3> _axesBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _widthsBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _lengthsBuffer;
 
         public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
             STrailsParameters trailsParams = null)
@@ -68,22 +74,43 @@ namespace SimpleScene
             base.Render(renderConfig);
         }
 
+        protected override void _initAttributeBuffers (BufferUsageHint hint)
+        {
+            _posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _axesBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _widthsBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _lengthsBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
+        }
+
         protected override void _prepareInstanceShader (SSRenderConfig renderConfig)
         {
-            // TODO
+            _shader = _shader ?? (SSInstancedCylinderShaderProgram)renderConfig.otherShaders["instanced_cylinder"];
+            _shader.Activate();
+
+            _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
+            _prepareAttribute(_axesBuffer, _shader.AttrCylinderLength, trailsData.cylinderAxes);
+            _prepareAttribute(_lengthsBuffer, _shader.AttrCylinderLength, trailsData.cylinderLengths);
+            _prepareAttribute(_widthsBuffer, _shader.AttrCylinderWidth, trailsData.cylinderWidth);
+            _prepareAttribute(_colorBuffer, _shader.AttrCylinderColor, trailsData.colors);
+
         }
 
         public class STrailsData : SSParticleSystemData
         {
             public readonly STrailsParameters trailsParams;
 
+            public SSAttributeVec3[] cylinderAxes { get { return _cylAxes; } }
+            public SSAttributeFloat[] cylinderLengths { get { return _cylLengths; } }
+            public SSAttributeFloat[] cylinderWidth { get { return _cylWidths; } }
+
             protected byte _headSegmentIdx = STrailsSegment.NotConnected;
             protected byte _tailSegmentIdx = STrailsSegment.NotConnected;
             protected byte[] _nextSegmentData = null;
             protected byte[] _prevSegmentData = null;
-            protected Vector3[] _cylAxes = null;
-            protected float[] _cylLengths = null;
-            protected float[] _cylWidths = null;
+            protected SSAttributeVec3[] _cylAxes = null;
+            protected SSAttributeFloat[] _cylLengths = null;
+            protected SSAttributeFloat[] _cylWidths = null;
             protected readonly STrailUpdater _updater;
             //protected readonly SSParticleEmitter _headEmitter;
 
@@ -106,9 +133,9 @@ namespace SimpleScene
             {
                 base.initArrays();
 
-                _cylAxes = new Vector3[1];
-                _cylLengths = new float[1];
-                _cylWidths = new float[1];
+                _cylAxes = new SSAttributeVec3[1];
+                _cylLengths = new SSAttributeFloat[1];
+                _cylWidths = new SSAttributeFloat[1];
                 _nextSegmentData = new byte[1];
                 _prevSegmentData = new byte[1];
             }
@@ -128,8 +155,9 @@ namespace SimpleScene
                 base.readParticle(idx, p);
 
                 var ts = (STrailsSegment)p;
-                ts.cylAxis = _readElement(_cylAxes, idx);
-                ts.cylLendth = _readElement(_cylLengths, idx);
+                ts.cylAxis = _readElement(_cylAxes, idx).Value;
+                ts.cylWidth = _readElement(_cylWidths, idx).Value;
+                ts.cylLendth = _readElement(_cylLengths, idx).Value;
                 ts.nextSegmentIdx = _readElement(_nextSegmentData, idx);
                 ts.prevSegmentIdx = _readElement(_prevSegmentData, idx);
             }
@@ -157,9 +185,9 @@ namespace SimpleScene
                     writeDataIfNeeded(ref _nextSegmentData, ts.prevSegmentIdx, (byte)idx);
                 }
 
-                writeDataIfNeeded(ref _cylAxes, idx, ts.cylAxis);
-                writeDataIfNeeded(ref _cylLengths, idx, ts.cylLendth);
-                writeDataIfNeeded(ref _cylWidths, idx, ts.cylWidth);
+                writeDataIfNeeded(ref _cylAxes, idx, new SSAttributeVec3(ts.cylAxis));
+                writeDataIfNeeded(ref _cylLengths, idx, new SSAttributeFloat(ts.cylLendth));
+                writeDataIfNeeded(ref _cylWidths, idx, new SSAttributeFloat(ts.cylWidth));
                 writeDataIfNeeded(ref _nextSegmentData, idx, ts.nextSegmentIdx);
                 writeDataIfNeeded(ref _prevSegmentData, idx, ts.prevSegmentIdx);
             }

@@ -95,6 +95,7 @@ namespace SimpleScene
         #endregion
 
         #region particle data sent to the GPU
+        // TODO more abstraction; these don't all need to be sent to every instancing shader out there
         protected SSAttributeVec3[] _positions;
 		protected SSAttributeVec2[] _orientationsXY;
 		protected SSAttributeFloat[] _orientationsZ;
@@ -249,8 +250,8 @@ namespace SimpleScene
             if (effector.preAddHook != null) {
                 for (int i = 0; i < _activeBlockLength; ++i) {
                     if (isAlive(i)) {
-                        ushort effectorMask = (ushort)((int)readData (_effectorMasksHigh, i) << 8
-                                                     | (int)readData (_effectorMasksLow, i));
+                        ushort effectorMask = (ushort)((int)_readElement (_effectorMasksHigh, i) << 8
+                                                     | (int)_readElement (_effectorMasksLow, i));
                         if (effector.effectorMaskCheck(effectorMask)) {
                             SSParticle particle = new SSParticle ();
                             readParticle(i, particle);
@@ -268,8 +269,8 @@ namespace SimpleScene
             if (effector.preRemoveHook != null) {
                 for (int i = 0; i < _activeBlockLength; ++i) {
                     if (isAlive(i)) {
-                        ushort effectorMask = (ushort)((int)readData (_effectorMasksHigh, i) << 8
-                                                     | (int)readData (_effectorMasksLow, i));
+                        ushort effectorMask = (ushort)((int)_readElement (_effectorMasksHigh, i) << 8
+                                                     | (int)_readElement (_effectorMasksLow, i));
                         if (effector.effectorMaskCheck(effectorMask)) {
                             SSParticle particle = new SSParticle ();
                             readParticle(i, particle);
@@ -292,7 +293,7 @@ namespace SimpleScene
             for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
-                    Vector3 pos = readData(_positions, i).Value;
+                    Vector3 pos = _readElement(_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
                     writeDataIfNeeded(ref _viewDepths, i, pos.Z);
                     ++numAlive;
@@ -481,43 +482,34 @@ namespace SimpleScene
             return !isDead(idx);
         }
 
-        protected T readData<T>(T[] array, int idx)
-        {
-            if (idx >= array.Length) {
-                return array [0];
-            } else {
-                return array [idx];
-            }
-        }
-
         protected virtual void readParticle (int idx, SSParticle p) {
             p.life = _lives [idx];
-            p.pos = readData(_positions, idx).Value;
-			p.orientation.Xy = readData(_orientationsXY, idx).Value;
-			p.orientation.Z = readData (_orientationsZ, idx).Value;
-            p.viewDepth = readData(_viewDepths, idx);
+            p.pos = _readElement(_positions, idx).Value;
+			p.orientation.Xy = _readElement(_orientationsXY, idx).Value;
+			p.orientation.Z = _readElement (_orientationsZ, idx).Value;
+            p.viewDepth = _readElement(_viewDepths, idx);
 
             if (p.life <= 0f) return; // the rest does not matter
 
-            p.masterScale = readData(_masterScales, idx).Value;
-			p.componentScale.Xy = readData(_componentScalesXY, idx).Value;
-			p.componentScale.Z = readData (_componentScalesZ, idx).Value;
-			p.color = Color4Helper.FromUInt32(readData(_colors, idx).Color);
+            p.masterScale = _readElement(_masterScales, idx).Value;
+			p.componentScale.Xy = _readElement(_componentScalesXY, idx).Value;
+			p.componentScale.Z = _readElement (_componentScalesZ, idx).Value;
+			p.color = Color4Helper.FromUInt32(_readElement(_colors, idx).Color);
 
-			//p.SpriteIndex = readData(m_spriteIndices, idx).Value;
-            p.spriteRect.X = readData(_spriteOffsetsU, idx).Value;
-            p.spriteRect.Y = readData(_spriteOffsetsV, idx).Value;
-            p.spriteRect.Width = readData(_spriteSizesU, idx).Value;
-            p.spriteRect.Height = readData(_spriteSizesV, idx).Value;
+			//p.SpriteIndex = _readElement(m_spriteIndices, idx).Value;
+            p.spriteRect.X = _readElement(_spriteOffsetsU, idx).Value;
+            p.spriteRect.Y = _readElement(_spriteOffsetsV, idx).Value;
+            p.spriteRect.Width = _readElement(_spriteSizesU, idx).Value;
+            p.spriteRect.Height = _readElement(_spriteSizesV, idx).Value;
 
-            p.vel = readData(_velocities, idx);
-            p.angularVelocity = readData(_angularVelocities, idx);
-            p.mass = readData(_masses, idx);
-			p.rotationalInnertia = readData (_rotationalInnertias, idx);
-			p.drag = readData (_drags, idx);
-			p.rotationalDrag = readData (_rotationalDrags, idx);
-			p.effectorMask = (ushort)((int)readData (_effectorMasksHigh, idx) << 8
-							 	    | (int)readData (_effectorMasksLow, idx));
+            p.vel = _readElement(_velocities, idx);
+            p.angularVelocity = _readElement(_angularVelocities, idx);
+            p.mass = _readElement(_masses, idx);
+			p.rotationalInnertia = _readElement (_rotationalInnertias, idx);
+			p.drag = _readElement (_drags, idx);
+			p.rotationalDrag = _readElement (_rotationalDrags, idx);
+			p.effectorMask = (ushort)((int)_readElement (_effectorMasksHigh, idx) << 8
+							 	    | (int)_readElement (_effectorMasksLow, idx));
         }
 
         protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
@@ -586,8 +578,8 @@ namespace SimpleScene
             int store = leftIdx;
 
             for (int i = leftIdx; i < rightIdx; ++i) {
-                float iDepth = readData(_viewDepths, i);
-                float rightDepth = readData(_viewDepths, rightIdx);
+                float iDepth = _readElement(_viewDepths, i);
+                float rightDepth = _readElement(_viewDepths, rightIdx);
                 // or <= ?
                 if (iDepth <= rightDepth) {
                     particleSwap(i, store);
