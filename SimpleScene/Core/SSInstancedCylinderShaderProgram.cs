@@ -42,13 +42,15 @@ namespace SimpleScene
 
             link();
 
+            Activate();
+
+
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
             a_cylinderWidth = getAttrLoc("cylinderWidth");
             a_cylinderLength = getAttrLoc("cylinderLength");
             a_cylinderColor = getAttrLoc("cylinderColor");
 
-            Activate();
 
             m_isValid = checkGlValid();
         }
