@@ -42,15 +42,17 @@ void main()
     vec3 endInView = (gl_ModelViewMatrix * vec4(cylinderCenter + scaledAxis, 1)).xyz;
     vec3 scaledAxisInView = endInView - centerInView;
     vec3 startInView = centerInView - scaledAxisInView;
+
+    #if 1
+    float expand = (gl_ModelViewMatrix * vec4(cylinderCenter + varViewRayX * cylinderWidth, 1.0)).x - centerInView.x;
+    if (abs(scaledAxisInView.x) < 0.001 && abs(scaledAxisInView.y) < 0.001) {
+        scaledAxisInView = vec3(expand, expand, 0);
+    }
+    #endif
+    
     vec2 axisInViewPerp = normalize(vec2(-scaledAxisInView.y, scaledAxisInView.x)) * cylinderWidth;
     #endif
 
-    #if 0
-    float expand = (gl_ModelViewMatrix * vec4(cylinderCenter + varViewRayX * cylinderWidth, 1.0)).x - centerInView.x;
-    if (abs(scaledAxisInView.x) < 0.001 && abs(scaledAxisInView.y) < 0.001) {
-        scaledAxisInView = vec2(expand, expand);
-    }
-    #endif
 
     
 
