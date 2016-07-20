@@ -290,11 +290,13 @@ namespace SimpleScene
                     // Do the transform and store z of the result
                     Vector3 pos = readData(_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
-                    writeDataIfNeeded(ref _viewDepths, i, pos.Z);
+                    float viewDepth = pos.Z;
+                    writeDataIfNeeded(ref _viewDepths, i, viewDepth);
                     ++numAlive;
                     if (alreadySorted && pos.Z < prevViewDepth) {
                         alreadySorted = false;
                     }
+                    prevViewDepth = viewDepth;
                 } else {
                     // since we are doing a sort pass later, might as well make it so
                     // so the dead particles get pushed the back of the arrays
