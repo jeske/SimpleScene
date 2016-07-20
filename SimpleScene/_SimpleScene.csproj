@@ -198,6 +198,7 @@
     <Compile Include="Core\SSInstancedCylinderShaderProgram.cs">
       <Link>Core\Core\SSInstancedCylinderShaderProgram.cs</Link>
     </Compile>
+    <Compile Include="Meshes\Shapes\SQuad.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

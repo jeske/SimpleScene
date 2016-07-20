@@ -44,7 +44,6 @@ namespace SimpleScene
 
             Activate();
 
-
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
             a_cylinderWidth = getAttrLoc("cylinderWidth");

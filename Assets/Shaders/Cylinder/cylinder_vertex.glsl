@@ -40,9 +40,10 @@ void main()
     }
     vec2 axisInViewPerp = normalize(vec2(scaledAxisInView.y, -scaledAxisInView.x));
 
-    gl_Position = gl_ProjectionMatrix * vec4(
-       centerInView + gl_Vertex.x*scaledAxisInView + gl_Vertex.y*axisInViewPerp*expand,
-       0.0, 1.0);                
+    //gl_Position = gl_ProjectionMatrix * vec4(
+    //   centerInView + gl_Vertex.x*scaledAxisInView + gl_Vertex.y*axisInViewPerp*expand,
+    //   0.0, 1.0);
+    gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz + cylinderCenter, 1) ;
     //gl_Position = gl_ProjectionMatrix * vec4(0, 0, 0, 1);
 
         //gl_Position /= gl_Position.w;

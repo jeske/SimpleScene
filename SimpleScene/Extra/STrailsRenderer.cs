@@ -15,9 +15,10 @@ namespace SimpleScene
 
         public class STrailsParameters
         {
-            public int capacity = 2000;
+            public int capacity = 10;
             public float trailWidth = 5f;
-            public float trailsEmissionInterval = 0.05f;
+            //public float trailsEmissionInterval = 0.05f;
+            public float trailsEmissionInterval = 0.5f;
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 20f;
             public float trailCutoffVelocity = 0.1f;
@@ -43,7 +44,7 @@ namespace SimpleScene
             STrailsParameters trailsParams = null)
             : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
                 trailsParams ?? new STrailsParameters()),
-                SSTexturedQuad.DoubleFaceCrossBarInstance, _defaultUsageHint)
+                SSQuad.singleFaceInstance, _defaultUsageHint)
         {
             trailsParams = trailsData.trailsParams;
             var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(trailsParams.textureFilename);
@@ -52,6 +53,7 @@ namespace SimpleScene
             renderState.receivesShadows = false;
             renderState.doBillboarding = false;
             renderState.alphaBlendingOn = true;
+            //renderState.alphaBlendingOn = false;
             //renderState.depthTest = true;
             renderState.depthTest = true;
             renderState.depthWrite = false;
@@ -64,15 +66,19 @@ namespace SimpleScene
             colorMaterial = SSColorMaterial.pureAmbient;
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
+
+            this.renderMode = RenderMode.GpuInstancing;
         }
 
+        #if false
         public override void Render (SSRenderConfig renderConfig)
         {
             // a hack to draw segment particles in viewspace
-            this.worldMat = renderConfig.invCameraViewMatrix.Inverted();
+            //this.worldMat = renderConfig.invCameraViewMatrix.Inverted();
 
             base.Render(renderConfig);
         }
+        #endif
 
         protected override void _initAttributeBuffers (BufferUsageHint hint)
         {
@@ -119,7 +125,6 @@ namespace SimpleScene
                 : base(trailsParams.capacity)
             {
                 this.trailsParams = trailsParams;
-
 
                 //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
 
