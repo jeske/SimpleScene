@@ -18,7 +18,7 @@ namespace SimpleScene.Demos
 
         public SLaserBurnParticlesObject (SSObject burningObject, int particleCapacity = 100, SSTexture texture = null)
             : base(new SLaserBurnParticleSystem (particleCapacity), 
-                   SSTexturedQuad.DoubleFaceInstance, _defaultUsageHint)
+                   SSTexturedQuad.doubleFaceInstance, _defaultUsageHint)
         {
             _burningObject = burningObject;
             if (_burningObject != null) {

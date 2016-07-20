@@ -81,7 +81,7 @@ namespace SimpleScene.Demos
 
                     GL.BindTexture(TextureTarget.Texture2D, textures [i].TextureID);
 
-                    SSTexturedQuad.SingleFaceInstance.drawSingle(renderConfig, PrimitiveType.Triangles);
+                    SSTexturedQuad.singleFaceInstance.drawSingle(renderConfig, PrimitiveType.Triangles);
                 }
             }
         }

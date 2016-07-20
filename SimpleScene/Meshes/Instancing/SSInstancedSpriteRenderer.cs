@@ -43,7 +43,7 @@ namespace SimpleScene.Demos
             SSTexture tex = null
         )
             : base(instanceData,
-				   SSTexturedQuad.DoubleFaceInstance,
+				   SSTexturedQuad.doubleFaceInstance,
 				   BufferUsageHint.StreamDraw)
 		{
             base.renderState.castsShadow = false;

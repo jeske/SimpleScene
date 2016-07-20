@@ -44,7 +44,7 @@ namespace SimpleScene
             STrailsParameters trailsParams = null)
             : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
                 trailsParams ?? new STrailsParameters()),
-                SSQuad.singleFaceInstance, _defaultUsageHint)
+                SSTexturedQuad.singleFaceInstance, _defaultUsageHint)
         {
             trailsParams = trailsData.trailsParams;
             var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(trailsParams.textureFilename);
@@ -75,6 +75,9 @@ namespace SimpleScene
         {
             // a hack to draw segment particles in viewspace
             //this.worldMat = renderConfig.invCameraViewMatrix.Inverted();
+        sd
+            var backup = renderConfig.projectionMatrix;
+            //renderConfig.projectionMatrix = Matrix4.CreateOrthographic(
 
             base.Render(renderConfig);
         }
@@ -93,6 +96,9 @@ namespace SimpleScene
         {
             _shader = _shader ?? (SSInstancedCylinderShaderProgram)renderConfig.otherShaders["instanced_cylinder"];
             _shader.Activate();
+
+            var rotation = renderConfig.invCameraViewMatrix.ExtractRotation();
+            GL.Uniform4(_shader.UniRotationQuat, rotation);
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
             _prepareAttribute(_axesBuffer, _shader.AttrCylinderLength, trailsData.cylinderAxes);

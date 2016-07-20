@@ -263,7 +263,7 @@ namespace SimpleScene.Demos
         public SExplosionRenderer(int particleCapacity = 500, 
                                   SExplosionParameters eParams = null)
             : base(new SExplosionSystem(eParams ?? new SExplosionParameters(), particleCapacity),
-				   SSTexturedQuad.DoubleFaceInstance,
+				   SSTexturedQuad.doubleFaceInstance,
 				   _defaultUsageHint
 			 )
 		{

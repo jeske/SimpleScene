@@ -4,18 +4,18 @@ namespace SimpleScene
 {
     public static class SSTexturedQuad
     {
-		public static readonly SSVertexBuffer<SSVertex_PosTex> SingleFaceInstance;
-		public static readonly SSVertexBuffer<SSVertex_PosTex> DoubleFaceInstance;
-        public static readonly SSVertexBuffer<SSVertex_PosTex> DoubleFaceCrossBarInstance;
+		public static readonly SSVertexBuffer<SSVertex_PosTex> singleFaceInstance;
+		public static readonly SSVertexBuffer<SSVertex_PosTex> doubleFaceInstance;
+        public static readonly SSVertexBuffer<SSVertex_PosTex> doubleFaceCrossBarInstance;
 
 		static SSTexturedQuad()
 		{
-			SingleFaceInstance = new SSVertexBuffer<SSVertex_PosTex>(c_singleFaceVertices);
-			DoubleFaceInstance = new SSVertexBuffer<SSVertex_PosTex>(c_doubleFaceVertices);
-            DoubleFaceCrossBarInstance = new SSVertexBuffer<SSVertex_PosTex> (c_doubleFaceCrossBarVertices);
+			singleFaceInstance = new SSVertexBuffer<SSVertex_PosTex>(singleFaceVertices);
+			doubleFaceInstance = new SSVertexBuffer<SSVertex_PosTex>(doubleFaceVertices);
+            doubleFaceCrossBarInstance = new SSVertexBuffer<SSVertex_PosTex> (doubleFaceCrossBarVertices);
 		}
 
-		public static readonly SSVertex_PosTex[] c_singleFaceVertices = {
+		public static readonly SSVertex_PosTex[] singleFaceVertices = {
 			// CCW quad; no indexing
 			new SSVertex_PosTex(-.5f, -.5f, 0f, 0f, 1f),
 			new SSVertex_PosTex(+.5f, -.5f, 0f, 1f, 1f),
@@ -26,7 +26,7 @@ namespace SimpleScene
 			new SSVertex_PosTex(-.5f, +.5f, 0f, 0f, 0f),
 		};
 
-		public static readonly SSVertex_PosTex[] c_doubleFaceVertices = {
+		public static readonly SSVertex_PosTex[] doubleFaceVertices = {
 			// CCW quad; no indexing
 			new SSVertex_PosTex(-.5f, -.5f, 0f, 0f, 1f),
 			new SSVertex_PosTex(+.5f, -.5f, 0f, 1f, 1f),
@@ -45,7 +45,7 @@ namespace SimpleScene
 			new SSVertex_PosTex(+.5f, +.5f, 0f, 1f, 0f),
 		};
 
-        public static readonly SSVertex_PosTex[] c_doubleFaceCrossBarVertices = {
+        public static readonly SSVertex_PosTex[] doubleFaceCrossBarVertices = {
             // CCW quad; no indexing
             new SSVertex_PosTex(-.5f, -.5f, 0f, 0f, 1f),
             new SSVertex_PosTex(+.5f, -.5f, 0f, 1f, 1f),
