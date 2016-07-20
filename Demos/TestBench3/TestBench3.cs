@@ -167,6 +167,7 @@ namespace TestBench3
                 () => vandalShip.Dir
             );
             alpha3dScene.AddObject(trailsRenderer);
+            //hud2dScene.AddObject(trailsRenderer);
         }
 
         protected string _showDistanceFunc(SSObject target)

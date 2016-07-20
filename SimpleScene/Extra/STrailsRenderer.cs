@@ -169,7 +169,17 @@ namespace SimpleScene
 
             protected override void writeParticle (int idx, SSParticle p)
             {
+                #if false
+                _lives [idx] = p.life;
+                writeDataIfNeeded(ref _positions, idx, new SSAttributeVec3(p.pos));
+                writeDataIfNeeded(ref _viewDepths, idx, p.viewDepth);
+                writeDataIfNeeded(ref _effectorMasksHigh, idx, (byte)((p.effectorMask & 0xFF00) >> 8));
+                writeDataIfNeeded(ref _effectorMasksLow, idx, (byte)(p.effectorMask & 0xFF));
+                writeDataIfNeeded(ref _colors, idx, new SSAttributeColor(Color4Helper.ToUInt32(p.color)));
+                #else
                 base.writeParticle(idx, p);
+                #endif
+
 
                 var ts = (STrailsSegment)p;
 

@@ -43,10 +43,19 @@ void main()
     //gl_Position = gl_ProjectionMatrix * vec4(
     //   centerInView + gl_Vertex.x*scaledAxisInView + gl_Vertex.y*axisInViewPerp*expand,
     //   0.0, 1.0);
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz + cylinderCenter, 1) ;
-    //gl_Position = gl_ProjectionMatrix * vec4(0, 0, 0, 1);
-
-        //gl_Position /= gl_Position.w;
+    #if false
+    gl_Position = gl_ProjectionMatrix *
+        vec4(
+             centerInView.x, // + gl_Vertex.x * 0.005,
+             centerInView.y, // + gl_Vertex.y * 0.005,
+             0,
+             1);
+    #endif
+    // passthrough
+    vec3 pos = gl_Vertex.xyz;
+    pos.x *= cylinderLength / 2;
+    pos.y *= cylinderWidth;
+     gl_Position = gl_ModelViewProjectionMatrix * vec4(pos + cylinderCenter, 1) ;
     
     varCylinderCenter = cylinderCenter;
     varCylinderAxis = cylinderAxis;
