@@ -55,7 +55,11 @@ void main()
     
 
     #if 1
-    float theta = -atan(scaledAxisInView.y / scaledAxisInView.x);
+    vec3 rotatedScaledAxis = quatTransform(rotationQuat, scaledAxis);
+    
+    float theta = -atan(rotatedScaledAxis.y/rotatedScaledAxis.x);
+    //float theta = 3.1415 / 4;
+    //float theta = atan(cylinderAxis.y / cylinderAxis.x);
     float cosine = cos(theta);
     float sine = sin(theta);
     mat3 oriZ = mat3(cosine, sine, 0, 
@@ -67,10 +71,11 @@ void main()
     vec3 combinedPos = gl_Vertex.xyz;
     combinedPos.x *= length(scaledAxisInView.xy);
     combinedPos.y *= cylinderWidth;
-    //combinedPos = oriZ * combinedPos;
+    combinedPos = oriZ * combinedPos;
     combinedPos = quatTransform(rotationQuat, combinedPos);
     combinedPos += cylinderCenter;
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(combinedPos, 1);
+    combinedPos = (gl_ModelViewMatrix * vec4(combinedPos, 1)).xyz;
+    gl_Position = gl_ProjectionMatrix * vec4(combinedPos, 1);
     #endif
 
    

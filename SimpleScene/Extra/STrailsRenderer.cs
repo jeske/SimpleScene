@@ -101,7 +101,7 @@ namespace SimpleScene
             GL.Uniform4(_shader.UniRotationQuat, rotation);
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
-            _prepareAttribute(_axesBuffer, _shader.AttrCylinderLength, trailsData.cylinderAxes);
+            _prepareAttribute(_axesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);
             _prepareAttribute(_lengthsBuffer, _shader.AttrCylinderLength, trailsData.cylinderLengths);
             _prepareAttribute(_widthsBuffer, _shader.AttrCylinderWidth, trailsData.cylinderWidth);
             _prepareAttribute(_colorBuffer, _shader.AttrCylinderColor, trailsData.colors);
