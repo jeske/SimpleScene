@@ -15,11 +15,11 @@ namespace SimpleScene
 
         public class STrailsParameters
         {
-            public int capacity = 10;
+            public int capacity = 100;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 0.5f;
-            public float velocityToLengthFactor = 1f;
+            public float trailsEmissionInterval = 0.15f;
+            public float velocityToLengthFactor = 0.75f;
             public float trailLifetime = 20f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";

@@ -54,7 +54,7 @@ void main()
 
     
 
-    #if 1
+    #if 0
     vec3 rotatedScaledAxis = quatTransform(rotationQuat, scaledAxis);
     
     float theta = -atan(rotatedScaledAxis.y/rotatedScaledAxis.x);
@@ -67,7 +67,7 @@ void main()
                      0, 0, 1);
     #endif
 
-    #if 1
+    #if 0
     vec3 combinedPos = gl_Vertex.xyz;
     combinedPos.x *= length(scaledAxisInView.xy);
     combinedPos.y *= cylinderWidth;
@@ -79,7 +79,7 @@ void main()
     #endif
 
    
-    #if 0
+    #if 1
     vec3 viewPos = centerInView 
         + gl_Vertex.x * vec3(scaledAxisInView.xy, 0)
         + gl_Vertex.y * vec3(axisInViewPerp, 0);
