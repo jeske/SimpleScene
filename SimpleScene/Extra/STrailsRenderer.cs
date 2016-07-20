@@ -97,9 +97,6 @@ namespace SimpleScene
             _shader = _shader ?? (SSInstancedCylinderShaderProgram)renderConfig.otherShaders["instanced_cylinder"];
             _shader.Activate();
 
-            var rotation = renderConfig.invCameraViewMatrix.ExtractRotation();
-            GL.Uniform4(_shader.UniRotationQuat, rotation);
-
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
             _prepareAttribute(_axesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);
             _prepareAttribute(_lengthsBuffer, _shader.AttrCylinderLength, trailsData.cylinderLengths);

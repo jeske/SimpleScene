@@ -19,7 +19,6 @@ namespace SimpleScene
         private readonly int a_cylinderColor;
         #endregion
 
-        public int UniRotationQuat { get { return u_roationQuat; } }
         public int AttrCylinderPos { get { return a_cylinderPos; } }
         public int AttrCylinderAxis { get { return a_cylinderAxis; } }
         public int AttrCylinderLength { get { return a_cylinderLength; } }
@@ -45,8 +44,6 @@ namespace SimpleScene
             link();
 
             Activate();
-
-            u_roationQuat = getUniLoc("rotationQuat");
 
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
