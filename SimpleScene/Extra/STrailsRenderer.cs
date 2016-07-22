@@ -18,7 +18,7 @@ namespace SimpleScene
             public int capacity = 100;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 1f;
+            public float trailsEmissionInterval = 0.2f;
             public float velocityToLengthFactor = 0.4f;
             public float trailLifetime = 20f;  
             public float trailCutoffVelocity = 0.1f;
@@ -244,12 +244,12 @@ namespace SimpleScene
 
                 if (leftIdx == _headSegmentIdx) {
                     _headSegmentIdx = (byte)rightIdx;
-                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
-                    + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
+                    //+ ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
                 } else if (rightIdx == _headSegmentIdx) {
                     _headSegmentIdx = (byte)leftIdx;
-                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
-                    + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
+                    //+ ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
                 }
 
                 if (leftIdx == _tailSegmentIdx) {
@@ -296,8 +296,8 @@ namespace SimpleScene
                 }
 
                 _headSegmentIdx = (byte)base.storeNewParticle(newParticle);
-                Console.WriteLine("new head = " + _headSegmentIdx + ", head pos = " 
-                    + _readElement(_positions, _headSegmentIdx).Value);
+                //Console.WriteLine("new head = " + _headSegmentIdx + ", head pos = " 
+                //    + _readElement(_positions, _headSegmentIdx).Value);
                 if (_tailSegmentIdx == STrailsSegment.NotConnected) {
                     _tailSegmentIdx = _headSegmentIdx;
                 }

@@ -51,8 +51,13 @@ void main()
         color = vec4(0, 0, 0.5, 1);
     }
     #endif
+
+
+    if (length(scaledAxisInView.xy) < 2*cylinderWidth) {
+        scaledAxisInView.xy = normalize(scaledAxisInView.xy) * 2*cylinderWidth;
+    }
     
-    vec2 axisInViewPerp = normalize(vec2(-scaledAxisInView.y, scaledAxisInView.x)) * cylinderWidth;
+    vec2 axisInViewPerp = normalize(vec2(-scaledAxisInView.y, scaledAxisInView.x)) * 2 * cylinderWidth;
     #endif
 
 
@@ -73,7 +78,7 @@ void main()
 
     #if 0
     vec3 combinedPos = gl_Vertex.xyz;    
-    combinedPos.x *= max(length(scaledAxisInView.xy), cylinderWidth);
+    combinedPos.x *= max(length(scaledAxisInView.xy*2), cylinderWidth*2);
     combinedPos.y *= cylinderWidth;
     combinedPos = oriZ * combinedPos;
     combinedPos = quatTransform(rotationQuat, combinedPos);
