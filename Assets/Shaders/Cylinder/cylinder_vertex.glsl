@@ -31,7 +31,8 @@ vec3 quatTransform(vec4 q, vec3 v)
 
 void main()
 {
-   
+    vec4 color = cylinderColor;
+    
     #if 1
     vec3 varViewRay = normalize(gl_ModelViewMatrixInverse * vec4(0, 0, -1, 1)).xyz;
     vec3 varViewRayX = normalize(gl_ModelViewMatrixInverse * vec4(1, 0, 0, 1)).xyz;
@@ -43,10 +44,11 @@ void main()
     vec3 scaledAxisInView = endInView - centerInView;
     vec3 startInView = centerInView - scaledAxisInView;
 
-    #if 1
+    #if 0
     float expand = (gl_ModelViewMatrix * vec4(cylinderCenter + varViewRayX * cylinderWidth, 1.0)).x - centerInView.x;
-    if (abs(scaledAxisInView.x) < 0.001 && abs(scaledAxisInView.y) < 0.001) {
+    if (length(scaledAxisInView) < cylinderWidth) {
         scaledAxisInView = vec3(expand, expand, 0);
+        color = vec4(0, 0, 0.5, 1);
     }
     #endif
     
@@ -70,8 +72,8 @@ void main()
     #endif
 
     #if 0
-    vec3 combinedPos = gl_Vertex.xyz;
-    combinedPos.x *= length(scaledAxisInView.xy);
+    vec3 combinedPos = gl_Vertex.xyz;    
+    combinedPos.x *= max(length(scaledAxisInView.xy), cylinderWidth);
     combinedPos.y *= cylinderWidth;
     combinedPos = oriZ * combinedPos;
     combinedPos = quatTransform(rotationQuat, combinedPos);
@@ -105,7 +107,7 @@ void main()
     //varCylinderColor = vec4(0, 0, 0, 1);
     //varCylinderColor.x = length(viewPos - startInView)/cylinderLength;
     //varCylinderColor.y = length(viewPos - endInView)/cylinderLength;
-    varCylinderColor = cylinderColor;
+    varCylinderColor = color;
     #endif
 }
 

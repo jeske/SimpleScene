@@ -18,9 +18,9 @@ namespace SimpleScene
             public int capacity = 100;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 0.15f;
-            public float velocityToLengthFactor = 0.75f;
-            public float trailLifetime = 20f;
+            public float trailsEmissionInterval = 1f;
+            public float velocityToLengthFactor = 0.4f;
+            public float trailLifetime = 20f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public string textureFilename = "trail.png";
@@ -121,6 +121,9 @@ namespace SimpleScene
             protected SSAttributeFloat[] _cylLengths = null;
             protected SSAttributeFloat[] _cylWidths = null;
             protected readonly STrailUpdater _updater;
+
+            protected PositionFunc positionFunc;
+            protected VelocityFunc velocityFunc;
             //protected readonly SSParticleEmitter _headEmitter;
 
             public STrailsData(PositionFunc positionFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
@@ -128,6 +131,8 @@ namespace SimpleScene
                 : base(trailsParams.capacity)
             {
                 this.trailsParams = trailsParams;
+                this.positionFunc = positionFunc;
+                this.velocityFunc = velocityFunc;
 
                 //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
 
@@ -186,6 +191,7 @@ namespace SimpleScene
 
                 var ts = (STrailsSegment)p;
 
+                #if false
                 if (ts.nextSegmentIdx == STrailsSegment.NotConnected) {
                     // make head
                     _headSegmentIdx = (byte)idx;
@@ -202,12 +208,55 @@ namespace SimpleScene
                     // update connection from the previous segment
                     writeDataIfNeeded(ref _nextSegmentData, ts.prevSegmentIdx, (byte)idx);
                 }
+                #endif
 
                 writeDataIfNeeded(ref _cylAxes, idx, new SSAttributeVec3(ts.cylAxis));
                 writeDataIfNeeded(ref _cylLengths, idx, new SSAttributeFloat(ts.cylLendth));
                 writeDataIfNeeded(ref _cylWidths, idx, new SSAttributeFloat(ts.cylWidth));
                 writeDataIfNeeded(ref _nextSegmentData, idx, ts.nextSegmentIdx);
                 writeDataIfNeeded(ref _prevSegmentData, idx, ts.prevSegmentIdx);
+            }
+
+            protected override void particleSwap (int leftIdx, int rightIdx)
+            {
+                base.particleSwap(leftIdx, rightIdx);
+
+                if (leftIdx == rightIdx) return;
+
+                byte leftPrev = _readElement(_prevSegmentData, leftIdx);
+                byte leftNext = _readElement(_nextSegmentData, leftIdx);
+                byte rightPrev = _readElement(_prevSegmentData, rightIdx);
+                byte rightNext = _readElement(_nextSegmentData, rightIdx);
+
+                if (leftPrev != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _nextSegmentData, leftPrev, (byte)rightIdx);
+                }
+                if (leftNext != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _prevSegmentData, leftNext, (byte)rightIdx);
+                }
+
+                if (rightPrev != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _nextSegmentData, rightPrev, (byte)leftIdx);
+                }
+                if (rightNext != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _prevSegmentData, rightNext, (byte)leftIdx);
+                }
+
+                if (leftIdx == _headSegmentIdx) {
+                    _headSegmentIdx = (byte)rightIdx;
+                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
+                    + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                } else if (rightIdx == _headSegmentIdx) {
+                    _headSegmentIdx = (byte)leftIdx;
+                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
+                    + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                }
+
+                if (leftIdx == _tailSegmentIdx) {
+                    _tailSegmentIdx = (byte)rightIdx;
+                } else if (rightIdx == _tailSegmentIdx) {
+                    _tailSegmentIdx = (byte)leftIdx;
+                }
             }
 
 
@@ -217,19 +266,42 @@ namespace SimpleScene
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
                 ts.prevSegmentIdx = _headSegmentIdx;
 
+                //if (false) {
+                if (_headSegmentIdx != STrailsSegment.NotConnected ) {
+                    Vector3 cylEnd = positionFunc();
+                    Vector3 cylStart = _readElement(_positions, (int)_headSegmentIdx).Value;
+                    Vector3 center = (cylStart + cylEnd) / 2f;
+                    Vector3 diff = cylEnd - cylStart;
+                    ts.pos = center;
+                    ts.cylAxis = diff.Normalized();
+                    ts.cylLendth = diff.LengthFast;
+                }
+
                 // TODO you can set scale here based on velocity
 
                 if (numElements >= capacity) {
                     var oldTailIdx = _tailSegmentIdx;
-                    // pre-tail is now tail
-                    byte preTail = _readElement(_nextSegmentData, oldTailIdx);
-                    writeDataIfNeeded(ref _prevSegmentData, preTail, STrailsSegment.NotConnected);
-                    _tailSegmentIdx = preTail;
-                    // old trail will get overwritten in base.storeNewParticle()
-                    _nextIdxToOverwrite = oldTailIdx;
+                    if (oldTailIdx != STrailsSegment.NotConnected) {
+                        // pre-tail is now tail
+                        byte preTail = _readElement(_nextSegmentData, oldTailIdx);
+                        if (preTail != STrailsSegment.NotConnected) {
+                            writeDataIfNeeded(ref _prevSegmentData, preTail, STrailsSegment.NotConnected);
+                            _tailSegmentIdx = preTail;
+                            // old trail will get overwritten in base.storeNewParticle()
+                        } else {
+
+                        }
+                        _nextIdxToOverwrite = oldTailIdx;
+                    }
                 }
 
-                return base.storeNewParticle(newParticle);
+                _headSegmentIdx = (byte)base.storeNewParticle(newParticle);
+                Console.WriteLine("new head = " + _headSegmentIdx + ", head pos = " 
+                    + _readElement(_positions, _headSegmentIdx).Value);
+                if (_tailSegmentIdx == STrailsSegment.NotConnected) {
+                    _tailSegmentIdx = _headSegmentIdx;
+                }
+                return _headSegmentIdx;
             }
 
             public class STrailsSegment : SSParticle

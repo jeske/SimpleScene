@@ -32,7 +32,7 @@ namespace TestBench3
         protected SSpaceMissileVisualParameters vandalShipMissileParams;
         protected SSpaceMissileVisualParameters cameraMissileParams;
 
-        protected MissileLaunchers missileLauncher = MissileLaunchers.AttackerDrone;
+        protected MissileLaunchers missileLauncher = MissileLaunchers.VandalShip;
         protected MissileTargets missileTarget = MissileTargets.TargetDrone;
         protected HitTimeMode hitTimeMode = HitTimeMode.Auto;
         protected SSObjectGDISurface_Text missileStatsText;
@@ -391,8 +391,15 @@ namespace TestBench3
             Vector3 desiredDir;
             float angle = localTime * 0.5f;
             float desiredXOffset = 100f * (float)Math.Cos(angle);
+            #if true
             float desiredYOffset = 20f * (float)Math.Sin(angle * 0.77f);
             float desiredZOffset = 80f * (float)Math.Sin(angle * 0.88f);
+            #else
+            float desiredYOffset = 100f * (float)Math.Sin(angle);
+            //float desiredZOffset = 80f * (float)Math.Sin(angle * 0.88f);
+            float desiredZOffset = 0f;
+            #endif
+
             Vector3 desiredOffset = new Vector3 (desiredXOffset, desiredYOffset, desiredZOffset);
 
             var target = getTargetObject();

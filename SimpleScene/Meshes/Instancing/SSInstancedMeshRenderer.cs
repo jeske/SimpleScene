@@ -114,16 +114,16 @@ namespace SimpleScene
                 instanceData.update(renderConfig.timeElapsedS);
             }
 
-			// do we have anything to draw?
+            // do we have anything to draw?
             if (instanceData.numElements <= 0) return;
-
-            base.Render(renderConfig);
 
             if (!renderConfig.drawingShadowMap && 
                 !renderState.doBillboarding && base.alphaBlendingEnabled) {
                 // Must be called before updating buffers
                 instanceData.sortByDepth (ref renderConfig.invCameraViewMatrix);
             }
+
+            base.Render(renderConfig);
 
             if (renderMode == RenderMode.GpuInstancing
             || (renderMode == RenderMode.Auto && instanceData.numElements > autoRenderModeThreshold)) {

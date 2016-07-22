@@ -564,7 +564,7 @@ namespace SimpleScene
         // The alternative to re-implementing quicksort appears to be implementing IList interface with
         // about 10 function implementations needed, some of which may be messy or not make sense for the
         // current data structure. For now lets implement quicksort and see how it does
-        protected void quickSort(int leftIdx, int rightIdx)
+        protected virtual void quickSort(int leftIdx, int rightIdx)
         {
             if (leftIdx < rightIdx) {
                 int pi = quicksortPartition(leftIdx, rightIdx);
@@ -573,7 +573,7 @@ namespace SimpleScene
             }   
         }
 
-        protected int quicksortPartition(int leftIdx, int rightIdx)
+        protected virtual int quicksortPartition(int leftIdx, int rightIdx)
         {
             int pivot = _rand.Next(leftIdx, rightIdx);
             particleSwap(pivot, rightIdx);
@@ -592,8 +592,10 @@ namespace SimpleScene
             return store;
         }
 
-        protected void particleSwap(int leftIdx, int rightIdx)
+        protected virtual void particleSwap(int leftIdx, int rightIdx)
         {
+            if (leftIdx == rightIdx) return;
+
             // TODO Consider swaping on a per component basis. 
             // It may have better peformance
             // But adds more per-component maintenance
