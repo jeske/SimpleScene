@@ -607,6 +607,14 @@ namespace SimpleScene
             // write in reverse
             writeParticle(leftIdx, rightParticle);
             writeParticle(rightIdx, leftParticle);
+
+            #if true
+            if (_nextIdxToOverwrite == leftIdx) {
+                _nextIdxToOverwrite = rightIdx;
+            } else if (_nextIdxToOverwrite == rightIdx) {
+                _nextIdxToOverwrite = leftIdx;
+            }
+            #endif
         }
     }
 }

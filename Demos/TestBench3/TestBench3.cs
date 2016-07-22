@@ -396,7 +396,6 @@ namespace TestBench3
             float desiredZOffset = 80f * (float)Math.Sin(angle * 0.88f);
             #else
             float desiredYOffset = 100f * (float)Math.Sin(angle);
-            //float desiredZOffset = 80f * (float)Math.Sin(angle * 0.88f);
             float desiredZOffset = 0f;
             #endif
 
