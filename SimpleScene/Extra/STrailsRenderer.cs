@@ -218,27 +218,39 @@ namespace SimpleScene
 
             protected override void particleSwap (int leftIdx, int rightIdx)
             {
-                base.particleSwap(leftIdx, rightIdx);
-
-                if (leftIdx == rightIdx) return;
+                if (leftIdx == rightIdx) {
+                    return;
+                }
 
                 byte leftPrev = _readElement(_prevSegmentData, leftIdx);
                 byte leftNext = _readElement(_nextSegmentData, leftIdx);
                 byte rightPrev = _readElement(_prevSegmentData, rightIdx);
                 byte rightNext = _readElement(_nextSegmentData, rightIdx);
 
-                if (leftPrev != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _nextSegmentData, leftPrev, (byte)rightIdx);
-                }
-                if (leftNext != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _prevSegmentData, leftNext, (byte)rightIdx);
-                }
+                base.particleSwap(leftIdx, rightIdx);
 
-                if (rightPrev != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _nextSegmentData, rightPrev, (byte)leftIdx);
-                }
-                if (rightNext != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _prevSegmentData, rightNext, (byte)leftIdx);
+                if (leftPrev == rightIdx) { // special case
+                    if (leftNext != STrailsSegment.NotConnected) {
+                        writeDataIfNeeded(ref _nextSegmentData, leftNext, (byte)rightIdx);
+                    }
+                    if (rightPrev != STrailsSegment.NotConnected) {
+                        writeDataIfNeeded(ref _prevSegmentData, rightPrev, (byte)rightIdx);
+                    }
+                    writeDataIfNeeded(_prevSegmentData, 
+                        
+                } else { // general case
+                    if (leftPrev != STrailsSegment.NotConnected) {
+                        writeDataIfNeeded(ref _nextSegmentData, leftPrev, (byte)rightIdx);
+                    }
+                    if (leftNext != STrailsSegment.NotConnected) {
+                        writeDataIfNeeded(ref _prevSegmentData, leftNext, (byte)rightIdx);
+                    }
+                    if (rightPrev != STrailsSegment.NotConnected) {
+                        writeDataIfNeeded(ref _nextSegmentData, rightPrev, (byte)leftIdx);
+                    }
+                    if (rightNext != STrailsSegment.NotConnected) {
+                        writeDataIfNeeded(ref _prevSegmentData, rightNext, (byte)leftIdx);
+                    }
                 }
 
                 if (leftIdx == _headSegmentIdx) {
@@ -315,12 +327,21 @@ namespace SimpleScene
 
             protected void printTree()
             {
-                int idx = _headSegmentIdx;
+                #if true
                 int safety = 0;
+                int idx = _headSegmentIdx;
                 while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
                     Console.Write(idx + " < ");
                     idx = _readElement(_prevSegmentData, idx);
                 }
+                #else
+                int safety = 0;
+                int idx = _tailSegmentIdx;
+                while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
+                    Console.Write(idx + " > ");
+                    idx = _readElement(_nextSegmentData, idx);
+                }
+                #endif
                 Console.Write("\n");
             }
 
