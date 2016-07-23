@@ -407,31 +407,36 @@ namespace SimpleScene
                         );
                         #endif
                     } else {
-                        // Particle just died. Hack to not draw?
-                        writeDataIfNeeded(ref _positions, i, _notAPosition);
-                        if (_numParticles == _capacity || i < _nextIdxToWrite) {
-                            // released slot will be the next one to be written to
-                            _nextIdxToWrite = i;
-                        }
-                        if (i == _activeBlockLength - 1) {
-                            // reduction in the active particles block
-                            while (_activeBlockLength > 0 && isDead(_activeBlockLength - 1)) {
-                                --_activeBlockLength;
-                            }
-                        }                        
-						--_numParticles;
-                        if (_numParticles == 0) {
-                            // all particles gone. reset write and overwrite locations for better packing
-                            _nextIdxToWrite = 0;
-                            _nextIdxToOverwrite = 0;
-                            _activeBlockLength = 0;
-                        }
+                        destroyParticle(i);
                     }
                 }
             }
 			foreach (SSParticleEmitter emitter in _emitters) {
                 emitter.simulateEmissions(simulationStep, createNewParticle, storeNewParticle);
 			}
+        }
+
+        protected virtual void destroyParticle(int i)
+        {
+            // Particle just died. Hack to not draw?
+            writeDataIfNeeded(ref _positions, i, _notAPosition);
+            if (_numParticles == _capacity || i < _nextIdxToWrite) {
+                // released slot will be the next one to be written to
+                _nextIdxToWrite = i;
+            }
+            if (i == _activeBlockLength - 1) {
+                // reduction in the active particles block
+                while (_activeBlockLength > 0 && isDead(_activeBlockLength - 1)) {
+                    --_activeBlockLength;
+                }
+            }                        
+            --_numParticles;
+            if (_numParticles == 0) {
+                // all particles gone. reset write and overwrite locations for better packing
+                _nextIdxToWrite = 0;
+                _nextIdxToOverwrite = 0;
+                _activeBlockLength = 0;
+            }
         }
 
         protected virtual int storeNewParticle(SSParticle newParticle)
@@ -444,6 +449,7 @@ namespace SimpleScene
 
             int writeIdx;
             if (_numParticles == _capacity) {
+                destroyParticle(_nextIdxToOverwrite); // will decrement particle count
                 writeIdx = _nextIdxToOverwrite;
                 _nextIdxToOverwrite = nextIdx(_nextIdxToOverwrite);
             } else {
@@ -455,9 +461,9 @@ namespace SimpleScene
                     _activeBlockLength = writeIdx + 1;
                 }
                 _nextIdxToWrite = nextIdx(_nextIdxToWrite);
-                _numParticles++;
             }
             writeParticle(writeIdx, newParticle);
+            _numParticles++;
 
 			float distFromOrogin = newParticle.pos.Length;
 			if (distFromOrogin > _radius) {

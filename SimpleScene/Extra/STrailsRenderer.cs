@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define TRAILS_DEBUG
+
+using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -15,12 +17,12 @@ namespace SimpleScene
 
         public class STrailsParameters
         {
-            public int capacity = 100;
+            public int capacity = 10;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 1f;
+            public float trailsEmissionInterval = 0.15f;
             public float velocityToLengthFactor = 0.4f;
-            public float trailLifetime = 200f;  
+            public float trailLifetime = 10f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public string textureFilename = "trail.png";
@@ -232,8 +234,10 @@ namespace SimpleScene
                     return;
                 }
 
-                //Console.Write("before swap " + leftIdx + " and " + rightIdx + ": ");
-                //printTree();
+                #if TRAILS_DEBUG
+                Console.Write("before swap " + leftIdx + " and " + rightIdx + ": ");
+                printTree();
+                #endif
 
                 base.particleSwap(leftIdx, rightIdx);
 
@@ -260,20 +264,28 @@ namespace SimpleScene
 
                 if (leftIdx == _headSegmentIdx) {
                     _headSegmentIdx = (byte)rightIdx;
-                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
-                    //+ ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                    #if TRAILS_DEBUG
+                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
+                        + ", head pos " + _readElement(_positions, _headSegmentIdx).Value); 
+                    #endif
                 } else if (rightIdx == _headSegmentIdx) {
                     _headSegmentIdx = (byte)leftIdx;
-                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head =d " + _headSegmentIdx
-                    //+ ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                    #if TRAILS_DEBUG
+                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head =d " + _headSegmentIdx
+                        + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
+                    #endif
                 }
 
                 if (leftIdx == _tailSegmentIdx) {
                     _tailSegmentIdx = (byte)rightIdx;
-                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
+                    #if TRAILS_DEBUG
+                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
+                    #endif
                 } else if (rightIdx == _tailSegmentIdx) {
                     _tailSegmentIdx = (byte)leftIdx;
-                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
+                    #if TRAILS_DEBUG
+                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
+                    #endif
                 }
 
                 //Console.Write(" after swap " + leftIdx + " and " + rightIdx + ": ");
@@ -297,20 +309,9 @@ namespace SimpleScene
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
                 ts.prevSegmentIdx = _headSegmentIdx;
 
-                //if (false) {
-                // TODO you can set scale here based on velocity
-
-                #if true
                 if (numElements >= capacity && _tailSegmentIdx != STrailsSegment.NotConnected) {
-                    var oldTailIdx = _tailSegmentIdx;
-                    Console.Write("before shift: ");
-                    printTree();
-                    shiftTail();
-                    Console.Write("after shift: ");
-                    printTree();
-                    _nextIdxToOverwrite = oldTailIdx;
+                    _nextIdxToOverwrite = _tailSegmentIdx;
                 }
-                #endif
 
                 if (_headSegmentIdx != STrailsSegment.NotConnected ) {
                     Vector3 cylEnd = positionFunc();
@@ -322,8 +323,10 @@ namespace SimpleScene
                     ts.cylLendth = diff.LengthFast;
                 }
 
+                #if TRAILS_DEBUG
                 Console.Write("before new particle, numElements = {0}: ", numElements);
                 printTree();
+                #endif
 
                 byte newHead = (byte)base.storeNewParticle(newParticle);
                 if (_headSegmentIdx != STrailsSegment.NotConnected) {
@@ -333,48 +336,74 @@ namespace SimpleScene
 
                 if (_tailSegmentIdx == STrailsSegment.NotConnected) {
                     _tailSegmentIdx = newHead;
+                    #if TRAILS_DEBUG
                     Console.WriteLine("new tail = " + _tailSegmentIdx);
+                    #endif
 
                 }
-
+                #if TRAILS_DEBUG
                 Console.Write("after new particle, numElements = {0}: ", numElements);
                 printTree();
+                #endif
                 return _headSegmentIdx;
             }
 
-            protected void printTree()
+            protected override void destroyParticle (int idx)
             {
-                #if false
-                int safety = 0;
-                int idx = _headSegmentIdx;
-                while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
-                    Console.Write(idx + " < ");
-                    idx = _readElement(_prevSegmentData, idx);
-                }
-                #else
-                int safety = 0;
-                int idx = _tailSegmentIdx;
-                while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
-                    Console.Write(idx + " > ");
-                    idx = _readElement(_nextSegmentData, idx);
-                }
+                #if TRAILS_DEBUG
+                Console.Write("before destroy {0}, numElements = {1}, head = {2}, tail = {3}: ", 
+                    idx, numElements, _headSegmentIdx, _tailSegmentIdx);
+                printTree(false);
+                printTree(true);
                 #endif
-                Console.Write("\n");
+
+                byte prev = _readElement(_prevSegmentData, idx);
+                byte next = _readElement(_nextSegmentData, idx);
+
+                if (prev != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _nextSegmentData, prev, next);
+                }
+                if (next != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _prevSegmentData, next, prev);
+                }
+
+                if (idx == _tailSegmentIdx) {
+                    _tailSegmentIdx = (byte)next;
+                }
+                if (idx == _headSegmentIdx) {
+                    _headSegmentIdx = (byte)prev;
+                }
+
+                base.destroyParticle(idx);
+                _prevSegmentData [idx] = STrailsSegment.NotConnected;
+                _nextSegmentData [idx] = STrailsSegment.NotConnected;
+
+                #if TRAILS_DEBUG
+                Console.Write("after destroy {0}, numElements = {1}, head = {2}, tail = {3}: ", 
+                    idx, numElements, _headSegmentIdx, _tailSegmentIdx);
+                printTree(false);
+                printTree(true);
+                #endif
             }
 
-            protected void shiftTail()
+            protected void printTree(bool dir = false)
             {
-                var oldTailIdx = _tailSegmentIdx;
-                if (oldTailIdx != STrailsSegment.NotConnected) {
-                    // pre-tail is now tail
-                    byte preTail = _readElement(_nextSegmentData, oldTailIdx);
-                    if (preTail != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _prevSegmentData, preTail, STrailsSegment.NotConnected);
-                        Console.WriteLine("tail shift: old = " + _tailSegmentIdx + ", new = " + preTail);
-                        _tailSegmentIdx = preTail;
-                        // old trail will get overwritten   in base.storeNewParticle()
+                if (dir) {
+                    int safety = 0;
+                    int idx = _headSegmentIdx;
+                    while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
+                        Console.Write(idx + " < ");
+                        idx = _readElement(_prevSegmentData, idx);
+                    }
+                } else {
+                    int safety = 0;
+                    int idx = _tailSegmentIdx;
+                    while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
+                        Console.Write(idx + " > ");
+                        idx = _readElement(_nextSegmentData, idx);
                     }
                 }
+                Console.Write("\n");
             }
 
             public class STrailsSegment : SSParticle
