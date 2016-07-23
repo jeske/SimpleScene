@@ -71,19 +71,6 @@ namespace SimpleScene
             this.renderMode = RenderMode.GpuInstancing;
         }
 
-        #if false
-        public override void Render (SSRenderConfig renderConfig)
-        {
-            // a hack to draw segment particles in viewspace
-            //this.worldMat = renderConfig.invCameraViewMatrix.Inverted();
-        sd
-            var backup = renderConfig.projectionMatrix;
-            //renderConfig.projectionMatrix = Matrix4.CreateOrthographic(
-
-            base.Render(renderConfig);
-        }
-        #endif
-
         protected override void _initAttributeBuffers (BufferUsageHint hint)
         {
             _posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
