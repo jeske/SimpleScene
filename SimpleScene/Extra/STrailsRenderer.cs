@@ -15,12 +15,12 @@ namespace SimpleScene
 
         public class STrailsParameters
         {
-            public int capacity = 10;
+            public int capacity = 100;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
             public float trailsEmissionInterval = 1f;
             public float velocityToLengthFactor = 0.4f;
-            public float trailLifetime = 20f;  
+            public float trailLifetime = 200f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public string textureFilename = "trail.png";
@@ -227,26 +227,31 @@ namespace SimpleScene
                 byte rightPrev = _readElement(_prevSegmentData, rightIdx);
                 byte rightNext = _readElement(_nextSegmentData, rightIdx);
 
+                if (rightPrev == leftIdx) { // simplify special case
+                    particleSwap(rightIdx, leftIdx);
+                    return;
+                }
+
+                //Console.Write("before swap " + leftIdx + " and " + rightIdx + ": ");
+                //printTree();
+
                 base.particleSwap(leftIdx, rightIdx);
 
+
+                // works for both
+                if (leftNext != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _prevSegmentData, leftNext, (byte)rightIdx);
+                }
+                if (rightPrev != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _nextSegmentData, rightPrev, (byte)leftIdx);
+                }
+
                 if (leftPrev == rightIdx) { // special case
-                    if (leftNext != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _nextSegmentData, leftNext, (byte)rightIdx);
-                    }
-                    if (rightPrev != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _prevSegmentData, rightPrev, (byte)rightIdx);
-                    }
-                    writeDataIfNeeded(_prevSegmentData, 
-                        
+                    writeDataIfNeeded(ref _prevSegmentData, rightIdx, (byte)leftIdx);
+                    writeDataIfNeeded(ref _nextSegmentData, leftIdx, (byte)rightIdx);
                 } else { // general case
                     if (leftPrev != STrailsSegment.NotConnected) {
                         writeDataIfNeeded(ref _nextSegmentData, leftPrev, (byte)rightIdx);
-                    }
-                    if (leftNext != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _prevSegmentData, leftNext, (byte)rightIdx);
-                    }
-                    if (rightPrev != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _nextSegmentData, rightPrev, (byte)leftIdx);
                     }
                     if (rightNext != STrailsSegment.NotConnected) {
                         writeDataIfNeeded(ref _prevSegmentData, rightNext, (byte)leftIdx);
@@ -259,28 +264,31 @@ namespace SimpleScene
                     //+ ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
                 } else if (rightIdx == _headSegmentIdx) {
                     _headSegmentIdx = (byte)leftIdx;
-                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
+                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head =d " + _headSegmentIdx
                     //+ ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
                 }
 
                 if (leftIdx == _tailSegmentIdx) {
                     _tailSegmentIdx = (byte)rightIdx;
-                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
+                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
                 } else if (rightIdx == _tailSegmentIdx) {
                     _tailSegmentIdx = (byte)leftIdx;
-                    Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
+                    //Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
                 }
+
+                //Console.Write(" after swap " + leftIdx + " and " + rightIdx + ": ");
+                //printTree();
             }
 
             public override void sortByDepth (ref Matrix4 viewMatrix)
             {
-                Console.Write("before sort: ");
-                printTree();
+                //Console.Write("before sort: ");
+                //printTree();
 
                 base.sortByDepth(ref viewMatrix);
 
-                Console.Write("after sort: ");
-                printTree();
+                //Console.Write("after sort: ");
+                //printTree();
             }
 
             protected override int storeNewParticle (SSParticle newParticle)
@@ -290,16 +298,6 @@ namespace SimpleScene
                 ts.prevSegmentIdx = _headSegmentIdx;
 
                 //if (false) {
-                if (_headSegmentIdx != STrailsSegment.NotConnected ) {
-                    Vector3 cylEnd = positionFunc();
-                    Vector3 cylStart = _readElement(_positions, (int)_headSegmentIdx).Value;
-                    Vector3 center = (cylStart + cylEnd) / 2f;
-                    Vector3 diff = cylEnd - cylStart;
-                    ts.pos = center;
-                    ts.cylAxis = diff.Normalized();
-                    ts.cylLendth = diff.LengthFast;
-                }
-
                 // TODO you can set scale here based on velocity
 
                 #if true
@@ -314,20 +312,39 @@ namespace SimpleScene
                 }
                 #endif
 
-                _headSegmentIdx = (byte)base.storeNewParticle(newParticle);
-                //Console.WriteLine("new head = " + _headSegmentIdx + ", head pos = " 
-                //    + _readElement(_positions, _headSegmentIdx).Value);
+                if (_headSegmentIdx != STrailsSegment.NotConnected ) {
+                    Vector3 cylEnd = positionFunc();
+                    Vector3 cylStart = _readElement(_positions, (int)_headSegmentIdx).Value;
+                    Vector3 center = (cylStart + cylEnd) / 2f;
+                    Vector3 diff = cylEnd - cylStart;
+                    ts.pos = center;
+                    ts.cylAxis = diff.Normalized();
+                    ts.cylLendth = diff.LengthFast;
+                }
+
+                Console.Write("before new particle, numElements = {0}: ", numElements);
+                printTree();
+
+                byte newHead = (byte)base.storeNewParticle(newParticle);
+                if (_headSegmentIdx != STrailsSegment.NotConnected) {
+                    writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdx, (byte)newHead);
+                }
+                _headSegmentIdx = newHead;
+
                 if (_tailSegmentIdx == STrailsSegment.NotConnected) {
-                    _tailSegmentIdx = _headSegmentIdx;
+                    _tailSegmentIdx = newHead;
                     Console.WriteLine("new tail = " + _tailSegmentIdx);
 
                 }
+
+                Console.Write("after new particle, numElements = {0}: ", numElements);
+                printTree();
                 return _headSegmentIdx;
             }
 
             protected void printTree()
             {
-                #if true
+                #if false
                 int safety = 0;
                 int idx = _headSegmentIdx;
                 while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
