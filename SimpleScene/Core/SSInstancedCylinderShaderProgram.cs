@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace SimpleScene
@@ -12,6 +13,12 @@ namespace SimpleScene
 
         #region attribute locations
         private readonly int u_viewRay;
+        private readonly int u_viewX;
+        private readonly int u_viewY;
+        private readonly int u_cameraPos;
+        private readonly int u_screenWidth;
+        private readonly int u_screenHeight;
+
         private readonly int a_cylinderPos;
         private readonly int a_cylinderAxis;
         private readonly int a_cylinderWidth;
@@ -19,7 +26,13 @@ namespace SimpleScene
         private readonly int a_cylinderColor;
         #endregion
 
-        public int UniViewRay { get { return u_viewRay; } }
+        public Vector3 UniViewRay { set { GL.Uniform3(u_viewRay, value); } }
+        public Vector3 UniViewX { set { GL.Uniform3(u_viewX, value); } }
+        public Vector3 UniViewY { set { GL.Uniform3(u_viewY, value); }  }
+        public Vector3 UniCameraPos { set { GL.Uniform3(u_cameraPos, value); } }
+        public float UniScreenWidth { set { GL.Uniform1(u_screenWidth, value); } }
+        public float UniScreenHeight { set { GL.Uniform1(u_screenHeight, value); } }
+                
         public int AttrCylinderPos { get { return a_cylinderPos; } }
         public int AttrCylinderAxis { get { return a_cylinderAxis; } }
         public int AttrCylinderLength { get { return a_cylinderLength; } }
@@ -47,6 +60,12 @@ namespace SimpleScene
             Activate();
 
             u_viewRay = getUniLoc("viewRay");
+            u_viewX = getUniLoc("viewX");
+            u_viewY = getUniLoc("viewY");
+            u_cameraPos = getUniLoc("cameraPos");
+            u_screenWidth = getUniLoc("screenWidth");
+            u_screenHeight = getUniLoc("screenHeight");
+
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
             a_cylinderWidth = getAttrLoc("cylinderWidth");
