@@ -63,7 +63,7 @@ void main()
    
     vec3 viewPos = centerInView 
         + gl_Vertex.x * vec3(scaledAxisInView.xy, 0)
-        + gl_Vertex.y * vec3(axisInViewPerp, 0);
+        + gl_Vertex.y * vec3(axisInViewPerp, 0) * 4;
     gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1);
 
     

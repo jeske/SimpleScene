@@ -26,15 +26,15 @@ void main()
 
     float normalizedX = gl_FragCoord.x / screenWidth - 0.5;
     float normalizedY = gl_FragCoord.y / screenHeight - 0.5;
-    //vec3 fragmentWorldPos = cameraPos + viewRay +  normalizedX * viewX + normalizedY * viewY;
-    vec3 fragmentWorldPos = cameraPos + normalizedX * viewX + normalizedY * viewY;
-    //vec3 pixelRay = fragmentWorldPos - cameraPos;
-    vec3 pixelRay = viewRay;
+    vec3 fragmentWorldPos = cameraPos + viewRay +  normalizedX * viewX + normalizedY * viewY;
+    //vec3 fragmentWorldPos = cameraPos + normalizedX * viewX + normalizedY * viewY;
+    vec3 pixelRay = normalize(fragmentWorldPos - cameraPos);
+    //vec3 pixelRay = viewRay;
     
     
     //vec3 fragmentWorldPos = (gl_ProjectionMatrixInverse * vec4(gl_FragCoord.xy, 0, 1)).xyz;
     //vec3 fragmentWorldPos = (gl_FragCoord / gl_FragCoord.w).xyz;
-    float cylRadius = varCylinderWidth / 2;
+    float cylRadius = varCylinderWidth / 400;
 
     vec3 proj1 = fragmentWorldPos - dot(fragmentWorldPos, varCylinderAxis) * varCylinderAxis; // todo consoldate
     vec3 proj2 = pixelRay - varCylinderAxis - dot(pixelRay - varCylinderAxis, varCylinderAxis) * varCylinderAxis;
@@ -60,16 +60,17 @@ void main()
         }
     }
     //if (D > 0) {
+    if (intersectionCount == 2) {
     //if (abs(dot(varCylinderAxis, pixelRay)) < 0.5) {
-    if (true) {  
+    //if (true) {  
 #ifdef INSTANCE_DRAW
-        //gl_FragColor = varCylinderColor;
-        gl_FragColor = vec4(normalizedX + 0.5, 0, normalizedY + 0.5, 1);
+        gl_FragColor = varCylinderColor;
+        //gl_FragColor = vec4(viewRay, 1);
 #else
-        gl_FragColor = vec4(1, 1, 1, 1);
+            gl_FragColor = vec4(1, 1, 1, 1);
 #endif
     } else {
-        gl_FragColor = vec4(varCylinderColor.r, varCylinderColor.g, varCylinderColor.b, 0.1);
+        gl_FragColor = vec4(varCylinderColor.rgb, 0.1);
     }
     
 }

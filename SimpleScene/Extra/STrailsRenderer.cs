@@ -20,8 +20,8 @@ namespace SimpleScene
             public int capacity = 200;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 0.15f;
-            public float velocityToLengthFactor = 0.4f;
+            public float trailsEmissionInterval = 1f;
+            public float velocityToLengthFactor = 2f;
             public float trailLifetime = 20f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
@@ -86,7 +86,7 @@ namespace SimpleScene
             _shader.Activate();
 
             var rotationOnly = renderConfig.invCameraViewMatrix.ExtractRotation().Inverted();
-            _shader.UniViewRay = Vector3.Transform(Vector3.UnitZ, rotationOnly);
+            _shader.UniViewRay = Vector3.Transform(-Vector3.UnitZ, rotationOnly);
             _shader.UniViewX = Vector3.Transform(Vector3.UnitX, rotationOnly);
             _shader.UniViewY = Vector3.Transform(Vector3.UnitY, rotationOnly);
             _shader.UniCameraPos = Vector3.Transform(Vector3.Zero, renderConfig.invCameraViewMatrix.Inverted());
