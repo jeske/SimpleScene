@@ -34,17 +34,17 @@ void main()
 {
     vec4 color = cylinderColor;
     vec3 perpAxis1;
-    if (cylinderAxis.z < 0.01) {
+    if (abs(cylinderAxis.x) < 0.01 && abs(cylinderAxis.y) < 0.01) {
         perpAxis1 = vec3(1, 0, 0);
     } else {
         perpAxis1 = normalize(vec3(cylinderAxis.y, -cylinderAxis.x, 0));
     }
-    vec3 perpAxis2 = cross(cylinderAxis, perpAxis1);
+    vec3 perpAxis2 = normalize(cross(cylinderAxis, perpAxis1));
     
     vec3 combinedWorldPos = cylinderCenter
         + gl_Vertex.x * cylinderAxis * cylinderLength  
-        + gl_Vertex.y * perpAxis1 * cylinderWidth
-        + gl_Vertex.z * perpAxis2 * cylinderWidth;
+        + gl_Vertex.y * perpAxis1 * cylinderWidth * 2
+        + gl_Vertex.z * perpAxis2 * cylinderWidth * 2;
         
     gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
        
