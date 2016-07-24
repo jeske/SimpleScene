@@ -18,6 +18,8 @@ namespace SimpleScene
         private readonly int u_cameraPos;
         private readonly int u_screenWidth;
         private readonly int u_screenHeight;
+        private readonly int u_viewMatrix;
+        private readonly int u_worldMatrix;
 
         private readonly int a_cylinderPos;
         private readonly int a_cylinderAxis;
@@ -32,6 +34,8 @@ namespace SimpleScene
         public Vector3 UniCameraPos { set { GL.Uniform3(u_cameraPos, value); } }
         public float UniScreenWidth { set { GL.Uniform1(u_screenWidth, value); } }
         public float UniScreenHeight { set { GL.Uniform1(u_screenHeight, value); } }
+        public Matrix4 UniWorldMatrix { set { GL.UniformMatrix4(u_worldMatrix, false, ref value); } }
+        public Matrix4 UnitViewMatrix { set { GL.UniformMatrix4(u_viewMatrix, false, ref value); } }
                 
         public int AttrCylinderPos { get { return a_cylinderPos; } }
         public int AttrCylinderAxis { get { return a_cylinderAxis; } }
@@ -65,6 +69,8 @@ namespace SimpleScene
             u_cameraPos = getUniLoc("cameraPos");
             u_screenWidth = getUniLoc("screenWidth");
             u_screenHeight = getUniLoc("screenHeight");
+            u_viewMatrix = getUniLoc("viewMatrix");
+            u_worldMatrix = getUniLoc("worldMatrix");
 
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");

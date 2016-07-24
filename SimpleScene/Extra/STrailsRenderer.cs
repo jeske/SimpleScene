@@ -46,7 +46,7 @@ namespace SimpleScene
             STrailsParameters trailsParams = null)
             : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
                 trailsParams ?? new STrailsParameters()),
-                SSTexturedQuad.singleFaceInstance, _defaultUsageHint)
+                SSTexturedCube.Instance, _defaultUsageHint)
         {
             trailsParams = trailsData.trailsParams;
             var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(trailsParams.textureFilename);
@@ -90,6 +90,8 @@ namespace SimpleScene
             _shader.UniViewX = Vector3.Transform(Vector3.UnitX, rotationOnly);
             _shader.UniViewY = Vector3.Transform(Vector3.UnitY, rotationOnly);
             _shader.UniCameraPos = Vector3.Transform(Vector3.Zero, renderConfig.invCameraViewMatrix.Inverted());
+            _shader.UniWorldMatrix = this.worldMat;
+            _shader.UnitViewMatrix = renderConfig.invCameraViewMatrix;
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
             _prepareAttribute(_axesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);

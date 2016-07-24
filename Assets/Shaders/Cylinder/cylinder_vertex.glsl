@@ -2,6 +2,9 @@
 #version 120
 
 uniform vec3 viewRay;
+uniform mat4 worldMatrix;
+uniform mat4 viewMatrix;
+
 #ifdef INSTANCE_DRAW
 attribute vec3 cylinderCenter;
 attribute vec3 cylinderAxis; // must be normalized
@@ -14,13 +17,12 @@ uniform vec3 cylinderAxis; // must be normalized
 uniform float cylinderWidth;
 uniform float cylinderLength;
 #endif
+varying vec3 varViewRay;
 varying vec3 varCylinderCenter;
 varying vec3 varCylinderAxis;
 varying float varCylinderLength;
 varying float varCylinderWidth;
-#ifdef INSTANCE_DRAW
 varying vec4 varCylinderColor;
-#endif
 
 // http://www.opengl.org/discussion_boards/showthread.php/160134-Quaternion-functions-for-GLSL
 //vec3 quatTransform(vec4 q, vec3 v)
@@ -31,11 +33,41 @@ varying vec4 varCylinderColor;
 void main()
 {
     vec4 color = cylinderColor;
+    vec3 perpAxis1;
+    if (cylinderAxis.z < 0.01) {
+        perpAxis1 = vec3(1, 0, 0);
+    } else {
+        perpAxis1 = normalize(vec3(cylinderAxis.y, -cylinderAxis.x, 0));
+    }
+    vec3 perpAxis2 = cross(cylinderAxis, perpAxis1);
     
-    #if 1
-    //vec3 viewRay = normalize(gl_ModelViewMatrixInverse * vec4(0, 0, -1, 1)).xyz;
-    //vec3 viewRayX = normalize(gl_ModelViewMatrixInverse * vec4(1, 0, 0, 1)).xyz;
-    //viewRay = normalize(quatTransform(rotationQuat, vec3(0, 0, -1)).xyz);
+    vec3 combinedWorldPos = cylinderCenter
+        + gl_Vertex.x * cylinderAxis * cylinderLength  
+        + gl_Vertex.y * perpAxis1 * cylinderWidth
+        + gl_Vertex.z * perpAxis2 * cylinderWidth;
+        
+    gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
+       
+    varCylinderCenter = cylinderCenter;
+    varCylinderAxis = cylinderAxis;
+    varCylinderWidth = cylinderWidth;
+    varCylinderLength = cylinderLength;
+
+    #ifdef INSTANCE_DRAW
+    //varCylinderColor = vec4(0, 0, 0, 1);
+    //varCylinderColor.x = length(viewPos - startInView)/cylinderLength;
+    //varCylinderColor.y = length(viewPos - endInView)/cylinderLength;
+    varCylinderColor = color;
+    #else
+    varCylinderColor = gl_Color;
+    #endif
+    
+}
+
+    #if 0
+    //vec3 varViewRay = normalize(gl_ModelViewMatrixInverse * vec4(0, 0, -1, 1)).xyz;
+    //vec3 varViewRayX = normalize(gl_ModelViewMatrixInverse * vec4(1, 0, 0, 1)).xyz;
+    //varViewRay = normalize(quatTransform(rotationQuat, vec3(0, 0, -1)).xyz);
    
     vec3 centerInView = (gl_ModelViewMatrix * vec4(cylinderCenter, 1)).xyz;
     vec3 scaledAxis = (cylinderLength/2 + cylinderWidth) * cylinderAxis;
@@ -45,7 +77,7 @@ void main()
     vec3 startInView = centerInView - scaledAxisInView;
 
     #if 0
-    float expand = (gl_ModelViewMatrix * vec4(cylinderCenter + viewRayX * cylinderWidth, 1.0)).x - centerInView.x;
+    float expand = (gl_ModelViewMatrix * vec4(cylinderCenter + varViewRayX * cylinderWidth, 1.0)).x - centerInView.x;
     if (length(scaledAxisInView) < cylinderWidth) {
         scaledAxisInView = vec3(expand, expand, 0);
         color = vec4(0, 0, 0.5, 1);
@@ -58,28 +90,14 @@ void main()
     }
     
     vec2 axisInViewPerp = normalize(vec2(-scaledAxisInView.y, scaledAxisInView.x)) * 2 * cylinderWidth;
-    #endif
  
    
     vec3 viewPos = centerInView 
         + gl_Vertex.x * vec3(scaledAxisInView.xy, 0)
-        + gl_Vertex.y * vec3(axisInViewPerp, 0) * 4;
+        + gl_Vertex.y * vec3(axisInViewPerp, 0);
     gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1);
-
-    
-    varCylinderCenter = cylinderCenter;
-    varCylinderAxis = cylinderAxis;
-    varCylinderWidth = cylinderWidth;
-    varCylinderLength = cylinderLength;
-
-    #ifdef INSTANCE_DRAW
-    //varCylinderColor = vec4(0, 0, 0, 1);
-    //varCylinderColor.x = length(viewPos - startInView)/cylinderLength;
-    //varCylinderColor.y = length(viewPos - endInView)/cylinderLength;
-    varCylinderColor = color;
     #endif
-    
-}
+
 
     #if 0
     vec3 rotatedScaledAxis = quatTransform(rotationQuat, scaledAxis);
