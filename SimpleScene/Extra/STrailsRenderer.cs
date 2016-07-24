@@ -21,7 +21,7 @@ namespace SimpleScene
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
             public float trailsEmissionInterval = 1f;
-            public float velocityToLengthFactor = 2f;
+            public float velocityToLengthFactor = 1f;
             public float trailLifetime = 20f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
@@ -308,6 +308,7 @@ namespace SimpleScene
                     _nextIdxToOverwrite = _tailSegmentIdx;
                 }
 
+                #if false
                 if (_headSegmentIdx != STrailsSegment.NotConnected ) {
                     Vector3 cylEnd = positionFunc();
                     Vector3 cylStart = _readElement(_positions, (int)_headSegmentIdx).Value;
@@ -317,6 +318,7 @@ namespace SimpleScene
                     ts.cylAxis = diff.Normalized();
                     ts.cylLendth = diff.LengthFast;
                 }
+                #endif
 
                 #if TRAILS_DEBUG
                 Console.Write("before new particle, numElements = {0}: ", numElements);
