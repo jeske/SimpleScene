@@ -391,7 +391,7 @@ namespace TestBench3
             Vector3 desiredDir;
             float angle = localTime * 0.5f;
             float desiredXOffset = 100f * (float)Math.Cos(angle);
-            #if true
+            #if false
             float desiredYOffset = 20f * (float)Math.Sin(angle * 0.77f);
             float desiredZOffset = 80f * (float)Math.Sin(angle * 0.88f);
             #else

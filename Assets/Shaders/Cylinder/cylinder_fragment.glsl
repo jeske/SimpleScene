@@ -1,4 +1,7 @@
+// Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 #version 120
+
+uniform vec3 viewRay;
 
 varying vec3 varViewRay;
 varying vec3 varCylinderCenter;
@@ -20,7 +23,7 @@ void main()
     float cylRadius = varCylinderWidth / 2;
 
     vec3 proj1 = fragmentWorldPos - dot(fragmentWorldPos, varCylinderAxis) * varCylinderAxis; // todo consoldate
-    vec3 proj2 = varViewRay - varCylinderAxis - dot(varViewRay - varCylinderAxis, varCylinderAxis) * varCylinderAxis;
+    vec3 proj2 = viewRay - varCylinderAxis - dot(varViewRay - varCylinderAxis, varCylinderAxis) * varCylinderAxis;
     float a = dot(proj1, proj1);
     float b = 2 * dot(proj1, proj2);
     float c = dot(proj2, proj2) - cylRadius * cylRadius;
@@ -42,7 +45,8 @@ void main()
             intersectionCount++;
         }
     }
-    if (intersectionCount == 2) {
+    //if (intersectionCount == 2) {
+    if (abs(dot(varCylinderAxis, varViewRay)) < 0.5) {
         
 #ifdef INSTANCE_DRAW
         gl_FragColor = varCylinderColor;
