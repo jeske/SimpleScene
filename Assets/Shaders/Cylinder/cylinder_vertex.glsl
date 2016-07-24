@@ -34,8 +34,9 @@ void main()
     vec4 color = cylinderColor;
     
     #if 1
-    vec3 varViewRay = normalize(gl_ModelViewMatrixInverse * vec4(0, 0, -1, 1)).xyz;
-    vec3 varViewRayX = normalize(gl_ModelViewMatrixInverse * vec4(1, 0, 0, 1)).xyz;
+    //vec3 varViewRay = normalize(gl_ModelViewMatrixInverse * vec4(0, 0, -1, 1)).xyz;
+    //vec3 varViewRayX = normalize(gl_ModelViewMatrixInverse * vec4(1, 0, 0, 1)).xyz;
+    varViewRay = normalize(quatTransform(rotationQuat, vec3(0, 0, -1)).xyz);
    
     vec3 centerInView = (gl_ModelViewMatrix * vec4(cylinderCenter, 1)).xyz;
     vec3 scaledAxis = (cylinderLength/2 + cylinderWidth) * cylinderAxis;

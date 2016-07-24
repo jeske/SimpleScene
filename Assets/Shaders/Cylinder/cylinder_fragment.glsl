@@ -13,7 +13,7 @@ varying vec4 varCylinderColor;
 
 void main()
 {
-    vec4 intesections[2];
+    vec3 intersections[2];
     int intersectionCount = 0;
     
     vec3 fragmentWorldPos = (gl_ModelViewProjectionMatrixInverse * gl_FragCoord).xyz;
@@ -27,13 +27,30 @@ void main()
     float D = b*b - 4*a*c;
 
     if (D > 0) {
+        float Dsqrt = sqrt(D);
+        float t1 = (-b - Dsqrt)/2/a;
+        vec3 pt1 = fragmentWorldPos + t1 * varViewRay;
+        if (abs(dot(pt1 - varCylinderCenter, varCylinderAxis)) < varCylinderLength) {
+            intersections[intersectionCount] = pt1;
+            intersectionCount++;
+        }
+        
+        float t2 = (-b + Dsqrt)/2/a;
+        vec3 pt2 = fragmentWorldPos + t2 * varViewRay;
+        if (abs(dot(pt2 - varCylinderCenter, varCylinderAxis)) < varCylinderLength) {
+            intersections[intersectionCount] = pt2;
+            intersectionCount++;
+        }
+    }
+    if (intersectionCount == 2) {
+        
 #ifdef INSTANCE_DRAW
         gl_FragColor = varCylinderColor;
 #else
         gl_FragColor = vec4(1, 1, 1, 1);
 #endif
     } else {
-        discard;
+        gl_FragColor = vec4(varCylinderColor.r, varCylinderColor.g, varCylinderColor.b, 0.1);
     }
     
 }
