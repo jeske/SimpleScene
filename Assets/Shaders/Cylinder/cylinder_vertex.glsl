@@ -18,11 +18,13 @@ uniform float cylinderWidth;
 uniform float cylinderLength;
 #endif
 varying vec3 varViewRay;
-varying vec3 varCylinderCenter;
-varying vec3 varCylinderAxis;
-varying float varCylinderLength;
-varying float varCylinderWidth;
-varying vec4 varCylinderColor;
+varying vec3 varCylCenter;
+varying vec3 varCylXAxis;
+varying vec3 varCylYAxis;
+varying vec3 varCylZAxis;
+varying float varCylLength;
+varying float varCylWidth;
+varying vec4 varCylColor;
 
 // http://www.opengl.org/discussion_boards/showthread.php/160134-Quaternion-functions-for-GLSL
 //vec3 quatTransform(vec4 q, vec3 v)
@@ -33,33 +35,32 @@ varying vec4 varCylinderColor;
 void main()
 {
     vec4 color = cylinderColor;
-    vec3 perpAxis1;
     if (abs(cylinderAxis.x) < 0.01 && abs(cylinderAxis.y) < 0.01) {
-        perpAxis1 = vec3(1, 0, 0);
+        varCylXAxis = vec3(1, 0, 0);
     } else {
-        perpAxis1 = normalize(vec3(cylinderAxis.y, -cylinderAxis.x, 0));
+        varCylXAxis = normalize(vec3(cylinderAxis.y, -cylinderAxis.x, 0));
     }
-    vec3 perpAxis2 = normalize(cross(cylinderAxis, perpAxis1));
+    varCylYAxis = normalize(cross(cylinderAxis, varCylXAxis));
     
     vec3 combinedWorldPos = cylinderCenter
         + gl_Vertex.x * cylinderAxis * cylinderLength  
-        + gl_Vertex.y * perpAxis1 * cylinderWidth * 2
-        + gl_Vertex.z * perpAxis2 * cylinderWidth * 2;
+        + gl_Vertex.y * varCylXAxis * cylinderWidth * 2
+        + gl_Vertex.z * varCylYAxis * cylinderWidth * 2;
         
     gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
        
-    varCylinderCenter = cylinderCenter;
-    varCylinderAxis = cylinderAxis;
-    varCylinderWidth = cylinderWidth;
-    varCylinderLength = cylinderLength;
+    varCylCenter = cylinderCenter;
+    varCylZAxis = cylinderAxis;
+    varCylWidth = cylinderWidth;
+    varCylLength = cylinderLength;
 
     #ifdef INSTANCE_DRAW
-    //varCylinderColor = vec4(0, 0, 0, 1);
-    //varCylinderColor.x = length(viewPos - startInView)/cylinderLength;
-    //varCylinderColor.y = length(viewPos - endInView)/cylinderLength;
-    varCylinderColor = color;
+    //varCylColor = vec4(0, 0, 0, 1);
+    //varCylColor.x = length(viewPos - startInView)/cylinderLength;
+    //varCylColor.y = length(viewPos - endInView)/cylinderLength;
+    varCylColor = color;
     #else
-    varCylinderColor = gl_Color;
+    varCylColor = gl_Color;
     #endif
     
 }
