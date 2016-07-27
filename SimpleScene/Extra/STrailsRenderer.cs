@@ -37,17 +37,19 @@ namespace SimpleScene
             get { return (STrailsData)base.instanceData; }
         }
 
+        protected SSScene _cameraScene;
         protected SSInstancedCylinderShaderProgram _shader;
         protected SSAttributeBuffer<SSAttributeVec3> _axesBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _widthsBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _lengthsBuffer;
 
         public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
-            STrailsParameters trailsParams = null)
+            SSScene cameraScene, STrailsParameters trailsParams = null)
             : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
                 trailsParams ?? new STrailsParameters()),
                 SSTexturedCube.Instance, _defaultUsageHint)
         {
+            _cameraScene = cameraScene;
             trailsParams = trailsData.trailsParams;
             var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(trailsParams.textureFilename);
 
@@ -85,11 +87,11 @@ namespace SimpleScene
             _shader = _shader ?? (SSInstancedCylinderShaderProgram)renderConfig.otherShaders["instanced_cylinder"];
             _shader.Activate();
 
-            var rotationOnly = renderConfig.invCameraViewMatrix.ExtractRotation().Inverted();
-            _shader.UniViewRay = Vector3.Transform(-Vector3.UnitZ, rotationOnly);
-            _shader.UniViewX = Vector3.Transform(Vector3.UnitX, rotationOnly);
-            _shader.UniViewY = Vector3.Transform(Vector3.UnitY, rotationOnly);
-            _shader.UniCameraPos = Vector3.Transform(Vector3.Zero, renderConfig.invCameraViewMatrix.Inverted());
+            var camera = _cameraScene.ActiveCamera;
+            _shader.UniViewRay = camera.Dir;
+            _shader.UniViewX = camera.Right;
+            _shader.UniViewY = camera.Up;
+            _shader.UniCameraPos = camera.Pos;
             _shader.UniWorldMatrix = this.worldMat;
             _shader.UnitViewMatrix = renderConfig.invCameraViewMatrix;
 
