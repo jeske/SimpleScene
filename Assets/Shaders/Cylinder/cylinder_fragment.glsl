@@ -12,9 +12,7 @@ varying vec3 varCylYAxis;
 varying vec3 varCylZAxis;
 varying float varCylLength;
 varying float varCylWidth;
-#ifdef INSTANCE_DRAW
 varying vec4 varCylColor;
-#endif
 
 vec3 toCylProj(vec3 worldVec)
 {
@@ -56,7 +54,8 @@ void main()
     //vec3 localPixelRay = vec3(0, 1, 0);
     //vec3 localPixelPos = vec3(-100, 0, 0);
     float cylRadius = varCylWidth / 2;
-    float cylHalfLength = varCylLength / 2;
+    float cylRadiusSq = cylRadius*cylRadius;
+    float cylHalfLength = varCylLength / 2;    
     if (abs(localPixelRay.x) > 0.0001 || abs(localPixelRay.y) > 0.0001) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
@@ -64,7 +63,7 @@ void main()
         //                                                  + (p_x^2 + p_y^2 - r^2) == 0
         float a = dot(localPixelRay.xy, localPixelRay.xy);
         float b = 2 * dot(localPixelPos.xy, localPixelRay.xy);
-        float c = dot(localPixelPos.xy, localPixelPos.xy) - cylRadius*cylRadius;
+        float c = dot(localPixelPos.xy, localPixelPos.xy) - cylRadiusSq;
         float D = b*b - 4*a*c;
         if (D > 0) { // two solutions
             float Dsqrt = sqrt(D);
@@ -86,13 +85,35 @@ void main()
                     intersectionCount++;
                 }
             }
-            gl_FragColor = varCylColor;
-        } else if (D == 0) {
-            gl_FragColor = varCylColor;
+            //gl_FragColor = varCylColor;
 
-        }
+        } 
         // D < 0 means no solutions; D == 0 means one solution: the ray is "scraping" the
         // cylinder; we can probably ignore this case
+    }
+    if (intersectionCount < 2 && abs(localPixelRay.z) > 0.001) {
+        // dont have the two intersections yet and the pixel ray is not parallel to
+        // cylinder planes; test for cylinder's plane #1 and/or #2
+        // solve: (p_z + dir_z * t) = cylHalfLength
+        float t3 = (cylHalfLength - localPixelPos.z) / localPixelRay.z;
+        vec3 intrPos3 = localPixelPos + localPixelRay * t3;
+        if (dot(intrPos3.xy, intrPos3.xy) < cylRadiusSq) {
+            intersections[intersectionCount] = intrPos3;
+            intersectionCount++;
+        }
+        if (intersectionCount < 2) {
+            float t4 = (-cylHalfLength - localPixelPos.z) / localPixelRay.z;
+            vec3 intrPos4 = localPixelPos + localPixelRay * t4;
+            if (dot(intrPos4.xy, intrPos4.xy) < cylRadiusSq) {
+                intersections[intersectionCount] = intrPos4;
+                intersectionCount++;
+            }
+        }
+    }
+    
+    
+    if (intersectionCount == 2) {
+        gl_FragColor = varCylColor;
     }
 }
 
