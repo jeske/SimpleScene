@@ -22,7 +22,7 @@ namespace SimpleScene
             //public float trailsEmissionInterval = 0.05f;
             public float trailsEmissionInterval = 1f;
             public float velocityToLengthFactor = 1f;
-            public float trailLifetime = 20f;  
+            public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public string textureFilename = "trail.png";
@@ -37,19 +37,17 @@ namespace SimpleScene
             get { return (STrailsData)base.instanceData; }
         }
 
-        protected SSScene _cameraScene;
         protected SSInstancedCylinderShaderProgram _shader;
         protected SSAttributeBuffer<SSAttributeVec3> _axesBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _widthsBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _lengthsBuffer;
 
         public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
-            SSScene cameraScene, STrailsParameters trailsParams = null)
+            STrailsParameters trailsParams = null)
             : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
                 trailsParams ?? new STrailsParameters()),
                 SSTexturedCube.Instance, _defaultUsageHint)
         {
-            _cameraScene = cameraScene;
             trailsParams = trailsData.trailsParams;
             var tex = SSAssetManager.GetInstance<SSTextureWithAlpha>(trailsParams.textureFilename);
 
@@ -87,18 +85,8 @@ namespace SimpleScene
             _shader = _shader ?? (SSInstancedCylinderShaderProgram)renderConfig.otherShaders["instanced_cylinder"];
             _shader.Activate();
 
-            var camera = _cameraScene.ActiveCamera;
-            var rotationOnly = camera.rotationOnlyViewMatrixInverted();
-            //_shader.UniViewRay = Vector3.Transform(-Vector3.UnitZ, rotationOnly); //camera.Dir;
-            //_shader.UniViewX = Vector3.Transform(Vector3.UnitX, rotationOnly); //camera.Right;
-            //_shader.UniViewY = Vector3.Transform(Vector3.UnitY, rotationOnly); //camera.Up;
-            _shader.UniViewRay = camera.Dir;
-            _shader.UniViewX = camera.Right;
-            _shader.UniViewY = camera.Up;
-
-            _shader.UniCameraPos = camera.Pos;
-            _shader.UniWorldMatrix = this.worldMat;
-            _shader.UnitViewMatrix = renderConfig.invCameraViewMatrix;
+            _shader.UniViewMatrix = renderConfig.invCameraViewMatrix;
+            _shader.UniViewMatrixInverse = renderConfig.invCameraViewMatrix.Inverted();
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
             _prepareAttribute(_axesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);

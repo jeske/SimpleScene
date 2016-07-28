@@ -1,8 +1,6 @@
 // Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 #version 120
 
-uniform vec3 viewRay;
-uniform mat4 worldMatrix;
 uniform mat4 viewMatrix;
 
 #ifdef INSTANCE_DRAW
@@ -17,7 +15,6 @@ uniform vec3 cylinderAxis; // must be normalized
 uniform float cylinderWidth;
 uniform float cylinderLength;
 #endif
-varying vec3 varViewRay;
 varying vec3 varCylCenter;
 varying vec3 varCylXAxis;
 varying vec3 varCylYAxis;

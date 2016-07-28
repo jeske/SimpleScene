@@ -1,12 +1,9 @@
 // Copyright(C) David W. Jeske, 2014, All Rights Reserved.
 #version 120
 
-uniform vec3 cameraPos;
-uniform vec3 viewRay;
-uniform vec3 viewX;
-uniform vec3 viewY;
 uniform float screenWidth;
 uniform float screenHeight;
+uniform mat4 viewMatrixInverse;
 
 //varying vec3 varViewRay;
 varying vec3 varCylCenter;
@@ -33,18 +30,29 @@ vec3 toCylCoords(vec3 worldCoords)
 
 // https://community.eveonline.com/news/dev-blogs/re-inventing-the-trails/
 
+vec3 unproject(vec2 screenPt, float z)
+{
+    vec4 vec = vec4(2 * screenPt.x / screenWidth - 1,
+                    2 * screenPt.y / screenHeight - 1,
+                    z, 1);
+    vec = viewMatrixInverse * (gl_ProjectionMatrixInverse * vec);
+    if (abs(vec.w) > 1.401298E-45) {
+        vec /= vec.w;
+    }
+    return vec.xyz;
+}  
+
 void main()
 {
     vec3 intersections[2];
     int intersectionCount = 0;
-    gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default
+    gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default   
 
-    float normalizedX = gl_FragCoord.x / screenWidth - 0.5;
-    float normalizedY = gl_FragCoord.y / screenHeight - 0.5;
-    vec3 pixelWorldPos = cameraPos + viewRay +  normalizedX * viewX + normalizedY * viewY;
-    vec3 pixelRay = normalize(pixelWorldPos - cameraPos);
+    vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, -1.5);
+    vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 1.0);
+    vec3 pixelRay = normalize(pixelWorldPos2 - pixelWorldPos1);
     vec3 localPixelRay = toCylProj(pixelRay);
-    vec3 localPixelPos = toCylCoords(pixelWorldPos);
+    vec3 localPixelPos = toCylCoords(pixelWorldPos2);
     //vec3 localPixelRay = vec3(0, 1, 0);
     //vec3 localPixelPos = vec3(-100, 0, 0);
     float cylRadius = varCylWidth / 2;
@@ -79,27 +87,16 @@ void main()
                 }
             }
             gl_FragColor = varCylColor;
+        } else if (D == 0) {
+            gl_FragColor = varCylColor;
+
         }
         // D < 0 means no solutions; D == 0 means one solution: the ray is "scraping" the
         // cylinder; we can probably ignore this case
     }
-
-    //gl_FragColor = vec4(localPixelRay, 1);
-
-    #if false
-    if (intersectionCount == 2) {
-        gl_FragColor = varCylColor;
-        
-        //#else
-        //gl_FragColor = vec4(1, 1, 1, 1);
-        //#endif
-    } else {
-        gl_FragColor = vec4(varCylColor.rgb, 0.1);
-    }
-    #endif
 }
 
-#if 0
+    #if 0
     vec3 proj1 = pixelWorldPos - dot(pixelWorldPos, varCylAxis) * varCylAxis;
     vec3 proj2 = pixelRay - varCylAxis - dot(pixelRay - varCylAxis, varCylAxis) * varCylAxis;
     float a = dot(proj1, proj1);
@@ -136,4 +133,4 @@ void main()
     } else {
         gl_FragColor = vec4(varCylColor.rgb, 0.1);
     }
-    #endif
+#endif

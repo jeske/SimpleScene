@@ -164,8 +164,7 @@ namespace TestBench3
             var trailsRenderer = new STrailsRenderer(
                 () => vandalShip.Pos,
                 () => vandalVelocity,
-                () => vandalShip.Dir,
-                main3dScene
+                () => vandalShip.Dir
             );
             alpha3dScene.AddObject(trailsRenderer);
             //hud2dScene.AddObject(trailsRenderer);

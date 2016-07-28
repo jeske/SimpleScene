@@ -12,14 +12,10 @@ namespace SimpleScene
         protected readonly SSFragmentShader _fragmentShader;
 
         #region attribute locations
-        private readonly int u_viewRay;
-        private readonly int u_viewX;
-        private readonly int u_viewY;
-        private readonly int u_cameraPos;
         private readonly int u_screenWidth;
         private readonly int u_screenHeight;
         private readonly int u_viewMatrix;
-        private readonly int u_worldMatrix;
+        private readonly int u_viewMatrixInverse;
 
         private readonly int a_cylinderPos;
         private readonly int a_cylinderAxis;
@@ -28,14 +24,10 @@ namespace SimpleScene
         private readonly int a_cylinderColor;
         #endregion
 
-        public Vector3 UniViewRay { set { GL.Uniform3(u_viewRay, value); } }
-        public Vector3 UniViewX { set { GL.Uniform3(u_viewX, value); } }
-        public Vector3 UniViewY { set { GL.Uniform3(u_viewY, value); }  }
-        public Vector3 UniCameraPos { set { GL.Uniform3(u_cameraPos, value); } }
         public float UniScreenWidth { set { GL.Uniform1(u_screenWidth, value); } }
         public float UniScreenHeight { set { GL.Uniform1(u_screenHeight, value); } }
-        public Matrix4 UniWorldMatrix { set { GL.UniformMatrix4(u_worldMatrix, false, ref value); } }
-        public Matrix4 UnitViewMatrix { set { GL.UniformMatrix4(u_viewMatrix, false, ref value); } }
+        public Matrix4 UniViewMatrix { set { GL.UniformMatrix4(u_viewMatrix, false, ref value); } }
+        public Matrix4 UniViewMatrixInverse { set { GL.UniformMatrix4(u_viewMatrixInverse, false, ref value); } }
                 
         public int AttrCylinderPos { get { return a_cylinderPos; } }
         public int AttrCylinderAxis { get { return a_cylinderAxis; } }
@@ -63,14 +55,10 @@ namespace SimpleScene
 
             Activate();
 
-            u_viewRay = getUniLoc("viewRay");
-            u_viewX = getUniLoc("viewX");
-            u_viewY = getUniLoc("viewY");
-            u_cameraPos = getUniLoc("cameraPos");
             u_screenWidth = getUniLoc("screenWidth");
             u_screenHeight = getUniLoc("screenHeight");
             u_viewMatrix = getUniLoc("viewMatrix");
-            u_worldMatrix = getUniLoc("worldMatrix");
+            u_viewMatrixInverse = getUniLoc("viewMatrixInverse");
 
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
