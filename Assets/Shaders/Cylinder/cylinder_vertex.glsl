@@ -35,12 +35,13 @@ varying vec4 varCylColor;
 void main()
 {
     vec4 color = cylinderColor;
-    if (abs(cylinderAxis.x) < 0.01 && abs(cylinderAxis.y) < 0.01) {
+    if (abs(cylinderAxis.x) < 0.001 && abs(cylinderAxis.y) < 0.001) {
         varCylXAxis = vec3(1, 0, 0);
     } else {
         varCylXAxis = normalize(vec3(cylinderAxis.y, -cylinderAxis.x, 0));
     }
     varCylYAxis = normalize(cross(cylinderAxis, varCylXAxis));
+    varCylZAxis = cylinderAxis;
     
     vec3 combinedWorldPos = cylinderCenter
         + gl_Vertex.x * cylinderAxis * cylinderLength  
@@ -50,7 +51,6 @@ void main()
     gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
        
     varCylCenter = cylinderCenter;
-    varCylZAxis = cylinderAxis;
     varCylWidth = cylinderWidth;
     varCylLength = cylinderLength;
 

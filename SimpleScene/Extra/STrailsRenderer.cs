@@ -88,9 +88,14 @@ namespace SimpleScene
             _shader.Activate();
 
             var camera = _cameraScene.ActiveCamera;
+            var rotationOnly = camera.rotationOnlyViewMatrixInverted();
+            //_shader.UniViewRay = Vector3.Transform(-Vector3.UnitZ, rotationOnly); //camera.Dir;
+            //_shader.UniViewX = Vector3.Transform(Vector3.UnitX, rotationOnly); //camera.Right;
+            //_shader.UniViewY = Vector3.Transform(Vector3.UnitY, rotationOnly); //camera.Up;
             _shader.UniViewRay = camera.Dir;
             _shader.UniViewX = camera.Right;
             _shader.UniViewY = camera.Up;
+
             _shader.UniCameraPos = camera.Pos;
             _shader.UniWorldMatrix = this.worldMat;
             _shader.UnitViewMatrix = renderConfig.invCameraViewMatrix;
@@ -176,6 +181,7 @@ namespace SimpleScene
             protected override void writeParticle (int idx, SSParticle p)
             {
                 #if false
+                // attempt of only writing things that are relevant; skipping the rest
                 _lives [idx] = p.life;
                 writeDataIfNeeded(ref _positions, idx, new SSAttributeVec3(p.pos));
                 writeDataIfNeeded(ref _viewDepths, idx, p.viewDepth);
@@ -183,31 +189,11 @@ namespace SimpleScene
                 writeDataIfNeeded(ref _effectorMasksLow, idx, (byte)(p.effectorMask & 0xFF));
                 writeDataIfNeeded(ref _colors, idx, new SSAttributeColor(Color4Helper.ToUInt32(p.color)));
                 #else
+                // for some reason the above doesn't work, so lets just do things slightly less efficiently for now
                 base.writeParticle(idx, p);
                 #endif
 
-
                 var ts = (STrailsSegment)p;
-
-                #if false
-                if (ts.nextSegmentIdx == STrailsSegment.NotConnected) {
-                    // make head
-                    _headSegmentIdx = (byte)idx;
-                } else {
-                    // update connection from the next segment
-                    writeDataIfNeeded(ref _prevSegmentData, ts.nextSegmentIdx, (byte)idx);
-                }
-
-                if (ts.prevSegmentIdx == STrailsSegment.NotConnected) {
-                    // make tail
-                    _nextIdxToOverwrite = idx;
-                    _tailSegmentIdx = (byte)idx;
-                } else {
-                    // update connection from the previous segment
-                    writeDataIfNeeded(ref _nextSegmentData, ts.prevSegmentIdx, (byte)idx);
-                }
-                #endif
-
                 writeDataIfNeeded(ref _cylAxes, idx, new SSAttributeVec3(ts.cylAxis));
                 writeDataIfNeeded(ref _cylLengths, idx, new SSAttributeFloat(ts.cylLendth));
                 writeDataIfNeeded(ref _cylWidths, idx, new SSAttributeFloat(ts.cylWidth));
@@ -309,18 +295,6 @@ namespace SimpleScene
                 if (numElements >= capacity && _tailSegmentIdx != STrailsSegment.NotConnected) {
                     _nextIdxToOverwrite = _tailSegmentIdx;
                 }
-
-                #if false
-                if (_headSegmentIdx != STrailsSegment.NotConnected ) {
-                    Vector3 cylEnd = positionFunc();
-                    Vector3 cylStart = _readElement(_positions, (int)_headSegmentIdx).Value;
-                    Vector3 center = (cylStart + cylEnd) / 2f;
-                    Vector3 diff = cylEnd - cylStart;
-                    ts.pos = center;
-                    ts.cylAxis = diff.Normalized();
-                    ts.cylLendth = diff.LengthFast;
-                }
-                #endif
 
                 #if TRAILS_DEBUG
                 Console.Write("before new particle, numElements = {0}: ", numElements);
@@ -441,15 +415,7 @@ namespace SimpleScene
                 #if false
                 protected override void emitParticles (int particleCount, ParticleFactory factory, ReceiverHandler receiver)
                 {
-                    // don't emit particles when the motion is slow/wrong direction relative to "forward"
-                    Vector3 vel = velFunc();
-                    Vector3 dir = fwdDirFunc();gim
-                    float relVelocity = Vector3.Dot(vel, dir);
-                    if (relVelocity < trailParams.trailCutoffVelocity) {
-                        return;
-                    }
-
-                    base.emitParticles(particleCount, factory, receiver);
+                    // TODO may be a good place to implement splines
                 }
                 #endif
 
@@ -492,20 +458,7 @@ namespace SimpleScene
                 {
                     var ts = (STrailsSegment)particle;
 
-                    #if false
-                    Vector3 centerView = Vector3.Transform(ts.worldPos, _viewMat);
-                    Vector3 endView = Vector3.Transform(
-                        ts.worldPos + ts.motionVec * trailsParams.velocityToLengthFactor, _viewMat);
-                    Vector3 motionView = endView - centerView;
-
-                    float motionViewXy = motionView.Xy.LengthFast;
-
-                    //ts.pos = Vector3.Zero;
-                    ts.pos = centerView; // draw in view space
-                    ts.componentScale.X = motionView.LengthFast;
-                    ts.orientation.Z = (float)Math.Atan2(motionView.Y, motionView.X);
-                    ts.orientation.Y = -(float)Math.Atan2(motionView.Z, motionViewXy);
-                    #endif
+                    // TODO?
                 }
             }
         }
