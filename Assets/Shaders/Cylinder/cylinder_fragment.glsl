@@ -48,8 +48,8 @@ void main()
     int intersectionCount = 0;
     gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default   
 
-    vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, -1.5);
-    vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 1.0);
+    vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, 1);
+    vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 10);
     vec3 pixelRay = normalize(pixelWorldPos2 - pixelWorldPos1);
     vec3 localPixelRay = toCylProj(pixelRay);
     vec3 localPixelPos = toCylCoords(pixelWorldPos2);
