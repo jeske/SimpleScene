@@ -6,12 +6,16 @@ uniform mat4 viewMatrix;
 #ifdef INSTANCE_DRAW
 attribute vec3 cylinderCenter;
 attribute vec3 cylinderAxis; // must be normalized
+attribute vec3 prevJointAxis;
+attribute vec3 nextJointAxis;
 attribute float cylinderWidth;
 attribute float cylinderLength;
 attribute vec4 cylinderColor;
 #else
 uniform vec3 cylinderCenter;
 uniform vec3 cylinderAxis; // must be normalized
+uniform vec3 prevJointAxis;
+uniform vec3 nextJointAxis;
 uniform float cylinderWidth;
 uniform float cylinderLength;
 #endif
@@ -19,10 +23,11 @@ varying vec3 varCylCenter;
 varying vec3 varCylXAxis;
 varying vec3 varCylYAxis;
 varying vec3 varCylZAxis;
+varying vec3 varPrevJointAxis;
+varying vec3 varNextJointAxis;
 varying float varCylLength;
 varying float varCylWidth;
 varying vec4 varCylColor;
-
 void main()
 {
 #ifdef INSTANCE_DRAW
@@ -38,16 +43,18 @@ void main()
     }
     varCylYAxis = normalize(cross(cylinderAxis, varCylXAxis));
     varCylZAxis = cylinderAxis;
+    varPrevJointAxis = prevJointAxis;
+    varNextJointAxis = nextJointAxis;
+    varCylCenter = cylinderCenter;
+    varCylWidth = cylinderWidth;
+    varCylLength = cylinderLength;
+    varCylColor = color;  
     
     vec3 combinedWorldPos = cylinderCenter
-        + gl_Vertex.x * cylinderAxis * cylinderLength  
+        + gl_Vertex.x * cylinderAxis * (cylinderLength + cylinderWidth*2)
         + gl_Vertex.y * varCylXAxis * cylinderWidth * 2
         + gl_Vertex.z * varCylYAxis * cylinderWidth * 2;
         
     gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
        
-    varCylCenter = cylinderCenter;
-    varCylWidth = cylinderWidth;
-    varCylLength = cylinderLength;
-    varCylColor = color;  
 }

@@ -20,7 +20,7 @@ namespace SimpleScene
             public int capacity = 200;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 1f;
+            public float trailsEmissionInterval = 2f;
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
@@ -38,7 +38,9 @@ namespace SimpleScene
         }
 
         protected SSInstancedCylinderShaderProgram _shader;
-        protected SSAttributeBuffer<SSAttributeVec3> _axesBuffer;
+        protected SSAttributeBuffer<SSAttributeVec3> _cylAxesBuffer;
+        protected SSAttributeBuffer<SSAttributeVec3> _prevJointBuffer;
+        protected SSAttributeBuffer<SSAttributeVec3> _nextJointBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _widthsBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _lengthsBuffer;
 
@@ -74,7 +76,9 @@ namespace SimpleScene
         protected override void _initAttributeBuffers (BufferUsageHint hint)
         {
             _posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
-            _axesBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _cylAxesBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _prevJointBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _nextJointBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
             _widthsBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
             _lengthsBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
             _colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
@@ -89,7 +93,9 @@ namespace SimpleScene
             _shader.UniViewMatrixInverse = renderConfig.invCameraViewMatrix.Inverted();
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
-            _prepareAttribute(_axesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);
+            _prepareAttribute(_cylAxesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);
+            _prepareAttribute(_prevJointBuffer, _shader.AttrPrevJointAxis, trailsData.prevJointAxes);
+            _prepareAttribute(_nextJointBuffer, _shader.AttrNextJointAxis, trailsData.nextJointAxes);
             _prepareAttribute(_lengthsBuffer, _shader.AttrCylinderLength, trailsData.cylinderLengths);
             _prepareAttribute(_widthsBuffer, _shader.AttrCylinderWidth, trailsData.cylinderWidth);
             _prepareAttribute(_colorBuffer, _shader.AttrCylinderColor, trailsData.colors);
@@ -101,6 +107,8 @@ namespace SimpleScene
             public readonly STrailsParameters trailsParams;
 
             public SSAttributeVec3[] cylinderAxes { get { return _cylAxes; } }
+            public SSAttributeVec3[] prevJointAxes { get { return _prevJointAxes; } }
+            public SSAttributeVec3[] nextJointAxes { get { return _nextJointAxes; } }
             public SSAttributeFloat[] cylinderLengths { get { return _cylLengths; } }
             public SSAttributeFloat[] cylinderWidth { get { return _cylWidths; } }
 
@@ -109,6 +117,8 @@ namespace SimpleScene
             protected byte[] _nextSegmentData = null;
             protected byte[] _prevSegmentData = null;
             protected SSAttributeVec3[] _cylAxes = null;
+            protected SSAttributeVec3[] _prevJointAxes = null;
+            protected SSAttributeVec3[] _nextJointAxes = null;
             protected SSAttributeFloat[] _cylLengths = null;
             protected SSAttributeFloat[] _cylWidths = null;
             protected readonly STrailUpdater _updater;
@@ -138,6 +148,8 @@ namespace SimpleScene
                 base.initArrays();
 
                 _cylAxes = new SSAttributeVec3[1];
+                _prevJointAxes = new SSAttributeVec3[1];
+                _nextJointAxes = new SSAttributeVec3[1];
                 _cylLengths = new SSAttributeFloat[1];
                 _cylWidths = new SSAttributeFloat[1];
                 _nextSegmentData = new byte[1];
@@ -160,6 +172,8 @@ namespace SimpleScene
 
                 var ts = (STrailsSegment)p;
                 ts.cylAxis = _readElement(_cylAxes, idx).Value;
+                ts.prevJointAxis = _readElement(_prevJointAxes, idx).Value;
+                ts.nextJointAxis = _readElement(_nextJointAxes, idx).Value;
                 ts.cylWidth = _readElement(_cylWidths, idx).Value;
                 ts.cylLendth = _readElement(_cylLengths, idx).Value;
                 ts.nextSegmentIdx = _readElement(_nextSegmentData, idx);
@@ -183,6 +197,8 @@ namespace SimpleScene
 
                 var ts = (STrailsSegment)p;
                 writeDataIfNeeded(ref _cylAxes, idx, new SSAttributeVec3(ts.cylAxis));
+                writeDataIfNeeded(ref _prevJointAxes, idx, new SSAttributeVec3 (ts.prevJointAxis));
+                writeDataIfNeeded(ref _nextJointAxes, idx, new SSAttributeVec3 (ts.nextJointAxis));
                 writeDataIfNeeded(ref _cylLengths, idx, new SSAttributeFloat(ts.cylLendth));
                 writeDataIfNeeded(ref _cylWidths, idx, new SSAttributeFloat(ts.cylWidth));
                 writeDataIfNeeded(ref _nextSegmentData, idx, ts.nextSegmentIdx);
@@ -291,7 +307,12 @@ namespace SimpleScene
 
                 byte newHead = (byte)base.storeNewParticle(newParticle);
                 if (_headSegmentIdx != STrailsSegment.NotConnected) {
+                    Vector3 headAxis = _readElement(_cylAxes, _headSegmentIdx).Value;
+                    Vector3 avgAxis = (headAxis + ts.cylAxis).Normalized();
+                    ts.prevJointAxis = -avgAxis;
+                    //ts.nextJointAxis = ts.cylAxis;
                     writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdx, (byte)newHead);
+                    writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdx, new SSAttributeVec3(avgAxis));
                 }
                 _headSegmentIdx = newHead;
 
@@ -372,6 +393,8 @@ namespace SimpleScene
                 public const byte NotConnected = 255;
 
                 public Vector3 cylAxis = -Vector3.UnitZ;
+                public Vector3 prevJointAxis = -Vector3.UnitZ;
+                public Vector3 nextJointAxis = -Vector3.UnitZ;
                 public float cylLendth = 5f;
                 public float cylWidth = 2f;
                 public byte prevSegmentIdx = NotConnected;
@@ -416,6 +439,7 @@ namespace SimpleScene
 
                     ts.pos = posFunc();
                     ts.cylAxis = velocity.Normalized();
+                    ts.prevJointAxis = ts.nextJointAxis = ts.cylAxis;
                     ts.cylLendth = velocity.Length * trailParams.velocityToLengthFactor;
                     ts.cylWidth = trailParams.trailWidth;
                     ts.color = Color4Helper.RandomDebugColor();
