@@ -78,8 +78,8 @@ void main()
                 float t1 = (-b - Dsqrt) / (2*a);
                 vec3 intrPos1 = localPixelPos + localPixelRay * t1;
                 // check against the bounding planes
-                if (dot(localPrevJointAxis, intrPos1 - prevJointPos) > 0
-                  && dot(localNextJointAxis, intrPos1 - nextJointPos) < 0) {
+                if (dot(localPrevJointAxis, intrPos1 - prevJointPos) < 0
+                 && dot(localNextJointAxis, intrPos1 - nextJointPos) < 0) {
                     intersections[intersectionCount] = intrPos1;
                     intersectionCount++;
                 }
@@ -88,7 +88,7 @@ void main()
                 float t2 = (-b + Dsqrt) / (2*a);
                 vec3 intrPos2 = localPixelPos + localPixelRay * t2;
                 // check against the bounding planes
-                if (dot(localPrevJointAxis, intrPos2 - prevJointPos) > 0
+                if (dot(localPrevJointAxis, intrPos2 - prevJointPos) < 0
                  && dot(localNextJointAxis, intrPos2 - nextJointPos) < 0) {
                     intersections[intersectionCount] = intrPos2;
                     intersectionCount++;

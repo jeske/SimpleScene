@@ -293,8 +293,33 @@ namespace SimpleScene
             protected override int storeNewParticle (SSParticle newParticle)
             {
                 var ts = (STrailsSegment)newParticle;
+                //var velocity = velocityFunc();
+                ts.cylWidth = trailsParams.trailWidth;
+                ts.color = Color4Helper.RandomDebugColor();
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
+
                 ts.prevSegmentIdx = _headSegmentIdx;
+                if (_headSegmentIdx != STrailsSegment.NotConnected) { // TODO make this conditional?
+                    Vector3 prevCenter = _readElement(_positions, _headSegmentIdx).Value;
+                    float prevLength = _readElement(_cylLengths, _headSegmentIdx).Value;
+                    Vector3 prevAxis = _readElement(_cylAxes, _headSegmentIdx).Value;
+                    Vector3 prevJointPos = prevCenter + prevAxis * prevLength / 2f;
+                    Vector3 nextJointPos = positionFunc();
+                    Vector3 diff = (nextJointPos - prevJointPos);
+                    ts.cylLendth = diff.Length;
+                    ts.cylAxis = ts.nextJointAxis = diff / ts.cylLendth;
+                    ts.pos = (nextJointPos + prevJointPos) / 2f;
+                    Vector3 avgAxis = (prevAxis + ts.cylAxis).Normalized();
+                    ts.prevJointAxis = -avgAxis;
+                    writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdx, new SSAttributeVec3 (avgAxis));
+                } else {
+                    ts.pos = positionFunc();
+                    ts.cylWidth = trailsParams.trailWidth;
+                    ts.cylLendth = 0f;
+                    ts.cylAxis = ts.nextJointAxis = -Vector3.UnitZ;
+                    ts.prevJointAxis = -ts.cylAxis;
+                    ts.pos = positionFunc();
+                }
 
                 if (numElements >= capacity && _tailSegmentIdx != STrailsSegment.NotConnected) {
                     _nextIdxToOverwrite = _tailSegmentIdx;
@@ -307,12 +332,7 @@ namespace SimpleScene
 
                 byte newHead = (byte)base.storeNewParticle(newParticle);
                 if (_headSegmentIdx != STrailsSegment.NotConnected) {
-                    Vector3 headAxis = _readElement(_cylAxes, _headSegmentIdx).Value;
-                    Vector3 avgAxis = (headAxis + ts.cylAxis).Normalized();
-                    ts.prevJointAxis = -avgAxis;
-                    //ts.nextJointAxis = ts.cylAxis;
                     writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdx, (byte)newHead);
-                    writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdx, new SSAttributeVec3(avgAxis));
                 }
                 _headSegmentIdx = newHead;
 
@@ -429,21 +449,6 @@ namespace SimpleScene
                     // TODO may be a good place to implement splines
                 }
                 #endif
-
-                protected override void configureNewParticle (SSParticle p)
-                {
-                    base.configureNewParticle(p);
-
-                    var ts = (STrailsSegment)p;
-                    var velocity = this.velFunc();
-
-                    ts.pos = posFunc();
-                    ts.cylAxis = velocity.Normalized();
-                    ts.prevJointAxis = ts.nextJointAxis = ts.cylAxis;
-                    ts.cylLendth = velocity.Length * trailParams.velocityToLengthFactor;
-                    ts.cylWidth = trailParams.trailWidth;
-                    ts.color = Color4Helper.RandomDebugColor();
-                }
             }
 
             public class STrailUpdater : SSParticleEffector
