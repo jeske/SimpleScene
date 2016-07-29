@@ -61,6 +61,8 @@ namespace SimpleScene
             renderState.depthTest = true;
             renderState.depthWrite = false;
             renderState.lighted = false;
+            renderState.blendEquationMode = BlendEquationMode.FuncAdd;
+
             simulateOnUpdate = true;
 
             // TODO this is kind of heavy heanded. try a few alternatives with bounding spheres
@@ -70,6 +72,7 @@ namespace SimpleScene
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
 
+            this.MainColor = Color4Helper.RandomDebugColor();
             this.renderMode = RenderMode.GpuInstancing;
         }
 
@@ -295,7 +298,8 @@ namespace SimpleScene
                 var ts = (STrailsSegment)newParticle;
                 //var velocity = velocityFunc();
                 ts.cylWidth = trailsParams.trailWidth;
-                ts.color = Color4Helper.RandomDebugColor();
+                //ts.color = Color4Helper.RandomDebugColor();
+                ts.color = Color4.White;
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
 
                 ts.prevSegmentIdx = _headSegmentIdx;

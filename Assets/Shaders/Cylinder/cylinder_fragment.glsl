@@ -47,7 +47,6 @@ void main()
 {
     vec3 intersections[2];
     int intersectionCount = 0;
-    gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default   
  
     vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, 1);
     vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 10);
@@ -128,48 +127,10 @@ void main()
     
     if (intersectionCount == 2) {
         float dist = distance(intersections[0], intersections[1]);
-        gl_FragColor = vec4(varCylColor.xyz, dist * distanceToAlpha);
+        float alpha = min(dist * distanceToAlpha, 0.6);
+        gl_FragColor = vec4(varCylColor.xyz, alpha);
     } else {
-        // TODO
-        // discard;
+         discard;
+         // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default 
     }
 }
-
-    #if 0
-    vec3 proj1 = pixelWorldPos - dot(pixelWorldPos, varCylAxis) * varCylAxis;
-    vec3 proj2 = pixelRay - varCylAxis - dot(pixelRay - varCylAxis, varCylAxis) * varCylAxis;
-    float a = dot(proj1, proj1);
-    float b = 2 * dot(proj1, proj2);
-    float c = dot(proj2, proj2) - cylRadius * cylRadius;
-    float D = b*b - 4*a*c;
-
-    if (D > 0) {
-        float Dsqrt = sqrt(D);
-        float t1 = (-b - Dsqrt)/2/a;
-        vec3 pt1 = pixelWorldPos + t1 * pixelRay;
-        if (abs(dot(pt1 - varCylCenter, varCylAxis)) < varCylHalfLength) {
-            intersections[intersectionCount] = pt1;
-            intersectionCount++;
-        }
-        
-        float t2 = (-b + Dsqrt)/2/a;
-        vec3 pt2 = pixelWorldPos + t2 * pixelRay;
-        if (abs(dot(pt2 - varCylCenter, varCylAxis)) < varCylHalfLength) {
-            intersections[intersectionCount] = pt2;
-            intersectionCount++;
-        }
-    }
-    //if (D > 0) {
-    if (intersectionCount == 2) {
-    //if (abs(dot(varCylAxis, pixelRay)) < 0.5) {
-    //if (true) {  
-#ifdef INSTANCE_DRAW
-        gl_FragColor = varCylColor;
-        //gl_FragColor = vec4(viewRay, 1);
-#else
-            gl_FragColor = vec4(1, 1, 1, 1);
-#endif
-    } else {
-        gl_FragColor = vec4(varCylColor.rgb, 0.1);
-    }
-#endif
