@@ -4,6 +4,7 @@
 uniform float screenWidth;
 uniform float screenHeight;
 uniform mat4 viewMatrixInverse;
+uniform float distanceToAlpha;
 
 //varying vec3 varViewRay;
 varying vec3 varCylCenter;
@@ -69,7 +70,7 @@ void main()
             float Dsqrt = sqrt(D);
             {
                 float t1 = (-b - Dsqrt) / (2*a);
-                vec3 intrPos1 = localPixelPos * localPixelRay * t1;
+                vec3 intrPos1 = localPixelPos + localPixelRay * t1;
                 if (abs(intrPos1.z) <= cylHalfLength) { // check against cylinder bounds
                 //if (true) {
                     intersections[intersectionCount] = intrPos1;
@@ -78,7 +79,7 @@ void main()
             }
             {
                 float t2 = (-b + Dsqrt) / (2*a);
-                vec3 intrPos2 = localPixelPos * localPixelRay * t2;
+                vec3 intrPos2 = localPixelPos + localPixelRay * t2;
                 if (abs(intrPos2.z) <= cylHalfLength) { // check against cylinder  bounds
                 //if (true) {
                     intersections[intersectionCount] = intrPos2;
@@ -94,7 +95,7 @@ void main()
     if (intersectionCount < 2 && abs(localPixelRay.z) > 0.001) {
         // dont have the two intersections yet and the pixel ray is not parallel to
         // cylinder planes; test for cylinder's plane #1 and/or #2
-        // solve: (p_z + dir_z * t) = cylHalfLength
+        // solve: (p_z + dir_z * t) = +- cylHalfLength
         float t3 = (cylHalfLength - localPixelPos.z) / localPixelRay.z;
         vec3 intrPos3 = localPixelPos + localPixelRay * t3;
         if (dot(intrPos3.xy, intrPos3.xy) < cylRadiusSq) {
@@ -113,7 +114,11 @@ void main()
     
     
     if (intersectionCount == 2) {
-        gl_FragColor = varCylColor;
+        float dist = distance(intersections[0], intersections[1]);
+        gl_FragColor = vec4(varCylColor.xyz, dist * distanceToAlpha);
+    } else {
+        // TODO
+        // discard;
     }
 }
 
@@ -129,14 +134,14 @@ void main()
         float Dsqrt = sqrt(D);
         float t1 = (-b - Dsqrt)/2/a;
         vec3 pt1 = pixelWorldPos + t1 * pixelRay;
-        if (abs(dot(pt1 - varCylCenter, varCylAxis)) < varCylLength) {
+        if (abs(dot(pt1 - varCylCenter, varCylAxis)) < varCylHalfLength) {
             intersections[intersectionCount] = pt1;
             intersectionCount++;
         }
         
         float t2 = (-b + Dsqrt)/2/a;
         vec3 pt2 = pixelWorldPos + t2 * pixelRay;
-        if (abs(dot(pt2 - varCylCenter, varCylAxis)) < varCylLength) {
+        if (abs(dot(pt2 - varCylCenter, varCylAxis)) < varCylHalfLength) {
             intersections[intersectionCount] = pt2;
             intersectionCount++;
         }

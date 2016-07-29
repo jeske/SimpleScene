@@ -16,6 +16,7 @@ namespace SimpleScene
         private readonly int u_screenHeight;
         private readonly int u_viewMatrix;
         private readonly int u_viewMatrixInverse;
+        private readonly int u_distanceToAlpha;
 
         private readonly int a_cylinderPos;
         private readonly int a_cylinderAxis;
@@ -28,6 +29,7 @@ namespace SimpleScene
         public float UniScreenHeight { set { GL.Uniform1(u_screenHeight, value); } }
         public Matrix4 UniViewMatrix { set { GL.UniformMatrix4(u_viewMatrix, false, ref value); } }
         public Matrix4 UniViewMatrixInverse { set { GL.UniformMatrix4(u_viewMatrixInverse, false, ref value); } }
+        public float UniDistanceToAlpha { set { GL.Uniform1(u_distanceToAlpha, value); } }
                 
         public int AttrCylinderPos { get { return a_cylinderPos; } }
         public int AttrCylinderAxis { get { return a_cylinderAxis; } }
@@ -59,6 +61,7 @@ namespace SimpleScene
             u_screenHeight = getUniLoc("screenHeight");
             u_viewMatrix = getUniLoc("viewMatrix");
             u_viewMatrixInverse = getUniLoc("viewMatrixInverse");
+            u_distanceToAlpha = getUniLoc("distanceToAlpha");
 
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
@@ -66,8 +69,9 @@ namespace SimpleScene
             a_cylinderLength = getAttrLoc("cylinderLength");
             a_cylinderColor = getAttrLoc("cylinderColor");
 
-
             m_isValid = checkGlValid();
+
+            this.UniDistanceToAlpha = 0.1f;
         }
     }
 }
