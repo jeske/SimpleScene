@@ -99,7 +99,7 @@ void main()
         // D < 0 means no solutions; D == 0 means one solution: the ray is "scraping" the
         // cylinder; we can probably ignore this case
     }
-    if (intersectionCount < 2 && abs(localPixelRay.z) > 0.001) {
+    if (intersectionCount < 2 && abs(localPixelRay.z) > 0.00001) {
         // dont have the two intersections yet and the pixel ray is not parallel to
         // cylinder planes; test for cylinder's plane #1 and/or #2
         // solve: n . (p0 + dir * t - r0) == 0
