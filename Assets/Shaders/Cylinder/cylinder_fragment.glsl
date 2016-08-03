@@ -64,7 +64,7 @@ void main()
     float cylHalfLength = varCylLength / 2;
     vec3 prevJointPos = vec3(0, 0, -cylHalfLength);
     vec3 nextJointPos = vec3(0, 0, cylHalfLength);
-    if (abs(localPixelRay.x) > 0.0001 || abs(localPixelRay.y) > 0.0001) {
+    if (abs(localPixelRay.x) > 0.00001 || abs(localPixelRay.y) > 0.00001) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
         // (dir_x^2 + dir_y^2) * t^2 + [2(p_x * dir_x + py * dir_y)] * t

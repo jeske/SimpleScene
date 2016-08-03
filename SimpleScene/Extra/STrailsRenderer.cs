@@ -21,6 +21,8 @@ namespace SimpleScene
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
             public float trailsEmissionInterval = 2f;
+            public int numCylindersPerEmissionMin = 2;
+            public int numCylindersPerEmissionMax = 5;
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
@@ -133,7 +135,10 @@ namespace SimpleScene
 
             protected PositionFunc positionFunc;
             protected VelocityFunc velocityFunc;
-            //protected readonly SSParticleEmitter _headEmitter;
+            protected Vector3 _prevSplineIntervalEndPos;
+            protected Vector3 _prevSplineIntervalEndSlope;
+            protected Vector3 _newSplinePos;
+            protected float splineEmissionCounter = 0f;
 
             public STrailsData(PositionFunc positionFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
                 STrailsParameters trailsParams = null)
@@ -145,10 +150,13 @@ namespace SimpleScene
 
                 //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
 
-                addEmitter(new STrailsEmitter(trailsParams, positionFunc, velocityFunc, fwdDirFunc));
+                //addEmitter(new STrailsEmitter(trailsParams, positionFunc, velocityFunc, fwdDirFunc));
 
                 _updater = new STrailUpdater(trailsParams);
                 addEffector(_updater);
+
+                _prevSplineIntervalEndPos = positionFunc();
+                _prevSplineIntervalEndSlope = velocityFunc().Normalized();
             }
 
             protected override void initArrays ()
@@ -287,15 +295,39 @@ namespace SimpleScene
                 //printTree();
             }
 
-            public override void sortByDepth (ref Matrix4 viewMatrix)
+            protected override void simulateStep ()
             {
-                //Console.Write("before sort: ");
-                //printTree();
+                base.simulateStep();
 
-                base.sortByDepth(ref viewMatrix);
+                // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
+                splineEmissionCounter += simulationStep;
+                if (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
+                    Vector3 slope = velocityFunc().Normalized();
+                    Vector3 pos = positionFunc();
+                    int numCylinders = trailsParams.numCylindersPerEmissionMax;
+                    float dt = 1f / numCylinders;
+                    while (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
+                        splineEmissionCounter -= trailsParams.trailsEmissionInterval;
+                        numCylinders += trailsParams.numCylindersPerEmissionMax;
+                    }
+                    for (int i = 1; i < numCylinders; ++i) {
+                        float t = i * dt;
+                        float tSq = t * t;
+                        float tMinusOne = t - 1;
+                        float tMinusOneSq = tMinusOne * tMinusOne;
+                        float h00 = (1 + 2*t) * tMinusOneSq;
+                        float h10 = t * tMinusOneSq;
+                        float h01 = tSq * (3 - 2*t);
+                        float h11 = tSq * tMinusOne;
 
-                //Console.Write("after sort: ");
-                //printTree();
+                        _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope
+                            + h01 * pos + h11 * slope;
+                        var newParticle = createNewParticle();
+                        storeNewParticle(newParticle);                           
+                    }
+                    _prevSplineIntervalEndPos = pos;
+                    _prevSplineIntervalEndSlope = slope;
+                }
             }
 
             protected override int storeNewParticle (SSParticle newParticle)
@@ -308,12 +340,12 @@ namespace SimpleScene
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
 
                 ts.prevSegmentIdx = _headSegmentIdx;
-                if (_headSegmentIdx != STrailsSegment.NotConnected) { // TODO make this conditional?
+                if (_headSegmentIdx != STrailsSegment.NotConnected) {
                     Vector3 prevCenter = _readElement(_positions, _headSegmentIdx).Value;
                     float prevLength = _readElement(_cylLengths, _headSegmentIdx).Value;
                     Vector3 prevAxis = _readElement(_cylAxes, _headSegmentIdx).Value;
                     Vector3 prevJointPos = prevCenter + prevAxis * prevLength / 2f;
-                    Vector3 nextJointPos = positionFunc();
+                    Vector3 nextJointPos = _newSplinePos;
                     Vector3 diff = (nextJointPos - prevJointPos);
                     ts.cylLendth = diff.Length;
                     ts.cylAxis = ts.nextJointAxis = diff / ts.cylLendth;
@@ -322,7 +354,7 @@ namespace SimpleScene
                     ts.prevJointAxis = -avgAxis;
                     writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdx, new SSAttributeVec3 (avgAxis));
                 } else {
-                    ts.pos = positionFunc();
+                    ts.pos = _newSplinePos;
                     ts.cylWidth = trailsParams.trailWidth;
                     ts.cylLendth = 0f;
                     ts.cylAxis = ts.nextJointAxis = -Vector3.UnitZ;
