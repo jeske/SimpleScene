@@ -20,9 +20,9 @@ namespace SimpleScene
             public int capacity = 200;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 2f;
+            public float trailsEmissionInterval = 0.5f;
             public int numCylindersPerEmissionMin = 2;
-            public int numCylindersPerEmissionMax = 5;
+            public int numCylindersPerEmissionMax = 10;
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
@@ -77,7 +77,7 @@ namespace SimpleScene
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
 
-            this.MainColor = Color4Helper.RandomDebugColor();
+            //this.MainColor = Color4Helper.RandomDebugColor();
             this.renderMode = RenderMode.GpuInstancing;
         }
 
@@ -156,7 +156,10 @@ namespace SimpleScene
                 addEffector(_updater);
 
                 _prevSplineIntervalEndPos = positionFunc();
-                _prevSplineIntervalEndSlope = velocityFunc().Normalized();
+                Vector3 vel = velocityFunc();
+                float velLength = vel.Length;
+                _prevSplineIntervalEndSlope = velLength > 0 ? (vel / velLength) : fwdDirFunc();
+                    
             }
 
             protected override void initArrays ()
@@ -297,19 +300,17 @@ namespace SimpleScene
 
             protected override void simulateStep ()
             {
-                base.simulateStep();
-
                 // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
                 splineEmissionCounter += simulationStep;
                 if (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
-                    Vector3 slope = velocityFunc().Normalized();
+                    Vector3 slope = velocityFunc();
                     Vector3 pos = positionFunc();
-                    int numCylinders = trailsParams.numCylindersPerEmissionMax;
-                    float dt = 1f / numCylinders;
+                    int numCylinders = 0;
                     while (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
                         splineEmissionCounter -= trailsParams.trailsEmissionInterval;
                         numCylinders += trailsParams.numCylindersPerEmissionMax;
                     }
+                    float dt = 1f / numCylinders;
                     for (int i = 1; i < numCylinders; ++i) {
                         float t = i * dt;
                         float tSq = t * t;
@@ -323,20 +324,23 @@ namespace SimpleScene
                         _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope
                             + h01 * pos + h11 * slope;
                         var newParticle = createNewParticle();
-                        storeNewParticle(newParticle);                           
+                        newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
+                        storeNewParticle(newParticle);
                     }
                     _prevSplineIntervalEndPos = pos;
                     _prevSplineIntervalEndSlope = slope;
                 }
+
+                  base.simulateStep();
             }
 
             protected override int storeNewParticle (SSParticle newParticle)
             {
                 var ts = (STrailsSegment)newParticle;
-                //var velocity = velocityFunc();
+                ts.life = trailsParams.trailLifetime;
+                ts.vel = Vector3.Zero;
                 ts.cylWidth = trailsParams.trailWidth;
-                //ts.color = Color4Helper.RandomDebugColor();
-                ts.color = Color4.White;
+                //ts.color = Color4.White;
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
 
                 ts.prevSegmentIdx = _headSegmentIdx;
