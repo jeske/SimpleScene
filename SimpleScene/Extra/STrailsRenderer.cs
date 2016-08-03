@@ -20,7 +20,7 @@ namespace SimpleScene
             public int capacity = 200;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 0.5f;
+            public float trailsEmissionInterval = 1f;
             public int numCylindersPerEmissionMin = 2;
             public int numCylindersPerEmissionMax = 10;
             public float velocityToLengthFactor = 1f;
@@ -311,7 +311,7 @@ namespace SimpleScene
                         numCylinders += trailsParams.numCylindersPerEmissionMax;
                     }
                     float dt = 1f / numCylinders;
-                    for (int i = 1; i < numCylinders; ++i) {
+                    for (int i = 0; i < numCylinders; ++i) {
                         float t = i * dt;
                         float tSq = t * t;
                         float tMinusOne = t - 1;
