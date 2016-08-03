@@ -17,12 +17,12 @@ namespace SimpleScene
 
         public class STrailsParameters
         {
-            public int capacity = 200;
+            public int capacity = 2000;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 1f;
+            public float trailsEmissionInterval = 0.1f;
             public int numCylindersPerEmissionMin = 2;
-            public int numCylindersPerEmissionMax = 10;
+            public int numCylindersPerEmissionMax = 3;
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
@@ -77,7 +77,7 @@ namespace SimpleScene
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
 
-            //this.MainColor = Color4Helper.RandomDebugColor();
+            this.MainColor = Color4Helper.RandomDebugColor();
             this.renderMode = RenderMode.GpuInstancing;
         }
 
@@ -122,10 +122,10 @@ namespace SimpleScene
             public SSAttributeFloat[] cylinderLengths { get { return _cylLengths; } }
             public SSAttributeFloat[] cylinderWidth { get { return _cylWidths; } }
 
-            protected byte _headSegmentIdx = STrailsSegment.NotConnected;
-            protected byte _tailSegmentIdx = STrailsSegment.NotConnected;
-            protected byte[] _nextSegmentData = null;
-            protected byte[] _prevSegmentData = null;
+            protected ushort _headSegmentIdx = STrailsSegment.NotConnected;
+            protected ushort _tailSegmentIdx = STrailsSegment.NotConnected;
+            protected ushort[] _nextSegmentData = null;
+            protected ushort[] _prevSegmentData = null;
             protected SSAttributeVec3[] _cylAxes = null;
             protected SSAttributeVec3[] _prevJointAxes = null;
             protected SSAttributeVec3[] _nextJointAxes = null;
@@ -171,8 +171,8 @@ namespace SimpleScene
                 _nextJointAxes = new SSAttributeVec3[1];
                 _cylLengths = new SSAttributeFloat[1];
                 _cylWidths = new SSAttributeFloat[1];
-                _nextSegmentData = new byte[1];
-                _prevSegmentData = new byte[1];
+                _nextSegmentData = new ushort[1];
+                _prevSegmentData = new ushort[1];
             }
 
             public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
@@ -206,8 +206,8 @@ namespace SimpleScene
                 _lives [idx] = p.life;
                 writeDataIfNeeded(ref _positions, idx, new SSAttributeVec3(p.pos));
                 writeDataIfNeeded(ref _viewDepths, idx, p.viewDepth);
-                writeDataIfNeeded(ref _effectorMasksHigh, idx, (byte)((p.effectorMask & 0xFF00) >> 8));
-                writeDataIfNeeded(ref _effectorMasksLow, idx, (byte)(p.effectorMask & 0xFF));
+                writeDataIfNeeded(ref _effectorMasksHigh, idx, (ushort)((p.effectorMask & 0xFF00) >> 8));
+                writeDataIfNeeded(ref _effectorMasksLow, idx, (ushort)(p.effectorMask & 0xFF));
                 writeDataIfNeeded(ref _colors, idx, new SSAttributeColor(Color4Helper.ToUInt32(p.color)));
                 #else
                 // for some reason the above doesn't work, so lets just do things slightly less efficiently for now
@@ -230,10 +230,10 @@ namespace SimpleScene
                     return;
                 }
 
-                byte leftPrev = _readElement(_prevSegmentData, leftIdx);
-                byte leftNext = _readElement(_nextSegmentData, leftIdx);
-                byte rightPrev = _readElement(_prevSegmentData, rightIdx);
-                byte rightNext = _readElement(_nextSegmentData, rightIdx);
+                ushort leftPrev = _readElement(_prevSegmentData, leftIdx);
+                ushort leftNext = _readElement(_nextSegmentData, leftIdx);
+                ushort rightPrev = _readElement(_prevSegmentData, rightIdx);
+                ushort rightNext = _readElement(_nextSegmentData, rightIdx);
 
                 if (rightPrev == leftIdx) { // simplify special case
                     particleSwap(rightIdx, leftIdx);
@@ -250,32 +250,32 @@ namespace SimpleScene
 
                 // works for both
                 if (leftNext != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _prevSegmentData, leftNext, (byte)rightIdx);
+                    writeDataIfNeeded(ref _prevSegmentData, leftNext, (ushort)rightIdx);
                 }
                 if (rightPrev != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _nextSegmentData, rightPrev, (byte)leftIdx);
+                    writeDataIfNeeded(ref _nextSegmentData, rightPrev, (ushort)leftIdx);
                 }
 
                 if (leftPrev == rightIdx) { // special case
-                    writeDataIfNeeded(ref _prevSegmentData, rightIdx, (byte)leftIdx);
-                    writeDataIfNeeded(ref _nextSegmentData, leftIdx, (byte)rightIdx);
+                    writeDataIfNeeded(ref _prevSegmentData, rightIdx, (ushort)leftIdx);
+                    writeDataIfNeeded(ref _nextSegmentData, leftIdx, (ushort)rightIdx);
                 } else { // general case
                     if (leftPrev != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _nextSegmentData, leftPrev, (byte)rightIdx);
+                        writeDataIfNeeded(ref _nextSegmentData, leftPrev, (ushort)rightIdx);
                     }
                     if (rightNext != STrailsSegment.NotConnected) {
-                        writeDataIfNeeded(ref _prevSegmentData, rightNext, (byte)leftIdx);
+                        writeDataIfNeeded(ref _prevSegmentData, rightNext, (ushort)leftIdx);
                     }
                 }
 
                 if (leftIdx == _headSegmentIdx) {
-                    _headSegmentIdx = (byte)rightIdx;
+                    _headSegmentIdx = (ushort)rightIdx;
                     #if TRAILS_DEBUG
                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
                         + ", head pos " + _readElement(_positions, _headSegmentIdx).Value); 
                     #endif
                 } else if (rightIdx == _headSegmentIdx) {
-                    _headSegmentIdx = (byte)leftIdx;
+                    _headSegmentIdx = (ushort)leftIdx;
                     #if TRAILS_DEBUG
                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head =d " + _headSegmentIdx
                         + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
@@ -283,12 +283,12 @@ namespace SimpleScene
                 }
 
                 if (leftIdx == _tailSegmentIdx) {
-                    _tailSegmentIdx = (byte)rightIdx;
+                    _tailSegmentIdx = (ushort)rightIdx;
                     #if TRAILS_DEBUG
                      Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
                     #endif
                 } else if (rightIdx == _tailSegmentIdx) {
-                    _tailSegmentIdx = (byte)leftIdx;
+                    _tailSegmentIdx = (ushort)leftIdx;
                     #if TRAILS_DEBUG
                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
                     #endif
@@ -320,18 +320,19 @@ namespace SimpleScene
                         float h10 = t * tMinusOneSq;
                         float h01 = tSq * (3 - 2*t);
                         float h11 = tSq * tMinusOne;
+                        //float slopeScale = pos - _prevSplineIntervalEndPos;
 
-                        _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope
-                            + h01 * pos + h11 * slope;
+                        _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope * trailsParams.trailsEmissionInterval
+                            + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;
                         var newParticle = createNewParticle();
-                        newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
+                        //newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
                         storeNewParticle(newParticle);
                     }
                     _prevSplineIntervalEndPos = pos;
                     _prevSplineIntervalEndSlope = slope;
                 }
 
-                  base.simulateStep();
+                base.simulateStep();
             }
 
             protected override int storeNewParticle (SSParticle newParticle)
@@ -375,9 +376,9 @@ namespace SimpleScene
                 printTree();
                 #endif
 
-                byte newHead = (byte)base.storeNewParticle(newParticle);
+                ushort newHead = (ushort)base.storeNewParticle(newParticle);
                 if (_headSegmentIdx != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdx, (byte)newHead);
+                    writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdx, (ushort)newHead);
                 }
                 _headSegmentIdx = newHead;
 
@@ -404,8 +405,8 @@ namespace SimpleScene
                 printTree(true);
                 #endif
 
-                byte prev = _readElement(_prevSegmentData, idx);
-                byte next = _readElement(_nextSegmentData, idx);
+                ushort prev = _readElement(_prevSegmentData, idx);
+                ushort next = _readElement(_nextSegmentData, idx);
 
                 if (prev != STrailsSegment.NotConnected) {
                     writeDataIfNeeded(ref _nextSegmentData, prev, next);
@@ -415,10 +416,10 @@ namespace SimpleScene
                 }
 
                 if (idx == _tailSegmentIdx) {
-                    _tailSegmentIdx = (byte)next;
+                    _tailSegmentIdx = (ushort)next;
                 }
                 if (idx == _headSegmentIdx) {
-                    _headSegmentIdx = (byte)prev;
+                    _headSegmentIdx = (ushort)prev;
                 }
 
                 base.destroyParticle(idx);
@@ -455,15 +456,15 @@ namespace SimpleScene
 
             public class STrailsSegment : SSParticle
             {
-                public const byte NotConnected = 255;
+                public const ushort NotConnected = ushort.MaxValue;
 
                 public Vector3 cylAxis = -Vector3.UnitZ;
                 public Vector3 prevJointAxis = -Vector3.UnitZ;
                 public Vector3 nextJointAxis = -Vector3.UnitZ;
                 public float cylLendth = 5f;
                 public float cylWidth = 2f;
-                public byte prevSegmentIdx = NotConnected;
-                public byte nextSegmentIdx = NotConnected;
+                public ushort prevSegmentIdx = NotConnected;
+                public ushort nextSegmentIdx = NotConnected;
             }
 
             public class STrailsEmitter : SSParticleEmitter
