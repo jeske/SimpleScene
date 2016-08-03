@@ -25,6 +25,9 @@ namespace SimpleScene
             public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
+            public float distanceToAlpha = 0.07f;
+            public float alphaMax = 0.5f;
+
             //public string textureFilename = "trail.png";
 
             // default value
@@ -94,6 +97,8 @@ namespace SimpleScene
 
             _shader.UniViewMatrix = renderConfig.invCameraViewMatrix;
             _shader.UniViewMatrixInverse = renderConfig.invCameraViewMatrix.Inverted();
+            _shader.UniDistanceToAlpha = trailsData.trailsParams.distanceToAlpha;
+            _shader.UniAlphaMax = trailsData.trailsParams.alphaMax;
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
             _prepareAttribute(_cylAxesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);

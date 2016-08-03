@@ -17,6 +17,8 @@ namespace SimpleScene
         private readonly int u_viewMatrix;
         private readonly int u_viewMatrixInverse;
         private readonly int u_distanceToAlpha;
+        private readonly int u_alphaMin;
+        private readonly int u_alphaMax;
 
         private readonly int a_cylinderPos;
         private readonly int a_cylinderAxis;
@@ -32,6 +34,8 @@ namespace SimpleScene
         public Matrix4 UniViewMatrix { set { GL.UniformMatrix4(u_viewMatrix, false, ref value); } }
         public Matrix4 UniViewMatrixInverse { set { GL.UniformMatrix4(u_viewMatrixInverse, false, ref value); } }
         public float UniDistanceToAlpha { set { GL.Uniform1(u_distanceToAlpha, value); } }
+        public float UniAlphaMin { set { GL.Uniform1(u_alphaMin, value); } }
+        public float UniAlphaMax { set { GL.Uniform1(u_alphaMax, value); } }
                 
         public int AttrCylinderPos { get { return a_cylinderPos; } }
         public int AttrCylinderAxis { get { return a_cylinderAxis; } }
@@ -66,6 +70,8 @@ namespace SimpleScene
             u_viewMatrix = getUniLoc("viewMatrix");
             u_viewMatrixInverse = getUniLoc("viewMatrixInverse");
             u_distanceToAlpha = getUniLoc("distanceToAlpha");
+            u_alphaMin = getUniLoc("alphaMin");
+            u_alphaMax = getUniLoc("alphaMax");
 
             a_cylinderPos = getAttrLoc("cylinderCenter");
             a_cylinderAxis = getAttrLoc("cylinderAxis");
@@ -78,6 +84,8 @@ namespace SimpleScene
             m_isValid = checkGlValid();
 
             this.UniDistanceToAlpha = 0.1f;
+            this.UniAlphaMin = 0.0f;
+            this.UniAlphaMax = 0.6f;
         }
     }
 }

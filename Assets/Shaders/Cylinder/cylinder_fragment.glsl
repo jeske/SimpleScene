@@ -5,6 +5,8 @@ uniform float screenWidth;
 uniform float screenHeight;
 uniform mat4 viewMatrixInverse;
 uniform float distanceToAlpha;
+uniform float alphaMin;
+uniform float alphaMax;
 
 //varying vec3 varViewRay;
 varying vec3 varCylCenter;
@@ -127,7 +129,7 @@ void main()
     
     if (intersectionCount == 2) {
         float dist = distance(intersections[0], intersections[1]);
-        float alpha = min(dist * distanceToAlpha, 0.6);
+        float alpha = clamp(dist * distanceToAlpha, alphaMin, alphaMax);
         gl_FragColor = vec4(varCylColor.xyz, alpha);
     } else {
          discard;
