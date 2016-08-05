@@ -64,6 +64,7 @@ void main()
     float cylHalfLength = varCylLength / 2;
     vec3 prevJointPos = vec3(0, 0, -cylHalfLength);
     vec3 nextJointPos = vec3(0, 0, cylHalfLength);
+    vec4 debugColor = vec4(0, 0, 0, 1);
     if (abs(localPixelRay.x) > 0.00001 || abs(localPixelRay.y) > 0.00001) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
@@ -84,6 +85,7 @@ void main()
                     intersections[intersectionCount] = intrPos1;
                     intersectionCount++;
                 }
+                debugColor.r = 1;
             }
             {
                 float t2 = (-b + Dsqrt) / (2*a);
@@ -94,9 +96,10 @@ void main()
                     intersections[intersectionCount] = intrPos2;
                     intersectionCount++;
                 }
+                debugColor.r = 1;
             }
             //gl_FragColor = varCylColor;
-
+            debugColor.g = 1;
         } 
         // D < 0 means no solutions; D == 0 means one solution: the ray is "scraping" the
         // cylinder; we can probably ignore this case
@@ -112,6 +115,7 @@ void main()
         if (dot(intrPos3.xy, intrPos3.xy) < cylRadiusSq) {
             intersections[intersectionCount] = intrPos3;
             intersectionCount++;
+            debugColor.b = 1;
         }
         if (intersectionCount < 2) {
             //float t4 = (-cylHalfLength - localPixelPos.z) / localPixelRay.z;
@@ -122,17 +126,20 @@ void main()
             if (dot(intrPos4.xy, intrPos4.xy) < cylRadiusSq) {
                 intersections[intersectionCount] = intrPos4;
                 intersectionCount++;
+                debugColor.b = 1;
             }
         }
     }
-    
     
     if (intersectionCount == 2) {
         float dist = distance(intersections[0], intersections[1]);
         float alpha = clamp(dist * distanceToAlpha, alphaMin, alphaMax);
         gl_FragColor = vec4(varCylColor.xyz, alpha);
+    } else if (intersectionCount == 1) {
+        gl_FragColor = debugColor;
     } else {
          discard;
-         // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default 
+         // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default
+        
     }
 }

@@ -28,7 +28,8 @@ namespace SimpleScene
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             public float distanceToAlpha = 0.07f;
-            public float alphaMax = 0.5f;
+            public float alphaMax = 1f;
+            public float alphaMin = 0f;
 
             //public string textureFilename = "trail.png";
 
@@ -101,6 +102,7 @@ namespace SimpleScene
             _shader.UniViewMatrixInverse = renderConfig.invCameraViewMatrix.Inverted();
             _shader.UniDistanceToAlpha = trailsData.trailsParams.distanceToAlpha;
             _shader.UniAlphaMax = trailsData.trailsParams.alphaMax;
+            _shader.UniAlphaMin = trailsData.trailsParams.alphaMin;
 
             _prepareAttribute(_posBuffer, _shader.AttrCylinderPos, trailsData.positions);
             _prepareAttribute(_cylAxesBuffer, _shader.AttrCylinderAxis, trailsData.cylinderAxes);
