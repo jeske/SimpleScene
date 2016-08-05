@@ -20,11 +20,13 @@ namespace SimpleScene
             public int capacity = 2000;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 0.3f;
-            public int numCylindersPerEmissionMin = 2;
-            public int numCylindersPerEmissionMax = 3;
+            public float trailsEmissionInterval = 0.1f;
+            public int numCylindersPerEmissionMin = 1;
+            public int numCylindersPerEmissionMax = 5;
+            public float minSegmentLength = 0.01f;
+            public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
             public float velocityToLengthFactor = 1f;
-            public float trailLifetime = 2000f;  
+            public float trailLifetime = 2000f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             public float distanceToAlpha = 0.05f;
@@ -194,7 +196,6 @@ namespace SimpleScene
             protected override void readParticle (int idx, SSParticle p)
             {
                 base.readParticle(idx, p);
-
                 var ts = (STrailsSegment)p;
                 ts.cylAxis = _readElement(_cylAxes, idx).Value;
                 ts.prevJointAxis = _readElement(_prevJointAxes, idx).Value;
@@ -309,34 +310,51 @@ namespace SimpleScene
                 // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
                 splineEmissionCounter += simulationStep;
                 if (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
-                    Vector3 slope = velocityFunc();
-                    Vector3 pos = positionFunc();
-                    int numCylinders = 0;
                     while (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
                         splineEmissionCounter -= trailsParams.trailsEmissionInterval;
-                        numCylinders += trailsParams.numCylindersPerEmissionMax;
                     }
-                    float dt = 1f / numCylinders;
-                    for (int i = 0; i < numCylinders; ++i) {
-                        float t = i * dt;
-                        float tSq = t * t;
-                        float tMinusOne = t - 1;
-                        float tMinusOneSq = tMinusOne * tMinusOne;
-                        float h00 = (1 + 2*t) * tMinusOneSq;
-                        float h10 = t * tMinusOneSq;
-                        float h01 = tSq * (3 - 2*t);
-                        float h11 = tSq * tMinusOne;
-                        //float slopeScale = pos - _prevSplineIntervalEndPos;
+                    Vector3 slope = velocityFunc();
+                    Vector3 pos = positionFunc();
+                    Vector3 diff = pos - _prevSplineIntervalEndPos;
+                    if (diff.LengthFast >= trailsParams.minSegmentLength) {
+                        float angleBetweenSlopes = Vector3.CalculateAngle(slope, _prevSplineIntervalEndSlope);
+                        int numCylinders = (int)(angleBetweenSlopes / trailsParams.radiansPerExtraCylinder);
+                        numCylinders = Math.Max(numCylinders, trailsParams.numCylindersPerEmissionMin);
+                        numCylinders = Math.Min(numCylinders, trailsParams.numCylindersPerEmissionMax);
+                        if (numCylinders == 1) {
+                            var newParticle = createNewParticle();
+                            //newParticle.color = Color4Helper.DebugPresets [0];
+                            newParticle.color = Color4.OrangeRed;
+                            //newParticle.color = Color4Helper.RandomDebugColor();
+                            _newSplinePos = pos;
 
-                        _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope * trailsParams.trailsEmissionInterval
-                            + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;
-                        var newParticle = createNewParticle();
-                        //newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
-                        newParticle.color = Color4.OrangeRed;
-                        storeNewParticle(newParticle);
+                            storeNewParticle(newParticle);
+                            //newParticle.color = Color4.OrangeRed;
+                        } else {
+                            float dt = 1f / numCylinders;
+                            for (int i = 1; i <= numCylinders; ++i) {
+                                float t = i * dt;
+                                float tSq = t * t;
+                                float tMinusOne = t - 1;
+                                float tMinusOneSq = tMinusOne * tMinusOne;
+                                float h00 = (1 + 2 * t) * tMinusOneSq;
+                                float h10 = t * tMinusOneSq;
+                                float h01 = tSq * (3 - 2 * t);
+                                float h11 = tSq * tMinusOne;
+                                //float slopeScale = pos - _prevSplineIntervalEndPos;
+
+                                _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope * trailsParams.trailsEmissionInterval
+                                + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;
+                                var newParticle = createNewParticle();
+                                //newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
+                                newParticle.color = Color4.OrangeRed;
+                                //newParticle.color = Color4Helper.RandomDebugColor();
+                                storeNewParticle(newParticle);
+                            }
+                        }
+                        _prevSplineIntervalEndPos = pos;
+                        _prevSplineIntervalEndSlope = slope;
                     }
-                    _prevSplineIntervalEndPos = pos;
-                    _prevSplineIntervalEndSlope = slope;
                 }
 
                 base.simulateStep();

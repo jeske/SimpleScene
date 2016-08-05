@@ -84,8 +84,8 @@ void main()
                  && dot(localNextJointAxis, intrPos1 - nextJointPos) < 0) {
                     intersections[intersectionCount] = intrPos1;
                     intersectionCount++;
+                    debugColor.r = 1;
                 }
-                debugColor.r = 1;
             }
             {
                 float t2 = (-b + Dsqrt) / (2*a);
@@ -100,9 +100,22 @@ void main()
             }
             //gl_FragColor = varCylColor;
             debugColor.g = 1;
-        } 
+        }
         // D < 0 means no solutions; D == 0 means one solution: the ray is "scraping" the
         // cylinder; we can probably ignore this case
+        #if 0
+        else if (abs(D) < 0.00001) {
+            float t1 = (-b) / (2*a);
+            vec3 intrPos1 = localPixelPos + localPixelRay * t1;
+            // check against the bounding planes
+            if (dot(localPrevJointAxis, intrPos1 - prevJointPos) < 0
+             && dot(localNextJointAxis, intrPos1 - nextJointPos) < 0) {
+                intersections[intersectionCount] = intrPos1;
+                intersectionCount++;
+                debugColor.r = 1;            
+            }
+        }
+        #endif
     }
     if (intersectionCount < 2 && abs(localPixelRay.z) > 0.00001) {
         // dont have the two intersections yet and the pixel ray is not parallel to
@@ -134,9 +147,11 @@ void main()
     if (intersectionCount == 2) {
         float dist = distance(intersections[0], intersections[1]);
         float alpha = clamp(dist * distanceToAlpha, alphaMin, alphaMax);
+        //float alpha = dist * distanceToAlpha;
+        //alpha *= alpha;
         gl_FragColor = vec4(varCylColor.xyz, alpha);
-    } else if (intersectionCount == 1) {
-        gl_FragColor = debugColor;
+    //} else if (intersectionCount == 1) {
+        // gl_FragColor = debugColor;
     } else {
          discard;
          // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default
