@@ -20,14 +20,14 @@ namespace SimpleScene
             public int capacity = 2000;
             public float trailWidth = 5f;
             //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 0.1f;
+            public float trailsEmissionInterval = 0.3f;
             public int numCylindersPerEmissionMin = 2;
             public int numCylindersPerEmissionMax = 3;
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 2000f;  
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
-            public float distanceToAlpha = 0.07f;
+            public float distanceToAlpha = 0.05f;
             public float alphaMax = 1f;
             public float alphaMin = 0f;
 
@@ -67,7 +67,11 @@ namespace SimpleScene
             renderState.depthTest = true;
             renderState.depthWrite = false;
             renderState.lighted = false;
+
             renderState.blendEquationMode = BlendEquationMode.FuncAdd;
+            renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
+            renderState.blendFactorDest = BlendingFactorDest.One;
+            //renderState.blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
 
             simulateOnUpdate = true;
 
@@ -78,7 +82,7 @@ namespace SimpleScene
             textureMaterial = new SSTextureMaterial (diffuse: tex);
             Name = "simple trails renderer";
 
-            this.MainColor = Color4Helper.RandomDebugColor();
+            //this.MainColor = Color4Helper.RandomDebugColor();
             this.renderMode = RenderMode.GpuInstancing;
         }
 
@@ -328,6 +332,7 @@ namespace SimpleScene
                             + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;
                         var newParticle = createNewParticle();
                         //newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
+                        newParticle.color = Color4.OrangeRed;
                         storeNewParticle(newParticle);
                     }
                     _prevSplineIntervalEndPos = pos;
