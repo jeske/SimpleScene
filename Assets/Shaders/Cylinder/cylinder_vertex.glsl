@@ -11,6 +11,8 @@ attribute vec3 nextJointAxis;
 attribute float cylinderWidth;
 attribute float cylinderLength;
 attribute vec4 cylinderColor;
+attribute float innerColorRatio;
+//attribute float outerColorRatio;
 #else
 uniform vec3 cylinderCenter;
 uniform vec3 cylinderAxis; // must be normalized
@@ -18,6 +20,8 @@ uniform vec3 prevJointAxis;
 uniform vec3 nextJointAxis;
 uniform float cylinderWidth;
 uniform float cylinderLength;
+uniform float innerColorRatio;
+//uniform float outerColorRatio;
 #endif
 varying vec3 varCylCenter;
 varying vec3 varCylXAxis;
@@ -28,6 +32,9 @@ varying vec3 varNextJointAxis;
 varying float varCylLength;
 varying float varCylWidth;
 varying vec4 varCylColor;
+varying float varInnerColorRatio;
+//varying float varOuterColorRatio;
+
 void main()
 {
 #ifdef INSTANCE_DRAW

@@ -341,7 +341,7 @@ namespace SimpleScene
                                 float h10 = t * tMinusOneSq;
                                 float h01 = tSq * (3 - 2 * t);
                                 float h11 = tSq * tMinusOne;
-                                //float slopeScale = pos - _prevSplineIntervalEndPos;
+                                //float slopeScale = pos - _prevSplineInter+valEndPos;
 
                                 _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope * trailsParams.trailsEmissionInterval
                                 + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;

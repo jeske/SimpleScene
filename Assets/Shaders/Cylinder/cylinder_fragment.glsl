@@ -7,6 +7,7 @@ uniform mat4 viewMatrixInverse;
 uniform float distanceToAlpha;
 uniform float alphaMin;
 uniform float alphaMax;
+uniform vec4 innerColor;
 
 //varying vec3 varViewRay;
 varying vec3 varCylCenter;
@@ -45,26 +46,20 @@ vec3 unproject(vec2 screenPt, float z)
     return vec.xyz;
 }  
 
-void main()
+float cylinderIntersectionDist(float radiusSq,
+                               float halfLength,
+                               vec3 localPixelPos,
+                               vec3 localPixelRay,
+                               vec3 localPrevJointAxis,
+                               vec3 localNextJointAxis,
+                               out vec4 debugColor)
 {
     vec3 intersections[2];
     int intersectionCount = 0;
+    vec3 prevJointPos = vec3(0, 0, -halfLength);
+    vec3 nextJointPos = vec3(0, 0, halfLength);
  
-    vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, 1);
-    vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 10);
-    vec3 pixelRay = normalize(pixelWorldPos2 - pixelWorldPos1);
-    vec3 localPixelRay = toCylProj(pixelRay);
-    vec3 localPixelPos = toCylCoords(pixelWorldPos2);
-    vec3 localPrevJointAxis = toCylProj(varPrevJointAxis);
-    vec3 localNextJointAxis = toCylProj(varNextJointAxis);
-    //vec3 localPixelRay = vec3(0, 1, 0);
-    //vec3 localPixelPos = vec3(-100, 0, 0);
-    float cylRadius = varCylWidth / 2;
-    float cylRadiusSq = cylRadius*cylRadius;
-    float cylHalfLength = varCylLength / 2;
-    vec3 prevJointPos = vec3(0, 0, -cylHalfLength);
-    vec3 nextJointPos = vec3(0, 0, cylHalfLength);
-    vec4 debugColor = vec4(0, 0, 0, 1);
+    debugColor = vec4(0, 0, 0, 1);
     if (abs(localPixelRay.x) > 0.00001 || abs(localPixelRay.y) > 0.00001) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
@@ -72,7 +67,7 @@ void main()
         //                                                  + (p_x^2 + p_y^2 - r^2) == 0
         float a = dot(localPixelRay.xy, localPixelRay.xy);
         float b = 2 * dot(localPixelPos.xy, localPixelRay.xy);
-        float c = dot(localPixelPos.xy, localPixelPos.xy) - cylRadiusSq;
+        float c = dot(localPixelPos.xy, localPixelPos.xy) - radiusSq;
         float D = b*b - 4*a*c;
         if (D > 0) { // two solutions
             float Dsqrt = sqrt(D);
@@ -122,10 +117,10 @@ void main()
         // cylinder planes; test for cylinder's plane #1 and/or #2
         // solve: n . (p0 + dir * t - r0) == 0
         //float t3 = (cylHalfLength - localPixelPos.z) / localPixelRay.z;
-        float t3 = (localPrevJointAxis.z * -cylHalfLength - dot(localPrevJointAxis, localPixelPos))
+        float t3 = (localPrevJointAxis.z * -halfLength - dot(localPrevJointAxis, localPixelPos))
             / dot(localPrevJointAxis, localPixelRay);
         vec3 intrPos3 = localPixelPos + localPixelRay * t3;
-        if (dot(intrPos3.xy, intrPos3.xy) < cylRadiusSq) {
+        if (dot(intrPos3.xy, intrPos3.xy) < radiusSq) {
             intersections[intersectionCount] = intrPos3;
             intersectionCount++;
             debugColor.b = 1;
@@ -133,28 +128,61 @@ void main()
         if (intersectionCount < 2) {
             //float t4 = (-cylHalfLength - localPixelPos.z) / localPixelRay.z;
             float t4
-                = (localNextJointAxis.z * cylHalfLength - dot(localNextJointAxis, localPixelPos))
+                = (localNextJointAxis.z * halfLength - dot(localNextJointAxis, localPixelPos))
             / dot(localNextJointAxis, localPixelRay);
             vec3 intrPos4 = localPixelPos + localPixelRay * t4;
-            if (dot(intrPos4.xy, intrPos4.xy) < cylRadiusSq) {
+            if (dot(intrPos4.xy, intrPos4.xy) < radiusSq) {
                 intersections[intersectionCount] = intrPos4;
                 intersectionCount++;
                 debugColor.b = 1;
             }
         }
     }
+    if (intersectionCount == 2) { 
+        return distance(intersections[0], intersections[1]);
+    } else {
+        return -1;
+    }
+
+}
+
+void main()
+{
+ 
+    vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, 1);
+    vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 10);
+    vec3 pixelRay = normalize(pixelWorldPos2 - pixelWorldPos1);
+    vec3 localPixelRay = toCylProj(pixelRay);
+    vec3 localPixelPos = toCylCoords(pixelWorldPos2);
+    vec3 localPrevJointAxis = toCylProj(varPrevJointAxis);
+    vec3 localNextJointAxis = toCylProj(varNextJointAxis);
+    //vec3 localPixelRay = vec3(0, 1, 0);
+    //vec3 localPixelPos = vec3(-100, 0, 0);
+    float cylRadius = varCylWidth / 2;
+    float cylRadiusSq = cylRadius*cylRadius;
+    float cylHalfLength = varCylLength / 2;
+    vec4 debugColor;
     
-    if (intersectionCount == 2) {
-        float dist = distance(intersections[0], intersections[1]);
-        float alpha = clamp(dist * distanceToAlpha, alphaMin, alphaMax);
-        //float alpha = dist * distanceToAlpha;
-        //alpha *= alpha;
+    float outerDist = cylinderIntersectionDist(
+       cylRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
+       localPrevJointAxis, localNextJointAxis, debugColor);
+    if (outerDist > 0) {
+        float alpha = clamp(outerDist * distanceToAlpha, alphaMin, alphaMax);
         gl_FragColor = vec4(varCylColor.xyz, alpha);
-    //} else if (intersectionCount == 1) {
-        // gl_FragColor = debugColor;
     } else {
          discard;
          // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default
-        
     }
 }
+
+#if false
+    cylinderIntersectionDist(
+                               float radiusSq,
+                               float halfLength,
+                               vec3 localPixelPos,
+                               vec3 localPixelRay,
+                               vec3 localPrevJointAxis,
+                               vec4 localNextJointAxis,
+                               out vec4 debugColor);
+#endif
+
