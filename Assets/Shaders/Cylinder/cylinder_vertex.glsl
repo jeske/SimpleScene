@@ -11,6 +11,7 @@ attribute vec3 nextJointAxis;
 attribute float cylinderWidth;
 attribute float cylinderLength;
 attribute vec4 cylinderColor;
+attribute vec4 cylinderInnerColor;
 attribute float innerColorRatio;
 //attribute float outerColorRatio;
 #else
@@ -20,6 +21,7 @@ uniform vec3 prevJointAxis;
 uniform vec3 nextJointAxis;
 uniform float cylinderWidth;
 uniform float cylinderLength;
+uniform vec4 cylinderInnerColor;
 uniform float innerColorRatio;
 //uniform float outerColorRatio;
 #endif
@@ -32,6 +34,7 @@ varying vec3 varNextJointAxis;
 varying float varCylLength;
 varying float varCylWidth;
 varying vec4 varCylColor;
+varying vec4 varCylInnerColor;
 varying float varInnerColorRatio;
 //varying float varOuterColorRatio;
 
@@ -55,7 +58,9 @@ void main()
     varCylCenter = cylinderCenter;
     varCylWidth = cylinderWidth;
     varCylLength = cylinderLength;
-    varCylColor = color;  
+    varCylColor = color;
+    varCylInnerColor = cylinderInnerColor;
+    varInnerColorRatio = innerColorRatio;
     
     vec3 combinedWorldPos = cylinderCenter
         + gl_Vertex.x * cylinderAxis * (cylinderLength + cylinderWidth*2)

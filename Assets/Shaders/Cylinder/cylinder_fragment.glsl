@@ -7,7 +7,6 @@ uniform mat4 viewMatrixInverse;
 uniform float distanceToAlpha;
 uniform float alphaMin;
 uniform float alphaMax;
-uniform vec4 innerColor;
 
 //varying vec3 varViewRay;
 varying vec3 varCylCenter;
@@ -19,6 +18,8 @@ varying vec3 varNextJointAxis;
 varying float varCylLength;
 varying float varCylWidth;
 varying vec4 varCylColor;
+varying vec4 varCylInnerColor;
+varying float varInnerColorRatio;
 
 vec3 toCylProj(vec3 worldVec)
 {
@@ -161,14 +162,23 @@ void main()
     float cylRadius = varCylWidth / 2;
     float cylRadiusSq = cylRadius*cylRadius;
     float cylHalfLength = varCylLength / 2;
-    vec4 debugColor;
+    vec4 debugColor, debugColor2;
     
     float outerDist = cylinderIntersectionDist(
        cylRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
-       localPrevJointAxis, localNextJointAxis, debugColor);
-    if (outerDist > 0) {
+       localPrevJointAxis, localNextJointAxis, debugColor);    
+    if (outerDist > 0) {       
         float alpha = clamp(outerDist * distanceToAlpha, alphaMin, alphaMax);
-        gl_FragColor = vec4(varCylColor.xyz, alpha);
+        float innerRadius = cylRadius * varInnerColorRatio;
+        float innerRadiusSq = innerRadius * innerRadius;
+        float innerDist = cylinderIntersectionDist(
+                innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
+                localPrevJointAxis, localNextJointAxis, debugColor2);
+        innerDist = max(0, innerDist);
+        float ratio = innerDist / outerDist;
+        //vec4 color = mix(varCylInnerColor, varCylColor, ratio);
+        vec4 color = mix(varCylColor, varCylInnerColor, ratio);
+        gl_FragColor = vec4(color.rgb, color.a * alpha);
     } else {
          discard;
          // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default
