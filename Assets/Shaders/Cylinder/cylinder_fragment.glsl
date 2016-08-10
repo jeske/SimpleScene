@@ -214,7 +214,7 @@ void main()
             vec3 middleIntrMiddle = (middleIntersections[0] + middleIntersections[1]) / 2;
             float middleIntrMiddleRate = (length(middleIntrMiddle.xy) - innerRadius)
                 / (outerBoundaryRadius - innerRadius);
-            fadeAvgRate = middleIntrMiddleRate / 2;
+            fadeAvgRate = (1 - middleIntrMiddleRate)/2;
         }
         float ratio = (innerDist + fadeAvgRate * fadeDist) / outerDist;
         //float ratio = innerDist / outerDist;
