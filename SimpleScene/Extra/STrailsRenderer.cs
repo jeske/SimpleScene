@@ -348,7 +348,8 @@ namespace SimpleScene
                         if (numCylinders == 1) {
                             var newParticle = createNewParticle();
                             //newParticle.color = Color4Helper.DebugPresets [0];
-                            newParticle.color = Color4.OrangeRed;
+                            //newParticle.color = Color4.OrangeRed;
+                            newParticle.color = Color4.Lime;
                             //newParticle.color.A = 0.25f;
                             //newParticle.color = Color4Helper.RandomDebugColor();
                             _newSplinePos = pos;
@@ -511,7 +512,7 @@ namespace SimpleScene
                 public Vector3 cylAxis = -Vector3.UnitZ;
                 public Vector3 prevJointAxis = -Vector3.UnitZ;
                 public Vector3 nextJointAxis = -Vector3.UnitZ;
-                public Color4 cylInnerColor = Color4.White;
+                public Color4 cylInnerColor = Color4.Red;
                 /// <summary> inner cylinder is 100% inner color. Its radius is innerColorRatio * total radius /// </summary>
                 public float innerColorRatio = 0.3f; 
                 /// <summary> outer tube is 100% outer color. It begins at outerColorRatio * total radius, and ends at total radius // </summary>

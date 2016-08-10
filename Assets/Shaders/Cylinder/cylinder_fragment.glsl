@@ -48,16 +48,18 @@ vec3 unproject(vec2 screenPt, float z)
     return vec.xyz;
 }  
 
-float cylinderIntersectionDist(float radiusSq,
-                               float halfLength,
-                               vec3 localPixelPos,
-                               vec3 localPixelRay,
-                               vec3 localPrevJointAxis,
-                               vec3 localNextJointAxis,
-                               out vec4 debugColor)
+void cylinderIntersections(float radiusSq,
+                           float halfLength,
+                           vec3 localPixelPos,
+                           vec3 localPixelRay,
+                           vec3 localPrevJointAxis,
+                           vec3 localNextJointAxis,
+                           out vec3 intersections[2],
+                           out int intersectionCount,
+                           out vec4 debugColor)
 {
-    vec3 intersections[2];
-    int intersectionCount = 0;
+    //vec3 intersections[2];
+    intersectionCount = 0;
     vec3 prevJointPos = vec3(0, 0, -halfLength);
     vec3 nextJointPos = vec3(0, 0, halfLength);
  
@@ -140,12 +142,30 @@ float cylinderIntersectionDist(float radiusSq,
             }
         }
     }
-    if (intersectionCount == 2) { 
+    //
+    //if (intersectionCount == 2) { 
+    //    return distance(intersections[0], intersections[1]);
+    //} else {
+    //    return 0;
+    //}
+}
+
+float cylinderIntersectionDist(float radiusSq,
+                               float halfLength,
+                               vec3 localPixelPos,
+                               vec3 localPixelRay,
+                               vec3 localPrevJointAxis,
+                               vec3 localNextJointAxis,
+                               out vec4 debugColor)
+{
+    vec3 intersections[2];
+    int intersectionCount;
+    cylinderIntersections(radiusSq, halfLength, localPixelPos, localPixelRay, localPrevJointAxis, localNextJointAxis, intersections, intersectionCount, debugColor);
+    if (intersectionCount == 2) {
         return distance(intersections[0], intersections[1]);
     } else {
         return 0;
     }
-
 }
 
 void main()
@@ -177,11 +197,26 @@ void main()
         float innerDist = cylinderIntersectionDist(
                 innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
                 localPrevJointAxis, localNextJointAxis, debugColor2);
-        float middleDist = cylinderIntersectionDist(
-                outerBoundaryRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
-                localPrevJointAxis, localNextJointAxis, debugColor3);
+
+        vec3 middleIntersections[2];
+        int middleIntersectionCount;
+        cylinderIntersections(
+            outerBoundaryRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
+            localPrevJointAxis, localNextJointAxis,
+            middleIntersections, middleIntersectionCount, debugColor3);
+        float middleDist = (middleIntersectionCount < 2) ? 0.0
+                           : distance(middleIntersections[0], middleIntersections[1]);
         float fadeDist = middleDist - innerDist;
-        float ratio = (innerDist + 0.5 * fadeDist) / outerDist;
+        float fadeAvgRate;
+        if (innerDist > 0) {
+            fadeAvgRate = 0.5;            
+        } else {
+            vec3 middleIntrMiddle = (middleIntersections[0] + middleIntersections[1]) / 2;
+            float middleIntrMiddleRate = (length(middleIntrMiddle.xy) - innerRadius)
+                / (outerBoundaryRadius - innerRadius);
+            fadeAvgRate = middleIntrMiddleRate / 2;
+        }
+        float ratio = (innerDist + fadeAvgRate * fadeDist) / outerDist;
         //float ratio = innerDist / outerDist;
         //vec4 color = mix(varCylInnerColor, varCylColor, ratio);
         vec4 color = mix(varCylColor, varCylInnerColor, ratio);
