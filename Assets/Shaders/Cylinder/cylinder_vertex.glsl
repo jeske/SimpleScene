@@ -12,7 +12,8 @@ attribute float cylinderWidth;
 attribute float cylinderLength;
 attribute vec4 cylinderColor;
 attribute vec4 cylinderInnerColor;
-attribute float innerColorRatio;
+attribute float innerColorRatio;    // ratio of total width that is 100% inner color
+attribute float outerColorRatio;    // ratio of total width that is 100% outer color
 //attribute float outerColorRatio;
 #else
 uniform vec3 cylinderCenter;
@@ -23,7 +24,7 @@ uniform float cylinderWidth;
 uniform float cylinderLength;
 uniform vec4 cylinderInnerColor;
 uniform float innerColorRatio;
-//uniform float outerColorRatio;
+uniform float outerColorRatio;
 #endif
 varying vec3 varCylCenter;
 varying vec3 varCylXAxis;
@@ -36,7 +37,7 @@ varying float varCylWidth;
 varying vec4 varCylColor;
 varying vec4 varCylInnerColor;
 varying float varInnerColorRatio;
-//varying float varOuterColorRatio;
+varying float varOuterColorRatio;
 
 void main()
 {
@@ -61,6 +62,7 @@ void main()
     varCylColor = color;
     varCylInnerColor = cylinderInnerColor;
     varInnerColorRatio = innerColorRatio;
+    varOuterColorRatio = outerColorRatio;
     
     vec3 combinedWorldPos = cylinderCenter
         + gl_Vertex.x * cylinderAxis * (cylinderLength + cylinderWidth*2)
@@ -68,5 +70,4 @@ void main()
         + gl_Vertex.z * varCylYAxis * cylinderWidth * 2;
         
     gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
-       
 }

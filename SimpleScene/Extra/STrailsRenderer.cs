@@ -53,6 +53,7 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> _lengthsBuffer;
         protected SSAttributeBuffer<SSAttributeColor> _innerColorBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _innerColorRatioBuffer;
+        protected SSAttributeBuffer<SSAttributeFloat> _outerColorRatioBuffer;
 
         public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
             STrailsParameters trailsParams = null)
@@ -101,6 +102,7 @@ namespace SimpleScene
             _colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
             _innerColorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
             _innerColorRatioBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _outerColorRatioBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
         }
 
         protected override void _prepareInstanceShader (SSRenderConfig renderConfig)
@@ -123,6 +125,7 @@ namespace SimpleScene
             _prepareAttribute(_colorBuffer, _shader.AttrCylinderColor, trailsData.colors);
             _prepareAttribute(_innerColorBuffer, _shader.AttrCylinderInnerColor, trailsData.innerColors);
             _prepareAttribute(_innerColorRatioBuffer, _shader.AttrInnerColorRatio, trailsData.innerColorRatios);
+            _prepareAttribute(_outerColorRatioBuffer, _shader.AttrOuterColorRatio, trailsData.outerColorRatios);
         }
 
         public class STrailsData : SSParticleSystemData
@@ -136,6 +139,7 @@ namespace SimpleScene
             public SSAttributeFloat[] cylinderWidth { get { return _cylWidths; } }
             public SSAttributeColor[] innerColors { get { return _cylInnerColors; } }
             public SSAttributeFloat[] innerColorRatios { get { return _innerColorRatios; } }
+            public SSAttributeFloat[] outerColorRatios { get { return _outerColorRatios; } }
 
             protected ushort _headSegmentIdx = STrailsSegment.NotConnected;
             protected ushort _tailSegmentIdx = STrailsSegment.NotConnected;
@@ -143,6 +147,7 @@ namespace SimpleScene
             protected ushort[] _prevSegmentData = null;
             protected SSAttributeColor[] _cylInnerColors;
             protected SSAttributeFloat[] _innerColorRatios;
+            protected SSAttributeFloat[] _outerColorRatios;
             protected SSAttributeVec3[] _cylAxes = null;
             protected SSAttributeVec3[] _prevJointAxes = null;
             protected SSAttributeVec3[] _nextJointAxes = null;
@@ -192,6 +197,7 @@ namespace SimpleScene
                 _prevSegmentData = new ushort[1];
                 _cylInnerColors = new SSAttributeColor[1];
                 _innerColorRatios = new SSAttributeFloat[1];
+                _outerColorRatios = new SSAttributeFloat[1];
             }
 
             public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
@@ -210,6 +216,7 @@ namespace SimpleScene
                 var ts = (STrailsSegment)p;
                 ts.cylInnerColor = Color4Helper.FromUInt32(_readElement(_cylInnerColors, idx).Color);
                 ts.innerColorRatio = _readElement(_innerColorRatios, idx).Value;
+                ts.outerColorRatio = _readElement(_outerColorRatios, idx).Value;
                 ts.cylAxis = _readElement(_cylAxes, idx).Value;
                 ts.prevJointAxis = _readElement(_prevJointAxes, idx).Value;
                 ts.nextJointAxis = _readElement(_nextJointAxes, idx).Value;
@@ -238,6 +245,7 @@ namespace SimpleScene
                 var innerColor = Color4Helper.ToUInt32(ts.cylInnerColor);
                 writeDataIfNeeded(ref _cylInnerColors, idx, new SSAttributeColor(innerColor));
                 writeDataIfNeeded(ref _innerColorRatios, idx, new SSAttributeFloat (ts.innerColorRatio));
+                writeDataIfNeeded(ref _outerColorRatios, idx, new SSAttributeFloat(ts.outerColorRatio));
                 writeDataIfNeeded(ref _cylAxes, idx, new SSAttributeVec3(ts.cylAxis));
                 writeDataIfNeeded(ref _prevJointAxes, idx, new SSAttributeVec3 (ts.prevJointAxis));
                 writeDataIfNeeded(ref _nextJointAxes, idx, new SSAttributeVec3 (ts.nextJointAxis));
@@ -504,7 +512,10 @@ namespace SimpleScene
                 public Vector3 prevJointAxis = -Vector3.UnitZ;
                 public Vector3 nextJointAxis = -Vector3.UnitZ;
                 public Color4 cylInnerColor = Color4.White;
-                public float innerColorRatio = 0.9f;
+                /// <summary> inner cylinder is 100% inner color. Its radius is innerColorRatio * total radius /// </summary>
+                public float innerColorRatio = 0.3f; 
+                /// <summary> outer tube is 100% outer color. It begins at outerColorRatio * total radius, and ends at total radius // </summary>
+                public float outerColorRatio = 0.3f;
                 public float cylLendth = 5f;
                 public float cylWidth = 2f;
                 public ushort prevSegmentIdx = NotConnected;

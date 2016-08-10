@@ -29,6 +29,7 @@ namespace SimpleScene
         private readonly int a_cylinderColor;
         private readonly int a_cylinderInnerColor;
         private readonly int a_innerColorRatio;
+        private readonly int a_outerColorRatio;
         #endregion
 
         public float UniScreenWidth { set { GL.Uniform1(u_screenWidth, value); } }
@@ -48,6 +49,7 @@ namespace SimpleScene
         public int AttrCylinderColor { get { return a_cylinderColor; } }
         public int AttrCylinderInnerColor { get { return a_cylinderInnerColor; } }
         public int AttrInnerColorRatio { get { return a_innerColorRatio; } }
+        public int AttrOuterColorRatio { get { return a_outerColorRatio; } }
 
         public SSInstancedCylinderShaderProgram (string preprocessorDefs = "#define INSTANCE_DRAW")
         {
@@ -86,6 +88,7 @@ namespace SimpleScene
             a_cylinderColor = getAttrLoc("cylinderColor");
             a_cylinderInnerColor = getAttrLoc("cylinderInnerColor");
             a_innerColorRatio = getAttrLoc("innerColorRatio");
+            a_outerColorRatio = getAttrLoc("outerColorRatio");
 
             m_isValid = checkGlValid();
 

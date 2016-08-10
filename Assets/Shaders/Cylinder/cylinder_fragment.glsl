@@ -20,6 +20,7 @@ varying float varCylWidth;
 varying vec4 varCylColor;
 varying vec4 varCylInnerColor;
 varying float varInnerColorRatio;
+varying float varOuterColorRatio;
 
 vec3 toCylProj(vec3 worldVec)
 {
@@ -142,7 +143,7 @@ float cylinderIntersectionDist(float radiusSq,
     if (intersectionCount == 2) { 
         return distance(intersections[0], intersections[1]);
     } else {
-        return -1;
+        return 0;
     }
 
 }
@@ -162,20 +163,26 @@ void main()
     float cylRadius = varCylWidth / 2;
     float cylRadiusSq = cylRadius*cylRadius;
     float cylHalfLength = varCylLength / 2;
-    vec4 debugColor, debugColor2;
+    vec4 debugColor, debugColor2, debugColor3;
     
     float outerDist = cylinderIntersectionDist(
        cylRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
        localPrevJointAxis, localNextJointAxis, debugColor);    
-    if (outerDist > 0) {       
+    if (outerDist > 0) {
         float alpha = clamp(outerDist * distanceToAlpha, alphaMin, alphaMax);
         float innerRadius = cylRadius * varInnerColorRatio;
+        float outerBoundaryRadius = cylRadius * (1 - varOuterColorRatio);
         float innerRadiusSq = innerRadius * innerRadius;
+        float outerBoundaryRadiusSq = outerBoundaryRadius * outerBoundaryRadius;
         float innerDist = cylinderIntersectionDist(
                 innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
                 localPrevJointAxis, localNextJointAxis, debugColor2);
-        innerDist = max(0, innerDist);
-        float ratio = innerDist / outerDist;
+        float middleDist = cylinderIntersectionDist(
+                outerBoundaryRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
+                localPrevJointAxis, localNextJointAxis, debugColor3);
+        float fadeDist = middleDist - innerDist;
+        float ratio = (innerDist + 0.5 * fadeDist) / outerDist;
+        //float ratio = innerDist / outerDist;
         //vec4 color = mix(varCylInnerColor, varCylColor, ratio);
         vec4 color = mix(varCylColor, varCylInnerColor, ratio);
         gl_FragColor = vec4(color.rgb, color.a * alpha);
