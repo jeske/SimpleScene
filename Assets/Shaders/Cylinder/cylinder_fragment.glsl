@@ -150,6 +150,8 @@ void cylinderIntersections(float radiusSq,
     //}
 }
 
+float linearFadeContributionRate(vec3 intr1, vec3 intr3);
+
 float cylinderIntersectionDist(float radiusSq,
                                float halfLength,
                                vec3 localPixelPos,
@@ -168,6 +170,32 @@ float cylinderIntersectionDist(float radiusSq,
     }
 }
 
+// contribution = dist * avgColorRatio
+float linearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
+                             float rInner, float rFadeEnd)
+{
+    vec3 middle = (fadeIntr1 + fadeIntr2) / 2;
+    //float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner);
+    float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner) / 2;
+    return avgRate * distance(fadeIntr1, fadeIntr2);
+}
+
+// works for finding the maxima for the fade rate, which divides the distance into
+// two linear regions
+float nonLinearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
+                                float rInner, float rFadeEnd)
+{
+    float intrDist = distance(fadeIntr1, fadeIntr2);
+    vec3 diff = fadeIntr2 - fadeIntr1;
+    vec3 pivot;
+    pivot.xy = fadeIntr1.xy - dot(diff.xy, fadeIntr1.xy) * diff.xy / length(diff.xy);
+    pivot.z = fadeIntr1.z + (pivot.x - fadeIntr1.x) / diff.x * diff.z;
+    // TODO handle diff.x == 0
+    
+    return linearFadeContribution(fadeIntr1, pivot, rInner, rFadeEnd)
+         + linearFadeContribution(pivot, fadeIntr2, rInner, rFadeEnd);
+}
+
 void main()
 {
  
@@ -183,7 +211,7 @@ void main()
     float cylRadius = varCylWidth / 2;
     float cylRadiusSq = cylRadius*cylRadius;
     float cylHalfLength = varCylLength / 2;
-    vec4 debugColor, debugColor2, debugColor3;
+    vec4 debugColor, debugColor2, debugColor3, debugColor4;
     
     float outerDist = cylinderIntersectionDist(
        cylRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
@@ -191,32 +219,48 @@ void main()
     if (outerDist > 0) {
         float alpha = clamp(outerDist * distanceToAlpha, alphaMin, alphaMax);
         float innerRadius = cylRadius * varInnerColorRatio;
-        float outerBoundaryRadius = cylRadius * (1 - varOuterColorRatio);
+        float fadeEndRadius = cylRadius * (1 - varOuterColorRatio);
         float innerRadiusSq = innerRadius * innerRadius;
-        float outerBoundaryRadiusSq = outerBoundaryRadius * outerBoundaryRadius;
-        float innerDist = cylinderIntersectionDist(
-                innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
-                localPrevJointAxis, localNextJointAxis, debugColor2);
+        float fadeEndRadiusSq = fadeEndRadius * fadeEndRadius;
 
-        vec3 middleIntersections[2];
-        int middleIntersectionCount;
+        float fadeContribution = 0;
+        float innerContribution = 0;
+        
+        vec3 fadeEndIntersections[2];
+        int fadeEndIntersectionCount;
         cylinderIntersections(
-            outerBoundaryRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
+            fadeEndRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
             localPrevJointAxis, localNextJointAxis,
-            middleIntersections, middleIntersectionCount, debugColor3);
-        float middleDist = (middleIntersectionCount < 2) ? 0.0
-                           : distance(middleIntersections[0], middleIntersections[1]);
-        float fadeDist = middleDist - innerDist;
-        float fadeAvgRate;
-        if (innerDist > 0) {
-            fadeAvgRate = 0.5;            
-        } else {
-            vec3 middleIntrMiddle = (middleIntersections[0] + middleIntersections[1]) / 2;
-            float middleIntrMiddleRate = (length(middleIntrMiddle.xy) - innerRadius)
-                / (outerBoundaryRadius - innerRadius);
-            fadeAvgRate = (1 - middleIntrMiddleRate)/2;
+            fadeEndIntersections, fadeEndIntersectionCount, debugColor3);
+        if (fadeEndIntersectionCount == 2) {
+            vec3 innerIntersections[2];
+            int innerIntersectionCount;
+            cylinderIntersections(
+                innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
+                localPrevJointAxis, localNextJointAxis,
+                innerIntersections, innerIntersectionCount, debugColor4);
+            if (innerIntersectionCount == 2) {
+                if (distance(fadeEndIntersections[0], innerIntersections[1])
+                  < distance(fadeEndIntersections[0], innerIntersections[0])) {
+                        vec3 temp = fadeEndIntersections[0];
+                        fadeEndIntersections[0] = fadeEndIntersections[1];
+                        fadeEndIntersections[1] = temp;
+                    }
+                
+                innerContribution = distance(innerIntersections[0], innerIntersections[1]); // reuse pls
+                fadeContribution =
+                    linearFadeContribution(fadeEndIntersections[0], innerIntersections[0],
+                                           innerRadius, fadeEndRadius)
+                  + linearFadeContribution(fadeEndIntersections[1], innerIntersections[1],
+                                           innerRadius, fadeEndRadius);
+            } else {
+                fadeContribution
+               = nonLinearFadeContribution(fadeEndIntersections[0], fadeEndIntersections[1],
+                                           innerRadius, fadeEndRadius);
+            }
         }
-        float ratio = (innerDist + fadeAvgRate * fadeDist) / outerDist;
+        
+        float ratio = (innerContribution + fadeContribution) / outerDist;
         //float ratio = innerDist / outerDist;
         //vec4 color = mix(varCylInnerColor, varCylColor, ratio);
         vec4 color = mix(varCylColor, varCylInnerColor, ratio);
