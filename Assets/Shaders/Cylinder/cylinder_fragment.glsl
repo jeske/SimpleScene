@@ -240,18 +240,20 @@ void main()
                 localPrevJointAxis, localNextJointAxis,
                 innerIntersections, innerIntersectionCount, debugColor4);
             if (innerIntersectionCount == 2) {
+                #if false
                 if (distance(fadeEndIntersections[0], innerIntersections[1])
                   < distance(fadeEndIntersections[0], innerIntersections[0])) {
                         vec3 temp = fadeEndIntersections[0];
                         fadeEndIntersections[0] = fadeEndIntersections[1];
                         fadeEndIntersections[1] = temp;
                     }
+                #endif
                 
                 innerContribution = distance(innerIntersections[0], innerIntersections[1]); // reuse pls
                 fadeContribution =
-                    linearFadeContribution(fadeEndIntersections[0], innerIntersections[0],
+                    linearFadeContribution(fadeEndIntersections[0], innerIntersections[1],
                                            innerRadius, fadeEndRadius)
-                  + linearFadeContribution(fadeEndIntersections[1], innerIntersections[1],
+                  + linearFadeContribution(fadeEndIntersections[1], innerIntersections[0],
                                            innerRadius, fadeEndRadius);
             } else {
                 fadeContribution
