@@ -64,7 +64,7 @@ void cylinderIntersections(float radiusSq,
     vec3 nextJointPos = vec3(0, 0, halfLength);
  
     debugColor = vec4(0, 0, 0, 1);
-    if (abs(localPixelRay.x) > 0.00001 || abs(localPixelRay.y) > 0.00001) {
+    if (abs(localPixelRay.x) > 0.0000001 || abs(localPixelRay.y) > 0.0000001) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
         // (dir_x^2 + dir_y^2) * t^2 + [2(p_x * dir_x + py * dir_y)] * t
@@ -73,7 +73,7 @@ void cylinderIntersections(float radiusSq,
         float b = 2 * dot(localPixelPos.xy, localPixelRay.xy);
         float c = dot(localPixelPos.xy, localPixelPos.xy) - radiusSq;
         float D = b*b - 4*a*c;
-        if (D >= 0) { // two solutions
+        if (D >= 0) { // two solutions (or one as two)
             float Dsqrt = sqrt(D);
             {
                 float t1 = (-b - Dsqrt) / (2*a);
@@ -176,7 +176,7 @@ float linearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
 {
     vec3 middle = (fadeIntr1 + fadeIntr2) / 2;
     //float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner);
-    float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner) / 2;
+    float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner);
     return avgRate * distance(fadeIntr1, fadeIntr2);
 }
 
@@ -185,11 +185,14 @@ float linearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
 float nonLinearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
                                 float rInner, float rFadeEnd)
 {
-    float intrDist = distance(fadeIntr1, fadeIntr2);
     vec3 diff = fadeIntr2 - fadeIntr1;
     vec3 pivot;
+    #if 1
+    pivot = (fadeIntr2 + fadeIntr1) / 2;
+    #else
     pivot.xy = fadeIntr1.xy - dot(diff.xy, fadeIntr1.xy) * diff.xy / length(diff.xy);
-    pivot.z = fadeIntr1.z + (pivot.x - fadeIntr1.x) / diff.x * diff.z;
+    pivot.z = fadeIntr1.z + distance(pivot.xy, fadeIntr1.xy) / length(diff.xy) * diff.z;
+    #endif
     // TODO handle diff.x == 0
     
     return linearFadeContribution(fadeIntr1, pivot, rInner, rFadeEnd)
@@ -239,22 +242,19 @@ void main()
                 innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
                 localPrevJointAxis, localNextJointAxis,
                 innerIntersections, innerIntersectionCount, debugColor4);
-            //if (innerIntersectionCount == 2) {
-            if (false) {
-                #if true
+            if (innerIntersectionCount == 2) {
                 if (distance(fadeEndIntersections[0], innerIntersections[1])
                   < distance(fadeEndIntersections[0], innerIntersections[0])) {
                         vec3 temp = fadeEndIntersections[0];
                         fadeEndIntersections[0] = fadeEndIntersections[1];
                         fadeEndIntersections[1] = temp;
                     }
-                #endif
                 
                 innerContribution = distance(innerIntersections[0], innerIntersections[1]); // reuse pls
                 fadeContribution =
-                    linearFadeContribution(fadeEndIntersections[0], innerIntersections[1],
+                    linearFadeContribution(fadeEndIntersections[0], innerIntersections[0],
                                            innerRadius, fadeEndRadius)
-                  + linearFadeContribution(fadeEndIntersections[1], innerIntersections[0],
+                  + linearFadeContribution(fadeEndIntersections[1], innerIntersections[1],
                                            innerRadius, fadeEndRadius);
             } else {
                 fadeContribution
