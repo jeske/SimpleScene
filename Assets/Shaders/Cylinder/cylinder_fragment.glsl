@@ -226,7 +226,6 @@ void main()
         float innerRadiusSq = innerRadius * innerRadius;
         float fadeEndRadiusSq = fadeEndRadius * fadeEndRadius;
 
-        float fadeContribution = 0;
         float innerContribution = 0;
         
         vec3 fadeEndIntersections[2];
@@ -245,25 +244,25 @@ void main()
             if (innerIntersectionCount == 2) {
                 if (distance(fadeEndIntersections[0], innerIntersections[1])
                   < distance(fadeEndIntersections[0], innerIntersections[0])) {
+                    // ensure intersections are pro
                         vec3 temp = fadeEndIntersections[0];
                         fadeEndIntersections[0] = fadeEndIntersections[1];
                         fadeEndIntersections[1] = temp;
                     }
                 
-                innerContribution = distance(innerIntersections[0], innerIntersections[1]); // reuse pls
-                fadeContribution =
-                    linearFadeContribution(fadeEndIntersections[0], innerIntersections[0],
+                innerContribution = distance(innerIntersections[0], innerIntersections[1]) // reuse pls
+                  + linearFadeContribution(fadeEndIntersections[0], innerIntersections[0],
                                            innerRadius, fadeEndRadius)
                   + linearFadeContribution(fadeEndIntersections[1], innerIntersections[1],
                                            innerRadius, fadeEndRadius);
             } else {
-                fadeContribution
+                innerContribution
                = nonLinearFadeContribution(fadeEndIntersections[0], fadeEndIntersections[1],
                                            innerRadius, fadeEndRadius);
             }
         }
         
-        float ratio = (innerContribution + fadeContribution) / outerDist;
+        float ratio = innerContribution  / outerDist;
         //float ratio = innerDist / outerDist;
         //vec4 color = mix(varCylInnerColor, varCylColor, ratio);
         vec4 color = mix(varCylColor, varCylInnerColor, ratio);

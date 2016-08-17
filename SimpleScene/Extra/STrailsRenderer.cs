@@ -19,11 +19,18 @@ namespace SimpleScene
         {
             public int capacity = 2000;
             public float trailWidth = 5f;
-            //public float trailsEmissionInterval = 0.05f;
-            public float trailsEmissionInterval = 1f;
+
+			#if true
+            public float trailsEmissionInterval = 0.05f;
+			public int numCylindersPerEmissionMax = 5;
+			#else
+			// debugging options
+			public float trailsEmissionInterval = 1f;
+			public int numCylindersPerEmissionMax = 1;
+			#endif
+
             public int numCylindersPerEmissionMin = 1;
-            //public int numCylindersPerEmissionMax = 5;
-            public int numCylindersPerEmissionMax = 1;
+
             public float minSegmentLength = 0.01f;
             public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
             public float velocityToLengthFactor = 1f;
