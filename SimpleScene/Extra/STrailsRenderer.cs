@@ -37,6 +37,8 @@ namespace SimpleScene
             public float trailLifetime = 2000f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
+			public Color4 outerColor = new Color4(1f, 0f, 0f, 0.25f);
+			public Color4 innerColor = new Color4(1f, 1f, 1f, 0.25f);
             public float distanceToAlpha = 0.05f;
             public float alphaMax = 1f;
             public float alphaMin = 0f;
@@ -354,15 +356,8 @@ namespace SimpleScene
                         numCylinders = Math.Max(numCylinders, trailsParams.numCylindersPerEmissionMin);
                         numCylinders = Math.Min(numCylinders, trailsParams.numCylindersPerEmissionMax);
                         if (numCylinders == 1) {
-                            var newParticle = createNewParticle();
-                            //newParticle.color = Color4Helper.DebugPresets [0];
-                            //newParticle.color = Color4.OrangeRed;
-                            newParticle.color = Color4.Lime;
-                            //newParticle.color.A = 0.25f;
-                            //newParticle.color = Color4Helper.RandomDebugColor();
-                            _newSplinePos = pos;
-
-                            storeNewParticle(newParticle);
+							_newSplinePos = pos;
+							storeNewParticle(createNewParticle());
                         } else {
                             float dt = 1f / numCylinders;
                             for (int i = 1; i <= numCylinders; ++i) {
@@ -378,12 +373,7 @@ namespace SimpleScene
 
                                 _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope * trailsParams.trailsEmissionInterval
                                 + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;
-                                var newParticle = createNewParticle();
-                                //newParticle.color = Color4Helper.DebugPresets [i % Color4Helper.DebugPresets.Length];
-                                newParticle.color = Color4.OrangeRed;
-                                //newParticle.color.A = 0.25f;
-                                //newParticle.color = Color4Helper.RandomDebugColor();
-                                storeNewParticle(newParticle);
+								storeNewParticle(createNewParticle());
                             }
                         }
                         _prevSplineIntervalEndPos = pos;
@@ -397,6 +387,8 @@ namespace SimpleScene
             protected override int storeNewParticle (SSParticle newParticle)
             {
                 var ts = (STrailsSegment)newParticle;
+				ts.color = trailsParams.outerColor;
+				ts.cylInnerColor = trailsParams.innerColor;
                 ts.life = trailsParams.trailLifetime;
                 ts.vel = Vector3.Zero;
                 ts.cylWidth = trailsParams.trailWidth;
