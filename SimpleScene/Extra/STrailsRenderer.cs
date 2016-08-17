@@ -38,8 +38,8 @@ namespace SimpleScene
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
 			public Color4 outerColor = new Color4(1f, 0f, 0f, 0.25f);
-			public Color4 innerColor = new Color4(1f, 1f, 1f, 0.25f);
-            public float distanceToAlpha = 0.05f;
+			public Color4 innerColor = new Color4(1f, 1f, 1f, 1f);
+            public float distanceToAlpha = 0.20f;
             public float alphaMax = 1f;
             public float alphaMin = 0f;
 

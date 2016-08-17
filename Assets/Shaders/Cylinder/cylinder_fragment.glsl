@@ -220,13 +220,13 @@ void main()
        cylRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
        localPrevJointAxis, localNextJointAxis, debugColor);    
     if (outerDist > 0) {
-        float alpha = clamp(outerDist * distanceToAlpha, alphaMin, alphaMax);
         float innerRadius = cylRadius * varInnerColorRatio;
         float fadeEndRadius = cylRadius * (1 - varOuterColorRatio);
         float innerRadiusSq = innerRadius * innerRadius;
         float fadeEndRadiusSq = fadeEndRadius * fadeEndRadius;
 
         float innerContribution = 0;
+        float outerContribution = outerDist;
         
         vec3 fadeEndIntersections[2];
         int fadeEndIntersectionCount;
@@ -260,13 +260,17 @@ void main()
                = nonLinearFadeContribution(fadeEndIntersections[0], fadeEndIntersections[1],
                                            innerRadius, fadeEndRadius);
             }
+            outerContribution = outerDist - innerContribution;
         }
-        
-        float ratio = innerContribution  / outerDist;
-        //float ratio = innerDist / outerDist;
-        //vec4 color = mix(varCylInnerColor, varCylColor, ratio);
-        vec4 color = mix(varCylColor, varCylInnerColor, ratio);
-        gl_FragColor = vec4(color.rgb, color.a * alpha);
+
+        //float alpha = clamp(outerDist * distanceToAlpha, alphaMin, alphaMax);
+        float innerFactor = innerContribution * varCylInnerColor.a;
+        float outerFactor = outerContribution * varCylColor.a;
+        float totalFactor = innerFactor + outerFactor;
+        float colorRatio = innerFactor / totalFactor;
+        vec3 colorBase = mix(varCylColor.rgb, varCylInnerColor.rgb, colorRatio);
+        float alpha = totalFactor * distanceToAlpha;
+        gl_FragColor = vec4(colorBase, alpha);
     } else {
          discard;
          // gl_FragColor = vec4(varCylColor.rgb, 0.1); // sem-transparent debugging default
