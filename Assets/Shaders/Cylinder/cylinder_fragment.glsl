@@ -73,7 +73,7 @@ void cylinderIntersections(float radiusSq,
         float b = 2 * dot(localPixelPos.xy, localPixelRay.xy);
         float c = dot(localPixelPos.xy, localPixelPos.xy) - radiusSq;
         float D = b*b - 4*a*c;
-        if (D > 0) { // two solutions
+        if (D >= 0) { // two solutions
             float Dsqrt = sqrt(D);
             {
                 float t1 = (-b - Dsqrt) / (2*a);
@@ -239,8 +239,9 @@ void main()
                 innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
                 localPrevJointAxis, localNextJointAxis,
                 innerIntersections, innerIntersectionCount, debugColor4);
-            if (innerIntersectionCount == 2) {
-                #if false
+            //if (innerIntersectionCount == 2) {
+            if (false) {
+                #if true
                 if (distance(fadeEndIntersections[0], innerIntersections[1])
                   < distance(fadeEndIntersections[0], innerIntersections[0])) {
                         vec3 temp = fadeEndIntersections[0];
