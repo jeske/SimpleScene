@@ -183,8 +183,10 @@ namespace SimpleScene
 
 				if (this.alphaBlendingEnabled) {
 					GL.Enable (EnableCap.Blend);
-                    GL.BlendEquation (renderState.blendEquationMode);
-                    GL.BlendFunc (renderState.blendFactorSrc, renderState.blendFactorDest);
+					GL.BlendEquationSeparate (renderState.blendEquationModeRGB, renderState.blendEquationModeAlpha);
+					GL.BlendFuncSeparate (renderState.blendFactorSrcRGB, renderState.blendFactorDestRGB,
+										  renderState.blendFactorSrcAlpha, renderState.blendFactorDestAlpha);
+					//GL.B
 				} else {
 					GL.Disable (EnableCap.Blend);
 				}
@@ -260,9 +262,13 @@ namespace SimpleScene
         public bool alphaTest = false;
         public bool alphaBlendingOn = false;
         public bool noShader = false;
-        public BlendEquationMode blendEquationMode = BlendEquationMode.FuncAdd;
-        public BlendingFactorSrc blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-        public BlendingFactorDest blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
+        public BlendEquationMode blendEquationModeRGB = BlendEquationMode.FuncAdd;
+        public BlendingFactorSrc blendFactorSrcRGB = BlendingFactorSrc.SrcAlpha;
+		public BlendingFactorDest blendFactorDestRGB = BlendingFactorDest.OneMinusSrcAlpha;
+
+		public BlendEquationMode blendEquationModeAlpha = BlendEquationMode.FuncAdd;
+		public BlendingFactorSrc blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+        public BlendingFactorDest blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 	}
 
 	// abstract base class for all transformable objects (objects, lights, ...)

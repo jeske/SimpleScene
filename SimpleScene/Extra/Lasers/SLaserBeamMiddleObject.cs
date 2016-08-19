@@ -83,8 +83,9 @@ namespace SimpleScene.Demos
             this.renderState.depthWrite = false;
             this.renderState.alphaBlendingOn = true;
             //this.renderState.alphaBlendingOn = false;
-            this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            this.renderState.blendFactorDest = BlendingFactorDest.One;
+            
+			renderState.blendFactorSrcRGB = renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+			renderState.blendFactorDestRGB = renderState.blendFactorDestAlpha = BlendingFactorDest.One;
 
             // reset all mat colors. emission will be controlled during rendering
             this.colorMaterial = new SSColorMaterial(Color4Helper.Zero);

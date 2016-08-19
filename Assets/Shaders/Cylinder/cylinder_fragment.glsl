@@ -56,6 +56,7 @@ void cylinderIntersections(float radiusSq,
                            vec3 localNextJointAxis,
                            out vec3 intersections[2],
                            out int intersectionCount,
+                           out vec3 fadePivot,
                            out vec4 debugColor)
 {
     //vec3 intersections[2];
@@ -64,6 +65,7 @@ void cylinderIntersections(float radiusSq,
     vec3 nextJointPos = vec3(0, 0, halfLength);
  
     debugColor = vec4(0, 0, 0, 1);
+    fadePivot = vec3(0, 0, 0);
     if (abs(localPixelRay.x) > 0.0000001 || abs(localPixelRay.y) > 0.0000001) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
@@ -78,6 +80,7 @@ void cylinderIntersections(float radiusSq,
             {
                 float t1 = (-b - Dsqrt) / (2*a);
                 vec3 intrPos1 = localPixelPos + localPixelRay * t1;
+                fadePivot += (intrPos1 / 2);
                 // check against the bounding planes
                 if (dot(localPrevJointAxis, intrPos1 - prevJointPos) < 0
                  && dot(localNextJointAxis, intrPos1 - nextJointPos) < 0) {
@@ -89,6 +92,7 @@ void cylinderIntersections(float radiusSq,
             {
                 float t2 = (-b + Dsqrt) / (2*a);
                 vec3 intrPos2 = localPixelPos + localPixelRay * t2;
+                fadePivot += (intrPos2 / 2);
                 // check against the bounding planes
                 if (dot(localPrevJointAxis, intrPos2 - prevJointPos) < 0
                  && dot(localNextJointAxis, intrPos2 - nextJointPos) < 0) {
@@ -99,6 +103,7 @@ void cylinderIntersections(float radiusSq,
             }
             //gl_FragColor = varCylColor;
             debugColor.g = 1;
+            
         }
         // D < 0 means no solutions; D == 0 means one solution: the ray is "scraping" the
         // cylinder; we can probably ignore this case
@@ -162,7 +167,10 @@ float cylinderIntersectionDist(float radiusSq,
 {
     vec3 intersections[2];
     int intersectionCount;
-    cylinderIntersections(radiusSq, halfLength, localPixelPos, localPixelRay, localPrevJointAxis, localNextJointAxis, intersections, intersectionCount, debugColor);
+    vec3 fadePivotDummy; // not used
+    cylinderIntersections(radiusSq, halfLength, localPixelPos, localPixelRay, localPrevJointAxis,
+                          localNextJointAxis, intersections, intersectionCount,
+                          fadePivotDummy, debugColor);
     if (intersectionCount == 2) {
         return distance(intersections[0], intersections[1]);
     } else {
@@ -180,16 +188,17 @@ float linearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
     return avgRate * distance(fadeIntr1, fadeIntr2);
 }
 
+#if 0
 // works for finding the maxima for the fade rate, which divides the distance into
 // two linear regions
-float nonLinearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
-                                float rInner, float rFadeEnd)
+float nonLinearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2, float rInner, float rFadeEnd)
 {
-    vec3 diff = fadeIntr2 - fadeIntr1;
-    vec3 pivot;
+    // extend to edges
     #if 1
+    vec3 pivot;
     pivot = (fadeIntr2 + fadeIntr1) / 2;
     #else
+    vec3 diff = fadeIntr2 - fadeIntr1;
     pivot.xy = fadeIntr1.xy - dot(diff.xy, fadeIntr1.xy) * diff.xy / length(diff.xy);
     pivot.z = fadeIntr1.z + distance(pivot.xy, fadeIntr1.xy) / length(diff.xy) * diff.z;
     #endif
@@ -198,6 +207,7 @@ float nonLinearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
     return linearFadeContribution(fadeIntr1, pivot, rInner, rFadeEnd)
          + linearFadeContribution(pivot, fadeIntr2, rInner, rFadeEnd);
 }
+#endif
 
 void main()
 {
@@ -230,18 +240,20 @@ void main()
         
         vec3 fadeEndIntersections[2];
         int fadeEndIntersectionCount;
+        vec3 fadePivot, fadePivotDummy;
         cylinderIntersections(
             fadeEndRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
             localPrevJointAxis, localNextJointAxis,
-            fadeEndIntersections, fadeEndIntersectionCount, debugColor3);
+            fadeEndIntersections, fadeEndIntersectionCount, fadePivot, debugColor3);
         if (fadeEndIntersectionCount == 2) {
             vec3 innerIntersections[2];
             int innerIntersectionCount;
             cylinderIntersections(
                 innerRadiusSq, cylHalfLength, localPixelPos, localPixelRay,
                 localPrevJointAxis, localNextJointAxis,
-                innerIntersections, innerIntersectionCount, debugColor4);
+                innerIntersections, innerIntersectionCount, fadePivotDummy, debugColor4);
             if (innerIntersectionCount == 2) {
+                // inner, uniform density cylinder is intersected
                 if (distance(fadeEndIntersections[0], innerIntersections[1])
                   < distance(fadeEndIntersections[0], innerIntersections[0])) {
                     // ensure intersections are pro
@@ -250,15 +262,28 @@ void main()
                         fadeEndIntersections[1] = temp;
                     }
                 
-                innerContribution = distance(innerIntersections[0], innerIntersections[1]) // reuse pls
+                innerContribution = distance(innerIntersections[0], innerIntersections[1])
                   + linearFadeContribution(fadeEndIntersections[0], innerIntersections[0],
                                            innerRadius, fadeEndRadius)
                   + linearFadeContribution(fadeEndIntersections[1], innerIntersections[1],
                                            innerRadius, fadeEndRadius);
-            } else {
+            } else if (dot(fadePivot,fadePivot) > 0 &&
+                       dot(fadePivot-fadeEndIntersections[0], 
+                           fadeEndIntersections[1]-fadePivot) > 0) {
+                // ray through fade cylinder:
+                // pivot divides non-linear fade contribution into two linear regions
                 innerContribution
-               = nonLinearFadeContribution(fadeEndIntersections[0], fadeEndIntersections[1],
-                                           innerRadius, fadeEndRadius);
+                    = linearFadeContribution(fadeEndIntersections[0], fadePivot,
+                                             innerRadius, fadeEndRadius)
+                    + linearFadeContribution(fadePivot, fadeEndIntersections[1],
+                                             innerRadius, fadeEndRadius);
+            } else {
+                // ray through fade cylinder:
+                // fade pivot outside the segment between intersections. simple linear fade is ok
+                innerContribution
+                    = linearFadeContribution(fadeEndIntersections[0], fadeEndIntersections[1],
+                                             innerRadius, fadeEndRadius);                
+               
             }
             outerContribution = outerDist - innerContribution;
         }

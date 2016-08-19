@@ -35,8 +35,8 @@ namespace SimpleScene.Demos
             renderState.lighted = false;
 
             renderState.alphaBlendingOn = true;
-            renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            renderState.blendFactorDest = BlendingFactorDest.One;
+            renderState.blendFactorSrcRGB = renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+			renderState.blendFactorDestRGB = renderState.blendFactorDestAlpha = BlendingFactorDest.One;
 
             // bypass frustum culling so camera updates are sent to activate particle emission
             renderState.frustumCulling = false;

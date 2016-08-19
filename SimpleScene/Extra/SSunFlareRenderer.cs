@@ -23,9 +23,11 @@ namespace SimpleScene.Demos
                                                   SSunFlareUpdater.defaultSpriteScales.Length)),
                 texture ?? defaultTexture())
         {
-            this.renderState.alphaBlendingOn = true;
-            this.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            this.renderState.blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
+            renderState.alphaBlendingOn = true;
+			renderState.blendFactorSrcRGB 
+				= renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+			renderState.blendFactorDestRGB 
+				= renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 
             addUpdater(new SSunFlareUpdater (camera3dScene, sunDiskObj));
         }

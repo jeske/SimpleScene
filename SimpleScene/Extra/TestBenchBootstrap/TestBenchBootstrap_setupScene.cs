@@ -81,7 +81,7 @@ namespace SimpleScene.Demos
                 Scale = new Vector3(10f)
             };
 
-            environmentScene.AddObject(skyboxCube);
+            //environmentScene.AddObject(skyboxCube);
 
             // add stars
 			skyboxStars = new SStarfieldObject(1600);

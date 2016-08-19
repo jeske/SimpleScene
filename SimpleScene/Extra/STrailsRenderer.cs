@@ -37,9 +37,10 @@ namespace SimpleScene
             public float trailLifetime = 2000f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
-			public Color4 outerColor = new Color4(1f, 0f, 0f, 0.25f);
+			public Color4 outerColor = new Color4(1f, 0f, 1f, 0.25f);
 			public Color4 innerColor = new Color4(1f, 1f, 1f, 1f);
-            public float distanceToAlpha = 0.20f;
+            //public float distanceToAlpha = 0.20f;
+			public float distanceToAlpha = 0.20f;
             public float alphaMax = 1f;
             public float alphaMin = 0f;
 
@@ -83,10 +84,13 @@ namespace SimpleScene
             renderState.depthWrite = false;
             renderState.lighted = false;
 
-            renderState.blendEquationMode = BlendEquationMode.FuncAdd;
-            renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            renderState.blendFactorDest = BlendingFactorDest.One;
-            //renderState.blendFactorDest = BlendingFactorDest.OneMinusSrcAlpha;
+            renderState.blendEquationModeRGB = BlendEquationMode.FuncAdd;
+            renderState.blendFactorSrcRGB = BlendingFactorSrc.SrcAlpha;
+			renderState.blendFactorDestRGB = BlendingFactorDest.One;
+
+			renderState.blendEquationModeAlpha = BlendEquationMode.FuncAdd;
+			renderState.blendFactorSrcAlpha = BlendingFactorSrc.One;
+			renderState.blendFactorDestAlpha = BlendingFactorDest.One;
 
             simulateOnUpdate = true;
 
@@ -137,6 +141,16 @@ namespace SimpleScene
             _prepareAttribute(_innerColorRatioBuffer, _shader.AttrInnerColorRatio, trailsData.innerColorRatios);
             _prepareAttribute(_outerColorRatioBuffer, _shader.AttrOuterColorRatio, trailsData.outerColorRatios);
         }
+
+		public override void Render (SSRenderConfig renderConfig)
+		{
+			GL.ColorMask (false, false, false, true);
+			GL.ClearColor (0f, 0f, 0f, 0f);
+			GL.Clear (ClearBufferMask.ColorBufferBit);
+			GL.ColorMask (true, true, true, true);
+
+			base.Render (renderConfig);
+		}
 
         public class STrailsData : SSParticleSystemData
         {
@@ -403,7 +417,8 @@ namespace SimpleScene
                     Vector3 prevJointPos = prevCenter + prevAxis * prevLength / 2f;
                     Vector3 nextJointPos = _newSplinePos;
                     Vector3 diff = (nextJointPos - prevJointPos);
-                    ts.cylLendth = diff.Length;
+					ts.cylLendth = diff.Length;
+					//ts.cylLendth *= 0.75f;
                     ts.cylAxis = ts.nextJointAxis = diff / ts.cylLendth;
                     ts.pos = (nextJointPos + prevJointPos) / 2f;
                     Vector3 avgAxis = (prevAxis + ts.cylAxis).Normalized();
@@ -512,7 +527,7 @@ namespace SimpleScene
                 public Vector3 cylAxis = -Vector3.UnitZ;
                 public Vector3 prevJointAxis = -Vector3.UnitZ;
                 public Vector3 nextJointAxis = -Vector3.UnitZ;
-                public Color4 cylInnerColor = Color4.Red;
+				public Color4 cylInnerColor = Color4.Magenta;
                 /// <summary> inner cylinder is 100% inner color. Its radius is innerColorRatio * total radius /// </summary>
                 public float innerColorRatio = 0.3f; 
                 /// <summary> outer tube is 100% outer color. It begins at outerColorRatio * total radius, and ends at total radius // </summary>
