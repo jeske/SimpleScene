@@ -13,16 +13,16 @@ namespace SimpleScene
     {
         public delegate Vector3 VelocityFunc ();
         public delegate Vector3 PositionFunc ();
-        public delegate Vector3 DirFunc();
-
+        public delegate Vector3 FwdFunc();
+		public delegate Vector3 UpFunc();
 
         public class STrailsParameters
         {
-            public int capacity = 2000;
-            public float trailWidth = 5f;
+            public int capacity = 1000;
+            public float trailWidth = 3f;
 
 			#if !TRAILS_SLOW
-            public float trailsEmissionInterval = 0.05f;
+            public float trailsEmissionInterval = 0.02f;
 			public int numCylindersPerEmissionMax = 5;
 			#else
 			// debugging options
@@ -38,19 +38,47 @@ namespace SimpleScene
             public float trailLifetime = 2000f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
-			public Color4 outerColor = new Color4(1f, 0.5f, 0f, 0.25f);
-			public Color4 innerColor = new Color4(1f, 1f, 1f, 1f);
             //public float distanceToAlpha = 0.20f;
-			public float distanceToAlpha = 0.20f;
-            public float alphaMax = 1f;
+			public float distanceToAlpha = 0.40f;
+            
+			public float alphaMax = 1f;
             public float alphaMin = 0f;
+			public Color4[] outerColors = new Color4[] { 
+				new Color4(1f, 0f, 0f, 0.25f),
+				new Color4(0f, 1f, 0f, 0.25f) 
+			};
+			public Color4[] innerColors = new Color4[] { new Color4(1f, 1f, 1f, 1f) };
+			public Vector3[] localJetDirs = new Vector3[] { -Vector3.UnitZ };
+			public Vector3[] localJetOffsets = new Vector3[] {
+				new Vector3(-2f, 0f, +2f),
+				new Vector3(+2f, 0f, +2f)
+				//new Vector3(0f, 0f, -5f),
+				//new Vector3(0f, 0f, 5f)
+			};
 
-            //public string textureFilename = "trail.png";
+			public int numJets { get { return localJetOffsets.Length; } }
+
+			public Vector3 localJetDir(int idx) 
+			{
+				return localJetDirs [Math.Min (idx, localJetDirs.Length - 1)];
+			}
+
+			public Color4 outerColor(int idx) 
+			{
+				return outerColors [Math.Min (idx, outerColors.Length - 1)];
+			}
+
+			public Color4 innerColor(int idx) 
+			{
+				return innerColors [Math.Min (idx, innerColors.Length - 1)];
+			}
 
             // default value
             public STrailsParameters()
             {
             }
+
+			//public string textureFilename = "trail.png";
         }
 
         public STrailsData trailsData {
@@ -67,9 +95,9 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> _innerColorRatioBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _outerColorRatioBuffer;
 
-        public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
+		public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
             STrailsParameters trailsParams = null)
-            : base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, 
+			: base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, upFunc,
                 trailsParams ?? new STrailsParameters()),
                 SSTexturedCube.Instance, _defaultUsageHint)
         {
@@ -160,6 +188,7 @@ namespace SimpleScene
         {
             public readonly STrailsParameters trailsParams;
 
+			#region attribute array accessors
             public SSAttributeVec3[] cylinderAxes { get { return _cylAxes; } }
             public SSAttributeVec3[] prevJointAxes { get { return _prevJointAxes; } }
             public SSAttributeVec3[] nextJointAxes { get { return _nextJointAxes; } }
@@ -168,9 +197,9 @@ namespace SimpleScene
             public SSAttributeColor[] innerColors { get { return _cylInnerColors; } }
             public SSAttributeFloat[] innerColorRatios { get { return _innerColorRatios; } }
             public SSAttributeFloat[] outerColorRatios { get { return _outerColorRatios; } }
+			#endregion
 
-            protected ushort _headSegmentIdx = STrailsSegment.NotConnected;
-            protected ushort _tailSegmentIdx = STrailsSegment.NotConnected;
+			#region attribute arrays
             protected ushort[] _nextSegmentData = null;
             protected ushort[] _prevSegmentData = null;
             protected SSAttributeColor[] _cylInnerColors;
@@ -181,35 +210,69 @@ namespace SimpleScene
             protected SSAttributeVec3[] _nextJointAxes = null;
             protected SSAttributeFloat[] _cylLengths = null;
             protected SSAttributeFloat[] _cylWidths = null;
-            protected readonly STrailUpdater _updater;
+			#endregion
+            
+			#region array management
+			protected readonly ushort[] _headSegmentIdxs;
+			protected readonly ushort[] _tailSegmentIdxs;
+			#endregion
 
-            protected PositionFunc positionFunc;
-            protected VelocityFunc velocityFunc;
-            protected Vector3 _prevSplineIntervalEndPos;
-            protected Vector3 _prevSplineIntervalEndSlope;
+			#region spline generation
+	        protected PositionFunc _positionFunc;
+            protected VelocityFunc _velocityFunc;
+			protected FwdFunc _fwdFunc;
+			protected UpFunc _upFunc;
+			protected Matrix4[] _localJetOrients;
+            protected Vector3[] _prevSplineIntervalEndPos;
+            protected Vector3[] _prevSplineIntervalEndSlope;
             protected Vector3 _newSplinePos;
-            protected float splineEmissionCounter = 0f;
+            protected float _splineEmissionCounter = 0f;
+			protected int _jetIndex = 0;
+			#endregion
 
-            public STrailsData(PositionFunc positionFunc, VelocityFunc velocityFunc, DirFunc fwdDirFunc,
+			#region cylinder updates
+			protected readonly STrailUpdater _updater;
+			#endregion
+
+            public STrailsData(
+				PositionFunc positionFunc, VelocityFunc velocityFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
                 STrailsParameters trailsParams = null)
                 : base(trailsParams.capacity)
             {
                 this.trailsParams = trailsParams;
-                this.positionFunc = positionFunc;
-                this.velocityFunc = velocityFunc;
+                this._positionFunc = positionFunc;
+                this._velocityFunc = velocityFunc;
+				this._fwdFunc = fwdDirFunc;
+				this._upFunc = upFunc;
 
-                //_headEmitter = new TrailEmitter(positionFunc, velocityFunc, trailParams);
+				_headSegmentIdxs = new ushort[trailsParams.numJets];
+				_tailSegmentIdxs = new ushort[trailsParams.numJets];
+				_prevSplineIntervalEndPos = new Vector3[trailsParams.numJets];
+				_prevSplineIntervalEndSlope = new Vector3[trailsParams.numJets];
+				_localJetOrients = new Matrix4[trailsParams.numJets];
 
-                //addEmitter(new STrailsEmitter(trailsParams, positionFunc, velocityFunc, fwdDirFunc));
+				Vector3 pos = _positionFunc();
+				Vector3 fwd = _fwdFunc ();
+				Vector3 up = _upFunc ();
+				Vector3 right = Vector3.Cross (fwd, up);
+				Matrix4 globalOrient = new Matrix4 (
+					new Vector4 (right, 0f),
+					new Vector4 (up, 0f),
+					new Vector4 (fwd, 0f),
+					new Vector4 (0f, 0f, 0f, 1f));
+
+				for (int i = 0; i < trailsParams.numJets; ++i) {
+					_headSegmentIdxs[i] = STrailsSegment.NotConnected;
+					_tailSegmentIdxs[i] = STrailsSegment.NotConnected;
+					Vector3 localFwd = trailsParams.localJetDir(i);
+					_localJetOrients[i] = OpenTKHelper.neededRotationMat(-Vector3.UnitZ, localFwd);
+					jetTxfm(i, ref pos, ref globalOrient, 
+						out _prevSplineIntervalEndPos[i], out _prevSplineIntervalEndSlope[i]);
+
+				}
 
                 _updater = new STrailUpdater(trailsParams);
                 addEffector(_updater);
-
-                _prevSplineIntervalEndPos = positionFunc();
-                Vector3 vel = velocityFunc();
-                float velLength = vel.Length;
-                _prevSplineIntervalEndSlope = velLength > 0 ? (vel / velLength) : fwdDirFunc();
-                    
             }
 
             protected override void initArrays ()
@@ -327,31 +390,33 @@ namespace SimpleScene
                     }
                 }
 
-                if (leftIdx == _headSegmentIdx) {
-                    _headSegmentIdx = (ushort)rightIdx;
-                    #if TRAILS_DEBUG
+				for (int i = 0; i < trailsParams.numJets; ++i) {
+					if (leftIdx == _headSegmentIdxs[i]) {
+						_headSegmentIdxs[i] = (ushort)rightIdx;
+						#if TRAILS_DEBUG
                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head = " + _headSegmentIdx
                         + ", head pos " + _readElement(_positions, _headSegmentIdx).Value); 
-                    #endif
-                } else if (rightIdx == _headSegmentIdx) {
-                    _headSegmentIdx = (ushort)leftIdx;
-                    #if TRAILS_DEBUG
+						#endif
+					} else if (rightIdx == _headSegmentIdxs[i]) {
+						_headSegmentIdxs[i] = (ushort)leftIdx;
+						#if TRAILS_DEBUG
                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; head =d " + _headSegmentIdx
                         + ", head pos " + _readElement(_positions, _headSegmentIdx).Value);
-                    #endif
-                }
+						#endif
+					}
 
-                if (leftIdx == _tailSegmentIdx) {
-                    _tailSegmentIdx = (ushort)rightIdx;
-                    #if TRAILS_DEBUG
+					if (leftIdx == _tailSegmentIdxs[i]) {
+						_tailSegmentIdxs[i] = (ushort)rightIdx;
+						#if TRAILS_DEBUG
                      Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
-                    #endif
-                } else if (rightIdx == _tailSegmentIdx) {
-                    _tailSegmentIdx = (ushort)leftIdx;
-                    #if TRAILS_DEBUG
+						#endif
+					} else if (rightIdx == _tailSegmentIdxs[i]) {
+						_tailSegmentIdxs[i] = (ushort)leftIdx;
+						#if TRAILS_DEBUG
                     Console.WriteLine("swap: " + leftIdx + " and " + rightIdx + "; tail = " + _tailSegmentIdx);
-                    #endif
-                }
+						#endif
+					}
+				}
 
                 //Console.Write(" after swap " + leftIdx + " and " + rightIdx + ": ");
                 //printTree();
@@ -360,64 +425,94 @@ namespace SimpleScene
             protected override void simulateStep ()
             {
                 // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
-                splineEmissionCounter += simulationStep;
-                if (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
-                    while (splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
-                        splineEmissionCounter -= trailsParams.trailsEmissionInterval;
+                _splineEmissionCounter += simulationStep;
+                if (_splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
+                    while (_splineEmissionCounter >= trailsParams.trailsEmissionInterval) {
+                        _splineEmissionCounter -= trailsParams.trailsEmissionInterval;
                     }
-                    Vector3 slope = velocityFunc();
-                    Vector3 pos = positionFunc();
-                    Vector3 diff = pos - _prevSplineIntervalEndPos;
-                    if (diff.LengthFast >= trailsParams.minSegmentLength) {
-                        float angleBetweenSlopes = Vector3.CalculateAngle(slope, _prevSplineIntervalEndSlope);
-                        int numCylinders = (int)(angleBetweenSlopes / trailsParams.radiansPerExtraCylinder);
-                        numCylinders = Math.Max(numCylinders, trailsParams.numCylindersPerEmissionMin);
-                        numCylinders = Math.Min(numCylinders, trailsParams.numCylindersPerEmissionMax);
-                        if (numCylinders == 1) {
-							_newSplinePos = pos;
-							storeNewParticle(createNewParticle());
-                        } else {
-                            float dt = 1f / numCylinders;
-                            for (int i = 1; i <= numCylinders; ++i) {
-                                float t = i * dt;
-                                float tSq = t * t;
-                                float tMinusOne = t - 1;
-                                float tMinusOneSq = tMinusOne * tMinusOne;
-                                float h00 = (1 + 2 * t) * tMinusOneSq;
-                                float h10 = t * tMinusOneSq;
-                                float h01 = tSq * (3 - 2 * t);
-                                float h11 = tSq * tMinusOne;
-                                //float slopeScale = pos - _prevSplineIntervalEndPos;
 
-                                _newSplinePos = h00 * _prevSplineIntervalEndPos + h10 * _prevSplineIntervalEndSlope * trailsParams.trailsEmissionInterval
-                                + h01 * pos + h11 * slope * trailsParams.trailsEmissionInterval;
-								storeNewParticle(createNewParticle());
-                            }
-                        }
-                        _prevSplineIntervalEndPos = pos;
-                        _prevSplineIntervalEndSlope = slope;
-                    }
+					Vector3 pos = _positionFunc ();
+
+					Vector3 fwd = _fwdFunc ();
+					Vector3 up = _upFunc ();
+					Vector3 right = Vector3.Cross (fwd, up);
+					Matrix4 globalOrient = new Matrix4 (
+                       new Vector4 (right, 0f),
+                       new Vector4 (up, 0f),
+                       new Vector4 (fwd, 0f),
+                       new Vector4 (0f, 0f, 0f, 1f));
+					for (int i = 0; i < trailsParams.numJets; ++i) {
+						Vector3 jetPos, jetFwd;
+						jetTxfm (i, ref pos, ref globalOrient, out jetPos, out jetFwd);
+						generateSplines (i, ref jetPos, ref jetFwd);
+					}
                 }
 
                 base.simulateStep();
             }
 
+			protected void jetTxfm(int jetIdx, ref Vector3 pos, ref Matrix4 globalOrient,
+				out Vector3 jetPos, out Vector3 jetFwd)
+			{
+				Vector3 offset = trailsParams.localJetOffsets [jetIdx];
+				Matrix4 combinedOrient = _localJetOrients[jetIdx] * globalOrient;
+				jetPos = pos + Vector3.Transform (offset, combinedOrient);
+				jetFwd = Vector3.Transform (Vector3.UnitZ, combinedOrient);
+			}
+
+			protected void generateSplines(int jetIdx, ref Vector3 jetPos, ref Vector3 jetSlope)
+			{
+				_jetIndex = jetIdx;
+				Vector3 diff = jetPos - _prevSplineIntervalEndPos[jetIdx];
+				if (diff.LengthFast >= trailsParams.minSegmentLength) {
+					Vector3 prevSlope = _prevSplineIntervalEndSlope [jetIdx];
+					Vector3 prevPos = _prevSplineIntervalEndPos [jetIdx];
+					float angleBetweenSlopes = Vector3.CalculateAngle(jetSlope, prevSlope);
+					int numCylinders = (int)(angleBetweenSlopes / trailsParams.radiansPerExtraCylinder);
+					numCylinders = Math.Max(numCylinders, trailsParams.numCylindersPerEmissionMin);
+					numCylinders = Math.Min(numCylinders, trailsParams.numCylindersPerEmissionMax);
+					if (numCylinders == 1) {
+						_newSplinePos = jetPos;
+						storeNewParticle(createNewParticle());
+					} else {
+						float dt = 1f / numCylinders;
+						for (int i = 1; i <= numCylinders; ++i) {
+							float t = i * dt;
+							float tSq = t * t;
+							float tMinusOne = t - 1;
+							float tMinusOneSq = tMinusOne * tMinusOne;
+							float h00 = (1 + 2 * t) * tMinusOneSq;
+							float h10 = t * tMinusOneSq;
+							float h01 = tSq * (3 - 2 * t);
+							float h11 = tSq * tMinusOne;
+							//float slopeScale = pos - _prevSplineIntervalEndPos;
+
+							_newSplinePos = h00 * prevPos + h10 * prevSlope * trailsParams.trailsEmissionInterval
+								+ h01 * jetPos + h11 * jetSlope * trailsParams.trailsEmissionInterval;
+							storeNewParticle(createNewParticle());
+						}
+					}
+					_prevSplineIntervalEndPos[jetIdx] = jetPos;
+					_prevSplineIntervalEndSlope[jetIdx] = jetSlope;
+				}
+			}
+
             protected override int storeNewParticle (SSParticle newParticle)
             {
                 var ts = (STrailsSegment)newParticle;
-				ts.color = trailsParams.outerColor;
-				ts.cylInnerColor = trailsParams.innerColor;
+				ts.color = trailsParams.outerColor(_jetIndex);
+				ts.cylInnerColor = trailsParams.innerColor(_jetIndex);
                 ts.life = trailsParams.trailLifetime;
                 ts.vel = Vector3.Zero;
                 ts.cylWidth = trailsParams.trailWidth;
                 //ts.color = Color4.White;
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
 
-                ts.prevSegmentIdx = _headSegmentIdx;
-                if (_headSegmentIdx != STrailsSegment.NotConnected) {
-                    Vector3 prevCenter = _readElement(_positions, _headSegmentIdx).Value;
-                    float prevLength = _readElement(_cylLengths, _headSegmentIdx).Value;
-                    Vector3 prevAxis = _readElement(_cylAxes, _headSegmentIdx).Value;
+				ts.prevSegmentIdx = _headSegmentIdxs[_jetIndex];
+				if (_headSegmentIdxs[_jetIndex] != STrailsSegment.NotConnected) {
+					Vector3 prevCenter = _readElement(_positions, _headSegmentIdxs[_jetIndex]).Value;
+					float prevLength = _readElement(_cylLengths, _headSegmentIdxs[_jetIndex]).Value;
+					Vector3 prevAxis = _readElement(_cylAxes, _headSegmentIdxs[_jetIndex]).Value;
                     Vector3 prevJointPos = prevCenter + prevAxis * prevLength / 2f;
                     Vector3 nextJointPos = _newSplinePos;
                     Vector3 diff = (nextJointPos - prevJointPos);
@@ -429,18 +524,18 @@ namespace SimpleScene
                     ts.pos = (nextJointPos + prevJointPos) / 2f;
                     Vector3 avgAxis = (prevAxis + ts.cylAxis).Normalized();
                     ts.prevJointAxis = -avgAxis;
-                    writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdx, new SSAttributeVec3 (avgAxis));
+					writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdxs[_jetIndex], new SSAttributeVec3 (avgAxis));
                 } else {
                     ts.pos = _newSplinePos;
                     ts.cylWidth = trailsParams.trailWidth;
                     ts.cylLendth = 0f;
-                    ts.cylAxis = ts.nextJointAxis = -Vector3.UnitZ;
+                    ts.cylAxis = ts.nextJointAxis = Vector3.UnitX;
                     ts.prevJointAxis = -ts.cylAxis;
-                    ts.pos = positionFunc();
+                    ts.pos = _positionFunc();
                 }
 
-                if (numElements >= capacity && _tailSegmentIdx != STrailsSegment.NotConnected) {
-                    _nextIdxToOverwrite = _tailSegmentIdx;
+				if (numElements >= capacity && _tailSegmentIdxs[_jetIndex] != STrailsSegment.NotConnected) {
+					_nextIdxToOverwrite = _tailSegmentIdxs[_jetIndex];
                 }
 
                 #if TRAILS_DEBUG
@@ -449,13 +544,13 @@ namespace SimpleScene
                 #endif
 
                 ushort newHead = (ushort)base.storeNewParticle(newParticle);
-                if (_headSegmentIdx != STrailsSegment.NotConnected) {
-                    writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdx, (ushort)newHead);
+				if (_headSegmentIdxs[_jetIndex] != STrailsSegment.NotConnected) {
+					writeDataIfNeeded(ref _nextSegmentData, _headSegmentIdxs[_jetIndex], (ushort)newHead);
                 }
-                _headSegmentIdx = newHead;
+				_headSegmentIdxs[_jetIndex] = newHead;
 
-                if (_tailSegmentIdx == STrailsSegment.NotConnected) {
-                    _tailSegmentIdx = newHead;
+				if (_tailSegmentIdxs[_jetIndex] == STrailsSegment.NotConnected) {
+					_tailSegmentIdxs[_jetIndex] = newHead;
                     #if TRAILS_DEBUG
                     Console.WriteLine("new tail = " + _tailSegmentIdx);
                     #endif
@@ -465,7 +560,7 @@ namespace SimpleScene
                 Console.Write("after new particle, numElements = {0}: ", numElements);
                 printTree();
                 #endif
-                return _headSegmentIdx;
+				return _headSegmentIdxs[_jetIndex];
             }
 
             protected override void destroyParticle (int idx)
@@ -486,13 +581,14 @@ namespace SimpleScene
                 if (next != STrailsSegment.NotConnected) {
                     writeDataIfNeeded(ref _prevSegmentData, next, prev);
                 }
-
-                if (idx == _tailSegmentIdx) {
-                    _tailSegmentIdx = (ushort)next;
-                }
-                if (idx == _headSegmentIdx) {
-                    _headSegmentIdx = (ushort)prev;
-                }
+				for (int j = 0; j < trailsParams.numJets; ++j) {
+					if (idx == _tailSegmentIdxs[j]) {
+						_tailSegmentIdxs[j] = (ushort)next;
+					}
+					if (idx == _headSegmentIdxs[j]) {
+						_headSegmentIdxs[j] = (ushort)prev;
+					}
+				}
 
                 base.destroyParticle(idx);
                 _prevSegmentData [idx] = STrailsSegment.NotConnected;
@@ -508,22 +604,25 @@ namespace SimpleScene
 
             protected void printTree(bool dir = false)
             {
-                if (dir) {
-                    int safety = 0;
-                    int idx = _headSegmentIdx;
-                    while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
-                        Console.Write(idx + " < ");
-                        idx = _readElement(_prevSegmentData, idx);
-                    }
-                } else {
-                    int safety = 0;
-                    int idx = _tailSegmentIdx;
-                    while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
-                        Console.Write(idx + " > ");
-                        idx = _readElement(_nextSegmentData, idx);
-                    }
-                }
-                Console.Write("\n");
+				for (int j = 0; j < trailsParams.numJets; ++j) {
+					Console.Write ("jet #" + j + ": ");
+					if (dir) {
+						int safety = 0;
+						int idx = _headSegmentIdxs[j];
+						while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
+							Console.Write (idx + " < ");
+							idx = _readElement (_prevSegmentData, idx);
+						}
+					} else {
+						int safety = 0;
+						int idx = _tailSegmentIdxs[j];
+						while (idx != STrailsSegment.NotConnected && ++safety <= _capacity) {
+							Console.Write (idx + " > ");
+							idx = _readElement (_nextSegmentData, idx);
+						}
+					}
+					Console.Write ("\n");
+				}
             }
 
             public class STrailsSegment : SSParticle
@@ -548,12 +647,12 @@ namespace SimpleScene
             {
                 public PositionFunc posFunc;
                 public VelocityFunc velFunc;
-                public DirFunc fwdDirFunc;
+                public FwdFunc fwdDirFunc;
                 public STrailsParameters trailParams;
                 public float velocityToScaleFactor = 1f; 
 
                 public STrailsEmitter(STrailsParameters tParams, 
-                    PositionFunc posFunc, VelocityFunc velFunc, DirFunc fwdDirFunc)
+                    PositionFunc posFunc, VelocityFunc velFunc, FwdFunc fwdDirFunc)
                 {
                     this.trailParams = tParams;
                     this.posFunc = posFunc;

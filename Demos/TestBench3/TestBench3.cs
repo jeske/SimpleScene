@@ -164,7 +164,8 @@ namespace TestBench3
             var trailsRenderer = new STrailsRenderer(
                 () => vandalShip.Pos,
                 () => vandalVelocity,
-                () => vandalShip.Dir
+                () => vandalShip.Dir,
+				() => vandalShip.Up
             );
             alpha3dScene.AddObject(trailsRenderer);
             //hud2dScene.AddObject(trailsRenderer);
@@ -381,7 +382,8 @@ namespace TestBench3
             if (timeElapsed <= 0f) return;
 
             // make the target drone move from side to side
-            localTime += timeElapsed;
+            //localTime += timeElapsed;
+			localTime += timeElapsed * 0.3f;
             Vector3 pos = targetDrone.Pos;
             pos.Z = 30f * (float)Math.Sin(localTime);
             targetDrone.Pos = pos;
@@ -389,14 +391,15 @@ namespace TestBench3
             // make the vandal ship orbit missile target
             Vector3 desiredPos;
             Vector3 desiredDir;
-            float angle = localTime * 0.5f;
+			float angle = localTime * 0.5f;
+			//float angle = localTime * 0.01f;
             #if true
             float desiredXOffset = 100f * (float)Math.Cos(angle);
             float desiredYOffset = 20f * (float)Math.Sin(angle * 0.77f);
             float desiredZOffset = 80f * (float)Math.Sin(angle * 0.88f);
             #else
-            float desiredXOffset = 1000f * (float)Math.Cos(angle);
-            float desiredYOffset = 1000f * (float)Math.Sin(angle);
+            float desiredXOffset = 100f * (float)Math.Cos(angle);
+            float desiredYOffset = 100f * (float)Math.Sin(angle);
             float desiredZOffset = 0f;
             #endif
 
@@ -409,7 +412,7 @@ namespace TestBench3
             }
             else if (target == main3dScene.ActiveCamera) {
                 desiredPos = main3dScene.ActiveCamera.Pos + -main3dScene.ActiveCamera.Dir * 300f;
-                Quaternion cameraOrient = OpenTKHelper.neededRotation(Vector3.UnitZ, -main3dScene.ActiveCamera.Up);
+                Quaternion cameraOrient = OpenTKHelper.neededRotationQuat(Vector3.UnitZ, -main3dScene.ActiveCamera.Up);
                 desiredPos += Vector3.Transform(desiredOffset * 0.1f, cameraOrient); 
                 desiredDir = (target.Pos - vandalShip.Pos).Normalized();
 
@@ -432,7 +435,7 @@ namespace TestBench3
             vandalVelocity = (vandalNewPos - vandalShip.Pos) / timeElapsed;
             vandalShip.Pos = vandalNewPos;
 
-            Quaternion vandalOrient = OpenTKHelper.neededRotation(Vector3.UnitZ, desiredDir);
+            Quaternion vandalOrient = OpenTKHelper.neededRotationQuat(Vector3.UnitZ, desiredDir);
             vandalShip.Orient(desiredDir, Vector3.Transform(Vector3.UnitY, vandalOrient));
         }
 
@@ -455,7 +458,7 @@ namespace TestBench3
                 // normalize
                 toTarget /= length;
             }
-            Quaternion orientQuat = OpenTKHelper.neededRotation(Vector3.UnitZ, toTarget);
+            Quaternion orientQuat = OpenTKHelper.neededRotationQuat(Vector3.UnitZ, toTarget);
             Matrix4 orientMat = Matrix4.CreateFromQuaternion(orientQuat);
             Matrix4 disperalMat = Matrix4.CreateTranslation(sideDispersal * (float)Math.Cos(angle), 
                                       sideDispersal * (float)Math.Sin(angle), 0f);

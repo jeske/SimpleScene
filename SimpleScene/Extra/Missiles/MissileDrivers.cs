@@ -166,7 +166,7 @@ namespace SimpleScene.Demos
             // make visual direction "lean into" velocity
             Vector3 axis;
             float angle;
-            OpenTKHelper.neededRotation(missile.visualDirection, missile.velocity.Normalized(),
+            OpenTKHelper.neededRotationAxisAngle(missile.visualDirection, missile.velocity.Normalized(),
                 out axis, out angle);
             float abs = Math.Abs(angle);
             if (abs > mParams.pursuitVisualRotationRate && abs > 0f) {

@@ -82,45 +82,72 @@ namespace SimpleScene
 			return new Vector3 (gamma - (float)Math.PI, theta, phi);
         }
 
-        /// <summary>
-        /// Quaterionon needed to transform direction dir1 into direction dir2
-        /// </summary>
-        public static Quaternion neededRotation(Vector3 dir1, Vector3 dir2, bool normalize = true)
+		public static void neededRotationAxisAngle(Vector3 dir1, Vector3 dir2, out Vector3 axis, out float angle, 
+			bool normalizeInput = true)
         {
-            if (normalize) {
-                dir1.Normalize();
-                dir2.Normalize();
-            }
-            Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
-            if (float.IsNaN(crossNormalized.X)) {
-                // this means dir1 is parallel to dir2. we can do it less cryptically but why add processing?
-                if (dir1 == -dir2) {
-                    Vector3 perpAxis1, perpAxis2;
-                    TwoPerpAxes(dir1, out perpAxis1, out perpAxis2);
-                    return Quaternion.FromAxisAngle(perpAxis1, (float)Math.PI);
-                } else {
-                    return Quaternion.Identity;
-                }
-            }
+			if (normalizeInput) {
+				dir1.Normalize ();
+				dir2.Normalize ();
+			}
+            Vector3 cross = Vector3.Cross(dir1, dir2);
+			float crossLength = cross.Length;
+			if (crossLength <= float.Epsilon) {
+				// 180 deg rotation special case
+				Vector3 dummyAxis;
+				TwoPerpAxes (dir1, out axis, out dummyAxis);
+				angle = (float)Math.PI;
+			} else {
+				axis = cross / crossLength;
+				float dot = Vector3.Dot (dir1, dir2);
+				if (dot >= 1f) {
+					// do this because Acos function below returns NaN when input is 1
+					angle = 0f;
+				} else {
+					angle = (float)Math.Acos (dot);
+				}
+			}
 
-            float dot = Vector3.Dot(dir1, dir2);
-            float angle = (float)Math.Acos(dot);
-            return Quaternion.FromAxisAngle(crossNormalized, angle);
+			#if false
+			if (normalize) {
+			dir1.Normalize();
+			dir2.Normalize();
+			}
+			Vector3 crossNormalized = Vector3.Cross(dir1, dir2).Normalized();
+			if (float.IsNaN(crossNormalized.X)) {
+			// this means dir1 is parallel to dir2. we can do it less cryptically but why add processing?
+			if (dir1 == -dir2) {
+			Vector3 perpAxis1, perpAxis2;
+			TwoPerpAxes(dir1, out perpAxis1, out perpAxis2);
+			return Quaternion.FromAxisAngle(perpAxis1, (float)Math.PI);
+			} else {
+			return Quaternion.Identity;
+			}
+			}
+
+			float dot = Vector3.Dot(dir1, dir2);
+			float angle = (float)Math.Acos(dot);
+			return Quaternion.FromAxisAngle(crossNormalized, angle);
+			#endif
         }
 
-        public static void neededRotation(Vector3 dir1, Vector3 dir2, out Vector3 axis, out float angle)
-        {
-            dir1.Normalize();
-            dir2.Normalize();
-            axis = Vector3.Cross(dir1, dir2).Normalized();
-            float dot = Vector3.Dot(dir1, dir2);
-            if (dot >= 1f) {
-                // do this because Acos function below returns NaN when input is 1
-                angle = 0f;
-            } else {
-                angle = (float)Math.Acos(dot);
-            }
-        }
+		/// <summary>
+		/// Quaterionon needed to transform direction dir1 into direction dir2
+		/// </summary>
+		public static Quaternion neededRotationQuat(Vector3 dir1, Vector3 dir2, bool normalize = true)
+		{
+			Vector3 axis;
+			float angle;
+			neededRotationAxisAngle (dir1, dir2, out axis, out angle, normalize);
+			return Quaternion.FromAxisAngle (axis, angle);
+		}
+
+		public static Matrix4 neededRotationMat(Vector3 dir1, Vector3 dir2, bool normalize = true)
+		{
+			Vector3 axis;
+			float angle;
+			neededRotationAxisAngle (dir1, dir2, out axis, out angle, normalize);
+			return Matrix4.CreateFromAxisAngle (axis, angle);
+		}
 			       
         /// <summary>
         /// Distance from a ray to a point at the closest spot. The ray is assumed to be infinite length.
