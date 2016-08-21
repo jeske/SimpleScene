@@ -24,7 +24,7 @@ varying float varOuterColorRatio;
 
 const int NUM_LAYERS = 3;
 const int OUTER = 0;
-const int OUTER_OFFSET = 0;
+const int OUTER_OFFSET = OUTER * 2;
 const int FADE = 1;
 const int FADE_OFFSET = FADE * 2;
 const int INNER = 2;
@@ -71,7 +71,7 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
     vec3 nextJointPos = vec3(0, 0, halfLength);
  
     fadePivot = vec3(0, 0, 0);
-    if (abs(localPixelRay.x) > 0.0000001 || abs(localPixelRay.y) > 0.0000001) {
+    if (abs(localPixelRay.x) > 0 || abs(localPixelRay.y) > 0) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
         // (dir_x^2 + dir_y^2) * t^2 + [2(p_x * dir_x + py * dir_y)] * t
@@ -93,8 +93,8 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
                         fadePivot += (intrPos1 / 2);
                     }
                     // check against the bounding planes
-                    if (dot(localPrevJointAxis, intrPos1 - prevJointPos) < 0
-                     && dot(localNextJointAxis, intrPos1 - nextJointPos) < 0) {
+                    if (dot(localPrevJointAxis, intrPos1 - prevJointPos) <= 0
+                     && dot(localNextJointAxis, intrPos1 - nextJointPos) <= 0) {
                         intersections[intrOffset + intersectionCount] = intrPos1;
                         intersectionCount++;
                         debugColor[i].r += 0.5;
@@ -107,8 +107,8 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
                         fadePivot += (intrPos2 / 2);
                     }
                     // check against the bounding planes
-                    if (dot(localPrevJointAxis, intrPos2 - prevJointPos) < 0
-                     && dot(localNextJointAxis, intrPos2 - nextJointPos) < 0) {
+                    if (dot(localPrevJointAxis, intrPos2 - prevJointPos) <= 0
+                     && dot(localNextJointAxis, intrPos2 - nextJointPos) <= 0) {
                         intersections[intrOffset + intersectionCount] = intrPos2;
                         intersectionCount++;
                     }
@@ -124,11 +124,10 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
             }
         }
     }   
-    if (abs(localPixelRay.z) > 0.00001) {
+    if (abs(localPixelRay.z) > 0) {
         // dont have the two intersections yet and the pixel ray is not parallel to
         // cylinder planes; test for cylinder's plane #1 and/or #2
         // solve: n . (p0 + dir * t - r0) == 0
-        //float t3 = (cylHalfLength - localPixelPos.z) / localPixelRay.z;
         float t3 = (localPrevJointAxis.z * -halfLength - dot(localPrevJointAxis, localPixelPos))
             / dot(localPrevJointAxis, localPixelRay);
         vec3 intrPos3 = localPixelPos + localPixelRay * t3;
@@ -142,19 +141,20 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
         for (int i = 0; i < NUM_LAYERS; ++i) {
             int intersectionCount = intersectionCounts[i];
             int intrOffset = i * 2;
-            if (intersectionCount < 2 && dist3 < radiusesSq[i]) {
+            if (intersectionCount < 2 && dist3 <= radiusesSq[i]) {
                 intersections[intrOffset + intersectionCount] = intrPos3;
                 intersectionCount++;
                 debugColor[i].b = 1;
             }
-            if (intersectionCount < 2 && dist4 < radiusesSq[i]) {
+            if (intersectionCount < 2 && dist4 <= radiusesSq[i]) {
                 intersections[intrOffset + intersectionCount] = intrPos4;
                 intersectionCount++;
                 debugColor[i].b = 1;
             }
             intersectionCounts[i] = intersectionCount;
             if (intersectionCount == 0) {
-                break; // larger bounded cylinder not intersected? means neither are smaller ones
+                // larger bounded cylinder not intersected? means neither are smaller ones
+                break; 
             }
         }       
     }
@@ -163,7 +163,7 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
 // contribution = dist * avgColorRatio
 float linearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2,
                              float rInner, float rFadeEnd)
-{
+{  
     vec3 middle = (fadeIntr1 + fadeIntr2) / 2;
     //float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner);
     float avgRate = 1 - (length(middle.xy) - rInner) / (rFadeEnd - rInner);
@@ -213,9 +213,9 @@ void main()
             // fade cylinder is intersected
             if (intersectionCounts[INNER] == 2) {
                 // inner, uniform color cylinder is intersected               
-                vec3 ray1 = intersections[INNER_OFFSET] - intersections[FADE_OFFSET];
-                vec3 ray2 = intersections[INNER_OFFSET + 1] - intersections[FADE_OFFSET];
-                if (dot(ray2, ray2) < dot(ray1, ray1)) {
+                vec3 seg1 = intersections[INNER_OFFSET] - intersections[FADE_OFFSET];
+                vec3 seg2 = intersections[INNER_OFFSET + 1] - intersections[FADE_OFFSET];
+                if (dot(seg2, seg2) < dot(seg1, seg1)) {
                     // ensure intersections are matched by closeness (distance squared)
                     vec3 temp = intersections[FADE_OFFSET];
                     intersections[FADE_OFFSET] = intersections[FADE_OFFSET + 1];
@@ -428,7 +428,7 @@ void cylinderIntersections(float radiusSq,
  
     debugColor = vec4(0, 0, 0, 1);
     fadePivot = vec3(0, 0, 0);
-    if (abs(localPixelRay.x) > 0.0000001 || abs(localPixelRay.y) > 0.0000001) {
+    if (abs(localPixelRay.x) > 0 || abs(localPixelRay.y) > 0) {
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
         // (dir_x^2 + dir_y^2) * t^2 + [2(p_x * dir_x + py * dir_y)] * t
