@@ -1,4 +1,5 @@
 ﻿//#define TRAILS_DEBUG
+//#define TRAILS_SLOW
 
 using System;
 using OpenTK;
@@ -20,7 +21,7 @@ namespace SimpleScene
             public int capacity = 2000;
             public float trailWidth = 5f;
 
-			#if true
+			#if !TRAILS_SLOW
             public float trailsEmissionInterval = 0.05f;
 			public int numCylindersPerEmissionMax = 5;
 			#else
@@ -37,7 +38,7 @@ namespace SimpleScene
             public float trailLifetime = 2000f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
-			public Color4 outerColor = new Color4(1f, 0f, 1f, 0.25f);
+			public Color4 outerColor = new Color4(1f, 0.5f, 0f, 0.25f);
 			public Color4 innerColor = new Color4(1f, 1f, 1f, 1f);
             //public float distanceToAlpha = 0.20f;
 			public float distanceToAlpha = 0.20f;
@@ -86,11 +87,14 @@ namespace SimpleScene
 
             renderState.blendEquationModeRGB = BlendEquationMode.FuncAdd;
             renderState.blendFactorSrcRGB = BlendingFactorSrc.SrcAlpha;
-			renderState.blendFactorDestRGB = BlendingFactorDest.One;
+			renderState.blendFactorDestRGB = BlendingFactorDest.DstAlpha;
+			//renderState.blendFactorDestRGB = BlendingFactorDest.OneMinusSrc1Alpha;
 
 			renderState.blendEquationModeAlpha = BlendEquationMode.FuncAdd;
 			renderState.blendFactorSrcAlpha = BlendingFactorSrc.One;
 			renderState.blendFactorDestAlpha = BlendingFactorDest.One;
+			//renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+			//renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 
             simulateOnUpdate = true;
 
@@ -418,7 +422,9 @@ namespace SimpleScene
                     Vector3 nextJointPos = _newSplinePos;
                     Vector3 diff = (nextJointPos - prevJointPos);
 					ts.cylLendth = diff.Length;
-					//ts.cylLendth *= 0.75f;
+					#if TRAILS_SLOW
+					ts.cylLendth *= 0.75f;
+					#endif
                     ts.cylAxis = ts.nextJointAxis = diff / ts.cylLendth;
                     ts.pos = (nextJointPos + prevJointPos) / 2f;
                     Vector3 avgAxis = (prevAxis + ts.cylAxis).Normalized();
@@ -527,7 +533,7 @@ namespace SimpleScene
                 public Vector3 cylAxis = -Vector3.UnitZ;
                 public Vector3 prevJointAxis = -Vector3.UnitZ;
                 public Vector3 nextJointAxis = -Vector3.UnitZ;
-				public Color4 cylInnerColor = Color4.Magenta;
+				public Color4 cylInnerColor = Color4.White;
                 /// <summary> inner cylinder is 100% inner color. Its radius is innerColorRatio * total radius /// </summary>
                 public float innerColorRatio = 0.3f; 
                 /// <summary> outer tube is 100% outer color. It begins at outerColorRatio * total radius, and ends at total radius // </summary>
