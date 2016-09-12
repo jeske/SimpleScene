@@ -6,6 +6,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SimpleScene.Util;
+using System.Collections.Generic;
 
 namespace SimpleScene
 {
@@ -19,7 +20,6 @@ namespace SimpleScene
         public class STrailsParameters
         {
             public int capacity = 1000;
-            public float trailWidth = 3f;
 
 			#if !TRAILS_SLOW
             public float trailsEmissionInterval = 0.02f;
@@ -35,7 +35,7 @@ namespace SimpleScene
             public float minSegmentLength = 0.01f;
             public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
             public float velocityToLengthFactor = 1f;
-            public float trailLifetime = 2000f;
+            public float trailLifetime = 20f;
             public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public float distanceToAlpha = 0.20f;
@@ -54,6 +54,36 @@ namespace SimpleScene
 				new Vector3(+2f, 0f, +2f)
 				//new Vector3(0f, 0f, -5f),
 				//new Vector3(0f, 0f, 5f)
+			};
+
+			public SortedList<float, Color4> outerColorKeyframes = new SortedList<float, Color4> () {
+				{ 0f, new Color4(1f, 0f, 0f, 0.5f) },
+				{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
+				{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
+			};
+
+			public SortedList<float, Color4> innerColorKeyframes = new SortedList<float, Color4> () {
+				{ 0f, new Color4(1f, 1f, 1f, 0.7f) },
+				{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
+				{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
+			};
+
+			public SortedList<float, float> widthKeyFrames = new SortedList<float, float>() {
+				{ 0f, 2f },
+				{ 0.01f, 3f },
+				{ 1f, 5f }
+			};
+
+			public SortedList<float, float> innerColorRatioKeyframes = new SortedList<float, float>() {
+				{ 0f, 0.9f },
+				{ 0.1f, 0.3f },
+				{ 1f, 0f }
+			};
+
+			public SortedList<float, float> outerColorRatioKeyframes = new SortedList<float, float>() {
+				{ 0f, 0.1f },
+				{ 0.1f, 0.3f },
+				{ 1f, 1f }
 			};
 
 			public int numJets { get { return localJetOffsets.Length; } }
@@ -139,6 +169,8 @@ namespace SimpleScene
 
         protected override void _initAttributeBuffers (BufferUsageHint hint)
         {
+			hint = BufferUsageHint.DynamicDraw;
+
             _posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
             _cylAxesBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
             _prevJointBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
@@ -231,7 +263,13 @@ namespace SimpleScene
 			#endregion
 
 			#region cylinder updates
-			protected readonly STrailUpdater _updater;
+			protected STrailsWidthEffector _widthEffector;
+			protected STrailsInnerColorRatioEffector _innerRatioEffector;
+			protected STrailsOuterColorRatioEffector _outerRatioEffector;
+			protected SSColorKeyframesEffector _outerColorEffector;
+			protected STrailsInnerColorEffector _innerColorEffector;
+
+			//protected readonly STrailUpdater _updater;
 			#endregion
 
             public STrailsData(
@@ -271,8 +309,40 @@ namespace SimpleScene
 
 				}
 
-                _updater = new STrailUpdater(trailsParams);
-                addEffector(_updater);
+				_outerColorEffector = new SSColorKeyframesEffector() { 
+					particleLifetime = trailsParams.trailLifetime,
+					keyframes = trailsParams.outerColorKeyframes 
+				};
+				addEffector(_outerColorEffector);
+
+				_innerColorEffector = new STrailsInnerColorEffector() {
+					particleLifetime = trailsParams.trailLifetime,
+					keyframes = trailsParams.innerColorKeyframes
+				};
+				addEffector(_innerColorEffector);
+
+				_innerRatioEffector = new STrailsInnerColorRatioEffector() { 
+					particleLifetime = trailsParams.trailLifetime,
+					keyframes = trailsParams.innerColorRatioKeyframes 
+				};
+				addEffector(_innerRatioEffector);
+
+				_outerRatioEffector = new STrailsOuterColorRatioEffector() {
+					particleLifetime = trailsParams.trailLifetime,
+					keyframes = trailsParams.outerColorRatioKeyframes
+				};
+				addEffector(_outerRatioEffector);
+
+
+				_widthEffector = new STrailsWidthEffector() { 
+					particleLifetime = trailsParams.trailLifetime,
+					keyframes = trailsParams.widthKeyFrames 
+				};
+				addEffector(_widthEffector);
+
+
+                //_updater = new STrailUpdater(trailsParams);
+                //addEffector(_updater);
             }
 
             protected override void initArrays ()
@@ -293,7 +363,7 @@ namespace SimpleScene
 
             public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
             {
-                _updater.updateViewMatrix(ref view);
+                //_updater.updateViewMatrix(ref view);
             }
 
             protected override SSParticle createNewParticle ()
@@ -504,7 +574,6 @@ namespace SimpleScene
 				ts.cylInnerColor = trailsParams.innerColor(_jetIndex);
                 ts.life = trailsParams.trailLifetime;
                 ts.vel = Vector3.Zero;
-                ts.cylWidth = trailsParams.trailWidth;
                 //ts.color = Color4.White;
                 ts.nextSegmentIdx = STrailsSegment.NotConnected;
 
@@ -527,7 +596,6 @@ namespace SimpleScene
 					writeDataIfNeeded(ref _nextJointAxes, _headSegmentIdxs[_jetIndex], new SSAttributeVec3 (avgAxis));
                 } else {
                     ts.pos = _newSplinePos;
-                    ts.cylWidth = trailsParams.trailWidth;
                     ts.cylLendth = 0f;
                     ts.cylAxis = ts.nextJointAxis = Vector3.UnitX;
                     ts.prevJointAxis = -ts.cylAxis;
@@ -673,6 +741,67 @@ namespace SimpleScene
                 #endif
             }
 
+			protected class STrailsWidthEffector : SSKeyframesEffector<float>
+			{
+				protected override void applyValue (SSParticle particle, float value)
+				{
+					var ts = (STrailsSegment)particle;
+					ts.cylWidth = value;
+				}
+
+				protected override float computeValue (IInterpolater interpolater, float prevFrame, float nextKeyframe, float ammount)
+				{
+					return interpolater.compute (prevFrame, nextKeyframe, ammount);
+				}
+			}
+
+			protected class STrailsInnerColorRatioEffector : SSKeyframesEffector<float>
+			{
+				protected override void applyValue (SSParticle particle, float value)
+				{
+					var ts = (STrailsSegment)particle;
+					ts.innerColorRatio = value;
+				}
+
+				protected override float computeValue (IInterpolater interpolater, float prevFrame, float nextKeyframe, float ammount)
+				{
+					return interpolater.compute (prevFrame, nextKeyframe, ammount);
+				}
+			}
+
+			protected class STrailsOuterColorRatioEffector : SSKeyframesEffector<float>
+			{
+				protected override void applyValue (SSParticle particle, float value)
+				{
+					var ts = (STrailsSegment)particle;
+					ts.outerColorRatio = value;
+				}
+
+				protected override float computeValue (IInterpolater interpolater, float prevFrame, float nextKeyframe, float ammount)
+				{
+					return interpolater.compute (prevFrame, nextKeyframe, ammount);
+				}
+			}
+
+			protected class STrailsInnerColorEffector : SSKeyframesEffector<Color4>
+			{
+				protected override void applyValue (SSParticle particle, Color4 value)
+				{
+					var ts = (STrailsSegment)particle;
+					ts.cylInnerColor = value;
+				}
+
+				protected override Color4 computeValue (IInterpolater interpolater, Color4 prevFrame, Color4 nextKeyframe, float ammount)
+				{
+					return new Color4 (
+						interpolater.compute (prevFrame.R, nextKeyframe.R, ammount),
+						interpolater.compute (prevFrame.G, nextKeyframe.G, ammount),
+						interpolater.compute (prevFrame.B, nextKeyframe.B, ammount),
+						interpolater.compute (prevFrame.A, nextKeyframe.A, ammount));
+				}
+			}
+
+			#if false
             public class STrailUpdater : SSParticleEffector
             {
                 //protected Vector3 _cameraX = Vector3.UnitX;
@@ -700,6 +829,7 @@ namespace SimpleScene
                     // TODO?
                 }
             }
+			#endif
         }
     }
 }

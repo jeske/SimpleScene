@@ -382,8 +382,8 @@ namespace TestBench3
             if (timeElapsed <= 0f) return;
 
             // make the target drone move from side to side
-            //localTime += timeElapsed;
-			localTime += timeElapsed * 0.3f;
+            localTime += timeElapsed;
+			//localTime += timeElapsed * 0.3f;
             Vector3 pos = targetDrone.Pos;
             pos.Z = 30f * (float)Math.Sin(localTime);
             targetDrone.Pos = pos;
