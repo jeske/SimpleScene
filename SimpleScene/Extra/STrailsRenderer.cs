@@ -12,7 +12,6 @@ namespace SimpleScene
 {
     public class STrailsRenderer : SSInstancedMeshRenderer
     {
-        public delegate Vector3 VelocityFunc ();
         public delegate Vector3 PositionFunc ();
         public delegate Vector3 FwdFunc();
 		public delegate Vector3 UpFunc();
@@ -34,9 +33,7 @@ namespace SimpleScene
 
             public float minSegmentLength = 0.001f;
             public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
-            public float velocityToLengthFactor = 1f;
             public float trailLifetime = 20f;
-            public float trailCutoffVelocity = 0.1f;
             public string textureFilename = "trail_debug.png";
             //public float distanceToAlpha = 0.20f;
 			public float distanceToAlpha = 0.40f;
@@ -125,9 +122,9 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeFloat> _innerColorRatioBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _outerColorRatioBuffer;
 
-		public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
+		public STrailsRenderer(PositionFunc positonFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
             STrailsParameters trailsParams = null)
-			: base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, upFunc,
+			: base(new STrailsData(positonFunc, fwdDirFunc, upFunc,
                 trailsParams ?? new STrailsParameters()),
                 SSTexturedCube.Instance, _defaultUsageHint)
         {
@@ -251,7 +248,6 @@ namespace SimpleScene
 
 			#region spline generation
 	        protected PositionFunc _positionFunc;
-            protected VelocityFunc _velocityFunc;
 			protected FwdFunc _fwdFunc;
 			protected UpFunc _upFunc;
 			protected Matrix4[] _localJetOrients;
@@ -273,13 +269,12 @@ namespace SimpleScene
 			#endregion
 
             public STrailsData(
-				PositionFunc positionFunc, VelocityFunc velocityFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
+				PositionFunc positionFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
                 STrailsParameters trailsParams = null)
                 : base(trailsParams.capacity)
             {
                 this.trailsParams = trailsParams;
                 this._positionFunc = positionFunc;
-                this._velocityFunc = velocityFunc;
 				this._fwdFunc = fwdDirFunc;
 				this._upFunc = upFunc;
 
@@ -714,17 +709,14 @@ namespace SimpleScene
             public class STrailsEmitter : SSParticleEmitter
             {
                 public PositionFunc posFunc;
-                public VelocityFunc velFunc;
                 public FwdFunc fwdDirFunc;
                 public STrailsParameters trailParams;
-                public float velocityToScaleFactor = 1f; 
 
                 public STrailsEmitter(STrailsParameters tParams, 
-                    PositionFunc posFunc, VelocityFunc velFunc, FwdFunc fwdDirFunc)
+                    PositionFunc posFunc, FwdFunc fwdDirFunc)
                 {
                     this.trailParams = tParams;
                     this.posFunc = posFunc;
-                    this.velFunc = velFunc;
                     this.fwdDirFunc = fwdDirFunc;
 
                     base.life = tParams.trailLifetime;

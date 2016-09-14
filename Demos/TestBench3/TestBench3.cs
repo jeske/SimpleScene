@@ -163,7 +163,6 @@ namespace TestBench3
             // trails test
             var trailsRenderer = new STrailsRenderer(
                 () => vandalShip.Pos,
-                () => vandalVelocity,
                 () => vandalShip.Dir,
 				() => vandalShip.Up
             );
