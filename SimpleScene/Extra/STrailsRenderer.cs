@@ -153,8 +153,8 @@ namespace SimpleScene
 
             simulateOnUpdate = true;
 
-            // TODO this is kind of heavy heanded. try a few alternatives with bounding spheres
-            renderState.frustumCulling = false;
+            // TODO 
+            renderState.frustumCulling = true;
 
             colorMaterial = SSColorMaterial.pureAmbient;
             textureMaterial = new SSTextureMaterial (diffuse: tex);
