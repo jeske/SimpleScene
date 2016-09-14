@@ -242,13 +242,13 @@ namespace SimpleScene.Demos
         #region render helpers
         public Vector3 up { 
             get { 
-                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, visualDirection);
+                Quaternion quat = OpenTKHelper.neededRotationQuat(Vector3.UnitZ, visualDirection);
                 return Vector3.Transform(Vector3.UnitY, quat);
             } 
         }
         public Vector3 pitchAxis { 
             get { 
-                Quaternion quat = OpenTKHelper.neededRotation(Vector3.UnitZ, visualDirection);
+                Quaternion quat = OpenTKHelper.neededRotationQuat(Vector3.UnitZ, visualDirection);
                 return Vector3.Transform(Vector3.UnitX, quat);
             } 
         }

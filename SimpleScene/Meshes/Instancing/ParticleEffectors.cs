@@ -359,5 +359,44 @@ namespace SimpleScene
 			public float timeElapsed;
 		}
     }
+
+    public class SRadialBillboardOrientator : SSParticleEffector
+    {
+        protected float _orientationX = 0f;
+
+        /// <summary>
+        /// Compute orientation around X once per frame to orient the sprites towards the viewer
+        /// </summary>
+        public void updateModelView(ref Matrix4 modelViewMatrix)
+        {
+            Quaternion quat = modelViewMatrix.ExtractRotation();
+            // x-orient
+            Vector3 test1 = new Vector3(0f, 1f, 0f);
+            Vector3 test2 = Vector3.Transform(test1, quat);
+            float dot = Vector3.Dot(test1, test2);
+            float angle = (float)Math.Acos(dot);
+            if (test2.Z < 0f) {
+                angle = -angle;
+            } 
+            _orientationX = -angle;
+        }
+
+        protected override void effectParticle (SSParticle particle, float deltaT)
+        {
+            Vector3 dir = particle.vel;
+
+            // orient to look right
+            float x = dir.X;
+            float y = dir.Y;
+            float z = dir.Z;
+            float xy = dir.Xy.Length;
+            float phi = (float)Math.Atan (z / xy);
+            float theta = (float)Math.Atan2 (y, x);
+
+            particle.orientation.Y = -phi;
+            particle.orientation.Z = theta;
+            particle.orientation.X = -_orientationX;
+        }
+    }
 }
 

@@ -28,6 +28,7 @@ namespace SimpleScene
         public readonly SSPssmShaderProgram pssmShader;
         public readonly SSInstanceShaderProgram instanceShader;
 		public readonly SSInstancePssmShaderProgram instancePssmShader;
+        public readonly Dictionary<string, SSShaderProgram> otherShaders;
 
 		public bool drawGLSL = true;
 		public bool useVBO = true;
@@ -87,12 +88,15 @@ namespace SimpleScene
 		public SSRenderConfig(SSMainShaderProgram main,
 							  SSPssmShaderProgram pssm,
 							  SSInstanceShaderProgram instance,
-							  SSInstancePssmShaderProgram instancePssm)
+							  SSInstancePssmShaderProgram instancePssm,
+                              Dictionary<string, SSShaderProgram> other
+        )
 		{
 			mainShader = main;
 			pssmShader = pssm;
 			instanceShader = instance;
 			instancePssmShader = instancePssm;
+            otherShaders = other;
 		}
 	}
 
@@ -118,9 +122,10 @@ namespace SimpleScene
 		public SSScene(SSMainShaderProgram main = null,
 					   SSPssmShaderProgram pssm = null,
 					   SSInstanceShaderProgram instance = null,
-					   SSInstancePssmShaderProgram instancePssm = null)
+					   SSInstancePssmShaderProgram instancePssm = null,
+                       Dictionary<string, SSShaderProgram> otherShaders = null)
 		{
-			renderConfig = new SSRenderConfig (main, pssm, instance, instancePssm);
+            renderConfig = new SSRenderConfig (main, pssm, instance, instancePssm, otherShaders);
 		}
 
         #region SSScene Events

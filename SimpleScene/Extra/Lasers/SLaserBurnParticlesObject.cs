@@ -18,7 +18,7 @@ namespace SimpleScene.Demos
 
         public SLaserBurnParticlesObject (SSObject burningObject, int particleCapacity = 100, SSTexture texture = null)
             : base(new SLaserBurnParticleSystem (particleCapacity), 
-                   SSTexturedQuad.DoubleFaceInstance, _defaultUsageHint)
+                   SSTexturedQuad.doubleFaceInstance, _defaultUsageHint)
         {
             _burningObject = burningObject;
             if (_burningObject != null) {
@@ -35,8 +35,8 @@ namespace SimpleScene.Demos
             renderState.lighted = false;
 
             renderState.alphaBlendingOn = true;
-            renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            renderState.blendFactorDest = BlendingFactorDest.One;
+            renderState.blendFactorSrcRGB = renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+			renderState.blendFactorDestRGB = renderState.blendFactorDestAlpha = BlendingFactorDest.One;
 
             // bypass frustum culling so camera updates are sent to activate particle emission
             renderState.frustumCulling = false;

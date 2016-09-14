@@ -24,6 +24,11 @@ namespace SimpleScene
 
         public virtual Matrix4 rotationOnlyViewMatrix()
         {
+            return rotationOnlyViewMatrixInverted().Inverted();
+        }
+
+        public virtual Matrix4 rotationOnlyViewMatrixInverted()
+        {
             Matrix4 mat = Matrix4.Identity;
 
             // rotation..
@@ -38,8 +43,7 @@ namespace SimpleScene
             mat.M31 = _dir.X;
             mat.M32 = _dir.Y;
             mat.M33 = _dir.Z;
-
-            return mat.Inverted();
+            return mat;
         }
 
         public virtual void preRenderUpdate(float timeElapsed)

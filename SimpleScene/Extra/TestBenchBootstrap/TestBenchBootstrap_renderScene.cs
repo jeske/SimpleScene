@@ -203,6 +203,13 @@ namespace SimpleScene.Demos
 			mainShader.UniWinScale = sz;
             instancingShader.Activate();
 			instancingShader.UniWinScale = sz;
+            SSShaderProgram instancedCylinderGeneric;
+            if (otherShaders.TryGetValue("instanced_cylinder", out instancedCylinderGeneric)) {
+                var instancedCylinder = (SSInstancedCylinderShaderProgram)instancedCylinderGeneric;
+                instancedCylinder.Activate();
+                instancedCylinder.UniScreenWidth = sz.Width;
+                instancedCylinder.UniScreenHeight = sz.Height;
+            }
 
 			saveClientWindowLocation ();
 		}

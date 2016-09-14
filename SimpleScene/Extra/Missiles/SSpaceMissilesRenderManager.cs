@@ -56,7 +56,7 @@ namespace SimpleScene.Demos
             // particle system
             _particlesData = new SSParticleSystemData (particleCapacity);
             _particleRenderer = new SSInstancedMeshRenderer (
-                _particlesData, SSTexturedQuad.SingleFaceInstance);
+                _particlesData, SSTexturedQuad.singleFaceInstance);
             _particleRenderer.renderState.alphaBlendingOn = true;
             _particleRenderer.renderState.castsShadow = false;
             _particleRenderer.renderState.receivesShadows = false;

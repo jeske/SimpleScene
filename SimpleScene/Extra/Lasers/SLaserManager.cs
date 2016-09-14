@@ -41,8 +41,10 @@ namespace SimpleScene.Demos
             _2dEffectRenderer.Name = "laser manager's 2d screen effect renderer";
 
             _2dEffectRenderer.renderState.alphaBlendingOn = true;
-            _2dEffectRenderer.renderState.blendFactorSrc = BlendingFactorSrc.SrcAlpha;
-            _2dEffectRenderer.renderState.blendFactorDest = BlendingFactorDest.One;
+			_2dEffectRenderer.renderState.blendFactorSrcRGB 
+				= _2dEffectRenderer.renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
+            _2dEffectRenderer.renderState.blendFactorDestRGB 
+			 	= _2dEffectRenderer.renderState.blendFactorDestAlpha = BlendingFactorDest.One;
             //_2dEffectRenderer.renderMode = SSInstancedMeshRenderer.RenderMode.GpuInstancing;
             _flareScene2d.AddObject(_2dEffectRenderer);
 

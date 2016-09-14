@@ -50,7 +50,7 @@ namespace SimpleScene
 			string[] programLines = this.shaderProgramText.Split('\n');
 			string[] log_lines = GL.GetShaderInfoLog(ShaderID).Split('\n');
 		
-			// example line:			
+			// example line:
 			// ERROR: 0:36: Use of undeclared identifier 'diffuseMaterial'
 
 			var regex = new System.Text.RegularExpressions.Regex(@"([0-9]+):([0-9]+):");

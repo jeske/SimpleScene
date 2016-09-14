@@ -17,8 +17,8 @@ namespace SimpleScene
         public abstract int numElements { get; }
         public abstract int activeBlockLength { get; }
         public abstract float radius { get; }
-
         public abstract SSAttributeVec3[] positions { get; }
+
         public abstract SSAttributeVec2[] orientationsXY { get; }
         public abstract SSAttributeFloat[] orientationsZ { get; }
         public abstract SSAttributeColor[] colors { get; }

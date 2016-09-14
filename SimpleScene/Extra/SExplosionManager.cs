@@ -263,7 +263,7 @@ namespace SimpleScene.Demos
         public SExplosionRenderer(int particleCapacity = 500, 
                                   SExplosionParameters eParams = null)
             : base(new SExplosionSystem(eParams ?? new SExplosionParameters(), particleCapacity),
-				   SSTexturedQuad.DoubleFaceInstance,
+				   SSTexturedQuad.doubleFaceInstance,
 				   _defaultUsageHint
 			 )
 		{
@@ -352,7 +352,7 @@ namespace SimpleScene.Demos
             protected SSMasterScaleKeyframesEffector _shockwaveScaleEffector = null;
             protected SSColorKeyframesEffector _shockwaveColorEffector = null;
 			// shared
-            protected RadialBillboardOrientator _radialOrientator = null;
+            protected SRadialBillboardOrientator _radialOrientator = null;
 			#endregion
 
             public SExplosionParameters parameters {
@@ -366,7 +366,7 @@ namespace SimpleScene.Demos
                 _configureParameters(eParams);
 				
                 // shared
-                _radialOrientator = new RadialBillboardOrientator();
+                _radialOrientator = new SRadialBillboardOrientator();
 				_radialOrientator.effectorMask 
 					= (ushort)ComponentMask.FlyingSparks | (ushort)ComponentMask.SmokeTrails;
 				addEffector (_radialOrientator);
@@ -793,57 +793,19 @@ namespace SimpleScene.Demos
                 _shockwaveEmitter.velocity = baseVelocity;
 				_shockwaveEmitter.totalEmissionsLeft = 1;
 			}
-		}
 
-		public class RadialBillboardOrientator : SSParticleEffector
-		{
-			protected float _orientationX = 0f;
+            public class ShockwaveEmitter : SSFixedPositionEmitter
+            {
+                public void updateModelView(ref Matrix4 modelViewMatrix)
+                {
+                    Quaternion quat = modelViewMatrix.ExtractRotation ().Inverted();
+                    Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
+                    Vector3 baseVec = new Vector3 (euler.X + 0.5f*(float)Math.PI, euler.Y, euler.Z); 
+                    orientationMin = baseVec + new Vector3((float)Math.PI/8f, 0f, 0f);
+                    orientationMax = baseVec + new Vector3((float)Math.PI*3f/8f, 2f*(float)Math.PI, 0f);
+                }
+            }
 
-			/// <summary>
-			/// Compute orientation around X once per frame to orient the sprites towards the viewer
-			/// </summary>
-			public void updateModelView(ref Matrix4 modelViewMatrix)
-			{
-				Quaternion quat = modelViewMatrix.ExtractRotation();
-				// x-orient
-				Vector3 test1 = new Vector3(0f, 1f, 0f);
-				Vector3 test2 = Vector3.Transform(test1, quat);
-				float dot = Vector3.Dot(test1, test2);
-				float angle = (float)Math.Acos(dot);
-				if (test2.Z < 0f) {
-					angle = -angle;
-				} 
-				_orientationX = -angle;
-			}
-
-			protected override void effectParticle (SSParticle particle, float deltaT)
-			{
-				Vector3 dir = particle.vel;
-
-				// orient to look right
-				float x = dir.X;
-				float y = dir.Y;
-				float z = dir.Z;
-				float xy = dir.Xy.Length;
-				float phi = (float)Math.Atan (z / xy);
-				float theta = (float)Math.Atan2 (y, x);
-
-				particle.orientation.Y = -phi;
-				particle.orientation.Z = theta;
-				particle.orientation.X = -_orientationX;
-			}
-		}
-
-		public class ShockwaveEmitter : SSFixedPositionEmitter
-		{
-			public void updateModelView(ref Matrix4 modelViewMatrix)
-			{
-				Quaternion quat = modelViewMatrix.ExtractRotation ().Inverted();
-				Vector3 euler = OpenTKHelper.QuaternionToEuler (ref quat);
-				Vector3 baseVec = new Vector3 (euler.X + 0.5f*(float)Math.PI, euler.Y, euler.Z); 
-				orientationMin = baseVec + new Vector3((float)Math.PI/8f, 0f, 0f);
-				orientationMax = baseVec + new Vector3((float)Math.PI*3f/8f, 2f*(float)Math.PI, 0f);
-			}
 		}
 	}
 }

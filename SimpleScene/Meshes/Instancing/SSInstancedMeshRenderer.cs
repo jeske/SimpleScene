@@ -68,19 +68,7 @@ namespace SimpleScene
 										BufferUsageHint hint = BufferUsageHint.StreamDraw)
         {
             instanceData = ps;
-			_posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
-			_orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
-			_orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
-			_componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
-
-			//m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
-			_spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
-			_spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _initAttributeBuffers(hint);
 
             // Fixes flicker issues for particles with "fighting" view depth values
             this.renderState.depthFunc = DepthFunction.Lequal;
@@ -98,6 +86,24 @@ namespace SimpleScene
 			this.mesh = mesh;
 		}
 
+        // TODO interface or abstract classify
+        protected virtual void _initAttributeBuffers(BufferUsageHint hint)
+        {
+            _posBuffer = new SSAttributeBuffer<SSAttributeVec3> (hint);
+            _orientationXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+            _orientationZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _masterScaleBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _componentScaleXYBuffer = new SSAttributeBuffer<SSAttributeVec2> (hint);
+            _componentScaleZBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _colorBuffer = new SSAttributeBuffer<SSAttributeColor> (hint);
+
+            //m_spriteIndexBuffer = new SSAttributeBuffer<SSAttributeByte> (hint);
+            _spriteOffsetUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _spriteOffsetVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _spriteSizeUBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+            _spriteSizeVBuffer = new SSAttributeBuffer<SSAttributeFloat> (hint);
+        }
+
         public override void Render (SSRenderConfig renderConfig)
         {
             // allow particle system to react to camera/world mat changes (even if there are no particles)
@@ -108,16 +114,16 @@ namespace SimpleScene
                 instanceData.update(renderConfig.timeElapsedS);
             }
 
-			// do we have anything to draw?
+            // do we have anything to draw?
             if (instanceData.numElements <= 0) return;
-
-            base.Render(renderConfig);
 
             if (!renderConfig.drawingShadowMap && 
                 !renderState.doBillboarding && base.alphaBlendingEnabled) {
                 // Must be called before updating buffers
                 instanceData.sortByDepth (ref renderConfig.invCameraViewMatrix);
             }
+
+            base.Render(renderConfig);
 
             if (renderMode == RenderMode.GpuInstancing
             || (renderMode == RenderMode.Auto && instanceData.numElements > autoRenderModeThreshold)) {
@@ -138,21 +144,21 @@ namespace SimpleScene
             }
         }
 
-        protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
+        protected virtual void _prepareInstanceShader(SSRenderConfig renderConfig)
         {
-			if (renderConfig.drawingShadowMap && renderConfig.drawingPssm) {
+            ISSInstancableShaderProgram instanceShader;
+
+            if (renderConfig.drawingShadowMap && renderConfig.drawingPssm) {
                 renderConfig.instancePssmShader.Activate ();
                 renderConfig.instancePssmShader.UniObjectWorldTransform = this.worldMat;
+                instanceShader = renderConfig.instancePssmShader;
             } else {
                 // texture binding and world mat setup
                 renderConfig.instanceShader.Activate ();
                 base.setDefaultShaderState(renderConfig.instanceShader, renderConfig);
+                instanceShader = renderConfig.instanceShader;
             }
 
-            ISSInstancableShaderProgram instanceShader = renderConfig.ActiveInstanceShader;
-
-            // prepare attribute arrays for draw
-            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
             _prepareAttribute(_posBuffer, instanceShader.AttrInstancePos, 
                 instanceData.positions);
             _prepareAttribute(_orientationXYBuffer, instanceShader.AttrInstanceOrientationXY,
@@ -177,6 +183,14 @@ namespace SimpleScene
                 instanceData.spriteSizesU);
             _prepareAttribute(_spriteSizeVBuffer, instanceShader.AttrInstanceSpriteSizeV, 
                 instanceData.spriteSizesV);
+        }
+
+        protected void _renderWithGPUInstancing(SSRenderConfig renderConfig)
+        {
+            // prepare attribute arrays for draw
+            GL.PushClientAttrib(ClientAttribMask.ClientAllAttribBits);
+
+            _prepareInstanceShader(renderConfig);
 
             // do the draw
             mesh.drawInstanced(renderConfig, instanceData.activeBlockLength, this.primType);
@@ -194,7 +208,7 @@ namespace SimpleScene
             attrBuff.PrepareAttributeAndUpdate(attrLoc, numInstancesPerValue, array);
         }
 
-        protected void _renderWithCPUIterations(SSRenderConfig renderConfig)
+        protected virtual void _renderWithCPUIterations(SSRenderConfig renderConfig)
         {
             var mainShader = renderConfig.mainShader;
             mainShader.Activate();

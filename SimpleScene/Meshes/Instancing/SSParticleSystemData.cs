@@ -95,6 +95,7 @@ namespace SimpleScene
         #endregion
 
         #region particle data sent to the GPU
+        // TODO more abstraction; these don't all need to be sent to every instancing shader out there
         protected SSAttributeVec3[] _positions;
 		protected SSAttributeVec2[] _orientationsXY;
 		protected SSAttributeFloat[] _orientationsZ;
@@ -156,6 +157,33 @@ namespace SimpleScene
             reset();
         }
 
+        protected virtual void initArrays()
+        {
+            _positions = new SSAttributeVec3[1];
+            _orientationsXY = new SSAttributeVec2[1];
+            _orientationsZ = new SSAttributeFloat[1];
+            _masterScales = new SSAttributeFloat[1];
+            _componentScalesXY = new SSAttributeVec2[1];
+            _componentScalesZ = new SSAttributeFloat[1];
+            _colors = new SSAttributeColor[1];
+
+            //m_spriteIndices = new SSAttributeByte[1];
+            _spriteOffsetsU = new SSAttributeFloat[1];
+            _spriteOffsetsV = new SSAttributeFloat[1];
+            _spriteSizesU = new SSAttributeFloat[1];
+            _spriteSizesV = new SSAttributeFloat[1];
+
+            _velocities = new Vector3[1];
+            _angularVelocities = new Vector3[1];
+            _masses = new float[1];
+            _rotationalInnertias = new float[1];
+            _drags = new float[1];
+            _rotationalDrags = new float[1];
+            _viewDepths = new float[1];
+            _effectorMasksLow = new byte[1];
+            _effectorMasksHigh = new byte[1];
+        }
+
 		/// <summary>
 		/// This class tries faithfully to be resettable. One of the benefits may be being able to reset a
 		/// particle system if working in a game editor.
@@ -174,31 +202,8 @@ namespace SimpleScene
 			_radius = 0f;
 			elapsedTimeAccumulator = 0f;
 
-            _positions = new SSAttributeVec3[1];
-			_orientationsXY = new SSAttributeVec2[1];
-			_orientationsZ = new SSAttributeFloat[1];
-            _masterScales = new SSAttributeFloat[1];
-            _componentScalesXY = new SSAttributeVec2[1];
-			_componentScalesZ = new SSAttributeFloat[1];
-            _colors = new SSAttributeColor[1];
-
-			//m_spriteIndices = new SSAttributeByte[1];
-            _spriteOffsetsU = new SSAttributeFloat[1];
-            _spriteOffsetsV = new SSAttributeFloat[1];
-            _spriteSizesU = new SSAttributeFloat[1];
-            _spriteSizesV = new SSAttributeFloat[1];
-
-            _velocities = new Vector3[1];
-            _angularVelocities = new Vector3[1];
-            _masses = new float[1];
-			_rotationalInnertias = new float[1];
-			_drags = new float[1];
-			_rotationalDrags = new float[1];
-            _viewDepths = new float[1];
-			_effectorMasksLow = new byte[1];
-			_effectorMasksHigh = new byte[1];
-
-            writeParticle(0, new SSParticle ()); // fill in default values
+            initArrays();
+            writeParticle(0, createNewParticle()); // fill in default values
             for (int i = 0; i < _capacity; ++i) {
                 _lives [i] = 0f;
             }
@@ -214,7 +219,7 @@ namespace SimpleScene
 		public virtual void emitAll()
         {
             foreach (SSParticleEmitter e in _emitters) {
-                e.emitParticles(storeNewParticle);
+                e.emitParticles(createNewParticle, storeNewParticle);
             }
         }
 
@@ -245,8 +250,8 @@ namespace SimpleScene
             if (effector.preAddHook != null) {
                 for (int i = 0; i < _activeBlockLength; ++i) {
                     if (isAlive(i)) {
-                        ushort effectorMask = (ushort)((int)readData (_effectorMasksHigh, i) << 8
-                                                     | (int)readData (_effectorMasksLow, i));
+                        ushort effectorMask = (ushort)((int)_readElement (_effectorMasksHigh, i) << 8
+                                                     | (int)_readElement (_effectorMasksLow, i));
                         if (effector.effectorMaskCheck(effectorMask)) {
                             SSParticle particle = new SSParticle ();
                             readParticle(i, particle);
@@ -264,8 +269,8 @@ namespace SimpleScene
             if (effector.preRemoveHook != null) {
                 for (int i = 0; i < _activeBlockLength; ++i) {
                     if (isAlive(i)) {
-                        ushort effectorMask = (ushort)((int)readData (_effectorMasksHigh, i) << 8
-                                                     | (int)readData (_effectorMasksLow, i));
+                        ushort effectorMask = (ushort)((int)_readElement (_effectorMasksHigh, i) << 8
+                                                     | (int)_readElement (_effectorMasksLow, i));
                         if (effector.effectorMaskCheck(effectorMask)) {
                             SSParticle particle = new SSParticle ();
                             readParticle(i, particle);
@@ -288,7 +293,7 @@ namespace SimpleScene
             for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
-                    Vector3 pos = readData(_positions, i).Value;
+                    Vector3 pos = _readElement(_positions, i).Value;
                     pos = Vector3.Transform(pos, viewMatrix);
                     float viewDepth = pos.Z;
                     writeDataIfNeeded(ref _viewDepths, i, viewDepth);
@@ -349,6 +354,11 @@ namespace SimpleScene
             #endif
         }
 
+        protected virtual SSParticle createNewParticle()
+        {
+            return new SSParticle ();
+        }
+
 		protected virtual void simulateStep()
         {
             _radius = 0f;
@@ -359,7 +369,7 @@ namespace SimpleScene
 				emitter.simulateSelf (simulationStep);
 			}
 
-            SSParticle p = new SSParticle ();
+            SSParticle p = createNewParticle();
             for (int i = 0; i < _activeBlockLength; ++i) {
                 if (isAlive(i)) {
                     // Alive particle
@@ -397,34 +407,39 @@ namespace SimpleScene
                         );
                         #endif
                     } else {
-                        // Particle just died. Hack to not draw?
-                        writeDataIfNeeded(ref _positions, i, _notAPosition);
-                        if (_numParticles == _capacity || i < _nextIdxToWrite) {
-                            // released slot will be the next one to be written to
-                            _nextIdxToWrite = i;
-                        }
-                        if (i == _activeBlockLength - 1) {
-                            // reduction in the active particles block
-                            while (_activeBlockLength > 0 && isDead(_activeBlockLength - 1)) {
-                                --_activeBlockLength;
-                            }
-                        }                        
-						--_numParticles;
-                        if (_numParticles == 0) {
-                            // all particles gone. reset write and overwrite locations for better packing
-                            _nextIdxToWrite = 0;
-                            _nextIdxToOverwrite = 0;
-                            _activeBlockLength = 0;
-                        }
+                        destroyParticle(i);
                     }
                 }
             }
 			foreach (SSParticleEmitter emitter in _emitters) {
-				emitter.simulateEmissions(simulationStep, storeNewParticle);
+                emitter.simulateEmissions(simulationStep, createNewParticle, storeNewParticle);
 			}
         }
 
-        protected virtual void storeNewParticle(SSParticle newParticle)
+        protected virtual void destroyParticle(int i)
+        {
+            // Particle just died. Hack to not draw?
+            writeDataIfNeeded(ref _positions, i, _notAPosition);
+            if (_numParticles == _capacity || i < _nextIdxToWrite) {
+                // released slot will be the next one to be written to
+                _nextIdxToWrite = i;
+            }
+            if (i == _activeBlockLength - 1) {
+                // reduction in the active particles block
+                while (_activeBlockLength > 0 && isDead(_activeBlockLength - 1)) {
+                    --_activeBlockLength;
+                }
+            }                        
+            --_numParticles;
+            if (_numParticles == 0) {
+                // all particles gone. reset write and overwrite locations for better packing
+                _nextIdxToWrite = 0;
+                _nextIdxToOverwrite = 0;
+                _activeBlockLength = 0;
+            }
+        }
+
+        protected virtual int storeNewParticle(SSParticle newParticle)
         {
 			// Apply effects before storing the new particle
 			// This can help avoid unnecessary array expansion for new particle's values
@@ -434,6 +449,7 @@ namespace SimpleScene
 
             int writeIdx;
             if (_numParticles == _capacity) {
+                destroyParticle(_nextIdxToOverwrite); // will decrement particle count
                 writeIdx = _nextIdxToOverwrite;
                 _nextIdxToOverwrite = nextIdx(_nextIdxToOverwrite);
             } else {
@@ -445,14 +461,16 @@ namespace SimpleScene
                     _activeBlockLength = writeIdx + 1;
                 }
                 _nextIdxToWrite = nextIdx(_nextIdxToWrite);
-                _numParticles++;
             }
             writeParticle(writeIdx, newParticle);
+            _numParticles++;
 
 			float distFromOrogin = newParticle.pos.Length;
 			if (distFromOrogin > _radius) {
 				_radius = distFromOrogin;
 			}
+
+            return writeIdx;
         }
 
         protected int nextIdx(int idx) 
@@ -472,43 +490,34 @@ namespace SimpleScene
             return !isDead(idx);
         }
 
-        protected T readData<T>(T[] array, int idx)
-        {
-            if (idx >= array.Length) {
-                return array [0];
-            } else {
-                return array [idx];
-            }
-        }
-
         protected virtual void readParticle (int idx, SSParticle p) {
             p.life = _lives [idx];
-            p.pos = readData(_positions, idx).Value;
-			p.orientation.Xy = readData(_orientationsXY, idx).Value;
-			p.orientation.Z = readData (_orientationsZ, idx).Value;
-            p.viewDepth = readData(_viewDepths, idx);
+            p.pos = _readElement(_positions, idx).Value;
+			p.orientation.Xy = _readElement(_orientationsXY, idx).Value;
+			p.orientation.Z = _readElement (_orientationsZ, idx).Value;
+            p.viewDepth = _readElement(_viewDepths, idx);
 
             if (p.life <= 0f) return; // the rest does not matter
 
-            p.masterScale = readData(_masterScales, idx).Value;
-			p.componentScale.Xy = readData(_componentScalesXY, idx).Value;
-			p.componentScale.Z = readData (_componentScalesZ, idx).Value;
-			p.color = Color4Helper.FromUInt32(readData(_colors, idx).Color);
+            p.masterScale = _readElement(_masterScales, idx).Value;
+			p.componentScale.Xy = _readElement(_componentScalesXY, idx).Value;
+			p.componentScale.Z = _readElement (_componentScalesZ, idx).Value;
+			p.color = Color4Helper.FromUInt32(_readElement(_colors, idx).Color);
 
-			//p.SpriteIndex = readData(m_spriteIndices, idx).Value;
-            p.spriteRect.X = readData(_spriteOffsetsU, idx).Value;
-            p.spriteRect.Y = readData(_spriteOffsetsV, idx).Value;
-            p.spriteRect.Width = readData(_spriteSizesU, idx).Value;
-            p.spriteRect.Height = readData(_spriteSizesV, idx).Value;
+			//p.SpriteIndex = _readElement(m_spriteIndices, idx).Value;
+            p.spriteRect.X = _readElement(_spriteOffsetsU, idx).Value;
+            p.spriteRect.Y = _readElement(_spriteOffsetsV, idx).Value;
+            p.spriteRect.Width = _readElement(_spriteSizesU, idx).Value;
+            p.spriteRect.Height = _readElement(_spriteSizesV, idx).Value;
 
-            p.vel = readData(_velocities, idx);
-            p.angularVelocity = readData(_angularVelocities, idx);
-            p.mass = readData(_masses, idx);
-			p.rotationalInnertia = readData (_rotationalInnertias, idx);
-			p.drag = readData (_drags, idx);
-			p.rotationalDrag = readData (_rotationalDrags, idx);
-			p.effectorMask = (ushort)((int)readData (_effectorMasksHigh, idx) << 8
-							 	    | (int)readData (_effectorMasksLow, idx));
+            p.vel = _readElement(_velocities, idx);
+            p.angularVelocity = _readElement(_angularVelocities, idx);
+            p.mass = _readElement(_masses, idx);
+			p.rotationalInnertia = _readElement (_rotationalInnertias, idx);
+			p.drag = _readElement (_drags, idx);
+			p.rotationalDrag = _readElement (_rotationalDrags, idx);
+			p.effectorMask = (ushort)((int)_readElement (_effectorMasksHigh, idx) << 8
+							 	    | (int)_readElement (_effectorMasksLow, idx));
         }
 
         protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
@@ -561,7 +570,7 @@ namespace SimpleScene
         // The alternative to re-implementing quicksort appears to be implementing IList interface with
         // about 10 function implementations needed, some of which may be messy or not make sense for the
         // current data structure. For now lets implement quicksort and see how it does
-        protected void quickSort(int leftIdx, int rightIdx)
+        protected virtual void quickSort(int leftIdx, int rightIdx)
         {
             if (leftIdx < rightIdx) {
                 int pi = quicksortPartition(leftIdx, rightIdx);
@@ -570,15 +579,15 @@ namespace SimpleScene
             }   
         }
 
-        protected int quicksortPartition(int leftIdx, int rightIdx)
+        protected virtual int quicksortPartition(int leftIdx, int rightIdx)
         {
             int pivot = _rand.Next(leftIdx, rightIdx);
             particleSwap(pivot, rightIdx);
             int store = leftIdx;
 
             for (int i = leftIdx; i < rightIdx; ++i) {
-                float iDepth = readData(_viewDepths, i);
-                float rightDepth = readData(_viewDepths, rightIdx);
+                float iDepth = _readElement(_viewDepths, i);
+                float rightDepth = _readElement(_viewDepths, rightIdx);
                 // or <= ?
                 if (iDepth <= rightDepth) {
                     particleSwap(i, store);
@@ -589,19 +598,29 @@ namespace SimpleScene
             return store;
         }
 
-        protected void particleSwap(int leftIdx, int rightIdx)
+        protected virtual void particleSwap(int leftIdx, int rightIdx)
         {
+            if (leftIdx == rightIdx) return;
+
             // TODO Consider swaping on a per component basis. 
             // It may have better peformance
             // But adds more per-component maintenance
-            SSParticle leftParticle = new SSParticle ();
-            SSParticle rightParticle = new SSParticle();
+            SSParticle leftParticle = createNewParticle();
+            SSParticle rightParticle = createNewParticle();
             readParticle(leftIdx, leftParticle);
             readParticle(rightIdx, rightParticle);
 
             // write in reverse
             writeParticle(leftIdx, rightParticle);
             writeParticle(rightIdx, leftParticle);
+
+            #if true
+            if (_nextIdxToOverwrite == leftIdx) {
+                _nextIdxToOverwrite = rightIdx;
+            } else if (_nextIdxToOverwrite == rightIdx) {
+                _nextIdxToOverwrite = leftIdx;
+            }
+            #endif
         }
     }
 }

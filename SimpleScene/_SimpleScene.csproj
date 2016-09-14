@@ -194,6 +194,11 @@
     <Compile Include="Extra\SExplosionManager.cs" />
     <Compile Include="Core\SSColorMaterial.cs" />
     <Compile Include="Extra\SSkyboxRenderer.cs" />
+    <Compile Include="Extra\STrailsRenderer.cs" />
+    <Compile Include="Core\SSInstancedCylinderShaderProgram.cs">
+      <Link>Core\Core\SSInstancedCylinderShaderProgram.cs</Link>
+    </Compile>
+    <Compile Include="Meshes\Shapes\SQuad.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
