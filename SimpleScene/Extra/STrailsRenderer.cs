@@ -10,103 +10,88 @@ using System.Collections.Generic;
 
 namespace SimpleScene
 {
+	public class STrailsParameters
+	{
+		public int capacity = 1000;
+
+		#if !TRAILS_SLOW
+		public float trailsEmissionInterval = 0.02f;
+		public int numCylindersPerEmissionMax = 5;
+		#else
+		// debugging options
+		public float trailsEmissionInterval = 1f;
+		public int numCylindersPerEmissionMax = 1;
+		#endif
+
+		public int numCylindersPerEmissionMin = 1;
+
+		public float minSegmentLength = 0.001f;
+		public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
+		public float trailLifetime = 20f;
+		public string textureFilename = "trail_debug.png";
+		//public float distanceToAlpha = 0.20f;
+		public float distanceToAlpha = 0.40f;
+
+		public float alphaMax = 1f;
+		public float alphaMin = 0f;
+		public Vector3[] localJetDirs = new Vector3[] { -Vector3.UnitZ };
+		public Vector3[] localJetOffsets = new Vector3[] {
+			new Vector3(-2f, 0f, +2f),
+			new Vector3(+2f, 0f, +2f)
+			//new Vector3(0f, 0f, -5f),
+			//new Vector3(0f, 0f, 5f)
+		};
+
+		public SortedList<float, Color4> outerColorKeyframes = new SortedList<float, Color4> () {
+			{ 0f, new Color4(1f, 0f, 0f, 0.5f) },
+			{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
+			{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
+		};
+
+		public SortedList<float, Color4> innerColorKeyframes = new SortedList<float, Color4> () {
+			{ 0f, new Color4(1f, 1f, 1f, 0.7f) },
+			{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
+			{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
+		};
+
+		public SortedList<float, float> widthKeyFrames = new SortedList<float, float>() {
+			{ 0f, 2f },
+			{ 0.01f, 3f },
+			{ 1f, 5f }
+		};
+
+		public SortedList<float, float> innerColorRatioKeyframes = new SortedList<float, float>() {
+			{ 0f, 0.9f },
+			{ 0.1f, 0.3f },
+			{ 1f, 0f }
+		};
+
+		public SortedList<float, float> outerColorRatioKeyframes = new SortedList<float, float>() {
+			{ 0f, 0.1f },
+			{ 0.1f, 0.3f },
+			{ 1f, 1f }
+		};
+
+		public int numJets { get { return localJetOffsets.Length; } }
+
+		public Vector3 localJetDir(int idx) 
+		{
+			return localJetDirs [Math.Min (idx, localJetDirs.Length - 1)];
+		}
+
+		// default value
+		public STrailsParameters()
+		{
+		}
+
+		//public string textureFilename = "trail.png";
+	}
+
     public class STrailsRenderer : SSInstancedMeshRenderer
     {
         public delegate Vector3 PositionFunc ();
         public delegate Vector3 FwdFunc();
 		public delegate Vector3 UpFunc();
-
-        public class STrailsParameters
-        {
-            public int capacity = 1000;
-
-			#if !TRAILS_SLOW
-            public float trailsEmissionInterval = 0.02f;
-			public int numCylindersPerEmissionMax = 5;
-			#else
-			// debugging options
-			public float trailsEmissionInterval = 1f;
-			public int numCylindersPerEmissionMax = 1;
-			#endif
-
-            public int numCylindersPerEmissionMin = 1;
-
-            public float minSegmentLength = 0.001f;
-            public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
-            public float trailLifetime = 20f;
-            public string textureFilename = "trail_debug.png";
-            //public float distanceToAlpha = 0.20f;
-			public float distanceToAlpha = 0.40f;
-            
-			public float alphaMax = 1f;
-            public float alphaMin = 0f;
-			public Color4[] outerColors = new Color4[] { 
-				new Color4(1f, 0f, 0f, 0.25f),
-				new Color4(0f, 1f, 0f, 0.25f) 
-			};
-			public Color4[] innerColors = new Color4[] { new Color4(1f, 1f, 1f, 1f) };
-			public Vector3[] localJetDirs = new Vector3[] { -Vector3.UnitZ };
-			public Vector3[] localJetOffsets = new Vector3[] {
-				new Vector3(-2f, 0f, +2f),
-				new Vector3(+2f, 0f, +2f)
-				//new Vector3(0f, 0f, -5f),
-				//new Vector3(0f, 0f, 5f)
-			};
-
-			public SortedList<float, Color4> outerColorKeyframes = new SortedList<float, Color4> () {
-				{ 0f, new Color4(1f, 0f, 0f, 0.5f) },
-				{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
-				{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
-			};
-
-			public SortedList<float, Color4> innerColorKeyframes = new SortedList<float, Color4> () {
-				{ 0f, new Color4(1f, 1f, 1f, 0.7f) },
-				{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
-				{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
-			};
-
-			public SortedList<float, float> widthKeyFrames = new SortedList<float, float>() {
-				{ 0f, 2f },
-				{ 0.01f, 3f },
-				{ 1f, 5f }
-			};
-
-			public SortedList<float, float> innerColorRatioKeyframes = new SortedList<float, float>() {
-				{ 0f, 0.9f },
-				{ 0.1f, 0.3f },
-				{ 1f, 0f }
-			};
-
-			public SortedList<float, float> outerColorRatioKeyframes = new SortedList<float, float>() {
-				{ 0f, 0.1f },
-				{ 0.1f, 0.3f },
-				{ 1f, 1f }
-			};
-
-			public int numJets { get { return localJetOffsets.Length; } }
-
-			public Vector3 localJetDir(int idx) 
-			{
-				return localJetDirs [Math.Min (idx, localJetDirs.Length - 1)];
-			}
-
-			public Color4 outerColor(int idx) 
-			{
-				return outerColors [Math.Min (idx, outerColors.Length - 1)];
-			}
-
-			public Color4 innerColor(int idx) 
-			{
-				return innerColors [Math.Min (idx, innerColors.Length - 1)];
-			}
-
-            // default value
-            public STrailsParameters()
-            {
-            }
-
-			//public string textureFilename = "trail.png";
-        }
 
         public STrailsData trailsData {
             get { return (STrailsData)base.instanceData; }
@@ -565,8 +550,8 @@ namespace SimpleScene
             protected override int storeNewParticle (SSParticle newParticle)
             {
                 var ts = (STrailsSegment)newParticle;
-				ts.color = trailsParams.outerColor(_jetIndex);
-				ts.cylInnerColor = trailsParams.innerColor(_jetIndex);
+				ts.color = Color4.Red;
+				ts.cylInnerColor = Color4.Yellow;
                 ts.life = trailsParams.trailLifetime;
                 ts.vel = Vector3.Zero;
                 //ts.color = Color4.White;
