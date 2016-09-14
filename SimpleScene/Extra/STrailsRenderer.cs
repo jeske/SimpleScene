@@ -32,7 +32,7 @@ namespace SimpleScene
 
             public int numCylindersPerEmissionMin = 1;
 
-            public float minSegmentLength = 0.01f;
+            public float minSegmentLength = 0.001f;
             public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
             public float velocityToLengthFactor = 1f;
             public float trailLifetime = 20f;
@@ -145,14 +145,14 @@ namespace SimpleScene
 
             renderState.blendEquationModeRGB = BlendEquationMode.FuncAdd;
             renderState.blendFactorSrcRGB = BlendingFactorSrc.SrcAlpha;
-			renderState.blendFactorDestRGB = BlendingFactorDest.DstAlpha;
-			//renderState.blendFactorDestRGB = BlendingFactorDest.OneMinusSrc1Alpha;
+			//renderState.blendFactorDestRGB = BlendingFactorDest.DstAlpha;
+			renderState.blendFactorDestRGB = BlendingFactorDest.OneMinusSrc1Alpha;
 
 			renderState.blendEquationModeAlpha = BlendEquationMode.FuncAdd;
 			renderState.blendFactorSrcAlpha = BlendingFactorSrc.One;
 			renderState.blendFactorDestAlpha = BlendingFactorDest.One;
 			//renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
-			//renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
+			renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 
             simulateOnUpdate = true;
 
