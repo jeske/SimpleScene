@@ -42,34 +42,35 @@ namespace SimpleScene
 			//new Vector3(0f, 0f, 5f)
 		};
 
-		public SortedList<float, Color4> outerColorKeyframes = new SortedList<float, Color4> () {
-			{ 0f, new Color4(1f, 0f, 0f, 0.5f) },
-			{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
-			{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
+		// this is more clumsy than initializing a dictionary; but dictionaries don't serialize without some extra work
+		public List<SSKeyFrame<Color4>> outerColorKeyframes = new List<SSKeyFrame<Color4>>() {
+			new SSKeyFrame<Color4>(0f, new Color4(1f, 0f, 0f, 0.5f)),
+			new SSKeyFrame<Color4>(0.2f, new Color4(1f, 0f, 0f, 0.375f)),
+			new SSKeyFrame<Color4>(0.8f, new Color4(1f, 0f, 0f, 0f))
 		};
 
-		public SortedList<float, Color4> innerColorKeyframes = new SortedList<float, Color4> () {
-			{ 0f, new Color4(1f, 1f, 1f, 0.7f) },
-			{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
-			{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
+		public List<SSKeyFrame<Color4>> innerColorKeyframes = new List<SSKeyFrame<Color4>>() {
+			new SSKeyFrame<Color4>(0f, new Color4(1f, 1f, 1f, 0.7f)),
+			new SSKeyFrame<Color4>(0.2f, new Color4(1f, 0f, 0f, 0.375f)),
+			new SSKeyFrame<Color4>(0.8f, new Color4(1f, 0f, 0f, 0f))
 		};
 
-		public SortedList<float, float> widthKeyFrames = new SortedList<float, float>() {
-			{ 0f, 2f },
-			{ 0.01f, 3f },
-			{ 1f, 5f }
+		public List<SSKeyFrame<float>> widthKeyFrames = new List<SSKeyFrame<float>>() {
+			new SSKeyFrame<float>(0f, 2f),
+			new SSKeyFrame<float>(0.01f, 3f),
+			new SSKeyFrame<float>(1f, 5f)
 		};
 
-		public SortedList<float, float> innerColorRatioKeyframes = new SortedList<float, float>() {
-			{ 0f, 0.9f },
-			{ 0.1f, 0.3f },
-			{ 1f, 0f }
+		public List<SSKeyFrame<float>> innerColorRatioKeyframes = new List<SSKeyFrame<float>>() {
+			new SSKeyFrame<float>(0f, 0.9f),
+			new SSKeyFrame<float>(0.1f, 0.3f),
+			new SSKeyFrame<float>(1f, 0f)
 		};
 
-		public SortedList<float, float> outerColorRatioKeyframes = new SortedList<float, float>() {
-			{ 0f, 0.1f },
-			{ 0.1f, 0.3f },
-			{ 1f, 1f }
+		public List<SSKeyFrame<float>> outerColorRatioKeyframes = new List<SSKeyFrame<float>>() {
+			new SSKeyFrame<float>(0f, 0.1f),
+			new SSKeyFrame<float>(0.1f, 0.3f),
+			new SSKeyFrame<float>(1f, 1f)
 		};
 
 		public int numJets { get { return localJetOffsets.Length; } }
@@ -89,7 +90,7 @@ namespace SimpleScene
 
     public class STrailsRenderer : SSInstancedMeshRenderer
     {
-        public delegate Vector3 PositionFunc ();
+		public delegate Vector3 PositionFunc ();
         public delegate Vector3 FwdFunc();
 		public delegate Vector3 UpFunc();
 
@@ -106,6 +107,7 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeColor> _innerColorBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _innerColorRatioBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _outerColorRatioBuffer;
+		protected float _fadeAwayCounter = -1f;
 
 		public STrailsRenderer(PositionFunc positonFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
             STrailsParameters trailsParams = null)
@@ -148,6 +150,11 @@ namespace SimpleScene
             //this.MainColor = Color4Helper.RandomDebugColor();
             this.renderMode = RenderMode.GpuInstancing;
         }
+
+		public void fadeAway()
+		{
+			_fadeAwayCounter = trailsData.trailsParams.trailLifetime;
+		}
 
         protected override void _initAttributeBuffers (BufferUsageHint hint)
         {
@@ -196,6 +203,13 @@ namespace SimpleScene
 			GL.ColorMask (true, true, true, true);
 
 			base.Render (renderConfig);
+
+			if (_fadeAwayCounter > 0f) {
+				_fadeAwayCounter -= renderConfig.timeElapsedS;
+				if (_fadeAwayCounter <= 0f) {
+					renderState.toBeDeleted = true;
+				}
+			}
 		}
 
         public class STrailsData : SSParticleSystemData
@@ -289,34 +303,29 @@ namespace SimpleScene
 
 				}
 
-				_outerColorEffector = new SSColorKeyframesEffector() { 
+				_outerColorEffector = new SSColorKeyframesEffector(trailsParams.outerColorKeyframes) { 
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.outerColorKeyframes 
 				};
 				addEffector(_outerColorEffector);
 
-				_innerColorEffector = new STrailsInnerColorEffector() {
+				_innerColorEffector = new STrailsInnerColorEffector(trailsParams.innerColorKeyframes) {
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.innerColorKeyframes
 				};
 				addEffector(_innerColorEffector);
 
-				_innerRatioEffector = new STrailsInnerColorRatioEffector() { 
+
+				_innerRatioEffector = new STrailsInnerColorRatioEffector(trailsParams.innerColorRatioKeyframes) { 
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.innerColorRatioKeyframes 
 				};
 				addEffector(_innerRatioEffector);
 
-				_outerRatioEffector = new STrailsOuterColorRatioEffector() {
+				_outerRatioEffector = new STrailsOuterColorRatioEffector(trailsParams.outerColorRatioKeyframes) {
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.outerColorRatioKeyframes
 				};
 				addEffector(_outerRatioEffector);
 
-
-				_widthEffector = new STrailsWidthEffector() { 
+				_widthEffector = new STrailsWidthEffector(trailsParams.widthKeyFrames) { 
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.widthKeyFrames 
 				};
 				addEffector(_widthEffector);
 
@@ -720,6 +729,10 @@ namespace SimpleScene
 
 			protected class STrailsWidthEffector : SSKeyframesEffector<float>
 			{
+				public STrailsWidthEffector() { }
+
+				public STrailsWidthEffector(List<SSKeyFrame<float>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, float value)
 				{
 					var ts = (STrailsSegment)particle;
@@ -734,6 +747,10 @@ namespace SimpleScene
 
 			protected class STrailsInnerColorRatioEffector : SSKeyframesEffector<float>
 			{
+				public STrailsInnerColorRatioEffector() { }
+
+				public STrailsInnerColorRatioEffector(List<SSKeyFrame<float>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, float value)
 				{
 					var ts = (STrailsSegment)particle;
@@ -748,6 +765,10 @@ namespace SimpleScene
 
 			protected class STrailsOuterColorRatioEffector : SSKeyframesEffector<float>
 			{
+				public STrailsOuterColorRatioEffector() { }
+
+				public STrailsOuterColorRatioEffector(List<SSKeyFrame<float>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, float value)
 				{
 					var ts = (STrailsSegment)particle;
@@ -762,6 +783,10 @@ namespace SimpleScene
 
 			protected class STrailsInnerColorEffector : SSKeyframesEffector<Color4>
 			{
+				public STrailsInnerColorEffector() { }
+
+				public STrailsInnerColorEffector(List<SSKeyFrame<Color4>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, Color4 value)
 				{
 					var ts = (STrailsSegment)particle;
