@@ -126,11 +126,13 @@ namespace SimpleScene
         #endregion
 
         protected float _radius;
+		protected Vector3 _center;
 
         public override int capacity { get { return _capacity; } }
         public override int numElements { get { return _numParticles; } }
 		public override int activeBlockLength { get { return _activeBlockLength; } }
 		public override float radius { get { return _radius; } }
+		public override Vector3 center { get { return _center; } }
 		public override SSAttributeVec3[] positions { get { return _positions; } }
 		public override SSAttributeVec2[] orientationsXY { get { return _orientationsXY; } }
 		public override SSAttributeFloat[] orientationsZ { get { return _orientationsZ; } }
@@ -200,6 +202,7 @@ namespace SimpleScene
 			_numParticles = 0;
 
 			_radius = 0f;
+			_center = Vector3.Zero;
 			elapsedTimeAccumulator = 0f;
 
             initArrays();
@@ -362,6 +365,7 @@ namespace SimpleScene
 		protected virtual void simulateStep()
         {
             _radius = 0f;
+			Vector3 centerAccumulator = Vector3.Zero;
 			foreach (SSParticleEffector effector in _effectors) {
 				effector.simulateSelf (simulationStep);
 			}
@@ -391,7 +395,8 @@ namespace SimpleScene
 							effector.simulateParticleEffect(p, simulationStep);
                         }
                         writeParticle(i, p);
-                        float distFromOrogin = p.pos.Length;
+						centerAccumulator += p.pos;
+						float distFromOrogin = (p.pos - _center).Length;
                         if (distFromOrogin > _radius) {
                             _radius = distFromOrogin;
                         }
@@ -411,6 +416,8 @@ namespace SimpleScene
                     }
                 }
             }
+			_center = centerAccumulator / _numParticles;
+
 			foreach (SSParticleEmitter emitter in _emitters) {
                 emitter.simulateEmissions(simulationStep, createNewParticle, storeNewParticle);
 			}

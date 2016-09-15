@@ -43,6 +43,7 @@ namespace SimpleScene.Demos
         public SSkyboxRenderer(SSTexture[] textures = null)
         {
             this.renderState.depthTest = true;
+			this.renderState.depthWrite = false;
             this.renderState.lighted = false;
             this.renderState.frustumCulling = false;
             this.renderState.noShader = true;

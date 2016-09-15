@@ -57,7 +57,7 @@ namespace SimpleScene
         protected SSInstanceBVH _bvh = null;
 
 		public override Vector3 localBoundingSphereCenter {
-			get { return Vector3.Zero; }
+			get { return instanceData.center; }
 		}
 
 		public override float localBoundingSphereRadius {

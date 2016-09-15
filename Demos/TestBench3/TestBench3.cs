@@ -163,12 +163,10 @@ namespace TestBench3
             // trails test
             var trailsRenderer = new STrailsRenderer(
                 () => vandalShip.Pos,
-                () => vandalVelocity,
                 () => vandalShip.Dir,
 				() => vandalShip.Up
             );
             alpha3dScene.AddObject(trailsRenderer);
-            //hud2dScene.AddObject(trailsRenderer);
         }
 
         protected string _showDistanceFunc(SSObject target)

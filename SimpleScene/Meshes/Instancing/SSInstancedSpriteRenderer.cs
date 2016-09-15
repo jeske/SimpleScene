@@ -121,6 +121,7 @@ namespace SimpleScene.Demos
         public override int capacity { get { return _capacity; } }
         public override int activeBlockLength { get { return _activeBlockLength; } }
         public override float radius { get { return 100f; } } // TODO
+		public override Vector3 center { get { return Vector3.Zero; } }
         public override SSAttributeVec3[] positions { get { return _positions; } }
         public override SSAttributeVec2[] orientationsXY { get { return _orientationsXY; } }
         public override SSAttributeFloat[] orientationsZ { get { return _orientationsZ; } }

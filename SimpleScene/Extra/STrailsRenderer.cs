@@ -10,106 +10,89 @@ using System.Collections.Generic;
 
 namespace SimpleScene
 {
+	public class STrailsParameters
+	{
+		public int capacity = 1000;
+
+		#if !TRAILS_SLOW
+		public float trailsEmissionInterval = 0.02f;
+		public int numCylindersPerEmissionMax = 5;
+		#else
+		// debugging options
+		public float trailsEmissionInterval = 1f;
+		public int numCylindersPerEmissionMax = 1;
+		#endif
+
+		public int numCylindersPerEmissionMin = 1;
+
+		public float minSegmentLength = 0.001f;
+		public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
+		public float trailLifetime = 20f;
+		public string textureFilename = "trail_debug.png";
+		//public float distanceToAlpha = 0.20f;
+		public float distanceToAlpha = 0.40f;
+
+		public float alphaMax = 1f;
+		public float alphaMin = 0f;
+		public Vector3[] localJetDirs = new Vector3[] { -Vector3.UnitZ };
+		public Vector3[] localJetOffsets = new Vector3[] {
+			new Vector3(-2f, 0f, +2f),
+			new Vector3(+2f, 0f, +2f)
+			//new Vector3(0f, 0f, -5f),
+			//new Vector3(0f, 0f, 5f)
+		};
+
+		// this is more clumsy than initializing a dictionary; but dictionaries don't serialize without some extra work
+		public List<SSKeyFrame<Color4>> outerColorKeyframes = new List<SSKeyFrame<Color4>>() {
+			new SSKeyFrame<Color4>(0f, new Color4(1f, 0f, 0f, 0.5f)),
+			new SSKeyFrame<Color4>(0.2f, new Color4(1f, 0f, 0f, 0.375f)),
+			new SSKeyFrame<Color4>(0.8f, new Color4(1f, 0f, 0f, 0f))
+		};
+
+		public List<SSKeyFrame<Color4>> innerColorKeyframes = new List<SSKeyFrame<Color4>>() {
+			new SSKeyFrame<Color4>(0f, new Color4(1f, 1f, 1f, 0.7f)),
+			new SSKeyFrame<Color4>(0.2f, new Color4(1f, 0f, 0f, 0.375f)),
+			new SSKeyFrame<Color4>(0.8f, new Color4(1f, 0f, 0f, 0f))
+		};
+
+		public List<SSKeyFrame<float>> widthKeyFrames = new List<SSKeyFrame<float>>() {
+			new SSKeyFrame<float>(0f, 2f),
+			new SSKeyFrame<float>(0.01f, 3f),
+			new SSKeyFrame<float>(1f, 5f)
+		};
+
+		public List<SSKeyFrame<float>> innerColorRatioKeyframes = new List<SSKeyFrame<float>>() {
+			new SSKeyFrame<float>(0f, 0.9f),
+			new SSKeyFrame<float>(0.1f, 0.3f),
+			new SSKeyFrame<float>(1f, 0f)
+		};
+
+		public List<SSKeyFrame<float>> outerColorRatioKeyframes = new List<SSKeyFrame<float>>() {
+			new SSKeyFrame<float>(0f, 0.1f),
+			new SSKeyFrame<float>(0.1f, 0.3f),
+			new SSKeyFrame<float>(1f, 1f)
+		};
+
+		public int numJets { get { return localJetOffsets.Length; } }
+
+		public Vector3 localJetDir(int idx) 
+		{
+			return localJetDirs [Math.Min (idx, localJetDirs.Length - 1)];
+		}
+
+		// default value
+		public STrailsParameters()
+		{
+		}
+
+		//public string textureFilename = "trail.png";
+	}
+
     public class STrailsRenderer : SSInstancedMeshRenderer
     {
-        public delegate Vector3 VelocityFunc ();
-        public delegate Vector3 PositionFunc ();
+		public delegate Vector3 PositionFunc ();
         public delegate Vector3 FwdFunc();
 		public delegate Vector3 UpFunc();
-
-        public class STrailsParameters
-        {
-            public int capacity = 1000;
-
-			#if !TRAILS_SLOW
-            public float trailsEmissionInterval = 0.02f;
-			public int numCylindersPerEmissionMax = 5;
-			#else
-			// debugging options
-			public float trailsEmissionInterval = 1f;
-			public int numCylindersPerEmissionMax = 1;
-			#endif
-
-            public int numCylindersPerEmissionMin = 1;
-
-            public float minSegmentLength = 0.01f;
-            public float radiansPerExtraCylinder = (float)Math.PI/36f; // 5 degress
-            public float velocityToLengthFactor = 1f;
-            public float trailLifetime = 20f;
-            public float trailCutoffVelocity = 0.1f;
-            public string textureFilename = "trail_debug.png";
-            //public float distanceToAlpha = 0.20f;
-			public float distanceToAlpha = 0.40f;
-            
-			public float alphaMax = 1f;
-            public float alphaMin = 0f;
-			public Color4[] outerColors = new Color4[] { 
-				new Color4(1f, 0f, 0f, 0.25f),
-				new Color4(0f, 1f, 0f, 0.25f) 
-			};
-			public Color4[] innerColors = new Color4[] { new Color4(1f, 1f, 1f, 1f) };
-			public Vector3[] localJetDirs = new Vector3[] { -Vector3.UnitZ };
-			public Vector3[] localJetOffsets = new Vector3[] {
-				new Vector3(-2f, 0f, +2f),
-				new Vector3(+2f, 0f, +2f)
-				//new Vector3(0f, 0f, -5f),
-				//new Vector3(0f, 0f, 5f)
-			};
-
-			public SortedList<float, Color4> outerColorKeyframes = new SortedList<float, Color4> () {
-				{ 0f, new Color4(1f, 0f, 0f, 0.5f) },
-				{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
-				{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
-			};
-
-			public SortedList<float, Color4> innerColorKeyframes = new SortedList<float, Color4> () {
-				{ 0f, new Color4(1f, 1f, 1f, 0.7f) },
-				{ 0.2f, new Color4(1f, 0f, 0f, 0.375f) },
-				{ 0.8f, new Color4(1f, 0f, 0f, 0f) }
-			};
-
-			public SortedList<float, float> widthKeyFrames = new SortedList<float, float>() {
-				{ 0f, 2f },
-				{ 0.01f, 3f },
-				{ 1f, 5f }
-			};
-
-			public SortedList<float, float> innerColorRatioKeyframes = new SortedList<float, float>() {
-				{ 0f, 0.9f },
-				{ 0.1f, 0.3f },
-				{ 1f, 0f }
-			};
-
-			public SortedList<float, float> outerColorRatioKeyframes = new SortedList<float, float>() {
-				{ 0f, 0.1f },
-				{ 0.1f, 0.3f },
-				{ 1f, 1f }
-			};
-
-			public int numJets { get { return localJetOffsets.Length; } }
-
-			public Vector3 localJetDir(int idx) 
-			{
-				return localJetDirs [Math.Min (idx, localJetDirs.Length - 1)];
-			}
-
-			public Color4 outerColor(int idx) 
-			{
-				return outerColors [Math.Min (idx, outerColors.Length - 1)];
-			}
-
-			public Color4 innerColor(int idx) 
-			{
-				return innerColors [Math.Min (idx, innerColors.Length - 1)];
-			}
-
-            // default value
-            public STrailsParameters()
-            {
-            }
-
-			//public string textureFilename = "trail.png";
-        }
 
         public STrailsData trailsData {
             get { return (STrailsData)base.instanceData; }
@@ -125,10 +108,11 @@ namespace SimpleScene
         protected SSAttributeBuffer<SSAttributeColor> _innerColorBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _innerColorRatioBuffer;
         protected SSAttributeBuffer<SSAttributeFloat> _outerColorRatioBuffer;
+		protected float _fadeAwayCounter = -1f;
 
-		public STrailsRenderer(PositionFunc positonFunc, VelocityFunc velocityFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
+		public STrailsRenderer(PositionFunc positonFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
             STrailsParameters trailsParams = null)
-			: base(new STrailsData(positonFunc, velocityFunc, fwdDirFunc, upFunc,
+			: base(new STrailsData(positonFunc, fwdDirFunc, upFunc,
                 trailsParams ?? new STrailsParameters()),
                 SSTexturedCube.Instance, _defaultUsageHint)
         {
@@ -146,19 +130,19 @@ namespace SimpleScene
 
             renderState.blendEquationModeRGB = BlendEquationMode.FuncAdd;
             renderState.blendFactorSrcRGB = BlendingFactorSrc.SrcAlpha;
-			renderState.blendFactorDestRGB = BlendingFactorDest.DstAlpha;
-			//renderState.blendFactorDestRGB = BlendingFactorDest.OneMinusSrc1Alpha;
+			//renderState.blendFactorDestRGB = BlendingFactorDest.DstAlpha;
+			renderState.blendFactorDestRGB = BlendingFactorDest.OneMinusSrc1Alpha;
 
 			renderState.blendEquationModeAlpha = BlendEquationMode.FuncAdd;
 			renderState.blendFactorSrcAlpha = BlendingFactorSrc.One;
 			renderState.blendFactorDestAlpha = BlendingFactorDest.One;
 			//renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
-			//renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
+			renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 
             simulateOnUpdate = true;
 
-            // TODO this is kind of heavy heanded. try a few alternatives with bounding spheres
-            renderState.frustumCulling = false;
+            // TODO 
+            renderState.frustumCulling = true;
 
             colorMaterial = SSColorMaterial.pureAmbient;
             textureMaterial = new SSTextureMaterial (diffuse: tex);
@@ -167,6 +151,11 @@ namespace SimpleScene
             //this.MainColor = Color4Helper.RandomDebugColor();
             this.renderMode = RenderMode.GpuInstancing;
         }
+
+		public void fadeAway()
+		{
+			_fadeAwayCounter = trailsData.trailsParams.trailLifetime;
+		}
 
         protected override void _initAttributeBuffers (BufferUsageHint hint)
         {
@@ -217,6 +206,13 @@ namespace SimpleScene
 			GL.ColorMask (true, true, true, true);
 
 			base.Render (renderConfig);
+
+			if (_fadeAwayCounter > 0f) {
+				_fadeAwayCounter -= renderConfig.timeElapsedS;
+				if (_fadeAwayCounter <= 0f) {
+					renderState.toBeDeleted = true;
+				}
+			}
 		}
 
         public class STrailsData : SSParticleSystemData
@@ -256,7 +252,6 @@ namespace SimpleScene
 
 			#region spline generation
 	        protected PositionFunc _positionFunc;
-            protected VelocityFunc _velocityFunc;
 			protected FwdFunc _fwdFunc;
 			protected UpFunc _upFunc;
 			protected Matrix4[] _localJetOrients;
@@ -278,13 +273,12 @@ namespace SimpleScene
 			#endregion
 
             public STrailsData(
-				PositionFunc positionFunc, VelocityFunc velocityFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
+				PositionFunc positionFunc, FwdFunc fwdDirFunc, UpFunc upFunc,
                 STrailsParameters trailsParams = null)
                 : base(trailsParams.capacity)
             {
                 this.trailsParams = trailsParams;
                 this._positionFunc = positionFunc;
-                this._velocityFunc = velocityFunc;
 				this._fwdFunc = fwdDirFunc;
 				this._upFunc = upFunc;
 
@@ -314,34 +308,29 @@ namespace SimpleScene
 
 				}
 
-				_outerColorEffector = new SSColorKeyframesEffector() { 
+				_outerColorEffector = new SSColorKeyframesEffector(trailsParams.outerColorKeyframes) { 
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.outerColorKeyframes 
 				};
 				addEffector(_outerColorEffector);
 
-				_innerColorEffector = new STrailsInnerColorEffector() {
+				_innerColorEffector = new STrailsInnerColorEffector(trailsParams.innerColorKeyframes) {
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.innerColorKeyframes
 				};
 				addEffector(_innerColorEffector);
 
-				_innerRatioEffector = new STrailsInnerColorRatioEffector() { 
+
+				_innerRatioEffector = new STrailsInnerColorRatioEffector(trailsParams.innerColorRatioKeyframes) { 
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.innerColorRatioKeyframes 
 				};
 				addEffector(_innerRatioEffector);
 
-				_outerRatioEffector = new STrailsOuterColorRatioEffector() {
+				_outerRatioEffector = new STrailsOuterColorRatioEffector(trailsParams.outerColorRatioKeyframes) {
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.outerColorRatioKeyframes
 				};
 				addEffector(_outerRatioEffector);
 
-
-				_widthEffector = new STrailsWidthEffector() { 
+				_widthEffector = new STrailsWidthEffector(trailsParams.widthKeyFrames) { 
 					particleLifetime = trailsParams.trailLifetime,
-					keyframes = trailsParams.widthKeyFrames 
 				};
 				addEffector(_widthEffector);
 
@@ -580,8 +569,8 @@ namespace SimpleScene
             protected override int storeNewParticle (SSParticle newParticle)
             {
                 var ts = (STrailsSegment)newParticle;
-				ts.color = trailsParams.outerColor(_jetIndex);
-				ts.cylInnerColor = trailsParams.innerColor(_jetIndex);
+				ts.color = Color4.Red;
+				ts.cylInnerColor = Color4.Yellow;
                 ts.life = trailsParams.trailLifetime;
                 ts.vel = Vector3.Zero;
                 //ts.color = Color4.White;
@@ -725,17 +714,14 @@ namespace SimpleScene
             public class STrailsEmitter : SSParticleEmitter
             {
                 public PositionFunc posFunc;
-                public VelocityFunc velFunc;
                 public FwdFunc fwdDirFunc;
                 public STrailsParameters trailParams;
-                public float velocityToScaleFactor = 1f; 
 
                 public STrailsEmitter(STrailsParameters tParams, 
-                    PositionFunc posFunc, VelocityFunc velFunc, FwdFunc fwdDirFunc)
+                    PositionFunc posFunc, FwdFunc fwdDirFunc)
                 {
                     this.trailParams = tParams;
                     this.posFunc = posFunc;
-                    this.velFunc = velFunc;
                     this.fwdDirFunc = fwdDirFunc;
 
                     base.life = tParams.trailLifetime;
@@ -759,7 +745,6 @@ namespace SimpleScene
 				public STrailsWidthEffector(List<SSKeyFrame<float>> kframes) : base(kframes) 
 				{ 
 				}
-
 				protected override void applyValue (SSParticle particle, float value)
 				{
 					var ts = (STrailsSegment)particle;
@@ -779,6 +764,10 @@ namespace SimpleScene
 
 			protected class STrailsInnerColorRatioEffector : SSKeyframesEffector<float>
 			{
+				public STrailsInnerColorRatioEffector() { }
+
+				public STrailsInnerColorRatioEffector(List<SSKeyFrame<float>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, float value)
 				{
 					var ts = (STrailsSegment)particle;
@@ -793,6 +782,10 @@ namespace SimpleScene
 
 			protected class STrailsOuterColorRatioEffector : SSKeyframesEffector<float>
 			{
+				public STrailsOuterColorRatioEffector() { }
+
+				public STrailsOuterColorRatioEffector(List<SSKeyFrame<float>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, float value)
 				{
 					var ts = (STrailsSegment)particle;
@@ -807,6 +800,10 @@ namespace SimpleScene
 
 			protected class STrailsInnerColorEffector : SSKeyframesEffector<Color4>
 			{
+				public STrailsInnerColorEffector() { }
+
+				public STrailsInnerColorEffector(List<SSKeyFrame<Color4>> kframes) : base(kframes) { }
+
 				protected override void applyValue (SSParticle particle, Color4 value)
 				{
 					var ts = (STrailsSegment)particle;

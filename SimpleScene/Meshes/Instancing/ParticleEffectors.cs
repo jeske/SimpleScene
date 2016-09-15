@@ -6,6 +6,18 @@ using OpenTK.Graphics;
 
 namespace SimpleScene
 {
+	[Serializable]
+	public struct SSKeyFrame<T>
+	{
+		public float key;
+		public T value;
+
+		public SSKeyFrame(float k, T v) {
+			key = k;
+			value = v;
+		}
+	}
+
     public abstract class SSParticleEffector
     {
 		public enum MatchFunction { And, Equals };
@@ -107,6 +119,17 @@ namespace SimpleScene
 		/// </summary>
 		public IInterpolater[] interpolaters = { new LinearInterpolater() }; // default to using LERP for everything
 
+		public SSKeyframesEffector()
+		{
+		}
+
+		public SSKeyframesEffector(List<SSKeyFrame<T>> kframes)
+		{
+			foreach (var kvp in kframes) {
+				keyframes.Add (kvp.key, kvp.value);
+			}
+		}
+
 		protected override sealed void effectParticle(SSParticle particle, float deltaT)
 		{
 			_timeSinceReset += deltaT;
@@ -180,6 +203,10 @@ namespace SimpleScene
 	public class SSColorKeyframesEffector : SSKeyframesEffector<Color4>
 	{
 		public Color4 colorMask = new Color4 (1.0f, 1.0f, 1.0f, 1.0f);
+
+		public SSColorKeyframesEffector() {	}
+
+		public SSColorKeyframesEffector(List<SSKeyFrame<Color4>> kframes) : base(kframes) {	}
 
 		protected override Color4 computeValue (IInterpolater interpolater, Color4 prevKeyframe, Color4 nextKeyframe, float ammount)
 		{
