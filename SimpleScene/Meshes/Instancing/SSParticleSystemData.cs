@@ -520,7 +520,7 @@ namespace SimpleScene
 							 	    | (int)_readElement (_effectorMasksLow, idx));
         }
 
-        protected void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
+        public void writeDataIfNeeded<T>(ref T[] array, int idx, T value) where T : IEquatable<T>
         {
             bool write = true;
 			if (_activeBlockLength > 1 && array.Length == 1) {

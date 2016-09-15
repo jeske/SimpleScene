@@ -75,7 +75,16 @@ void cylindersIntersections(float radiusesSq[NUM_LAYERS],
         // view ray is not parallel to cylinder axis so it may intersect the sides
         // solve: (p_x + dir_x * t)^2 + (p_y + dir_y * t)^2 = r^2; in quadratic form:
         // (dir_x^2 + dir_y^2) * t^2 + [2(p_x * dir_x + py * dir_y)] * t
-        //                                                  + (p_x^2 + p_y^2 - r^2) == 0
+        //                                                  + (p_x^2 + p_y^2) = r^2
+        // now, let r(z) = r_i + (z - (-h.l.)) * (rf - rz) / (2 h.l.); given z(t) = p_z + dir_z * t:
+        // r(t) = r_i + (p_z + dir_z * t + h.l.) * (rf - rz) / (2 h.l.)
+        // let mr = (rf - rz) / 2h.l.; let q = p_z + h.l.;
+
+        // r(t) = r_i + (q + dir_z * t) * mr
+
+        // r^2 = t^2 [m_r^2 * dir_z^2] + t [2 * m_r * dir_z * (r_i + m_r * q) ]
+        //     + [r_i^2 + 2 * r_i * m_r * q + m_r^2 * q^2]
+        
         float a = dot(localPixelRay.xy, localPixelRay.xy);
         float b = 2 * dot(localPixelPos.xy, localPixelRay.xy);
         for (int i = 0; i < NUM_LAYERS; ++i) {
@@ -185,7 +194,8 @@ void main()
     float cylRadius = varCylWidth / 2;
     float cylRadiusFade = cylRadius * (1 - varOuterColorRatio);
     float cylRadiusInner = cylRadius * varInnerColorRatio;
-    float radiusesSq[NUM_LAYERS];
+    float radiuses[NUM_LAYERS];
+    float nextRadiuses[NUM_LAYERS];
     vec4 debugColor[NUM_LAYERS];
     vec3 intersections[NUM_LAYERS * 2];
     int intersectionCounts[NUM_LAYERS];
