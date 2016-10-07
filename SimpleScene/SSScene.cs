@@ -294,6 +294,10 @@ namespace SimpleScene
             bool needObjectDelete = false;
 
             foreach (var obj in objects) {
+				if (obj.preRenderHook != null) {
+					obj.preRenderHook (obj, renderConfig);
+				}
+
                 if (obj.renderState.toBeDeleted) { needObjectDelete = true; continue; }
                 if (!obj.renderState.visible) continue; // skip invisible objects
                 if (renderConfig.drawingShadowMap && !obj.renderState.castsShadow) continue; // skip non-shadow casters

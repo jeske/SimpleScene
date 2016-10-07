@@ -76,6 +76,10 @@ namespace SimpleScene
             // In many situations selecting instances is computationally intensive. 
             // Turn it off and let users customize
             this.selectable = false;
+
+			this.preRenderHook += 
+				(obj, rc) => { if (this.simulateOnRender) { instanceData.update (rc.timeElapsedS); } };
+			// TODO: unhook safely
         }
 
 		public SSInstancedMeshRenderer (SSInstancesData ps, 
@@ -110,10 +114,6 @@ namespace SimpleScene
             instanceData.updateCamera (ref this.worldMat, 
                 ref renderConfig.invCameraViewMatrix, ref renderConfig.projectionMatrix);
 
-            if (this.simulateOnRender == true) {
-                instanceData.update(renderConfig.timeElapsedS);
-            }
-
             // do we have anything to draw?
             if (instanceData.numElements <= 0) return;
 
@@ -134,15 +134,15 @@ namespace SimpleScene
         }
 
         public override void Update (float fElapsedSecs)
-        {
-            if (simulateOnUpdate) {
-                float prevRadius = instanceData.radius;
-                instanceData.update(fElapsedSecs);
-                if (instanceData.radius != prevRadius) {
-                    NotifyPositionOrSizeChanged ();
-                }
-            }
-        }
+		{
+			if (simulateOnUpdate) {
+				float prevRadius = instanceData.radius;
+				instanceData.update (fElapsedSecs);
+				if (instanceData.radius != prevRadius) {
+					NotifyPositionOrSizeChanged ();
+				}
+			} 
+		}
 
         protected virtual void _prepareInstanceShader(SSRenderConfig renderConfig)
         {

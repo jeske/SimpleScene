@@ -138,9 +138,9 @@ namespace SimpleScene
 			//renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
 			renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 
-            simulateOnUpdate = true;
+            simulateOnUpdate = false;
+			simulateOnRender = true;
 
-            // TODO 
             renderState.frustumCulling = true;
 
             colorMaterial = SSColorMaterial.pureAmbient;
@@ -481,7 +481,7 @@ namespace SimpleScene
                 //printTree();
             }
 
-            protected override void simulateStep ()
+			protected override void simulateStep ()
             {
                 // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
                 _splineEmissionCounter += simulationStep;
@@ -507,7 +507,7 @@ namespace SimpleScene
 					}
                 }
 
-                base.simulateStep();
+				base.simulateStep();
             }
 
 			protected void jetTxfm(int jetIdx, ref Vector3 pos, ref Matrix4 globalOrient,
