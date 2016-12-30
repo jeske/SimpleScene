@@ -14,53 +14,41 @@ namespace TestBench0
 {
 	partial class TestBench0 : TestBenchBootstrap
 	{
-		protected override void setupHUD ()
+		protected override void setupHUD()
 		{
-			base.setupHUD ();
+			base.setupHUD();
 
 			// HUD text....
-			var testDisplay = new SSObject2DSurface_AGGText ();
+			var testDisplay = new SSObject2DSurface_AGGText();
 			testDisplay.backgroundColor = Color.Transparent;
 			testDisplay.alphaBlendingEnabled = true;
 			testDisplay.Label = "TEST AGG";
-			hud2dScene.AddObject (testDisplay);
-			testDisplay.Pos = new Vector3 (50f, 100f, 0f);
-			testDisplay.Scale = new Vector3 (1.0f);
+			hud2dScene.AddObject(testDisplay);
+			testDisplay.Pos = new Vector3(50f, 100f, 0f);
+			testDisplay.Scale = new Vector3(1.0f);
 		}
 
-		protected override void setupScene() 
+		protected override void setupScene()
 		{
-			base.setupScene ();
+			base.setupScene();
 
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/Drone2.obj");
-						
+			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/Drone2.obj");
+
 			// add drone
-			SSObject droneObj = new SSObjectMesh (mesh);
-			main3dScene.AddObject (droneObj);
+			SSObject droneObj = new SSObjectMesh(mesh);
+			main3dScene.AddObject(droneObj);
 			droneObj.renderState.lighted = true;
-            droneObj.colorMaterial = new SSColorMaterial(
-                new Color4(0.3f,0.3f,0.3f,0.3f), // diffuse
-			    new Color4(0.1f,0.1f,0.1f,0.1f), // ambient
-			    new Color4(0.3f,0.3f,0.3f,0.3f), // specular
-			    new Color4(0.3f,0.3f,0.3f,0.3f), // emission
-                10f); // shininess
 			//droneObj.EulerDegAngleOrient(-40.0f,0.0f);
 			droneObj.Pos = new OpenTK.Vector3(0f, 0f, -15f);
 			droneObj.Name = "drone 1";
 
 			// add second drone
-			
+
 			SSObject drone2Obj = new SSObjectMesh(
 				SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/Drone2.obj")
 			);
-			main3dScene.AddObject (drone2Obj);
+			main3dScene.AddObject(drone2Obj);
 			drone2Obj.renderState.lighted = true;
-            drone2Obj.colorMaterial = new SSColorMaterial(
-                new Color4(0.3f,0.3f,0.3f,0.3f), // diffuse
-                new Color4(0.3f,0.3f,0.3f,0.3f), // ambient
-                new Color4(0.3f,0.3f,0.3f,0.3f), // specular
-                new Color4(0.3f,0.3f,0.3f,0.3f), // emission
-                10f); // shininess
 			drone2Obj.EulerDegAngleOrient(-40f, 0f);
 			drone2Obj.Pos = new OpenTK.Vector3(0f, 0f, 0f);
 			drone2Obj.Name = "drone 2";
@@ -149,7 +137,9 @@ namespace TestBench0
 				cubesRenderer.Name = "cube particle renderer";
 				cubesRenderer.renderState.castsShadow = true;
 				cubesRenderer.renderState.receivesShadows = true;
-				cubesRenderer.textureMaterial = new SSTextureMaterial (null, null, tex, null);
+				cubesRenderer.textureMaterial = new SSTextureMaterial() {
+					ambientTex = tex
+				};
                 cubesRenderer.selectable = true;
 				main3dScene.AddObject(cubesRenderer);
 				//cubesRenderer.renderState.visible = false;
