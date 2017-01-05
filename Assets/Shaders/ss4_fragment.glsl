@@ -15,6 +15,7 @@ uniform int diffTexEnabled;
 uniform int specTexEnabled;
 uniform int ambiTexEnabled;
 uniform int bumpTexEnabled;
+uniform int lighted;
 
 uniform int directionalLightIndex; // -1 = no directional light
 uniform int lightingMode;
@@ -276,7 +277,7 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 	   outputColor += glowColor * glowStrength;
 
        vec4 shadowMapDebugColor;           
-       if (directionalLightIndex != -1) {
+       if (lighted != 0 && directionalLightIndex != -1) {
            float litFactor = receivesShadow != 0 ? shadowMapLighting(shadowMapDebugColor)
                                                  : 1.0;
 
@@ -345,7 +346,7 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
        float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
        outputColor += litFactor * diffuseColor * max(diffuseIllumination, glowFactor);
 
-	   if (dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
+	   if (lighted != 0 && dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
           // specular...
           vec3 R = reflect(-lVec,bump_normal);
           float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0, 1), matShininess);

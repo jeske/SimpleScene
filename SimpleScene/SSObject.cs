@@ -123,6 +123,7 @@ namespace SimpleScene
                 pgm.UniReceivesShadow = renderState.receivesShadows;
                 pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
                 pgm.UniShowWireframes = (config.drawWireframeMode == WireframeMode.GLSL_SinglePass);
+				pgm.UniLighted = renderState.lighted;
                 pgm.SetupTextures(textureMaterial);
             }
         }
