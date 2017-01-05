@@ -232,7 +232,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
     } else {
 		// surface away from the light
 	    debugOutputColor = vec4(0.5, 0.0, 0.5, 1.0);  
-		return litFactor;
+		return 0f;
     }
 	
 }
