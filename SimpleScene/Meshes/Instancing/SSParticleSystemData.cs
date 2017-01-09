@@ -490,7 +490,8 @@ namespace SimpleScene
         }
 
         protected bool isDead(int idx) {
-            return _lives [idx] <= 0f;
+			float life = _lives[idx];
+			return !float.IsPositiveInfinity(life) && life <= 0f;
         }
 
         protected bool isAlive(int idx) {
