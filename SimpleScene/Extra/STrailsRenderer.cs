@@ -648,8 +648,8 @@ namespace SimpleScene
 				}
 
                 base.destroyParticle(idx);
-                _prevSegmentData [idx] = STrailsSegment.NotConnected;
-                _nextSegmentData [idx] = STrailsSegment.NotConnected;
+				writeDataIfNeeded(ref _prevSegmentData, idx, STrailsSegment.NotConnected);
+				writeDataIfNeeded(ref _nextSegmentData, idx, STrailsSegment.NotConnected);
 
                 #if TRAILS_DEBUG
                 Console.Write("after destroy {0}, numElements = {1}, head = {2}, tail = {3}: ", 
