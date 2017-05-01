@@ -1,0 +1,5 @@
+NCalc Expression Evaluator by Sebastien Ross
+
+Released under MIT License
+
+https://www.codeproject.com/Articles/18880/State-of-the-Art-Expression-Evaluation
