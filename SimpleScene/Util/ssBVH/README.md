@@ -1,7 +1,6 @@
 ## Dynamic 3d BVH - 3d Bounding Volume Hierarchy
 
-Copyright(C) 2014, by David W. Jeske
-Released under Apache 2.0 and to the public domain
+Copyright(C) 2014, by David W. Jeske. Released under Apache 2.0 and to the public domain.
 
 ### About
 
