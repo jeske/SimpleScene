@@ -9,6 +9,7 @@ attribute vec3 cylinderAxis; // must be normalized
 attribute vec3 prevJointAxis;
 attribute vec3 nextJointAxis;
 attribute float cylinderWidth;
+attribute float cylinderNextWidth;
 attribute float cylinderLength;
 attribute vec4 cylinderColor;
 attribute vec4 cylinderInnerColor;
@@ -21,6 +22,7 @@ uniform vec3 cylinderAxis; // must be normalized
 uniform vec3 prevJointAxis;
 uniform vec3 nextJointAxis;
 uniform float cylinderWidth;
+uniform float cylinderNextWidth;
 uniform float cylinderLength;
 uniform vec4 cylinderInnerColor;
 uniform float innerColorRatio;
@@ -34,6 +36,7 @@ varying vec3 varPrevJointAxis;
 varying vec3 varNextJointAxis;
 varying float varCylLength;
 varying float varCylWidth;
+varying float varCylNextWidth;
 varying vec4 varCylColor;
 varying vec4 varCylInnerColor;
 varying float varInnerColorRatio;
@@ -58,16 +61,19 @@ void main()
     varNextJointAxis = nextJointAxis;
     varCylCenter = cylinderCenter;
     varCylWidth = cylinderWidth;
+    varCylNextWidth = cylinderNextWidth;
     varCylLength = cylinderLength;
     varCylColor = color;
     varCylInnerColor = cylinderInnerColor;
     varInnerColorRatio = innerColorRatio;
     varOuterColorRatio = outerColorRatio;
+
+    float maxWidth = max(cylinderWidth, cylinderNextWidth);
     
     vec3 combinedWorldPos = cylinderCenter
-        + gl_Vertex.x * cylinderAxis * (cylinderLength + cylinderWidth*2)
-        + gl_Vertex.y * varCylXAxis * cylinderWidth * 2
-        + gl_Vertex.z * varCylYAxis * cylinderWidth * 2;
+        + gl_Vertex.x * cylinderAxis * (cylinderLength + maxWidth*2)
+        + gl_Vertex.y * varCylXAxis * maxWidth * 2
+        + gl_Vertex.z * varCylYAxis * maxWidth * 2;
         
     gl_Position = gl_ProjectionMatrix * viewMatrix * vec4(combinedWorldPos, 1);
 }

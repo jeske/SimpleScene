@@ -25,6 +25,7 @@ namespace SimpleScene
         private readonly int a_prevJointAxis;
         private readonly int a_nextJointAxis;
         private readonly int a_cylinderWidth;
+		private readonly int a_cylinderNextWidth;
         private readonly int a_cylinderLength;
         private readonly int a_cylinderColor;
         private readonly int a_cylinderInnerColor;
@@ -46,6 +47,7 @@ namespace SimpleScene
         public int AttrNextJointAxis { get { return a_nextJointAxis; } }
         public int AttrCylinderLength { get { return a_cylinderLength; } }
         public int AttrCylinderWidth { get { return a_cylinderWidth; } }
+		public int AttrCylinderNextWidth { get { return a_cylinderWidth; } }
         public int AttrCylinderColor { get { return a_cylinderColor; } }
         public int AttrCylinderInnerColor { get { return a_cylinderInnerColor; } }
         public int AttrInnerColorRatio { get { return a_innerColorRatio; } }
@@ -84,6 +86,7 @@ namespace SimpleScene
             a_prevJointAxis = getAttrLoc("prevJointAxis");
             a_nextJointAxis = getAttrLoc("nextJointAxis");
             a_cylinderWidth = getAttrLoc("cylinderWidth");
+			a_cylinderNextWidth = getAttrLoc("cylinderNextWidth");
             a_cylinderLength = getAttrLoc("cylinderLength");
             a_cylinderColor = getAttrLoc("cylinderColor");
             a_cylinderInnerColor = getAttrLoc("cylinderInnerColor");
