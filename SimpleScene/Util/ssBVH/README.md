@@ -30,7 +30,6 @@ For more information about what a BVH is, and about how to use this code, see th
 
 ### References
 
-* [Brief BVH Tutorial](http://www.3dmuve.com/3dmblog/?p=182)
 * ["Fast, Effective BVH Updates for Animated Scenes" (Kopta, Ize, Spjut, Brunvand, David, Kensler)](https://github.com/jeske/SimpleScene/blob/master/SimpleScene/Util/ssBVH/docs/BVH_fast_effective_updates_for_animated_scenes.pdf)
 * [Space Partitioning: Octree vs. BVH](http://thomasdiewald.com/blog/?p=1488)
 
