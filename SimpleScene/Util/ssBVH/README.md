@@ -17,3 +17,7 @@ For more information about using this code, see the CodeProject article [Dynamic
 * [Brief BVH Tutorial](http://www.3dmuve.com/3dmblog/?p=182)
 * ["Fast, Effective BVH Updates for Animated Scenes" (Kopta, Ize, Spjut, Brunvand, David, Kensler)](https://github.com/jeske/SimpleScene/blob/master/SimpleScene/Util/ssBVH/docs/BVH_fast_effective_updates_for_animated_scenes.pdf)
 * [Space Partitioning: Octree vs. BVH](http://thomasdiewald.com/blog/?p=1488)
+
+### Pictures
+
+<img src="https://www.codeproject.com/KB/openGL/832957/Screen_Shot_2014-11-15_at_9.42.26_AM.png">
