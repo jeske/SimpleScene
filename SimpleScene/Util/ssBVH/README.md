@@ -9,7 +9,7 @@ volume and answer geometric queries about them, such as ray, box, and sphere int
 
 It includes an efficient algorithm for incrementally re-optimizing the BVH when contained objects move. 
 
-For more information about using this code, see the CodeProject article [Dynamic Bounding Volume Hierarchy in C#](https://www.codeproject.com/Articles/832957/Dynamic-Bounding-Volume-Hiearchy-in-Csharp)
+For more information about what a BVH is, and about how to use this code, see the CodeProject article [Dynamic Bounding Volume Hierarchy in C#](https://www.codeproject.com/Articles/832957/Dynamic-Bounding-Volume-Hiearchy-in-Csharp)
 
 <table>
 <tr>
