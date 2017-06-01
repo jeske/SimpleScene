@@ -30,4 +30,4 @@ objectionable, so when I had learned enough, I created my own simple 3d library 
 
 * For more information see <a href="https://github.com/jeske/SimpleScene/wiki">the SimpleScene Wiki</a>.
 
-[[images/testbench0_screenshot1.jpg]]
+<img src="https://github.com/jeske/SimpleScene/wiki/images/testbench0_screenshot1.jpg">
