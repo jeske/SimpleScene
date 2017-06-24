@@ -139,9 +139,9 @@ namespace SimpleScene
 			//renderState.blendFactorSrcAlpha = BlendingFactorSrc.SrcAlpha;
 			renderState.blendFactorDestAlpha = BlendingFactorDest.OneMinusSrcAlpha;
 
-            simulateOnUpdate = true;
+            simulateOnUpdate = false;
+			simulateOnRender = true;
 
-            // TODO 
             renderState.frustumCulling = true;
 
             colorMaterial = SSColorMaterial.pureAmbient;
@@ -489,7 +489,7 @@ namespace SimpleScene
                 //printTree();
             }
 
-            protected override void simulateStep ()
+			protected override void simulateStep ()
             {
                 // https://en.wikipedia.org/wiki/Cubic_Hermite_spline
                 _splineEmissionCounter += simulationStep;
@@ -516,7 +516,6 @@ namespace SimpleScene
                 }
 
 				_widthEffector.nextWidthArray = _cylNextWidths;
-
                 base.simulateStep();
             }
 
@@ -658,8 +657,8 @@ namespace SimpleScene
 				}
 
                 base.destroyParticle(idx);
-                _prevSegmentData [idx] = STrailsSegment.NotConnected;
-                _nextSegmentData [idx] = STrailsSegment.NotConnected;
+				writeDataIfNeeded(ref _prevSegmentData, idx, STrailsSegment.NotConnected);
+				writeDataIfNeeded(ref _nextSegmentData, idx, STrailsSegment.NotConnected);
 
                 #if TRAILS_DEBUG
                 Console.Write("after destroy {0}, numElements = {1}, head = {2}, tail = {3}: ", 

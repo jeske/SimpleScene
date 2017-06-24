@@ -481,24 +481,32 @@ namespace SimpleScene
         public static Matrix4 ScaleToScreenPxViewMat(Vector3 objPos, float objScaleX,
                                                      ref Matrix4 viewMat, ref Matrix4 projMat)
         {
-            objScaleX = Math.Abs(objScaleX);
-
-            // compute rightmost point in world coordinates
-            Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation().Inverted());
-            Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
-            Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
-
-            // compute things in screen coordinates and find the required scale mitigation
-            Matrix4 modelViewProjMat = viewMat * projMat;
-            RectangleF clientRect = GetClientRect();
-            Vector2 centerOnScreen = WorldToScreen(objPos, ref modelViewProjMat, ref clientRect);
-            Vector2 rightMostOnScreen = WorldToScreen(rightMostInWorld, ref modelViewProjMat, ref clientRect);
-            float distanceObserved = Math.Abs(rightMostOnScreen.X - centerOnScreen.X);
-            float scaleMitigation = objScaleX / distanceObserved;
-            //System.Console.WriteLine("rightmost x = " + rightMostOnScreen.X);
-            return Matrix4.CreateScale(scaleMitigation);
+			float factor = scaleMitigationFactor(objPos, objScaleX, ref viewMat, ref projMat);
+            return Matrix4.CreateScale(factor);
             //return Matrix4.Identity;
         }
+
+		public static float scaleMitigationFactor(Vector3 objPos, float objScaleX,
+												   ref Matrix4 viewMat, ref Matrix4 projMat)
+		{
+			objScaleX = Math.Abs(objScaleX);
+
+			// compute rightmost point in world coordinates
+			Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation().Inverted());
+			Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
+			Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
+
+			// compute things in screen coordinates and find the required scale mitigation
+			Matrix4 modelViewProjMat = viewMat * projMat;
+			RectangleF clientRect = GetClientRect();
+			Vector2 centerOnScreen = WorldToScreen(objPos, ref modelViewProjMat, ref clientRect);
+			Vector2 rightMostOnScreen = WorldToScreen(rightMostInWorld, ref modelViewProjMat, ref clientRect);
+			float distanceObserved = Math.Abs(rightMostOnScreen.X - centerOnScreen.X);
+			float scaleMitigation = objScaleX / distanceObserved;
+			//System.Console.WriteLine("rightmost x = " + rightMostOnScreen.X);
+			return scaleMitigation;
+			//return Matrix4.Identity;
+		}
 
         public static RectangleF GetClientRectF()
         {

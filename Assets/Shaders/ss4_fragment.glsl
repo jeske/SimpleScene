@@ -15,6 +15,7 @@ uniform int diffTexEnabled;
 uniform int specTexEnabled;
 uniform int ambiTexEnabled;
 uniform int bumpTexEnabled;
+uniform int lighted;
 
 uniform int directionalLightIndex; // -1 = no directional light
 uniform int lightingMode;
@@ -231,7 +232,7 @@ float shadowMapLighting(out vec4 debugOutputColor)  {
     } else {
 		// surface away from the light
 	    debugOutputColor = vec4(0.5, 0.0, 0.5, 1.0);  
-		return litFactor;
+		return 0f;
     }
 	
 }
@@ -252,18 +253,20 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 		vec4 diffuseStrength = gl_FrontMaterial.diffuse;
 		vec4 specularStrength = gl_FrontMaterial.specular;
 		vec4 glowStrength = gl_FrontMaterial.emission;
-		float matShininess = 20; // gl_FrontMaterial.shininess;
+		float matShininess = gl_FrontMaterial.shininess;
 
 		// specularStrength = vec4(0.7,0.4,0.4,0.0);  // test red
 
 		// load texels...
-		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0.1);
-		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.3);
-		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0.1);
-		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0.3);
+		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(1);
+		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0.1);
+		vec4 glowColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(1);
+		vec4 specColor = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0.1);
        #ifdef INSTANCE_DRAW
        ambientColor *= f_instanceColor;
        diffuseColor *= f_instanceColor;
+       glowColor *= f_instanceColor;
+       specColor *= f_instanceColor;
        #endif
 	   
        // 1. ambient lighting term
@@ -274,7 +277,7 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
 	   outputColor += glowColor * glowStrength;
 
        vec4 shadowMapDebugColor;           
-       if (directionalLightIndex != -1) {
+       if (lighted != 0 && directionalLightIndex != -1) {
            float litFactor = receivesShadow != 0 ? shadowMapLighting(shadowMapDebugColor)
                                                  : 1.0;
 
@@ -294,7 +297,7 @@ vec4 BlinnPhongLighting(vec4 outputColor) {
                 // 4. specular reflection lighting term
                 vec3 R = reflect(normalize(gl_LightSource[0].position.xyz), normalize(f_vertexNormal));
                 float shininess = pow (max (dot(R, normalize(f_eyeVec)), 0.0), matShininess);
-                outputColor += litFactor * specTex * specularStrength * shininess; 
+                outputColor += litFactor * specColor * specularStrength * shininess; 
             }
        }
 	   return outputColor;
@@ -322,8 +325,8 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
 		vec4 ambientColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
 		vec4 diffuseColor = (diffTexEnabled == 1) ? texture2D (diffTex, gl_TexCoord[0].st) : vec4(0);
 
-		vec4 glowColor    = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
-		vec4 specTex      = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 glowColor = (ambiTexEnabled == 1) ? texture2D (ambiTex, gl_TexCoord[0].st) : vec4(0);
+		vec4 specColor = (specTexEnabled == 1) ? texture2D (specTex, gl_TexCoord[0].st) : vec4(0);
        #ifdef INSTANCE_DRAW
        ambientColor *= f_instanceColor;
        diffuseColor *= f_instanceColor;
@@ -343,11 +346,11 @@ vec4 BumpMapBlinnPhongLighting(vec4 outputColor) {
        float glowFactor = length(gl_FrontMaterial.emission.xyz) * 0.2;
        outputColor += litFactor * diffuseColor * max(diffuseIllumination, glowFactor);
 
-	   if (dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
+	   if (lighted != 0 && dot(bump_normal, surfaceLightVector) > 0.0) {   // if light is front of the surface
           // specular...
           vec3 R = reflect(-lVec,bump_normal);
           float shininess = pow (clamp (dot(R, normalize(surfaceViewVector)), 0, 1), matShininess);
-          outputColor += specTex * litFactor * specularStrength * shininess;
+          outputColor += specColor * litFactor * specularStrength * shininess;
        }
 	   return outputColor;
 }

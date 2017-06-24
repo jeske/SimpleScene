@@ -6,7 +6,7 @@
 //              http://www.3dmuve.com/3dmblog/?p=182
 //
 // Dynamic Updates based on: "Fast, Effective BVH Updates for Animated Scenes" (Kopta, Ize, Spjut, Brunvand, David, Kensler)
-//              http://www.cs.utah.edu/~thiago/papers/rotations.pdf
+//              https://github.com/jeske/SimpleScene/blob/master/SimpleScene/Util/ssBVH/docs/BVH_fast_effective_updates_for_animated_scenes.pdf
 //
 // see also:  Space Partitioning: Octree vs. BVH
 //            http://thomasdiewald.com/blog/?p=1488

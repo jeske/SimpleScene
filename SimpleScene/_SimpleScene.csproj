@@ -485,6 +485,12 @@
     <None Include="..\Assets\skybox\skybox_readme.txt">
       <Link>Assets\skybox\skybox_readme.txt</Link>
     </None>
+    <None Include="..\Assets\Shaders\Cylinder\cylinder_fragment.glsl">
+      <Link>Assets\Shaders\Cylinder\cylinder_fragment.glsl</Link>
+    </None>
+    <None Include="..\Assets\Shaders\Cylinder\cylinder_vertex.glsl">
+      <Link>Assets\Shaders\Cylinder\cylinder_vertex.glsl</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Shaders\Instancing\" />

@@ -230,7 +230,7 @@ namespace SimpleScene
         {
             elapsedS += elapsedTimeAccumulator;
             while (elapsedS >= simulationStep) {
-                simulateStep();
+				simulateStep();
                 elapsedS -= simulationStep;
             }
             elapsedTimeAccumulator = elapsedS;
@@ -364,7 +364,7 @@ namespace SimpleScene
 
 		protected virtual void simulateStep()
         {
-            _radius = 0f;
+			_radius = 0f;
 			Vector3 centerAccumulator = Vector3.Zero;
 			foreach (SSParticleEffector effector in _effectors) {
 				effector.simulateSelf (simulationStep);
@@ -379,27 +379,27 @@ namespace SimpleScene
                     // Alive particle
                     _lives [i] -= simulationStep;
                     if (isAlive(i)) {
-                        // Still alive. Update position and run through effectors
-                        readParticle(i, p);
+						// Still alive. Update position and run through effectors
+						readParticle (i, p);
 						p.vel -= p.drag * p.vel / p.mass;
 						if (!p.billboardXY) {
 							p.angularVelocity.Xy -= p.rotationalDrag * p.angularVelocity.Xy / p.rotationalInnertia;
 						}
 						p.angularVelocity.Z -= p.rotationalDrag * p.angularVelocity.Z / p.rotationalInnertia;
-                        p.pos += p.vel * simulationStep;
+						p.pos += p.vel * simulationStep;
 						if (!p.billboardXY) {
 							p.orientation.Xy += p.angularVelocity.Xy * simulationStep;
 						}
 						p.orientation.Z += p.angularVelocity.Z * simulationStep;
-                        foreach (SSParticleEffector effector in _effectors) {
-							effector.simulateParticleEffect(p, simulationStep);
-                        }
-                        writeParticle(i, p);
+						foreach (SSParticleEffector effector in _effectors) {
+							effector.simulateParticleEffect (p, simulationStep);
+						}
+						writeParticle (i, p);
 						centerAccumulator += p.pos;
 						float distFromOrogin = (p.pos - _center).Length;
-                        if (distFromOrogin > _radius) {
-                            _radius = distFromOrogin;
-                        }
+						if (distFromOrogin > _radius) {
+							_radius = distFromOrogin;
+						}
 
                         #if false
                         Console.WriteLine(p.life.ToString() + '\t' 
@@ -490,7 +490,8 @@ namespace SimpleScene
         }
 
         protected bool isDead(int idx) {
-            return _lives [idx] <= 0f;
+			float life = _lives[idx];
+			return !float.IsPositiveInfinity(life) && life <= 0f;
         }
 
         protected bool isAlive(int idx) {

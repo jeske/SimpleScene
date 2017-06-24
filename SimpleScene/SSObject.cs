@@ -123,6 +123,7 @@ namespace SimpleScene
                 pgm.UniReceivesShadow = renderState.receivesShadows;
                 pgm.UniSpriteOffsetAndSize(0f, 0f, 1f, 1f);
                 pgm.UniShowWireframes = (config.drawWireframeMode == WireframeMode.GLSL_SinglePass);
+				pgm.UniLighted = renderState.lighted;
                 pgm.SetupTextures(textureMaterial);
             }
         }
@@ -311,11 +312,16 @@ namespace SimpleScene
 
 		public void Orient(Quaternion orientation) {
 			Matrix4 newOrientation = Matrix4.CreateFromQuaternion(orientation);
+			Orient(newOrientation);
+		}
+
+		public void Orient(Matrix4 newOrientation)
+		{
 			this._dir = new Vector3(newOrientation.M31, newOrientation.M32, newOrientation.M33);
 			this._up = new Vector3(newOrientation.M21, newOrientation.M22, newOrientation.M23);
 			this._right = Vector3.Cross(this._up, this._dir).Normalized();
-			this.calcMatFromState(); 
-		}
+			this.calcMatFromState();
+			}
 
         public void Orient(Vector3 dir, Vector3 up)
         {

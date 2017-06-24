@@ -273,10 +273,9 @@ void main()
 }
 
 
-#if false
+#if 0
 void main()
 {
- 
     vec3 pixelWorldPos1 = unproject(gl_FragCoord.xy, 1);
     vec3 pixelWorldPos2 = unproject(gl_FragCoord.xy, 10);
     vec3 pixelRay = normalize(pixelWorldPos2 - pixelWorldPos1);
@@ -391,7 +390,7 @@ float nonLinearFadeContribution(vec3 fadeIntr1, vec3 fadeIntr2, float rInner, fl
 #endif
 
 
-#if false
+#if 0
     cylinderIntersectionDist(
                                float radiusSq,
                                float halfLength,

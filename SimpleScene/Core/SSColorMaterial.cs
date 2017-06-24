@@ -32,7 +32,7 @@ namespace SimpleScene
                 specular = Color4Helper.fromVector4(info.vSpecular);
             }
             return new SSColorMaterial (diffuse, ambient, specular,
-                Color4Helper.Zero, 0f);
+                Color4Helper.Zero);
         }
 
         public SSColorMaterial (
@@ -43,7 +43,7 @@ namespace SimpleScene
             diffuseColor = diffuse;
             specularColor = specular;
             emissionColor = emission;
-            shininess = shininess;
+            this.shininess = shininess;
         }
 
         public SSColorMaterial(Color4 diffuse)

@@ -14,30 +14,30 @@ namespace TestBench2
 	{
 		protected Random rand = new Random();
 
-        /// <summary>
-        /// For rendering (transparent) occlusion test disks that are used in the flare intensity mechanic
-        /// </summary>
-        protected SSScene laserOccDiskScene3d;
+		/// <summary>
+		/// For rendering (transparent) occlusion test disks that are used in the flare intensity mechanic
+		/// </summary>
+		protected SSScene laserOccDiskScene3d;
 
-        /// <summary>
-        /// For rendering laser 2d effects
-        /// </summary>
-        protected SSScene laserFlareScene2d;
+		/// <summary>
+		/// For rendering laser 2d effects
+		/// </summary>
+		protected SSScene laserFlareScene2d;
 
 		protected SLaserManager laserManager = null;
 
 		//protected SimpleLaserParameters laserParams = null;
-		protected WeakReference activeLaser = new WeakReference (null);
+		protected WeakReference activeLaser = new WeakReference(null);
 
 		protected SSObjectMesh droneObj1;
 		protected Matrix4 laserSourceTxfm;
 
 		protected SSObjectMesh droneObj2;
 
-		public TestBench2 ()
+		public TestBench2()
 			: base("TestBench2: Lasers")
 		{
-            shadowmapDebugQuad.renderState.visible = false;
+			shadowmapDebugQuad.renderState.visible = false;
 		}
 
 		static void Main()
@@ -45,43 +45,31 @@ namespace TestBench2
 			// The 'using' idiom guarantees proper resource cleanup.
 			// We request 30 UpdateFrame events per second, and unlimited
 			// RenderFrame events (as fast as the computer can handle).
-			using (var game = new TestBench2()) {
+			using (var game = new TestBench2())
+			{
 				game.Run(30.0);
 			}
 		}
 
-		protected override void setupScene ()
+		protected override void setupScene()
 		{
-			base.setupScene ();
+			base.setupScene();
 
-            laserOccDiskScene3d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
-            laserFlareScene2d = new SSScene (mainShader, pssmShader, instancingShader, instancingPssmShader);
+			laserOccDiskScene3d = new SSScene(mainShader, pssmShader, instancingShader, instancingPssmShader);
+			laserFlareScene2d = new SSScene(mainShader, pssmShader, instancingShader, instancingPssmShader);
 
-			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ> ("./drone2/Drone2.obj");
+			var mesh = SSAssetManager.GetInstance<SSMesh_wfOBJ>("./drone2/Drone2.obj");
 
 			// add drones
-			droneObj1 = new SSObjectMesh (mesh);
+			droneObj1 = new SSObjectMesh(mesh);
 			droneObj1.Pos = new OpenTK.Vector3(-20f, 0f, -15f);
-			droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI/2f));
-            droneObj1.colorMaterial = new SSColorMaterial(
-                new Color4(0.3f,0.3f,0.3f,0.3f), // diffuse
-                new Color4(0.1f,0.1f,0.1f,0.1f), // ambient
-                new Color4(0.3f,0.3f,0.3f,0.3f), // specular
-                new Color4(0.3f,0.3f,0.3f,0.3f), // emission
-                10f); // shininess
-            
-            //droneObj1.renderState.visible = false;
+			droneObj1.Orient(Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI / 2f));
+			//droneObj1.renderState.visible = false;
 			droneObj1.Name = "attacker drone";
-			main3dScene.AddObject (droneObj1);
+			main3dScene.AddObject(droneObj1);
 
-			droneObj2 = new SSObjectMesh (mesh);
+			droneObj2 = new SSObjectMesh(mesh);
 			droneObj2.Pos = new OpenTK.Vector3(20f, 0f, -15f);
-            droneObj2.colorMaterial = new SSColorMaterial(
-                new Color4(0.3f,0.3f,0.3f,0.3f), // diffuse
-                new Color4(0.1f,0.1f,0.1f,0.1f), // ambient
-                new Color4(0.3f,0.3f,0.3f,0.3f), // specular
-                new Color4(0.3f,0.3f,0.3f,0.3f), // emission
-                10f); // shininess
 			droneObj2.Name = "target drone";
             droneObj2.MainColor = new Color4(1f, 0f, 0.7f, 1f);
             //droneObj2.renderState.visible = false;
