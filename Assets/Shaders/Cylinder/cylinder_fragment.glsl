@@ -194,7 +194,7 @@ void main()
     float cylRadius = varCylWidth / 2;
     float cylRadiusFade = cylRadius * (1 - varOuterColorRatio);
     float cylRadiusInner = cylRadius * varInnerColorRatio;
-    float radiuses[NUM_LAYERS];
+    float radiusesSq[NUM_LAYERS];
     float nextRadiuses[NUM_LAYERS];
     vec4 debugColor[NUM_LAYERS];
     vec3 intersections[NUM_LAYERS * 2];
