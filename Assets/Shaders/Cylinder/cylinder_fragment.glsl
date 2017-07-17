@@ -203,7 +203,7 @@ void main()
         localPrevJointAxis, localNextJointAxis,
         intersections, intersectionCounts, fadePivot, debugColor);
 
-    if (intersectionCounts[OUTER] > 0) {
+    if (intersectionCounts[OUTER] == 2) {
         // outer, uniform color cylinder intersected
         float outerDist = distance(intersections[OUTER_OFFSET], intersections[OUTER_OFFSET+1]);
         float innerContribution = 0;
