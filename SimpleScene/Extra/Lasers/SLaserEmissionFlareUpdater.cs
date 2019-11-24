@@ -76,7 +76,12 @@ namespace SimpleScene.Demos
             // compute screen space needed to occupy the area where the start of the middle's crossbeam
             // would be displayed
             Matrix4 viewInverted = camera3dView.Inverted();
-            Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
+            //Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
+
+            //some_name code start 24112019
+            Vector3 viewRight = (new Vector4(Vector3.UnitX, 1) * viewInverted).Xyz.Normalized();
+            //some_name code end
+
             Vector3 occRightMost = _occDiskObj.Pos + viewRight * laserParams.middleBackgroundWidth;
             Vector2 occRightMostPt = OpenTKHelper.WorldToScreen(occRightMost, 
                                          ref camera3dViewProjMat, ref screenClientRect);

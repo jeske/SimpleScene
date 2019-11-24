@@ -376,8 +376,11 @@ namespace SimpleScene.Demos
                     outlineHalfHeight = 2f * (targetScreenPos.Y - screenTopMostPt.Y);
                     outlineHalfHeight = Math.Max(outlineHalfHeight, outlineMinPixelSz);
                 }
-
-                Vector3 targetViewPos = Vector3.Transform(targetObj.Pos, targetRc.invCameraViewMatrix);
+                
+                //Vector3 targetViewPos = Vector3.Transform(targetObj.Pos, targetRc.invCameraViewMatrix);
+                //some_name code start 24112019
+                Vector3 targetViewPos = (new Vector4(targetObj.Pos,1)* targetRc.invCameraViewMatrix).Xyz;
+                //some_name code end
                 _targetViewDepth = targetViewPos.Z;
                 bool targetIsInFront = _targetViewDepth < 0f;
                 float lineWidth = targetIsInFront ? outlineWidthWhenInFront : outlinelineWidthWhenBehind;

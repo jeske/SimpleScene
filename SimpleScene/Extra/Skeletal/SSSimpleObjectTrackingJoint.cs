@@ -80,9 +80,12 @@ namespace SimpleScene.Demos
 			ret.position = jointPositionLocal;
 
 			if (targetObject != null) {
-				Vector3 targetPosInMesh 
-					= Vector3.Transform (targetObject.Pos, _hostObject.worldMat.Inverted());
-				Vector3 targetPosInLocal = targetPosInMesh;
+
+                //Vector3 targetPosInMesh = Vector3.Transform (targetObject.Pos, _hostObject.worldMat.Inverted());
+                // some_name code start 24112019
+                Vector3 targetPosInMesh = (new Vector4(targetObject.Pos.X, targetObject.Pos.Y, targetObject.Pos.Z, 1) * _hostObject.worldMat.Inverted()).Xyz;
+                // some_name code end
+                Vector3 targetPosInLocal = targetPosInMesh;
 				if (joint.parent != null) {
 					targetPosInLocal = joint.parent.currentLocation.undoTransformTo (targetPosInLocal);
 				}

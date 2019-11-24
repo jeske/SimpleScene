@@ -493,8 +493,13 @@ namespace SimpleScene
 
 			// compute rightmost point in world coordinates
 			Matrix4 viewRotInverted = Matrix4.CreateFromQuaternion(viewMat.ExtractRotation().Inverted());
-			Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
-			Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
+            //Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewRotInverted).Normalized();
+
+            //some_name code start 24112019
+            Vector3 viewRight = (new Vector4(Vector3.UnitX, 1) * viewRotInverted).Xyz;
+            //some_name code end
+
+            Vector3 rightMostInWorld = objPos + objScaleX * viewRight;
 
 			// compute things in screen coordinates and find the required scale mitigation
 			Matrix4 modelViewProjMat = viewMat * projMat;

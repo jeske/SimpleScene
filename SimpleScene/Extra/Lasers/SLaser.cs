@@ -154,7 +154,10 @@ namespace SimpleScene.Demos
             if (sourceObject != null) {
                 mat = mat * sourceObject.worldMat;
             }
-            return Vector3.Transform(localPos, mat);
+            //return Vector3.Transform(localPos, mat);
+            //some_name code start 24112019
+            return (new Vector4(localPos, 1) * mat).Xyz;
+            //some_name code end
         }
 
         internal Vector3 txfmTargetToWorld(Vector3 localPos)
@@ -163,9 +166,12 @@ namespace SimpleScene.Demos
             if (targetObject != null) {
                 mat = mat * targetObject.worldMat;
             }
-            return Vector3.Transform(localPos, mat);
+            //return Vector3.Transform(localPos, mat);
+            //some_name code start 24112019
+            return (new Vector4(localPos, 1) * mat).Xyz;
+            //some_name code end
         }
 
-	}
+    }
 }
 

@@ -33,10 +33,15 @@ namespace SimpleScene.Demos
             _acc = Vector3.Zero;
         }
 
-        public virtual Vector3 position { get { 
-            // TODO multiple hit positions!
-            return Vector3.Transform(targetLocalOffset, targetObj.worldMat); 
-        } }
+        public virtual Vector3 position { get {
+                // TODO multiple hit positions!
+                //return Vector3.Transform(targetLocalOffset, targetObj.worldMat); 
+                //some_name code start 24112019
+                return (new Vector4(targetLocalOffset, 1) * targetObj.worldMat).Xyz;
+                //some_name code end
+
+            }
+        }
 
         public virtual Vector3 velocity { get { return _velocity; } }
 

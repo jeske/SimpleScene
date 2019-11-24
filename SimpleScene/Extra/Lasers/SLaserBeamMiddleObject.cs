@@ -54,9 +54,12 @@ namespace SimpleScene.Demos
 			get {
                 var beam = _laser.beam(_beamId);
                 Vector3 middleWorld = (beam.startPosWorld + beam.endPosWorld) / 2f;
-				return Vector3.Transform (middleWorld, this.worldMat.Inverted ());
-			}
-		}
+                //return Vector3.Transform (middleWorld, this.worldMat.Inverted ());
+                //some_name code start 24112019
+                return (new Vector4(middleWorld, 1) * this.worldMat.Inverted()).Xyz;
+                //some_name code end
+            }
+        }
 
 		// TODO cache these computations
 		public override float localBoundingSphereRadius {
@@ -116,9 +119,14 @@ namespace SimpleScene.Demos
 
 			var laserParams = _laser.parameters;
 
-			var startView = Vector3.Transform(beam.startPosWorld, renderConfig.invCameraViewMatrix);
-			var endView = Vector3.Transform (beam.endPosWorld, renderConfig.invCameraViewMatrix);
-			var middleView = (startView + endView) / 2f;
+            // var startView = Vector3.Transform(beam.startPosWorld, renderConfig.invCameraViewMatrix);
+            // var endView = Vector3.Transform (beam.endPosWorld, renderConfig.invCameraViewMatrix);
+            //some_name code start 24112019
+            Vector3 startView = (new Vector4(beam.startPosWorld, 1) * renderConfig.invCameraViewMatrix).Xyz;
+            Vector3 endView = (new Vector4(beam.endPosWorld, 1) * renderConfig.invCameraViewMatrix).Xyz;
+            //some_name code end
+
+            var middleView = (startView + endView) / 2f;
 
 			// step: draw middle section:
 			Vector3 diff = endView - startView;
@@ -131,9 +139,15 @@ namespace SimpleScene.Demos
 
             float laserLength = diff.Length;
 			float middleWidth = laserParams.middleBackgroundWidth * _laser.envelopeIntensity;
-
+            /*
 			Vector3 cameraDir = Vector3.Transform(
 				-Vector3.UnitZ, _cameraScene.renderConfig.invCameraViewMatrix).Normalized();
+            */
+
+            //some_name code start 24112019
+            Vector3 cameraDir = (new Vector4(-Vector3.UnitZ, 1) * _cameraScene.renderConfig.invCameraViewMatrix).Xyz.Normalized();
+            //some_name code end
+
             float dot = Vector3.Dot (cameraDir, beam.directionWorld());
 			dot = Math.Max (dot, 0f);
 			float interferenceWidth = middleWidth * laserParams.middleInterferenceScale;

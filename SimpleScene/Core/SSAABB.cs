@@ -144,7 +144,12 @@ namespace SimpleScene
             inverse.Invert();
             for (int i = 0; i < c_homogenousCorners.Length; ++i) {
                 Vector4 corner = Vector4.Transform(c_homogenousCorners [i], inverse);
-                Vector3 transfPt = Vector3.Transform(corner.Xyz / corner.W, axisTransform);
+                //Vector3 transfPt = Vector3.Transform(corner.Xyz / corner.W, axisTransform);
+
+                //some_name code start 24112019
+                Vector3 transfPt = (new Vector4(corner.Xyz / corner.W, 1) * axisTransform).Xyz;
+                //some_name code end
+
                 ret.UpdateMin(transfPt);
                 ret.UpdateMax(transfPt);
             }

@@ -307,7 +307,10 @@ namespace SimpleScene
 
             if (nearestLocalRayContact < float.PositiveInfinity) {
                 Vector3 localContactPt = localRay.pos + nearestLocalRayContact * localRay.dir;
-                Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                //Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                //some_name code start 24112019
+                Vector3 worldContactPt = (new Vector4(localContactPt, 1) * this.worldMat).Xyz;
+                //some_name code end
                 distanceAlongRay = (worldContactPt - worldSpaceRay.pos).Length;
                 return true;
             } else {
@@ -335,7 +338,10 @@ namespace SimpleScene
                 float instanceContact;
                 if (abstrMesh.preciseIntersect(ref instanceRay, out instanceContact)) {
                     Vector3 instanceContactPt = instanceRay.pos + instanceContact * instanceRay.dir;
-                    Vector3 localContactPt = Vector3.Transform(instanceContactPt, instanceMat);
+                    //Vector3 localContactPt = Vector3.Transform(instanceContactPt, instanceMat);
+                    //some_name code start 24112019
+                    Vector3 localContactPt = (new Vector4(instanceContactPt, 1) * instanceMat).Xyz;
+                    //some_name code end
                     localContact = (localContactPt - localRay.pos).Length;
                     return true;
                 } else {

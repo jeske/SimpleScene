@@ -89,9 +89,12 @@ namespace SimpleScene
                     continue;
 				} else if (cameraFrustum.isSphereInsideFrustum(obj.worldBoundingSphere)) {
                     // determine AABB in light coordinates of the objects so far
-                    shrink = true;                        
-					Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
-					Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
+                    shrink = true;
+                    //Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+                    //some_name code start 24112019
+                    Vector3 lightAlignedPos = (new Vector4( obj.worldBoundingSphereCenter,1)* lightTransform).Xyz;
+                    //some_name code end
+                    Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
                     objsLightBB.UpdateMin(localMin);
@@ -122,8 +125,11 @@ namespace SimpleScene
                     || !obj.renderState.castsShadow || obj.localBoundingSphereRadius <= 0f) {
                     continue;
                 }
-				Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
-				Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
+                //Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+                //some_name code start 24112019
+                Vector3 lightAlignedPos = (new Vector4(obj.worldBoundingSphereCenter.X, obj.worldBoundingSphereCenter.Y, obj.worldBoundingSphereCenter.Z,1) * lightTransform).Xyz;
+                //some_name code end 
+                Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                 Vector3 localMin = lightAlignedPos - rad;
                 if (localMin.Z < resultLightBB.Min.Z) {
                     Vector3 localMax = lightAlignedPos + rad;

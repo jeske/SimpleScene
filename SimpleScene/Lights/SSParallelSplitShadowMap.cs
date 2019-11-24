@@ -169,9 +169,12 @@ namespace SimpleScene
                     for (int i = 0; i < c_numberOfSplits; ++i) {
 						if (m_splitFrustums[i].isSphereInsideFrustum(obj.worldBoundingSphere)) {
                             // determine AABB in light coordinates of the objects so far
-                            m_shrink[i] = true;                        
-							Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
-							Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
+                            m_shrink[i] = true;
+                            //Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+                            // some_name code start 24112019
+                            Vector3 lightAlignedPos = (new Vector4(obj.worldBoundingSphereCenter.X, obj.worldBoundingSphereCenter.Y, obj.worldBoundingSphereCenter.Z, 1 )* lightTransform).Xyz;
+                            // some_name code end
+                            Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                             Vector3 localMin = lightAlignedPos - rad;
                             Vector3 localMax = lightAlignedPos + rad;
 
@@ -222,8 +225,12 @@ namespace SimpleScene
                  || !obj.renderState.visible || !obj.renderState.castsShadow) {
                     continue;
                 } else {
-					Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
-					Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
+                    //Vector3 lightAlignedPos = Vector3.Transform(obj.worldBoundingSphereCenter, lightTransform);
+                    // some_name code start 24112019
+                      Vector3 lightAlignedPos = (new Vector4(obj.worldBoundingSphereCenter.X, obj.worldBoundingSphereCenter.Y, obj.worldBoundingSphereCenter.Z,1)*lightTransform).Xyz;
+
+                    // some_name code end 
+                    Vector3 rad = new Vector3(obj.worldBoundingSphereRadius);
                     Vector3 localMin = lightAlignedPos - rad;
                     Vector3 localMax = lightAlignedPos + rad;
 

@@ -150,7 +150,11 @@ namespace SimpleScene.Demos
         public override void updateCamera (ref Matrix4 model, ref Matrix4 view, ref Matrix4 projection)
         {
             Matrix4 modelViewInv = (model * view).Inverted();
-            Vector3 cameraPosLocal = Vector3.Transform(Vector3.Zero, modelViewInv);
+            //Vector3 cameraPosLocal = Vector3.Transform(Vector3.Zero, modelViewInv);
+
+            //some_name code start 24112019
+            Vector3 cameraPosLocal = (new Vector4(0,0,0, 1) * modelViewInv).Xyz;
+            //some_name code end
 
             foreach (var hitspot in _hitSpots.Values) {
                 hitspot.updateCamera(ref model, ref cameraPosLocal);
@@ -272,7 +276,12 @@ namespace SimpleScene.Demos
                     var smokeEmitter = _smokeEmitters [i];
                     // TODO need intersection location
                     if (beam.hitsAnObstacle) {
-                        var hitPosLocal = Vector3.Transform(beam.endPosWorld, rendererWorldMat.Inverted());
+                        //var hitPosLocal = Vector3.Transform(beam.endPosWorld, rendererWorldMat.Inverted());
+
+                        //some_name code start 24112019
+                        Vector3 hitPosLocal = (new Vector4(beam.endPosWorld, 1) * rendererWorldMat.Inverted()).Xyz;
+                        //some_name code end
+
                         var towardsCamera = (cameraPosLocal - hitPosLocal).Normalized();
                         flashEmitter.center = hitPosLocal;
                         flashEmitter.up = towardsCamera;

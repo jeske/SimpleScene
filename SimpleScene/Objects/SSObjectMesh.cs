@@ -83,7 +83,10 @@ namespace SimpleScene
                 bool ret = this.Mesh.preciseIntersect(ref localRay, out localNearestContact);
                 if (ret) {
                     Vector3 localContactPt = localRay.pos + localNearestContact * localRay.dir;
-                    Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                    // some_name code start 24112019
+                    //Vector3 worldContactPt = Vector3.Transform(localContactPt, this.worldMat);
+                    Vector3 worldContactPt = (new Vector4(localContactPt.X, localContactPt.Y, localContactPt.Z, 1) * this.worldMat).Xyz;
+                    // some_name code end
                     distanceAlongWorldRay = (worldContactPt - worldSpaceRay.pos).Length;
                     //Console.WriteLine ("Nearest Triangle Hit @ {0} vs Sphere {1} : Object {2}", worldSpaceContactDistance, distanceAlongRay, Name);
                 } else {

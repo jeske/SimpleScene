@@ -73,9 +73,16 @@ namespace SimpleScene
                 Path.Combine(c_basePath, "pssm_geometry.glsl"));
 			m_geometryShader.Prepend (preprocessorDefs);
             m_geometryShader.LoadShader();
+            /*
             GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
             GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
             GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3 * SSParallelSplitShadowMap.c_numberOfSplits);
+            */
+            // some_name code start 24112019
+            GL.Ext.ProgramParameter(m_programID, (OpenTK.Graphics.OpenGL.AssemblyProgramParameterArb)ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
+            GL.Ext.ProgramParameter(m_programID, (OpenTK.Graphics.OpenGL.AssemblyProgramParameterArb)ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
+            GL.Ext.ProgramParameter(m_programID, (OpenTK.Graphics.OpenGL.AssemblyProgramParameterArb)ExtGeometryShader4.GeometryVerticesOutExt, 3 * SSParallelSplitShadowMap.c_numberOfSplits);
+            // some_name code end
             attach(m_geometryShader);
             link();
             Activate();
