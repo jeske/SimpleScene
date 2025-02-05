@@ -37,9 +37,12 @@ namespace SimpleScene
 
 		public virtual Vector3 worldBoundingSphereCenter {
 			get {
-				return Vector3.Transform(localBoundingSphereCenter, this.worldMat);
-			}
-		}
+                //return Vector3.Transform(localBoundingSphereCenter, this.worldMat);
+                //some_name code start 24112019
+                return (new Vector4(localBoundingSphereCenter, 1) * this.worldMat).Xyz;
+                //some_name code end
+            }
+        }
 
 		public float worldBoundingSphereRadius {
 			get {

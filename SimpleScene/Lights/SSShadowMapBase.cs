@@ -224,8 +224,14 @@ namespace SimpleScene
             Vector3 eyeLightSpace = new Vector3 (targetLightSpace.X, 
                 targetLightSpace.Y, 
                 bb.Min.Z);
+            /*
             Vector3 viewTarget = Vector3.Transform(targetLightSpace, lightTransform.Inverted()); 
             Vector3 viewEye = Vector3.Transform(eyeLightSpace, lightTransform.Inverted());
+            */
+            //some_name code start 24112019
+            Vector3 viewTarget = (new Vector4 (targetLightSpace.X, targetLightSpace.Y, targetLightSpace.Z,1) * lightTransform.Inverted()).Xyz;
+            Vector3 viewEye =  (new Vector4(eyeLightSpace.X, eyeLightSpace.Y, eyeLightSpace.Z,1) * lightTransform.Inverted()).Xyz;
+            //some_name code end
             Vector3 viewUp = lightY;
             viewMatrix = Matrix4.LookAt(viewEye, viewTarget, viewUp);
 

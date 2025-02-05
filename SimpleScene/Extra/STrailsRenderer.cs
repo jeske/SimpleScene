@@ -515,11 +515,16 @@ namespace SimpleScene
 			{
 				Vector3 offset = trailsParams.localJetOffsets [jetIdx];
 				Matrix4 combinedOrient = _localJetOrients[jetIdx] * globalOrient;
-				jetPos = pos + Vector3.Transform (offset, combinedOrient);
-				jetFwd = Vector3.Transform (Vector3.UnitZ, combinedOrient);
-			}
+                
+				//jetPos = pos + Vector3.Transform (offset, combinedOrient);
+				//jetFwd = Vector3.Transform (Vector3.UnitZ, combinedOrient);
+                // some_name code start 24112019
+                jetPos = pos + (new Vector4(offset.X,offset.Y,offset.Z,1) * combinedOrient).Xyz;
+                jetFwd = pos + (new Vector4(0, 0, 1, 1) * combinedOrient).Xyz;
+                // some_name code end
+            }
 
-			protected void generateSplines(int jetIdx, ref Vector3 jetPos, ref Vector3 jetSlope)
+            protected void generateSplines(int jetIdx, ref Vector3 jetPos, ref Vector3 jetSlope)
 			{
 				_jetIndex = jetIdx;
 				Vector3 diff = jetPos - _prevSplineIntervalEndPos[jetIdx];

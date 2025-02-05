@@ -82,7 +82,11 @@ namespace SimpleScene.Demos
             var cameraPos 
                 = (cameraScene3d.ActiveCamera != null) ? cameraScene3d.ActiveCamera.Pos
                 //: Vector3.Transform(-Vector3.UnitZ, rc.invCameraViewMatrix.Inverted()).Normalized();
-                : Vector3.Transform(Vector3.Zero, rc.invCameraViewMatrix.Inverted()).Normalized();
+                //: Vector3.Transform(Vector3.Zero, rc.invCameraViewMatrix.Inverted()).Normalized();
+                //some_name code start 24112019
+                  :  (new Vector4(Vector3.Zero, 1) * rc.invCameraViewMatrix.Inverted()).Xyz.Normalized();
+                //some_name code end
+
 
             foreach (var updater in _spriteUpdaters) {
                 updater.updateSprites(this.instanceData, ref clientRect, 

@@ -100,8 +100,12 @@ namespace SimpleScene.Demos
             Matrix4 camera3dViewProjMat = camera3dView * camera3dProj;
             if (_sunDiskOccObj != null) {
                 Matrix4 viewInverted = _sunDiskOccScene.renderConfig.invCameraViewMatrix.Inverted();
-                Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
-                Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewInverted).Normalized();
+                //Vector3 viewRight = Vector3.Transform(Vector3.UnitX, viewInverted).Normalized();
+                //Vector3 viewUp = Vector3.Transform(Vector3.UnitY, viewInverted).Normalized();
+                // some_name code start 24112019
+                Vector3 viewRight = (new Vector4(1,0,0,1)*viewInverted).Xyz.Normalized();
+                Vector3 viewUp = (new Vector4(0, 1, 0, 1) * viewInverted).Xyz.Normalized();
+                // some_name code end
                 _sunDiskOccPos = OpenTKHelper.WorldToScreen(_sunDiskOccObj.Pos, ref camera3dViewProjMat, ref clientRect);
                 float bbFullEstimate;
                 // note that it is assumed that the sun object is fully symmertircal when it is in view

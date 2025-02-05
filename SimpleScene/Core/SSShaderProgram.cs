@@ -100,9 +100,11 @@ public class SSShaderProgram {
 		for (int i = 0; i < activeAttr; i++) {
 			int size, length;
 			ActiveAttribType type;
-			System.Text.StringBuilder name = new System.Text.StringBuilder (maxLength);
-
-			GL.GetActiveAttrib (m_programID, i, maxLength, out length, out size, out type, name);
+            //System.Text.StringBuilder name = new System.Text.StringBuilder (maxLength);
+            // some_name code start 24112019
+            System.String name = maxLength.ToString();
+			GL.GetActiveAttrib (m_programID, i, maxLength, out length, out size, out type, out name);
+            // some_name code end 24112019
 			int location = GL.GetAttribLocation (m_programID, name.ToString ());
 			info.Add((location >= 0) ? location : (location*i),
 				String.Format("{0} {1} is at location {2}, size {3}",

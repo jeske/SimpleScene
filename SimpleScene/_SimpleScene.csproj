@@ -49,10 +49,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="OpenTK">
-      <HintPath>..\Libs\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="AGG">
       <HintPath>..\Libs\AGG.dll</HintPath>
@@ -201,7 +201,9 @@
     <Compile Include="Meshes\Shapes\SQuad.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Core\Core\" />
+  </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <None Include="..\Assets\Shaders\ss1_fragment.glsl">
@@ -240,6 +242,8 @@
     <None Include="..\Assets\Shaders\Shadowmap\instance_pssm_vertex.glsl">
       <Link>Assets\Shaders\Shadowmap\instance_pssm_vertex.glsl</Link>
     </None>
+    <None Include="OpenTK.dll.config" />
+    <None Include="packages.config" />
     <None Include="TODO.txt" />
     <None Include="TODO_BUG_hid_removal.txt" />
     <None Include="..\Assets\checkerboard.png">
@@ -492,11 +496,5 @@
       <Link>Assets\Shaders\Cylinder\cylinder_vertex.glsl</Link>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\Shaders\Instancing\" />
-    <Folder Include="Util\Files\" />
-    <Folder Include="Meshes\Instancing\" />
-    <Folder Include="Extra\" />
-    <Folder Include="Extra\TestBenchBootstrap\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

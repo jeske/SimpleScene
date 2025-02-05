@@ -26,12 +26,15 @@ namespace SimpleScene
 		}
 
 		public SSRay Transformed(Matrix4 mat) {
-		    // a point is directly transformed
-		    // however, a ray is only rotationally transformed.
-			return new SSRay( Vector3.Transform(pos, mat) , Vector3.Transform(dir,mat.ExtractRotation()).Normalized() );
-		}
+            // a point is directly transformed
+            // however, a ray is only rotationally transformed.
+            // return new SSRay( Vector3.Transform(pos, mat) , Vector3.Transform(dir,mat.ExtractRotation()).Normalized() );
+            // some_name code start 24112019
+            return new SSRay((new Vector4(pos.X, pos.Y, pos.Z,1)* mat).Xyz, Vector3.Transform(dir, mat.ExtractRotation()).Normalized());
+            // some_name code end
+        }
 
-		public override string ToString() {
+        public override string ToString() {
 		    return String.Format("({0}) -> v({1})",pos,dir);
 		}
 	}

@@ -257,10 +257,17 @@ namespace SimpleScene
 
                     m_geometryShader = SSAssetManager.GetInstance<SSGeometryShader>(
                         Path.Combine(c_basePath, "ss4_geometry.glsl"));
+                    /*
                     GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
                     GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
                     GL.Ext.ProgramParameter (m_programID, ExtGeometryShader4.GeometryVerticesOutExt, 3);
-				    m_geometryShader.Prepend (preprocessorDefs);
+                    */
+                    // some_name code start 24112019
+                    GL.Ext.ProgramParameter(m_programID, (OpenTK.Graphics.OpenGL.AssemblyProgramParameterArb)ExtGeometryShader4.GeometryInputTypeExt, (int)All.Triangles);
+                    GL.Ext.ProgramParameter(m_programID, (OpenTK.Graphics.OpenGL.AssemblyProgramParameterArb)ExtGeometryShader4.GeometryOutputTypeExt, (int)All.TriangleStrip);
+                    GL.Ext.ProgramParameter(m_programID, (OpenTK.Graphics.OpenGL.AssemblyProgramParameterArb)ExtGeometryShader4.GeometryVerticesOutExt, 3);
+                    // some_name code end
+                    m_geometryShader.Prepend (preprocessorDefs);
                     m_geometryShader.LoadShader();
                     attach(m_geometryShader);
                     load_fallback_shader = false;

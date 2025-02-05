@@ -68,7 +68,12 @@ namespace SimpleScene.Demos
             var beam = _laser.beam(_beamId);
             var ray = beam.rayWorld();
             var laserParams = _laser.parameters;
-            var beamSrcInViewSpace = Vector3.Transform(beam.startPosWorld, camera3dView);
+            //var beamSrcInViewSpace = Vector3.Transform(beam.startPosWorld, camera3dView);
+
+            //some_name code start 24112019
+            Vector3 beamSrcInViewSpace = (new Vector4(beam.startPosWorld, 1) * camera3dView).Xyz;
+            //some_name code end
+
 
             bool hideSprites = true;
             Vector3 intersectPt3d;

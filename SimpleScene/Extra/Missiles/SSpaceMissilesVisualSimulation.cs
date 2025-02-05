@@ -170,7 +170,10 @@ namespace SimpleScene.Demos
                     localSpawnOrients [i] *= OpenTKHelper.getRotationTo(
                         Vector3.UnitZ, meshPositioningDirections [idx], Vector3.UnitZ);
                 }
-                Vector3 missileWorldPos = Vector3.Transform(localSpawnPts [i], launcherWorldMat);
+                //Vector3 missileWorldPos = Vector3.Transform(localSpawnPts [i], launcherWorldMat);
+                //some_name code start 24112019
+                Vector3 missileWorldPos = (new Vector4(localSpawnPts[i], 1) * launcherWorldMat).Xyz;
+                //some_name code end
                 Vector3 missileLocalDir = Vector3.Transform(Vector3.UnitZ, localSpawnOrients [i]);
                 Vector3 missileWorldDir = Vector3.Transform(missileLocalDir, launcherOrientation);
                 Vector3 missileWorldVel = launcherVel + missileWorldDir * mParams.ejectionVelocity;

@@ -297,7 +297,10 @@ namespace SimpleScene
                 if (isAlive(i)) {
                     // Do the transform and store z of the result
                     Vector3 pos = _readElement(_positions, i).Value;
-                    pos = Vector3.Transform(pos, viewMatrix);
+                    //pos = Vector3.Transform(pos, viewMatrix);
+                    //some_name code start 24112019
+                    pos = (new Vector4(pos, 1) * viewMatrix).Xyz;
+                    //some_name code end
                     float viewDepth = pos.Z;
                     writeDataIfNeeded(ref _viewDepths, i, viewDepth);
                     ++numAlive;
