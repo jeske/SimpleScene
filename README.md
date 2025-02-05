@@ -7,7 +7,8 @@ A Simple 3d OpenGL/OpenTK Scene manager in C#, which runs on Windows, Mac, and L
 Simplescene code released under the Apache 2.0 license.
 
 "Fast, Effective BVH Updates for Animated Scenes" paper (hwrt_rotations.pdf) under it's own copyright and is mirrored here for convenience.
- ( latest public source - https://hwrt.cs.utah.edu/papers/hwrt_rotations.pdf )
+
+( latest public source - https://hwrt.cs.utah.edu/papers/hwrt_rotations.pdf )
 
 ### Motivation
 
