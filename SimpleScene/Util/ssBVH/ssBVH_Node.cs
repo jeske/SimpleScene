@@ -256,10 +256,10 @@ namespace SimpleScene.Util.ssBVH
         /// </summary>
         /// <param name="bvh"></param>
         internal void tryRotate(ssBVH<GO> bvh) {    
-            SSBVHNodeAdaptor<GO> nAda = bvh.nAda;                                
-                                           
+            SSBVHNodeAdaptor<GO> nAda = bvh.nAda;      
+
             // if we are not a grandparent, then we can't rotate, so queue our parent and bail out
-            if (left.IsLeaf && right.IsLeaf) {
+            if (left == null || right == null || (left.IsLeaf && right.IsLeaf)) {
                 if (parent != null) {
                     bvh.refitNodes.Add(parent);
                     return;
@@ -300,7 +300,7 @@ namespace SimpleScene.Util.ssBVH
             });                                
                    
             // perform the best rotation...            
-            if (bestRot.rot != Rot.NONE) {
+            if (bestRot.rot == Rot.NONE) {
                 // if the best rotation is no-rotation... we check our parents anyhow..                
                 if (parent != null) { 
                     // but only do it some random percentage of the time.
@@ -407,6 +407,7 @@ namespace SimpleScene.Util.ssBVH
             gobjects = null;
             this.left = new ssBVHNode<GO>(nAda.BVH, this, bestSplit.left, bestSplit.axis, this.depth + 1); // Split the Hierarchy to the left
             this.right = new ssBVHNode<GO>(nAda.BVH, this, bestSplit.right, bestSplit.axis, this.depth + 1); // Split the Hierarchy to the right                                
+            childRefit(nAda, propagate: false);
         }
 
         internal void splitIfNecessary(SSBVHNodeAdaptor<GO> nAda) {
